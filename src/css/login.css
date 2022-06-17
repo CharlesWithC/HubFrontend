@@ -53,7 +53,6 @@ body {
 
 .formLeft {
   background: #fff;
-  border-radius: 5px 0 0 5px;
   padding: 0 35px;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
@@ -195,17 +194,12 @@ body {
 }
 
 .formRight form section button {
-  background: #B30000;
   border: none;
   width: 100%;
   padding: 10px 0;
   font-weight: 600;
   color: #fff;
   cursor: pointer;
-}
-
-.formRight form section button:hover {
-  background: #770202;
 }
 
 .formRight form footer {
@@ -309,4 +303,13 @@ body {
   opacity: 1;
   -webkit-transition-delay: 0.3s;
           transition-delay: 0.3s;
+}
+
+a {
+  text-decoration: none;
+  color: lightgrey;
+}
+
+a:hover {
+  color: white;
 }

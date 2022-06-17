@@ -1,14 +1,14 @@
 VERIFIED = `<svg style="display:inline;position:relative;top:-1.5px;color:skyblue" width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5213 2.62368C11.3147 1.75255 12.6853 1.75255 13.4787 2.62368L14.4989 3.74391C14.8998 4.18418 15.4761 4.42288 16.071 4.39508L17.5845 4.32435C18.7614 4.26934 19.7307 5.23857 19.6757 6.41554L19.6049 7.92905C19.5771 8.52388 19.8158 9.10016 20.2561 9.50111L21.3763 10.5213C22.2475 11.3147 22.2475 12.6853 21.3763 13.4787L20.2561 14.4989C19.8158 14.8998 19.5771 15.4761 19.6049 16.071L19.6757 17.5845C19.7307 18.7614 18.7614 19.7307 17.5845 19.6757L16.071 19.6049C15.4761 19.5771 14.8998 19.8158 14.4989 20.2561L13.4787 21.3763C12.6853 22.2475 11.3147 22.2475 10.5213 21.3763L9.50111 20.2561C9.10016 19.8158 8.52388 19.5771 7.92905 19.6049L6.41553 19.6757C5.23857 19.7307 4.26934 18.7614 4.32435 17.5845L4.39508 16.071C4.42288 15.4761 4.18418 14.8998 3.74391 14.4989L2.62368 13.4787C1.75255 12.6853 1.75255 11.3147 2.62368 10.5213L3.74391 9.50111C4.18418 9.10016 4.42288 8.52388 4.39508 7.92905L4.32435 6.41553C4.26934 5.23857 5.23857 4.26934 6.41554 4.32435L7.92905 4.39508C8.52388 4.42288 9.10016 4.18418 9.50111 3.74391L10.5213 2.62368Z" stroke="currentColor" stroke-width="1.5"/> <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/> </svg> `;
 LOCKED = `<svg style="display:inline;position:relative;top:-1.5px;color:red" xmlns="http://www.w3.org/2000/svg" width="18" height="18" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M17,9V7c0-2.8-2.2-5-5-5S7,4.2,7,7v2c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h10c1.7,0,3-1.3,3-3v-7C20,10.3,18.7,9,17,9z M9,7c0-1.7,1.3-3,3-3s3,1.3,3,3v2H9V7z M13,17c0,0.6-0.4,1-1,1s-1-0.4-1-1v-3c0-0.6,0.4-1,1-1s1,0.4,1,1V17z" fill="red"/></svg>`;
 
+isAdmin = false;
+perms = {};
 rolelist = {};
 dmapint = -1;
 window.mapcenter = {}
 window.autofocus = {}
 highestrole = 99999;
-vtcprefix = "atm";
 
-company_distance_unit = "metric";
 distance_unit = localStorage.getItem("distance_unit");
 
 isdark = parseInt(localStorage.getItem("darkmode"));
@@ -100,7 +100,7 @@ async function loadChart(userid = -1) {
     pref = "s";
     if (userid != -1) pref = "userS";
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/chart?scale=" + chartscale + "&addup=" + addup + "&quserid=" + userid,
+        url: apidomain + "/" + vtcprefix + "/dlog/chart?scale=" + chartscale + "&addup=" + addup + "&quserid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -226,7 +226,7 @@ function loadStats(basic = false) {
     if (curtab != "#HomeTab" && curtab != "#Delivery") return;
     loadChart();
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/stats",
+        url: apidomain + "/" + vtcprefix + "/dlog/stats",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -313,7 +313,7 @@ function loadStats(basic = false) {
     if (token.length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == -1) return; // guest / invalid
     if (!basic) {
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/leaderboard",
+            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard",
             type: "GET",
             dataType: "json",
             headers: {
@@ -347,7 +347,7 @@ function loadStats(basic = false) {
             }
         });
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/newdrivers",
+            url: apidomain + "/" + vtcprefix + "/dlog/newdrivers",
             type: "GET",
             dataType: "json",
             headers: {
@@ -571,7 +571,7 @@ async function ShowTab(tabname, btnname) {
 
 function loadDownloads() {
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/downloads",
+        url: apidomain + "/" + vtcprefix + "/downloads",
         type: "GET",
         dataType: "json",
         headers: {
@@ -602,7 +602,7 @@ function UpdateDownloads() {
     if (+new Date() - lastdownloadsupd < 50) return;
     lastdownloadsupd = +new Date();
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/downloads",
+        url: apidomain + "/" + vtcprefix + "/downloads",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -632,7 +632,7 @@ function FetchAnnouncement() {
     $("#fetchAnnouncementBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/announcement?aid=" + aid,
+        url: apidomain + "/" + vtcprefix + "/announcement?aid=" + aid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -690,7 +690,7 @@ function NewAnn() {
     if (op == "update") {
         annid = parseInt(annid);
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/announcement",
+            url: apidomain + "/" + vtcprefix + "/announcement",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -747,7 +747,7 @@ function NewAnn() {
         });
     } else if (op == "create") {
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/announcement",
+            url: apidomain + "/" + vtcprefix + "/announcement",
             type: "POST",
             dataType: "json",
             headers: {
@@ -806,7 +806,7 @@ function NewAnn() {
     } else if (op == "delete") {
         annid = parseInt(annid);
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/announcement?aid=" + annid,
+            url: apidomain + "/" + vtcprefix + "/announcement?aid=" + annid,
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -865,7 +865,7 @@ function FetchEvent(showdetail = -1) {
     $("#fetchEventBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/event?eventid=" + eventid,
+        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -919,7 +919,7 @@ function FetchEventAttendee() {
     $("#fetchEventAttendeeBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/event?eventid=" + eventid,
+        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -974,7 +974,7 @@ function UpdateEventAttendees() {
     $("#attendeeBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/event/attendee",
+        url: apidomain + "/" + vtcprefix + "/event/attendee",
         type: "POST",
         dataType: "json",
         headers: {
@@ -1040,7 +1040,7 @@ function NewEvent() {
     if (op == "update") {
         eventid = parseInt(eventid);
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/event",
+            url: apidomain + "/" + vtcprefix + "/event",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -1102,7 +1102,7 @@ function NewEvent() {
         });
     } else if (op == "create") {
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/event",
+            url: apidomain + "/" + vtcprefix + "/event",
             type: "POST",
             dataType: "json",
             headers: {
@@ -1166,7 +1166,7 @@ function NewEvent() {
     } else if (op == "delete") {
         annid = parseInt(annid);
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/event?eventid=" + eventid,
+            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -1369,7 +1369,7 @@ function SubmitApp() {
     $("#submitAppBttn").attr("disabled", "disabled");
 
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application",
+        url: apidomain + "/" + vtcprefix + "/application",
         type: "POST",
         dataType: "json",
         headers: {
@@ -1444,102 +1444,28 @@ function ShowStaffTabs() {
     }
     isEM = false;
     $("#StaffAnnTabBtn").hide();
-    if (roles != null && roles != undefined) {
+    if (roles != null && roles != undefined && perms.admin != undefined) {
         highestrole = 99999;
         isES = false; // event staff
         isDS = false; // division supervisor
+        isHR = false;
+        isAdmin = false;
         for (i = 0; i < roles.length; i++) {
             if (roles[i] < highestrole) {
                 highestrole = roles[i];
             }
-            if (roles[i] == 40 || roles[i] == 41) {
+            if(perms.admin.indexOf(roles[i]) != -1) isAdmin = true;
+            if(perms.hr.indexOf(roles[i]) != -1) isHR = true;
+            if (perms.division.indexOf(roles[i]) != -1) isDS = true;
+            if (perms.event.indexOf(roles[i]) != -1) {
                 isES = true;
-                if (roles[i] == 40) isEM = true;
-                $("#eventattendee").show();
-                setInterval(function () {
-                    title = $("#anntitle").val();
-                    content = $("#anncontent").val();
-                    annid = $("#annid").val();
-                    if (!$("#newAnnBtn").prop("disabled")) {
-                        if (isNumber(annid)) {
-                            if (title != "" || content != "") {
-                                $("#newAnnBtn").html("Update Announcement");
-                                $("#newAnnBtn").css("background-color", "lightgreen");
-                            } else {
-                                $("#newAnnBtn").html("Delete Announcement");
-                                $("#newAnnBtn").css("background-color", "red");
-                            }
-                        } else {
-                            $("#newAnnBtn").html("Create Announcement");
-                            $("#newAnnBtn").css("background-color", "blue");
-                        }
-                    } else {
-                        $("#newAnnBtn").html("Working...");
-                    }
-                }, 100);
-                setInterval(function () {
-                    title = $("#eventtitle").val();
-                    from = $("#eventfrom").val();
-                    to = $("#eventto").val();
-                    distance = $("#eventdistance").val();
-                    mts = $("#eventmts").val();
-                    dts = $("#eventdts").val();
-                    eventid = $("#eventid").val();
-                    if (!$("#newEventBtn").prop("disabled")) {
-                        if (isNumber(eventid)) {
-                            if (title != "" || from != "" || to != "" || distance != "" || mts != "" || dts != "") {
-                                $("#newEventBtn").html("Update Event");
-                                $("#newEventBtn").css("background-color", "lightgreen");
-                            } else {
-                                $("#newEventBtn").html("Delete Event");
-                                $("#newEventBtn").css("background-color", "red");
-                            }
-                        } else {
-                            $("#newEventBtn").html("Create Event");
-                            $("#newEventBtn").css("background-color", "blue");
-                        }
-                    } else {
-                        $("#newEventBtn").html("Working...");
-                    }
-                }, 100);
-            }
-            if (roles[i] == 71 || roles[i] == 72) {
-                isDS = true;
-            }
+                if (roles[i] == perms.event[0]) isEM = true;
+            }            
         }
-        if (!isES && highestrole >= 10) {
+        if (!isES && !isAdmin) {
             $("#StaffEventBtn").hide();
-        }
-        if (!isDS && highestrole >= 10) {
-            $("#StaffDivisionBtn").hide();
-        }
-        if (!isES && highestrole >= 10) {
             $("#StaffAnnTabBtn").hide();
-        }
-        if (highestrole >= 30) {
-            $("#StaffMemberBtn").hide();
-            $("#AllUserBtn").hide();
-            $("#AllAppBtn").hide();
-        }
-        if (highestrole < 100) {
-            $("#stafftabs").show();
-            if (highestrole >= 30) {
-                $("#AllAppBtn").hide();
-                $("#StaffMemberBtn").hide();
-            } else {
-                $("#StaffMemberBtn").show();
-                $("#AllAppBtn").show();
-            }
-        }
-        if (isDS) {
-            $("#StaffMemberBtn").show();
-            $("#AllAppBtn").show();
-        }
-        if (highestrole <= 10) {
-            $("#downloadseditbtn").show();
-            $("#updateStaffPos").show();
-            $("#StaffAnnTabBtn").show();
-            $("#StaffEventBtn").show(); // event staff
+        } else {
             $("#eventattendee").show();
             setInterval(function () {
                 title = $("#anntitle").val();
@@ -1588,6 +1514,35 @@ function ShowStaffTabs() {
                 }
             }, 100);
         }
+        if (!isDS && !isAdmin) {
+            $("#StaffDivisionBtn").hide();
+        }
+        if (!isHR && !isAdmin) {
+            $("#StaffMemberBtn").hide();
+            $("#AllUserBtn").hide();
+            $("#AllAppBtn").hide();
+        }
+        if (isAdmin || isDS || isES || isHR) {
+            $("#stafftabs").show();
+            if (!isAdmin && !isHR) {
+                $("#AllAppBtn").hide();
+                $("#StaffMemberBtn").hide();
+            } else {
+                $("#StaffMemberBtn").show();
+                $("#AllAppBtn").show();
+            }
+        }
+        if (isDS) {
+            $("#StaffMemberBtn").show();
+            $("#AllAppBtn").show();
+        }
+        if (isAdmin) {
+            $("#downloadseditbtn").show();
+            $("#updateStaffPos").show();
+            $("#StaffAnnTabBtn").show();
+            $("#StaffEventBtn").show(); // event staff
+            $("#eventattendee").show();
+        }
     }
 }
 
@@ -1607,7 +1562,7 @@ function validate() {
     }
     $("#recruitment").show();
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/validate",
+        url: apidomain + "/" + vtcprefix + "/user/validate",
         type: "GET",
         dataType: "json",
         headers: {
@@ -1637,7 +1592,7 @@ function validate() {
         }
     });
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/info",
+        url: apidomain + "/" + vtcprefix + "/user/info",
         type: "GET",
         dataType: "json",
         headers: {
@@ -1656,7 +1611,6 @@ function validate() {
                 }
                 roles = data.response.roles.sort().reverse();
                 highestrole = roles[0];
-                ShowStaffTabs();
                 name = data.response.name;
                 avatar = data.response.avatar;
                 discordid = data.response.discordid;
@@ -1669,7 +1623,16 @@ function validate() {
                 rolesLastUpdate = localStorage.getItem("rolesLastUpdate");
                 if (rolesLastUpdate == null || rolesLastUpdate == undefined || parseInt(rolesLastUpdate) < (+new Date() - 86400)) {
                     $.ajax({
-                        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/roles",
+                        url: apidomain + "/" + vtcprefix + "/member/perms",
+                        type: "GET",
+                        dataType: "json",
+                        success: function (data) {
+                            perms = data.response;
+                            localStorage.setItem("perms", JSON.stringify(perms));
+                        }
+                    });
+                    $.ajax({
+                        url: apidomain + "/" + vtcprefix + "/member/roles",
                         type: "GET",
                         dataType: "json",
                         success: function (data) {
@@ -1679,7 +1642,7 @@ function validate() {
                                 rolestxt.push(rolelist[roles[i]]);
                             }
                             hrole = rolestxt[0];
-                            for (i = 0; i < rolestxt.length && highestrole >= 10; i++) {
+                            for (i = 0; i < rolestxt.length && !isAdmin; i++) {
                                 if (rolestxt[i].indexOf("Manager") != -1 || rolestxt[i].indexOf("Lead") != -1) {
                                     hrole = rolestxt[i];
                                     break;
@@ -1688,6 +1651,7 @@ function validate() {
                             localStorage.setItem("highestrole", hrole);
                             localStorage.setItem("rolelist", JSON.stringify(rolelist));
                             localStorage.setItem("rolesLastUpdate", (+new Date()).toString());
+                            ShowStaffTabs();
                             if (hrole == undefined || hrole == "undefined") hrole = "Loner";
                             $("#role").html(hrole);
                             roleids = Object.keys(rolelist);
@@ -1720,12 +1684,14 @@ function validate() {
                         }
                     });
                 } else {
+                    perms = JSON.parse(localStorage.getItem("perms"));
+                    ShowStaffTabs();
                     rolestxt = [];
                     for (i = 0; i < roles.length; i++) {
                         rolestxt.push(rolelist[roles[i]]);
                     }
                     hrole = rolestxt[0];
-                    for (i = 0; i < rolestxt.length && highestrole >= 10; i++) {
+                    for (i = 0; i < rolestxt.length && !isAdmin; i++) {
                         if (rolestxt[i].indexOf("Manager") != -1 || rolestxt[i].indexOf("Lead") != -1) {
                             hrole = rolestxt[i];
                             break;
@@ -1764,7 +1730,7 @@ function validate() {
                 }
                 if (userid != -1) {
                     $.ajax({
-                        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/info?userid=" + userid,
+                        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + userid,
                         type: "GET",
                         dataType: "json",
                         headers: {
@@ -1773,10 +1739,10 @@ function validate() {
                         success: function (data) {
                             if (data.error == false) {
                                 d = data.response;
-                                if(company_distance_unit == "imperial")
-                                    points = parseInt(d.distance * 0.621371 + d.eventpnt + + d.divisionpnt);
+                                if (company_distance_unit == "imperial")
+                                    points = parseInt(d.distance * 0.621371 + d.eventpnt + +d.divisionpnt);
                                 else
-                                    points = parseInt(d.distance + d.eventpnt + + d.divisionpnt);
+                                    points = parseInt(d.distance + d.eventpnt + +d.divisionpnt);
                                 rank = point2rank(points);
                                 $("#ranktotpoints").html(TSeparator(points) + " - " + rank);
                                 if ($("#role").html() == "Driver")
@@ -1826,7 +1792,7 @@ function loadLeaderboard(recurse = true) {
     if (ldivision) $("#ldivision").css("background-color", "skyblue");
     else $("#ldivision").css("background-color", "");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game + "&noevent=" + (1 - levent) + "&nodivision=" + (1 - ldivision),
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game + "&noevent=" + (1 - levent) + "&nodivision=" + (1 - ldivision),
         type: "GET",
         dataType: "json",
         headers: {
@@ -1940,7 +1906,7 @@ function requestRole() {
     $("#requestRoleBtn").html("Working...");
     $("#requestRoleBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/discordrole",
+        url: apidomain + "/" + vtcprefix + "/member/discordrole",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -1995,7 +1961,7 @@ function loadDelivery(recurse = true) {
     else $(".dgame" + game).css("background-color", "skyblue");
     if (!dets2 && !dats) starttime = 1, endtime = 2;
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/list?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {
@@ -2116,8 +2082,89 @@ function loadDelivery(recurse = true) {
 }
 
 function loadDivision() {
+    lastDivisionUpdate = parseInt(localStorage.getItem("divisionLastUpdate"));
+    if (!isNumber(lastDivisionUpdate)) {
+        lastDivisionUpdate = 0;
+    }
+    if (+new Date() - lastDivisionUpdate > 86400) {
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/division/list",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+                d = data.response;
+                localStorage.setItem("division", JSON.stringify(d));
+                localStorage.setItem("divisionLastUpdate", + new Date());
+                for (var i = 0; i < d.length; i++) {
+                    $("#divisionList").append(
+                        `<div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
+                            <div class="p-6 rounded bg-white">
+                                <div class="mb-2">
+                                    <h2 style="display:inline">${d[i].name}</h2>
+                                    <div class="p-4 overflow-x-auto" style="display: block;max-height:60vh">
+                                        <table class="table-auto w-full">
+                                            <thead id="divisionTable${d[i].id}Head">
+                                                <tr class="text-xs text-gray-500 text-left">
+                                                    <th class="py-5 px-6 pb-3 font-medium">Name</th>
+                                                    <th class="py-5 px-6 pb-3 font-medium">Points</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="divisionTable${d[i].id}">
+                                                <tr class="text-xs">
+                                                    <td class="py-5 px-6 font-medium">No Data</td>
+                                                    <td class="py-5 px-6 font-medium"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`);
+                }
+            },
+            error: function (data) {
+                toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+                console.warn(
+                    `Failed to fetch divisions. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                console.log(data);
+            }
+        })
+    } else {
+        d = localStorage.getItem("division");
+        d = JSON.parse(d);
+        for (var i = 0; i < d.length; i++) {
+            $("#divisionList").append(
+                `<div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
+                    <div class="p-6 rounded bg-white">
+                        <div class="mb-2">
+                            <h2 style="display:inline">${d[i].name}</h2>
+                            <div class="p-4 overflow-x-auto" style="display: block;max-height:60vh">
+                                <table class="table-auto w-full">
+                                    <thead id="divisionTable${d[i].id}Head">
+                                        <tr class="text-xs text-gray-500 text-left">
+                                            <th class="py-5 px-6 pb-3 font-medium">Name</th>
+                                            <th class="py-5 px-6 pb-3 font-medium">Points</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="divisionTable${d[i].id}">
+                                        <tr class="text-xs">
+                                            <td class="py-5 px-6 font-medium">No Data</td>
+                                            <td class="py-5 px-6 font-medium"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>`);
+        }
+    }
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/division/info",
+        url: apidomain + "/" + vtcprefix + "/division/info",
         type: "GET",
         dataType: "json",
         headers: {
@@ -2206,7 +2253,7 @@ function loadDivision() {
 
 function loadStaffDivision() {
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/division/validate",
+        url: apidomain + "/" + vtcprefix + "/division/validate",
         type: "GET",
         dataType: "json",
         headers: {
@@ -2423,7 +2470,7 @@ function deliveryDetail(logid) {
     $("#rp_pct").html("0");
     $("#rrplay").html("Play");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/detail?logid=" + String(logid),
+        url: apidomain + "/" + vtcprefix + "/dlog/detail?logid=" + String(logid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -2691,7 +2738,7 @@ function divisionInfo(logid) {
     $("#divisioninfobtn").html("Loading...");
     $("#divisioninfobtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/division/info?logid=" + logid,
+        url: apidomain + "/" + vtcprefix + "/division/info?logid=" + logid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -2813,7 +2860,7 @@ function requestDivision(logid) {
     else if (division == "chilled") divisionid = 2;
     else if (division == "adr") divisionid = 3;
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/division/validate",
+        url: apidomain + "/" + vtcprefix + "/division/validate",
         type: "POST",
         dataType: "json",
         headers: {
@@ -2856,7 +2903,7 @@ function updateDivision(logid, status) {
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/division/validate",
+        url: apidomain + "/" + vtcprefix + "/division/validate",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -2895,7 +2942,7 @@ function loadEvent(recurse = true) {
 
     if (eventsCalendar == undefined) {
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/event/full",
+            url: apidomain + "/" + vtcprefix + "/event/full",
             type: "GET",
             dataType: "json",
             headers: {
@@ -2947,7 +2994,7 @@ function loadEvent(recurse = true) {
     }
 
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/event?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/event?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3069,7 +3116,7 @@ function loadEvent(recurse = true) {
 
 function eventvote(eventid) {
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/event/vote",
+        url: apidomain + "/" + vtcprefix + "/event/vote",
         type: "POST",
         dataType: "json",
         headers: {
@@ -3149,7 +3196,7 @@ function loadMembers(recurse = true) {
     $("#searchMemberBtn").html("...");
     $("#searchMemberBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/list?page=" + page + "&search=" + $("#searchname").val(),
+        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&search=" + $("#searchname").val(),
         type: "GET",
         dataType: "json",
         headers: {
@@ -3226,7 +3273,7 @@ function loadMembers(recurse = true) {
                 highestrole = user.highestrole;
                 color = "blue"; // Member
                 if (highestrole < 100) color = "#ff0000"; // Staff
-                if (highestrole <= 9) color = "#770202"; // Leadership
+                if (highestrole <= 9) color = vtccolor; // Leadership
                 if (highestrole > 100 || highestrole == 99) color = "grey"; // External / LOA
                 highestrole = rolelist[highestrole];
                 if (highestrole == undefined) highestrole = "/";
@@ -3296,7 +3343,7 @@ function loadAuditLog(recurse = true) {
     if (page == "") page = 1;
     if (page == undefined) page = 1;
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/auditlog?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/auditlog?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3386,7 +3433,7 @@ function memberDetail(userid) {
     $("#MemberInfoBtn" + userid).attr("disabled", "disabled");
     $("#MemberInfoBtn" + userid).html("Loading...");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/info?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -3466,7 +3513,7 @@ function fetchRoles() {
     $("#rolelist").children().children().prop("checked", false);
     $("#memberrolename").html("");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/list?page=1&search=" + val,
+        url: apidomain + "/" + vtcprefix + "/member/list?page=1&search=" + val,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3482,7 +3529,7 @@ function fetchRoles() {
             lastfetch = d[0].userid;
 
             $.ajax({
-                url: "https://drivershub.charlws.com/" + vtcprefix + "/member/info?userid=" + String(lastfetch),
+                url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(lastfetch),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -3532,7 +3579,7 @@ function updateMemberRoles() {
         roles.push(d[i].id.replaceAll("role", ""));
     }
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/role",
+        url: apidomain + "/" + vtcprefix + "/member/role",
         type: "POST",
         dataType: "json",
         headers: {
@@ -3585,7 +3632,7 @@ function updateMemberPoints() {
     $("#updateMemberPointsBtn").html("Working...");
     $("#updateMemberPointsBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/point",
+        url: apidomain + "/" + vtcprefix + "/member/point",
         type: "POST",
         dataType: "json",
         headers: {
@@ -3626,7 +3673,7 @@ function dismissUser() {
         $("#dismissbtn").html("Fetching name...");
         $("#dismissbtn").attr("disabled", "disabled");
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/member/info?userid=" + String(userid),
+            url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
             type: "GET",
             dataType: "json",
             headers: {
@@ -3664,7 +3711,7 @@ function dismissUser() {
     $("#dismissbtn").html("Working...");
     $("#dismissbtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/dismiss?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/member/dismiss?userid=" + String(userid),
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3722,7 +3769,7 @@ function loadUserDelivery(recurse = true) {
     else $(".dgame" + game).css("background-color", "skyblue");
     if (!dets2 && !dats) starttime = 1, endtime = 2;
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/dlog/list?quserid=" + curprofile + "&speedlimit=" + parseInt(speedlimit) + "&page=" + page + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?quserid=" + curprofile + "&speedlimit=" + parseInt(speedlimit) + "&page=" + page + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3857,7 +3904,7 @@ function loadProfile(userid) {
         return;
     }
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/info?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -3919,10 +3966,10 @@ function loadProfile(userid) {
                 rtxt = "";
                 for (var i = 0; i < roles.length; i++) {
                     if (roles[i] == 0) color = "rgba(127,127,127,0.4)";
-                    else if (roles[i] < 10) color = "#770202";
+                    else if (roles[i] < 10) color = vtccolor;
                     else if (roles[i] <= 98) color = "#ff0000";
                     else if (roles[i] == 99) color = "#4e6f7b";
-                    else if (roles[i] == 100) color = "#b30000";
+                    else if (roles[i] == 100) color = vtccolor;
                     else if (roles[i] > 100) color = "grey";
                     if (roles[i] == 223 || roles[i] == 224) color = "#ffff77;color:black;";
                     if (roles[i] == 1000) color = "#9146ff";
@@ -3958,7 +4005,7 @@ function updateBio() {
     $("#updateBioBtn").html("Updating...");
     $("#updateBioBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/bio",
+        url: apidomain + "/" + vtcprefix + "/user/bio",
         type: "POST",
         dataType: "json",
         headers: {
@@ -3994,7 +4041,7 @@ function genNewAppToken() {
     $("#genAppTokenBtn").html("Working...");
     $("#genAppTokenBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/apptoken",
+        url: apidomain + "/" + vtcprefix + "/user/apptoken",
         type: "POST",
         dataType: "json",
         headers: {
@@ -4028,7 +4075,7 @@ function resign() {
     $("#resignBtn").html("Working...");
     $("#resignBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/resign",
+        url: apidomain + "/" + vtcprefix + "/member/resign",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -4067,7 +4114,7 @@ function loadUsers(recurse = true) {
     if (page == "") page = 1;
     if (page == undefined) page = 1;
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/list?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4185,7 +4232,7 @@ function addUser(discordid = -1) {
         }
     }
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/member/add",
+        url: apidomain + "/" + vtcprefix + "/member/add",
         type: "POSt",
         dataType: "json",
         headers: {
@@ -4215,7 +4262,7 @@ function userDetail(discordid) {
     $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
     $("#UserInfoBtn" + discordid).html("Loading...");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/info?qdiscordid=" + String(discordid),
+        url: apidomain + "/" + vtcprefix + "/user/info?qdiscordid=" + String(discordid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -4281,7 +4328,7 @@ function banUser() {
     }
     reason = $("#banreason").val();
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/ban",
+        url: apidomain + "/" + vtcprefix + "/user/ban",
         type: "POSt",
         dataType: "json",
         headers: {
@@ -4314,7 +4361,7 @@ function unbanUser() {
         return toastFactory("error", "Error:", "Please enter a valid discord id.", 5000, false);
     }
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/user/unban",
+        url: apidomain + "/" + vtcprefix + "/user/unban",
         type: "POSt",
         dataType: "json",
         headers: {
@@ -4341,7 +4388,7 @@ function unbanUser() {
 function loadMyApp(recurse = true) {
     page = parseInt($("#myapppage").val())
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application/list?page=" + page + "&apptype=0",
+        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&apptype=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -4465,7 +4512,7 @@ function addAppMessage() {
     $("#addAppMessageBtn").html("Adding...");
     $("#addAppMessageBtn").attr("disabled", "disabled");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application",
+        url: apidomain + "/" + vtcprefix + "/application",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -4499,7 +4546,7 @@ function addAppMessage() {
 function loadAllApp(recurse = true) {
     page = parseInt($('#allapppage').val())
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application/list?page=" + page + "&apptype=0&showall=1",
+        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&apptype=0&showall=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -4624,7 +4671,7 @@ function appDetail(applicationid, staffmode = false) {
     $("#MyAppBtn" + applicationid).attr("disabled", "disabled");
     $("#MyAppBtn" + applicationid).html("Loading...");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application?applicationid=" + applicationid,
+        url: apidomain + "/" + vtcprefix + "/application?applicationid=" + applicationid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4649,7 +4696,7 @@ function appDetail(applicationid, staffmode = false) {
             ret += "";
 
             $.ajax({
-                url: "https://drivershub.charlws.com/" + vtcprefix + "/user/info?qdiscordid=" + String(discordid),
+                url: apidomain + "/" + vtcprefix + "/user/info?qdiscordid=" + String(discordid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -4759,7 +4806,7 @@ function updateAppStatus() {
     appstatus = parseInt($("#appstatussel").find(":selected").val());
     message = $("#appmessage").val();
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application/status",
+        url: apidomain + "/" + vtcprefix + "/application/status",
         type: "POST",
         dataType: "json",
         headers: {
@@ -4798,7 +4845,7 @@ function updateStaffPosition() {
     $("#updateStaffPositionBtn").html("Updating...");
     positions = $("#staffposedit").val().replaceAll("\n", ",");
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/application/positions",
+        url: apidomain + "/" + vtcprefix + "/application/positions",
         type: "POST",
         dataType: "json",
         headers: {
@@ -4957,7 +5004,7 @@ $(document).ready(function () {
             val = $("#attendeeId").val();
             if (val == "") return;
             $.ajax({
-                url: "https://drivershub.charlws.com/" + vtcprefix + "/member/list?page=1&search=" + val,
+                url: apidomain + "/" + vtcprefix + "/member/list?page=1&search=" + val,
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -5036,7 +5083,7 @@ $(document).ready(function () {
     $("#logout").click(function () {
         token = localStorage.getItem("token")
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/user/revoke",
+            url: apidomain + "/" + vtcprefix + "/user/revoke",
             type: "POST",
             dataType: "json",
             headers: {
@@ -5092,7 +5139,7 @@ $(document).ready(function () {
     });
     annpage = 2;
     $.ajax({
-        url: "https://drivershub.charlws.com/" + vtcprefix + "/announcement?page=1",
+        url: apidomain + "/" + vtcprefix + "/announcement?page=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -5128,7 +5175,7 @@ $(document).ready(function () {
     }
     if (+new Date() - lastPositionsUpdate > 86400) {
         $.ajax({
-            url: "https://drivershub.charlws.com/" + vtcprefix + "/application/positions",
+            url: apidomain + "/" + vtcprefix + "/application/positions",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -5149,7 +5196,7 @@ $(document).ready(function () {
         if (curtab != "#AnnTab") return;
         if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
             $.ajax({
-                url: "https://drivershub.charlws.com/" + vtcprefix + "/announcement?page=" + annpage,
+                url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,
                 type: "GET",
                 dataType: "json",
                 headers: {

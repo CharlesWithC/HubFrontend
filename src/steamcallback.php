@@ -1,23 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php
+  $domain = $_SERVER['HTTP_HOST'];
+  require_once('configs/'.$domain.'.php');
+?>
 
 <head>
     <meta charset="UTF-8">
-    <title>Authorization - At The Mile Logistics</title>
+    <title>Authorization - <?php echo $vtcname ?></title>
 
-    <meta content="At The Mile Hub" property="og:title" />
-    <meta content="At The Mile Logistics Drivers Hub - By CharlesWithC#7777" property="og:description" />
-    <meta content="https://hub.atmvtc.com/" property="og:url" />
-    <meta content="https://hub.atmvtc.com/images/logo.png" property="og:image" />
-    <meta content="#B30000" data-react-helmet="true" name="theme-color" />
-    <meta content="https://hub.atmvtc.com/images/bg.jpg" name="twitter:card">
+    <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
+    <meta content="<?php echo $slogan ?> | © CharlesWithC" property="og:description" />
+    <meta content="<?php echo $domain ?>/" property="og:url" />
+    <meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
+    <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
+    <meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
+
+<style>
+    .formRight form section button {
+        background-color: <?php echo $vtccolor ?>;
+    }
+
+    .formRight form section button:hover {
+        background-color: <?php echo $vtccolordark ?>;
+    }
+</style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/functions.js"></script>
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="/css/login.css">
     <script>
         function toastFactory(type, title, text, time, showConfirmButton) {
           const Toast = Swal.mixin({
@@ -145,14 +159,12 @@
             </form>
         </div>
     </div>
-    <div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;">
-        Copyright &copy 2022 At The Mile Logistics
-        <br>
-        Made by <a href="https://charlws.com" target="_blank" style="text-decoration:none;color:lightgrey">CharlesWithC#7777</a>
-        <br>
-        API: <a href="https://drivershub.charlws.com" target="_blank" style="text-decoration:none;color:lightgrey">drivershub.charlws.com</a>
-        |
-        Map: <a href="https://map.charlws.com" target="_blank" style="text-decoration:none;color:lightgrey">map.charlws.com</a>
+    <div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
+          &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
+          <br>
+          Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
+          <br>
+          API: <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
     </div>
 </body>
 
