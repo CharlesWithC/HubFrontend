@@ -8,6 +8,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Login - <?php echo $vtcname ?></title>
+    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
 
 	<meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
 	<meta content="<?php echo $slogan ?> | © CharlesWithC" property="og:description" />
@@ -52,7 +53,7 @@
 		}
 
 		function DiscordLogin() {
-			location.href = 'https://drivershub.charlws.com/atm/user/login';
+			location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login';
 		}
 
 		function GuestLogin() {
@@ -66,7 +67,7 @@
 				return;
 			}
 			$.ajax({
-				url: "https://drivershub.charlws.com/atm/user/validate",
+				url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/validate",
 				type: "GET",
 				dataType: "json",
 				headers: {
@@ -91,9 +92,6 @@
 </head>
 
 <body style="overflow:hidden">
-	<audio autoplay style="display:none">
-		<source src="/music.mp3" type="audio/mpeg">
-	</audio>
 	<div id="formContainer">
 		<div class="formLeft">
 			<img src="/images/logo.png">
@@ -118,9 +116,9 @@
 	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
 		<br>
-		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
+		<?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
 		<br>
-		API: <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
+		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a> / API: <a href="https://<?php echo $api ?>" target="_blank"><?php echo $api ?></a>
 	</div>
 </body>
 

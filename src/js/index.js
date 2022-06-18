@@ -704,6 +704,15 @@ function loadDistanceUnit() {
 }
 
 $(document).ready(function () {
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/version",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            $("#apiversion").html(data.response);
+        }
+    })
+
     loadDistanceUnit();
     if (localStorage.getItem("darkmode") == "1") {
         $("body").addClass("bg-gray-800");

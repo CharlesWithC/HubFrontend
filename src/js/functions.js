@@ -229,7 +229,7 @@ RANKING = localStorage.getItem("rankname");
 if(RANKING == null){
   RANKING = [];
   $.ajax({
-    url: "https://drivershub.charlws.com/atm/member/ranks",
+    url: apidomain + "/" + vtcprefix + "/member/ranks",
     type: "GET",
     dataType: "json",
     success: function (data) {

@@ -37,7 +37,7 @@ if(distance_unit == "imperial"){
 
 function UpdateSteam() {
     $.ajax({
-        url: "https://drivershub.charlws.com/atm/member/steam",
+        url: apidomain + "/" + vtcprefix + "/member/steam",
         type: "GET",
         dataType: "json",
         headers: {

@@ -8,6 +8,7 @@
 
 <head>
     <title><?php echo $vtcname ?></title>
+    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $vtcname ?> - By CharlesWithC#7777">
@@ -566,9 +567,13 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
                     <br>
+                    API: <span id="apiversion">v1.8.3</span> / Web: v1.0.1
+                    <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
-                    API: <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
+                    API: <a href="https://<?php echo $api ?>" target="_blank"><?php echo $api ?></a>
+                    <br>
+                    <?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
                 </div>
             </nav>
         </div>
@@ -2712,7 +2717,7 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Edit Config</h3>
+                    <h3 class="text-xl font-bold">Edit Config (Backend)</h3>
                 </div>
                 <div class="mb-6" style="padding:20px">
                     <label class="block text-sm font-medium mb-2" for="">Server will reload automatically after config is updated.</label>

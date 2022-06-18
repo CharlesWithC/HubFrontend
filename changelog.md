@@ -1,5 +1,11 @@
 # Changelog
 
+**v1.0.2**  
+Bug fixes  
+
+**v1.0.1**  
+Bug fixes
+
 **v1.0.0.beta**  
 1.Bug fixes  
 2.Added admin functions  

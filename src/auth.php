@@ -8,6 +8,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Authorization - <?php echo $vtcname ?></title>
+    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $slogan ?> | © CharlesWithC" property="og:description" />
@@ -54,7 +55,7 @@
         }
 
         function DiscordLogin() {
-            location.href = 'https://drivershub.charlws.com/atm/user/login';
+            location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login';
         }
 
         function validate() {
@@ -69,7 +70,7 @@
             token = getUrlParameter("token");
             if (token) {
                 $.ajax({
-                    url: "https://drivershub.charlws.com/atm/user/refresh",
+                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/refresh",
                     type: "GET",
                     dataType: "json",
                     headers: {
@@ -95,7 +96,7 @@
             } else {
                 token = localStorage.getItem("token");
                 $.ajax({
-                    url: "https://drivershub.charlws.com/atm/user/validate",
+                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/validate",
                     type: "GET",
                     dataType: "json",
                     headers: {
@@ -147,7 +148,7 @@
 
         function TMPBind() {
             $.ajax({
-                url: "https://drivershub.charlws.com/atm/user/truckersmpbind",
+                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/truckersmpbind",
                 type: "POST",
                 dataType: "json",
                 headers: {
@@ -216,7 +217,7 @@
                     <button type="button" onclick="DiscordLogin();">Login With Discord</button>
                 </section>
                 <section id="steamauth" style="display:none">
-                    <a href="https://drivershub.charlws.com/atm/user/steamauth">
+                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steamauth">
                         <br>
                         <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
@@ -231,13 +232,13 @@
             </form>
         </div>
     </div>
-    <div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
-          &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-          <br>
-          Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
-          <br>
-          API: <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
-    </div>
+	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
+		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
+		<br>
+		<?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
+		<br>
+		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a> / API: <a href="https://<?php echo $api ?>" target="_blank"><?php echo $api ?></a>
+	</div>
 </body>
 
 </html>
