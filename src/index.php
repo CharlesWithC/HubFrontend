@@ -14,7 +14,7 @@
     <meta name="description" content="<?php echo $vtcname ?> - By CharlesWithC#7777">
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
-    <meta content="<?php echo $slogan ?> | Drivers Hub © CharlesWithC" property="og:description" />
+    <meta content="<?php echo $slogan ?>" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
     <meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
@@ -574,9 +574,9 @@
                     </ul>
                 </div>
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
-                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
+                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & UCJOHN
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.1
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
