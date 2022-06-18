@@ -34,13 +34,13 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
     <script src="/configs/<?php echo $domainpure ?>.js"></script>
-    <script src="/js/main.js"></script>
+    <script src="/js/menu.js"></script>
     <script src="/js/functions.js"></script>
     <script src="/js/index.js"></script>
-    <script src="/js/ets2map.js"></script>
-    <script src="/js/ets2map_promods.js"></script>
-    <script src="/js/atsmap.js"></script>
-    <script src="/js/naviolive.js"></script>
+    <script src="/js/map/ets2map.js"></script>
+    <script src="/js/map/ets2map_promods.js"></script>
+    <script src="/js/map/atsmap.js"></script>
+    <script src="/js/map/naviolive.js"></script>
     <style>
     .fc-scrollgrid-sync-inner {
         background-color: transparent;
@@ -48,7 +48,7 @@
 
     div.rounded,
     .tabbtns {
-        border-radius: 15px;
+        border-radius: 5px;
     }
 
     a {
@@ -434,26 +434,6 @@
                             </li>';}?>
 
                         <?php
-                            if(in_array("division", $enabled_plugins)){
-                            echo '
-                            <li>
-                            <a id="StaffDivisionBtn" class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#StaffDivision\', \'#StaffDivisionBtn\')">
-                                <span class="inline-block mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                    viewBox="0 0 640 512">
-                                    <path
-                                    d="M32 32C49.67 32 64 46.33 64 64V96H149.2L64 266.3V448C64 465.7 49.67 480 32 480C14.33 480 0 465.7 0 448V64C0 46.33 14.33 32 32 32V32zM309.2 288H234.8L330.8 96H405.2L309.2 288zM458.8 96H533.2L437.2 288H362.8L458.8 96zM202.8 96H277.2L181.2 288H106.8L202.8 96zM576 117.7V64C576 46.33 590.3 32 608 32C625.7 32 640 46.33 640 64V448C640 465.7 625.7 480 608 480C590.3 480 576 465.7 576 448V288H490.8L576 117.7z" />
-                                </svg>
-                                </span>
-                                <span>Divisions</span>
-                                <span class="inline-block ml-auto">
-                                <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"></svg></span>
-                            </a>
-                            </li>';}?>
-
-                        <?php
                             if(in_array("event", $enabled_plugins)){
                             echo '
                         <li>
@@ -474,6 +454,26 @@
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
+
+                        <?php
+                            if(in_array("division", $enabled_plugins)){
+                            echo '
+                            <li>
+                            <a id="StaffDivisionBtn" class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
+                                style="cursor: pointer" onclick="ShowTab(\'#StaffDivision\', \'#StaffDivisionBtn\')">
+                                <span class="inline-block mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                                    viewBox="0 0 640 512">
+                                    <path
+                                    d="M32 32C49.67 32 64 46.33 64 64V96H149.2L64 266.3V448C64 465.7 49.67 480 32 480C14.33 480 0 465.7 0 448V64C0 46.33 14.33 32 32 32V32zM309.2 288H234.8L330.8 96H405.2L309.2 288zM458.8 96H533.2L437.2 288H362.8L458.8 96zM202.8 96H277.2L181.2 288H106.8L202.8 96zM576 117.7V64C576 46.33 590.3 32 608 32C625.7 32 640 46.33 640 64V448C640 465.7 625.7 480 608 480C590.3 480 576 465.7 576 448V288H490.8L576 117.7z" />
+                                </svg>
+                                </span>
+                                <span>Divisions</span>
+                                <span class="inline-block ml-auto">
+                                <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"></svg></span>
+                            </a>
+                            </li>';}?>
 
                         <li>
                             <a id="StaffMemberBtn"
@@ -499,8 +499,6 @@
                             if(in_array("application", $enabled_plugins)){
                             echo '
                         <li>
-                            <hr>
-
                             <a id="AllAppBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#AllApp\', \'#AllAppBtn\')">
@@ -533,7 +531,6 @@
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
-                        <hr>
                         <li>
                             <a id="AuditLogBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
@@ -547,6 +544,18 @@
                                             d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12z" />
                                     </svg> </span>
                                 <span>Audit Log</span>
+                                <span class="inline-block ml-auto">
+                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a id="AdminBtn"
+                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
+                                style="cursor: pointer" onclick="ShowTab('#Admin', '#AdminBtn')">
+                                <span class="inline-block mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z"/><path d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38c0.62,0,1.12,0.51,1.12,1.12 s-0.51,1.12-1.12,1.12s-1.12-0.51-1.12-1.12S16.38,14.38,17,14.38z M17,19.75c-0.93,0-1.74-0.46-2.24-1.17 c0.05-0.72,1.51-1.08,2.24-1.08s2.19,0.36,2.24,1.08C18.74,19.29,17.93,19.75,17,19.75z"/></svg> </span>
+                                <span>Administrator</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -725,7 +734,7 @@
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp-1);loadUserDelivery();">
-                            << /button>
+                            < </button>
                                 <div id="userDeliveryTableControl" style="display:inline">
                                 </div>
                                 <button type="button" style="display:inline"
@@ -1207,7 +1216,7 @@
 
             <button type="button"
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="NewAnn()" id="newAnnBtn">Create Announcement</button>
+              onclick="AnnouncementOp()" id="newAnnBtn">Create Announcement</button>
           </div>
         </div>
       </div>
@@ -1295,7 +1304,7 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp-1);loadMembers();">
-                        << /button>
+                        < </button>
                             <div id="membersTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
@@ -1476,7 +1485,7 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#lpages').val());$('#lpages').val(tmp-1);loadLeaderboard();">
-                        << /button>
+                        < </button>
                             <div id="leaderboardTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
@@ -1665,7 +1674,7 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp-1);loadDelivery();">
-                        << /button>
+                        < </button>
                             <div id="deliveryTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
@@ -1907,7 +1916,7 @@
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="tmp=parseInt($(\'#epages\').val());$(\'#epages\').val(tmp-1);loadEvent();">
-                            << /button>
+                            < </button>
                                 <div id="eventTableControl" style="display:inline">
                                 </div>
                                 <button type="button" style="display:inline"
@@ -2017,14 +2026,13 @@
 
                             <button type="button"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="NewEvent()" id="newEventBtn">Create Event</button>
+                                onclick="EventOp()" id="newEventBtn">Create Event</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div style="padding:50px;padding-top:0;">
-                <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="eventattendee"
-                    style="display:none">
+                <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="eventattendee">
                     <div class="flex px-6 pb-4 border-b">
                         <h3 class="text-xl font-bold">Update Event Attendees (Overwrite)</h3>
                     </div>
@@ -2113,7 +2121,7 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($(\'#myapppage\').val());$(\'#myapppage\').val(tmp-1);loadMyApp();">
-                        << /button>
+                        < </button>
                             <div id="myAppTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
@@ -2517,7 +2525,7 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp-1);loadAllApp();">
-                        << /button>
+                        < </button>
                             <div id="allAppTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
@@ -2526,8 +2534,7 @@
                 </div>
             </div>
             <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="updateStaffPos"
-                style="display:none">
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="updateStaffPos">
                 <div class="flex px-6 pb-4 border-b">
                     <h3 class="text-xl font-bold">Update Open Staff Positions</h3>
                 </div>
@@ -2584,7 +2591,7 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp-1);loadUsers();">
-                        << /button>
+                        < </button>
                             <div id="usersTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
@@ -2690,12 +2697,50 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp-1);loadAuditLog();">
-                        << /button>
+                        < </button>
                             <div id="auditTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                                 onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp+1);loadAuditLog();">></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="Admin" class="py-8 tabs" style="display: none;">
+        <div style="padding:50px;padding-top:0;">
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold">Edit Config</h3>
+                </div>
+                <div class="mb-6" style="padding:20px">
+                    <label class="block text-sm font-medium mb-2" for="">Server will reload automatically after config is updated.</label>
+                    <label class="block text-sm font-medium mb-2" for="">Make sure everything is correct! If you put wrong token for Navio or Discord, they will not function!</label>
+                    <label class="block text-sm font-medium mb-2" for="">Follow the original format, or you may break the entire hub and it will fail to automatically reload!</label>
+                    <br>
+                    <textarea id="config" style="width:100%;height:400px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></textarea>
+                    <br>
+                    <button type="button" style="float:right"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="UpdateConfig()" id="updateConfigBtn">Update</button>
+                </div>
+            </div>
+            <br>
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold">Reload Server</h3>
+                </div>
+                <div style="padding:20px">
+                    <label class="block text-sm font-medium mb-2" for="">Manually reload the server.</label>
+                    <label class="block text-sm font-medium mb-2" for="">Only do this if you find it stuck or not functioning correctly.</label>
+                    <label class="block text-sm font-medium mb-2" for="">The process may take up to 5 minutes and API will be inaccessible during reload.</label>
+                    <br>
+                    <button type="button" style="background-color:red"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="ReloadServer()" id="reloadBtn">Reload</button>
                 </div>
             </div>
         </div>

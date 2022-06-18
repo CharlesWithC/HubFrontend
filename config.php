@@ -11,4 +11,5 @@
     $api = "drivershub.charlws.com";
 
     $enabled_plugins = ["announcement", "application", "division", "downloads", "event", "livemap", "ranking"];
+    $external_plugins = [];
 ?>
