@@ -315,7 +315,7 @@ function loadMyApp(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -356,7 +356,7 @@ function addAppMessage() {
         error: function (data) {
             $("#addAppMessageBtn").html("Add");
             $("#addAppMessageBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -478,7 +478,7 @@ function loadAllApp(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -612,7 +612,7 @@ function appDetail(applicationid, staffmode = false) {
             $("#AllAppBtn" + applicationid).html("Details");
             $("#MyAppBtn" + applicationid).removeAttr("disabled");
             $("#MyAppBtn" + applicationid).html("Details");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -652,7 +652,7 @@ function updateAppStatus() {
         error: function (data) {
             $("#updateAppStatusBtn").removeAttr("disabled");
             $("#updateAppStat usBtn").html("Update");
-            toastFactory("error", "Error:", "Please check the console for more info.",
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.",
                 5000,
                 false);
             console.warn(
@@ -688,7 +688,7 @@ function updateStaffPosition() {
         error: function (data) {
             $("#updateStaffPositionBtn").removeAttr("disabled");
             $("#updateStaffPositionBtn").html("Update");
-            toastFactory("error", "Error:", "Please check the console for more info.",
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.",
                 5000,
                 false);
             console.warn(

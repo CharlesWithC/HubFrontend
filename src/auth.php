@@ -11,7 +11,7 @@
     <link rel="icon" href="/images/logo.png" type="image/x-icon" />
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
-    <meta content="<?php echo $slogan ?> | © CharlesWithC" property="og:description" />
+    <meta content="<?php echo $slogan ?> | Drivers Hub © CharlesWithC" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
     <meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
@@ -109,28 +109,18 @@
                                 window.location.href = "/";
                                 $("#msg").html("You are being redirected to Drivers Hub.");
                             } else if (data.response.extra == "steamauth") {
-                                // Format title
                                 $("#title").html("Steam Authorization<br>");
                                 $("#title").css("font-size", "1.5em");
-
-                                // Format message
                                 $("#msg").html(
                                     "We need to check your steam account to: <br><br> - Bind your TruckersMP account <br> - Add you to our Navio company"
                                 );
-
-                                // Show steam openID button
                                 $("#steamauth").show();
                             } else if (data.response.extra == "truckersmp") {
-                                // Format title
                                 $("#title").html("TruckersMP Connection");
                                 $("#title").css("font-size", "1.5em");
-
-                                // Format message
                                 $("#msg").html(
                                     "Enter your TruckersMP User ID below <br> and we'll check if it's bound to your steam account."
                                 );
-
-                                // Show the ID div
                                 $("#truckersmpbind").show();
                             }
                         } else {
@@ -174,22 +164,24 @@
         $(document).ready(function () {
             steamupdate = getUrlParameter("steamupdate");
             if (steamupdate == "1") {
-                // Format title
                 $("#title").html("Steam Authorization<br>");
                 $("#title").css("font-size", "1.5em");
-
-                // Format message
                 $("#msg").html(
                     "We need to check your steam account to: <br><br> - Bind your TruckersMP account <br> - Add you to our Navio company"
                 );
-
-                // Show steam openID button
                 $("#steamauth").show();
-
-                console.log("steam auth");
                 return;
             }
-            console.log("skip");
+            truckersmpupdate = getUrlParameter("truckersmpupdate");
+            if (truckersmpupdate == "1") {
+                $("#title").html("TruckersMP Connection");
+                $("#title").css("font-size", "1.5em");
+                $("#msg").html(
+                    "Enter your TruckersMP User ID below <br> and we'll check if it's bound to your steam account."
+                );
+                $("#truckersmpbind").show();
+                return;
+            }
             validate();
             $('#truckersmpid').keypress(function (e) {
                 if (e.which == 13) {

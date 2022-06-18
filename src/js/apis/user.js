@@ -81,7 +81,7 @@ function loadAuditLog(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load audit log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -116,7 +116,7 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to update About Me. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -146,7 +146,7 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to generate app token. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -253,7 +253,7 @@ function loadUsers(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(`Failed to load users. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
         }
@@ -296,7 +296,7 @@ function addUser(discordid = -1) {
             loadUsers();
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to add user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -355,7 +355,7 @@ function userDetail(discordid) {
         error: function (data) {
             $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
             $("#UserInfoBtn" + discordid).html("Loading...");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load user details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -393,7 +393,7 @@ function banUser() {
             toastFactory("success", "Success", "User banned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to ban user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -423,7 +423,7 @@ function unbanUser() {
             toastFactory("success", "Success", "User unbanned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to unban user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -431,6 +431,38 @@ function unbanUser() {
         }
     })
 }
+
+configData = {};
+
+function isJSONNumber(obj) {
+    return obj !== undefined && obj !== null && obj.constructor == Number;
+}
+
+function isString(obj) {
+    return obj !== undefined && obj !== null && obj.constructor == String;
+}
+
+function loadConfig() {
+    newConfigData = JSON.parse($("#config").val());
+    keys = Object.keys(newConfigData);
+    for (i = 0; i < keys.length; i++) {
+        $("#config_" + keys[i]).val(newConfigData[keys[i]]);
+    }
+    if (newConfigData["hexcolor"] != configData["hexcolor"]) {
+        hexcolor = $("#config_hexcolor").val();
+        intcolor = parseInt(hexcolor.replace("#", "0x"), 16);
+        $("#config_intcolor").val(intcolor);
+        configData["intcolor"] = parseInt(intcolor);
+    } else if (newConfigData["intcolor"] != configData["intcolor"]) {
+        intcolor = parseInt($("#config_intcolor").val());
+        hexcolor = intcolor.toString(16);
+        $("#config_hexcolor").val(hexcolor);
+        configData["hexcolor"] = hexcolor;
+    }
+    configData = newConfigData;
+}
+
+numberItem = [];
 
 function loadAdmin() {
     $.ajax({
@@ -443,17 +475,65 @@ function loadAdmin() {
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
                 false);
-            config = data.response.config;
-            $("#config").val(JSON.stringify(config, null, 4));
+
+            numberItem = [];
+            configData = data.response.config;
+            keys = Object.keys(configData);
+            for (i = 0; i < keys.length; i++) {
+                if (isJSONNumber(configData[keys[i]])) {
+                    numberItem.push(keys[i]);
+                }
+            }
+
+            $("#config").val(JSON.stringify(configData, null, 4));
+
+            loadConfig();
+
+            $('#config_hexcolor').on('input', function () {
+                hexcolor = $("#config_hexcolor").val();
+                intcolor = parseInt(hexcolor.replace("#", "0x"), 16);
+                $("#config_intcolor").val(intcolor);
+                configData["intcolor"] = parseInt(intcolor);
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $('#config_intcolor').on('input', function () {
+                intcolor = parseInt($("#config_intcolor").val());
+                hexcolor = intcolor.toString(16);
+                $("#config_hexcolor").val(hexcolor);
+                configData["hexcolor"] = hexcolor;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $(".configFormData").on('input', function () {
+                inputid = $(this).attr('id');
+                configitem = inputid.replaceAll("config_", "");
+                val = $(this).val();
+                if (numberItem.indexOf(configitem) != -1) {
+                    val = +val;
+                }
+                configData[configitem] = val;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $("#config_distance_unit").on('change', function () {
+                configitem = "distance_unit";
+                configData[configitem] = $("#config_distance_unit").val();
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $("#config").on('input', function () {
+                loadConfig();
+            });
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load config. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
         }
-    })
+    });
 }
 
 function UpdateConfig() {
@@ -464,9 +544,9 @@ function UpdateConfig() {
         toastFactory("error", "Error:", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
         return;
     }
-    if(config["navio_token"] == "") delete config["navio_token"];
-    if(config["discord_client_secret"] == "") delete config["discord_client_secret"];
-    if(config["bot_token"] == "") delete config["bot_token"];
+    if (config["navio_token"] == "") delete config["navio_token"];
+    if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
+    if (config["bot_token"] == "") delete config["bot_token"];
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/config",
         type: "PATCH",
@@ -482,7 +562,7 @@ function UpdateConfig() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to update config. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -504,7 +584,7 @@ function ReloadServer() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to reload server. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);

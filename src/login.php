@@ -11,7 +11,7 @@
     <link rel="icon" href="/images/logo.png" type="image/x-icon" />
 
 	<meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
-	<meta content="<?php echo $slogan ?> | © CharlesWithC" property="og:description" />
+	<meta content="<?php echo $slogan ?> | Drivers Hub © CharlesWithC" property="og:description" />
 	<meta content="<?php echo $domain ?>/" property="og:url" />
 	<meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
 	<meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />

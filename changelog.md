@@ -1,5 +1,9 @@
 # Changelog
 
+**v1.0.3**  
+1.Added TruckersMP Update Function  
+2.Bug fixes
+
 **v1.0.2**  
 Bug fixes  
 

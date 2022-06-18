@@ -14,7 +14,7 @@
     <meta name="description" content="<?php echo $vtcname ?> - By CharlesWithC#7777">
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
-    <meta content="<?php echo $slogan ?> | © CharlesWithC" property="og:description" />
+    <meta content="<?php echo $slogan ?> | Drivers Hub © CharlesWithC" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
     <meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
@@ -42,6 +42,15 @@
     <script src="/js/map/ets2map_promods.js"></script>
     <script src="/js/map/atsmap.js"></script>
     <script src="/js/map/naviolive.js"></script>
+    <script src='/js/apis/member.js'></script>
+    <script src='/js/apis/overview.js'></script>
+    <script src='/js/plugins/announcement.js'></script>
+    <script src='/js/plugins/downloads.js'></script>
+    <script src='/js/plugins/application.js'></script>
+    <script src='/js/apis/user.js'></script>
+    <script src='/js/apis/dlog.js'></script>
+    <script src='/js/plugins/division.js'></script>
+    <script src='/js/plugins/event.js'></script>
     <style>
     .fc-scrollgrid-sync-inner {
         background-color: transparent;
@@ -567,7 +576,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
                     <br>
-                    API: <span id="apiversion">v1.8.3</span> / Web: v1.0.1
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.1
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -641,7 +650,8 @@
 
     <section id="ProfileTab" class="py-8 tabs mx-auto lg:ml-80" style="display:none;margin-top:-40px">
         <div class="px-4 mx-auto">
-            <div style="padding:50px">
+            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
+            <div class="md:w-2/3 px-4 mb-4 md:mb-0">
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded">
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6 shadow rounded mb-6">
                         <div class="py-8 px-6 pt-4" style="margin-right:20px;width: calc(100% - 220px);float:left"
@@ -747,16 +757,17 @@
                                     onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp+1);loadUserDelivery();">></button>
                     </div>
                 </div>
-                <br>
+            </div>
+            <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0">
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="UpdateAM" style="display:none">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Update About Me (Markdown)</h3>
+                        <h3 class="text-xl font-bold">About Me (Markdown)</h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
 
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Content</label>
-                            <textarea id="biocontent"
+                            <textarea id="biocontent" style="height:300px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea>
                         </div>
@@ -767,11 +778,10 @@
                     </div>
                 </div>
                 <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Security" style="display:none">
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Account" style="display:none">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Security</h3>
+                        <h3 class="text-xl font-bold">Account</h3>
                     </div>
-
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3>Update Steam Account</h3>
                         <label class="block text-sm font-medium mb-2" for=""><i>To prevent abuse, you can only update it
@@ -784,9 +794,21 @@
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="window.location.href='/auth?steamupdate=1'">Update</button>
                     </div>
-
+                    <br>
                     <hr>
-
+                    <div class="p-4 overflow-x-auto" style="display: block;">
+                        <h3>Update TruckersMP Account</h3>
+                        <label class="block text-sm font-medium mb-2" for=""><i>Your TruckersMP Account must be bound to your Steam Account.</i></label>
+                        <button type="button"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="window.location.href='/auth?truckersmpupdate=1'">Update</button>
+                    </div>
+                </div>
+                <br>
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Security" style="display:none">
+                    <div class="flex px-6 pb-4 border-b">
+                        <h3 class="text-xl font-bold">Security</h3>
+                    </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3>External Application Authorization</h3>
                         <label class="block text-sm font-medium mb-2" for="">Application Token: <span
@@ -799,18 +821,19 @@
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="genNewAppToken()" id="genAppTokenBtn">Reset Token</button>
                     </div>
-
+                    <br>
                     <hr>
-
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3>Leave Company</h3>
                         <label class="block text-sm font-medium mb-2" for="" style="color:red">Dangerous! Think again
                             before
                             resigning! This will clear your delivery log and remove you from navio company!</label>
-                        <button type="button" style="background-color:red"
+                        <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="resign()" id="resignBtn">Resign</button>
                     </div>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -1231,40 +1254,39 @@
   ?>
 
     <section id="AllMembers" class="py-8 tabs" style="display:none">
-        <div class="px-4 mx-auto mx-auto lg:ml-80">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
-                <div class="px-4 mb-4 md:mb-0" style="width:100%">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                        <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0">
-                            <div class="p-6 rounded bg-white" style="text-align:center">
-                                <img src="https://cdn.discordapp.com/emojis/930128573111623751.webp?size=128&quality=lossless"
-                                    id="sotma"
-                                    style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
-                                <h2 class="mb-2 text-3xl font-bold" id="sotm" style="font-size:22px">-</h2>
-                                <div class="mb-2">
+        <?php
+            if(in_array("x_of_the_month", $enabled_plugins)){
+            echo '
+            <div class="px-4 mx-auto mx-auto lg:ml-80">
+                <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
+                    <div class="px-4 mb-4 md:mb-0" style="width:100%">
+                        <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
+                            <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0">
+                                <div class="p-6 rounded bg-white" style="text-align:center">
                                     <img src="https://cdn.discordapp.com/emojis/930128573111623751.webp?size=128&quality=lossless"
-                                        style="height:18px;display:inline">
-                                    <h3 class="text-sm text-gray-600" style="display:inline">Staff of the Month</h3>
+                                        id="sotma"
+                                        style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
+                                    <h2 class="mb-2 text-3xl font-bold" id="sotm" style="font-size:22px">-</h2>
+                                    <div class="mb-2">
+                                        <h3 class="text-sm text-gray-600">Staff of the Month</h3>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0">
-                            <div class="p-6 rounded bg-white" style="text-align:center">
-                                <img src="https://cdn.discordapp.com/emojis/930128573589749780.webp?size=128&quality=lossless"
-                                    id="dotma"
-                                    style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
-                                <h2 class="mb-2 text-3xl font-bold" id="dotm" style="font-size:22px;">-</h2>
-                                <div class="mb-2">
+                            <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0">
+                                <div class="p-6 rounded bg-white" style="text-align:center">
                                     <img src="https://cdn.discordapp.com/emojis/930128573589749780.webp?size=128&quality=lossless"
-                                        style="height:18px;display:inline">
-                                    <h3 class="text-sm text-gray-600" style="display:inline">Driver of the Month</h3>
+                                        id="dotma"
+                                        style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
+                                    <h2 class="mb-2 text-3xl font-bold" id="dotm" style="font-size:22px;">-</h2>
+                                    <div class="mb-2">
+                                        <h3 class="text-sm text-gray-600">Driver of the Month</h3>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div>';} ?>
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1409,7 +1431,7 @@
 
                     <p><span id="memberdismissname" style="font-size:20px"></span></p>
 
-                    <button type="button" style="background-color:red" id="dismissbtn"
+                    <button type="button" id="dismissbtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="dismissUser()">Dismiss</button>
                 </div>
@@ -2630,7 +2652,7 @@
                             name="field-name" rows="5" placeholder="Needed only when banning an user."></textarea>
                     </div>
 
-                    <button type="button" style="background-color:red"
+                    <button type="button"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="banUser()">Ban</button>
                     <button type="button" style="background-color:lightgreen"
@@ -2717,13 +2739,109 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Edit Config (Backend)</h3>
+                    <h3 class="text-xl font-bold">Edit Server Config</h3>
                 </div>
                 <div class="mb-6" style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Server will reload automatically after config is updated.</label>
-                    <label class="block text-sm font-medium mb-2" for="">Make sure everything is correct! If you put wrong token for Navio or Discord, they will not function!</label>
-                    <label class="block text-sm font-medium mb-2" for="">Follow the original format, or you may break the entire hub and it will fail to automatically reload!</label>
+                    <label class="block text-sm font-medium mb-2" for="">Server will reload automatically after config is updated, which might take up to 5 minutes.</label>
                     <br>
+                    <div>
+                        <h3 class="text-l font-bold">Company Information</h3>
+
+                        <div class="mb-6" style="display:inline-block;width:64%">
+                            <label class="block text-sm font-medium mb-2" for="">Name</label>
+                            <input id="config_vtcname"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                name="text" rows="5" placeholder=""></input>
+                        </div>
+
+                        <div class="relative" style="display:inline-block;width:34%">
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver Ranking)</label>
+                            <select id="config_distance_unit"
+                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name">
+                                <option value="metric">Metric</option>
+                                <option value="imperial">Imperial</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Logo Link</label>
+                            <input id="config_vtclogo"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Team Update Banner Link</label>
+                            <input id="config_teamupdate"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
+                            <input id="config_hexcolor"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">INT Color</label>
+                            <input id="config_intcolor"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-l font-bold">Delivery</h3>
+
+                        <div class="mb-6" style="display:inline-block;width:64%">
+                            <label class="block text-sm font-medium mb-2" for="">Navio API Token (Leave empty to keep unchanged)</label>
+                            <input id="config_navio_token"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                name="text" rows="5" placeholder=""></input>
+                        </div>
+
+                        <div class="relative" style="display:inline-block;width:34%">
+                            <label class="block text-sm font-medium mb-2" for="">Navio Company ID</label>
+                            <input id="config_navio_company_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                name="text" rows="5" placeholder=""></input>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-l font-bold">Discord Server Information</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Server ID</label>
+                            <input id="config_guild"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Driver Channel ID</label>
+                            <input id="config_driver_channel_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Delivery Log Channel ID</label>
+                            <input id="config_delivery_log_channel_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                    </div>
+                    <hr>
+                    <br>
+                    <h3 class="text-l font-bold">JSON Config Editor</h3>
+                    <label class="block text-sm font-medium mb-2" for="">To edit those not included in the editor above.</label>
                     <textarea id="config" style="width:100%;height:400px"
                         class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                         name="field-name" rows="5" placeholder=""></textarea>
@@ -2739,11 +2857,10 @@
                     <h3 class="text-xl font-bold">Reload Server</h3>
                 </div>
                 <div style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Manually reload the server.</label>
                     <label class="block text-sm font-medium mb-2" for="">Only do this if you find it stuck or not functioning correctly.</label>
                     <label class="block text-sm font-medium mb-2" for="">The process may take up to 5 minutes and API will be inaccessible during reload.</label>
                     <br>
-                    <button type="button" style="background-color:red"
+                    <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="ReloadServer()" id="reloadBtn">Reload</button>
                 </div>

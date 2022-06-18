@@ -33,7 +33,6 @@ if (positions != undefined && positions != null) {
 } else {
     positions = [];
 }
-
 function DarkMode() {
     if (!isdark) {
         $("body").css("transition", "color 1000ms linear");
@@ -174,12 +173,6 @@ async function ShowTab(tabname, btnname) {
     $(".tabbtns").removeClass("bg-indigo-500");
     $(btnname).addClass("bg-indigo-500");
     if (tabname == "#Map") {
-        if ($("#mapjs").length == 0) {
-            $("head").append(`<script id='mapjs' src='/js/map/ets2map.js'></script>
-            <script src='/js/map/ets2map_promods.js'></script>
-            <script src='/js/map/atsmap.js'></script>
-            <script src='/js/map/naviolive.js'></script>`);
-        }
         window.history.pushState("", "", '/map');
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
@@ -192,25 +185,16 @@ async function ShowTab(tabname, btnname) {
         }, 50);
     }
     if (tabname == "#ProfileTab") {
-        if ($("#memberjs").length == 0) {
-            $("head").append(`<script id='memberjs' src='/js/apis/member.js'></script>`);
-        }
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
         window.history.pushState("", "", '/member?userid=' + userid);
         loadProfile(userid);
     }
     if (tabname == "#HomeTab") {
-        if ($("#overviewjs").length == 0) {
-            $("head").append(`<script id='overviewjs' src='/js/apis/overview.js'></script>`);
-        }
         window.history.pushState("", "", '/');
         loadStats();
     }
     if (tabname == "#AnnTab") {
-        if ($("#announcementjs").length == 0) {
-            $("head").append(`<script id='announcementjs' src='/js/plugins/announcement.js'></script>`);
-        }
         window.history.pushState("", "", '/announcement');
         ch = $("#anns").children();
         ch.hide();
@@ -220,123 +204,69 @@ async function ShowTab(tabname, btnname) {
         }
     }
     if (tabname == "#StaffAnnTab") {
-        if ($("#announcementjs").length == 0) {
-            $("head").append(`<script id='announcementjs' src='/js/plugins/announcement.js'></script>`);
-        }
         window.history.pushState("", "", '/staffannouncement');
     }
     if (tabname == "#DownloadsTab") {
-        if ($("#downloads").length == 0) {
-            $("head").append(`<script id='downloadsjs' src='/js/plugins/downloads.js'></script>`);
-        }
         window.history.pushState("", "", '/downloads');
         loadDownloads();
     }
     if (tabname == "#SubmitApp") {
-        if ($("#applicationjs").length == 0) {
-            $("head").append(`<script id='applicationjs' src='/js/plugins/application.js'></script>`);
-        }
         window.history.pushState("", "", '/submitapp');
         $("#driverappsel").attr("selected", "selected");
     }
     if (tabname == "#MyApp") {
-        if ($("#applicationjs").length == 0) {
-            $("head").append(`<script id='applicationjs' src='/js/plugins/application.js'></script>`);
-        }
         window.history.pushState("", "", '/myapp');
         loadMyApp();
     }
     if (tabname == "#AllApp") {
-        if ($("#applicationjs").length == 0) {
-            $("head").append(`<script id='applicationjs' src='/js/plugins/application.js'></script>`);
-        }
         window.history.pushState("", "", '/allapp');
         loadAllApp();
     }
     if (tabname == "#AllUsers") {
-        if ($("#userjs").length == 0) {
-            $("head").append(`<script id='userjs' src='/js/apis/user.js'></script>`);
-        }
         window.history.pushState("", "", '/pendinguser');
         loadUsers();
     }
     if (tabname == "#AllMembers") {
-        if ($("#memberjs").length == 0) {
-            $("head").append(`<script id='memberjs' src='/js/apis/member.js'></script>`);
-        }
         window.history.pushState("", "", '/member');
         loadMembers();
     }
     if (tabname == "#StaffMembers") {
-        if ($("#memberjs").length == 0) {
-            $("head").append(`<script id='memberjs' src='/js/apis/member.js'></script>`);
-        }
         window.history.pushState("", "", '/staffmember');
         loadMembers();
     }
     if (tabname == "#Delivery") {
-        if ($("#overviewjs").length == 0) {
-            $("head").append(`<script id='overviewjs' src='/js/apis/overview.js'></script>`);
-        }
-        if ($("#dlogjs").length == 0) {
-            $("head").append(`<script id='dlogjs"' src='/js/apis/dlog.js'></script>`);
-        }
         window.history.pushState("", "", '/delivery');
         loadStats(true);
         loadDelivery();
     }
     if (tabname == "#Leaderboard") {
-        if ($("#dlogjs").length == 0) {
-            $("head").append(`<script id='dlogjs"' src='/js/apis/dlog.js'></script>`);
-        }
         window.history.pushState("", "", '/leaderboard');
         loadLeaderboard();
     }
     if (tabname == "#Ranking") {
-        if ($("#memberjs").length == 0) {
-            $("head").append(`<script id='memberjs' src='/js/apis/member.js'></script>`);
-        }
         window.history.pushState("", "", '/ranking');
     }
     if (tabname == "#Division") {
-        if ($("#divisionjs").length == 0) {
-            $("head").append(`<script id='divisionjs' src='/js/plugins/division.js'></script>`);
-        }
         window.history.pushState("", "", '/division');
         loadDivision();
     }
     if (tabname == "#StaffDivision") {
-        if ($("#divisionjs").length == 0) {
-            $("head").append(`<script id='divisionjs' src='/js/plugins/division.js'></script>`);
-        }
         window.history.pushState("", "", '/staffdivision');
         loadStaffDivision();
     }
     if (tabname == "#Event") {
-        if ($("#eventjs").length == 0) {
-            $("head").append(`<script id='eventjs' src='/js/plugins/event.js'></script>`);
-        }
         window.history.pushState("", "", '/event');
         loadEvent();
     }
     if (tabname == "#StaffEvent") {
-        if ($("#eventjs").length == 0) {
-            $("head").append(`<script id='eventjs' src='/js/plugins/event.js'></script>`);
-        }
         window.history.pushState("", "", '/staffevent');
         loadEvent();
     }
     if (tabname == "#AuditLog") {
-        if ($("#userjs").length == 0) {
-            $("head").append(`<script id='userjs' src='/js/apis/user.js'></script>`);
-        }
         window.history.pushState("", "", '/audit');
         loadAuditLog();
     }
     if (tabname == "#Admin") {
-        if ($("#userjs").length == 0) {
-            $("head").append(`<script id='userjs' src='/js/apis/user.js'></script>`);
-        }
         window.history.pushState("", "", '/admin');
         loadAdmin();
     }

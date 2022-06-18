@@ -62,7 +62,7 @@ socket.addEventListener("open", () => {
         JSON.stringify({
             op: 1,
             data: {
-                "subscribe_to_company": 25,
+                "subscribe_to_company": navio_company_id,
                 //"subscribe_to_all_drivers": true
             },
         }),

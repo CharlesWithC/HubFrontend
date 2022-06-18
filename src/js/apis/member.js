@@ -18,7 +18,7 @@ function requestRole() {
         error: function (data) {
             $("#loadLeaderboardBtn").html("Go");
             $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load leaderboard. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -168,7 +168,7 @@ function loadMembers(recurse = true) {
         error: function (data) {
             $("#searchMemberBtn").html("Go");
             $("#searchMemberBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(`Failed to load members. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
         }
@@ -239,7 +239,7 @@ function memberDetail(userid) {
         error: function (data) {
             $("#MemberInfoBtn" + userid).removeAttr("disabled");
             $("#MemberInfoBtn" + userid).html("Details");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -298,7 +298,7 @@ function fetchRoles() {
                 error: function (data) {
                     $("#fetchRolesBtn").html("Fetch Existing Roles");
                     $("#fetchRolesBtn").removeAttr("disabled");
-                    toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+                    toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                         false);
                     console.warn(
                         `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -345,7 +345,7 @@ function updateMemberRoles() {
         error: function (data) {
             $("#updateMemberRolesBtn").html("Update");
             $("#updateMemberRolesBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -400,7 +400,7 @@ function updateMemberPoints() {
         error: function (data) {
             $("#updateMemberPointsBtn").html("Update");
             $("#updateMemberPointsBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -442,7 +442,7 @@ function dismissUser() {
             error: function (data) {
                 $("#dismissbtn").html("Dismiss");
                 $("#dismissbtn").removeAttr("disabled");
-                toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+                toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                     false);
                 console.warn(
                     `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -473,122 +473,10 @@ function dismissUser() {
         error: function (data) {
             $("#dismissbtn").removeAttr("disabled");
             $("#dismissbtn").html("Dismiss");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to dismiss member. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
-            console.log(data);
-        }
-    });
-}
-function loadProfile(userid) {
-    if (userid < 0) {
-        return;
-    }
-    $("#aucs1").attr("onclick", `chartscale=1;loadChart(${userid});`);
-    $("#aucs2").attr("onclick", `chartscale=2;loadChart(${userid});`);
-    $("#aucs3").attr("onclick", `chartscale=3;loadChart(${userid});`);
-    $("#aaddup1").attr("onclick", `addup=1-addup;loadChart(${userid});`);
-    loadChart(userid);
-    $("#udpages").val("1");
-    curprofile = userid;
-    loadUserDelivery(userid);
-    if (curtab != "#ProfileTab") {
-        ShowTab("#ProfileTab", userid);
-        return;
-    }
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: async function (data) {
-            if (data.error) {
-                ShowTab("#HomeTab", "#HomeTabBtn");
-                return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            }
-            info = "";
-            if (!data.error) {
-                window.history.pushState("", "", '/member?userid=' + userid);
-                d = data.response;
-                info += "<h1 style='font-size:40px'>" + d.name + "</h1>";
-                info += "<p><b>User ID:</b> " + d.userid + "</p>"
-                info += "<p><b>Roles:</b> <span id='profileRoles'></span></p>";
-                if (d.email != undefined) info += "<p><b>Email:</b> " + d.email + "</p>";
-                info += "<p><b>Discord ID:</b> " + d.discordid + "</p>";
-                info +=
-                    "<p><b>TruckersMP ID:</b> <a href='https://truckersmp.com/user/" +
-                    d.truckersmpid + "'>" + d.truckersmpid + "</a></p>";
-                info +=
-                    "<p><b>Steam ID:</b> <a href='https://steamcommunity.com/profiles/" +
-                    d.steamid + "'>" + d.steamid + "</a></p>";
-                info += "<br><p><b>Join:</b> " + getDateTime(d.join * 1000) + "</p>";
-                info += "<p><b>Total Jobs:</b> " + d.totjobs + "</p>";
-                if (distance_unit == "metric") {
-                    info += "<p><b>Distance Driven:</b> " + parseInt(d.distance) + "km</p>";
-                } else if (distance_unit == "imperial") {
-                    info += "<p><b>Distance Driven:</b> " + parseInt(d.distance * distance_ratio) + "mi</p>";
-                }
-                info += "<p><b>Fuel Consumed:</b> " + parseInt(d.fuel) + "L</p>";
-                info += "<p><b>XP Earned:</b> " + d.xp + "</p>";
-                info += "<p><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
-                info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
-                if (company_distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance + d.eventpnt + d.divisionpnt) +
-                        "</p>";
-                } else if (company_distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance * 0.621371 + d.eventpnt + d.divisionpnt) +
-                        "</p>";
-                }
-                info += "<br><b>About Me:</b><br>" + parseMarkdown(d.bio) + "<br><br>";
-
-                avatar = d.avatar;
-                if (avatar != null) {
-                    if (avatar.startsWith("a_"))
-                        src = "https://cdn.discordapp.com/avatars/" + d.discordid + "/" + avatar + ".gif";
-                    else
-                        src = "https://cdn.discordapp.com/avatars/" + d.discordid + "/" + avatar + ".png";
-                    $("#UserProfileAvatar").attr("src", src);
-                } else {
-                    avatar = "/images/logo.png";
-                }
-
-                $("#userProfileDetail").html(info);
-                roles = d.roles;
-                rtxt = "";
-                for (var i = 0; i < roles.length; i++) {
-                    if (roles[i] == 0) color = "rgba(127,127,127,0.4)";
-                    else if (roles[i] < 10) color = vtccolor;
-                    else if (roles[i] <= 98) color = "#ff0000";
-                    else if (roles[i] == 99) color = "#4e6f7b";
-                    else if (roles[i] == 100) color = vtccolor;
-                    else if (roles[i] > 100) color = "grey";
-                    if (roles[i] == 223 || roles[i] == 224) color = "#ffff77;color:black;";
-                    if (roles[i] == 1000) color = "#9146ff";
-                    if (rolelist[roles[i]] != undefined) rtxt += `<span class='tag' title="${rolelist[roles[i]]}" style='max-width:fit-content;margin-bottom:15px;display:inline;background-color:${color};white-space:nowrap;'>` + rolelist[roles[i]] + "</span> ";
-                    else rtxt += "Unknown Role (ID " + roles[i] + "), ";
-                }
-                rtxt = rtxt.substring(0, rtxt.length - 2);
-                $("#profileRoles").html(rtxt);
-
-                if (d.userid == localStorage.getItem("userid")) {
-                    $("#UpdateAM").show();
-                    $("#Security").show();
-                    $("#biocontent").val(d.bio);
-                } else {
-                    $("#UpdateAM").hide();
-                    $("#Security").hide();
-                }
-            }
-        },
-        error: function (data) {
-            ShowTab("#HomeTab", "#HomeTabBtn");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
-                false);
-            console.warn(
-                `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
         }
     });
@@ -621,7 +509,7 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to update About Me. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -651,7 +539,7 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to generate app token. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -692,7 +580,7 @@ function resign() {
         error: function (data) {
             $("#resignBtn").html("Resign");
             $("#resignBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to resign. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -794,17 +682,19 @@ function loadProfile(userid) {
 
                 if (d.userid == localStorage.getItem("userid")) {
                     $("#UpdateAM").show();
+                    $("#Account").show();
                     $("#Security").show();
                     $("#biocontent").val(d.bio);
                 } else {
                     $("#UpdateAM").hide();
+                    $("#Account").hide();
                     $("#Security").hide();
                 }
             }
         },
         error: function (data) {
             ShowTab("#HomeTab", "#HomeTabBtn");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -844,7 +734,7 @@ function resign() {
         error: function (data) {
             $("#resignBtn").html("Resign");
             $("#resignBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000,
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
                 false);
             console.warn(
                 `Failed to resign. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);

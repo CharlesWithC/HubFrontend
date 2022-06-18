@@ -44,7 +44,7 @@ function loadDivision() {
                 }
             },
             error: function (data) {
-                toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+                toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
                 console.warn(
                     `Failed to fetch divisions. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
                 console.log(data);
@@ -160,7 +160,7 @@ function loadDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load division. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -211,7 +211,7 @@ function loadStaffDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load division. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -327,7 +327,7 @@ function divisionInfo(logid) {
         error: function (data) {
             $("#divisioninfobtn").html("Division");
             $("#divisioninfobtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -361,7 +361,7 @@ function requestDivision(logid) {
         },
         error: function (data) {
             $("#divisionRequestBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -409,7 +409,7 @@ function updateDivision(logid, status) {
         error: function (data) {
             $("#divisionAcceptBtn").removeAttr("disabled");
             $("#divisionRejectBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Please check the console for more info.", 5000, false);
+            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
             console.warn(
                 `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
