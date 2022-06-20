@@ -429,7 +429,7 @@ function validate() {
                 if (data.response.userid != -1) {
                     $("#AllMemberBtn").show();
                 }
-                roles = data.response.roles.sort();
+                roles = data.response.roles.sort(function(a, b){return a-b});
                 highestrole = roles[0];
                 name = data.response.name;
                 avatar = data.response.avatar;
@@ -479,28 +479,15 @@ function validate() {
                                 roleids[i] = parseInt(roleids[i]);
                             }
                             ShowStaffTabs();
-                            if (highestrole >= 30) {
-                                for (var i = 0; i < roleids.length; i++) {
-                                    if (roleids[i] < 251 || roleids[i] > 253)
-                                        $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
-                                            `" name="assignrole" value="role` + roleids[i] + `">
-        <label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                                    else
-                                        $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
-                                            `" name="assignrole" value="role` + roleids[i] + `">
-        <label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                                }
-                            } else {
-                                for (var i = 0; i < roleids.length; i++) {
-                                    if (roleids[i] <= highestrole)
-                                        $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
-                                            `" name="assignrole" value="role` + roleids[i] + `">
-    <label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                                    else
-                                        $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
-                                            `" name="assignrole" value="role` + roleids[i] + `">
-    <label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                                }
+                            for (var i = 0; i < roleids.length; i++) {
+                                if (roleids[i] <= highestrole)
+                                    $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
+                                        `" name="assignrole" value="role` + roleids[i] + `">
+<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
+                                else
+                                    $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
+                                        `" name="assignrole" value="role` + roleids[i] + `">
+<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
                             }
                         }
                     });
