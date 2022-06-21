@@ -1,4 +1,4 @@
-function loadDivision() {
+function loadDivisionList(){
     lastDivisionUpdate = parseInt(localStorage.getItem("divisionLastUpdate"));
     if (!isNumber(lastDivisionUpdate)) {
         lastDivisionUpdate = 0;
@@ -44,7 +44,7 @@ function loadDivision() {
                 }
             },
             error: function (data) {
-                toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+                toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
                 console.warn(
                     `Failed to fetch divisions. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
                 console.log(data);
@@ -80,6 +80,9 @@ function loadDivision() {
                 </div>`);
         }
     }
+}
+
+function loadDivision() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division/info",
         type: "GET",
@@ -160,7 +163,7 @@ function loadDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load division. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -178,11 +181,12 @@ function loadStaffDivision() {
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            DIVISION = {
-                1: "Construction",
-                2: "Chilled",
-                3: "ADR"
-            };
+            DIVISION = {};
+            divisions = JSON.parse(localStorage.getItem("division"));
+            for(var i = 0 ; i < divisions.length ; i++) {
+                DIVISION[divisions.id] = divisions.name;
+            }
+            if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
             $("#staffDisivionTable").empty();
             d = data.response;
             if (d.length == 0) {
@@ -211,7 +215,7 @@ function loadStaffDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load division. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -234,14 +238,18 @@ function divisionInfo(logid) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             info = `<div style="text-align:left">`;
             if (data.response.requestSubmitted == false) {
+                divisionopt = "";
+                divisions = JSON.parse(localStorage.getItem("division"));
+                for(var i = 0 ; i < divisions.length ; i++) {
+                    divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
+                }
+                if(divisionopt == "") return toastFactory("error", "Error:", "No division found.", 5000, false);
                 info += `
                 <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
                 <select id="divisionSelect"
                   class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                   name="field-name">
-                  <option value="construction">Construction</option>
-                  <option value="chilled">Chilled</option>
-                  <option value="adr">ADR</option>
+                  ${divisionopt}
                 </select>`;
                 info += `<button type="button" style="float:right" id="divisionRequestBtn"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -255,6 +263,12 @@ function divisionInfo(logid) {
                     confirmButtonText: 'Close'
                 });
             } else if (data.response.isstaff == true && data.response.status == 0) {
+                divisionopt = "";
+                divisions = JSON.parse(localStorage.getItem("division"));
+                for(var i = 0 ; i < divisions.length ; i++) {
+                    divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
+                }
+                if(divisionopt == "") return toastFactory("error", "Error:", "No division found.", 5000, false);
                 info += `
                 <p>This delivery is pending division validation.</p>
                 <p>The division is selected by driver and changeable.</p>
@@ -263,9 +277,7 @@ function divisionInfo(logid) {
                 <select id="divisionSelect"
                   class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                   name="field-name">
-                  <option value="construction" id="division1">Construction</option>
-                  <option value="chilled" id="division2">Chilled</option>
-                  <option value="adr" id="division3">ADR</option>
+                  ${divisionopt}
                 </select>
                 <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Reason: </h3>
                 <textarea id="divisionReason"
@@ -288,11 +300,12 @@ function divisionInfo(logid) {
                 });
                 $("#division" + data.response.divisionid).prop("selected", true);
             } else {
-                DIVISION = {
-                    1: "Construction",
-                    2: "Chilled",
-                    3: "ADR"
-                };
+                DIVISION = {};
+                divisions = JSON.parse(localStorage.getItem("division"));
+                for(var i = 0 ; i < divisions.length ; i++) {
+                    DIVISION[divisions.id] = divisions.name;
+                }
+                if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
                 if (data.response.reason == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(data.response.updatets * 1000) +
@@ -327,7 +340,7 @@ function divisionInfo(logid) {
         error: function (data) {
             $("#divisioninfobtn").html("Division");
             $("#divisioninfobtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -339,10 +352,15 @@ function requestDivision(logid) {
     $("#divisionRequestBtn").html("Loading...");
     $("#divisionRequestBtn").attr("disabled", "disabled");
     division = $("#divisionSelect").val();
-    divisionid = 0;
-    if (division == "construction") divisionid = 1;
-    else if (division == "chilled") divisionid = 2;
-    else if (division == "adr") divisionid = 3;
+    divisionid = -1;
+    divisions = JSON.parse(localStorage.getItem("division"));
+    for(var i = 0 ; i < divisions.length ; i++) {
+        if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
+            divisionid = divisions[i].id;
+            break;
+        }
+    }
+    if(divisionid == -1) return toastFactory("error", "Error:", "Invalid division.", 5000, false);
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division/validate",
         type: "POST",
@@ -361,7 +379,7 @@ function requestDivision(logid) {
         },
         error: function (data) {
             $("#divisionRequestBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -380,10 +398,15 @@ function updateDivision(logid, status) {
         $("#divisionRejectBtn").attr("disabled", "disabled");
     }
     division = $("#divisionSelect").val();
-    divisionid = 0;
-    if (division == "construction") divisionid = 1;
-    else if (division == "chilled") divisionid = 2;
-    else if (division == "adr") divisionid = 3;
+    divisionid = -1;
+    divisions = JSON.parse(localStorage.getItem("division"));
+    for(var i = 0 ; i < divisions.length ; i++) {
+        if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
+            divisionid = divisions[i].id;
+            break;
+        }
+    }
+    if(divisionid == -1) return toastFactory("error", "Error:", "Invalid division.", 5000, false);
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({
@@ -409,7 +432,7 @@ function updateDivision(logid, status) {
         error: function (data) {
             $("#divisionAcceptBtn").removeAttr("disabled");
             $("#divisionRejectBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);

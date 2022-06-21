@@ -81,7 +81,7 @@ function loadAuditLog(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load audit log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -116,7 +116,7 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to update About Me. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -146,7 +146,7 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to generate app token. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -253,7 +253,7 @@ function loadUsers(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(`Failed to load users. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
         }
@@ -296,7 +296,7 @@ function addUser(discordid = -1) {
             loadUsers();
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to add user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -355,7 +355,7 @@ function userDetail(discordid) {
         error: function (data) {
             $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
             $("#UserInfoBtn" + discordid).html("Loading...");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to load user details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -393,7 +393,7 @@ function banUser() {
             toastFactory("success", "Success", "User banned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to ban user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -423,7 +423,7 @@ function unbanUser() {
             toastFactory("success", "Success", "User unbanned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to unban user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -527,7 +527,7 @@ function loadAdmin() {
             });
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to load config. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -562,7 +562,7 @@ function UpdateConfig() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to update config. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
@@ -584,7 +584,7 @@ function ReloadServer() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to reload server. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);

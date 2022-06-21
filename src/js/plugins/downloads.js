@@ -12,7 +12,7 @@ function loadDownloads() {
             $("#downloadscontent").val(data.response);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to fetch downloads. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -45,7 +45,7 @@ function UpdateDownloads() {
             $("#downloads").html(parseMarkdown($("#downloadscontent").val()));
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to update downloads. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);

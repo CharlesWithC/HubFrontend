@@ -21,8 +21,7 @@
     <meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
 
     <link rel="stylesheet" href="/css/index.css">
-    <?php require_once '/css/custom.php'; ?>
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
     <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />

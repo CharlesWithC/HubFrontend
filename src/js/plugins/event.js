@@ -44,7 +44,7 @@ function FetchEvent(showdetail = -1) {
         error: function (data) {
             $("#fetchEventBtn").html("Fetch Data");
             $("#fetchEventBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to fetch event. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -90,7 +90,7 @@ function FetchEventAttendee() {
         error: function (data) {
             $("#fetchEventAttendeeBtn").html("Fetch Existing Attendees");
             $("#fetchEventAttendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to fetch event attendees. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -145,7 +145,7 @@ function UpdateEventAttendees() {
         error: function (data) {
             $("#attendeeBtn").html("Update");
             $("#attendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to update event attendees. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -410,7 +410,7 @@ function loadEvent(recurse = true) {
                 }, 50);
             },
             error: function (data) {
-                toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+                toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
                 console.warn(
                     `Failed to load events. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
                 console.log(data);
@@ -531,7 +531,7 @@ function loadEvent(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load events. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -557,7 +557,7 @@ function eventvote(eventid) {
             return toastFactory("success", "Success:", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to vote / unvote for event. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);

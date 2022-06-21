@@ -28,7 +28,7 @@ function FetchAnnouncement() {
         error: function (data) {
             $("#fetchAnnouncementBtn").html("Fetch Data");
             $("#fetchAnnouncementBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to fetch announcement. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);

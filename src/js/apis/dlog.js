@@ -135,7 +135,7 @@ function loadLeaderboard(recurse = true) {
         error: function (data) {
             $("#loadLeaderboardBtn").html("Go");
             $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load leaderboard. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -287,7 +287,7 @@ function loadDelivery(recurse = true) {
         error: function (data) {
             $("#loadDeliveryBtn").html("Go");
             $("#loadDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load delivery log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
@@ -716,7 +716,7 @@ function deliveryDetail(logid) {
             ShowTab("#HomeTab", "#HomeTabBtn");
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000,
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to load delivery log details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`
@@ -867,7 +867,7 @@ function loadUserDelivery(recurse = true) {
         error: function (data) {
             $("#loadUserDeliveryBtn").html("Go");
             $("#loadUserDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Likely API error, probably server is offline or ran into a bug.", 5000, false);
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
             console.warn(
                 `Failed to load delivery log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);

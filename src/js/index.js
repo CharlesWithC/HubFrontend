@@ -948,4 +948,5 @@ $(document).ready(function () {
             $("#ranktable").append(ranktable);
         }
     }
+    loadDivisionList();
 });
