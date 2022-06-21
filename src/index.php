@@ -50,36 +50,6 @@
     <script src='/js/apis/dlog.js'></script>
     <script src='/js/plugins/division.js'></script>
     <script src='/js/plugins/event.js'></script>
-    <style>
-    .fc-scrollgrid-sync-inner {
-        background-color: transparent;
-    }
-
-    div.rounded,
-    .tabbtns {
-        border-radius: 5px;
-    }
-
-    a {
-        color: #888;
-    }
-
-    a:hover {
-        color: black;
-    }
-
-    .tabbtns:hover {
-        color: #fff;
-    }
-
-    .bg-indigo-500 {
-        background-color: <?php echo $vtccolor ?>;
-    }
-
-    .bg-indigo-500:hover {
-        background-color: <?php echo $vtccolordark ?>;
-    }
-    </style>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
