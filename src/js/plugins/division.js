@@ -42,12 +42,6 @@ function loadDivisionList(){
                             </div>
                         </div>`);
                 }
-            },
-            error: function (data) {
-                toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
-                console.warn(
-                    `Failed to fetch divisions. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
-                console.log(data);
             }
         })
     } else {

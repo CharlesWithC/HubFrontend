@@ -12,7 +12,7 @@ function loadLeaderboard(recurse = true) {
     endtime = -1;
     if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
         starttime = +new Date($("#lbstart").val()) / 1000;
-        endtime = +new Date($("#lbend").val()) / 1000;
+        endtime = +new Date($("#lbend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#lbspeedlimit").val());
     if (!isNumber(speedlimit)) {
@@ -157,7 +157,7 @@ function loadDelivery(recurse = true) {
     endtime = -1;
     if ($("#dstart").val() != "" && $("#dend").val() != "") {
         starttime = +new Date($("#dstart").val()) / 1000;
-        endtime = +new Date($("#dend").val()) / 1000;
+        endtime = +new Date($("#dend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#dspeedlimit").val());
     if (!isNumber(speedlimit)) {
@@ -739,7 +739,7 @@ function loadUserDelivery(recurse = true) {
     endtime = -1;
     if ($("#udstart").val() != "" && $("#udend").val() != "") {
         starttime = +new Date($("#udstart").val()) / 1000;
-        endtime = +new Date($("#udend").val()) / 1000;
+        endtime = +new Date($("#udend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#udspeedlimit").val());
     if (!isNumber(speedlimit)) {

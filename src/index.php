@@ -37,19 +37,25 @@
     <script src="/js/menu.js"></script>
     <script src="/js/functions.js"></script>
     <script src="/js/index.js"></script>
-    <script src="/js/map/ets2map.js"></script>
+    <?php if(in_array("livemap", $enabled_plugins)){
+    echo '<script src="/js/map/ets2map.js"></script>
     <script src="/js/map/ets2map_promods.js"></script>
     <script src="/js/map/atsmap.js"></script>
-    <script src="/js/map/naviolive.js"></script>
-    <script src='/js/apis/member.js'></script>
-    <script src='/js/apis/overview.js'></script>
-    <script src='/js/plugins/announcement.js'></script>
-    <script src='/js/plugins/downloads.js'></script>
-    <script src='/js/plugins/application.js'></script>
-    <script src='/js/apis/user.js'></script>
-    <script src='/js/apis/dlog.js'></script>
-    <script src='/js/plugins/division.js'></script>
-    <script src='/js/plugins/event.js'></script>
+    <script src="/js/map/naviolive.js"></script>';} ?>
+    <script src="/js/apis/member.js"></script>
+    <script src="/js/apis/overview.js"></script>
+    <?php if(in_array("announcement", $enabled_plugins)){
+    echo '<script src="/js/plugins/announcement.js"></script>';} ?>
+    <?php if(in_array("downloads", $enabled_plugins)){
+    echo '<script src="/js/plugins/downloads.js"></script>';} ?>
+    <?php if(in_array("application", $enabled_plugins)){
+    echo '<script src="/js/plugins/application.js"></script>';} ?>
+    <script src="/js/apis/user.js"></script>
+    <script src="/js/apis/dlog.js"></script>
+    <?php if(in_array("division", $enabled_plugins)){
+    echo '<script src="/js/plugins/division.js"></script>';} ?>
+    <?php if(in_array("event", $enabled_plugins)){
+    echo '<script src="/js/plugins/event.js"></script>';} ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
@@ -64,6 +70,36 @@
         $(".ol-unselectable").css("border-radius", "15px");
     }, 1000);
     </script>
+    <style>
+    .fc-scrollgrid-sync-inner {
+        background-color: transparent;
+    }
+
+    div.rounded,
+    .tabbtns {
+        border-radius: 5px;
+    }
+
+    a {
+        color: #888;
+    }
+
+    a:hover {
+        color: black;
+    }
+
+    .tabbtns:hover {
+        color: #fff;
+    }
+
+    .bg-indigo-500 {
+        background-color: <?php echo $vtccolor ?>;
+    }
+
+    .bg-indigo-500:hover {
+        background-color: <?php echo $vtccolordark ?>;
+    }
+    </style>
 </head>
 
 <body class="antialiased bg-body text-body font-body" style="overflow-x:hidden">
@@ -545,7 +581,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & UCJOHN
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4-beta.1
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>

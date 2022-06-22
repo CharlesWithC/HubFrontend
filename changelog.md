@@ -1,5 +1,9 @@
 # Changelog
 
+**v1.0.4-beta.1**  
+1.Load `.js` plugins based on `enabled_plugins` by `.php`  
+2.Fixed leaderboard not showing today's statistics bug  
+
 **v1.0.3**  
 1.Added TruckersMP Update Function  
 2.Bug fixes
