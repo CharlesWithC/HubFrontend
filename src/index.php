@@ -543,9 +543,9 @@
                     </ul>
                 </div>
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
-                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & UCJOHN
+                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/G85E3Ny3RV" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4
+                    API: <span id="apiversion">v1.0.1</span> / Web: v1.0.4
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
