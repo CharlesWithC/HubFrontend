@@ -1,9 +1,3 @@
-@import url("https://fonts.googleapis.com/css?family=Nunito:300,400,600,700,800");
-* {
-  outline-width: 0;
-  font-family: 'Nunito' !important;
-}
-
 .hover {
   position: relative;
   top: 30%;

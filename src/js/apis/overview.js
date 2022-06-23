@@ -250,7 +250,7 @@ function loadStats(basic = false) {
                     } else {
                         avatar = "/images/logo.png";
                     }
-                    $("#leaderboard").append(`<tr class="text-xs">
+                    $("#leaderboard").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${totalpnt}</td>
@@ -285,7 +285,7 @@ function loadStats(basic = false) {
                     } else {
                         avatar = "/images/logo.png";
                     }
-                    $("#newdriverTable").append(`<tr class="text-xs">
+                    $("#newdriverTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${joindt}</td>

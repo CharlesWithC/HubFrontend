@@ -50,7 +50,7 @@ function loadLeaderboard(recurse = true) {
             if (leaderboard.length == 0) {
                 $("#leaderboardTableHead").hide();
                 $("#leaderboardTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -121,7 +121,7 @@ function loadLeaderboard(recurse = true) {
                     avatar = "/images/logo.png";
                 }
                 console.log(user.totnolimit);
-                $("#leaderboardTable").append(`<tr class="text-xs">
+                $("#leaderboardTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${name}</a></td>
                 <td class="py-5 px-6">${point2rank(user.totnolimit)}</td>
@@ -191,7 +191,7 @@ function loadDelivery(recurse = true) {
             if (deliveries.length == 0) {
                 $("#deliveryTableHead").hide();
                 $("#deliveryTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -249,7 +249,7 @@ function loadDelivery(recurse = true) {
             for (i = 0; i < deliveries.length; i++) {
                 const delivery = deliveries[i];
                 // Fill the table using this format: 
-                // <tr class="text-xs">
+                // <tr class="text-sm">
                 //  <td class="py-5 px-6 font-medium">id here</td>
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
@@ -261,26 +261,17 @@ function loadDelivery(recurse = true) {
                 profit = TSeparator(delivery.profit);
                 color = "";
                 if (delivery.profit < 0) color = "grey";
-                dtl = "";
-                if (localStorage.getItem("token") != "guest") {
-                    dtl =
-                        `<td class="py-5 px-6 font-medium">
-                        <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="deliveryDetail('${delivery.logid}')">Details</button></td>`;
-                }
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + VERIFIED + "</span>";
                 $("#deliveryTable").append(`
-            <tr class="text-xs" style="color:${color}">
-            <td class="py-5 px-6 font-medium">${delivery.logid} ${dextra}</td>
+            <tr class="text-sm" style="color:${color}">
+            <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
               <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
               <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-              ${dtl}
             </tr>`);
             }
         },
@@ -592,7 +583,7 @@ function deliveryDetail(logid) {
                     if (extra != "") {
                         $("#dlogextra").remove();
                         $("#dlogbasic").append(`<p id="dlogextra"><b>${extra.slice(0, -3)}</b></p>`);
-                        // $("#dlogbasic").append(`<tr class="text-xs">
+                        // $("#dlogbasic").append(`<tr class="text-sm">
                         //     <td class="py-5 px-6 font-medium">Tags</td>
                         //     <td class="py-5 px-6 font-medium">${extra.slice(0, -3)}</td></tr>`);
                     }
@@ -773,7 +764,7 @@ function loadUserDelivery(recurse = true) {
             if (deliveries.length == 0) {
                 $("#userDeliveryTableHead").hide();
                 $("#userDeliveryTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -830,7 +821,7 @@ function loadUserDelivery(recurse = true) {
             for (i = 0; i < deliveries.length; i++) {
                 const delivery = deliveries[i];
                 // Fill the table using this format: 
-                // <tr class="text-xs">
+                // <tr class="text-sm">
                 //  <td class="py-5 px-6 font-medium">id here</td>
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
@@ -842,25 +833,16 @@ function loadUserDelivery(recurse = true) {
                 profit = TSeparator(delivery.profit);
                 color = "";
                 if (delivery.profit < 0) color = "grey";
-                dtl = "";
-                if (localStorage.getItem("token") != "guest") {
-                    dtl =
-                        `<td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="deliveryDetail('${delivery.logid}')">Details</button></td>`;
-                }
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + VERIFIED + "</span>";
                 $("#userDeliveryTable").append(`
-            <tr class="text-xs" style="color:${color}">
-            <td class="py-5 px-6 font-medium">${delivery.logid} ${dextra}</td>
+            <tr class="text-sm" style="color:${color}">
+            <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
               <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
               <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-              ${dtl}
             </tr>`);
             }
         },

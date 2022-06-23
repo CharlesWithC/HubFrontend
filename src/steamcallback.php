@@ -17,6 +17,7 @@
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
     <meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
 
+    <link rel="stylesheet" href="/css/font.css">
 <style>
     .formRight form section button {
         background-color: <?php echo $vtccolor ?>;
@@ -108,7 +109,7 @@
                 },
                 success: function (data) {
                     if (data.error == false) {
-                        $("#title").html("Welcome Back");
+                        $("#title").html(<?php echo $vtcname ?>);
                         $("#msg").html("You are being redirected to Drivers Hub.");
                         window.location.href = "/";
                     } else {

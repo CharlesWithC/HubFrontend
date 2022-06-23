@@ -20,9 +20,10 @@
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
     <meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
 
+    <link rel="stylesheet" href="/css/font.css">
     <link rel="stylesheet" href="/css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
-    <link rel="stylesheet" href="/css/tailwind/tailwind.min.css">
+    <link rel="stylesheet" href="/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
 
@@ -581,7 +582,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/G85E3Ny3RV" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4-beta.2
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4-beta.3
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -728,7 +729,7 @@
                                 </tr>
                             </thead>
                             <tbody id="userDeliveryTable">
-                                <tr class="text-xs">
+                                <tr class="text-sm">
                                     <td class="py-5 px-6 font-medium">No Data</td>
                                     <td class="py-5 px-6 font-medium"></td>
                                     <td class="py-5 px-6 font-medium"></td>
@@ -1030,7 +1031,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="onlinedriver">
-                                    <tr class="text-xs">
+                                    <tr class="text-sm">
                                         <td class="py-5 px-6 font-medium">No Data</td>
                                         <td class="py-5 px-6 font-medium"></td>
                                         <td class="py-5 px-6 font-medium"></td>
@@ -1054,7 +1055,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="leaderboard">
-                                    <tr class="text-xs">
+                                    <tr class="text-sm">
                                         <td class="py-5 px-6 font-medium">No Data</td>
                                         <td class="py-5 px-6 font-medium"></td>
                                     </tr>
@@ -1078,7 +1079,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="newdriverTable">
-                                    <tr class="text-xs">
+                                    <tr class="text-sm">
                                         <td class="py-5 px-6 font-medium">No Data</td>
                                     </tr>
                                 </tbody>
@@ -1315,7 +1316,7 @@
                             </tr>
                         </thead>
                         <tbody id="membersTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1493,7 +1494,7 @@
                             </tr>
                         </thead>
                         <tbody id="leaderboardTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1680,7 +1681,7 @@
                             </tr>
                         </thead>
                         <tbody id="deliveryTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1845,7 +1846,7 @@
                             </tr>
                         </thead>
                         <tbody id="divisionDeliveryTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1877,7 +1878,7 @@
                             </tr>
                         </thead>
                         <tbody id="staffDisivionTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1922,7 +1923,7 @@
                                 </tr>
                             </thead>
                             <tbody id="eventTable">
-                                <tr class="text-xs">
+                                <tr class="text-sm">
                                     <td class="py-5 px-6 font-medium">No Data</td>
                                     <td class="py-5 px-6 font-medium"></td>
                                     <td class="py-5 px-6 font-medium"></td>
@@ -2128,7 +2129,7 @@
                             </tr>
                         </thead>
                         <tbody id="myappTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -2531,7 +2532,7 @@
                             </tr>
                         </thead>
                         <tbody id="allappTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -2602,7 +2603,7 @@
                             </tr>
                         </thead>
                         <tbody id="usersTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                             </tr>
@@ -2706,7 +2707,7 @@
                             </tr>
                         </thead>
                         <tbody id="auditTable">
-                            <tr class="text-xs">
+                            <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium">No Data</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>

@@ -17,6 +17,7 @@
 	<meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
 	<meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
 
+    <link rel="stylesheet" href="/css/font.css">
 	<style>
 		.formRight form section button {
 			background-color: <?php echo $vtccolor ?>;
@@ -100,8 +101,8 @@
 			<!-- Login form -->
 			<form id="login" style="margin-top:40px">
 				<header>
-					<h1>Welcome back</h1>
-					<p>Please login to access the Drivers Hub.</p>
+					<h1><?php echo $vtcname ?></h1>
+					<p><?php echo $slogan ?></p>
 				</header>
 				<section>
 					<button type="button" onclick="DiscordLogin();">Login With Discord</button>

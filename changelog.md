@@ -1,5 +1,10 @@
 # Changelog
 
+**v1.0.4-beta.3**  
+1.Updated font  
+2.Updated login page title & subtitle  
+3.Removed `Detail` button for delivery table and made `ID` clickable to show details  
+
 **v1.0.4-beta.2**  
 1.Fixed overview incorrect data display  
 2.Added more administrator config fields  

@@ -432,7 +432,7 @@ function loadEvent(recurse = true) {
             if (events.length == 0) {
                 $("#eventTableHead").hide();
                 $("#eventTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -514,7 +514,7 @@ function loadEvent(recurse = true) {
                 pvt = "";
                 if (event.private) pvt = LOCKED;
                 $("#eventTable").append(`
-            <tr class="text-xs" style="color:${color}">
+            <tr class="text-sm" style="color:${color}">
               <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
               <td class="py-5 px-6 font-medium">${event.title}</td>
               <td class="py-5 px-6 font-medium">${event.departure}</td>

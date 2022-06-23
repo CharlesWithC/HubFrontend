@@ -226,7 +226,7 @@ function loadMyApp(recurse = true) {
             if (applications.length == 0) {
                 $("#myappTableHead").hide();
                 $("#myappTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -282,7 +282,7 @@ function loadMyApp(recurse = true) {
             for (i = 0; i < applications.length; i++) {
                 const application = applications[i];
                 // Fill the table using this format: 
-                // <tr class="text-xs">
+                // <tr class="text-sm">
                 //  <td class="py-5 px-6 font-medium">id here</td>
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
@@ -301,7 +301,7 @@ function loadMyApp(recurse = true) {
                 if (application.status == 2) color = "red";
 
                 $("#myappTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">${application.applicationid}</td>
               <td class="py-5 px-6 font-medium">${apptype}</td>
               <td class="py-5 px-6 font-medium">${creation}</td>
@@ -387,7 +387,7 @@ function loadAllApp(recurse = true) {
             if (applications.length == 0) {
                 $("#allappTableHead").hide();
                 $("#allappTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -444,7 +444,7 @@ function loadAllApp(recurse = true) {
             for (i = 0; i < applications.length; i++) {
                 const application = applications[i];
                 // Fill the table using this format: 
-                // <tr class="text-xs">
+                // <tr class="text-sm">
                 //  <td class="py-5 px-6 font-medium">id here</td>
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
@@ -463,7 +463,7 @@ function loadAllApp(recurse = true) {
                 if (application.status == 2) color = "red";
 
                 $("#allappTable").append(`
-            <tr class="text-xs" id="AllApp${application.applicationid}">
+            <tr class="text-sm" id="AllApp${application.applicationid}">
               <td class="py-5 px-6 font-medium">${application.applicationid}</td>
               <td class="py-5 px-6 font-medium">${application.name}</td>
               <td class="py-5 px-6 font-medium">${apptype}</td>

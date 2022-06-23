@@ -129,7 +129,7 @@ setInterval(function () {
     if (cnt == 0) {
         $("#onlinedriverHead").hide();
         $("#onlinedriver").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
@@ -153,7 +153,7 @@ setInterval(function () {
         speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
         distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
         $("#onlinedriver").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${nuserid})'>${drivername}</a></td>
               <td class="py-5 px-6 font-medium">${truck}</td>
               <td class="py-5 px-6 font-medium">${cargo}</td>

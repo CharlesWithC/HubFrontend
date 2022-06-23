@@ -49,7 +49,7 @@ function loadMembers(recurse = true) {
             if (users.length == 0) {
                 $("#membersTableHead").hide();
                 $("#membersTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
             </tr>`);
@@ -102,7 +102,7 @@ function loadMembers(recurse = true) {
             for (i = 0; i < users.length; i++) {
                 const user = users[i];
                 // Fill the table using this format: 
-                // <tr class="text-xs">
+                // <tr class="text-sm">
                 //  <td class="py-5 px-6 font-medium">id here</td>
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
@@ -127,7 +127,7 @@ function loadMembers(recurse = true) {
                     avatar = "/images/logo.png";
                 }
                 $("#membersTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">${user.userid}</td>
               <td class="py-5 px-6 font-medium" style="color:${color}">
                 <a style="cursor:pointer;" onclick="loadProfile('${user.userid}')">

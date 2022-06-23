@@ -17,7 +17,7 @@ function loadAuditLog(recurse = true) {
             if (audits.length == 0) {
                 $("#auditTableHead").hide();
                 $("#auditTable").append(`
-        <tr class="text-xs">
+        <tr class="text-sm">
           <td class="py-5 px-6 font-medium">No Data</td>
           <td class="py-5 px-6 font-medium"></td>
           <td class="py-5 px-6 font-medium"></td>
@@ -73,7 +73,7 @@ function loadAuditLog(recurse = true) {
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
                 $("#auditTable").append(`
-        <tr class="text-xs">
+        <tr class="text-sm">
           <td class="py-5 px-6 font-medium">${audit.user}</td>
           <td class="py-5 px-6 font-medium">${op}</td>
           <td class="py-5 px-6 font-medium">${dt}</td>
@@ -175,7 +175,7 @@ function loadUsers(recurse = true) {
             if (users.length == 0) {
                 $("#usersTableHead").hide();
                 $("#usersTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium">No Data</td>
               <td class="py-5 px-6 font-medium"></td>
             </tr>`);
@@ -228,7 +228,7 @@ function loadUsers(recurse = true) {
             for (i = 0; i < users.length; i++) {
                 const user = users[i];
                 // Fill the table using this format: 
-                // <tr class="text-xs">
+                // <tr class="text-sm">
                 //  <td class="py-5 px-6 font-medium">id here</td>
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
@@ -240,7 +240,7 @@ function loadUsers(recurse = true) {
                 if (user.banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUser[user.discordid] = user.banreason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="addUser('${user.discordid}')">Accept as member</td>`;
                 $("#usersTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
               <td class="py-5 px-6 font-medium" style='color:${color}'>${user.discordid}</td>
               <td class="py-5 px-6 font-medium" style='color:${color}'>${user.name} ${bantxt2}</td>
               ${accept}

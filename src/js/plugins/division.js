@@ -31,7 +31,7 @@ function loadDivisionList(){
                                                 </tr>
                                             </thead>
                                             <tbody id="divisionTable${d[i].id}">
-                                                <tr class="text-xs">
+                                                <tr class="text-sm">
                                                     <td class="py-5 px-6 font-medium">No Data</td>
                                                     <td class="py-5 px-6 font-medium"></td>
                                                 </tr>
@@ -62,7 +62,7 @@ function loadDivisionList(){
                                         </tr>
                                     </thead>
                                     <tbody id="divisionTable${d[i].id}">
-                                        <tr class="text-xs">
+                                        <tr class="text-sm">
                                             <td class="py-5 px-6 font-medium">No Data</td>
                                             <td class="py-5 px-6 font-medium"></td>
                                         </tr>
@@ -96,14 +96,14 @@ function loadDivision() {
                 $(tablename).empty();
                 if (stats.length == 0) {
                     $(tablename).append(`
-                <tr class="text-xs">
+                <tr class="text-sm">
                   <td class="py-5 px-6 font-medium">No Data</td>
                   <td class="py-5 px-6 font-medium"></td>
                 </tr>`);
                 } else {
                     for (j = 0; j < stats.length; j++) {
                         $(tablename).append(`
-                        <tr class="text-xs">
+                        <tr class="text-sm">
                         <td class="py-5 px-6 font-medium"><a style="cursor:pointer" onclick="loadProfile(${stats[j].userid});">${stats[j].name}</a></td>
                         <td class="py-5 px-6 font-medium">${stats[j].points}</td>
                         </tr>`);
@@ -115,7 +115,7 @@ function loadDivision() {
             if (d.deliveries.length == 0) {
                 $("#divisionDeliveryTableHead").hide();
                 $("#divisionDeliveryTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
                 <td class="py-5 px-6 font-medium">No Data</td>
                 <td class="py-5 px-6 font-medium"></td>
                 <td class="py-5 px-6 font-medium"></td>
@@ -136,22 +136,16 @@ function loadDivision() {
                     profit = TSeparator(delivery.profit);
                     color = "";
                     if (delivery.profit < 0) color = "grey";
-                    dtl =
-                        `<td class="py-5 px-6 font-medium">
-                    <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="deliveryDetail('${delivery.logid}')">Details</button></td>`;
                     dextra = "<span title='Validated Division Delivery'>" + VERIFIED + "</span>";
                     $("#divisionDeliveryTable").append(`
-            <tr class="text-xs" style="color:${color}">
-            <td class="py-5 px-6 font-medium">${delivery.logid} ${dextra}</td>
+            <tr class="text-sm" style="color:${color}">
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
               <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
               <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-              ${dtl}
             </tr>`);
                 }
             }
@@ -186,7 +180,7 @@ function loadStaffDivision() {
             if (d.length == 0) {
                 $("#staffDisivionTableHead").hide();
                 $("#staffDisivionTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
                 <td class="py-5 px-6 font-medium">No Data</td>
                 <td class="py-5 px-6 font-medium"></td>
                 <td class="py-5 px-6 font-medium"></td>
@@ -196,7 +190,7 @@ function loadStaffDivision() {
                 for (i = 0; i < d.length; i++) {
                     const delivery = d[i];
                     $("#staffDisivionTable").append(`
-            <tr class="text-xs">
+            <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>

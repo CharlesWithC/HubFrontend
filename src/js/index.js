@@ -937,7 +937,7 @@ $(document).ready(function () {
             <tbody>`;
             for (var j = 0; j < 8; j++) {
                 if (rankpnt[i * 8 + j] == undefined) break;
-                ranktable += `<tr class="text-xs">
+                ranktable += `<tr class="text-sm">
                 <td class="py-5 px-6 font-medium">${RANKING[rankpnt[i * 8 + j]]}</td>
                 <td class="py-5 px-6 font-medium">${rankpnt[i * 8 + j]}</td>
               </tr>`;
