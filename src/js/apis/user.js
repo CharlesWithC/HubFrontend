@@ -447,6 +447,8 @@ function loadConfig() {
     keys = Object.keys(newConfigData);
     for (i = 0; i < keys.length; i++) {
         $("#config_" + keys[i]).val(newConfigData[keys[i]]);
+        if(keys[i] == "truckersmp_bind" || keys[i] == "in_guild_check") $("#config_" + keys[i]).val(String(newConfigData[keys[i]]));
+        if(keys[i] == "welcome_roles") $("#config_welcome_roles_txt").val(newConfigData["welcome_roles"].join(", "));
     }
     if (newConfigData["hexcolor"] != configData["hexcolor"]) {
         hexcolor = $("#config_hexcolor").val();
@@ -485,7 +487,11 @@ function loadAdmin() {
                 }
             }
 
-            $("#config").val(JSON.stringify(configData, null, 4));
+            $("#config").val(JSON.stringify(configData, null, 4, 
+                (_, value) => 
+                  typeof value === 'number' && value > 1e10
+                    ? BigInt(value)
+                    : value));
 
             loadConfig();
 
@@ -522,6 +528,27 @@ function loadAdmin() {
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
+            $("#config_truckersmp_bind").on('change', function () {
+                configitem = "truckersmp_bind";
+                if($("#config_truckersmp_bind").val() == "true") configData[configitem] = true;
+                else configData[configitem] = false;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $("#config_in_guild_check").on('change', function () {
+                configitem = "in_guild_check";
+                if($("#config_in_guild_check").val() == "true") configData[configitem] = true;
+                else configData[configitem] = false;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $("#config_welcome_roles_txt").on('change', function () {
+                txt = $("#config_welcome_roles_txt").val().replaceAll(" ", "");
+                txt = txt.split(",");
+                configData["welcome_roles"] = txt;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
             $("#config").on('input', function () {
                 loadConfig();
             });
@@ -555,7 +582,11 @@ function UpdateConfig() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            config: JSON.stringify(config)
+            config: JSON.stringify(config, 
+                (_, value) => 
+                  typeof value === 'number' && value > 1e10
+                    ? BigInt(value)
+                    : value)
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);

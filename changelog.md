@@ -1,5 +1,9 @@
 # Changelog
 
+**v1.0.4-beta.2**  
+1.Fixed overview incorrect data display  
+2.Added more administrator config fields  
+
 **v1.0.4-beta.1**  
 1.Load `.js` plugins based on `enabled_plugins` by `.php`  
 2.Fixed leaderboard not showing today's statistics bug  

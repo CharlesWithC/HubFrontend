@@ -147,14 +147,10 @@ function loadStats(basic = false) {
         dataType: "json",
         success: function (data) {
             d = data.response;
-            drivers = sigfig(parseInt(d.drivers));
-            newdrivers = sigfig(parseInt(d.newdrivers));
-            drivers = drivers.split(".")[0];
-            newdrivers = newdrivers.split(".")[0];
-            jobs = sigfig(parseInt(d.jobs));
-            newjobs = sigfig(parseInt(d.newjobs));
-            jobs = jobs.split(".")[0];
-            newjobs = newjobs.split(".")[0];
+            drivers = TSeparator(d.drivers);
+            newdrivers = TSeparator(d.newdrivers);
+            jobs = TSeparator(d.jobs);
+            newjobs = TSeparator(d.newjobs);
             if (distance_unit == "metric") {
                 distance = sigfig(d.distance) + "km";
                 newdistance = sigfig(d.newdistance) + "km";

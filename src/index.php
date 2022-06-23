@@ -581,7 +581,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & UCJOHN
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4-beta.1
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4-beta.2
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -2752,20 +2752,35 @@
                     <div>
                         <h3 class="text-l font-bold">Company Information</h3>
 
-                        <div class="mb-6" style="display:inline-block;width:64%">
+                        <div class="mb-6" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2" for="">Name</label>
                             <input id="config_vtcname"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
 
-                        <div class="relative" style="display:inline-block;width:34%">
+                        <div class="relative" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver Ranking)</label>
                             <select id="config_distance_unit"
                                 class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name">
                                 <option value="metric">Metric</option>
                                 <option value="imperial">Imperial</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="relative" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Require TruckersMP Account</label>
+                            <select id="config_truckersmp_bind"
+                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
                             </select>
                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
@@ -2805,14 +2820,14 @@
                     <div>
                         <h3 class="text-l font-bold">Delivery</h3>
 
-                        <div class="mb-6" style="display:inline-block;width:64%">
+                        <div class="mb-6" style="display:inline-block;width:73.5%">
                             <label class="block text-sm font-medium mb-2" for="">Navio API Token (Leave empty to keep unchanged)</label>
                             <input id="config_navio_token"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
 
-                        <div class="relative" style="display:inline-block;width:34%">
+                        <div class="relative" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Navio Company ID</label>
                             <input id="config_navio_company_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
@@ -2822,11 +2837,26 @@
                     <div>
                         <h3 class="text-l font-bold">Discord Server Information</h3>
                         
-                        <div class="mb-6">
+                        <div class="mb-6" style="display:inline-block;width:73.5%">
                             <label class="block text-sm font-medium mb-2" for="">Server ID</label>
                             <input id="config_guild"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="relative" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in server?</label>
+                            <select id="config_in_guild_check"
+                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
                         </div>
                         
                         <div class="mb-6" style="display:inline-block;width:49%">
@@ -2842,6 +2872,40 @@
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
+                    </div>
+                    <div>
+                        <h3 class="text-l font-bold">New Member</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Team Update Webhook</label>
+                            <input id="config_webhook_teamupdate"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Team Update Message (Variable: {mention})</label>
+                            <input id="config_team_update_message"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+
+                        <div class="mb-6"> 
+                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (Posted in Driver Channel) (Variable: {mention})</label>
+                            <textarea id="config_welcome_message" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Welcome Message Image Link</label>
+                            <input id="config_welcome_image"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with ',' | Provide negative number to remove role)</label>
+                            <input id="config_welcome_roles_txt"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                type="text" name="" placeholder=""></div>
+
                     </div>
                     <hr>
                     <br>
