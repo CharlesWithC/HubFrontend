@@ -580,7 +580,7 @@
                     </ul>
                 </div>
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
-                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/G85E3Ny3RV" target="_blank">UCJOHN</a>
+                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/MkbxXredqz" target="_blank">UCJOHN</a>
                     <br>
                     API: <span id="apiversion">v?.?.?</span> / Web: v1.0.5-beta.1
                     <br>
