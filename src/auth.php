@@ -150,7 +150,7 @@
                 },
                 success: function (data) {
                     if (data.error == false) {
-                        $("#title").html(<?php echo $vtcname ?>);
+                        $("#title").html("<?php echo $vtcname ?>");
                         $("#msg").html("You are being redirected to Drivers Hub.");
                         window.location.href = "/";
                     } else {

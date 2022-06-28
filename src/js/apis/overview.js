@@ -48,8 +48,8 @@ async function loadChart(userid = -1) {
                 }
                 distance.push(parseInt(d[i].distance * distance_ratio));
                 fuel.push(d[i].fuel);
-                euro.push(parseInt(d[i].euro));
-                dollar.push(parseInt(d[i].dollar));
+                euro.push(parseInt(d[i].profit.euro));
+                dollar.push(parseInt(d[i].profit.dollar));
             }
             const skipped = (ctx, value) => ctx.p0.skip || ctx.p1.skip ? value : undefined;
             const config = {
@@ -147,23 +147,23 @@ function loadStats(basic = false) {
         dataType: "json",
         success: function (data) {
             d = data.response;
-            drivers = TSeparator(d.drivers);
-            newdrivers = TSeparator(d.newdrivers);
-            jobs = TSeparator(d.jobs);
-            newjobs = TSeparator(d.newjobs);
+            drivers = TSeparator(d.drivers.all);
+            newdrivers = TSeparator(d.drivers.new);
+            jobs = TSeparator(d.jobs.all);
+            newjobs = TSeparator(d.jobs.new);
             if (distance_unit == "metric") {
-                distance = sigfig(d.distance) + "km";
-                newdistance = sigfig(d.newdistance) + "km";
+                distance = sigfig(d.distance.all) + "km";
+                newdistance = sigfig(d.distance.new) + "km";
             } else if (distance_unit == "imperial") {
-                distance = sigfig(parseInt(d.distance * distance_ratio)) + "mi";
-                newdistance = sigfig(parseInt(d.newdistance * distance_ratio)) + "mi";
+                distance = sigfig(parseInt(d.distance.all * distance_ratio)) + "mi";
+                newdistance = sigfig(parseInt(d.distance.new * distance_ratio)) + "mi";
             }
-            europrofit = "€" + sigfig(d.europrofit);
-            neweuroprofit = "€" + sigfig(d.neweuroprofit);
-            dollarprofit = "$" + sigfig(d.dollarprofit);
-            newdollarprofit = "$" + sigfig(d.newdollarprofit);
-            fuel = sigfig(d.fuel) + "L";
-            newfuel = sigfig(d.newfuel) + "L";
+            europrofit = "€" + sigfig(d.profit.all.euro);
+            neweuroprofit = "€" + sigfig(d.profit.new.euro);
+            dollarprofit = "$" + sigfig(d.profit.all.dollar);
+            newdollarprofit = "$" + sigfig(d.profit.new.dollar);
+            fuel = sigfig(d.fuel.all) + "L";
+            newfuel = sigfig(d.fuel.new) + "L";
             $("#alldriver").html(drivers);
             $("#newdriver").html(newdrivers);
             $("#alldistance").html(distance);
@@ -201,7 +201,7 @@ function loadStats(basic = false) {
                     labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
                     datasets: [{
                         label: 'Game Preference',
-                        data: [d.ets2jobs, d.atsjobs],
+                        data: [d.jobs.ets2, d.jobs.ats],
                         backgroundColor: ["skyblue", "pink"],
                     }]
                 },

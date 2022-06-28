@@ -1,5 +1,9 @@
 # Changelog
 
+**v1.0.5-beta.1**  
+1.Removed "Manager" / "Lead" role name detection for higher role  
+2.Updates to catch up with **Backend v1.8.9**  
+
 **v1.0.4-beta.3**  
 1.Updated font  
 2.Updated login page title & subtitle  

@@ -463,12 +463,6 @@ function validate() {
                                 rolestxt.push(rolelist[roles[i]]);
                             }
                             hrole = rolestxt[0];
-                            for (i = 0; i < rolestxt.length && !isAdmin; i++) {
-                                if (rolestxt[i].indexOf("Manager") != -1 || rolestxt[i].indexOf("Lead") != -1) {
-                                    hrole = rolestxt[i];
-                                    break;
-                                }
-                            }
                             localStorage.setItem("highestrole", hrole);
                             localStorage.setItem("rolelist", JSON.stringify(rolelist));
                             localStorage.setItem("rolesLastUpdate", (+new Date()).toString());
@@ -497,12 +491,6 @@ function validate() {
                         rolestxt.push(rolelist[roles[i]]);
                     }
                     hrole = rolestxt[0];
-                    for (i = 0; i < rolestxt.length && !isAdmin; i++) {
-                        if (rolestxt[i].indexOf("Manager") != -1 || rolestxt[i].indexOf("Lead") != -1) {
-                            hrole = rolestxt[i];
-                            break;
-                        }
-                    }
                     localStorage.setItem("highestrole", hrole);
                     if (hrole == undefined || hrole == "undefined") hrole = "Loner";
                     $("#role").html(hrole);
@@ -622,11 +610,11 @@ function loadDistanceUnit() {
 
 $(document).ready(function () {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/version",
+        url: apidomain + "/" + vtcprefix + "/",
         type: "GET",
         dataType: "json",
         success: function (data) {
-            $("#apiversion").html(data.response);
+            $("#apiversion").html(data.response.version);
         }
     })
 

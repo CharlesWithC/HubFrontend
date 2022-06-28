@@ -143,7 +143,7 @@
                             width="100%"></a>
                 </div>
                 <div class="px-4 pb-6">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium"><?php echo $vtcname ?></h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $vtcname ?></h3>
                     <ul class="text-sm font-medium">
                         <li>
                             <a id="HomeTabBtn"
@@ -211,7 +211,7 @@
                 </div>
 
                 <div class="px-4 pb-6">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium">Game</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Game</h3>
                     <ul class="text-sm font-medium">
                         
                     <?php
@@ -298,7 +298,7 @@
                 </div>
 
                 <div class="px-4 pb-6" id="memberOnlyTabs" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium">Drivers</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Drivers</h3>
                     <ul class="text-sm font-medium">
                         <li>
                             <a id="AllMemberBtn"
@@ -379,7 +379,7 @@
                             if(in_array("application", $enabled_plugins)){
                             echo '
                 <div class="px-4 pb-6" id="recruitment" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium">Applications</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Applications</h3>
                     <ul class="text-sm font-medium">
                         <li>
                             <a id="MyAppBtn"
@@ -426,7 +426,7 @@
                     </ul>
                 </div>';}?>
                 <div class="px-4 pb-6" id="stafftabs" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium">Staff</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Staff</h3>
                     <ul class="mb-8 text-sm font-medium">
                         <?php
                             if(in_array("announcement", $enabled_plugins)){
@@ -582,7 +582,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/G85E3Ny3RV" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.4-beta.3
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.5-beta.1
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
