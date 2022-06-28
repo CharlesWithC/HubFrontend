@@ -616,22 +616,21 @@ function loadProfile(userid) {
                 ShowTab("#HomeTab", "#HomeTabBtn");
                 return toastFactory("error", "Error:", data.descriptor, 5000, false);
             }
-            info = "";
             if (!data.error) {
                 window.history.pushState("", "", '/member?userid=' + userid);
                 d = data.response;
-                info += "<h1 style='font-size:40px'>" + d.name + "</h1>";
-                info += "<p><b>User ID:</b> " + d.userid + "</p>"
-                info += "<p><b>Roles:</b> <span id='profileRoles'></span></p>";
-                if (d.email != undefined) info += "<p><b>Email:</b> " + d.email + "</p>";
-                info += "<p><b>Discord ID:</b> " + d.discordid + "</p>";
-                info +=
-                    "<p><b>TruckersMP ID:</b> <a href='https://truckersmp.com/user/" +
-                    d.truckersmpid + "'>" + d.truckersmpid + "</a></p>";
-                info +=
-                    "<p><b>Steam ID:</b> <a href='https://steamcommunity.com/profiles/" +
-                    d.steamid + "'>" + d.steamid + "</a></p>";
-                info += "<br><p><b>Join:</b> " + getDateTime(d.join * 1000) + "</p>";
+                $("#account_id").html(d.userid + " (" + getDateTime(d.join * 1000) + ")");
+                if(d.email != undefined){$("#account_email").html(d.email);$(".email_private").show();}
+                else $(".email_private").hide();
+                $("#account_discordid").html(d.discordid);
+                $("#account_steamid").html(d.steamid);
+                $("#account_truckersmpid").html(d.truckersmpid);
+                info = "";
+                info += "<h1 style='font-size:40px'><b>" + d.name + "</b></h1>";
+                info += "" + parseMarkdown(d.bio);
+                $("#userProfileDetail").html(info);
+
+                info = "";
                 info += "<p><b>Total Jobs:</b> " + d.totjobs + "</p>";
                 if (distance_unit == "metric") {
                     info += "<p><b>Distance Driven:</b> " + parseInt(d.distance) + "km</p>";
@@ -649,7 +648,7 @@ function loadProfile(userid) {
                     info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance * 0.621371 + d.eventpnt + d.divisionpnt) +
                         "</p>";
                 }
-                info += "<br><b>About Me:</b><br>" + parseMarkdown(d.bio) + "<br><br>";
+                $("#user_statistics").html(info);
 
                 avatar = d.avatar;
                 if (avatar != null) {
@@ -661,8 +660,6 @@ function loadProfile(userid) {
                 } else {
                     avatar = "/images/logo.png";
                 }
-
-                $("#userProfileDetail").html(info);
                 roles = d.roles;
                 rtxt = "";
                 for (var i = 0; i < roles.length; i++) {
@@ -682,12 +679,12 @@ function loadProfile(userid) {
 
                 if (d.userid == localStorage.getItem("userid")) {
                     $("#UpdateAM").show();
-                    $("#Account").show();
+                    $(".account_private").show();
                     $("#Security").show();
                     $("#biocontent").val(d.bio);
                 } else {
                     $("#UpdateAM").hide();
-                    $("#Account").hide();
+                    $(".account_private").hide();
                     $("#Security").hide();
                 }
             }

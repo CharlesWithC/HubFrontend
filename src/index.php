@@ -658,9 +658,9 @@
         <div class="px-4 mx-auto">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
             <div class="md:w-2/3 px-4 mb-4 md:mb-0">
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6 shadow rounded mb-6">
-                        <div class="py-8 px-6 pt-4" style="margin-right:20px;width: calc(100% - 220px);float:left"
+                <div class="px-6 pt-4 bg-white shadow rounded">
+                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6 shadow rounded mb-6">
+                        <div class="py-8 px-6 pt-4" style="padding-top:0;margin-right:20px;width: calc(100% - 220px);float:left"
                             id="userProfileDetail">
                         </div>
                         <div class="py-8 px-6 pt-4 mb-6" style="width:170px;padding:10px;float:right">
@@ -765,14 +765,35 @@
                 </div>
             </div>
             <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0">
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="UpdateAM" style="display:none">
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Account">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">About Me (Markdown)</h3>
+                        <h3 class="text-xl font-bold">Account</h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
-
+                        <p><span id="profileRoles"></span></p><br>
+                        <p><b>ID</b>: <span id="account_id"></span></p>
+                        <p class="email_private"><b>Email</b>: <span id="account_email"></span></p>
+                        <p><b>Discord ID</b>: <span id="account_discordid"></span></p>
+                        <p><b>Steam ID</b>: <span id="account_steamid"></span> <a class="account_private" href="/auth?steamupdate=1" style='cursor:pointer'>Update</a></p>
+                        <p><b>TruckersMP ID</b>: <span id="account_truckersmpid"></span> <a class="account_private" href="/auth?truckersmpupdate=1" style='cursor:pointer'>Update</a></p>
+                    </div>
+                </div>
+                <br>
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Statistics">
+                    <div class="flex px-6 pb-4 border-b">
+                        <h3 class="text-xl font-bold">Statistics</h3>
+                    </div>
+                    <div class="p-4 overflow-x-auto" style="display: block;">
+                        <p id="user_statistics"></p>
+                    </div>
+                </div>
+                <br>
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="UpdateAM" style="display:none">
+                    <div class="flex px-6 pb-4 border-b">
+                        <h3 class="text-xl font-bold">Update About Me (Markdown)</h3>
+                    </div>
+                    <div class="p-4 overflow-x-auto" style="display: block;">
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Content</label>
                             <textarea id="biocontent" style="height:300px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea>
@@ -781,33 +802,6 @@
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="updateBio()" id="updateBioBtn">Update</button>
-                    </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Account" style="display:none">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Account</h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3>Update Steam Account</h3>
-                        <label class="block text-sm font-medium mb-2" for=""><i>To prevent abuse, you can only update it
-                                once within
-                                last 7 days.</i></label>
-                        <label class="block text-sm font-medium mb-2" for=""><i>If you are a driver, you have to start
-                                game from new
-                                account or your jobs will not be logged.</i></label>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="window.location.href='/auth?steamupdate=1'">Update</button>
-                    </div>
-                    <br>
-                    <hr>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3>Update TruckersMP Account</h3>
-                        <label class="block text-sm font-medium mb-2" for=""><i>Your TruckersMP Account must be bound to your Steam Account.</i></label>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="window.location.href='/auth?truckersmpupdate=1'">Update</button>
                     </div>
                 </div>
                 <br>
