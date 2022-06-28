@@ -2,7 +2,8 @@
 
 **v1.0.5-beta.1**  
 1.Removed "Manager" / "Lead" role name detection for higher role  
-2.Updates to catch up with **Backend v1.8.9**  
+2.Updated Profile Page  
+3.Added function for admin to change Discord account for users  
 
 **v1.0.4-beta.3**  
 1.Updated font  

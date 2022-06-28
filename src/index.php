@@ -511,6 +511,23 @@
                             </a>
                         </li>
 
+                        <li>
+                            <a id="AllUserBtn"
+                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
+                                style="cursor: pointer" onclick="ShowTab('#AllUsers', '#AllUserBtn')">
+                                <span class="inline-block mr-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path
+                                            d="M14 14.252V22H4a8 8 0 0 1 10-7.748zM12 13c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm6 4v-3h2v3h3v2h-3v3h-2v-3h-3v-2h3z" />
+                                    </svg> </span>
+                                <span>Users</span>
+                                <span class="inline-block ml-auto">
+                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
+                            </a>
+                        </li>
+
                         <?php
                             if(in_array("application", $enabled_plugins)){
                             echo '
@@ -531,22 +548,6 @@
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
-                        <li>
-                            <a id="AllUserBtn"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#AllUsers', '#AllUserBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="currentColor">
-                                        <path
-                                            d="M14 14.252V22H4a8 8 0 0 1 10-7.748zM12 13c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm6 4v-3h2v3h3v2h-3v3h-2v-3h-3v-2h3z" />
-                                    </svg> </span>
-                                <span>Pending Users</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
-                            </a>
-                        </li>
                         <li>
                             <a id="AuditLogBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
@@ -1139,7 +1140,7 @@
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
                     <h3 class="text-xl font-bold">Downloads</h3>
-                    <a style="cursor:pointer;display:none;" onclick="toggleUpdateDownloads()" id="downloadseditbtn">
+                    <a style="cursor:pointer;display:none;" onclick="toggleUpdateDownloads()" class="admin-only">
                         <span style="position:relative;top:3px;left:3px">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" style="color: #382CDD"
                                 viewBox="0 0 24 24" fill="none">
@@ -2561,7 +2562,7 @@
                 </div>
             </div>
             <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="updateStaffPos">
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
                 <div class="flex px-6 pb-4 border-b">
                     <h3 class="text-xl font-bold">Update Open Staff Positions</h3>
                 </div>
@@ -2678,9 +2679,34 @@
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
 
-                    <button type="button"
+                    <button type="button" id="addUserBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="addUser()">Add</button>
+                </div>
+            </div>
+            <br>
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold">Update User Discord Account</h3>
+                </div>
+                <div class="p-4 overflow-x-auto" style="display: block;">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for="">Old Discord ID</label>
+                        <input id="upd_old_id" style="width:200px"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            name="field-name" rows="5" placeholder=""></input>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for="">New Discord ID</label>
+                        <input id="upd_new_id" style="width:200px"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            name="field-name" rows="5" placeholder=""></input>
+                    </div>
+
+                    <button type="button" id="updateDiscordBtn"
+                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="updateDiscord()">Update</button>
                 </div>
             </div>
     </section>
@@ -2884,7 +2910,7 @@
                                 type="text" name="" placeholder=""></div>
 
                         <div class="mb-6"> 
-                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (Posted in Driver Channel) (Variable: {mention})</label>
+                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (POSTed in Driver Channel) (Variable: {mention})</label>
                             <textarea id="config_welcome_message" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="field-name" rows="5" placeholder=""></textarea></div>

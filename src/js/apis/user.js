@@ -278,9 +278,11 @@ function addUser(discordid = -1) {
             return;
         }
     }
+    $("#addUserBtn").html("Working...");
+    $("#addUserBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/add",
-        type: "POSt",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -289,6 +291,8 @@ function addUser(discordid = -1) {
             discordid: discordid
         },
         success: function (data) {
+            $("#addUserBtn").html("Add");
+            $("#addUserBtn").removeAttr("disabled");
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
                 false);
             toastFactory("success", "Success", "User added successfully. User ID: " + data.response.userid, 5000,
@@ -296,10 +300,49 @@ function addUser(discordid = -1) {
             loadUsers();
         },
         error: function (data) {
+            $("#addUserBtn").html("Add");
+            $("#addUserBtn").removeAttr("disabled");
             toastFactory("error", "Error:", "Failed to receive API response.", 5000,
                 false);
             console.warn(
                 `Failed to add user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+            console.log(data);
+        }
+    })
+}
+
+function updateDiscord() {
+    old_discord_id = $("#upd_old_id").val();
+    new_discord_id = $("#upd_new_id").val();
+    $("#updateDiscordBtn").html("Working...");
+    $("#updateDiscordBtn").attr("disabled", "disabled");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/discord",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            old_discord_id: old_discord_id,
+            new_discord_id: new_discord_id
+        },
+        success: function (data) {
+            $("#updateDiscordBtn").html("Update");
+            $("#updateDiscordBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
+                false);
+            toastFactory("success", "Success", "User Discord Account Updated!", 5000,
+                false);
+            loadUsers();
+        },
+        error: function (data) {
+            $("#updateDiscordBtn").html("Update");
+            $("#updateDiscordBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+                false);
+            console.warn(
+                `Failed to update user Discord account. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
             console.log(data);
         }
     })
@@ -376,7 +419,7 @@ function banUser() {
     reason = $("#banreason").val();
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/ban",
-        type: "POSt",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

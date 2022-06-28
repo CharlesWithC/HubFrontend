@@ -341,12 +341,11 @@ function ShowStaffTabs() {
             $("#stafftabs a").hide();
             if(userPerm.includes("admin")){
                 $("#stafftabs a").show();
-                $("#updateStaffPos").show();
-                $("#downloadseditbtn").show();
+                $(".admin-only").show();
                 $("#AdminBtn").show();
                 AnnEventBtn();
             } else {
-                $("#updateStaffPos").hide();
+                $(".admin-only").hide();
                 if(userPerm.includes("event")){
                     $("#StaffEventBtn").show();
                     $("#StaffAnnTabBtn").show();
