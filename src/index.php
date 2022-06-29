@@ -4,6 +4,14 @@
 <?php
   $domain = $_SERVER['HTTP_HOST'];
   require_once('configs/'.$domain.'.php');
+
+  $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+  $language = substr($language, 0, 2);
+  if(file_exists('languages/'.$language.'.json')){
+    $st = json_decode(file_get_contents('languages/'.$language.'.json'));
+  } else {
+    $st = json_decode(file_get_contents('languages/en.json'));
+  }
 ?>
 
 <head>
@@ -11,7 +19,7 @@
     <link rel="icon" href="/images/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="<?php echo $vtcname ?> - By CharlesWithC#7777">
+    <meta name="description" content="<?php echo $slogan ?>">
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $slogan ?>" property="og:description" />
@@ -161,7 +169,7 @@
                                         <path d="M18 8H21V11" stroke="#fff" stroke-width="2" stroke-linecap="round"
                                             stroke-linejoin="round" />
                                     </svg> </span>
-                                <span>Overview</span>
+                                <span><?php echo $st->overview; ?></span>
                                 <span class="inline-block ml-auto">
                                 </span>
                             </a>
@@ -181,7 +189,7 @@
                                     <path
                                     d="M2 3h10v2H2V3zm0 3h4v3H2V6zm0 4h4v1H2v-1zm0 2h4v1H2v-1zm5-6h2v1H7V6zm3 0h2v1h-2V6zM7 8h2v1H7V8zm3 0h2v1h-2V8zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1z" />
                                 </svg> </span>
-                                <span>Announcements</span>
+                                <span>'.$st->announcements.'</span>
                                 <span class="inline-block ml-auto">
                                 </span>
                             </a>
@@ -202,7 +210,7 @@
                                         <path
                                             d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
                                     </svg> </span>
-                                <span>Downloads</span>
+                                <span>'.$st->downloads.'</span>
                                 <span class="inline-block ml-auto">
                                 </span>
                             </a>
@@ -211,7 +219,7 @@
                 </div>
 
                 <div class="px-4 pb-6">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Game</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->game ?></h3>
                     <ul class="text-sm font-medium">
                         
                     <?php
@@ -227,7 +235,7 @@
                                         <path fill-rule="evenodd"
                                             d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z" />
                                     </svg> </span>
-                                <span>Map</span>
+                                <span>'.$st->map.'</span>
                                 <span class="inline-block ml-auto">
                                 </span>
                             </a>
@@ -245,7 +253,7 @@
                                         </path>
                                     </svg>
                                 </span>
-                                <span>Deliveries</span>
+                                <span><?php echo $st->deliveries ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -266,7 +274,7 @@
                                             d="M32 32C49.67 32 64 46.33 64 64V96H149.2L64 266.3V448C64 465.7 49.67 480 32 480C14.33 480 0 465.7 0 448V64C0 46.33 14.33 32 32 32V32zM309.2 288H234.8L330.8 96H405.2L309.2 288zM458.8 96H533.2L437.2 288H362.8L458.8 96zM202.8 96H277.2L181.2 288H106.8L202.8 96zM576 117.7V64C576 46.33 590.3 32 608 32C625.7 32 640 46.33 640 64V448C640 465.7 625.7 480 608 480C590.3 480 576 465.7 576 448V288H490.8L576 117.7z" />
                                     </svg>
                                 </span>
-                                <span>Divisions</span>
+                                <span>'.$st->divisions.'</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -288,7 +296,7 @@
                                         <path
                                             d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z" />
                                     </svg> </span>
-                                <span>Events</span>
+                                <span>'.$st->events.'</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
