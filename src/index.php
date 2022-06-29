@@ -306,7 +306,7 @@
                 </div>
 
                 <div class="px-4 pb-6" id="memberOnlyTabs" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Drivers</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->drivers; ?></h3>
                     <ul class="text-sm font-medium">
                         <li>
                             <a id="AllMemberBtn"
@@ -321,7 +321,7 @@
                                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                     </svg> </span>
-                                <span>Members</span>
+                                <span><?php echo $st->members; ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -348,7 +348,7 @@
                                             d="M10.8056 5.11325L11.7147 3.1856C11.8314 2.93813 12.1686 2.93813 12.2853 3.1856L13.1944 5.11325L15.2275 5.42427C15.4884 5.46418 15.5923 5.79977 15.4035 5.99229L13.9326 7.4917L14.2797 9.60999C14.3243 9.88202 14.0515 10.0895 13.8181 9.96099L12 8.96031L10.1819 9.96099C9.94851 10.0895 9.67568 9.88202 9.72026 9.60999L10.0674 7.4917L8.59651 5.99229C8.40766 5.79977 8.51163 5.46418 8.77248 5.42427L10.8056 5.11325Z"
                                             stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg> </span>
-                                <span>Leaderboard</span>
+                                <span><?php echo $st->leaderboard; ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -374,7 +374,7 @@
                                         <line x1="10" y1="12" x2="3.25" y2="10" />
                                         <line x1="14" y1="12" x2="20.75" y2="10" />
                                     </svg> </span>
-                                <span>Rankings</span>
+                                <span><?php echo $st->rankings; ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -387,7 +387,7 @@
                             if(in_array("application", $enabled_plugins)){
                             echo '
                 <div class="px-4 pb-6" id="recruitment" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Applications</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">'.$st->applications.'</h3>
                     <ul class="text-sm font-medium">
                         <li>
                             <a id="MyAppBtn"
@@ -400,7 +400,7 @@
                                             d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
                                     </svg>
                                 </span>
-                                <span id="MyAppSpan">My Applications</span>
+                                <span id="MyAppSpan">'.$st->my_applications.'</span>
                                 <span class="inline-block ml-auto">
                                 </span>
                             </a>
@@ -426,7 +426,7 @@
                                             d="M17 19L21.8844 13.3016C22.5263 12.5526 22.5263 11.4474 21.8844 10.6984L17 5"
                                             stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
                                     </svg> </span>
-                                <span>Submit Application</span>
+                                <span>'.$st->submit_application.'</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -434,7 +434,7 @@
                     </ul>
                 </div>';}?>
                 <div class="px-4 pb-6" id="stafftabs" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">Staff</h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->staff; ?></h3>
                     <ul class="mb-8 text-sm font-medium">
                         <?php
                             if(in_array("announcement", $enabled_plugins)){
@@ -451,7 +451,7 @@
                                     <path
                                     d="M2 3h10v2H2V3zm0 3h4v3H2V6zm0 4h4v1H2v-1zm0 2h4v1H2v-1zm5-6h2v1H7V6zm3 0h2v1h-2V6zM7 8h2v1H7V8zm3 0h2v1h-2V8zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1z" />
                                 </svg> </span>
-                                <span>Announcements</span>
+                                <span>'.$st->announcements.'</span>
                                 <span class="inline-block ml-auto">
                                 </span>
                             </a>
@@ -472,7 +472,7 @@
                                         <path
                                             d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z" />
                                     </svg> </span>
-                                <span>Events</span>
+                                <span>'.$st->events.'</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -492,7 +492,7 @@
                                     d="M32 32C49.67 32 64 46.33 64 64V96H149.2L64 266.3V448C64 465.7 49.67 480 32 480C14.33 480 0 465.7 0 448V64C0 46.33 14.33 32 32 32V32zM309.2 288H234.8L330.8 96H405.2L309.2 288zM458.8 96H533.2L437.2 288H362.8L458.8 96zM202.8 96H277.2L181.2 288H106.8L202.8 96zM576 117.7V64C576 46.33 590.3 32 608 32C625.7 32 640 46.33 640 64V448C640 465.7 625.7 480 608 480C590.3 480 576 465.7 576 448V288H490.8L576 117.7z" />
                                 </svg>
                                 </span>
-                                <span>Divisions</span>
+                                <span>'.$st->divisions.'</span>
                                 <span class="inline-block ml-auto">
                                 <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                     xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -512,7 +512,7 @@
                                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
                                         <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                                     </svg> </span>
-                                <span>Members</span>
+                                <span><?php echo $st->members; ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -529,7 +529,7 @@
                                         <path
                                             d="M14 14.252V22H4a8 8 0 0 1 10-7.748zM12 13c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm6 4v-3h2v3h3v2h-3v3h-2v-3h-3v-2h3z" />
                                     </svg> </span>
-                                <span>Users</span>
+                                <span><?php echo $st->users; ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -550,7 +550,7 @@
                                             d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
                                     </svg>
                                 </span>
-                                <span>Applications</span>
+                                <span>'.$st->applications.'</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -568,7 +568,7 @@
                                         <path
                                             d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12z" />
                                     </svg> </span>
-                                <span>Audit Log</span>
+                                <span><?php echo $st->audit_log ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -580,7 +580,7 @@
                                 style="cursor: pointer" onclick="ShowTab('#Admin', '#AdminBtn')">
                                 <span class="inline-block mr-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z"/><path d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38c0.62,0,1.12,0.51,1.12,1.12 s-0.51,1.12-1.12,1.12s-1.12-0.51-1.12-1.12S16.38,14.38,17,14.38z M17,19.75c-0.93,0-1.74-0.46-2.24-1.17 c0.05-0.72,1.51-1.08,2.24-1.08s2.19,0.36,2.24,1.08C18.74,19.29,17.93,19.75,17,19.75z"/></svg> </span>
-                                <span>Administrator</span>
+                                <span><?php echo $st->administrator ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -591,7 +591,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/MkbxXredqz" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.0.5-beta.1
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.1.1-beta.1
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -609,10 +609,10 @@
                             <div style="margin-top:4px">
                                 <button type="button" style="display:inline;padding:5px" id="metricbtn"
                                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-500 rounded transition duration-200"
-                                    onclick="localStorage.setItem('distance_unit', 'metric');window.location.reload();">Metric</button>
+                                    onclick="localStorage.setItem('distance_unit', 'metric');window.location.reload();"><?php echo $st->metric; ?></button>
                                 <button type="button" style="display:inline;padding:4px" id="imperialbtn"
                                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-500 rounded transition duration-200"
-                                    onclick="localStorage.setItem('distance_unit', 'imperial');window.location.reload();">Imperial</button>
+                                    onclick="localStorage.setItem('distance_unit', 'imperial');window.location.reload();"><?php echo $st->imperial; ?></button>
                             </div>
                             &nbsp;
                             &nbsp;
@@ -648,11 +648,11 @@
                             <button class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
                                 <div class="mr-3">
                                     <p id="name" class="text-sm" style="text-align:right">CharlesWithC</p>
-                                    <p id="role" class="text-sm text-gray-500" style="text-align:right">Guest</p>
+                                    <p id="role" class="text-sm text-gray-500" style="text-align:right"></p>
                                 </div>
                                 <div class="mr-2"><img id="avatar"
                                         class="w-10 h-10 rounded-full object-cover object-right" width="40"
-                                        src="https://cdn.discordapp.com/avatars/873178118213472286/a_6ae3edab0872ab4aef2b158865cd582a.gif"
+                                        src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif"
                                         alt="" /></div>
                             </button>
                         </div>
@@ -691,8 +691,7 @@
                             |
                             <a id="aaddup1" onclick='addup=1-addup;loadChart()' style='cursor:pointer'><span
                                     id="uaddup1"
-                                    class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">Add
-                                    Up</span></a>
+                                    class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
                         </div>
                     </h2>
                     <div class="p-4 overflow-x-auto" style="display: block;">
@@ -702,7 +701,7 @@
                 <br>
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold" style="margin-top:8px">Delivery Log</h3>
+                        <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
                         <div style="margin-left:auto">
                             <a onclick='dets2=1-dets2;loadUserDelivery();' style='cursor:pointer'><span
                                     class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
@@ -722,7 +721,7 @@
                                 type="date" name="" style="width:150px;display:inline" placeholder="">
                             <button type="button" style="display:inline"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="loadUserDelivery()" id="loadUserDeliveryBtn">Go</button>
+                                onclick="loadUserDelivery()" id="loadUserDeliveryBtn"><?php echo $st->go; ?></button>
                         </div>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
@@ -730,16 +729,16 @@
                             <thead id="userDeliveryTableHead">
                                 <tr class="text-xs text-gray-500 text-left">
                                     <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">From</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">To</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Driven Distance</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Cargo</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Net Profit</th>
+                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->from; ?></th>
+                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->to; ?></th>
+                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driven_distance; ?></th>
+                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
+                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->new_profit; ?></th>
                                 </tr>
                             </thead>
                             <tbody id="userDeliveryTable">
                                 <tr class="text-sm">
-                                    <td class="py-5 px-6 font-medium">No Data</td>
+                                    <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                     <td class="py-5 px-6 font-medium"></td>
                                     <td class="py-5 px-6 font-medium"></td>
                                     <td class="py-5 px-6 font-medium"></td>
@@ -752,14 +751,14 @@
                     </div>
                     <div style="margin-left:auto;width:fit-content">
                         <div style="margin-left:auto;width:fit-content">
-                            <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                            <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
                             <input id="udpages" style="width:50px;display:inline"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                                 name="field-name" rows="5" placeholder="" value="1"></input> / <span
                                 id="udtotpages">-</span>
                             <button type="button"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="loadUserDelivery()">Show</button>
+                                onclick="loadUserDelivery()"><?php echo $st->show; ?></button>
                         </div>
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -776,21 +775,21 @@
             <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0">
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Account">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Account</h3>
+                        <h3 class="text-xl font-bold"><?php echo $st->account; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <p><span id="profileRoles"></span></p><br>
                         <p><b>ID</b>: <span id="account_id"></span></p>
-                        <p class="email_private"><b>Email</b>: <span id="account_email"></span></p>
-                        <p><b>Discord ID</b>: <span id="account_discordid"></span></p>
-                        <p><b>Steam ID</b>: <span id="account_steamid"></span> <a class="account_private" href="/auth?steamupdate=1" style='cursor:pointer'>Update</a></p>
-                        <p><b>TruckersMP ID</b>: <span id="account_truckersmpid"></span> <a class="account_private" href="/auth?truckersmpupdate=1" style='cursor:pointer'>Update</a></p>
+                        <p class="email_private"><b><?php echo $st->email; ?></b>: <span id="account_email"></span></p>
+                        <p><b><?php echo $st->discord_id; ?></b>: <span id="account_discordid"></span></p>
+                        <p><b><?php echo $st->steam_id; ?></b>: <span id="account_steamid"></span> <a class="account_private" href="/auth?steamupdate=1" style='cursor:pointer'>Update</a></p>
+                        <p><b><?php echo $st->truckersmp_id; ?></b>: <span id="account_truckersmpid"></span> <a class="account_private" href="/auth?truckersmpupdate=1" style='cursor:pointer'>Update</a></p>
                     </div>
                 </div>
                 <br>
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Statistics">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Statistics</h3>
+                        <h3 class="text-xl font-bold"><?php echo $st->statistics; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <p id="user_statistics"></p>
@@ -799,7 +798,7 @@
                 <br>
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="UpdateAM" style="display:none">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Update About Me (Markdown)</h3>
+                        <h3 class="text-xl font-bold"><?php echo $st->update_about_me; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <div class="mb-6">
@@ -810,36 +809,31 @@
 
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="updateBio()" id="updateBioBtn">Update</button>
+                            onclick="updateBio()" id="updateBioBtn"><?php echo $st->update; ?></button>
                     </div>
                 </div>
                 <br>
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Security" style="display:none">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Security</h3>
+                        <h3 class="text-xl font-bold"><?php echo $st->security; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3>External Application Authorization</h3>
-                        <label class="block text-sm font-medium mb-2" for="">Application Token: <span
+                        <h3><?php echo $st->external_application_authorization; ?></h3>
+                        <label class="block text-sm font-medium mb-2" for=""><b><?php echo $st->application_token; ?></b>: <span
                                 id="userAppToken"></span></label>
-                        <label class="block text-sm font-medium mb-2" for=""><i>For security purposes, tokens can only
-                                be viewed
-                                once, when created. If you forgot or lost access to your token, please regenerate a new
-                                one.</i></label>
+                        <label class="block text-sm font-medium mb-2" for=""><i><?php echo $st->application_token_note; ?></i></label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="genNewAppToken()" id="genAppTokenBtn">Reset Token</button>
+                            onclick="genNewAppToken()" id="genAppTokenBtn"><?php echo $st->reset_token; ?></button>
                     </div>
                     <br>
                     <hr>
                     <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3>Leave Company</h3>
-                        <label class="block text-sm font-medium mb-2" for="" style="color:red">Dangerous! Think again
-                            before
-                            resigning! This will clear your delivery log and remove you from navio company!</label>
+                        <h3><?php echo $st->leave_company; ?></h3>
+                        <label class="block text-sm font-medium mb-2" for="" style="color:red"><?php echo $st->resign_note; ?></label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="resign()" id="resignBtn">Resign</button>
+                            onclick="resign()" id="resignBtn"><?php echo $st->resign; ?></button>
                     </div>
                     </div>
                 </div>
@@ -864,8 +858,8 @@
                                                 d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                                                 fill="#382CDD"></path>
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600">Live</h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">Now</span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->live; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->now; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="livedriver">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -893,8 +887,8 @@
                                             <line x1="10" y1="12" x2="3.25" y2="10" />
                                             <line x1="14" y1="12" x2="20.75" y2="10" />
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600">Drivers</h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">All</span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->drivers; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alldriver">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -915,8 +909,8 @@
                                                 d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
                                                 fill="#382CDD"></path>
                                         </svg></span>
-                                    <h3 class="text-sm text-gray-600">Delivered</h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">All</span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alljob">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -939,8 +933,8 @@
                                             <circle cx="12" cy="10" r="3"></circle>
                                         </svg>
                                     </span>
-                                    <h3 class="text-sm text-gray-600">Distance</h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">All</span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->distance; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alldistance">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -964,8 +958,8 @@
                                             <path
                                                 d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600">Profit</h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">All</span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="allprofit">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -987,8 +981,8 @@
                                                 d="M13,6L13,6v5.5c0,0.2761-0.2239,0.5-0.5,0.5S12,11.7761,12,11.5v-2C12,8.6716,11.3284,8,10.5,8H9V2c0-0.5523-0.4477-1-1-1H2 C1.4477,1,1,1.4477,1,2v11c0,0.5523,0.4477,1,1,1h6c0.5523,0,1-0.4477,1-1V9h1.5C10.7761,9,11,9.2239,11,9.5v2 c0,0.8284,0.6716,1.5,1.5,1.5s1.5-0.6716,1.5-1.5V5c0-0.5523-0.4477-1-1-1l0,0V2.49C12.9946,2.2178,12.7723,1.9999,12.5,2 c-0.2816,0.0047-0.5062,0.2367-0.5015,0.5184C11.9987,2.5289,11.9992,2.5395,12,2.55V5C12,5.5523,12.4477,6,13,6s1-0.4477,1-1 s-0.4477-1-1-1 M8,6.5C8,6.7761,7.7761,7,7.5,7h-5C2.2239,7,2,6.7761,2,6.5v-3C2,3.2239,2.2239,3,2.5,3h5C7.7761,3,8,3.2239,8,3.5 V6.5z"
                                                 fill="#382CDD"></path>
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600">Fuel</h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">All</span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->fuel; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="allfuel">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -1002,7 +996,7 @@
                         </div>
                     </div>
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
-                        <h2><b>Statistics</b>
+                        <h2><b><?php echo $st->statistics; ?></b>
                             <div style="margin-left:auto;width:fit-content">
                                 <a onclick='chartscale=1;loadChart()' style='cursor:pointer'><span id="cs1"
                                         class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
@@ -1012,8 +1006,7 @@
                                         class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
                                 |
                                 <a onclick='addup=1-addup;loadChart()' style='cursor:pointer'><span id="addup1"
-                                        class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">Add
-                                        Up</span></a>
+                                        class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
                             </div>
                         </h2>
                         <div class="p-4 overflow-x-auto" style="display: block;">
@@ -1026,16 +1019,16 @@
                             <table class="table-auto w-full" style="margin-top:20px">
                                 <thead id="onlinedriverHead" style="display:none">
                                     <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                        <th class="py-5 px-6 pb-3 font-medium">Truck</th>
-                                        <th class="py-5 px-6 pb-3 font-medium">Cargo</th>
-                                        <th class="py-5 px-6 pb-3 font-medium">Speed</th>
-                                        <th class="py-5 px-6 pb-3 font-medium">Destination</th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->truck; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->speed; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->destination; ?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="onlinedriver">
                                     <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium">No Data</td>
+                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                         <td class="py-5 px-6 font-medium"></td>
                                         <td class="py-5 px-6 font-medium"></td>
                                         <td class="py-5 px-6 font-medium"></td>
@@ -1053,13 +1046,13 @@
                             <table class="table-auto w-full" style="margin-top:20px">
                                 <thead id="leaderboardHead">
                                     <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                        <th class="py-5 px-6 pb-3 font-medium">Points</th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->points; ?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="leaderboard">
                                     <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium">No Data</td>
+                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                         <td class="py-5 px-6 font-medium"></td>
                                     </tr>
                                 </tbody>
@@ -1072,18 +1065,18 @@
                     </div>
 
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded  mb-6">
-                        <h2><b>New Drivers</b></h2>
+                        <h2><b><?php echo $st->new_drivers; ?></b></h2>
                         <div class="p-4 overflow-x-auto" style="display: block;">
                             <table class="table-auto w-full" style="margin-top:20px">
                                 <thead id="newdriverTableHead">
                                     <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                        <th class="py-5 px-6 pb-3 font-medium">Join Date</th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->join_date; ?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="newdriverTable">
                                     <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium">No Data</td>
+                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1147,7 +1140,7 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Downloads</h3>
+                    <h3 class="text-xl font-bold">'.$st->downloads.'</h3>
                     <a style="cursor:pointer;display:none;" onclick="toggleUpdateDownloads()" class="admin-only">
                         <span style="position:relative;top:3px;left:3px">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" style="color: #382CDD"
@@ -1161,7 +1154,7 @@
                     <div style="margin:20px" id="downloads">
                     </div>
                     <div style="margin:20px;height:65vh;display:none" id="downloadsedit">
-                        <label class="block text-sm font-medium mb-2" for="">Markdown (Auto update):</label>
+                        <label class="block text-sm font-medium mb-2" for="">'.$st->markdown_auto_update.':</label>
 
                         <textarea id="downloadscontent" style="width:100%;height:60vh"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
@@ -1179,46 +1172,43 @@
     <div style="padding:50px;padding-top:0;">
       <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="newann">
         <div class="flex px-6 pb-4 border-b">
-          <h3 class="text-xl font-bold">Manage Announcements</h3>
+          <h3 class="text-xl font-bold">'.$st->manage_announcements.'</h3>
         </div>
         <div class="container px-4">
           <div style="margin:20px">
-            <p>To create an announcement, input <b>title, content and type</b>, announcement id is NOT needed.</p>
-            <p>To update an announcement, input <b>announcement id, title, content and type</b></p>
-            <p>To delete an announcement, input ONLY <b>announcement id</b> and leave the other fields empty.</p>
-            <p>Watch out that the button will change based on your inputs!</p>
+            '.$st->manage_announcements_note.'
             <br>
             <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">Announcement ID</label>
+              <label class="block text-sm font-medium mb-2" for="">'.$st->announcement_id.'</label>
               <input id="annid" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                 type="text" name="" style="width:200px;display:inline" placeholder="For updating / deleting">
               <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="FetchAnnouncement()" id="fetchAnnouncementBtn">Fetch Data</button>
+                onclick="FetchAnnouncement()" id="fetchAnnouncementBtn">'.$st->fetch_data.'</button>
             </div>
 
             <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">Title</label>
+              <label class="block text-sm font-medium mb-2" for="">'.$st->title.'</label>
               <input id="anntitle"
                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
                 name="" placeholder=""></div>
 
             <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">Content</label>
+              <label class="block text-sm font-medium mb-2" for="">'.$st->content.'</label>
               <textarea id="anncontent"
                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                 name="field-name" rows="5" placeholder=""></textarea></div>
 
             <div class="relative" style="width:200px">
-              <label class="block text-sm font-medium mb-2 text-left" for="">Announcement Type:</label>
+              <label class="block text-sm font-medium mb-2 text-left" for="">'.$st->announcement_type.':</label>
               <select id="annselect"
                 class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                 name="field-name">
-                <option value="0">Information</option>
-                <option value="1">Event</option>
-                <option value="2">Warning</option>
-                <option value="3">Critical</option>
-                <option value="4">Resolved</option>
+                <option value="0">'.$st->information.'</option>
+                <option value="1">'.$st->event.'</option>
+                <option value="2">'.$st->warning.'</option>
+                <option value="3">'.$st->critical.'</option>
+                <option value="4">'.$st->resolved.'</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
@@ -1232,20 +1222,19 @@
                 <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Visibility:</label>
                 <label>
                   <input type="radio" name="announcement-visibility" value="yes" checked id="annpvt-0">
-                  <span class="annpvt-0">Public (All user on Drivers Hub can view)</span>
+                  <span class="annpvt-0">'.$st->public_announcement.'</span>
                 </label>
               </div>
               <div>
                 <label>
                   <input type="radio" name="announcement-visibility" value="yes" id="annpvt-1">
-                  <span class="annpvt-1">Private (Only members can view)</span>
+                  <span class="annpvt-1">'.$st->private_announcement.'</span>
                 </label>
               </div>
             </div>
 
             <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">Discord Channel ID (Public 929856834645426217 |
-                Private 941537039340412929 | Or any other)</label>
+              <label class="block text-sm font-medium mb-2" for="">'.$st->discord_channel_id.'</label>
               <input id="annchan"
                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
                 name="" placeholder="Leave empty if you don\'t want this announcement to be forwarded to Discord">
@@ -1253,7 +1242,7 @@
 
             <button type="button"
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="AnnouncementOp()" id="newAnnBtn">Create Announcement</button>
+              onclick="AnnouncementOp()" id="newAnnBtn">'.$st->create_announcement.'</button>
           </div>
         </div>
       </div>
