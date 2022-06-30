@@ -374,7 +374,7 @@
                                         <line x1="10" y1="12" x2="3.25" y2="10" />
                                         <line x1="14" y1="12" x2="20.75" y2="10" />
                                     </svg> </span>
-                                <span><?php echo $st->rankings; ?></span>
+                                <span>'.$st->rankings.'</span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
                                         xmlns="http://www.w3.org/2000/svg"></svg></span>
@@ -1222,13 +1222,13 @@
                 <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Visibility:</label>
                 <label>
                   <input type="radio" name="announcement-visibility" value="yes" checked id="annpvt-0">
-                  <span class="annpvt-0">'.$st->public_announcement.'</span>
+                  <span class="annpvt-0">'.$st->public.'</span>
                 </label>
               </div>
               <div>
                 <label>
                   <input type="radio" name="announcement-visibility" value="yes" id="annpvt-1">
-                  <span class="annpvt-1">'.$st->private_announcement.'</span>
+                  <span class="annpvt-1">'.$st->private.'</span>
                 </label>
               </div>
             </div>
@@ -1266,7 +1266,7 @@
                                         style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
                                     <h2 class="mb-2 text-3xl font-bold" id="sotm" style="font-size:22px">-</h2>
                                     <div class="mb-2">
-                                        <h3 class="text-sm text-gray-600">Staff of the Month</h3>
+                                        <h3 class="text-sm text-gray-600">'.$st->staff_of_the_month.'</h3>
                                     </div>
                                 </div>
                             </div>
@@ -1277,7 +1277,7 @@
                                         style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
                                     <h2 class="mb-2 text-3xl font-bold" id="dotm" style="font-size:22px;">-</h2>
                                     <div class="mb-2">
-                                        <h3 class="text-sm text-gray-600">Driver of the Month</h3>
+                                        <h3 class="text-sm text-gray-600">'.$st->driver_of_the_month.'</h3>
                                     </div>
                                 </div>
                             </div>
@@ -1288,14 +1288,14 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">Members</h3>
+                    <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->members; ?></h3>
                     <div style="margin-left:auto">
                         <input id="searchname"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             type="text" name="" style="width:200px;display:inline" placeholder="Search By Name">
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadMembers()" id="searchMemberBtn">Go</button>
+                            onclick="loadMembers()" id="searchMemberBtn"><?php echo $st->go; ?></button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
@@ -1303,13 +1303,13 @@
                         <thead id="membersTableHead">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Highest Role</th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->highest_role; ?></th>
                             </tr>
                         </thead>
                         <tbody id="membersTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                             </tr>
@@ -1318,13 +1318,13 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
                         <input id="mpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="mtotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadMembers()">Show</button>
+                            onclick="loadMembers()"><?php echo $st->show; ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -1343,22 +1343,19 @@
         <div class="px-4 mx-auto" style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Assign roles</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->assign_roles; ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;padding:20px">
                     <div class="mb-6">
-                        <p>Fetch member roles first, this will overwrite all existing roles.</p>
-                        <p style="color:red">Warning! Removing Driver role will wipe member delivery log, and kick
-                            member from
-                            navio company!</p>
+                        <?php echo $st->assign_roles_note; ?>
                         <br>
-                        <label class="block text-sm font-medium mb-2" for="">Member Name</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->member_name; ?></label>
                         <input id="memberroleid" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                         <button type="button" id="fetchRolesBtn"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="fetchRoles()">Fetch Existing Roles</button>
+                            onclick="fetchRoles()"><?php echo $st->fetch_existing_roles; ?></button>
                     </div>
                     <span id="memberrolename" style="font-size:30px"></span>
                     <div class="mb-6" id="rolelist">
@@ -1367,39 +1364,38 @@
 
                     <button type="button" id="updateMemberRolesBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateMemberRoles()">Update</button>
+                        onclick="updateMemberRoles()"><?php echo $st->update; ?></button>
                 </div>
             </div>
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Update member points</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->update_member_points; ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <p>Negative numbers work, they deduct the points.</p>
+                        <p><?php echo $st->update_member_points_note; ?></p>
                         <br>
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline">User ID</label>
+                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->user_id; ?></label>
                         <input id="memberpntid" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline">Distance
+                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->distance; ?>
                             (km)</label>
                         <input id="memberpntdistance" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline">Event Points</label>
+                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->event_points; ?></label>
                         <input id="memberpntevent" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline">Division
-                            Points</label>
+                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->division_points; ?></label>
                         <input id="memberpntdivision" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
@@ -1407,21 +1403,19 @@
 
                     <button type="button" id="updateMemberPointsBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateMemberPoints()">Update</button>
+                        onclick="updateMemberPoints()"><?php echo $st->page; ?></button>
                 </div>
             </div>
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Dismiss</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->dismiss; ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <p style="color:red">Dangerous! This will wipe member delivery log and everything, and kick
-                            member from
-                            navio company!</p>
+                        <p style="color:red"><?php echo $st->dismiss_note; ?></p>
                         <br>
-                        <label class="block text-sm font-medium mb-2" for="">User ID</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->user_id; ?></label>
                         <input id="dismissUserID" style="width:200px"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
@@ -1431,7 +1425,7 @@
 
                     <button type="button" id="dismissbtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="dismissUser()">Dismiss</button>
+                        onclick="dismissUser()"><?php echo $st->dismiss; ?></button>
                 </div>
             </div>
         </div>
@@ -1441,23 +1435,21 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">Leaderboard</h3>
+                    <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->leaderboard; ?></h3>
                     <div style="margin-left:auto">
                         <a onclick='dets2=1-dets2;loadLeaderboard();' style='cursor:pointer'><span
                                 class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
                         <a onclick='dats=1-dats;loadLeaderboard();' style='cursor:pointer'><span
                                 class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
                         <a onclick='levent=1-levent;loadLeaderboard();' style='cursor:pointer'><span id="levent"
-                                class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">Count
-                                Event</span></a>
+                                class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->event; ?></span></a>
                         <a onclick='ldivision=1-ldivision;loadLeaderboard();' style='cursor:pointer'><span
                                 id="ldivision"
-                                class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">Count
-                                Division</span></a>
+                                class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->division; ?></span></a>
 
                         <input id="lbspeedlimit"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="number" name="" style="width:150px;display:inline" placeholder="Speed Limit"> <span
+                            type="number" name="" style="width:150px;display:inline" placeholder="<?php echo $st->speed_limit; ?>"> <span
                             class="distance_unit">km</span>/h
 
                         <input id="lbstart"
@@ -1469,25 +1461,25 @@
                             type="date" name="" style="width:150px;display:inline" placeholder="">
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadLeaderboard()" id="loadLeaderboardBtn">Go</button>
+                            onclick="loadLeaderboard()" id="loadLeaderboardBtn"><?php echo $st->go; ?></button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <table class="table-auto w-full">
                         <thead id="leaderboardTableHead">
                             <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Rank</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Distance (<span class="distance_unit">km</span>)
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->rank; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->distance; ?> (<span class="distance_unit">km</span>)
                                 </th>
-                                <th class="py-5 px-6 pb-3 font-medium">Event Points</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Division Points</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Total Points</th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->event_points; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->division_points; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->total_points; ?></th>
                             </tr>
                         </thead>
                         <tbody id="leaderboardTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1499,13 +1491,13 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
                         <input id="lpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="ltotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadLeaderboard()">Show</button>
+                            onclick="loadLeaderboard()"><?php echo $st->show; ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -1528,15 +1520,14 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" style="padding-bottom:80px">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">Rankings</h3>
+                    <h3 class="text-xl font-bold" style="margin-top:8px">'.$st->rankings.'</h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
-                    <p style="display:inline" style="font-size:20px">Your points: <span id="ranktotpoints">Fetching
-                            data...</span>
+                    <p style="display:inline" style="font-size:20px">'.$st->your_points.': <span id="ranktotpoints">'.$st->fetching_data.'</span>
                     </p>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="requestRole()" id="requestRoleBtn">Request Discord Role</button>
+                        onclick="requestRole()" id="requestRoleBtn">'.$st->request_discord_role.'</button>
                     <br>
                     <div id="ranktable">
 
@@ -1558,7 +1549,7 @@
                                             <path fill="#382CDD"
                                                 d="M576 136c0 22.09-17.91 40-40 40c-.248 0-.4551-.1266-.7031-.1305l-50.52 277.9C482 468.9 468.8 480 453.3 480H122.7c-15.46 0-28.72-11.06-31.48-26.27L40.71 175.9C40.46 175.9 40.25 176 39.1 176c-22.09 0-40-17.91-40-40S17.91 96 39.1 96s40 17.91 40 40c0 8.998-3.521 16.89-8.537 23.57l89.63 71.7c15.91 12.73 39.5 7.544 48.61-10.68l57.6-115.2C255.1 98.34 247.1 86.34 247.1 72C247.1 49.91 265.9 32 288 32s39.1 17.91 39.1 40c0 14.34-7.963 26.34-19.3 33.4l57.6 115.2c9.111 18.22 32.71 23.4 48.61 10.68l89.63-71.7C499.5 152.9 496 144.1 496 136C496 113.9 513.9 96 536 96S576 113.9 576 136z" />
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600">Driver of the Day</h3>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_day; ?></h3>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="dotd" style="font-size:22px">-</h2>
                                 <span class="text-xs text-green-500"><span class="inline-block mr-2">
@@ -1584,7 +1575,7 @@
                                                 d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
                                                 fill="#382CDD"></path>
                                         </svg></span>
-                                    <h3 class="text-sm text-gray-600">Delivered</h3><span
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="dalljob" style="font-size:22px">-</h2>
@@ -1611,7 +1602,7 @@
                                                 d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
                                                 fill="#382CDD"></path>
                                         </svg></span>
-                                    <h3 class="text-sm text-gray-600">Profit</h3><span
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="dprofit" style="font-size:22px">-</h2>
@@ -1636,7 +1627,7 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">Delivery Log</h3>
+                    <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
                     <div style="margin-left:auto">
                         <a onclick='dets2=1-dets2;loadDelivery();' style='cursor:pointer'><span
                                 class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
@@ -1664,17 +1655,17 @@
                         <thead id="deliveryTableHead">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Driver</th>
-                                <th class="py-5 px-6 pb-3 font-medium">From</th>
-                                <th class="py-5 px-6 pb-3 font-medium">To</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Driven Distance</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Cargo</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Net Profit</th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driver; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->from; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->to; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driven_distance; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->net_profit; ?></th>
                             </tr>
                         </thead>
                         <tbody id="deliveryTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1688,13 +1679,13 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
                         <input id="dpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="dtotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadDelivery()">Show</button>
+                            onclick="loadDelivery()"><?php echo $st->show; ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -1722,11 +1713,10 @@
                         <div class="md:w-1/2 lg:w-1/4" style="padding-top:0">
                             <div class="rounded bg-white">
                                 <div class="mb-2" style="padding:20px" id="dlogbasic">
-                                    <h2>Delivery #<span id="dlogid">0</span></h2>
-                                    <p>By <i><span id="dlogdriver"></span></i></p>
-                                    <p>At <b><span id="dlogtime"></span></b></p>
-                                    <p>Logged <b><span id="dlogdistance"></span></b><span
-                                            class="distance_unit">km</span></p>
+                                    <h2><?php echo $st->delivery; ?> #<span id="dlogid">0</span></h2>
+                                    <p><?php echo $st->by; ?> <i><span id="dlogdriver"></span></i></p>
+                                    <p><?php echo $st->at; ?> <b><span id="dlogtime"></span></b></p>
+                                    <p><?php echo $st->logged; ?> <b><span id="dlogdistance"></span></b><span class="distance_unit">km</span></p>
                                 </div>
                             </div>
                         </div>
@@ -1735,10 +1725,10 @@
                             <div class="rounded bg-white">
                                 <div class="mb-2">
                                     <div style="padding:20px;" id="routereplayload">
-                                        <p>Route replay loading...</p>
+                                        <p><?php echo $st->route_replay_loading; ?></p>
                                     </div>
                                     <div style="padding:20px;display:none" id="routereplaydiv">
-                                        <h3>Route replay: <span id="rp_pct">0</span>% (<span id="rp_cur">0</span> /
+                                        <h3><?php echo $st->route_replay; ?>: <span id="rp_pct">0</span>% (<span id="rp_cur">0</span> /
                                             <span id="rp_tot"></span>)
                                         </h3>
                                         <p>
@@ -1750,7 +1740,7 @@
                                                 onclick="rri-=50">-50</button>
                                             <button type="button" style="display:inline;padding:5px" id="rrplay"
                                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rrplayswitch()">Play</button>
+                                                onclick="rrplayswitch()"><?php echo $st->play; ?></button>
                                             <button type="button" style="display:inline;padding:5px"
                                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                                                 onclick="rri+=50">+50</button>
@@ -1758,7 +1748,7 @@
                                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                                                 onclick="rri+=100">+100</button>
 
-                                        <p>Speed:
+                                        <p><?php echo $st->speed; ?>:
                                             <button type="button" style="display:inline;padding:5px"
                                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                                                 onclick="rrspeed-=5">-5</button>
@@ -1783,21 +1773,21 @@
                 <div style="margin-bottom:100px">
                     <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0;float:left">
                         <div class="p-6 rounded bg-white">
-                            <h2 style="font-size:20px" id="ddcol1t">From</h2>
+                            <h2 style="font-size:20px" id="ddcol1t"><?php echo $st->from; ?></h2>
                             <div class="mb-2 ddcol" id="ddcol1">
                             </div>
                         </div>
                     </div>
                     <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0;float:left">
                         <div class="p-6 rounded bg-white">
-                            <h2 style="font-size:20px" id="ddcol2t">To</h2>
+                            <h2 style="font-size:20px" id="ddcol2t"><?php echo $st->to; ?></h2>
                             <div class="mb-2 ddcol" id="ddcol2">
                             </div>
                         </div>
                     </div>
                     <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0;float:left">
                         <div class="p-6 rounded bg-white">
-                            <h2 style="font-size:20px" id="ddcol3t">Vehicle</h2>
+                            <h2 style="font-size:20px" id="ddcol3t"><?php echo $st->vehicle; ?></h2>
                             <div class="mb-2 ddcol" id="ddcol3">
                             </div>
                         </div>
@@ -1822,24 +1812,24 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">Recent Division Deliveries</h3>
+                    <h3 class="text-xl font-bold" style="margin-top:8px">'.$st->recent_division_deliveries.'</h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <table class="table-auto w-full">
                         <thead id="divisionDeliveryTableHead">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Driver</th>
-                                <th class="py-5 px-6 pb-3 font-medium">From</th>
-                                <th class="py-5 px-6 pb-3 font-medium">To</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Driven Distance</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Cargo</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Net Profit</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->driver.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->from.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->to.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->driven_distance.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->cargo.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->net_profit.'</th>
                             </tr>
                         </thead>
                         <tbody id="divisionDeliveryTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1858,20 +1848,20 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">Pending Division Validation Deliveries</h3>
+                    <h3 class="text-xl font-bold" style="margin-top:8px">'.$st->pending_division_validation_deliveries.'</h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <table class="table-auto w-full">
                         <thead id="staffDisivionTableHead">
                             <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium" style="width:100px">Delivery ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Driver</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Division</th>
+                                <th class="py-5 px-6 pb-3 font-medium" style="width:100px">'.$st->delivery_id.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->driver.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->division.'</th>
                             </tr>
                         </thead>
                         <tbody id="staffDisivionTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                             </tr>
@@ -1888,7 +1878,7 @@
             <div style="padding:50px;padding-top:0;">
                 <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Events Calendar</h3>
+                        <h3 class="text-xl font-bold">'.$st->events_calendar.'</h3>
                     </div>
                     <br>
                     <div class="p-4 overflow-x-auto" style="display: block;">
@@ -1898,25 +1888,25 @@
                 <br>
                 <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Events List</h3>
+                        <h3 class="text-xl font-bold">'.$st->events_list.'</h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <table class="table-auto w-full">
                             <thead id="eventTableHead">
                                 <tr class="text-xs text-gray-500 text-left">
                                     <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Title</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">From</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">To</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Distance</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Meetup Time</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Depature Time</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">Voted</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->title.'</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->from.'</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->to.'</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->distance.'</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->meetup_time.'</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->departure_time.'</th>
+                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->voted.'</th>
                                 </tr>
                             </thead>
                             <tbody id="eventTable">
                                 <tr class="text-sm">
-                                    <td class="py-5 px-6 font-medium">No Data</td>
+                                    <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
                                     <td class="py-5 px-6 font-medium"></td>
                                     <td class="py-5 px-6 font-medium"></td>
                                     <td class="py-5 px-6 font-medium"></td>
@@ -1930,13 +1920,13 @@
                     </div>
                     <div style="margin-left:auto;width:fit-content">
                         <div style="margin-left:auto;width:fit-content">
-                            <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                            <label class="text-sm font-medium mb-2" display="display:inline" for="">'.$st->page.'</label>
                             <input id="epages" style="width:50px;display:inline"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                                 name="field-name" rows="5" placeholder="" value="1"></input> / <span id="etotpages">-</span>
                             <button type="button"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="loadEvent()">Show</button>
+                                onclick="loadEvent()">'.$st->show.'</button>
                         </div>
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -1957,54 +1947,51 @@
                 <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                     <div class="container px-4">
                         <div class="flex px-6 pb-4 border-b">
-                            <h3 class="text-xl font-bold">Manage Events</h3>
+                            <h3 class="text-xl font-bold">'.$st->manage_events.'</h3>
                         </div>
                         <div style="margin:20px">
-                            <p>To create an event, input all fields except event id.</p>
-                            <p>To update an event, input all fields including event id</p>
-                            <p>To delete an event, input ONLY <b>event id</b> and leave the other fields empty.</p>
-                            <p>Watch out that the button will change based on your inputs!</p>
+                            '.$st->manage_events_note.'
                             <br>
                             <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">Event ID</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->event_id.'</label>
                                 <input id="eventid" style="width:200px;display:inline"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="For updating / deleting">
+                                    type="text" name="" placeholder="'.$st->for_updating_or_deleting.'">
                                 <button type="button" style="display:inline"
                                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                    onclick="FetchEvent()" id="fetchEventBtn">Fetch Data</button>
+                                    onclick="FetchEvent()" id="fetchEventBtn">'.$st->fetch_data.'</button>
                             </div>
 
                             <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">Title</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->title.'</label>
                                 <input id="eventtitle"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="text" name="" placeholder="">
                             </div>
 
                             <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">TruckersMP Link</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->truckersmp_link.'</label>
                                 <input id="eventtmplink"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="text" name="" placeholder="">
                             </div>
 
                             <div class="mb-6" style="display:inline-block;width:33%">
-                                <label class="block text-sm font-medium mb-2" for="">From</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->from.'</label>
                                 <input id="eventfrom"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="text" name="" placeholder="">
                             </div>
 
                             <div class="mb-6" style="display:inline-block;width:33%">
-                                <label class="block text-sm font-medium mb-2" for="">To</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->to.'</label>
                                 <input id="eventto"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="text" name="" placeholder="">
                             </div>
 
                             <div class="mb-6" style="display:inline-block;width:33%">
-                                <label class="block text-sm font-medium mb-2" for="">Distance</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->distance.'</label>
                                 <input id="eventdistance"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="text" name="" placeholder="">
@@ -2012,21 +1999,21 @@
 
                             <br>
                             <div class="mb-6" style="display:inline-block;width:49%">
-                                <label class="block text-sm font-medium mb-2" for="">Meetup Local Time (AM / PM)</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->meetup_local_time.' (AM / PM)</label>
                                 <input id="eventmts"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="datetime-local" name="" placeholder="">
                             </div>
 
                             <div class="mb-6" style="display:inline-block;width:49%">
-                                <label class="block text-sm font-medium mb-2" for="">Departure Local Time (AM / PM)</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->departure_local_time.' (AM / PM)</label>
                                 <input id="eventdts"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="datetime-local" name="" placeholder="">
                             </div>
 
                             <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">Image Links, one link per row</label>
+                                <label class="block text-sm font-medium mb-2" for="">'.$st->image_links.'</label>
                                 <textarea id="eventimgs"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     name="field-name" rows="5" placeholder=""></textarea>
@@ -2035,23 +2022,23 @@
                             <div class="mb-6">
                                 <div class="mb-1">
                                     <label class="block text-sm font-medium mb-2" for=""
-                                        style="text-align: left;">Visibility:</label>
+                                        style="text-align: left;">'.$st->visibility.':</label>
                                     <label>
                                         <input type="radio" name="event-visibility" value="yes" checked id="eventpvt-0">
-                                        <span class="eventpvt-0">Public (All user on Drivers Hub can view)</span>
+                                        <span class="eventpvt-0">'.$st->public.'</span>
                                     </label>
                                 </div>
                                 <div>
                                     <label>
                                         <input type="radio" name="event-visibility" value="yes" id="eventpvt-1">
-                                        <span class="eventpvt-1">Private (Only members can view)</span>
+                                        <span class="eventpvt-1">'.$st->private.'</span>
                                     </label>
                                 </div>
                             </div>
 
                             <button type="button"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="EventOp()" id="newEventBtn">Create Event</button>
+                                onclick="EventOp()" id="newEventBtn">'.$st->create_event.'</button>
                         </div>
                     </div>
                 </div>
@@ -2059,33 +2046,32 @@
             <div style="padding:50px;padding-top:0;">
                 <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="eventattendee">
                     <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">Update Event Attendees (Overwrite)</h3>
+                        <h3 class="text-xl font-bold">'.$st->update_event_attendees.'</h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Event ID</label>
+                            <label class="block text-sm font-medium mb-2" for="">'.$st->event_id.'</label>
                             <input id="aeventid" style="width:200px;display:inline"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 type="text" name="" placeholder="">
                             <button type="button" style="display:inline"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="FetchEventAttendee()" id="fetchEventAttendeeBtn">Fetch Existing Attendees</button>
+                                onclick="FetchEventAttendee()" id="fetchEventAttendeeBtn">'.$st->fetch_existing_attendees.'</button>
                         </div>
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Event Points</label>
+                            <label class="block text-sm font-medium mb-2" for="">'.$st->event_points.'</label>
                             <input id="attendeePoints" style="width:200px;display:inline"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 type="text" name="" placeholder="">
                         </div>
                         <!-- <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">User ID (separate with ',')</label>
+                <label class="block text-sm font-medium mb-2" for="">'.$st->user_id.' ('.$st->separate_with_comma.')</label>
                 <input id="attendeeId"
                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
                 rows="5" placeholder=""></input>
             </div> -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Members (Hit enter to add multiple
-                                members)</label>
+                            <label class="block text-sm font-medium mb-2" for="">'.$st->members.' ('.$st->hit_enter_to.')</label>
                             <div class="inputWrapper" id="attendeeIdWrap" style="background-color:rgba(255,255,255,0.2)">
                                 <input id="attendeeId" class="inputDefault inputInner" name="field-name" rows="5"
                                     placeholder=""></input>
@@ -2094,7 +2080,7 @@
 
                         <button type="button" id="attendeeBtn"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateEventAttendees()">Update</button>
+                            onclick="UpdateEventAttendees()">'.$st->update.'</button>
                     </div>
                 </div>
         </section>';}?>
@@ -2106,7 +2092,7 @@
         <div style="padding:50px; padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">My Applications</h3>
+                    <h3 class="text-xl font-bold">'.$st->my_applications.'</h3>
                 </div>
 
                 <div class="p-4 overflow-x-auto" style="display: block;">
@@ -2114,15 +2100,15 @@
                         <thead id="myappTableHead" style="display:none">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Type</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Submitted At</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Status</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Last Staff Reply</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->type.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->submitted_at.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->status.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->last_staff_reply.'</th>
                             </tr>
                         </thead>
                         <tbody id="myappTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -2134,14 +2120,14 @@
 
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for="">'.$st->page.'</label>
                         <input id="myapppage" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span
                             id="myapptotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadMyApp()">Show</button>
+                            onclick="loadMyApp()">'.$st->show.'</button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -2161,7 +2147,7 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Submit Application</h3>
+                    <h3 class="text-xl font-bold">'.$st->submit_application.'</h3>
                 </div>
 
                 <div class="p-4 overflow-x-auto" style="display: block;">
@@ -2499,7 +2485,7 @@
 
                     <button type="button"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="SubmitApp()" id="submitAppBttn">Submit</button>
+                        onclick="SubmitApp()" id="submitAppBttn">'.$st->submit.'</button>
                 </div>
             </div>
         </div>
@@ -2509,23 +2495,23 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Applications</h3>
+                    <h3 class="text-xl font-bold">'.$st->applications.'</h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <table class="table-auto w-full">
                         <thead id="allappTableHead" style="display:none">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Applicant</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Type</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Submitted At</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Status</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Last Staff Reply</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->applicant.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->type.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->submitted_at.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->status.'</th>
+                                <th class="py-5 px-6 pb-3 font-medium">'.$st->last_staff_reply.'</th>
                             </tr>
                         </thead>
                         <tbody id="allappTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -2538,14 +2524,14 @@
 
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for="">'.$st->page.'</label>
                         <input id="allapppage" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span
                             id="allapptotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadAllApp()">Show</button>
+                            onclick="loadAllApp()">'.$st->show.'</button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -2561,12 +2547,11 @@
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Update Open Staff Positions</h3>
+                    <h3 class="text-xl font-bold">'.$st->update_staff_positions.'</h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Staff Positions, one position per
-                            row</label>
+                        <label class="block text-sm font-medium mb-2" for="">'.$st->staff_positions.'</label>
                         <textarea id="staffposedit"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></textarea>
@@ -2574,7 +2559,7 @@
 
                     <button type="button" id="updateStaffPositionBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateStaffPosition()" id="updateAppStatusBtn">Update</button>
+                        onclick="updateStaffPosition()" id="updateAppStatusBtn">'.$st->update.'</button>
                 </div>
             </div>
         </div>
@@ -2584,19 +2569,19 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Pending Users</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->pending_users ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <table class="table-auto w-full">
                         <thead id="usersTableHead">
                             <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium">Discord ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Name</th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->discord_id ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name ?></th>
                             </tr>
                         </thead>
                         <tbody id="usersTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
                             </tr>
                         </tbody>
@@ -2604,14 +2589,14 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page ?></label>
                         <input id="pupages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span
                             id="putotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadUsers()">Show</button>
+                            onclick="loadUsers()"><?php echo $st->show ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
@@ -2627,50 +2612,46 @@
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="BanUserDiv">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Ban / Unban User</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->ban_or_unban_user ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Discord ID</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
                         <input id="bandiscordid" style="width:200px"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Expire Date (Leave empty to ban
-                            forever)</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->ban_expire_date ?></label>
                         <input id="banexpire" type="date" style="width:200px"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Reason</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->reason ?></label>
                         <textarea id="banreason"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder="Needed only when banning an user."></textarea>
+                            name="field-name" rows="5" placeholder="<?php echo $st->reason_note ?>"></textarea>
                     </div>
 
                     <button type="button"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="banUser()">Ban</button>
+                        onclick="banUser()"><?php echo $st->ban ?></button>
                     <button type="button" style="background-color:lightgreen"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="unbanUser()">Unban</button>
+                        onclick="unbanUser()"><?php echo $st->unban ?></button>
                 </div>
             </div>
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Add User to Member List</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->add_user ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <p>If you failed to find the user on the list above, use this function to directly add member
-                            with Discord ID.
-                        </p>
-                        <p>Only do this when the member is accepted as a driver / staff.</p>
+                    <?php echo $st->add_user_note ?>
                         <br>
-                        <label class="block text-sm font-medium mb-2" for="">Discord ID</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
                         <input id="adddiscordid" style="width:200px"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
@@ -2678,24 +2659,24 @@
 
                     <button type="button" id="addUserBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="addUser()">Add</button>
+                        onclick="addUser()"><?php echo $st->add ?></button>
                 </div>
             </div>
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Update User Discord Account</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->update_user_discord_account ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Old Discord ID</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->old_discord_id ?></label>
                         <input id="upd_old_id" style="width:200px"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
 
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">New Discord ID</label>
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->new_discord_id ?></label>
                         <input id="upd_new_id" style="width:200px"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
@@ -2703,7 +2684,7 @@
 
                     <button type="button" id="updateDiscordBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateDiscord()">Update</button>
+                        onclick="updateDiscord()"><?php echo $st->update ?></button>
                 </div>
             </div>
     </section>
@@ -2712,20 +2693,20 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Audit Log</h3>
+                    <h3 class="text-xl font-bold"><?php echo $st->audit_log ?></h3>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <table class="table-auto w-full">
                         <thead id="auditTableHead">
                             <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium">User</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Log</th>
-                                <th class="py-5 px-6 pb-3 font-medium">Time</th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->user ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->log ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->time ?></th>
                             </tr>
                         </thead>
                         <tbody id="auditTable">
                             <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">No Data</td>
+                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
                                 <td class="py-5 px-6 font-medium"></td>
                             </tr>
@@ -2735,14 +2716,14 @@
 
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page ?></label>
                         <input id="auditpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span
                             id="audittotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadAuditLog()">Show</button>
+                            onclick="loadAuditLog()"><?php echo $st->show ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
