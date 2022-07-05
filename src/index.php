@@ -591,7 +591,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/MkbxXredqz" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.1.1-beta.1
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.1.beta2
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -647,7 +647,7 @@
                             </a>
                             <button class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
                                 <div class="mr-3">
-                                    <p id="name" class="text-sm" style="text-align:right">CharlesWithC</p>
+                                    <p id="name" class="text-sm" style="text-align:right"></p>
                                     <p id="role" class="text-sm text-gray-500" style="text-align:right"></p>
                                 </div>
                                 <div class="mr-2"><img id="avatar"
@@ -2354,8 +2354,8 @@
                                 <select id="la-leave"
                                     class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     name="field-name">
-                                    <option>No</option>
-                                    <option>Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
                                 </select>
                                 <div
                                     class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">

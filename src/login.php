@@ -57,11 +57,6 @@
 			location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login';
 		}
 
-		function GuestLogin() {
-			localStorage.setItem("token", "guest");
-			location.href = '/';
-		}
-
 		function validate() {
 			token = localStorage.getItem("token");
 			if (token == undefined) {
@@ -99,17 +94,13 @@
 		</div>
 		<div class="formRight">
 			<!-- Login form -->
-			<form id="login" style="margin-top:40px">
+			<form id="login" style="margin-top:20px">
 				<header>
 					<h1><?php echo $vtcname ?></h1>
 					<p><?php echo $slogan ?></p>
 				</header>
 				<section>
 					<button type="button" onclick="DiscordLogin();">Login With Discord</button>
-				</section>
-				<section style="position:relative;float:right;margin-top:-30px">
-					<p style="font-size:15px;color:grey;text-align:right"><br><a style="cursor:pointer"
-							onclick="GuestLogin();">Guest Login</a></p>
 				</section>
 			</form>
 		</div>

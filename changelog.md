@@ -1,5 +1,9 @@
 # Changelog
 
+**v1.1.beta2**  
+1.Fixed \<select\> doesn't work with translations  
+2.Removed guest login and redirect to /login when user is not logged in (automatic guest login)  
+
 **v1.0.5-beta.1**  
 1.Removed "Manager" / "Lead" role name detection for higher role  
 2.Updated Profile Page  

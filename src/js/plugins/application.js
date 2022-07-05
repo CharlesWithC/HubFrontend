@@ -1,7 +1,7 @@
 function SubmitApp() {
-    apptype = $("#appselect").find(":selected").text();
+    apptype = $("#appselect").find(":selected").attr("value");
     data = "";
-    if (apptype == "Driver") {
+    if (apptype == "driver") {
         apptype = 1;
 
         q1 = $("#da-q1").val();
@@ -56,7 +56,7 @@ function SubmitApp() {
             "What are your interests?": q3,
             "Why do you want to be a part our VTC?": q4
         };
-    } else if (apptype == "Staff") {
+    } else if (apptype == "staff") {
         apptype = 2;
 
         q1 = $("#sa-q1").val();
@@ -64,7 +64,7 @@ function SubmitApp() {
         q3 = $("#sa-q3").val();
         q4 = $("#sa-q4").val();
         q5 = $("#sa-q5").val();
-        pos = $("#sa-select").find(":selected").text();
+        pos = $("#sa-select").find(":selected").attr("value");
 
         // Check if any of the fields are empty
         if (q1 == "" || q2 == "" || q3 == "" || q4 == "" || q5 == "") {
@@ -90,12 +90,12 @@ function SubmitApp() {
             "Why are you interested in joining the position you are applying for? What do you want to achieve?": q4,
             "Do you have a lot of time to dedicate to this position? ": q5
         }
-    } else if (apptype == "LOA") {
+    } else if (apptype == "loa") {
         apptype = 3;
         q1 = $("#la-q1").val();
         q2 = $("#la-q2").val();
         q3 = $("#la-q3").val();
-        q4 = $("#la-leave").find(":selected").text();
+        q4 = $("#la-leave").find(":selected").attr("value");
 
         // Check if any of the fields are empty
         if (q1 == "" || q2 == "" || q3 == "") {
@@ -109,7 +109,7 @@ function SubmitApp() {
             "Reason": q3,
             "Will they leave position or leave VTC?": q4
         }
-    } else if (apptype == "Division") {
+    } else if (apptype == "division") {
         apptype = 4;
         q1 = $("#dca-q1").val();
         q2 = $("#dca-q2").val();
@@ -142,6 +142,8 @@ function SubmitApp() {
             "What is the only time when it is appropriate to stop on the shoulder of the road?": q5,
             "In the construction division, you are required to complete 5 deliveries of 95+ miles with construction loads per month. Do you agree to meet the monthly requirement?": "Yes"
         }
+    } else {
+        apptype = 0;
     }
     data = JSON.stringify(data);
 

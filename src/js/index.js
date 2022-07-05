@@ -26,13 +26,14 @@ if (positions != undefined && positions != null) {
     positionstxt = "";
     for (var i = 0; i < positions.length; i++) {
         positionstxt += positions[i] + "\n";
-        $("#sa-select").append("<option>" + positions[i] + "</option>");
+        $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
     }
     positionstxt = positionstxt.slice(0, -1);
     $("#staffposedit").val(positionstxt);
 } else {
     positions = [];
 }
+
 function DarkMode() {
     if (!isdark) {
         $("body").css("transition", "color 1000ms linear");
@@ -272,7 +273,7 @@ async function ShowTab(tabname, btnname) {
     }
 }
 
-function AnnEventBtn(){
+function AnnEventBtn() {
     setInterval(function () {
         title = $("#anntitle").val();
         content = $("#anncontent").val();
@@ -327,37 +328,41 @@ function ShowStaffTabs() {
     if (roles != undefined && perms.admin != undefined) {
         userPerm = [];
         for (i = 0; i < roles.length; i++) {
-            for(j = 0 ; j < Object.keys(perms).length ; j++){
-                if(["driver", "staff_of_the_month", "driver_of_the_month"].includes(Object.keys(perms)[j])) continue;
-                for(k = 0 ; k < perms[Object.keys(perms)[j]].length ; k ++){
-                    if(perms[Object.keys(perms)[j]][k] == roles[i]){
+            for (j = 0; j < Object.keys(perms).length; j++) {
+                if (["driver", "staff_of_the_month", "driver_of_the_month"].includes(Object.keys(perms)[j])) continue;
+                for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
+                    if (perms[Object.keys(perms)[j]][k] == roles[i]) {
                         userPerm.push(Object.keys(perms)[j]);
                     }
                 }
             }
         }
-        if(userPerm.length > 0){
+        if (userPerm.length > 0) {
             $("#stafftabs").show();
             $("#stafftabs a").hide();
-            if(userPerm.includes("admin")){
+            if (userPerm.includes("admin")) {
                 $("#stafftabs a").show();
                 $(".admin-only").show();
                 $("#AdminBtn").show();
                 AnnEventBtn();
             } else {
                 $(".admin-only").hide();
-                if(userPerm.includes("event")){
+                if (userPerm.includes("event")) {
                     $("#StaffEventBtn").show();
                     $("#StaffAnnTabBtn").show();
                     AnnEventBtn();
-                } if(userPerm.includes("hr") || userPerm.includes("division")){
+                }
+                if (userPerm.includes("hr") || userPerm.includes("division")) {
                     $("#StaffMemberBtn").show();
                     $("#AllAppBtn").show();
-                } if(userPerm.includes("hr")){
+                }
+                if (userPerm.includes("hr")) {
                     $("#AllUserBtn").show();
-                } if(userPerm.includes("division")){
+                }
+                if (userPerm.includes("division")) {
                     $("#StaffDivisionBtn").show();
-                } if(userPerm.includes("audit")){
+                }
+                if (userPerm.includes("audit")) {
                     $("#AuditLogBtn").show();
                 }
             }
@@ -368,10 +373,16 @@ function ShowStaffTabs() {
 function validate() {
     token = localStorage.getItem("token");
     userid = localStorage.getItem("userid");
+    if (token == null || token.length != 36) {
+        localStorage.setItem("token", "guest");
+        token = "guest";
+    }
     if (token == "guest") {
-        $("#header").prepend(
-            "<p style='color:orange'>Guest Mode - <a style='color:grey' href='/login'>Login</a></p>");
-        return;
+        $("#recruitment").hide();
+        $("#logout").hide();
+        $("#header").prepend("<a style='color:grey' href='/login'>Login</a>");
+    } else {
+        $("#recruitment").show();
     }
     if (userid != -1 && isNumber(userid)) {
         $("#memberOnlyTabs").show();
@@ -379,7 +390,6 @@ function validate() {
         $("#DivisionBtn").hide();
         $("#DownloadsTabBtn").hide();
     }
-    $("#recruitment").show();
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/validate",
         type: "GET",
@@ -389,8 +399,8 @@ function validate() {
         },
         success: function (data) {
             if (data.error) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
+                localStorage.setItem("token", "guest");
+                $("#header").prepend("<a style='color:grey' href='/login'>Login</a>");
             }
             if (data.response.extra == "steamauth") {
                 $("#header").prepend(
@@ -428,7 +438,9 @@ function validate() {
                 if (data.response.userid != -1) {
                     $("#AllMemberBtn").show();
                 }
-                roles = data.response.roles.sort(function(a, b){return a-b});
+                roles = data.response.roles.sort(function (a, b) {
+                    return a - b
+                });
                 highestrole = roles[0];
                 name = data.response.name;
                 avatar = data.response.avatar;
@@ -867,7 +879,7 @@ $(document).ready(function () {
                 positionstxt = "";
                 for (var i = 0; i < positions.length; i++) {
                     positionstxt += positions[i] + "\n";
-                    $("#sa-select").append("<option>" + positions[i] + "</option>");
+                    $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
                 }
                 positionstxt = positionstxt.slice(0, -1);
                 $("#staffposedit").val(positionstxt);
