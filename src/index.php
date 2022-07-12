@@ -597,11 +597,11 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/MkbxXredqz" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.1.beta3
+                    API: <a href="https://<?php echo $api ?>" target="_blank"><span id="apiversion">v?.?.?</span></a> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
+                    <br>
+                    Web: v1.1.beta3 <a href="/changelog" target="_blank">Changelog</a>
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
-                    <br>
-                    API: <a href="https://<?php echo $api ?>" target="_blank"><?php echo $api ?></a>
                     <br>
                     <?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
                 </div>
