@@ -204,7 +204,7 @@ function SubmitApp() {
                 confirmButtonText: 'OK'
             })
 
-            console.warn('Failed to submit application (Unhandled Error): ', data.descriptor ? data.descriptor :
+            console.warn('Failed to submit application (Unhandled Error): ', JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  :
                 'No Error Descriptor - check cors?');
         }
     });
@@ -317,10 +317,10 @@ function loadMyApp(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -358,10 +358,10 @@ function addAppMessage() {
         error: function (data) {
             $("#addAppMessageBtn").html("Add");
             $("#addAppMessageBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -480,10 +480,10 @@ function loadAllApp(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -614,10 +614,10 @@ function appDetail(applicationid, staffmode = false) {
             $("#AllAppBtn" + applicationid).html("Details");
             $("#MyAppBtn" + applicationid).removeAttr("disabled");
             $("#MyAppBtn" + applicationid).html("Details");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -654,11 +654,11 @@ function updateAppStatus() {
         error: function (data) {
             $("#updateAppStatusBtn").removeAttr("disabled");
             $("#updateAppStat usBtn").html("Update");
-            toastFactory("error", "Error:", "Failed to receive API response.",
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                 5000,
                 false);
             console.warn(
-                `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -690,11 +690,11 @@ function updateStaffPosition() {
         error: function (data) {
             $("#updateStaffPositionBtn").removeAttr("disabled");
             $("#updateStaffPositionBtn").html("Update");
-            toastFactory("error", "Error:", "Failed to receive API response.",
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                 5000,
                 false);
             console.warn(
-                `Failed to load applications. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })

@@ -135,9 +135,9 @@ function loadLeaderboard(recurse = true) {
         error: function (data) {
             $("#loadLeaderboardBtn").html("Go");
             $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load leaderboard. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load leaderboard. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -278,9 +278,9 @@ function loadDelivery(recurse = true) {
         error: function (data) {
             $("#loadDeliveryBtn").html("Go");
             $("#loadDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load delivery log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -707,10 +707,10 @@ function deliveryDetail(logid) {
             ShowTab("#HomeTab", "#HomeTabBtn");
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load delivery log details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`
+                `Failed to load delivery log details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`
             );
             console.log(data);
         }
@@ -849,9 +849,62 @@ function loadUserDelivery(recurse = true) {
         error: function (data) {
             $("#loadUserDeliveryBtn").html("Go");
             $("#loadUserDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load delivery log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+  
+    element.style.display = 'none';
+    document.body.appendChild(element);
+  
+    element.click();
+  
+    document.body.removeChild(element);
+}
+
+function exportDLog(){
+    start_time = +new Date($("#export_start_date").val());
+    end_time = +new Date($("#export_end_date").val());
+    if(isNaN(start_time) || isNaN(end_time)){
+        start_time = -1000;
+        end_time = -1000;
+    }
+    start_time = start_time / 1000;
+    end_time = end_time / 1000;
+    $("#exportDLogBtn").html("Working...");
+    $("#exportDLogBtn").attr("disabled", "disabled");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/export",
+        type: "GET",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            starttime: start_time,
+            endtime: end_time
+        },
+        success: function (data) {
+            download("export.csv", data);
+            $("#exportDLogBtn").html("Export");
+            $("#exportDLogBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
+                false);
+        },
+        error: function (data) {
+            $("#exportDLogBtn").html("Export");
+            $("#exportDLogBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to export delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })

@@ -151,9 +151,9 @@ function loadDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load division. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load division. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -203,9 +203,9 @@ function loadStaffDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load division. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load division. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -328,9 +328,9 @@ function divisionInfo(logid) {
         error: function (data) {
             $("#divisioninfobtn").html("Division");
             $("#divisioninfobtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load division information. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -367,9 +367,9 @@ function requestDivision(logid) {
         },
         error: function (data) {
             $("#divisionRequestBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load division information. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -420,9 +420,9 @@ function updateDivision(logid, status) {
         error: function (data) {
             $("#divisionAcceptBtn").removeAttr("disabled");
             $("#divisionRejectBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load division information. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load division information. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });

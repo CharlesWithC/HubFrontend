@@ -153,5 +153,15 @@
     "new_discord_id": "New Discord ID",
     "user": "User",
     "log": "Log",
-    "time": "Time"    
+    "time": "Time",
+    "delete_user": "Delete User",
+    "delete_user_note": "<p>This will delete the user from user list. User must have been dismissed first. This will not affect any active ban.</p>",
+    "delete": "Delete",
+    "unbind_connections": "Unbind User Account Connections",
+    "unbind": "Unbind",
+    "export_delivery_log": "Export Delivery Log",
+    "export_delivery_log_note": "Leave Start Date / End Date empty to export all delivery logs.",
+    "start_date": "Start Date",
+    "end_date": "End Date",
+    "export": "Export"
 }

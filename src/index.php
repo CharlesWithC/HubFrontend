@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 
 <html lang="en">
-<?php
-  $domain = $_SERVER['HTTP_HOST'];
-  require_once('configs/'.$domain.'.php');
-
-  $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-  $language = substr($language, 0, 2);
-  if(file_exists('languages/'.$language.'.json')){
-    $st = json_decode(file_get_contents('languages/'.$language.'.json'));
-  } else {
-    $st = json_decode(file_get_contents('languages/en.json'));
-  }
-?>
 
 <head>
+    <?php
+    $domain = $_SERVER['HTTP_HOST'];
+    require_once('configs/'.$domain.'.php');
+
+    $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    $language = substr($language, 0, 2);
+    if(file_exists('languages/'.$language.'.json')){
+        $st = json_decode(file_get_contents('languages/'.$language.'.json'));
+    } else {
+        $st = json_decode(file_get_contents('languages/en.json'));
+    }
+    ?>
+
     <title><?php echo $vtcname ?></title>
     <link rel="icon" href="/images/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="<?php echo $slogan ?>">
+    <meta name="description" content="<?php echo $vtcname ?> Drivers Hub | <?php echo $slogan ?>">
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $slogan ?>" property="og:description" />
@@ -42,6 +43,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
+    <?php
+    if(in_array("addon", $enabled_plugins)){
+        echo '<script src="/js/addon.js"></script>';
+    }
+    ?>
     <script src="/configs/<?php echo $domainpure ?>.js"></script>
     <script src="/js/menu.js"></script>
     <script src="/js/functions.js"></script>
@@ -62,7 +68,7 @@
     <script src="/js/apis/user.js"></script>
     <script src="/js/apis/dlog.js"></script>
     <?php if(in_array("division", $enabled_plugins)){
-    echo '<script src="/js/plugins/division.js"></script>';} ?>
+    echo '<script src="/js/plugins/division.js">loadDivisionList();</script>';} ?>
     <?php if(in_array("event", $enabled_plugins)){
     echo '<script src="/js/plugins/event.js"></script>';} ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
@@ -591,7 +597,7 @@
                 <div class="px-4 pb-6" style="color:white;margin-top:auto">
                     &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/MkbxXredqz" target="_blank">UCJOHN</a>
                     <br>
-                    API: <span id="apiversion">v?.?.?</span> / Web: v1.1.beta2
+                    API: <span id="apiversion">v?.?.?</span> / Web: v1.1.beta3
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -1698,6 +1704,31 @@
                                 onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp+1);loadDelivery();">></button>
                 </div>
             </div>
+            <br>
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold"><?php echo $st->export_delivery_log; ?></h3>
+                </div>
+                <div class="p-4 overflow-x-auto" style="display: block;">
+                    <?php echo $st->export_delivery_log_note ?>
+
+                    <br>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->start_date; ?></label>
+                        <input id="export_start_date" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            type="date" name="" style="width:200px;display:inline">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->end_date; ?></label>
+                        <input id="export_end_date" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            type="date" name="" style="width:200px;display:inline">
+                    </div>
+                    <button type="button"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="exportDLog()" id="exportDLogBtn"><?php echo $st->export; ?></button>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -2685,6 +2716,44 @@
                     <button type="button" id="updateDiscordBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="updateDiscord()"><?php echo $st->update ?></button>
+                </div>
+            </div>
+            <br>
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold"><?php echo $st->unbind_connections ?></h3>
+                </div>
+                <div class="p-4 overflow-x-auto" style="display: block;">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
+                        <input id="unbind_discord_id" style="width:200px"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            name="field-name" rows="5" placeholder=""></input>
+                    </div>
+
+                    <button type="button" id="unbindConnectionsBtn"
+                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="unbindConnections()"><?php echo $st->unbind ?></button>
+                </div>
+            </div>
+            <br>
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold"><?php echo $st->delete_user ?></h3>
+                </div>
+                <div class="p-4 overflow-x-auto" style="display: block;">
+                    <?php echo $st->delete_user_note ?>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
+                        <input id="del_discord_id" style="width:200px"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            name="field-name" rows="5" placeholder=""></input>
+                    </div>
+
+                    <button type="button" id="deleteUserBtn"
+                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="deleteUser()"><?php echo $st->delete ?></button>
                 </div>
             </div>
     </section>

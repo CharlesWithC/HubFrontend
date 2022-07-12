@@ -1,5 +1,12 @@
 # Changelog
 
+**v1.1.beta3**  
+1.Added `Unbind Account Connection` function  
+2.Added `Delete User` function  
+3.Added `Export Delivery Log` function  
+4.Updated `Failed to receive API response` error to detailed error message  
+5.Minor bug fixes  
+
 **v1.1.beta2**  
 1.Fixed \<select\> doesn't work with translations  
 2.Removed guest login and redirect to /login when user is not logged in (automatic guest login)  

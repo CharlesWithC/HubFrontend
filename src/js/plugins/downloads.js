@@ -12,9 +12,9 @@ function loadDownloads() {
             $("#downloadscontent").val(data.response);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to fetch downloads. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to fetch downloads. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -45,9 +45,9 @@ function UpdateDownloads() {
             $("#downloads").html(parseMarkdown($("#downloadscontent").val()));
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to update downloads. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to update downloads. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })

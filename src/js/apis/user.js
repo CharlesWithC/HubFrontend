@@ -81,9 +81,9 @@ function loadAuditLog(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load audit log. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load audit log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -116,10 +116,10 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to update About Me. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to update About Me. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -146,10 +146,10 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to generate app token. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to generate app token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -253,8 +253,8 @@ function loadUsers(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
-            console.warn(`Failed to load users. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            console.warn(`Failed to load users. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -302,10 +302,10 @@ function addUser(discordid = -1) {
         error: function (data) {
             $("#addUserBtn").html("Add");
             $("#addUserBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to add user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to add user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -339,10 +339,80 @@ function updateDiscord() {
         error: function (data) {
             $("#updateDiscordBtn").html("Update");
             $("#updateDiscordBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to update user Discord account. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to update user Discord account. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
+
+function deleteUser() {
+    discordid = $("#del_discord_id").val();
+    $("#deleteUserBtn").html("Working...");
+    $("#deleteUserBtn").attr("disabled", "disabled");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/delete",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            $("#deleteUserBtn").html("Delete");
+            $("#deleteUserBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
+                false);
+            toastFactory("success", "Success", "User deleted!", 5000,
+                false);
+            loadUsers();
+        },
+        error: function (data) {
+            $("#deleteUserBtn").html("Delete");
+            $("#deleteUserBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to delete user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
+
+function unbindConnections(){
+    discordid = $("#unbind_discord_id").val();
+    $("#unbindConnectionsBtn").html("Working...");
+    $("#unbindConnectionsBtn").attr("disabled", "disabled");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/unbind",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            $("#unbindConnectionsBtn").html("Unbind");
+            $("#unbindConnectionsBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
+                false);
+            toastFactory("success", "Success", "User account connections unbound!", 5000,
+                false);
+            loadUsers();
+        },
+        error: function (data) {
+            $("#unbindConnectionsBtn").html("Unbind");
+            $("#unbindConnectionsBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to unbind user account connections. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -398,10 +468,10 @@ function userDetail(discordid) {
         error: function (data) {
             $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
             $("#UserInfoBtn" + discordid).html("Loading...");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load user details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load user details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -436,10 +506,10 @@ function banUser() {
             toastFactory("success", "Success", "User banned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to ban user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to ban user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -466,10 +536,10 @@ function unbanUser() {
             toastFactory("success", "Success", "User unbanned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to unban user. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to unban user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -597,10 +667,10 @@ function loadAdmin() {
             });
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load config. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -636,10 +706,10 @@ function UpdateConfig() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to update config. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to update config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -658,10 +728,10 @@ function ReloadServer() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to reload server. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to reload server. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })

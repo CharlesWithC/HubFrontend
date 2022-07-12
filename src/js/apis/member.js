@@ -18,9 +18,9 @@ function requestRole() {
         error: function (data) {
             $("#loadLeaderboardBtn").html("Go");
             $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load leaderboard. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load leaderboard. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -168,8 +168,8 @@ function loadMembers(recurse = true) {
         error: function (data) {
             $("#searchMemberBtn").html("Go");
             $("#searchMemberBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
-            console.warn(`Failed to load members. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            console.warn(`Failed to load members. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -239,10 +239,10 @@ function memberDetail(userid) {
         error: function (data) {
             $("#MemberInfoBtn" + userid).removeAttr("disabled");
             $("#MemberInfoBtn" + userid).html("Details");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -298,10 +298,10 @@ function fetchRoles() {
                 error: function (data) {
                     $("#fetchRolesBtn").html("Fetch Existing Roles");
                     $("#fetchRolesBtn").removeAttr("disabled");
-                    toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+                    toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                         false);
                     console.warn(
-                        `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                        `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
                     console.log(data);
                 }
             });
@@ -345,10 +345,10 @@ function updateMemberRoles() {
         error: function (data) {
             $("#updateMemberRolesBtn").html("Update");
             $("#updateMemberRolesBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -400,10 +400,10 @@ function updateMemberPoints() {
         error: function (data) {
             $("#updateMemberPointsBtn").html("Update");
             $("#updateMemberPointsBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -442,10 +442,10 @@ function dismissUser() {
             error: function (data) {
                 $("#dismissbtn").html("Dismiss");
                 $("#dismissbtn").removeAttr("disabled");
-                toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                     false);
                 console.warn(
-                    `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                    `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
                 console.log(data);
             }
         });
@@ -473,10 +473,10 @@ function dismissUser() {
         error: function (data) {
             $("#dismissbtn").removeAttr("disabled");
             $("#dismissbtn").html("Dismiss");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to dismiss member. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to dismiss member. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -509,10 +509,10 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to update About Me. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to update About Me. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -539,10 +539,10 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to generate app token. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to generate app token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -580,10 +580,10 @@ function resign() {
         error: function (data) {
             $("#resignBtn").html("Resign");
             $("#resignBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to resign. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to resign. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -691,10 +691,10 @@ function loadProfile(userid) {
         },
         error: function (data) {
             ShowTab("#HomeTab", "#HomeTabBtn");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to load member details. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
@@ -731,10 +731,10 @@ function resign() {
         error: function (data) {
             $("#resignBtn").html("Resign");
             $("#resignBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to resign. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to resign. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });

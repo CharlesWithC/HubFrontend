@@ -28,9 +28,9 @@ function FetchAnnouncement() {
         error: function (data) {
             $("#fetchAnnouncementBtn").html("Fetch Data");
             $("#fetchAnnouncementBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to fetch announcement. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to fetch announcement. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -95,11 +95,11 @@ function AnnouncementOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: data.descriptor ? data.descriptor : 'Unknown Error',
+                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
-                    console.warn(`Announcement update failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                    console.warn(`Announcement update failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                     console.log(data);
                 }
             },
@@ -111,12 +111,12 @@ function AnnouncementOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: data.descriptor ? data.descriptor : 'Unknown Error',
+                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
 
-                console.warn(`Announcement update failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                console.warn(`Announcement update failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                 console.log(data);
             }
         });
@@ -151,13 +151,13 @@ function AnnouncementOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: data.descriptor ? data.descriptor : 'Unknown Error',
+                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
 
                     console.warn(
-                        `Announcement creation failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                        `Announcement creation failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                     console.log(data);
                 }
             },
@@ -169,12 +169,12 @@ function AnnouncementOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: data.descriptor ? data.descriptor : 'Unknown Error',
+                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
 
-                console.warn(`Announcement creation failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                console.warn(`Announcement creation failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                 console.log(data);
             }
         });
@@ -203,7 +203,7 @@ function AnnouncementOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: data.descriptor ? data.descriptor : 'Unknown Error',
+                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
@@ -217,12 +217,12 @@ function AnnouncementOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: data.descriptor ? data.descriptor : 'Unknown Error',
+                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
 
-                console.warn(`Announcement deletion failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                console.warn(`Announcement deletion failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                 console.log(data);
             }
         });

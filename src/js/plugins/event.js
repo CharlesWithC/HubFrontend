@@ -44,9 +44,9 @@ function FetchEvent(showdetail = -1) {
         error: function (data) {
             $("#fetchEventBtn").html("Fetch Data");
             $("#fetchEventBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to fetch event. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to fetch event. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -90,9 +90,9 @@ function FetchEventAttendee() {
         error: function (data) {
             $("#fetchEventAttendeeBtn").html("Fetch Existing Attendees");
             $("#fetchEventAttendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to fetch event attendees. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to fetch event attendees. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -145,9 +145,9 @@ function UpdateEventAttendees() {
         error: function (data) {
             $("#attendeeBtn").html("Update");
             $("#attendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to update event attendees. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to update event attendees. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -219,11 +219,11 @@ function EventOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: data.descriptor ? data.descriptor : 'Unknown Error',
+                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
-                    console.warn(`Event update failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                    console.warn(`Event update failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                     console.log(data);
                 }
             },
@@ -235,12 +235,12 @@ function EventOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: data.descriptor ? data.descriptor : 'Unknown Error',
+                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
 
-                console.warn(`Event update failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                console.warn(`Event update failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                 console.log(data);
             }
         });
@@ -280,13 +280,13 @@ function EventOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: data.descriptor ? data.descriptor : 'Unknown Error',
+                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
 
                     console.warn(
-                        `Event creation failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                        `Event creation failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                     console.log(data);
                 }
             },
@@ -298,12 +298,12 @@ function EventOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: data.descriptor ? data.descriptor : 'Unknown Error',
+                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
 
-                console.warn(`Event creation failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                console.warn(`Event creation failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                 console.log(data);
             }
         });
@@ -333,7 +333,7 @@ function EventOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: data.descriptor ? data.descriptor : 'Unknown Error',
+                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
@@ -347,12 +347,12 @@ function EventOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: data.descriptor ? data.descriptor : 'Unknown Error',
+                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
 
-                console.warn(`Event deletion failed: ${data.descriptor ? data.descriptor : 'Unknown error'}`);
+                console.warn(`Event deletion failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
                 console.log(data);
             }
         });
@@ -410,9 +410,9 @@ function loadEvent(recurse = true) {
                 }, 50);
             },
             error: function (data) {
-                toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
                 console.warn(
-                    `Failed to load events. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                    `Failed to load events. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
                 console.log(data);
             }
         })
@@ -531,9 +531,9 @@ function loadEvent(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
-                `Failed to load events. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to load events. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
@@ -557,10 +557,10 @@ function eventvote(eventid) {
             return toastFactory("success", "Success:", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", "Failed to receive API response.", 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
-                `Failed to vote / unvote for event. Error: ${data.descriptor ? data.descriptor : 'Unknown Error'}`);
+                `Failed to vote / unvote for event. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });

@@ -224,7 +224,7 @@ async function ShowTab(tabname, btnname) {
         loadAllApp();
     }
     if (tabname == "#AllUsers") {
-        window.history.pushState("", "", '/pendinguser');
+        window.history.pushState("", "", '/user');
         loadUsers();
     }
     if (tabname == "#AllMembers") {
@@ -591,7 +591,7 @@ function PathDetect() {
     else if (p == "/myapp") ShowTab("#MyApp", "#MyAppBtn");
     else if (p == "/allapp") ShowTab("#AllApp", "#AllAppBtn");
     else if (p == "/submitapp") ShowTab("#SubmitApp", "#SubmitAppBtn");
-    else if (p == "/pendinguser") ShowTab("#AllUsers", "#AllUserBtn");
+    else if (p == "/user") ShowTab("#AllUsers", "#AllUserBtn");
     else if (p == "/audit") ShowTab("#AuditLog", "#AuditLogBtn");
     else if (p == "/admin") ShowTab("#Admin", "#AdminBtn");
     else ShowTab("#HomeTab", "#HomeTabBtn");
@@ -947,5 +947,4 @@ $(document).ready(function () {
             $("#ranktable").append(ranktable);
         }
     }
-    loadDivisionList();
 });
