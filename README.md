@@ -1,5 +1,7 @@
 # Drivers Hub: Frontend
 
-Don't read me 
+## TODOs  
 
-True developers always update the Readme...
+1.Full translation support for .js  
+2.GUI for config editing  
+3.UI Improvements  
