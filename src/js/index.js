@@ -188,7 +188,7 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        window.history.pushState("", "", '/member?userid=' + userid);
+        window.history.pushState("", "", '/member/' + userid);
         loadProfile(userid);
     }
     if (tabname == "#HomeTab") {
@@ -391,7 +391,7 @@ function validate() {
         $("#DownloadsTabBtn").hide();
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/validate",
+        url: apidomain + "/" + vtcprefix + "/token",
         type: "GET",
         dataType: "json",
         headers: {
@@ -416,12 +416,12 @@ function validate() {
                 <path fill-rule="evenodd"
                   d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                   fill="${color}"></path>
-              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span id="betawarn" style="color:orange">&nbsp;&nbsp;&nbsp;Frontend beta release! Please report bugs in <a href="https://discord.gg/wNTaaBZ5qd">https://discord.gg/wNTaaBZ5qd</a></span></p>`);
+              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span id="betawarn" style="color:orange">&nbsp;&nbsp;&nbsp;Report bugs or get a custom Drivers Hub - Join <a href="https://discord.gg/wNTaaBZ5qd">https://discord.gg/wNTaaBZ5qd</a></span></p>`);
             }
         }
     });
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/info",
+        url: apidomain + "/" + vtcprefix + "/user",
         type: "GET",
         dataType: "json",
         headers: {
@@ -536,7 +536,7 @@ function validate() {
                 }
                 if (userid != -1) {
                     $.ajax({
-                        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + userid,
+                        url: apidomain + "/" + vtcprefix + "/member?userid=" + userid,
                         type: "GET",
                         dataType: "json",
                         headers: {
@@ -700,7 +700,7 @@ $(document).ready(function () {
             val = $("#attendeeId").val();
             if (val == "") return;
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/member/list?page=1&search=" + val,
+                url: apidomain + "/" + vtcprefix + "/members?page=1&query=" + val,
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -779,8 +779,8 @@ $(document).ready(function () {
     $("#logout").click(function () {
         token = localStorage.getItem("token")
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/revoke",
-            type: "POST",
+            url: apidomain + "/" + vtcprefix + "/token",
+            type: "DELETE",
             dataType: "json",
             headers: {
                 "Authorization": "Bearer " + token
@@ -947,4 +947,42 @@ $(document).ready(function () {
             $("#ranktable").append(ranktable);
         }
     }
+
+    lastnamesearch = 0;
+    lnsto = 0;
+    function searchName(eid){
+        if ($("#" + eid + "_datalist").length == 0) {
+            $("#" + eid).attr("list", eid + "_datalist");
+            $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
+        }
+        datalist = "#" + eid + "_datalist";
+        content = $("#" + eid).val();
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/members?page=1&query=" + content,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                $(datalist).children().remove();
+                if (d.length == 0) {
+                    $(datalist).append("<option value='No Data'>");
+                    return;
+                }
+                for(var i = 0; i < d.length; i++) {
+                    $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
+                }
+            }
+        });
+    }
+    $(".search-name").on('input', function () {
+        if(+new Date() - lastnamesearch < 1000) return;
+        lastnamesearch = +new Date();
+        eid = $(this).attr("id");
+        searchName(eid);
+        clearTimeout(lnsto);
+        lnsto = setTimeout(function(){searchName(eid)}, 1000);
+    });
 });

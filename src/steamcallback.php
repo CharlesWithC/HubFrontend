@@ -61,8 +61,8 @@
                 sParameterName,
                 i;
             $.ajax({
-                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steambind",
-                type: "POST",
+                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam",
+                type: "PATCH",
                 dataType: "json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
@@ -98,8 +98,8 @@
 
         function TMPBind() {
             $.ajax({
-                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/truckersmpbind",
-                type: "POST",
+                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/truckersmp",
+                type: "PATCH",
                 dataType: "json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
@@ -146,7 +146,7 @@
                     <p id="msg">Validating steam authorization...</p>
                 </header>
                 <section id="steamauth" style="display:none">
-                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steamauth">
+                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
                         <br>
                         <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">

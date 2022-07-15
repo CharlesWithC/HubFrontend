@@ -175,7 +175,7 @@ function loadDelivery(recurse = true) {
     else $(".dgame" + game).css("background-color", "skyblue");
     if (!dets2 && !dats) starttime = 1, endtime = 2;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlogs?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {
@@ -453,7 +453,7 @@ function deliveryDetail(logid) {
     $("#rp_pct").html("0");
     $("#rrplay").html("Play");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/detail?logid=" + String(logid),
+        url: apidomain + "/" + vtcprefix + "/dlog?logid=" + String(logid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -748,7 +748,7 @@ function loadUserDelivery(recurse = true) {
     else $(".dgame" + game).css("background-color", "skyblue");
     if (!dets2 && !dats) starttime = 1, endtime = 2;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?quserid=" + curprofile + "&speedlimit=" + parseInt(speedlimit) + "&page=" + page + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlogs?quserid=" + curprofile + "&speedlimit=" + parseInt(speedlimit) + "&page=" + page + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {

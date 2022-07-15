@@ -5,7 +5,7 @@ function loadDivisionList(){
     }
     if (+new Date() - lastDivisionUpdate > 86400) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/division/list",
+            url: apidomain + "/" + vtcprefix + "/divisions",
             type: "GET",
             dataType: "json",
             headers: {
@@ -78,7 +78,7 @@ function loadDivisionList(){
 
 function loadDivision() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/info",
+        url: apidomain + "/" + vtcprefix + "/division",
         type: "GET",
         dataType: "json",
         headers: {
@@ -161,7 +161,7 @@ function loadDivision() {
 
 function loadStaffDivision() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/validate",
+        url: apidomain + "/" + vtcprefix + "/divisions/pending",
         type: "GET",
         dataType: "json",
         headers: {
@@ -214,7 +214,7 @@ function divisionInfo(logid) {
     $("#divisioninfobtn").html("Loading...");
     $("#divisioninfobtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/info?logid=" + logid,
+        url: apidomain + "/" + vtcprefix + "/division?logid=" + logid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -350,7 +350,7 @@ function requestDivision(logid) {
     }
     if(divisionid == -1) return toastFactory("error", "Error:", "Invalid division.", 5000, false);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/validate",
+        url: apidomain + "/" + vtcprefix + "/division",
         type: "POST",
         dataType: "json",
         headers: {
@@ -398,7 +398,7 @@ function updateDivision(logid, status) {
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/validate",
+        url: apidomain + "/" + vtcprefix + "/division",
         type: "PATCH",
         dataType: "json",
         headers: {

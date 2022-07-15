@@ -212,7 +212,7 @@ function SubmitApp() {
 function loadMyApp(recurse = true) {
     page = parseInt($("#myapppage").val())
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&apptype=0",
+        url: apidomain + "/" + vtcprefix + "/applications?page=" + page + "&apptype=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -370,7 +370,7 @@ function addAppMessage() {
 function loadAllApp(recurse = true) {
     page = parseInt($('#allapppage').val())
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&apptype=0&showall=1",
+        url: apidomain + "/" + vtcprefix + "/applications?page=" + page + "&apptype=0&showall=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -520,7 +520,7 @@ function appDetail(applicationid, staffmode = false) {
             ret += "";
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/user/info?qdiscordid=" + String(discordid),
+                url: apidomain + "/" + vtcprefix + "/user?qdiscordid=" + String(discordid),
                 type: "GET",
                 dataType: "json",
                 headers: {

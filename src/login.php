@@ -63,7 +63,7 @@
 				return;
 			}
 			$.ajax({
-				url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/validate",
+				url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token",
 				type: "GET",
 				dataType: "json",
 				headers: {

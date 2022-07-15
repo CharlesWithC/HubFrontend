@@ -3,7 +3,7 @@ function requestRole() {
     $("#requestRoleBtn").html("Working...");
     $("#requestRoleBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/discordrole",
+        url: apidomain + "/" + vtcprefix + "/member/role/rank",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -33,7 +33,7 @@ function loadMembers(recurse = true) {
     $("#searchMemberBtn").html("...");
     $("#searchMemberBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&search=" + $("#searchname").val(),
+        url: apidomain + "/" + vtcprefix + "/members?page=" + page + "&query=" + $("#searchname").val(),
         type: "GET",
         dataType: "json",
         headers: {
@@ -178,7 +178,7 @@ function memberDetail(userid) {
     $("#MemberInfoBtn" + userid).attr("disabled", "disabled");
     $("#MemberInfoBtn" + userid).html("Loading...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/member?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -257,7 +257,7 @@ function fetchRoles() {
     $("#rolelist").children().children().prop("checked", false);
     $("#memberrolename").html("");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list?page=1&search=" + val,
+        url: apidomain + "/" + vtcprefix + "/members?page=1&query=" + val,
         type: "GET",
         dataType: "json",
         headers: {
@@ -273,7 +273,7 @@ function fetchRoles() {
             lastfetch = d[0].userid;
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(lastfetch),
+                url: apidomain + "/" + vtcprefix + "/member?userid=" + String(lastfetch),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -417,7 +417,7 @@ function dismissUser() {
         $("#dismissbtn").html("Fetching name...");
         $("#dismissbtn").attr("disabled", "disabled");
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
+            url: apidomain + "/" + vtcprefix + "/member?userid=" + String(userid),
             type: "GET",
             dataType: "json",
             headers: {
@@ -523,8 +523,8 @@ function genNewAppToken() {
     $("#genAppTokenBtn").html("Working...");
     $("#genAppTokenBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/apptoken",
-        type: "POST",
+        url: apidomain + "/" + vtcprefix + "/token/application",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -605,7 +605,7 @@ function loadProfile(userid) {
         return;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/info?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/member?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -617,7 +617,7 @@ function loadProfile(userid) {
                 return toastFactory("error", "Error:", data.descriptor, 5000, false);
             }
             if (!data.error) {
-                window.history.pushState("", "", '/member?userid=' + userid);
+                window.history.pushState("", "", '/member/' + userid);
                 d = data.response;
                 $("#account_id").html(d.userid + " (" + getDateTime(d.join * 1000) + ")");
                 if(d.email != undefined){$("#account_email").html(d.email);$(".email_private").show();}

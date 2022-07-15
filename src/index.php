@@ -43,11 +43,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
-    <?php
-    if(in_array("addon", $enabled_plugins)){
-        echo '<script src="/js/addon.js"></script>';
-    }
-    ?>
     <script src="/configs/<?php echo $domainpure ?>.js"></script>
     <script src="/js/menu.js"></script>
     <script src="/js/functions.js"></script>
@@ -68,9 +63,14 @@
     <script src="/js/apis/user.js"></script>
     <script src="/js/apis/dlog.js"></script>
     <?php if(in_array("division", $enabled_plugins)){
-    echo '<script src="/js/plugins/division.js">loadDivisionList();</script>';} ?>
+    echo '<script src="/js/plugins/division.js"></script><script>loadDivisionList();</script>';} ?>
     <?php if(in_array("event", $enabled_plugins)){
     echo '<script src="/js/plugins/event.js"></script>';} ?>
+    <?php
+    if(in_array("addon", $enabled_plugins)){
+        echo '<script src="/js/addon.js"></script>';
+    }
+    ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
@@ -599,7 +599,7 @@
                     <br>
                     API: <a href="https://<?php echo $api ?>" target="_blank"><span id="apiversion">v?.?.?</span></a> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                     <br>
-                    Web: v1.1.beta3 <a href="/changelog" target="_blank">Changelog</a>
+                    Web: v1.1.4 <a href="/changelog" target="_blank">Changelog</a>
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -1357,7 +1357,7 @@
                         <br>
                         <label class="block text-sm font-medium mb-2" for=""><?php echo $st->member_name; ?></label>
                         <input id="memberroleid" style="width:200px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name"
                             name="field-name" rows="5" placeholder=""></input>
                         <button type="button" id="fetchRolesBtn"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"

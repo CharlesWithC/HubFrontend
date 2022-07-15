@@ -130,8 +130,8 @@ function genNewAppToken() {
     $("#genAppTokenBtn").html("Working...");
     $("#genAppTokenBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/apptoken",
-        type: "POST",
+        url: apidomain + "/" + vtcprefix + "/token/application",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -161,7 +161,7 @@ function loadUsers(recurse = true) {
     if (page == "") page = 1;
     if (page == undefined) page = 1;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/users?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -422,7 +422,7 @@ function userDetail(discordid) {
     $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
     $("#UserInfoBtn" + discordid).html("Loading...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/info?qdiscordid=" + String(discordid),
+        url: apidomain + "/" + vtcprefix + "/user?qdiscordid=" + String(discordid),
         type: "GET",
         dataType: "json",
         headers: {

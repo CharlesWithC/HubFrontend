@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.1.4**  
+Updates to catch up to API v1.9.4  
+
 **v1.1.beta3**  
 1.Added `Unbind Account Connection` function  
 2.Added `Delete User` function  

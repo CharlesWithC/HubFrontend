@@ -71,8 +71,8 @@
             token = getUrlParameter("token");
             if (token) {
                 $.ajax({
-                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/refresh",
-                    type: "GET",
+                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token",
+                    type: "PATCH",
                     dataType: "json",
                     headers: {
                         "Authorization": "Bearer " + token
@@ -97,7 +97,7 @@
             } else {
                 token = localStorage.getItem("token");
                 $.ajax({
-                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/validate",
+                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token",
                     type: "GET",
                     dataType: "json",
                     headers: {
@@ -139,8 +139,8 @@
 
         function TMPBind() {
             $.ajax({
-                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/truckersmpbind",
-                type: "POST",
+                url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/truckersmp",
+                type: "PATCH",
                 dataType: "json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
@@ -210,7 +210,7 @@
                     <button type="button" onclick="DiscordLogin();">Login With Discord</button>
                 </section>
                 <section id="steamauth" style="display:none">
-                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steamauth">
+                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
                         <br>
                         <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">

@@ -367,7 +367,7 @@ function loadEvent(recurse = true) {
 
     if (eventsCalendar == undefined) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event/full",
+            url: apidomain + "/" + vtcprefix + "/events/all",
             type: "GET",
             dataType: "json",
             headers: {
