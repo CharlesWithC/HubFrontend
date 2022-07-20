@@ -380,7 +380,7 @@ function validate() {
     if (token == "guest") {
         $("#recruitment").hide();
         $("#logout").hide();
-        $("#header").prepend("<a style='color:grey' href='/login'>Login</a>");
+        $("#header").prepend(`<a style='color:grey' href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span>`);
     } else {
         $("#recruitment").show();
     }
@@ -400,7 +400,7 @@ function validate() {
         success: function (data) {
             if (data.error) {
                 localStorage.setItem("token", "guest");
-                $("#header").prepend("<a style='color:grey' href='/login'>Login</a>");
+                $("#header").prepend(`<a style='color:grey' href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span>`);
             }
             if (data.response.extra == "steamauth") {
                 $("#header").prepend(
@@ -416,7 +416,7 @@ function validate() {
                 <path fill-rule="evenodd"
                   d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                   fill="${color}"></path>
-              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span id="betawarn" style="color:orange">&nbsp;&nbsp;&nbsp;Report bugs or get a custom Drivers Hub - Join <a href="https://discord.gg/wNTaaBZ5qd">https://discord.gg/wNTaaBZ5qd</a></span></p>`);
+              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span></p>`);
             }
         }
     });

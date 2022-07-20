@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.1.5**  
+Added telemetry data decoder for v5 (API v1.9.9)  
+
 **v1.1.4**  
 Updates to catch up to API v1.9.4  
 

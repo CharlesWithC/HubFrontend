@@ -135,7 +135,7 @@ function loadLeaderboard(recurse = true) {
         error: function (data) {
             $("#loadLeaderboardBtn").html("Go");
             $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load leaderboard. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -278,7 +278,7 @@ function loadDelivery(recurse = true) {
         error: function (data) {
             $("#loadDeliveryBtn").html("Go");
             $("#loadDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -599,8 +599,12 @@ function deliveryDetail(logid) {
                     basic = telemetry[0].split(",");
                     tver = 1;
                     if (basic[0].startsWith("v2")) tver = 2;
-                    if (basic[0].startsWith("v3")) tver = 3;
-                    if (basic[0].startsWith("v4")) tver = 4;
+                    else if (basic[0].startsWith("v3")) tver = 3;
+                    else if (basic[0].startsWith("v4")) tver = 4;
+                    else if (basic[0].startsWith("v5")) tver = 5;
+                    else if (basic[0].startsWith("v")) {
+                        return toastFactory("error", "Error:", "Unsupported telemetry data compression version", 5000, false);
+                    }
                     basic[0] = basic[0].slice(2);
                     game = basic[0];
                     mods = basic[1];
@@ -608,26 +612,83 @@ function deliveryDetail(logid) {
                     dpoints = [];
                     lastx = 0;
                     lastz = 0;
-                    for (i = 0; i < route.length; i++) {
-                        if (tver == 4) {
-                            if (route[i].split(",") == 1 && route[i].startsWith("idle")) {
-                                idlecnt = parseInt(route[i].split("e")[1]);
-                                for (var j = 0; j < idlecnt; j++) {
-                                    dpoints.push([lastx, lastz]);
+                    if (tver <= 4) {
+                        for (i = 0; i < route.length; i++) {
+                            if (tver == 4) {
+                                if (route[i].split(",") == 1 && route[i].startsWith("idle")) {
+                                    idlecnt = parseInt(route[i].split("e")[1]);
+                                    for (var j = 0; j < idlecnt; j++) {
+                                        dpoints.push([lastx, lastz]);
+                                    }
+                                    continue;
                                 }
-                                continue;
+                            }
+                            p = route[i].split(",");
+                            if (p.length < 2) continue;
+                            if (tver == 1) dpoints.push([p[0], p[2]]); // x, z
+                            else if (tver == 2) dpoints.push([b62decode(p[0]), b62decode(p[1])]);
+                            else if (tver >= 3) {
+                                relx = b62decode(p[0]);
+                                relz = b62decode(p[1]);
+                                dpoints.push([lastx + relx, lastz + relz]);
+                                lastx = lastx + relx;
+                                lastz = lastz + relz;
                             }
                         }
-                        p = route[i].split(",");
-                        if (p.length < 2) continue;
-                        if (tver == 1) dpoints.push([p[0], p[2]]); // x, z
-                        else if (tver == 2) dpoints.push([b62decode(p[0]), b62decode(p[1])]);
-                        else if (tver >= 3) {
-                            relx = b62decode(p[0]);
-                            relz = b62decode(p[1]);
-                            dpoints.push([lastx + relx, lastz + relz]);
-                            lastx = lastx + relx;
-                            lastz = lastz + relz;
+                    } else if (tver == 5) {
+                        nroute = "";
+                        for (i = 0; i < route.length; i++) {
+                            nroute += route[i] + ";";
+                        }
+                        route = nroute;
+                        for (i = 0, j = 0; i < route.length; i++) {
+                            x = route[i];
+                            if (x == "^") {
+                                for (j = i + 1; j < route.length; j++) {
+                                    if (route[j] == "^") {
+                                        c = parseInt(route.substr(i + 1, j - i - 1));
+                                        for (k = 0; k < c; k++) {
+                                            dpoints.push([lastx, lastz]);
+                                        }
+                                        break;
+                                    }
+                                }
+                                i = j;
+                            } else if (x == ";") {
+                                cx = 0;
+                                cz = 0;
+                                for (j = i + 1; j < route.length; j++) {
+                                    if (route[j] == ",") {
+                                        cx = route.substr(i + 1, j - i - 1);
+                                        break;
+                                    }
+                                }
+                                i = j;
+                                for (j = i + 1; j < route.length; j++) {
+                                    if (route[j] == ";") {
+                                        cz = route.substr(i + 1, j - i - 1);
+                                        break;
+                                    }
+                                }
+                                i = j;
+                                if (cx == 0 && cz == 0) continue;
+                                relx = b62decode(cx);
+                                relz = b62decode(cz);
+                                dpoints.push([lastx + relx, lastz + relz]);
+                                rel.push([relx, relz]);
+                                lastx = lastx + relx;
+                                lastz = lastz + relz;
+                            } else {
+                                st = "ZYXWVUTSRQPONMLKJIHGFEDCBA0abcdefghijklmnopqrstuvwxyz";
+                                if (i + 1 >= route.length) break;
+                                z = route[i + 1];
+                                relx = st.indexOf(x) - 26;
+                                relz = st.indexOf(z) - 26;
+                                dpoints.push([lastx + relx, lastz + relz]);
+                                lastx = lastx + relx;
+                                lastz = lastz + relz;
+                                i += 1;
+                            }
                         }
                     }
                     minx = 100000000000000;
@@ -707,7 +768,7 @@ function deliveryDetail(logid) {
             ShowTab("#HomeTab", "#HomeTabBtn");
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load delivery log details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`
@@ -849,7 +910,7 @@ function loadUserDelivery(recurse = true) {
         error: function (data) {
             $("#loadUserDeliveryBtn").html("Go");
             $("#loadUserDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -861,19 +922,19 @@ function download(filename, text) {
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
-  
+
     element.style.display = 'none';
     document.body.appendChild(element);
-  
+
     element.click();
-  
+
     document.body.removeChild(element);
 }
 
-function exportDLog(){
+function exportDLog() {
     start_time = +new Date($("#export_start_date").val());
     end_time = +new Date($("#export_end_date").val());
-    if(isNaN(start_time) || isNaN(end_time)){
+    if (isNaN(start_time) || isNaN(end_time)) {
         start_time = -1000;
         end_time = -1000;
     }
@@ -901,7 +962,7 @@ function exportDLog(){
         error: function (data) {
             $("#exportDLogBtn").html("Export");
             $("#exportDLogBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to export delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
