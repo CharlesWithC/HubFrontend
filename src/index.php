@@ -17,7 +17,7 @@
     ?>
 
     <title><?php echo $vtcname ?></title>
-    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
+    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $vtcname ?> Drivers Hub | <?php echo $slogan ?>">
@@ -25,14 +25,14 @@
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $slogan ?>" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
-    <meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
+    <meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" property="og:image" />
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
-    <meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
+    <meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/bg.jpg" name="twitter:card">
 
-    <link rel="stylesheet" href="/css/font.css">
-    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
-    <link rel="stylesheet" href="/css/tailwind.css">
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
 
@@ -44,28 +44,28 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
     <script src="/configs/<?php echo $domainpure ?>.js"></script>
-    <script src="/js/menu.js"></script>
-    <script src="/js/functions.js"></script>
-    <script src="/js/index.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/menu.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/index.js"></script>
     <?php if(in_array("livemap", $enabled_plugins)){
-    echo '<script src="/js/map/ets2map.js"></script>
-    <script src="/js/map/ets2map_promods.js"></script>
-    <script src="/js/map/atsmap.js"></script>
-    <script src="/js/map/naviolive.js"></script>';} ?>
-    <script src="/js/apis/member.js"></script>
-    <script src="/js/apis/overview.js"></script>
+    echo '<script src="https://drivershub-cdn.charlws.com/js/map/ets2map.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/map/ets2map_promods.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/map/atsmap.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/map/naviolive.js"></script>';} ?>
+    <script src="https://drivershub-cdn.charlws.com/js/apis/member.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/apis/overview.js"></script>
     <?php if(in_array("announcement", $enabled_plugins)){
-    echo '<script src="/js/plugins/announcement.js"></script>';} ?>
+    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/announcement.js"></script>';} ?>
     <?php if(in_array("downloads", $enabled_plugins)){
-    echo '<script src="/js/plugins/downloads.js"></script>';} ?>
+    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/downloads.js"></script>';} ?>
     <?php if(in_array("application", $enabled_plugins)){
-    echo '<script src="/js/plugins/application.js"></script>';} ?>
-    <script src="/js/apis/user.js"></script>
-    <script src="/js/apis/dlog.js"></script>
+    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/application.js"></script>';} ?>
+    <script src="https://drivershub-cdn.charlws.com/js/apis/user.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/apis/dlog.js"></script>
     <?php if(in_array("division", $enabled_plugins)){
-    echo '<script src="/js/plugins/division.js"></script><script>loadDivisionList();</script>';} ?>
+    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/division.js"></script><script>loadDivisionList();</script>';} ?>
     <?php if(in_array("event", $enabled_plugins)){
-    echo '<script src="/js/plugins/event.js"></script>';} ?>
+    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/event.js"></script>';} ?>
     <?php
     if(in_array("addon", $enabled_plugins)){
         echo '<script src="/js/addon.js"></script>';
@@ -137,7 +137,7 @@
     <div>
         <nav class="lg:hidden py-6 px-6 bg-gray-800">
             <div class="flex items-center justify-between">
-                <a class="text-2xl text-white font-semibold" style="cursor: pointer"><img src="images/banner.png" alt=""
+                <a class="text-2xl text-white font-semibold" style="cursor: pointer"><img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
                         width="200"></a>
                 <button class="navbar-burger flex items-center rounded focus:outline-none">
                     <svg class="text-white bg-indigo-500 hover:bg-indigo-600 block h-8 w-8 p-2 rounded"
@@ -153,7 +153,7 @@
                 class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8 bg-gray-800 overflow-y-auto">
                 <div class="flex w-full items-center px-6 pb-6 mb-6 lg:border-b border-gray-700">
                     <a class="text-xl text-white font-semibold" style="cursor: pointer"
-                        onclick="ShowTab('#HomeTab', '#HomeTabBtn')"><img src="images/banner.png" alt=""
+                        onclick="ShowTab('#HomeTab', '#HomeTabBtn')"><img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
                             width="100%"></a>
                 </div>
                 <div class="px-4 pb-6">
@@ -681,7 +681,7 @@
                             id="userProfileDetail">
                         </div>
                         <div class="py-8 px-6 pt-4 mb-6" style="width:170px;padding:10px;float:right">
-                            <img id="UserProfileAvatar" onerror="$(this).attr('src','/images/logo.png');"
+                            <img id="UserProfileAvatar" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png');"
                                 style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
                         </div>
                     </div>

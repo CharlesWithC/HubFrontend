@@ -5,24 +5,24 @@
   
   @font-face {
     font-family: "UniSans";
-    src: url("/css/fonts/UniSans-Regular.woff2") format('woff2');
+    src: url("https://drivershub-cdn.charlws.com/css/fonts/UniSans-Regular.woff2") format('woff2');
 }
 
 @font-face {
     font-family: "UniSans";
-    src: url("/css/fonts/UniSans-RegularItalic.woff2") format('woff2');
+    src: url("https://drivershub-cdn.charlws.com/css/fonts/UniSans-RegularItalic.woff2") format('woff2');
     font-style: italic;
 }
 
 @font-face {
     font-family: "UniSans";
-    src: url("/css/fonts/UniSans-Bold.woff2") format('woff2');
+    src: url("https://drivershub-cdn.charlws.com/css/fonts/UniSans-Bold.woff2") format('woff2');
     font-weight: bold;
 }
 
 @font-face {
     font-family: "UniSans";
-    src: url("/css/fonts/UniSans-BoldItalic.woff2") format('woff2');
+    src: url("https://drivershub-cdn.charlws.com/css/fonts/UniSans-BoldItalic.woff2") format('woff2');
     font-weight: bold;
     font-style: italic;
 }

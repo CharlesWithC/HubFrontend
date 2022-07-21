@@ -124,14 +124,14 @@ function loadMembers(recurse = true) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "/images/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                 }
                 $("#membersTable").append(`
             <tr class="text-sm">
               <td class="py-5 px-6 font-medium">${user.userid}</td>
               <td class="py-5 px-6 font-medium" style="color:${color}">
                 <a style="cursor:pointer;" onclick="loadProfile('${user.userid}')">
-                <img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${user.name}</a></td>
+                <img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${user.name}</a></td>
               <td class="py-5 px-6 font-medium" style="color:${color}">${highestrole}</td>
             </tr>`);
             }
@@ -146,7 +146,7 @@ function loadMembers(recurse = true) {
                 else
                     src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
             } else {
-                avatar = "/images/logo.png";
+                avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
             }
             $("#sotm").html(`<a style='cursor:pointer' onclick='loadProfile("${user.userid}")'>${user.name}</a>`);
             $("#sotma").attr("src", src);
@@ -658,7 +658,7 @@ function loadProfile(userid) {
                         src = "https://cdn.discordapp.com/avatars/" + d.discordid + "/" + avatar + ".png";
                     $("#UserProfileAvatar").attr("src", src);
                 } else {
-                    avatar = "/images/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                 }
                 roles = d.roles;
                 rtxt = "";

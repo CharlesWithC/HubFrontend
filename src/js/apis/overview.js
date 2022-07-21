@@ -185,10 +185,10 @@ function loadStats(basic = false) {
                 else
                     src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
             } else {
-                avatar = "/images/logo.png";
+                avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
             }
             distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');"> <b>${driver_of_the_day.name}</b>`);
+            $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> <b>${driver_of_the_day.name}</b>`);
             $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
 
             $("#dalljob").html(newjobs);
@@ -248,11 +248,11 @@ function loadStats(basic = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "/images/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
                     $("#leaderboard").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${name}</a></td>
+                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${totalpnt}</td>
             </tr>`);
                 }
@@ -283,11 +283,11 @@ function loadStats(basic = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "/images/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
                     $("#newdriverTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${name}</a></td>
+                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${joindt}</td>
             </tr>`);
                 }

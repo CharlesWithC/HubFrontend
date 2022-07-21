@@ -8,16 +8,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Authorization - <?php echo $vtcname ?></title>
-    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
+    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" type="image/x-icon" />
 
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $slogan ?>" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
-    <meta content="<?php echo $domain ?>/images/logo.png" property="og:image" />
+    <meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" property="og:image" />
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
-    <meta content="<?php echo $domain ?>/images/bg.jpg" name="twitter:card">
+    <meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/bg.jpg" name="twitter:card">
 
-    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
 <style>
     .formRight form section button {
         background-color: <?php echo $vtccolor ?>;
@@ -32,8 +32,8 @@
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="/js/functions.js"></script>
-    <link rel="stylesheet" href="/css/login.css">
+    <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/login.css">
     <script>
         function toastFactory(type, title, text, time, showConfirmButton) {
           const Toast = Swal.mixin({
@@ -133,10 +133,10 @@
     </script>
 </head>
 
-<body style="overflow:hidden">
+<body style="overflow:hidden;background:url('https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/bg.jpg') center/cover fixed;">
     <div id="formContainer">
         <div class="formLeft">
-            <img src="/images/logo.png">
+            <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png">
         </div>
         <div class="formRight">
             <!-- Login form -->
@@ -148,7 +148,7 @@
                 <section id="steamauth" style="display:none">
                     <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
                         <br>
-                        <img src="https://community.akamai.steamstatic.com/public/images/signinthroughsteam/sits_01.png"
+                        <img src="https://community.akamai.steamstatic.com/public/assets/<?php echo $vtcabbr ?>/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
                     </a>
                 </section>

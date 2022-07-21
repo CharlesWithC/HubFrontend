@@ -118,12 +118,12 @@ function loadLeaderboard(recurse = true) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "/images/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                 }
                 console.log(user.totnolimit);
                 $("#leaderboardTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','/images/logo.png');"> ${name}</a></td>
+                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
                 <td class="py-5 px-6">${point2rank(user.totnolimit)}</td>
                 <td class="py-5 px-6">${distance}</td>
                 <td class="py-5 px-6">${user.eventpnt}</td>
@@ -675,7 +675,6 @@ function deliveryDetail(logid) {
                                 relx = b62decode(cx);
                                 relz = b62decode(cz);
                                 dpoints.push([lastx + relx, lastz + relz]);
-                                rel.push([relx, relz]);
                                 lastx = lastx + relx;
                                 lastz = lastz + relz;
                             } else {

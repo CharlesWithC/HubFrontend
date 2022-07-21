@@ -1,5 +1,5 @@
 function loadAuditLog(recurse = true) {
-    page = parseInt($("#auditpages").val())
+    page = parseInt($("#auditpages").val());
     if (page == "") page = 1;
     if (page == undefined) page = 1;
     $.ajax({
