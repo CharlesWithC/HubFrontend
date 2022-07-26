@@ -172,7 +172,7 @@ function loadStaffDivision() {
             DIVISION = {};
             divisions = JSON.parse(localStorage.getItem("division"));
             for(var i = 0 ; i < divisions.length ; i++) {
-                DIVISION[divisions.id] = divisions.name;
+                DIVISION[divisions[i].id] = divisions[i].name;
             }
             if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
             $("#staffDisivionTable").empty();
@@ -250,7 +250,7 @@ function divisionInfo(logid) {
                     showConfirmButton: false,
                     confirmButtonText: 'Close'
                 });
-            } else if (data.response.isstaff == true && data.response.status == 0) {
+            } else if (data.response.isstaff == true && data.response.status == "0") {
                 divisionopt = "";
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
@@ -291,21 +291,21 @@ function divisionInfo(logid) {
                 DIVISION = {};
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
-                    DIVISION[divisions.id] = divisions.name;
+                    DIVISION[divisions[i].id] = divisions[i].name;
                 }
                 if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
                 if (data.response.reason == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validated at " + getDateTime(data.response.updatets * 1000) +
+                    info += "<p>Validated at " + getDateTime(parseInt(data.response.updatets) * 1000) +
                         " by <a onclick='loadProfile(" + data.response.staffid + ");'>" + data.response.staffname + "</a></p>";
                 } else {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validation requested at " + getDateTime(data.response.requestts * 1000) + "</p>";
-                    if (data.response.status == 0) info += "<p>- Pending Validation</p>";
-                    else if (data.response.status == 1)
-                        info += "<p>Validated at " + getDateTime(data.response.updatets * 1000) +
+                    if (data.response.status == "0") info += "<p>- Pending Validation</p>";
+                    else if (data.response.status == "1")
+                        info += "<p>Validated at " + getDateTime(parseInt(data.response.updatets) * 1000) +
                         " by <a onclick='loadProfile(" + data.response.staffid + ");'>" + data.response.staffname + "</a></p>";
-                    else if (data.response.status == 2)
+                    else if (data.response.status == "2")
                         info += "<p>Denied at " + getDateTime(data.response.updatets * 1000) +
                         " by <a onclick='loadProfile(" + data.response.staffid + ");'>" + data.response.staffname + "</a></p>";
                     if (data.response.reason != "")
@@ -340,7 +340,7 @@ function requestDivision(logid) {
     $("#divisionRequestBtn").html("Loading...");
     $("#divisionRequestBtn").attr("disabled", "disabled");
     division = $("#divisionSelect").val();
-    divisionid = -1;
+    divisionid = "-1";
     divisions = JSON.parse(localStorage.getItem("division"));
     for(var i = 0 ; i < divisions.length ; i++) {
         if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
@@ -348,7 +348,7 @@ function requestDivision(logid) {
             break;
         }
     }
-    if(divisionid == -1) return toastFactory("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastFactory("error", "Error:", "Invalid division.", 5000, false);
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "POST",
@@ -386,7 +386,7 @@ function updateDivision(logid, status) {
         $("#divisionRejectBtn").attr("disabled", "disabled");
     }
     division = $("#divisionSelect").val();
-    divisionid = -1;
+    divisionid = "-1";
     divisions = JSON.parse(localStorage.getItem("division"));
     for(var i = 0 ; i < divisions.length ; i++) {
         if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
@@ -394,7 +394,7 @@ function updateDivision(logid, status) {
             break;
         }
     }
-    if(divisionid == -1) return toastFactory("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastFactory("error", "Error:", "Invalid division.", 5000, false);
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({

@@ -16,7 +16,7 @@ async function loadChart(userid = -1) {
     pref = "s";
     if (userid != -1) pref = "userS";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/chart?scale=" + chartscale + "&addup=" + addup + "&quserid=" + userid,
+        url: apidomain + "/" + vtcprefix + "/dlog/chart?scale=" + chartscale + "&sumup=" + addup + "&quserid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -46,8 +46,8 @@ async function loadChart(userid = -1) {
                     dollar.push(NaN);
                     continue;
                 }
-                distance.push(parseInt(d[i].distance * distance_ratio));
-                fuel.push(d[i].fuel);
+                distance.push(parseInt(parseInt(d[i].distance) * distance_ratio));
+                fuel.push(parseInt(d[i].fuel));
                 euro.push(parseInt(d[i].profit.euro));
                 dollar.push(parseInt(d[i].profit.dollar));
             }
@@ -176,20 +176,20 @@ function loadStats(basic = false) {
             $("#allfuel").html(fuel);
             $("#newfuel").html(newfuel);
 
-            driver_of_the_day = d.driver_of_the_day;
-            discordid = driver_of_the_day.discordid;
-            avatar = driver_of_the_day.avatar;
-            if (avatar != null) {
-                if (avatar.startsWith("a_"))
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                else
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            } else {
-                avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
-            }
-            distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> <b>${driver_of_the_day.name}</b>`);
-            $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
+            // driver_of_the_day = d.driver_of_the_day;
+            // discordid = driver_of_the_day.discordid;
+            // avatar = driver_of_the_day.avatar;
+            // if (avatar != null) {
+            //     if (avatar.startsWith("a_"))
+            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+            //     else
+            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+            // } else {
+            //     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+            // }
+            // distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
+            // $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> <b>${driver_of_the_day.name}</b>`);
+            // $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
@@ -222,7 +222,7 @@ function loadStats(basic = false) {
             deliveryStatsChart = new Chart(ctx, config);
         }
     });
-    if (token.length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == -1) return; // guest / invalid
+    if (token.length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/dlog/leaderboard",

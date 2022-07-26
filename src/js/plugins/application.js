@@ -199,13 +199,12 @@ function SubmitApp() {
             // Trigger req swal.fire
             Swal.fire({
                 title: 'Error',
-                text: `ERROR_UNHANDLED`,
+                text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
                 icon: 'error',
                 confirmButtonText: 'OK'
             })
 
-            console.warn('Failed to submit application (Unhandled Error): ', JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  :
-                'No Error Descriptor - check cors?');
+            console.warn('Failed to submit application: ', JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText);
         }
     });
 }
@@ -504,7 +503,7 @@ function appDetail(applicationid, staffmode = false) {
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
                 false);
-            d = data.response.data;
+            d = data.response.detail;
             discordid = data.response.discordid;
             keys = Object.keys(d);
             if (keys.length == 0) {
@@ -631,7 +630,7 @@ function updateAppStatus() {
     message = $("#appmessage").val();
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/status",
-        type: "POST",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

@@ -7,7 +7,7 @@ function FetchAnnouncement() {
     $("#fetchAnnouncementBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?aid=" + aid,
+        url: apidomain + "/" + vtcprefix + "/announcements?aid=" + aid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -133,7 +133,8 @@ function AnnouncementOp() {
                 "content": content,
                 "atype": anntype,
                 "pvt": pvt,
-                "channelid": chnid
+                "channelid": chnid,
+                "discord_message_content": "test"
             },
             success: function (data) {
                 // Un-disable the submit button

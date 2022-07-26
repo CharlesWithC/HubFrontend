@@ -177,6 +177,7 @@ function isNumber(n) {
 
 // Calculates significant figures with suffixes K/M/B/T, e.g. 1234 = 1.23K
 function sigfig(num, sigfigs_opt) {
+  num = parseInt(num);
   flag = ""
   if(num < 0) flag = "-", num=-num;
   // Set default sigfigs to 3
@@ -233,7 +234,11 @@ if(RANKING == null){
     type: "GET",
     dataType: "json",
     success: function (data) {
-        RANKING = data.response;
+        d = data.response;
+        RANKING = {};
+        for(i = 0; i < d.length; i++){
+          RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
+        }
         localStorage.setItem("rankname", JSON.stringify(RANKING));
     }
   });
@@ -242,6 +247,7 @@ if(RANKING == null){
 }
 
 function point2rank(point){
+  point = parseInt(point);
   keys = Object.keys(RANKING);
   for(var i = 0; i < keys.length; i++){
     if(point < keys[i]){

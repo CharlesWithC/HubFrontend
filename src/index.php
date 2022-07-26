@@ -601,7 +601,7 @@
                     <br>
                     API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                     <br>
-                    Web: v1.1.5 <a href="/changelog" target="_blank">Changelog</a>
+                    Web: v1.1.6 <a href="/changelog" target="_blank">Changelog</a>
                     <br>
                     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                     <br>
@@ -2814,19 +2814,27 @@
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Edit Server Config</h3>
+                    <h3 class="text-xl font-bold">Backend Config</h3>
                 </div>
                 <div class="mb-6" style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Server will reload automatically after config is updated, which might take up to 5 minutes.</label>
+                    <label class="block text-sm font-medium mb-2" for="">Program will reload automatically after config is updated, which might take up to 5 minutes.</label>
+                    <p>Simple Editor not available due to API v1.10 update. Only JSON Editor is available at this time. Simple Editor will come back very soon!</p>
                     <br>
-                    <div>
-                        <h3 class="text-l font-bold">Company Information</h3>
+                    <!-- <div>
+                        <h3 class="text-l font-bold">Company</h3>
 
-                        <div class="mb-6" style="display:inline-block;width:49%">
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Name</label>
                             <input id="config_vtcname"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
+                            <input id="config_hexcolor"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
                         </div>
 
                         <div class="relative" style="display:inline-block;width:24.5%">
@@ -2872,42 +2880,30 @@
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
-                        
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
-                            <input id="config_hexcolor"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">INT Color</label>
-                            <input id="config_intcolor"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
                     </div>
+                    <hr><br>
                     <div>
-                        <h3 class="text-l font-bold">Delivery</h3>
+                        <h3 class="text-l font-bold">Navio</h3>
 
                         <div class="mb-6" style="display:inline-block;width:73.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Navio API Token (Leave empty to keep unchanged)</label>
+                            <label class="block text-sm font-medium mb-2" for="">API Token (Leave empty to keep unchanged)</label>
                             <input id="config_navio_token"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
 
                         <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Navio Company ID</label>
+                            <label class="block text-sm font-medium mb-2" for="">Company ID</label>
                             <input id="config_navio_company_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
                     </div>
+                    <hr><br>
                     <div>
-                        <h3 class="text-l font-bold">Discord Server Information</h3>
+                        <h3 class="text-l font-bold">Discord Server</h3>
                         
-                        <div class="mb-6" style="display:inline-block;width:73.5%">
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Server ID</label>
                             <input id="config_guild"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
@@ -2929,20 +2925,21 @@
                             </div>
                         </div>
                         
-                        <div class="mb-6" style="display:inline-block;width:49%">
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Driver Channel ID</label>
                             <input id="config_driver_channel_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
 
-                        <div class="mb-6" style="display:inline-block;width:49%">
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Delivery Log Channel ID</label>
                             <input id="config_delivery_log_channel_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
                     </div>
+                    <hr><br>
                     <div>
                         <h3 class="text-l font-bold">New Member</h3>
                         
@@ -2977,8 +2974,100 @@
                                 type="text" name="" placeholder=""></div>
 
                     </div>
-                    <hr>
-                    <br>
+                    <hr><br>
+                    <div>
+                        <h3 class="text-l font-bold">Rank Up</h3>
+                        
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">Channel ID</label>
+                            <input id="config_rank_up_channel_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:74.5%">
+                            <label class="block text-sm font-medium mb-2" for="">Message</label>
+                            <input id="config_rank_up_message"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+                    </div>
+                    <hr><br>
+                    <div>
+                        <h3 class="text-l font-bold">Application</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Webhook</label>
+                            <input id="config_webhook_application"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+
+                        <div class="relative" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Assign roles for applicants?</label>
+                            <select id="config_assign_application_role"
+                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">Driver Applicant Role ID</label>
+                            <input id="config_applicant_driver"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">Staff Applicant Role ID</label>
+                            <input id="config_applicant_staff"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">LOA Applicant Role ID</label>
+                            <input id="config_loa_request"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                    </div>
+                    <hr><br>
+                    <div>
+                        <h3 class="text-l font-bold">Ping Roles (This will be the message content and you can put any text, use <@&roleid> for roles)</h3>
+                        
+                        <div class="mb-6" style="display:inline-block;width:44%">
+                            <label class="block text-sm font-medium mb-2" for="">Human Resources Staff</label>
+                            <input id="config_human_resources_role"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:44%">
+                            <label class="block text-sm font-medium mb-2" for="">Division Manager</label>
+                            <input id="config_division_manager_role"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:44%">
+                            <label class="block text-sm font-medium mb-2" for="">Public Announcement</label>
+                            <input id="config_public_news_role"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        
+                        <div class="mb-6" style="display:inline-block;width:44%">
+                            <label class="block text-sm font-medium mb-2" for="">Private Announcement</label>
+                            <input id="config_private_news_role"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                    </div> -->
+                    <hr><br>
                     <h3 class="text-l font-bold">JSON Config Editor</h3>
                     <label class="block text-sm font-medium mb-2" for="">To edit those not included in the editor above.</label>
                     <textarea id="config" style="width:100%;height:400px"

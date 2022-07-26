@@ -1,5 +1,12 @@
 # Changelog
 
+**v1.1.6**  
+Various bug fixes, including:  
+
+- Application submission error showing "UNHANDLED" even if there's error descriptor in API response  
+- Updates to catch up with API v1.10  
+- Redirect /images to drivershub-cdn.charlws.com  
+
 **v1.1.5**  
 Added telemetry data decoder for v5 (API v1.9.9)  
 

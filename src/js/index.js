@@ -402,10 +402,10 @@ function validate() {
                 localStorage.setItem("token", "guest");
                 $("#header").prepend(`<a style='color:grey' href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span>`);
             }
-            if (data.response.extra == "steamauth") {
+            if (data.response.note == "steamauth") {
                 $("#header").prepend(
                     "<p style='color:orange'>Steam not bound! You must bind it to become a member! <a style='color:grey' href='/auth'>Click here to bind it</a></p>");
-            } else if (data.response.extra == "truckersmp") {
+            } else if (data.response.note == "truckersmp") {
                 $("#header").prepend(
                     "<p style='color:orange'>TruckersMP not bound! You must bind it to become a member! <a style='color:grey' href='/auth'>Click here to bind it</a></p>");
             } else {
@@ -546,9 +546,9 @@ function validate() {
                             if (data.error == false) {
                                 d = data.response;
                                 if (company_distance_unit == "imperial")
-                                    points = parseInt(d.distance * 0.621371 + d.eventpnt + +d.divisionpnt);
+                                    points = parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt));
                                 else
-                                    points = parseInt(d.distance + d.eventpnt + +d.divisionpnt);
+                                    points = parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt));
                                 rank = point2rank(points);
                                 $("#ranktotpoints").html(TSeparator(points) + " - " + rank);
                                 if ($("#role").html() == "Driver")
@@ -594,6 +594,10 @@ function PathDetect() {
     else if (p == "/user") ShowTab("#AllUsers", "#AllUserBtn");
     else if (p == "/audit") ShowTab("#AuditLog", "#AuditLogBtn");
     else if (p == "/admin") ShowTab("#Admin", "#AdminBtn");
+    else if (p.startsWith("/images")){
+        filename = p.split("/")[2];
+        window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
+    }
     else ShowTab("#HomeTab", "#HomeTabBtn");
 }
 
@@ -835,7 +839,7 @@ $(document).ready(function () {
     });
     annpage = 2;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?page=1",
+        url: apidomain + "/" + vtcprefix + "/announcements?page=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -892,7 +896,7 @@ $(document).ready(function () {
         if (curtab != "#AnnTab") return;
         if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,
+                url: apidomain + "/" + vtcprefix + "/announcements?page=" + annpage,
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -986,3 +990,7 @@ $(document).ready(function () {
         lnsto = setTimeout(function(){searchName(eid)}, 1000);
     });
 });
+
+window.onerror = function(error) {
+    return toastFactory("error", "Detected Error", "Please send the following text when reporting an issue:<br>" + error, 5000, false);
+};

@@ -470,7 +470,7 @@ function deliveryDetail(logid) {
                 d = data.response;
                 userid = d.userid;
                 name = d.name;
-                d = d.data;
+                d = d.detail;
                 tp = d.type;
                 d = d.data.object;
                 start_time = +new Date(d.start_time);

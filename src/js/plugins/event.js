@@ -9,7 +9,7 @@ function FetchEvent(showdetail = -1) {
     $("#fetchEventBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+        url: apidomain + "/" + vtcprefix + "/events?eventid=" + eventid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -63,7 +63,7 @@ function FetchEventAttendee() {
     $("#fetchEventAttendeeBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+        url: apidomain + "/" + vtcprefix + "/events?eventid=" + eventid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -381,7 +381,7 @@ function loadEvent(recurse = true) {
                 for (var i = 0; i < d.length; i++) {
                     eventlist.push({
                         "title": d[i].title,
-                        "url": "/event?eventid=" + d[i].eventid,
+                        "url": "/events?eventid=" + d[i].eventid,
                         "start": new Date(d[i].mts * 1000 - offset).toISOString().substring(0, 10)
                     })
                 }
@@ -419,7 +419,7 @@ function loadEvent(recurse = true) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/events?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {

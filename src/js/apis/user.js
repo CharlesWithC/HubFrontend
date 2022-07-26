@@ -266,7 +266,7 @@ function banGo(discordid) {
 }
 
 function addUser(discordid = -1) {
-    if (discordid == -1) {
+    if (discordid == "-1") {
         discordid = $("#adddiscordid").val();
         if (!isNumber(discordid)) {
             return toastFactory("error", "Error:", "Please enter a valid discord id.", 5000, false);

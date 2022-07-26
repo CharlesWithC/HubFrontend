@@ -148,7 +148,7 @@
                 <section id="steamauth" style="display:none">
                     <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
                         <br>
-                        <img src="https://community.akamai.steamstatic.com/public/assets/<?php echo $vtcabbr ?>/signinthroughsteam/sits_01.png"
+                        <img src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
                     </a>
                 </section>

@@ -72,7 +72,7 @@
 				success: function (data) {
 					if (data.error == false) {
 						localStorage.setItem("token", token);
-						if (data.response.extra == "") {
+						if (data.response.note == "") {
 							window.location.href = "/";
 						} else {
 							window.location.href = "/auth?token=" + token;

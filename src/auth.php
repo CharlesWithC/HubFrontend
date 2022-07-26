@@ -105,18 +105,17 @@
                     },
                     success: function (data) {
                         if (data.error == false) {
-                            if (data.response.extra == "" || document.referrer.indexOf("discord.com") != -
-                                1) {
+                            if (data.response.note == "") {
                                 window.location.href = "/";
                                 $("#msg").html("You are being redirected to Drivers Hub.");
-                            } else if (data.response.extra == "steamauth") {
+                            } else if (data.response.note == "steamauth") {
                                 $("#title").html("Steam Authorization<br>");
                                 $("#title").css("font-size", "1.5em");
                                 $("#msg").html(
                                     "We need to check your steam account to: <br><br> - Bind your TruckersMP account <br> - Add you to our Navio company"
                                 );
                                 $("#steamauth").show();
-                            } else if (data.response.extra == "truckersmp") {
+                            } else if (data.response.note == "truckersmp") {
                                 $("#title").html("TruckersMP Connection");
                                 $("#title").css("font-size", "1.5em");
                                 $("#msg").html(
@@ -212,7 +211,7 @@
                 <section id="steamauth" style="display:none">
                     <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
                         <br>
-                        <img src="https://community.akamai.steamstatic.com/public/assets/<?php echo $vtcabbr ?>/signinthroughsteam/sits_01.png"
+                        <img src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
                     </a>
                 </section>

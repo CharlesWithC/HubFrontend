@@ -219,10 +219,10 @@ function memberDetail(userid) {
                 info += "<p style='text-align:left'><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
                 info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
                 if (company_distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance + d.eventpnt + d.divisionpnt) +
+                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
                         "</p>";
                 } else if (company_distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance * 0.621371 + d.eventpnt + d.divisionpnt) +
+                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
                         "</p>";
                 }
 
@@ -635,17 +635,17 @@ function loadProfile(userid) {
                 if (distance_unit == "metric") {
                     info += "<p><b>Distance Driven:</b> " + parseInt(d.distance) + "km</p>";
                 } else if (distance_unit == "imperial") {
-                    info += "<p><b>Distance Driven:</b> " + parseInt(d.distance * distance_ratio) + "mi</p>";
+                    info += "<p><b>Distance Driven:</b> " + parseInt(parseInt(d.distance) * distance_ratio) + "mi</p>";
                 }
                 info += "<p><b>Fuel Consumed:</b> " + parseInt(d.fuel) + "L</p>";
                 info += "<p><b>XP Earned:</b> " + d.xp + "</p>";
                 info += "<p><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
                 info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
                 if (company_distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance + d.eventpnt + d.divisionpnt) +
+                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
                         "</p>";
                 } else if (company_distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.distance * 0.621371 + d.eventpnt + d.divisionpnt) +
+                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
                         "</p>";
                 }
                 $("#user_statistics").html(info);
