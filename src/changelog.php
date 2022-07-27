@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.1.8</strong><br>Finished Administrator - Edit Server Config  </p>
 <p><strong>v1.1.7</strong><br>Updated footer  </p>
 <p><strong>v1.1.6</strong><br>Various bug fixes, including:  </p>
 <ul>

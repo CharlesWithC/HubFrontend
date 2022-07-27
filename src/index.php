@@ -2805,7 +2805,7 @@
                 </div>
                 <div class="mb-6" style="padding:20px">
                     <label class="block text-sm font-medium mb-2" for="">Program will reload automatically after config is updated, which might take up to 5 minutes.</label>
-                    <p>Simple Editor is still being worked on.</p>
+                    <label class="block text-sm font-medium mb-2" for="" style="color:red">Warning: Misconfiguration may lead to API failing to start or function not working properly!</label>
                     <br>
                     <div>
                         <h3 class="text-l font-bold">Company</h3>
@@ -2870,6 +2870,32 @@
                     </div>
                     <hr><br>
                     <div>
+                        <h3 class="text-l font-bold">Discord Server</h3>
+                        
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Server ID</label>
+                            <input id="config_guild_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="relative" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in server?</label>
+                            <select id="config_in_guild_check"
+                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <hr><br>
+                    <div>
                         <h3 class="text-l font-bold">Navio</h3>
 
                         <div class="mb-6" style="display:inline-block;width:73.5%">
@@ -2896,31 +2922,51 @@
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Delivery Embed GIF (Separate with line-break)</label>
+                            <textarea id="config_delivery_post_gifs_txt" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></textarea>
+                        </div>
                     </div>
                     <hr><br>
                     <div>
-                        <h3 class="text-l font-bold">Discord Server</h3>
-                        
+                        <h3 class="text-l font-bold">Discord Application</h3>
+
                         <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Server ID</label>
-                            <input id="config_guild_id"
+                            <label class="block text-sm font-medium mb-2" for="">Client ID</label>
+                            <input id="config_discord_client_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
 
-                        <div class="relative" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in server?</label>
-                            <select id="config_in_guild_check"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                                </svg>
-                            </div>
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Client Secret (Leave empty to keep unchanged)</label>
+                            <input id="config_discord_client_secret"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">OAuth2 URL (Generated URL)</label>
+                            <input id="config_discord_oauth2_url"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Callback URL (Redirect URL)</label>
+                            <input id="config_discord_callback_url"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Bot Token (Leave empty to keep unchanged)</label>
+                            <input id="config_discord_bot_token"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
                         </div>
                     </div>
                     <hr><br>
@@ -2959,7 +3005,7 @@
                                 type="text" name="" placeholder=""></div>
                         
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with ',' | Provide negative number to remove role)</label>
+                            <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with ',' | Prepend '+' to add role or '-' to remove role')</label>
                             <input id="config_welcome_role_change_txt"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 type="text" name="" placeholder=""></div>
@@ -2967,19 +3013,25 @@
                     </div>
                     <hr><br>
                     <div>
-                        <h3 class="text-l font-bold">Rank Up</h3>
+                        <h3 class="text-l font-bold">Ranking</h3>
                         
                         <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Channel ID</label>
+                            <label class="block text-sm font-medium mb-2" for="">Rank Up Channel ID</label>
                             <input id="config_rank_up_channel_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
                         
                         <div class="mb-6" style="display:inline-block;width:74.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Message</label>
+                            <label class="block text-sm font-medium mb-2" for="">Rank Up Message</label>
                             <input id="config_rank_up_message"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Ranks (Separate ranks with line-break / For each rank, separate distance, name, discord_role_id with ',')</label>
+                            <textarea id="config_ranks_txt" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
                     </div>
                     <hr><br>
                     <div>
@@ -2990,10 +3042,64 @@
                             <input id="config_webhook_application"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Types (Separate types with line-break / For each type, separate id, name, discord_role_id, message with ',' / ID 1~4 are reserved and name change will not take effect)</label>
+                            <textarea id="config_application_types_txt" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
+                    </div>
+                    <hr><br>
+                    <div>
+                        <h3 class="text-l font-bold">Division</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Webhook</label>
+                            <input id="config_webhook_division"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
+
+                        <div class="mb-6"> 
+                            <label class="block text-sm font-medium mb-2" for="">Webhook Message (You can add role-pings here)</label>
+                            <textarea id="config_webhook_division_message" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Division (Separate divisions with line-break / For each division, separate id, name, point, role_id with ',')</label>
+                            <textarea id="config_divisions_txt" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
+                    </div>
+                    <hr><br>
+                    <div>
+                        <h3 class="text-l font-bold">Permissions & Roles</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Permissions (Separate permissions with line-break / For each permission, separate permission name and role ids with ':', separate role ids with ',')</label>
+                            <textarea id="config_perms_txt" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Roles (Separate roles with line-break / For each role, separate id, name with ',')</label>
+                            <textarea id="config_roles_txt" style="width:100%;height:100px"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></textarea></div>
+                    </div>
+                    <hr><br>
+                    <div>
+                        <h3 class="text-l font-bold">Audit Log</h3>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Webhook</label>
+                            <input id="config_webhook_audit"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder=""></div>
                     </div>
                     <hr><br>
                     <h3 class="text-l font-bold">JSON Config Editor</h3>
-                    <label class="block text-sm font-medium mb-2" for="">To edit those not included in the editor above.</label>
+                    <label class="block text-sm font-medium mb-2" for="">For advanced user who knows JSON format well</label>
                     <textarea id="config" style="width:100%;height:400px"
                         class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                         name="field-name" rows="5" placeholder=""></textarea>
@@ -3028,7 +3134,7 @@
                 <br>
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.1.7 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.1.8 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

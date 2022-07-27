@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.1.8**  
+Finished Administrator - Edit Server Config  
+
 **v1.1.7**  
 Updated footer  
 

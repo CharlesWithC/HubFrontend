@@ -561,7 +561,48 @@ function loadConfig() {
     for (i = 0; i < keys.length; i++) {
         $("#config_" + keys[i]).val(newConfigData[keys[i]]);
         if(keys[i] == "truckersmp_bind" || keys[i] == "in_guild_check") $("#config_" + keys[i]).val(String(newConfigData[keys[i]]));
-        if(keys[i] == "welcome_role_change") $("#welcome_role_change_txt").val(newConfigData["welcome_role_change"].join(", "));
+        else if(keys[i] == "welcome_role_change") $("#config_welcome_role_change_txt").val(newConfigData[keys[i]].join(", "));
+        else if(keys[i] == "delivery_post_gifs") $("#config_delivery_post_gifs_txt").val(newConfigData[keys[i]].join("\n"));
+        else if(keys[i] == "ranks"){
+            d = newConfigData[keys[i]];
+            txt = "";
+            for(j = 0; j < d.length; j++){
+                txt += d[j].distance + ", " + d[j].name + ", " + d[j].discord_role_id + "\n";
+            }
+            $("#config_ranks_txt").val(txt);
+        }
+        else if(keys[i] == "application_types"){
+            d = newConfigData[keys[i]];
+            txt = "";
+            for(j = 0; j < d.length; j++){
+                txt += d[j].id + ", " + d[j].name + ", " + d[j].discord_role_id + ", " + d[j].message + "\n";
+            }
+            $("#config_application_types_txt").val(txt);
+        }
+        else if(keys[i] == "divisions"){
+            d = newConfigData[keys[i]];
+            txt = "";
+            for(j = 0; j < d.length; j++){
+                txt += d[j].id + ", " + d[j].name + ", " + d[j].point + ", " + d[j].role_id + "\n";
+            }
+            $("#config_divisions_txt").val(txt);
+        }
+        else if(keys[i] == "perms"){
+            d = Object.keys(newConfigData[keys[i]]);
+            txt = "";
+            for(j = 0; j < d.length; j++){
+                txt += d[j] + ": " + newConfigData[keys[i]][d[j]].join(", ") + "\n";
+            }
+            $("#config_perms_txt").val(txt);
+        }
+        else if(keys[i] == "roles"){
+            d = Object.keys(newConfigData[keys[i]]);
+            txt = "";
+            for(j = 0; j < d.length; j++){
+                txt += d[j] + ", " + newConfigData[keys[i]][d[j]]+ "\n";
+            }
+            $("#config_roles_txt").val(txt);
+        }
     }
     configData = newConfigData;
 }
@@ -608,30 +649,102 @@ function loadAdmin() {
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
-            $("#config_distance_unit").on('change', function () {
+            $("#config_distance_unit").on('input', function () {
                 configitem = "distance_unit";
                 configData[configitem] = $("#config_distance_unit").val();
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
-            $("#config_truckersmp_bind").on('change', function () {
+            $("#config_truckersmp_bind").on('input', function () {
                 configitem = "truckersmp_bind";
                 if($("#config_truckersmp_bind").val() == "true") configData[configitem] = true;
                 else configData[configitem] = false;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
-            $("#config_in_guild_check").on('change', function () {
+            $("#config_in_guild_check").on('input', function () {
                 configitem = "in_guild_check";
                 if($("#config_in_guild_check").val() == "true") configData[configitem] = true;
                 else configData[configitem] = false;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
-            $("#welcome_role_change_txt").on('change', function () {
-                txt = $("#welcome_role_change_txt").val().replaceAll(" ", "");
-                txt = txt.split(",");
-                configData["welcome_roles"] = txt;
+            $("#config_welcome_role_change_txt").on('input', function () {
+                txt = $("#config_welcome_role_change_txt").val();
+                configData["welcome_role_change"] = txt.split(", ");
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+
+            $("#config_delivery_post_gifs_txt").on('input', function () {
+                txt = $("#config_delivery_post_gifs_txt").val();
+                configData["welcome_role_change"] = txt.split("\n");
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+            
+            $("#config_ranks_txt").on('input', function () {
+                d = [];
+                v = $("#config_ranks_txt").val().split("\n");
+                for(j = 0; j < v.length; j++){
+                    t = v[j].split(",");
+                    if(t.length != 3) continue;
+                    d.push({"distance": t[0].replaceAll(" ", ""), "name": t[1], "discord_role_id": t[2].replaceAll(" ", "")});
+                }
+                configData["ranks"] = d;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+            
+            $("#config_application_types_txt").on('input', function () {
+                d = [];
+                v = $("#config_application_types_txt").val().split("\n");
+                for(j = 0; j < v.length; j++){
+                    t = v[j].split(",");
+                    if(t.length != 4) continue;
+                    d.push({"id": t[0].replaceAll(" ", ""), "name": t[1], "discord_role_id": t[2].replaceAll(" ", ""), "message": t[3]});
+                }
+                configData["application_types"] = d;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+            
+            $("#config_divisions_txt").on('input', function () {
+                d = [];
+                v = $("#config_divisions_txt").val().split("\n");
+                for(j = 0; j < v.length; j++){
+                    t = v[j].split(",");
+                    if(t.length != 4) continue;
+                    d.push({"id": t[0].replaceAll(" ", ""), "name": t[1], "point": t[2].replaceAll(" ", ""), "role_id": t[3].replaceAll(" ", "")});
+                }
+                configData["divisions"] = d;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+            
+            $("#config_perms_txt").on('input', function () {
+                d = {};
+                v = $("#config_perms_txt").val().split("\n");
+                for(j = 0; j < v.length; j++){
+                    t = v[j].split(":");
+                    if(t.length != 2) continue;
+                    perm_name = t[0].replaceAll(" ", "");
+                    perm_role_t = t[1].replaceAll(" ", "").split(",");
+                    perm_role = [];
+                    for(k = 0; k < perm_role_t.length; k++){
+                        if(perm_role_t[k] == "") continue;
+                        perm_role.push(parseInt(perm_role_t[k]));
+                    }
+                    d[perm_name] = perm_role;
+                }
+                configData["perms"] = d;
+                $("#config").val(JSON.stringify(configData, null, 4));
+            });
+            
+            $("#config_roles_txt").on('input', function () {
+                d = {};
+                v = $("#config_roles_txt").val().split("\n");
+                for(j = 0; j < v.length; j++){
+                    t = v[j].split(",");
+                    if(t.length != 2) continue;
+                    d[t[0]] = t[1];
+                }
+                configData["roles"] = d;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
