@@ -28,11 +28,12 @@
     }
 </style>
 
+    <script src="/configs/<?php echo $domainpure ?>.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/login.css">
     <script>
         function toastFactory(type, title, text, time, showConfirmButton) {
@@ -225,11 +226,17 @@
         </div>
     </div>
 	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
-		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & UCJOHN
+		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
+		&nbsp;|&nbsp;
+		<a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
 		<br>
+		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
+		&nbsp;|&nbsp;
+		Web: v1.1.7 <a href="/changelog" target="_blank">Changelog</a>
+		<br>
+		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
+		&nbsp;|&nbsp;
 		<?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
-		<br>
-		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a> / API: <a href="https://<?php echo $api ?>" target="_blank"><?php echo $api ?></a>
 	</div>
 </body>
 

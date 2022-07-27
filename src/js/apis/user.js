@@ -561,18 +561,7 @@ function loadConfig() {
     for (i = 0; i < keys.length; i++) {
         $("#config_" + keys[i]).val(newConfigData[keys[i]]);
         if(keys[i] == "truckersmp_bind" || keys[i] == "in_guild_check") $("#config_" + keys[i]).val(String(newConfigData[keys[i]]));
-        if(keys[i] == "welcome_roles") $("#config_welcome_roles_txt").val(newConfigData["welcome_roles"].join(", "));
-    }
-    if (newConfigData["hexcolor"] != configData["hexcolor"]) {
-        hexcolor = $("#config_hexcolor").val();
-        intcolor = parseInt(hexcolor.replace("#", "0x"), 16);
-        $("#config_intcolor").val(intcolor);
-        configData["intcolor"] = parseInt(intcolor);
-    } else if (newConfigData["intcolor"] != configData["intcolor"]) {
-        intcolor = parseInt($("#config_intcolor").val());
-        hexcolor = intcolor.toString(16);
-        $("#config_hexcolor").val(hexcolor);
-        configData["hexcolor"] = hexcolor;
+        if(keys[i] == "welcome_role_change") $("#welcome_role_change_txt").val(newConfigData["welcome_role_change"].join(", "));
     }
     configData = newConfigData;
 }
@@ -608,22 +597,6 @@ function loadAdmin() {
 
             loadConfig();
 
-            $('#config_hexcolor').on('input', function () {
-                hexcolor = $("#config_hexcolor").val();
-                intcolor = parseInt(hexcolor.replace("#", "0x"), 16);
-                $("#config_intcolor").val(intcolor);
-                configData["intcolor"] = parseInt(intcolor);
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $('#config_intcolor').on('input', function () {
-                intcolor = parseInt($("#config_intcolor").val());
-                hexcolor = intcolor.toString(16);
-                $("#config_hexcolor").val(hexcolor);
-                configData["hexcolor"] = hexcolor;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
             $(".configFormData").on('input', function () {
                 inputid = $(this).attr('id');
                 configitem = inputid.replaceAll("config_", "");
@@ -655,8 +628,8 @@ function loadAdmin() {
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
-            $("#config_welcome_roles_txt").on('change', function () {
-                txt = $("#config_welcome_roles_txt").val().replaceAll(" ", "");
+            $("#welcome_role_change_txt").on('change', function () {
+                txt = $("#welcome_role_change_txt").val().replaceAll(" ", "");
                 txt = txt.split(",");
                 configData["welcome_roles"] = txt;
                 $("#config").val(JSON.stringify(configData, null, 4));

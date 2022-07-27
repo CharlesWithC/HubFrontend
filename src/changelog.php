@@ -1,6 +1,15 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
-<p><strong>v1.1.4</strong><br>1.Added <code>Unbind Account Connection</code> function<br>2.Added <code>Delete User</code> function<br>3.Added <code>Export Delivery Log</code> function<br>4.Updated <code>Failed to receive API response</code> error to detailed error message<br>5.Minor bug fixes  </p>
+<p><strong>v1.1.7</strong><br>Updated footer  </p>
+<p><strong>v1.1.6</strong><br>Various bug fixes, including:  </p>
+<ul>
+<li>Application submission error showing &quot;UNHANDLED&quot; even if there&#39;s error descriptor in API response  </li>
+<li>Updates to catch up with API v1.10  </li>
+<li>Redirect /images to drivershub-cdn.charlws.com  </li>
+</ul>
+<p><strong>v1.1.5</strong><br>Added telemetry data decoder for v5 (API v1.9.9)  </p>
+<p><strong>v1.1.4</strong><br>Updates to catch up to API v1.9.4  </p>
+<p><strong>v1.1.beta3</strong><br>1.Added <code>Unbind Account Connection</code> function<br>2.Added <code>Delete User</code> function<br>3.Added <code>Export Delivery Log</code> function<br>4.Updated <code>Failed to receive API response</code> error to detailed error message<br>5.Minor bug fixes  </p>
 <p><strong>v1.1.beta2</strong><br>1.Fixed \<select\> doesn&#39;t work with translations<br>2.Removed guest login and redirect to /login when user is not logged in (automatic guest login)  </p>
 <p><strong>v1.0.5-beta.1</strong><br>1.Removed &quot;Manager&quot; / &quot;Lead&quot; role name detection for higher role<br>2.Updated Profile Page<br>3.Added function for admin to change Discord account for users  </p>
 <p><strong>v1.0.4-beta.3</strong><br>1.Updated font<br>2.Updated login page title &amp; subtitle<br>3.Removed <code>Detail</code> button for delivery table and made <code>ID</code> clickable to show details  </p>

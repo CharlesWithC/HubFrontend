@@ -282,3 +282,19 @@ function b62decode(num62) {
     }
     return ret * flag;
 }
+
+$(document).ready(function () {
+  version = localStorage.getItem("api-version");
+  if(version != null){
+    $("#apiversion").html(version);
+  }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            $("#apiversion").html(data.response.version);
+            localStorage.setItem("api-version", data.response.version);
+        }
+    })
+});

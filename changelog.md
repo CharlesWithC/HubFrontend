@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.1.7**  
+Updated footer  
+
 **v1.1.6**  
 Various bug fixes, including:  
 

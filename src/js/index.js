@@ -624,15 +624,6 @@ function loadDistanceUnit() {
 }
 
 $(document).ready(function () {
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/",
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            $("#apiversion").html(data.response.version);
-        }
-    })
-
     loadDistanceUnit();
     if (localStorage.getItem("darkmode") == "1") {
         $("body").addClass("bg-gray-800");
@@ -918,11 +909,6 @@ $(document).ready(function () {
                         $($("#anns").children()[$("#anns").children().length - 1]).fadeIn();
                         await sleep(200);
                     }
-                    if (ann.length == 0) {
-                        toastFactory("info", "No more announcements", "You have reached the end of the list", 5000,
-                            false);
-                        $("#annloadmore").attr("disabled", "disabled");
-                    }
                 }
             });
         }
@@ -990,7 +976,3 @@ $(document).ready(function () {
         lnsto = setTimeout(function(){searchName(eid)}, 1000);
     });
 });
-
-window.onerror = function(error) {
-    return toastFactory("error", "Detected Error", "Please send the following text when reporting an issue:<br>" + error, 5000, false);
-};

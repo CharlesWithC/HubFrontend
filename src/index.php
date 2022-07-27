@@ -594,19 +594,6 @@
                         </li>
                     </ul>
                 </div>
-                <div class="px-4 pb-6" style="color:white;margin-top:auto">
-                    &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a> & <a href="https://discord.gg/MkbxXredqz" target="_blank">UCJOHN</a>
-                    <br>
-                    Powered by <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
-                    <br>
-                    API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
-                    <br>
-                    Web: v1.1.6 <a href="/changelog" target="_blank">Changelog</a>
-                    <br>
-                    Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
-                    <br>
-                    <?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
-                </div>
             </nav>
         </div>
         <section class="py-5 px-6 bg-white shadow mx-auto lg:ml-80">
@@ -2818,21 +2805,21 @@
                 </div>
                 <div class="mb-6" style="padding:20px">
                     <label class="block text-sm font-medium mb-2" for="">Program will reload automatically after config is updated, which might take up to 5 minutes.</label>
-                    <p>Simple Editor not available due to API v1.10 update. Only JSON Editor is available at this time. Simple Editor will come back very soon!</p>
+                    <p>Simple Editor is still being worked on.</p>
                     <br>
-                    <!-- <div>
+                    <div>
                         <h3 class="text-l font-bold">Company</h3>
 
                         <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Name</label>
-                            <input id="config_vtcname"
+                            <input id="config_vtc_name"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
                         
                         <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
-                            <input id="config_hexcolor"
+                            <input id="config_hex_color"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
@@ -2869,14 +2856,14 @@
                         
                         <div class="mb-6" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2" for="">Logo Link</label>
-                            <input id="config_vtclogo"
+                            <input id="config_vtc_logo_link"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
 
                         <div class="mb-6" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2" for="">Team Update Banner Link</label>
-                            <input id="config_teamupdate"
+                            <input id="config_team_update_image_link"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
@@ -2887,7 +2874,7 @@
 
                         <div class="mb-6" style="display:inline-block;width:73.5%">
                             <label class="block text-sm font-medium mb-2" for="">API Token (Leave empty to keep unchanged)</label>
-                            <input id="config_navio_token"
+                            <input id="config_navio_api_token"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
@@ -2901,16 +2888,27 @@
                     </div>
                     <hr><br>
                     <div>
+                        <h3 class="text-l font-bold">Delivery</h3>
+
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Delivery Log Channel ID</label>
+                            <input id="config_delivery_log_channel_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                    </div>
+                    <hr><br>
+                    <div>
                         <h3 class="text-l font-bold">Discord Server</h3>
                         
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                        <div class="mb-6" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2" for="">Server ID</label>
-                            <input id="config_guild"
+                            <input id="config_guild_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
                         </div>
 
-                        <div class="relative" style="display:inline-block;width:24.5%">
+                        <div class="relative" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in server?</label>
                             <select id="config_in_guild_check"
                                 class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
@@ -2923,20 +2921,6 @@
                                 <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
                                 </svg>
                             </div>
-                        </div>
-                        
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Driver Channel ID</label>
-                            <input id="config_driver_channel_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Delivery Log Channel ID</label>
-                            <input id="config_delivery_log_channel_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
                         </div>
                     </div>
                     <hr><br>
@@ -2951,25 +2935,32 @@
                         
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Team Update Message (Variable: {mention})</label>
-                            <input id="config_team_update_message"
+                            <input id="config_webhook_teamupdate_message"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Welcome Channel ID</label>
+                            <input id="config_welcome_channel_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                                type="text" name="" placeholder="">
+                        </div>
 
                         <div class="mb-6"> 
-                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (POSTed in Driver Channel) (Variable: {mention})</label>
+                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (Variable: {mention})</label>
                             <textarea id="config_welcome_message" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
                         
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Welcome Message Image Link</label>
-                            <input id="config_welcome_image"
+                            <input id="config_welcome_image_link"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
                         
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with ',' | Provide negative number to remove role)</label>
-                            <input id="config_welcome_roles_txt"
+                            <input id="config_welcome_role_change_txt"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 type="text" name="" placeholder=""></div>
 
@@ -2999,74 +2990,7 @@
                             <input id="config_webhook_application"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-
-                        <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Assign roles for applicants?</label>
-                            <select id="config_assign_application_role"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Driver Applicant Role ID</label>
-                            <input id="config_applicant_driver"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                        
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Staff Applicant Role ID</label>
-                            <input id="config_applicant_staff"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">LOA Applicant Role ID</label>
-                            <input id="config_loa_request"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
                     </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Ping Roles (This will be the message content and you can put any text, use <@&roleid> for roles)</h3>
-                        
-                        <div class="mb-6" style="display:inline-block;width:44%">
-                            <label class="block text-sm font-medium mb-2" for="">Human Resources Staff</label>
-                            <input id="config_human_resources_role"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                        
-                        <div class="mb-6" style="display:inline-block;width:44%">
-                            <label class="block text-sm font-medium mb-2" for="">Division Manager</label>
-                            <input id="config_division_manager_role"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:44%">
-                            <label class="block text-sm font-medium mb-2" for="">Public Announcement</label>
-                            <input id="config_public_news_role"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                        
-                        <div class="mb-6" style="display:inline-block;width:44%">
-                            <label class="block text-sm font-medium mb-2" for="">Private Announcement</label>
-                            <input id="config_private_news_role"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                    </div> -->
                     <hr><br>
                     <h3 class="text-l font-bold">JSON Config Editor</h3>
                     <label class="block text-sm font-medium mb-2" for="">To edit those not included in the editor above.</label>
@@ -3092,6 +3016,23 @@
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="ReloadServer()" id="reloadBtn">Reload</button>
                 </div>
+            </div>
+        </div>
+    </section>
+    <section id="footer">
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
+            <div style="margin:0.5em;margin-top:auto;text-align:center">
+                &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
+                &nbsp;|&nbsp;
+                <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
+                <br>
+                API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
+                &nbsp;|&nbsp;
+                Web: v1.1.7 <a href="/changelog" target="_blank">Changelog</a>
+                <br>
+                Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
+                &nbsp;|&nbsp;
+                <?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
             </div>
         </div>
     </section>
