@@ -1,5 +1,10 @@
 # Changelog
 
+**v1.2.1**  
+1.Added support to editing web config  
+2.Added better redirect for /images (to drivershub-cdn.charlws.com)  
+3.Added frosted-glass effect to login page  
+
 **v1.1.8**  
 Finished Administrator - Edit Server Config  
 

@@ -14,10 +14,18 @@
     } else {
         $st = json_decode(file_get_contents('languages/en.json'));
     }
+
+    $path = $_SERVER['REQUEST_URI'];
+    if (str_starts_with($path, '/images')) {
+        $t = explode("/", $path);
+        header('Location: http://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
+        exit;
+    }
     ?>
 
     <title><?php echo $vtcname ?></title>
-    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" type="image/x-icon" />
+    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png"
+        type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $vtcname ?> Drivers Hub | <?php echo $slogan ?>">
@@ -31,7 +39,8 @@
 
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/index.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
@@ -73,71 +82,72 @@
     ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
+        window.dataLayer = window.dataLayer || [];
 
-    function gtag() {
-        dataLayer.push(arguments);
-    }
-    gtag('js', new Date());
-    gtag('config', 'G-7EDVTC3J2E');
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'G-7EDVTC3J2E');
 
-    setInterval(function() {
-        $(".ol-unselectable").css("border-radius", "15px");
-    }, 1000);
+        setInterval(function () {
+            $(".ol-unselectable").css("border-radius", "15px");
+        }, 1000);
     </script>
     <style>
-    .fc-scrollgrid-sync-inner {
-        background-color: transparent;
-    }
+        .fc-scrollgrid-sync-inner {
+            background-color: transparent;
+        }
 
-    div.rounded,
-    .tabbtns {
-        border-radius: 5px;
-    }
+        div.rounded,
+        .tabbtns {
+            border-radius: 5px;
+        }
 
-    a {
-        color: #888;
-    }
+        a {
+            color: #888;
+        }
 
-    a:hover {
-        color: black;
-    }
+        a:hover {
+            color: black;
+        }
 
-    .tabbtns:hover {
-        color: #fff;
-    }
+        .tabbtns:hover {
+            color: #fff;
+        }
 
-    .bg-indigo-500 {
-        background-color: <?php echo $vtccolor ?>;
-    }
+        .bg-indigo-500 {
+            background-color: <?php echo $vtccolor ?>;
+        }
 
-    .bg-indigo-500:hover {
-        background-color: <?php echo $vtccolordark ?>;
-    }
+        .bg-indigo-500:hover {
+            background-color: <?php echo $vtccolordark ?>;
+        }
     </style>
 </head>
 
 <body class="antialiased bg-body text-body font-body" style="overflow-x:hidden">
     <style>
-    .rounded-full {
-        transition: background-color 1000ms linear;
-        color: #555;
-    }
+        .rounded-full {
+            transition: background-color 1000ms linear;
+            color: #555;
+        }
 
-    .tabbtns {
-        transition: background-color 300ms linear;
-    }
+        .tabbtns {
+            transition: background-color 300ms linear;
+        }
 
-    .fc-daygrid-block-event {
-        border-radius: 5px;
-        margin-bottom: 3px;
-        border-color: solid blue 3px;
-    }
+        .fc-daygrid-block-event {
+            border-radius: 5px;
+            margin-bottom: 3px;
+            border-color: solid blue 3px;
+        }
     </style>
     <div>
         <nav class="lg:hidden py-6 px-6 bg-gray-800">
             <div class="flex items-center justify-between">
-                <a class="text-2xl text-white font-semibold" style="cursor: pointer"><img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
+                <a class="text-2xl text-white font-semibold" style="cursor: pointer"><img
+                        src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
                         width="200"></a>
                 <button class="navbar-burger flex items-center rounded focus:outline-none">
                     <svg class="text-white bg-indigo-500 hover:bg-indigo-600 block h-8 w-8 p-2 rounded"
@@ -153,7 +163,8 @@
                 class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8 bg-gray-800 overflow-y-auto">
                 <div class="flex w-full items-center px-6 pb-6 mb-6 lg:border-b border-gray-700">
                     <a class="text-xl text-white font-semibold" style="cursor: pointer"
-                        onclick="ShowTab('#HomeTab', '#HomeTabBtn')"><img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
+                        onclick="ShowTab('#HomeTab', '#HomeTabBtn')"><img
+                            src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
                             width="100%"></a>
                 </div>
                 <div class="px-4 pb-6">
@@ -227,8 +238,8 @@
                 <div class="px-4 pb-6">
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->game ?></h3>
                     <ul class="text-sm font-medium">
-                        
-                    <?php
+
+                        <?php
                             if(in_array("livemap", $enabled_plugins)){
                             echo '
                         <li>
@@ -312,7 +323,8 @@
                 </div>
 
                 <div class="px-4 pb-6" id="memberOnlyTabs" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->drivers; ?></h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->drivers; ?>
+                    </h3>
                     <ul class="text-sm font-medium">
                         <li>
                             <a id="AllMemberBtn"
@@ -440,7 +452,8 @@
                     </ul>
                 </div>';}?>
                 <div class="px-4 pb-6" id="stafftabs" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->staff; ?></h3>
+                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->staff; ?>
+                    </h3>
                     <ul class="mb-8 text-sm font-medium">
                         <?php
                             if(in_array("announcement", $enabled_plugins)){
@@ -585,7 +598,13 @@
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#Admin', '#AdminBtn')">
                                 <span class="inline-block mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z"/><path d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38c0.62,0,1.12,0.51,1.12,1.12 s-0.51,1.12-1.12,1.12s-1.12-0.51-1.12-1.12S16.38,14.38,17,14.38z M17,19.75c-0.93,0-1.74-0.46-2.24-1.17 c0.05-0.72,1.51-1.08,2.24-1.08s2.19,0.36,2.24,1.08C18.74,19.29,17.93,19.75,17,19.75z"/></svg> </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="currentColor">
+                                        <path
+                                            d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z" />
+                                        <path
+                                            d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38c0.62,0,1.12,0.51,1.12,1.12 s-0.51,1.12-1.12,1.12s-1.12-0.51-1.12-1.12S16.38,14.38,17,14.38z M17,19.75c-0.93,0-1.74-0.46-2.24-1.17 c0.05-0.72,1.51-1.08,2.24-1.08s2.19,0.36,2.24,1.08C18.74,19.29,17.93,19.75,17,19.75z" />
+                                    </svg> </span>
                                 <span><?php echo $st->administrator ?></span>
                                 <span class="inline-block ml-auto">
                                     <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
@@ -661,109 +680,112 @@
     <section id="ProfileTab" class="py-8 tabs mx-auto lg:ml-80" style="display:none;margin-top:-40px">
         <div class="px-4 mx-auto">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
-            <div class="md:w-2/3 px-4 mb-4 md:mb-0">
-                <div class="px-6 pt-4 bg-white shadow rounded">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6 shadow rounded mb-6">
-                        <div class="py-8 px-6 pt-4" style="padding-top:0;margin-right:20px;width: calc(100% - 220px);float:left"
-                            id="userProfileDetail">
-                        </div>
-                        <div class="py-8 px-6 pt-4 mb-6" style="width:170px;padding:10px;float:right">
-                            <img id="UserProfileAvatar" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png');"
-                                style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
+                <div class="md:w-2/3 px-4 mb-4 md:mb-0">
+                    <div class="px-6 pt-4 bg-white shadow rounded">
+                        <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6 shadow rounded mb-6">
+                            <div class="py-8 px-6 pt-4"
+                                style="padding-top:0;margin-right:20px;width: calc(100% - 220px);float:left"
+                                id="userProfileDetail">
+                            </div>
+                            <div class="py-8 px-6 pt-4 mb-6" style="width:170px;padding:10px;float:right">
+                                <img id="UserProfileAvatar"
+                                    onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png');"
+                                    style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
+                            </div>
                         </div>
                     </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                    <h2><b>Statistics</b>
-                        <div style="margin-left:auto;width:fit-content">
-                            <a id="aucs1" onclick='chartscale=1;loadChart()' style='cursor:pointer'><span id="ucs1"
-                                    class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
-                            <a id="aucs2" onclick='chartscale=2;loadChart()' style='cursor:pointer'><span id="ucs2"
-                                    class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span></a>
-                            <a id="aucs3" onclick='chartscale=3;loadChart()' style='cursor:pointer'><span id="ucs3"
-                                    class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
-                            |
-                            <a id="aaddup1" onclick='addup=1-addup;loadChart()' style='cursor:pointer'><span
-                                    id="uaddup1"
-                                    class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
+                    <br>
+                    <div class="py-8 px-6 pt-4 bg-white shadow rounded">
+                        <h2><b>Statistics</b>
+                            <div style="margin-left:auto;width:fit-content">
+                                <a id="aucs1" onclick='chartscale=1;loadChart()' style='cursor:pointer'><span id="ucs1"
+                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
+                                <a id="aucs2" onclick='chartscale=2;loadChart()' style='cursor:pointer'><span id="ucs2"
+                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span></a>
+                                <a id="aucs3" onclick='chartscale=3;loadChart()' style='cursor:pointer'><span id="ucs3"
+                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
+                                |
+                                <a id="aaddup1" onclick='addup=1-addup;loadChart()' style='cursor:pointer'><span
+                                        id="uaddup1"
+                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
+                            </div>
+                        </h2>
+                        <div class="p-4 overflow-x-auto" style="display: block;">
+                            <canvas id="userStatisticsChart" width="100%" height="300px"></canvas>
                         </div>
-                    </h2>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <canvas id="userStatisticsChart" width="100%" height="300px"></canvas>
                     </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
-                        <div style="margin-left:auto">
-                            <a onclick='dets2=1-dets2;loadUserDelivery();' style='cursor:pointer'><span
-                                    class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                            <a onclick='dats=1-dats;loadUserDelivery();' style='cursor:pointer'><span
-                                    class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
-                            <input id="udspeedlimit"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="number" name="" style="width:150px;display:inline" placeholder="Speed Limit">
-                            <span class="distance_unit">km</span>/h
+                    <br>
+                    <div class="py-8 px-6 pt-4 bg-white shadow rounded">
+                        <div class="flex px-6 pb-4 border-b">
+                            <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
+                            <div style="margin-left:auto">
+                                <a onclick='dets2=1-dets2;loadUserDelivery();' style='cursor:pointer'><span
+                                        class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
+                                <a onclick='dats=1-dats;loadUserDelivery();' style='cursor:pointer'><span
+                                        class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
+                                <input id="udspeedlimit"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                    type="number" name="" style="width:150px;display:inline" placeholder="Speed Limit">
+                                <span class="distance_unit">km</span>/h
 
-                            <input id="udstart"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" style="width:150px;display:inline" placeholder="">
-                            <p style="display:inline">~</p>
-                            <input id="udend"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" style="width:150px;display:inline" placeholder="">
+                                <input id="udstart"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                    type="date" name="" style="width:150px;display:inline" placeholder="">
+                                <p style="display:inline">~</p>
+                                <input id="udend"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                    type="date" name="" style="width:150px;display:inline" placeholder="">
+                                <button type="button" style="display:inline"
+                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                    onclick="loadUserDelivery()"
+                                    id="loadUserDeliveryBtn"><?php echo $st->go; ?></button>
+                            </div>
+                        </div>
+                        <div class="p-4 overflow-x-auto" style="display: block;">
+                            <table class="table-auto w-full">
+                                <thead id="userDeliveryTableHead">
+                                    <tr class="text-xs text-gray-500 text-left">
+                                        <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->from; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->to; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driven_distance; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
+                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->new_profit; ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userDeliveryTable">
+                                    <tr class="text-sm">
+                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
+                                        <td class="py-5 px-6 font-medium"></td>
+                                        <td class="py-5 px-6 font-medium"></td>
+                                        <td class="py-5 px-6 font-medium"></td>
+                                        <td class="py-5 px-6 font-medium"></td>
+                                        <td class="py-5 px-6 font-medium"></td>
+                                        <td class="py-5 px-6 font-medium"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-left:auto;width:fit-content">
+                            <div style="margin-left:auto;width:fit-content">
+                                <label class="text-sm font-medium mb-2" display="display:inline"
+                                    for=""><?php echo $st->page; ?></label>
+                                <input id="udpages" style="width:50px;display:inline"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
+                                    name="field-name" rows="5" placeholder="" value="1"></input> / <span
+                                    id="udtotpages">-</span>
+                                <button type="button"
+                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                    onclick="loadUserDelivery()"><?php echo $st->show; ?></button>
+                            </div>
                             <button type="button" style="display:inline"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="loadUserDelivery()" id="loadUserDeliveryBtn"><?php echo $st->go; ?></button>
-                        </div>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <table class="table-auto w-full">
-                            <thead id="userDeliveryTableHead">
-                                <tr class="text-xs text-gray-500 text-left">
-                                    <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->from; ?></th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->to; ?></th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driven_distance; ?></th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->new_profit; ?></th>
-                                </tr>
-                            </thead>
-                            <tbody id="userDeliveryTable">
-                                <tr class="text-sm">
-                                    <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                                    <td class="py-5 px-6 font-medium"></td>
-                                    <td class="py-5 px-6 font-medium"></td>
-                                    <td class="py-5 px-6 font-medium"></td>
-                                    <td class="py-5 px-6 font-medium"></td>
-                                    <td class="py-5 px-6 font-medium"></td>
-                                    <td class="py-5 px-6 font-medium"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="margin-left:auto;width:fit-content">
-                        <div style="margin-left:auto;width:fit-content">
-                            <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
-                            <input id="udpages" style="width:50px;display:inline"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
-                                name="field-name" rows="5" placeholder="" value="1"></input> / <span
-                                id="udtotpages">-</span>
-                            <button type="button"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="loadUserDelivery()"><?php echo $st->show; ?></button>
+                                onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp-1);loadUserDelivery();">
+                                < </button> <div id="userDeliveryTableControl" style="display:inline">
                         </div>
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp-1);loadUserDelivery();">
-                            < </button>
-                                <div id="userDeliveryTableControl" style="display:inline">
-                                </div>
-                                <button type="button" style="display:inline"
-                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                    onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp+1);loadUserDelivery();">></button>
+                            onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp+1);loadUserDelivery();">></button>
                     </div>
                 </div>
             </div>
@@ -777,8 +799,11 @@
                         <p><b>ID</b>: <span id="account_id"></span></p>
                         <p class="email_private"><b><?php echo $st->email; ?></b>: <span id="account_email"></span></p>
                         <p><b><?php echo $st->discord_id; ?></b>: <span id="account_discordid"></span></p>
-                        <p><b><?php echo $st->steam_id; ?></b>: <span id="account_steamid"></span> <a class="account_private" href="/auth?steamupdate=1" style='cursor:pointer'>Update</a></p>
-                        <p><b><?php echo $st->truckersmp_id; ?></b>: <span id="account_truckersmpid"></span> <a class="account_private" href="/auth?truckersmpupdate=1" style='cursor:pointer'>Update</a></p>
+                        <p><b><?php echo $st->steam_id; ?></b>: <span id="account_steamid"></span> <a
+                                class="account_private" href="/auth?steamupdate=1" style='cursor:pointer'>Update</a></p>
+                        <p><b><?php echo $st->truckersmp_id; ?></b>: <span id="account_truckersmpid"></span> <a
+                                class="account_private" href="/auth?truckersmpupdate=1"
+                                style='cursor:pointer'>Update</a></p>
                     </div>
                 </div>
                 <br>
@@ -814,9 +839,10 @@
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3><?php echo $st->external_application_authorization; ?></h3>
-                        <label class="block text-sm font-medium mb-2" for=""><b><?php echo $st->application_token; ?></b>: <span
-                                id="userAppToken"></span></label>
-                        <label class="block text-sm font-medium mb-2" for=""><i><?php echo $st->application_token_note; ?></i></label>
+                        <label class="block text-sm font-medium mb-2"
+                            for=""><b><?php echo $st->application_token; ?></b>: <span id="userAppToken"></span></label>
+                        <label class="block text-sm font-medium mb-2"
+                            for=""><i><?php echo $st->application_token_note; ?></i></label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="genNewAppToken()" id="genAppTokenBtn"><?php echo $st->reset_token; ?></button>
@@ -825,15 +851,16 @@
                     <hr>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3><?php echo $st->leave_company; ?></h3>
-                        <label class="block text-sm font-medium mb-2" for="" style="color:red"><?php echo $st->resign_note; ?></label>
+                        <label class="block text-sm font-medium mb-2" for=""
+                            style="color:red"><?php echo $st->resign_note; ?></label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="resign()" id="resignBtn"><?php echo $st->resign; ?></button>
                     </div>
-                    </div>
-                </div>
                 </div>
             </div>
+        </div>
+        </div>
         </div>
     </section>
 
@@ -1114,7 +1141,7 @@
         </div>
     </section>';}?>
 
-    
+
     <?php
         if(in_array("announcement", $enabled_plugins)){
         echo '
@@ -1247,7 +1274,7 @@
   ?>
 
     <section id="AllMembers" class="py-8 tabs" style="display:none">
-        <?php
+        <!-- <?php
             if(in_array("x_of_the_month", $enabled_plugins)){
             echo '
             <div class="px-4 mx-auto mx-auto lg:ml-80">
@@ -1279,7 +1306,7 @@
                         </div>
                     </div>
                 </div>
-            </div>';} ?>
+            </div>';} ?> -->
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1313,7 +1340,8 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
+                        <label class="text-sm font-medium mb-2" display="display:inline"
+                            for=""><?php echo $st->page; ?></label>
                         <input id="mpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="mtotpages">-</span>
@@ -1324,14 +1352,13 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp-1);loadMembers();">
-                        < </button>
-                            <div id="membersTableControl" style="display:inline">
-                            </div>
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp+1);loadMembers();">></button>
+                        < </button> <div id="membersTableControl" style="display:inline">
                 </div>
+                <button type="button" style="display:inline"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp+1);loadMembers();">></button>
             </div>
+        </div>
     </section>
 
     <section id="StaffMembers" class="py-8 tabs" style="display:none">
@@ -1371,26 +1398,30 @@
                     <div class="mb-6">
                         <p><?php echo $st->update_member_points_note; ?></p>
                         <br>
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->user_id; ?></label>
+                        <label class="block text-sm font-medium mb-2" for=""
+                            style="display:inline"><?php echo $st->user_id; ?></label>
                         <input id="memberpntid" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->distance; ?>
+                        <label class="block text-sm font-medium mb-2" for=""
+                            style="display:inline"><?php echo $st->distance; ?>
                             (km)</label>
                         <input id="memberpntdistance" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->event_points; ?></label>
+                        <label class="block text-sm font-medium mb-2" for=""
+                            style="display:inline"><?php echo $st->event_points; ?></label>
                         <input id="memberpntevent" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="" style="display:inline"><?php echo $st->division_points; ?></label>
+                        <label class="block text-sm font-medium mb-2" for=""
+                            style="display:inline"><?php echo $st->division_points; ?></label>
                         <input id="memberpntdivision" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
@@ -1444,8 +1475,8 @@
 
                         <input id="lbspeedlimit"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="number" name="" style="width:150px;display:inline" placeholder="<?php echo $st->speed_limit; ?>"> <span
-                            class="distance_unit">km</span>/h
+                            type="number" name="" style="width:150px;display:inline"
+                            placeholder="<?php echo $st->speed_limit; ?>"> <span class="distance_unit">km</span>/h
 
                         <input id="lbstart"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
@@ -1465,7 +1496,8 @@
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->rank; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->distance; ?> (<span class="distance_unit">km</span>)
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->distance; ?> (<span
+                                        class="distance_unit">km</span>)
                                 </th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->event_points; ?></th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->division_points; ?></th>
@@ -1486,7 +1518,8 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
+                        <label class="text-sm font-medium mb-2" display="display:inline"
+                            for=""><?php echo $st->page; ?></label>
                         <input id="lpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="ltotpages">-</span>
@@ -1497,14 +1530,13 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#lpages').val());$('#lpages').val(tmp-1);loadLeaderboard();">
-                        < </button>
-                            <div id="leaderboardTableControl" style="display:inline">
-                            </div>
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($('#lpages').val());$('#lpages').val(tmp+1);loadLeaderboard();">></button>
+                        < </button> <div id="leaderboardTableControl" style="display:inline">
                 </div>
+                <button type="button" style="display:inline"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="tmp=parseInt($('#lpages').val());$('#lpages').val(tmp+1);loadLeaderboard();">></button>
             </div>
+        </div>
         </div>
     </section>
 
@@ -1674,7 +1706,8 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page; ?></label>
+                        <label class="text-sm font-medium mb-2" display="display:inline"
+                            for=""><?php echo $st->page; ?></label>
                         <input id="dpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="dtotpages">-</span>
@@ -1685,39 +1718,40 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp-1);loadDelivery();">
-                        < </button>
-                            <div id="deliveryTableControl" style="display:inline">
-                            </div>
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp+1);loadDelivery();">></button>
+                        < </button> <div id="deliveryTableControl" style="display:inline">
                 </div>
+                <button type="button" style="display:inline"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp+1);loadDelivery();">></button>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->export_delivery_log; ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <?php echo $st->export_delivery_log_note ?>
-
-                    <br>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->start_date; ?></label>
-                        <input id="export_start_date" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:200px;display:inline">
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->end_date; ?></label>
-                        <input id="export_end_date" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:200px;display:inline">
-                    </div>
-                    <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="exportDLog()" id="exportDLogBtn"><?php echo $st->export; ?></button>
-                </div>
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold"><?php echo $st->export_delivery_log; ?></h3>
             </div>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <?php echo $st->export_delivery_log_note ?>
+
+                <br>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->start_date; ?></label>
+                    <input id="export_start_date"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        type="date" name="" style="width:200px;display:inline">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->end_date; ?></label>
+                    <input id="export_end_date"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        type="date" name="" style="width:200px;display:inline">
+                </div>
+                <button type="button"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="exportDLog()" id="exportDLogBtn"><?php echo $st->export; ?></button>
+            </div>
+        </div>
         </div>
     </section>
 
@@ -1736,7 +1770,8 @@
                                     <h2><?php echo $st->delivery; ?> #<span id="dlogid">0</span></h2>
                                     <p><?php echo $st->by; ?> <i><span id="dlogdriver"></span></i></p>
                                     <p><?php echo $st->at; ?> <b><span id="dlogtime"></span></b></p>
-                                    <p><?php echo $st->logged; ?> <b><span id="dlogdistance"></span></b><span class="distance_unit">km</span></p>
+                                    <p><?php echo $st->logged; ?> <b><span id="dlogdistance"></span></b><span
+                                            class="distance_unit">km</span></p>
                                 </div>
                             </div>
                         </div>
@@ -1748,7 +1783,8 @@
                                         <p><?php echo $st->route_replay_loading; ?></p>
                                     </div>
                                     <div style="padding:20px;display:none" id="routereplaydiv">
-                                        <h3><?php echo $st->route_replay; ?>: <span id="rp_pct">0</span>% (<span id="rp_cur">0</span> /
+                                        <h3><?php echo $st->route_replay; ?>: <span id="rp_pct">0</span>% (<span
+                                                id="rp_cur">0</span> /
                                             <span id="rp_tot"></span>)
                                         </h3>
                                         <p>
@@ -1768,21 +1804,21 @@
                                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                                                 onclick="rri+=100">+100</button>
 
-                                        <p><?php echo $st->speed; ?>:
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rrspeed-=5">-5</button>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rrspeed-=1">-1</button>
-                                            <button type="button" style="display:inline;padding:5px" id="rp_speed"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200">20</button>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rrspeed+=1">+1</button>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rrspeed+=5">+5</button>
+                                            <p><?php echo $st->speed; ?>:
+                                                <button type="button" style="display:inline;padding:5px"
+                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                                    onclick="rrspeed-=5">-5</button>
+                                                <button type="button" style="display:inline;padding:5px"
+                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                                    onclick="rrspeed-=1">-1</button>
+                                                <button type="button" style="display:inline;padding:5px" id="rp_speed"
+                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200">20</button>
+                                                <button type="button" style="display:inline;padding:5px"
+                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                                    onclick="rrspeed+=1">+1</button>
+                                                <button type="button" style="display:inline;padding:5px"
+                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                                    onclick="rrspeed+=5">+5</button>
                                     </div>
                                 </div>
                             </div>
@@ -2258,257 +2294,244 @@
                             <label>
                                 <input type="checkbox" name="field-name" value="example value" id="da-agree">
                                 <span class="ml-2">By joining <?php echo $vtcname ?> you agree to follow both discord
-                                    and VTC rules at
-                                    all
-                                    times? Do you agree to our terms?</span>
-                            </label>
-                        </div>
-                    </div>
+    and VTC rules at
+    all
+    times? Do you agree to our terms?</span>
+    </label>
+    </div>
+    </div>
 
-                    <div class="container px-4 mx-auto apptabs" id="StaffApp" style="display:none">
-                        <div class="mb-6" style="width:350px">
-                            <label class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
-                            <input id="sa-q1"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" placeholder="MM/DD/YYYY">
-                        </div>
+    <div class="container px-4 mx-auto apptabs" id="StaffApp" style="display:none">
+        <div class="mb-6" style="width:350px">
+            <label class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
+            <input id="sa-q1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                type="date" name="" placeholder="MM/DD/YYYY">
+        </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">What country do you live in? Also
-                                include your Time
-                                Zone </label>
-                            <textarea id="sa-q2"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder="US, Canada, UK, etc"></textarea>
-                        </div>
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="">What country do you live in? Also
+                include your Time
+                Zone </label>
+            <textarea id="sa-q2"
+                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name" rows="5" placeholder="US, Canada, UK, etc"></textarea>
+        </div>
 
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Which
-                                position are you
-                                applying for?</label>
-                            <div class="relative" style="width:500px">
-                                <select id="sa-select"
-                                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    name="field-name">
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewbox="0 0 20 20">
-                                        <path
-                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Please provide a summary about
-                                yourself. </label>
-                            <textarea id="sa-q3"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5"
-                                placeholder="You may include hobbies, work positions, or any unique facts about yourself!"></textarea>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Why are you interested in joining the
-                                position you
-                                are applying for? What do you want to achieve?</label>
-                            <textarea id="sa-q4"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5"
-                                placeholder="Explain why does that position interest you and what do you want to achieve."></textarea>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Do you have a lot of time to dedicate
-                                to this
-                                position?</label>
-                            <textarea id="sa-q5"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder="Explain your time availability."></textarea>
-                        </div>
-
-                        <div class="mb-6">
-                            <label>
-                                <input id="sa-agree" type="checkbox" name="field-name" value="example value">
-                                <span class="ml-2">By joining <?php echo $vtcname ?>, you agree to our rules and terms
-                                    of service. As a
-                                    Internal or External Staff, you also agree to work without financial compensation.
-                                    Do you agree to
-                                    these terms?</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="container px-4 mx-auto apptabs" id="LOAApp" style="display:none">
-                        <div class="mb-6" style="width:350px">
-                            <label class="block text-sm font-medium mb-2" for="">Start Date</label>
-                            <input id="la-q1"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" placeholder="MM/DD/YYYY">
-                        </div>
-
-                        <div class="mb-6" style="width:350px">
-                            <label class="block text-sm font-medium mb-2" for="">End Date</label>
-                            <input id="la-q2"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" placeholder="MM/DD/YYYY">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Reason for LOA </label>
-                            <textarea id="la-q3"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder="Your answer"></textarea>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Will you
-                                leave your
-                                position or leave <?php echo $vtcname ?>?</label>
-                            <div class="relative" style="width:500px">
-                                <select id="la-leave"
-                                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    name="field-name">
-                                    <option value="No">No</option>
-                                    <option value="Yes">Yes</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewbox="0 0 20 20">
-                                        <path
-                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="container px-4 mx-auto apptabs" id="DivisionApp" style="display:none">
-                        <div class="container px-4 mx-auto">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Select Division:</label>
-                            <div class="relative" style="width:200px">
-                                <select id="divisionappselect"
-                                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    name="field-name">
-                                    <option value="seldivplaceholder">Select Division</option>
-                                    <option value="construction">Construction</option>
-                                    <option value="chilled">Chilled (Not available)</option>
-                                    <option value="adr">ADR (Not available)</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewbox="0 0 20 20">
-                                        <path
-                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="divisiontabs" id="ConstructionApp" style="display:none">
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">Why do you want to join the
-                                    construction
-                                    division?</label>
-                                <textarea id="dca-q1"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    name="field-name" rows="5" placeholder=""></textarea>
-                            </div>
-
-                            <div class="mb-6">
-                                <div class="mb-1">
-                                    <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Have
-                                        you read over the
-                                        full division handbook?</label>
-                                    <label>
-                                        <input type="radio" name="construction-read" value="yes" id="construction-read">
-                                        <span class="ml-2">Yes</span>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label>
-                                        <input type="radio" name="construction-read" value="yes" checked>
-                                        <span class="ml-2">No</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">What is the biggest difference
-                                    between hauling
-                                    construction division loads compared to normal loads?</label>
-                                <input id="dca-q2"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">What is a flatbed trailer designed
-                                    to haul?
-                                </label>
-                                <input id="dca-q3"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">After the first 50 miles, how often
-                                    should you stop
-                                    and check your load? </label>
-                                <input id="dca-q4"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">What is the only time when it is
-                                    appropriate to
-                                    stop
-                                    on the shoulder of the road? </label>
-                                <input id="dca-q5"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6">
-                                <div class="mb-1">
-                                    <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">In
-                                        the construction
-                                        division, you are required to complete 5 deliveries of 95+ miles with
-                                        construction loads per month.
-                                        Do you agree
-                                        to
-                                        meet the monthly requirement?</label>
-                                    <label>
-                                        <input type="radio" name="construction-agree" value="yes"
-                                            id="construction-agree">
-                                        <span class="ml-2">Yes</span>
-                                    </label>
-                                </div>
-                                <div>
-                                    <label>
-                                        <input type="radio" name="construction-agree" value="yes" checked>
-                                        <span class="ml-2">No</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="button"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="SubmitApp()" id="submitAppBttn">'.$st->submit.'</button>
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Which
+                position are you
+                applying for?</label>
+            <div class="relative" style="width:500px">
+                <select id="sa-select"
+                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                    name="field-name">
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                        </path>
+                    </svg>
                 </div>
             </div>
         </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="">Please provide a summary about
+                yourself. </label>
+            <textarea id="sa-q3"
+                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name" rows="5"
+                placeholder="You may include hobbies, work positions, or any unique facts about yourself!"></textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="">Why are you interested in joining the
+                position you
+                are applying for? What do you want to achieve?</label>
+            <textarea id="sa-q4"
+                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name" rows="5"
+                placeholder="Explain why does that position interest you and what do you want to achieve."></textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="">Do you have a lot of time to dedicate
+                to this
+                position?</label>
+            <textarea id="sa-q5"
+                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name" rows="5" placeholder="Explain your time availability."></textarea>
+        </div>
+
+        <div class="mb-6">
+            <label>
+                <input id="sa-agree" type="checkbox" name="field-name" value="example value">
+                <span class="ml-2">By joining <?php echo $vtcname ?>, you agree to our rules and terms
+                    of service. As a
+                    Internal or External Staff, you also agree to work without financial compensation.
+                    Do you agree to
+                    these terms?</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="container px-4 mx-auto apptabs" id="LOAApp" style="display:none">
+        <div class="mb-6" style="width:350px">
+            <label class="block text-sm font-medium mb-2" for="">Start Date</label>
+            <input id="la-q1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                type="date" name="" placeholder="MM/DD/YYYY">
+        </div>
+
+        <div class="mb-6" style="width:350px">
+            <label class="block text-sm font-medium mb-2" for="">End Date</label>
+            <input id="la-q2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                type="date" name="" placeholder="MM/DD/YYYY">
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="">Reason for LOA </label>
+            <textarea id="la-q3"
+                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name" rows="5" placeholder="Your answer"></textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Will you
+                leave your
+                position or leave <?php echo $vtcname ?>?</label>
+            <div class="relative" style="width:500px">
+                <select id="la-leave"
+                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                    name="field-name">
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container px-4 mx-auto apptabs" id="DivisionApp" style="display:none">
+        <div class="container px-4 mx-auto">
+            <label class="block text-sm font-medium mb-2 text-left" for="">Select Division:</label>
+            <div class="relative" style="width:200px">
+                <select id="divisionappselect"
+                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                    name="field-name">
+                    <option value="seldivplaceholder">Select Division</option>
+                    <option value="construction">Construction</option>
+                    <option value="chilled">Chilled (Not available)</option>
+                    <option value="adr">ADR (Not available)</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="divisiontabs" id="ConstructionApp" style="display:none">
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2" for="">Why do you want to join the
+                    construction
+                    division?</label>
+                <textarea id="dca-q1"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                    name="field-name" rows="5" placeholder=""></textarea>
+            </div>
+
+            <div class="mb-6">
+                <div class="mb-1">
+                    <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Have
+                        you read over the
+                        full division handbook?</label>
+                    <label>
+                        <input type="radio" name="construction-read" value="yes" id="construction-read">
+                        <span class="ml-2">Yes</span>
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="radio" name="construction-read" value="yes" checked>
+                        <span class="ml-2">No</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2" for="">What is the biggest difference
+                    between hauling
+                    construction division loads compared to normal loads?</label>
+                <input id="dca-q2"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
+                    name="" placeholder="">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2" for="">What is a flatbed trailer designed
+                    to haul?
+                </label>
+                <input id="dca-q3"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
+                    name="" placeholder="">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2" for="">After the first 50 miles, how often
+                    should you stop
+                    and check your load? </label>
+                <input id="dca-q4"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
+                    name="" placeholder="">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2" for="">What is the only time when it is
+                    appropriate to
+                    stop
+                    on the shoulder of the road? </label>
+                <input id="dca-q5"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
+                    name="" placeholder="">
+            </div>
+
+            <div class="mb-6">
+                <div class="mb-1">
+                    <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">In
+                        the construction
+                        division, you are required to complete 5 deliveries of 95+ miles with
+                        construction loads per month.
+                        Do you agree
+                        to
+                        meet the monthly requirement?</label>
+                    <label>
+                        <input type="radio" name="construction-agree" value="yes" id="construction-agree">
+                        <span class="ml-2">Yes</span>
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="radio" name="construction-agree" value="yes" checked>
+                        <span class="ml-2">No</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="SubmitApp()" id="submitAppBttn">'.$st->submit.'</button>
+    </div>
+    </div>
+    </div>
     </section>
 
     <section id="AllApp" class="py-8 tabs" style="display: none;">
@@ -2556,32 +2579,31 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp-1);loadAllApp();">
-                        < </button>
-                            <div id="allAppTableControl" style="display:inline">
-                            </div>
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp+1);loadAllApp();">></button>
+                        < </button> <div id="allAppTableControl" style="display:inline">
                 </div>
+                <button type="button" style="display:inline"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp+1);loadAllApp();">></button>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">'.$st->update_staff_positions.'</h3>
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold">'.$st->update_staff_positions.'</h3>
+            </div>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for="">'.$st->staff_positions.'</label>
+                    <textarea id="staffposedit"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></textarea>
                 </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">'.$st->staff_positions.'</label>
-                        <textarea id="staffposedit"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></textarea>
-                    </div>
 
-                    <button type="button" id="updateStaffPositionBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateStaffPosition()" id="updateAppStatusBtn">'.$st->update.'</button>
-                </div>
+                <button type="button" id="updateStaffPositionBtn"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="updateStaffPosition()" id="updateAppStatusBtn">'.$st->update.'</button>
             </div>
+        </div>
         </div>
     </section>';}?>
 
@@ -2609,7 +2631,8 @@
                 </div>
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page ?></label>
+                        <label class="text-sm font-medium mb-2" display="display:inline"
+                            for=""><?php echo $st->page ?></label>
                         <input id="pupages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span
@@ -2621,130 +2644,129 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp-1);loadUsers();">
-                        < </button>
-                            <div id="usersTableControl" style="display:inline">
-                            </div>
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp+1);loadUsers();">></button>
+                        < </button> <div id="usersTableControl" style="display:inline">
                 </div>
+                <button type="button" style="display:inline"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp+1);loadUsers();">></button>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="BanUserDiv">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->ban_or_unban_user ?></h3>
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="BanUserDiv">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold"><?php echo $st->ban_or_unban_user ?></h3>
+            </div>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
+                    <input id="bandiscordid" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
                 </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="bandiscordid" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->ban_expire_date ?></label>
-                        <input id="banexpire" type="date" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->reason ?></label>
-                        <textarea id="banreason"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder="<?php echo $st->reason_note ?>"></textarea>
-                    </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->ban_expire_date ?></label>
+                    <input id="banexpire" type="date" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->reason ?></label>
+                    <textarea id="banreason"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder="<?php echo $st->reason_note ?>"></textarea>
+                </div>
 
-                    <button type="button"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="banUser()"><?php echo $st->ban ?></button>
-                    <button type="button" style="background-color:lightgreen"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="unbanUser()"><?php echo $st->unban ?></button>
-                </div>
+                <button type="button"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="banUser()"><?php echo $st->ban ?></button>
+                <button type="button" style="background-color:lightgreen"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="unbanUser()"><?php echo $st->unban ?></button>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->add_user ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold"><?php echo $st->add_user ?></h3>
+            </div>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="mb-6">
                     <?php echo $st->add_user_note ?>
-                        <br>
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="adddiscordid" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" id="addUserBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="addUser()"><?php echo $st->add ?></button>
+                    <br>
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
+                    <input id="adddiscordid" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
                 </div>
+
+                <button type="button" id="addUserBtn"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="addUser()"><?php echo $st->add ?></button>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->update_user_discord_account ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->old_discord_id ?></label>
-                        <input id="upd_old_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->new_discord_id ?></label>
-                        <input id="upd_new_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" id="updateDiscordBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateDiscord()"><?php echo $st->update ?></button>
-                </div>
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold"><?php echo $st->update_user_discord_account ?></h3>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->unbind_connections ?></h3>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->old_discord_id ?></label>
+                    <input id="upd_old_id" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
                 </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="unbind_discord_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
 
-                    <button type="button" id="unbindConnectionsBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="unbindConnections()"><?php echo $st->unbind ?></button>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->new_discord_id ?></label>
+                    <input id="upd_new_id" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
                 </div>
+
+                <button type="button" id="updateDiscordBtn"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="updateDiscord()"><?php echo $st->update ?></button>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->delete_user ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <?php echo $st->delete_user_note ?>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="del_discord_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" id="deleteUserBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="deleteUser()"><?php echo $st->delete ?></button>
-                </div>
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold"><?php echo $st->unbind_connections ?></h3>
             </div>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
+                    <input id="unbind_discord_id" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
+                </div>
+
+                <button type="button" id="unbindConnectionsBtn"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="unbindConnections()"><?php echo $st->unbind ?></button>
+            </div>
+        </div>
+        <br>
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
+            <div class="flex px-6 pb-4 border-b">
+                <h3 class="text-xl font-bold"><?php echo $st->delete_user ?></h3>
+            </div>
+            <div class="p-4 overflow-x-auto" style="display: block;">
+                <?php echo $st->delete_user_note ?>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
+                    <input id="del_discord_id" style="width:200px"
+                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                        name="field-name" rows="5" placeholder=""></input>
+                </div>
+
+                <button type="button" id="deleteUserBtn"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="deleteUser()"><?php echo $st->delete ?></button>
+            </div>
+        </div>
     </section>
 
     <section id="AuditLog" class="py-8 tabs" style="display: none;">
@@ -2774,7 +2796,8 @@
 
                 <div style="margin-left:auto;width:fit-content">
                     <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline" for=""><?php echo $st->page ?></label>
+                        <label class="text-sm font-medium mb-2" display="display:inline"
+                            for=""><?php echo $st->page ?></label>
                         <input id="auditpages" style="width:50px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span
@@ -2786,26 +2809,135 @@
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp-1);loadAuditLog();">
-                        < </button>
-                            <div id="auditTableControl" style="display:inline">
-                            </div>
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp+1);loadAuditLog();">></button>
+                        < </button> <div id="auditTableControl" style="display:inline">
                 </div>
+                <button type="button" style="display:inline"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp+1);loadAuditLog();">></button>
             </div>
         </div>
+        </div>
     </section>
-    
+
     <section id="Admin" class="py-8 tabs" style="display: none;">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Backend Config</h3>
+                    <h3 class="text-xl font-bold">Web Config</h3>
                 </div>
                 <div class="mb-6" style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Program will reload automatically after config is updated, which might take up to 5 minutes.</label>
-                    <label class="block text-sm font-medium mb-2" for="" style="color:red">Warning: Misconfiguration may lead to API failing to start or function not working properly!</label>
+                    <label class="block text-sm font-medium mb-2" for="">Webpage will update instantly, images might not
+                        update instantly due to browser / CDN cache.</label>
+                    <label class="block text-sm font-medium mb-2" for="" style="color:red">Web server and API server are
+                        physically isolated so you must provide your application token to update config for
+                        authorization. For safety purpose you are recommended to reset application token after this is
+                        done.</label>
+                    <br>
+                    <div>
+                        <h3 class="text-l font-bold">Company</h3>
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">Name</label>
+                            <input id="webconfig_vtc_name"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                name="text" rows="5" placeholder=""></input>
+                        </div>
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
+                            <input id="webconfig_vtc_color"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        <div class="relative" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver
+                                Ranking)</label>
+                            <select id="webconfig_company_distance_unit"
+                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name">
+                                <option value="metric">Metric</option>
+                                <option value="imperial">Imperial</option>
+                            </select>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                    </path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mb-6" style="display:inline-block;width:24.5%">
+                            <label class="block text-sm font-medium mb-2" for="">Navio Company ID</label>
+                            <input id="webconfig_navio_company_id"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                type="text" name="" placeholder="">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Slogan</label>
+                            <input id="webconfig_slogan"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                name="text" rows="5" placeholder=""></input>
+                        </div>
+                    </div>
+
+                    <hr><br>
+
+                    <div>
+                        <h3 class="text-l font-bold">Assets (Input only if you want to update them)</h3>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Logo Download Link (File size must
+                                <= 1 MB)</label> <input id="webconfig_logo_url"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                    type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Banner Download Link (File size
+                                must <= 1 MB)</label> <input id="webconfig_banner_url"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                    type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Background Download Link (File size
+                                must <= 4 MB)</label> <input id="webconfig_bg_url"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                    type="text" name="" placeholder="">
+                        </div>
+
+                        <div class="mb-6" style="display:inline-block;width:49%">
+                            <label class="block text-sm font-medium mb-2" for="">Team Update Banner Download Link (File size
+                                must
+                                <= 1 MB)</label> <input id="webconfig_teamupdate_url"
+                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                                    type="text" name="" placeholder="">
+                        </div>
+                    </div>
+
+                    <hr><br>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for="">Application Token (For
+                            authorization)</label>
+                        <input id="webconfig_apptoken" type="password"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                            name="text" rows="5" placeholder=""></input>
+                    </div>
+
+                    <button type="button" style="float:right"
+                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="UpdateWebConfig()" id="updateWebConfigBtn">Update</button>
+                </div>
+            </div>
+            <br>
+            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+                <div class="flex px-6 pb-4 border-b">
+                    <h3 class="text-xl font-bold">API Config</h3>
+                </div>
+                <div class="mb-6" style="padding:20px">
+                    <label class="block text-sm font-medium mb-2" for="">Program will reload automatically after
+                        config is updated, which might take up to 5 minutes.</label>
+                    <label class="block text-sm font-medium mb-2" for="" style="color:red">Warning: Misconfiguration
+                        may lead to API failing to start or function not working properly!</label>
                     <br>
                     <div>
                         <h3 class="text-l font-bold">Company</h3>
@@ -2816,7 +2948,7 @@
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
                         </div>
-                        
+
                         <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
                             <input id="config_hex_color"
@@ -2825,35 +2957,45 @@
                         </div>
 
                         <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver Ranking)</label>
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver
+                                Ranking)</label>
                             <select id="config_distance_unit"
                                 class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name">
                                 <option value="metric">Metric</option>
                                 <option value="imperial">Imperial</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewbox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                    </path>
                                 </svg>
                             </div>
                         </div>
 
                         <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Require TruckersMP Account</label>
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Require TruckersMP
+                                Account</label>
                             <select id="config_truckersmp_bind"
                                 class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name">
                                 <option value="true">Yes</option>
                                 <option value="false">No</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewbox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                    </path>
                                 </svg>
                             </div>
                         </div>
-                        
+
                         <div class="mb-6" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2" for="">Logo Link</label>
                             <input id="config_vtc_logo_link"
@@ -2871,7 +3013,7 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">Discord Server</h3>
-                        
+
                         <div class="mb-6" style="display:inline-block;width:49%">
                             <label class="block text-sm font-medium mb-2" for="">Server ID</label>
                             <input id="config_guild_id"
@@ -2880,16 +3022,21 @@
                         </div>
 
                         <div class="relative" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in server?</label>
+                            <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in
+                                server?</label>
                             <select id="config_in_guild_check"
                                 class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name">
                                 <option value="true">Yes</option>
                                 <option value="false">No</option>
                             </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
+                            <div
+                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewbox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                    </path>
                                 </svg>
                             </div>
                         </div>
@@ -2899,7 +3046,8 @@
                         <h3 class="text-l font-bold">Navio</h3>
 
                         <div class="mb-6" style="display:inline-block;width:73.5%">
-                            <label class="block text-sm font-medium mb-2" for="">API Token (Leave empty to keep unchanged)</label>
+                            <label class="block text-sm font-medium mb-2" for="">API Token (Leave empty to keep
+                                unchanged)</label>
                             <input id="config_navio_api_token"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="text" rows="5" placeholder=""></input>
@@ -2924,7 +3072,8 @@
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Delivery Embed GIF (Separate with line-break)</label>
+                            <label class="block text-sm font-medium mb-2" for="">Delivery Embed GIF (Separate with
+                                line-break)</label>
                             <textarea id="config_delivery_post_gifs_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea>
@@ -2942,7 +3091,8 @@
                         </div>
 
                         <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Client Secret (Leave empty to keep unchanged)</label>
+                            <label class="block text-sm font-medium mb-2" for="">Client Secret (Leave empty to keep
+                                unchanged)</label>
                             <input id="config_discord_client_secret"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
@@ -2963,7 +3113,8 @@
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Bot Token (Leave empty to keep unchanged)</label>
+                            <label class="block text-sm font-medium mb-2" for="">Bot Token (Leave empty to keep
+                                unchanged)</label>
                             <input id="config_discord_bot_token"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder="">
@@ -2972,19 +3123,20 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">New Member</h3>
-                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Team Update Webhook</label>
                             <input id="config_webhook_teamupdate"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Team Update Message (Variable: {mention})</label>
+                            <label class="block text-sm font-medium mb-2" for="">Team Update Message (Variable:
+                                {mention})</label>
                             <input id="config_webhook_teamupdate_message"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Welcome Channel ID</label>
                             <input id="config_welcome_channel_id"
@@ -2992,20 +3144,22 @@
                                 type="text" name="" placeholder="">
                         </div>
 
-                        <div class="mb-6"> 
-                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (Variable: {mention})</label>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (Variable:
+                                {mention})</label>
                             <textarea id="config_welcome_message" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
-                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Welcome Message Image Link</label>
                             <input id="config_welcome_image_link"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with ',' | Prepend '+' to add role or '-' to remove role')</label>
+                            <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with
+                                ',' | Prepend '+' to add role or '-' to remove role')</label>
                             <input id="config_welcome_role_change_txt"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 type="text" name="" placeholder=""></div>
@@ -3014,21 +3168,23 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">Ranking</h3>
-                        
+
                         <div class="mb-6" style="display:inline-block;width:24.5%">
                             <label class="block text-sm font-medium mb-2" for="">Rank Up Channel ID</label>
                             <input id="config_rank_up_channel_id"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-                        
+
                         <div class="mb-6" style="display:inline-block;width:74.5%">
                             <label class="block text-sm font-medium mb-2" for="">Rank Up Message</label>
                             <input id="config_rank_up_message"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Ranks (Separate ranks with line-break / For each rank, separate distance, name, discord_role_id with ',')</label>
+                            <label class="block text-sm font-medium mb-2" for="">Ranks (Separate ranks with
+                                line-break / For each rank, separate distance, name, discord_role_id with
+                                ',')</label>
                             <textarea id="config_ranks_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
@@ -3036,15 +3192,17 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">Application</h3>
-                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Webhook</label>
                             <input id="config_webhook_application"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Types (Separate types with line-break / For each type, separate id, name, discord_role_id, message with ',' / ID 1~4 are reserved and name change will not take effect)</label>
+                            <label class="block text-sm font-medium mb-2" for="">Types (Separate types with
+                                line-break / For each type, separate id, name, discord_role_id, message with ',' /
+                                ID 1~4 are reserved and name change will not take effect)</label>
                             <textarea id="config_application_types_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
@@ -3052,21 +3210,23 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">Division</h3>
-                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Webhook</label>
                             <input id="config_webhook_division"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
 
-                        <div class="mb-6"> 
-                            <label class="block text-sm font-medium mb-2" for="">Webhook Message (You can add role-pings here)</label>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for="">Webhook Message (You can add
+                                role-pings here)</label>
                             <textarea id="config_webhook_division_message" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Division (Separate divisions with line-break / For each division, separate id, name, point, role_id with ',')</label>
+                            <label class="block text-sm font-medium mb-2" for="">Division (Separate divisions with
+                                line-break / For each division, separate id, name, point, role_id with ',')</label>
                             <textarea id="config_divisions_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
@@ -3074,15 +3234,18 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">Permissions & Roles</h3>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Permissions (Separate permissions with line-break / For each permission, separate permission name and role ids with ':', separate role ids with ',')</label>
+                            <label class="block text-sm font-medium mb-2" for="">Permissions (Separate permissions
+                                with line-break / For each permission, separate permission name and role ids with
+                                ':', separate role ids with ',')</label>
                             <textarea id="config_perms_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
-                        
+
                         <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Roles (Separate roles with line-break / For each role, separate id, name with ',')</label>
+                            <label class="block text-sm font-medium mb-2" for="">Roles (Separate roles with
+                                line-break / For each role, separate id, name with ',')</label>
                             <textarea id="config_roles_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
@@ -3090,7 +3253,7 @@
                     <hr><br>
                     <div>
                         <h3 class="text-l font-bold">Audit Log</h3>
-                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Webhook</label>
                             <input id="config_webhook_audit"
@@ -3099,28 +3262,32 @@
                     </div>
                     <hr><br>
                     <h3 class="text-l font-bold">JSON Config Editor</h3>
-                    <label class="block text-sm font-medium mb-2" for="">For advanced user who knows JSON format well</label>
+                    <label class="block text-sm font-medium mb-2" for="">For advanced user who knows JSON format
+                        well</label>
                     <textarea id="config" style="width:100%;height:400px"
                         class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                         name="field-name" rows="5" placeholder=""></textarea>
                     <br>
                     <button type="button" style="float:right"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateConfig()" id="updateConfigBtn">Update</button>
+                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="UpdateConfig()" id="updateConfigBtn">Update</button>
                 </div>
             </div>
             <br>
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Reload Server</h3>
+                    <h3 class="text-xl font-bold">Reload</h3>
                 </div>
                 <div style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Only do this if you find it stuck or not functioning correctly.</label>
-                    <label class="block text-sm font-medium mb-2" for="">The process may take up to 5 minutes and API will be inaccessible during reload.</label>
+                    <label class="block text-sm font-medium mb-2" for="">Only do this if you find the Drivers Hub
+                        not functioning correctly.</label>
+                    <label class="block text-sm font-medium mb-2" for="">The process may take up to 5 minutes and
+                        API will be inaccessible during reload. Deliveries are not logged when API is
+                        offline.</label>
                     <br>
                     <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="ReloadServer()" id="reloadBtn">Reload</button>
+                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="ReloadServer()" id="reloadBtn">Reload</button>
                 </div>
             </div>
         </div>
@@ -3132,9 +3299,10 @@
                 &nbsp;|&nbsp;
                 <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
                 <br>
-                API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
+                API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
+                    target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.1.8 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.2.1 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;
@@ -3142,6 +3310,19 @@
             </div>
         </div>
     </section>
+    <script type="text/javascript">
+        var vglnk = {
+            key: '6079eee046686ed0b0857daa3aadc2a9'
+        };
+        (function (d, t) {
+            var s = d.createElement(t);
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = '//cdn.viglink.com/api/vglnk.js';
+            var r = d.getElementsByTagName(t)[0];
+            r.parentNode.insertBefore(s, r);
+        }(document, 'script'));
+    </script>
 </body>
 
 </html>

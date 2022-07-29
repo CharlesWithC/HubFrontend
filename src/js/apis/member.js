@@ -136,33 +136,33 @@ function loadMembers(recurse = true) {
             </tr>`);
             }
 
-            user = data.response.staff_of_the_month;
-            discordid = user.discordid;
-            avatar = user.avatar;
-            src = "";
-            if (avatar != null) {
-                if (avatar.startsWith("a_"))
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                else
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            } else {
-                avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
-            }
-            $("#sotm").html(`<a style='cursor:pointer' onclick='loadProfile("${user.userid}")'>${user.name}</a>`);
-            $("#sotma").attr("src", src);
+            // user = data.response.staff_of_the_month;
+            // discordid = user.discordid;
+            // avatar = user.avatar;
+            // src = "";
+            // if (avatar != null) {
+            //     if (avatar.startsWith("a_"))
+            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+            //     else
+            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+            // } else {
+            //     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+            // }
+            // $("#sotm").html(`<a style='cursor:pointer' onclick='loadProfile("${user.userid}")'>${user.name}</a>`);
+            // $("#sotma").attr("src", src);
 
-            user = data.response.driver_of_the_month;
-            discordid = user.discordid;
-            avatar = user.avatar;
-            src = "";
-            if (avatar != null) {
-                if (avatar.startsWith("a_"))
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                else
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            }
-            $("#dotm").html(`<a style='cursor:pointer' onclick='loadProfile("${user.userid}")'>${user.name}</a>`);
-            $("#dotma").attr("src", src);
+            // user = data.response.driver_of_the_month;
+            // discordid = user.discordid;
+            // avatar = user.avatar;
+            // src = "";
+            // if (avatar != null) {
+            //     if (avatar.startsWith("a_"))
+            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+            //     else
+            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+            // }
+            // $("#dotm").html(`<a style='cursor:pointer' onclick='loadProfile("${user.userid}")'>${user.name}</a>`);
+            // $("#dotma").attr("src", src);
 
         },
         error: function (data) {

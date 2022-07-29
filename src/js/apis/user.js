@@ -607,9 +607,30 @@ function loadConfig() {
     configData = newConfigData;
 }
 
-numberItem = [];
-
 function loadAdmin() {
+    webdomain = apidomain.replaceAll("https://", "https://web.");
+    $.ajax({
+        url: webdomain + "/" + vtcprefix + "/config?domain=" + window.location.hostname,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            if (data.error) toastFactory("error", "Error:", data.descriptor, 5000, false);
+            webConfigData = data.response.config;
+            webConfigKeys = Object.keys(webConfigData);
+            for(var i = 0 ; i < webConfigKeys.length ; i++){
+                key = webConfigKeys[i];
+                $("#webconfig_" + key).val(webConfigData[key]);
+            }
+        },
+        error: function (data) {
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to load config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    });
+    
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/config",
         type: "GET",
@@ -621,14 +642,7 @@ function loadAdmin() {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
                 false);
 
-            numberItem = [];
             configData = data.response.config;
-            keys = Object.keys(configData);
-            for (i = 0; i < keys.length; i++) {
-                if (isJSONNumber(configData[keys[i]])) {
-                    numberItem.push(keys[i]);
-                }
-            }
 
             $("#config").val(JSON.stringify(configData, null, 4, 
                 (_, value) => 
@@ -642,9 +656,6 @@ function loadAdmin() {
                 inputid = $(this).attr('id');
                 configitem = inputid.replaceAll("config_", "");
                 val = $(this).val();
-                if (numberItem.indexOf(configitem) != -1) {
-                    val = +val;
-                }
                 configData[configitem] = val;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
@@ -762,6 +773,48 @@ function loadAdmin() {
     });
 }
 
+function UpdateWebConfig() {
+    $("#updateWebConfigBtn").html("Working...");
+    $("#updateWebConfigBtn").attr("disabled", "disabled");
+    webdomain = apidomain.replaceAll("https://", "https://web.");
+    $.ajax({
+        url: webdomain + "/" + vtcprefix + "/config",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Application " + $("#webconfig_apptoken").val()
+        },
+        data: {
+            domain: window.location.hostname,
+            apidomain: apidomain.replaceAll("https://", ""),
+            vtc_name: $("#webconfig_vtc_name").val(),
+            vtc_color: $("#webconfig_vtc_color").val(),
+            slogan: $("#webconfig_slogan").val(),
+            company_distance_unit: $("#webconfig_company_distance_unit").val(),
+            navio_company_id: $("#webconfig_navio_company_id").val(),
+            logo_url: $("#webconfig_logo_url").val(),
+            banner_url: $("#webconfig_banner_url").val(),
+            bg_url: $("#webconfig_bg_url").val(),
+            teamupdate_url: $("#webconfig_teamupdate_url").val()
+        },
+        success: function (data) {
+            $("#updateWebConfigBtn").html("Update");
+            $("#updateWebConfigBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            toastFactory("success", "Success", data.response, 5000, false);
+        },
+        error: function (data) {
+            $("#updateWebConfigBtn").html("Update");
+            $("#updateWebConfigBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to update config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
+
 function UpdateConfig() {
     config = $("#config").val();
     try {
@@ -773,6 +826,8 @@ function UpdateConfig() {
     if (config["navio_token"] == "") delete config["navio_token"];
     if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
     if (config["bot_token"] == "") delete config["bot_token"];
+    $("#updateConfigBtn").html("Working...");
+    $("#updateConfigBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/config",
         type: "PATCH",
@@ -788,10 +843,14 @@ function UpdateConfig() {
                     : value)
         },
         success: function (data) {
+            $("#updateConfigBtn").html("Update");
+            $("#updateConfigBtn").removeAttr("disabled");
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
+            $("#updateConfigBtn").html("Update");
+            $("#updateConfigBtn").removeAttr("disabled");
             toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
