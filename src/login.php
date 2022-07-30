@@ -29,6 +29,8 @@
 	</style>
 
 	<script src="/configs/<?php echo $domainpure ?>.js"></script>
+	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
 		integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -83,8 +85,72 @@
 				}
 			});
 		}
+
+		function ShowCaptcha(){
+			email = $("#email").val();
+			password = $("#password").val();
+			if(email == "" || password == ""){
+				return toastFactory("warning", "", "Enter email and password.", 3000, false);
+			}
+			$('#captcha').fadeIn();
+		}
+
 		$(document).ready(function () {
 			validate();
+
+			$("#captcha").click(function(){
+				$("#captcha").fadeOut();
+			});
+
+			$("#email").keypress(function (e) {
+				var key = e.which;
+				if(key == 13){
+					if($("#password").val() == ""){
+						$("#password").focus();
+					} else {
+						ShowCaptcha();
+					}
+				}
+			});
+
+			$("#password").keypress(function (e) {
+				var key = e.which;
+				if(key == 13){
+					ShowCaptcha();
+				}
+			});
+
+			working = false;
+			setInterval(function(){
+				if($("#captcha").is(":visible") && $("[name=h-captcha-response]").val() != "" && !working){
+					working = true;
+					hcaptcha_response = $("[name=h-captcha-response]").val();
+					email = $("#email").val();
+					password = $("#password").val();
+					$.ajax({
+						url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login/password",
+						type: "POST",
+						dataType: "json",
+						data: {
+							email: email,
+							password: password,
+							"h-captcha-response": hcaptcha_response
+						},
+						success: function (data) {
+							console.log(data);
+							if(!data.error){
+								token = data.response.token;
+								localStorage.setItem("token", token);
+								window.location.href = "/";
+							}
+						}, error: function (data){
+							$("#captcha").fadeOut();
+							toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+							setTimeout(function(){working = false;},1000);
+						}
+					});
+				}
+			}, 1000);
 		});
 	</script>
 </head>
@@ -102,9 +168,19 @@
 					<p><?php echo $slogan ?></p>
 				</header>
 				<section>
-					<button type="button" onclick="DiscordLogin();">Login With Discord</button>
+					<div style="width:75%;margin:auto">
+						<p style="color:white">Email: <input id="email" style="float:right;width:60%"></p>
+						<p style="color:white">Password: <input id="password" type="password" style="float:right;width:60%"></p>
+					</div>
+					<button type="button" onclick="ShowCaptcha();">Login</button>
+					<p style="float:right"><a onclick="DiscordLogin();" style="cursor:pointer">Or login / sign up with Discord</a></p>
 				</section>
 			</form>
+		</div>
+	</div>
+	<div id="captcha" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7)">
+		<div style="margin:auto;position:relative;text-align:center;top:45%;width:fit-content;">
+			<div class="h-captcha" data-sitekey="1788882d-3695-4807-abac-7d7166ec6325"></div>
 		</div>
 	</div>
 	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
@@ -114,7 +190,7 @@
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.2.1 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.2.2 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

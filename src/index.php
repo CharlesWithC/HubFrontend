@@ -838,6 +838,28 @@
                         <h3 class="text-xl font-bold"><?php echo $st->security; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
+                        <h3>Password Login</h3>
+                        <label class="block text-sm font-medium mb-2"
+                            for="">- The email will be the one connected to your Discord account.</label>
+                        <label class="block text-sm font-medium mb-2"
+                            for="">- If you changed your Discord email, you have to login with Discord account to update it. Otherwise you can only login with old email.</label>
+                        <label class="block text-sm font-medium mb-2"
+                            for="">- Use an empty password to disable password login.</label>
+                        <label class="block text-sm font-medium mb-2"
+                            for="">- <b>You can only update the password when you are logged in with Discord.</b></label>
+                        <label class="block text-sm font-medium mb-2" for="">New Password:</label>
+                        <input id="passwordUpd" type="password"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            name="field-name" rows="5" placeholder=""></input>
+                        <label class="block text-sm font-medium mb-2"
+                            for="">- The password should contain at least one number, one lower-cased letter, one upper-cased letter and one special character, with a minimum length of 8.</label>
+                        <button type="button"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="resetPassword()" id="resetPasswordBtn">Update</button>
+                    </div>
+                    <br>
+                    <hr>
+                    <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3><?php echo $st->external_application_authorization; ?></h3>
                         <label class="block text-sm font-medium mb-2"
                             for=""><b><?php echo $st->application_token; ?></b>: <span id="userAppToken"></span></label>
@@ -3302,7 +3324,7 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.2.1 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.2.2 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;
@@ -3310,19 +3332,6 @@
             </div>
         </div>
     </section>
-    <script type="text/javascript">
-        var vglnk = {
-            key: '6079eee046686ed0b0857daa3aadc2a9'
-        };
-        (function (d, t) {
-            var s = d.createElement(t);
-            s.type = 'text/javascript';
-            s.async = true;
-            s.src = '//cdn.viglink.com/api/vglnk.js';
-            var r = d.getElementsByTagName(t)[0];
-            r.parentNode.insertBefore(s, r);
-        }(document, 'script'));
-    </script>
 </body>
 
 </html>

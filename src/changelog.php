@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.2.2</strong><br>Updates to catch up to API v1.10.6  </p>
 <p><strong>v1.2.1</strong><br>1.Added support to editing web config<br>2.Added better redirect for /images (to drivershub-cdn.charlws.com)<br>3.Added frosted-glass effect to login page  </p>
 <p><strong>v1.1.8</strong><br>Finished Administrator - Edit Server Config  </p>
 <p><strong>v1.1.7</strong><br>Updated footer  </p>

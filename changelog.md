@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.2.2**  
+Updates to catch up to API v1.10.6  
+
 **v1.2.1**  
 1.Added support to editing web config  
 2.Added better redirect for /images (to drivershub-cdn.charlws.com)  

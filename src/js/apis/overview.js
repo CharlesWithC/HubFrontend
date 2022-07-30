@@ -140,30 +140,32 @@ deliveryStatsChart = undefined;
 
 function loadStats(basic = false) {
     if (curtab != "#HomeTab" && curtab != "#Delivery") return;
+    starttime = parseInt(+ new Date() / 1000 - 86400);
+    endtime = parseInt(+ new Date() / 1000);
     loadChart();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/stats",
+        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + starttime + "&endtime=" + endtime,
         type: "GET",
         dataType: "json",
         success: function (data) {
             d = data.response;
-            drivers = TSeparator(d.drivers.all);
-            newdrivers = TSeparator(d.drivers.new);
-            jobs = TSeparator(d.jobs.all);
-            newjobs = TSeparator(d.jobs.new);
+            drivers = TSeparator(d.driver.tot);
+            newdrivers = TSeparator(d.driver.new);
+            jobs = TSeparator(d.job.all.sum.tot);
+            newjobs = TSeparator(d.job.all.sum.new);
             if (distance_unit == "metric") {
-                distance = sigfig(d.distance.all) + "km";
-                newdistance = sigfig(d.distance.new) + "km";
+                distance = sigfig(d.distance.all.sum.tot) + "km";
+                newdistance = sigfig(d.distance.all.sum.new) + "km";
             } else if (distance_unit == "imperial") {
-                distance = sigfig(parseInt(d.distance.all * distance_ratio)) + "mi";
-                newdistance = sigfig(parseInt(d.distance.new * distance_ratio)) + "mi";
+                distance = sigfig(parseInt(d.distance.all.sum.all * distance_ratio)) + "mi";
+                newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + "mi";
             }
-            europrofit = "€" + sigfig(d.profit.all.euro);
-            neweuroprofit = "€" + sigfig(d.profit.new.euro);
-            dollarprofit = "$" + sigfig(d.profit.all.dollar);
-            newdollarprofit = "$" + sigfig(d.profit.new.dollar);
-            fuel = sigfig(d.fuel.all) + "L";
-            newfuel = sigfig(d.fuel.new) + "L";
+            europrofit = "€" + sigfig(d.profit.all.tot.euro);
+            neweuroprofit = "€" + sigfig(d.profit.all.new.euro);
+            dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
+            newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
+            fuel = sigfig(d.fuel.all.sum.tot) + "L";
+            newfuel = sigfig(d.fuel.all.sum.new) + "L";
             $("#alldriver").html(drivers);
             $("#newdriver").html(newdrivers);
             $("#alldistance").html(distance);
@@ -201,7 +203,7 @@ function loadStats(basic = false) {
                     labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
                     datasets: [{
                         label: 'Game Preference',
-                        data: [d.jobs.ets2, d.jobs.ats],
+                        data: [d.job.all.ets2.tot, d.job.all.ats.tot],
                         backgroundColor: ["skyblue", "pink"],
                     }]
                 },

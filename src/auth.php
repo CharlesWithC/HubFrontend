@@ -80,9 +80,7 @@
                     },
                     success: function (data) {
                         if (data.error == false) {
-                            console.log(data);
                             newtoken = data.response.token;
-                            console.log(newtoken);
                             localStorage.setItem("token", newtoken);
                             window.location.href = "/auth";
                         } else {
@@ -232,7 +230,7 @@
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.2.1 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.2.2 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

@@ -881,3 +881,34 @@ function ReloadServer() {
         }
     })
 }
+
+function resetPassword(){
+    $("#resetPasswordBtn").html("Updating...");
+    $("#resetPasswordBtn").attr("disabled", "disabled");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/password",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "password": $("#passwordUpd").val()
+        },
+        success: function (data) {
+            $("#resetPasswordBtn").html("Update");
+            $("#resetPasswordBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            toastFactory("success", "Success", data.response, 5000, false);
+        },
+        error: function (data) {
+            $("#resetPasswordBtn").html("Update");
+            $("#resetPasswordBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to reload server. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
