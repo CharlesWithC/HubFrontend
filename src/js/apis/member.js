@@ -33,7 +33,7 @@ function loadMembers(recurse = true) {
     $("#searchMemberBtn").html("...");
     $("#searchMemberBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/members?page=" + page + "&query=" + $("#searchname").val(),
+        url: apidomain + "/" + vtcprefix + "/members?page=" + page + "&order_by=highest_role&order=desc&query=" + $("#searchname").val(),
         type: "GET",
         dataType: "json",
         headers: {
@@ -257,7 +257,7 @@ function fetchRoles() {
     $("#rolelist").children().children().prop("checked", false);
     $("#memberrolename").html("");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/members?page=1&query=" + val,
+        url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=highest_role&order=desc&query=" + val,
         type: "GET",
         dataType: "json",
         headers: {

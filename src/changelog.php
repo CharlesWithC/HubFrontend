@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.2.3</strong><br><strong>Delivery Tab</strong><br>1.Resumed Driver of the Day (Counting from 0:00 UTC instead of using relative -24h calculation)<br>2.Added Driver of the Week<br>3.Prevented <code>Export Delivery Table</code> from showing when user is not logged in as member<br><strong>Home Tab</strong><br>4.Allowed users who haven&#39;t logged in to see <code>Application</code> section, but redirect them to <code>/login</code> when clicked<br>5.Added link to <code>/login</code> for <code>ProfileTabBtn</code> when user is not logged in<br>6.Changed <code>New Drivers</code> to <code>New Members</code><br>7.<strong>Trace The History</strong> - Added option to set <code>starttime</code> and <code>endtime</code> for <code>/dlog/stats</code> query under <code>Overview</code> tab</p>
 <p><strong>v1.2.2</strong><br>Updates to catch up to API v1.10.6  </p>
 <p><strong>v1.2.1</strong><br>1.Added support to editing web config<br>2.Added better redirect for /images (to drivershub-cdn.charlws.com)<br>3.Added frosted-glass effect to login page  </p>
 <p><strong>v1.1.8</strong><br>Finished Administrator - Edit Server Config  </p>

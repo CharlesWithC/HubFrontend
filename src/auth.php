@@ -230,11 +230,11 @@
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.2.2 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.2.3 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;
-		<?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
+		<?php if($status != "") echo 'Status: <a href="https://'.$status.'/status/hub" target="_blank">'.$status.'</a>'; ?>
 	</div>
 </body>
 

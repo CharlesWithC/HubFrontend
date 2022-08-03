@@ -1,5 +1,16 @@
 # Changelog
 
+**v1.2.3**  
+**Delivery Tab**  
+1.Resumed Driver of the Day (Counting from 0:00 UTC instead of using relative -24h calculation)  
+2.Added Driver of the Week  
+3.Prevented `Export Delivery Table` from showing when user is not logged in as member  
+**Home Tab**  
+4.Allowed users who haven't logged in to see `Application` section, but redirect them to `/login` when clicked  
+5.Added link to `/login` for `ProfileTabBtn` when user is not logged in  
+6.Changed `New Drivers` to `New Members`  
+7.**Trace The History** - Added option to set `starttime` and `endtime` for `/dlog/stats` query under `Overview` tab
+
 **v1.2.2**  
 Updates to catch up to API v1.10.6  
 

@@ -138,13 +138,15 @@ async function loadChart(userid = -1) {
 
 deliveryStatsChart = undefined;
 
-function loadStats(basic = false) {
-    if (curtab != "#HomeTab" && curtab != "#Delivery") return;
-    starttime = parseInt(+ new Date() / 1000 - 86400);
-    endtime = parseInt(+ new Date() / 1000);
-    loadChart();
+function refreshStats(){
+    stats_starttime = parseInt(+ new Date() / 1000 - 86400);
+    stats_endtime = parseInt(+ new Date() / 1000);
+    if ($("#stats_start").val() != "" && $("#stats_end").val() != "") {
+        stats_starttime = +new Date($("#stats_start").val()) / 1000;
+        stats_endtime = +new Date($("#stats_end").val()) / 1000 + 86400;
+    }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + starttime + "&endtime=" + endtime,
+        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + stats_starttime + "&endtime=" + stats_endtime,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -178,20 +180,79 @@ function loadStats(basic = false) {
             $("#allfuel").html(fuel);
             $("#newfuel").html(newfuel);
 
-            // driver_of_the_day = d.driver_of_the_day;
-            // discordid = driver_of_the_day.discordid;
-            // avatar = driver_of_the_day.avatar;
-            // if (avatar != null) {
-            //     if (avatar.startsWith("a_"))
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-            //     else
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            // } else {
-            //     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
-            // }
-            // distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            // $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> <b>${driver_of_the_day.name}</b>`);
-            // $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
+            $("#dalljob").html(newjobs);
+            $("#dtotdistance").html(newdistance);
+
+            const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
+            const config = {
+                type: 'pie',
+                data: {
+                    labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
+                    datasets: [{
+                        label: 'Game Preference',
+                        data: [d.job.all.ets2.tot, d.job.all.ats.tot],
+                        backgroundColor: ["skyblue", "pink"],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Game Preference'
+                        }
+                    }
+                },
+            };
+            if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
+            deliveryStatsChart = new Chart(ctx, config);
+        }
+    });
+}
+
+function loadStats(basic = false) {
+    if (curtab != "#HomeTab" && curtab != "#Delivery") return;
+    loadChart();
+
+    stats_starttime = parseInt(+ new Date() / 1000 - 86400);
+    stats_endtime = parseInt(+ new Date() / 1000);
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + stats_starttime + "&endtime=" + stats_endtime,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            d = data.response;
+            drivers = TSeparator(d.driver.tot);
+            newdrivers = TSeparator(d.driver.new);
+            jobs = TSeparator(d.job.all.sum.tot);
+            newjobs = TSeparator(d.job.all.sum.new);
+            if (distance_unit == "metric") {
+                distance = sigfig(d.distance.all.sum.tot) + "km";
+                newdistance = sigfig(d.distance.all.sum.new) + "km";
+            } else if (distance_unit == "imperial") {
+                distance = sigfig(parseInt(d.distance.all.sum.all * distance_ratio)) + "mi";
+                newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + "mi";
+            }
+            europrofit = "€" + sigfig(d.profit.all.tot.euro);
+            neweuroprofit = "€" + sigfig(d.profit.all.new.euro);
+            dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
+            newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
+            fuel = sigfig(d.fuel.all.sum.tot) + "L";
+            newfuel = sigfig(d.fuel.all.sum.new) + "L";
+            $("#alldriver").html(drivers);
+            $("#newdriver").html(newdrivers);
+            $("#alldistance").html(distance);
+            $("#newdistance").html(newdistance);
+            $("#alljob").html(jobs);
+            $("#newjob").html(newjobs);
+            $("#allprofit").html(europrofit + " + " + dollarprofit);
+            $("#newprofit").html(neweuroprofit + " + " + newdollarprofit);
+            $("#dprofit").html(neweuroprofit + " + " + newdollarprofit);
+            $("#allfuel").html(fuel);
+            $("#newfuel").html(newfuel);
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
@@ -224,6 +285,39 @@ function loadStats(basic = false) {
             deliveryStatsChart = new Chart(ctx, config);
         }
     });
+
+    // get weekly data
+    starttime = parseInt(+ new Date() / 1000 - 86400 * 7);
+    endtime = parseInt(+ new Date() / 1000);
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + starttime + "&endtime=" + endtime,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            d = data.response;
+            drivers = TSeparator(d.driver.tot);
+            newdrivers = TSeparator(d.driver.new);
+            jobs = TSeparator(d.job.all.sum.tot);
+            newjobs = TSeparator(d.job.all.sum.new);
+            if (distance_unit == "metric") {
+                distance = sigfig(d.distance.all.sum.tot) + "km";
+                newdistance = sigfig(d.distance.all.sum.new) + "km";
+            } else if (distance_unit == "imperial") {
+                distance = sigfig(parseInt(d.distance.all.sum.all * distance_ratio)) + "mi";
+                newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + "mi";
+            }
+            europrofit = "€" + sigfig(d.profit.all.tot.euro);
+            neweuroprofit = "€" + sigfig(d.profit.all.new.euro);
+            dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
+            newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
+            fuel = sigfig(d.fuel.all.sum.tot) + "L";
+            newfuel = sigfig(d.fuel.all.sum.new) + "L";
+            $("#wprofit").html(neweuroprofit + " + " + newdollarprofit);
+            $("#walljob").html(newjobs);
+            $("#wtotdistance").html(newdistance);
+        }
+    });
+
     if (token.length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
         $.ajax({
@@ -261,7 +355,7 @@ function loadStats(basic = false) {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/newdrivers",
+            url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=join_timestamp&order=desc",
             type: "GET",
             dataType: "json",
             headers: {
@@ -277,7 +371,7 @@ function loadStats(basic = false) {
                     name = user.name;
                     discordid = user.discordid;
                     avatar = user.avatar;
-                    dt = new Date(user.joints * 1000);
+                    dt = new Date(user.join_timestamp * 1000);
                     joindt = pad(dt.getDate(), 2) + "/" + pad(dt.getMonth() + 1, 2);
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))

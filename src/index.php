@@ -322,7 +322,7 @@
                     </ul>
                 </div>
 
-                <div class="px-4 pb-6" id="memberOnlyTabs" style="display:none">
+                <div class="px-4 pb-6 memberOnlyTabs" style="display:none">
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->drivers; ?>
                     </h3>
                     <ul class="text-sm font-medium">
@@ -404,7 +404,7 @@
                 <?php
                             if(in_array("application", $enabled_plugins)){
                             echo '
-                <div class="px-4 pb-6" id="recruitment" style="display:none">
+                <div class="px-4 pb-6" id="recruitment">
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">'.$st->applications.'</h3>
                     <ul class="text-sm font-medium">
                         <li>
@@ -659,7 +659,7 @@
                                             fill="currentColor"></path>
                                     </svg></span>
                             </a>
-                            <button class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
+                            <button id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
                                 <div class="mr-3">
                                     <p id="name" class="text-sm" style="text-align:right"></p>
                                     <p id="role" class="text-sm text-gray-500" style="text-align:right"></p>
@@ -839,20 +839,22 @@
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3>Password Login</h3>
-                        <label class="block text-sm font-medium mb-2"
-                            for="">- The email will be the one connected to your Discord account.</label>
-                        <label class="block text-sm font-medium mb-2"
-                            for="">- If you changed your Discord email, you have to login with Discord account to update it. Otherwise you can only login with old email.</label>
-                        <label class="block text-sm font-medium mb-2"
-                            for="">- Use an empty password to disable password login.</label>
-                        <label class="block text-sm font-medium mb-2"
-                            for="">- <b>You can only update the password when you are logged in with Discord.</b></label>
+                        <label class="block text-sm font-medium mb-2" for="">- The email will be the one connected to
+                            your Discord account.</label>
+                        <label class="block text-sm font-medium mb-2" for="">- If you changed your Discord email, you
+                            have to login with Discord account to update it. Otherwise you can only login with old
+                            email.</label>
+                        <label class="block text-sm font-medium mb-2" for="">- Use an empty password to disable password
+                            login.</label>
+                        <label class="block text-sm font-medium mb-2" for="">- <b>You can only update the password when
+                                you are logged in with Discord.</b></label>
                         <label class="block text-sm font-medium mb-2" for="">New Password:</label>
                         <input id="passwordUpd" type="password"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
-                        <label class="block text-sm font-medium mb-2"
-                            for="">- The password should contain at least one number, one lower-cased letter, one upper-cased letter and one special character, with a minimum length of 8.</label>
+                        <label class="block text-sm font-medium mb-2" for="">- The password should contain at least one
+                            number, one lower-cased letter, one upper-cased letter and one special character, with a
+                            minimum length of 8.</label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="resetPassword()" id="resetPasswordBtn">Update</button>
@@ -891,8 +893,59 @@
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
                 <div class="md:w-2/3 px-4 mb-4 md:mb-0" id="hometableftcontainer">
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" id="HomeTabLeft">
+                        <div class="px-6" style="width:100%">
+                            <div class="p-6 border-l-4 border-2 border-indigo-500 rounded-r-lg bg-gray-50">
+                                <div class="flex">
+                                    <div class="w-auto">
+                                        <span class="w-auto inline-block mr-2">
+                                            <svg width="20" height="20" viewbox="0 0 20 20" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path
+                                                    d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM11 14C11 14.6 10.6 15 10 15C9.4 15 9 14.6 9 14V10C9 9.4 9.4 9 10 9C10.6 9 11 9.4 11 10V14ZM10 7C9.4 7 9 6.6 9 6C9 5.4 9.4 5 10 5C10.6 5 11 5.4 11 6C11 6.6 10.6 7 10 7Z"
+                                                    fill="#382CDD"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="flex">
+                                            <h3 class="text-indigo-800 font-medium">Looking for staff!</h3>
+                                        </div>
+                                        <div class="pr-6">
+                                            <p class="text-sm text-indigo-700">
+                                                <span style='font-size:10px;color:grey'>Global announcement by
+                                                    CharlesWithC.</span><br>
+                                                <span style='font-size:10px;color:grey'>This is not a in-VTC
+                                                    announcement and this doesn't refer to looking for VTC
+                                                    staff.</span><br>
+                                                In order to make the <a href="https://drivershub.charlws.com"
+                                                    target="_blank">Drivers Hub Project</a> grow faster and bigger,
+                                                we're opening <b>staff positions</b>.<br>
+                                                <b>Community Helper</b> and <b>Marketing Team (PAID)</b> are available<br>
+                                                <a style="font-size:16px;"
+                                                    href="https://go.charlws.com/hubstaff" target="_blank">Click to Apply</a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
+                    <br>
+                    <div style="width:100%;">
+                        <div style="margin-left:20px;margin-bottom:-10px">
+                        <input id="stats_start"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            type="date" name="" style="width:150px;display:inline" placeholder="">
+                        <p style="display:inline">~</p>
+                        <input id="stats_end"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            type="date" name="" style="width:150px;display:inline" placeholder="">
+                        <button type="button" style="display:inline"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="refreshStats()" id="refreshStatsBtn">Go</button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" style="width:100%;">
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
                             <div class="p-6 rounded bg-white">
                                 <div class="flex mb-2"><span class="inline-block mr-2">
@@ -1109,7 +1162,7 @@
                     </div>
 
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded  mb-6">
-                        <h2><b><?php echo $st->new_drivers; ?></b></h2>
+                        <h2><b><?php echo $st->new_members; ?></b></h2>
                         <div class="p-4 overflow-x-auto" style="display: block;">
                             <table class="table-auto w-full" style="margin-top:20px">
                                 <thead id="newdriverTableHead">
@@ -1590,6 +1643,7 @@
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
+                        <div style="width:100%"><h3 class="text-xl font-bold">Today's statistics</h3></div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
                                 <div class="flex mb-2"><span class="inline-block mr-2">
@@ -1673,6 +1727,96 @@
                 </div>
             </div>
         </div>
+        <div class="px-4 mx-auto mx-auto lg:ml-80">
+            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
+                <div class="px-4 mb-4 md:mb-0" style="width:100%">
+                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
+                    <div style="width:100%"><h3 class="text-xl font-bold" >This week's statistics</h3></div>
+                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
+                            <div class="p-6 rounded bg-white">
+                                <div class="flex mb-2"><span class="inline-block mr-2">
+                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 576 512" width="18" height="18">
+                                            <path fill="#382CDD"
+                                                d="M576 136c0 22.09-17.91 40-40 40c-.248 0-.4551-.1266-.7031-.1305l-50.52 277.9C482 468.9 468.8 480 453.3 480H122.7c-15.46 0-28.72-11.06-31.48-26.27L40.71 175.9C40.46 175.9 40.25 176 39.1 176c-22.09 0-40-17.91-40-40S17.91 96 39.1 96s40 17.91 40 40c0 8.998-3.521 16.89-8.537 23.57l89.63 71.7c15.91 12.73 39.5 7.544 48.61-10.68l57.6-115.2C255.1 98.34 247.1 86.34 247.1 72C247.1 49.91 265.9 32 288 32s39.1 17.91 39.1 40c0 14.34-7.963 26.34-19.3 33.4l57.6 115.2c9.111 18.22 32.71 23.4 48.61 10.68l89.63-71.7C499.5 152.9 496 144.1 496 136C496 113.9 513.9 96 536 96S576 113.9 576 136z" />
+                                        </svg> </span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_week; ?></h3>
+                                </div>
+                                <h2 class="mb-2 text-3xl font-bold" id="dotw" style="font-size:22px">-</h2>
+                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
+                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path
+                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
+                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
+                                            <path d="M13 9l2 2l-2 2" />
+                                        </svg>
+                                    </span><span><span id="dotwdistance"></span></span></span>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
+                            <div class="p-6 rounded bg-white">
+                                <div class="flex mb-2"><span class="inline-block mr-2">
+                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
+                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
+                                            <path
+                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
+                                                fill="#382CDD"></path>
+                                        </svg></span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span>
+                                </div>
+                                <h2 class="mb-2 text-3xl font-bold" id="walljob" style="font-size:22px">-</h2>
+                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
+                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path
+                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
+                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
+                                            <path d="M13 9l2 2l-2 2" />
+                                        </svg>
+                                    </span><span><span id="wtotdistance">-</span></span></span>
+                            </div>
+                        </div>
+                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
+                            <div class="p-6 rounded bg-white">
+                                <div class="flex mb-2"><span class="inline-block mr-2">
+                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
+                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
+                                            <path
+                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
+                                                fill="#382CDD"></path>
+                                        </svg></span>
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
+                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span>
+                                </div>
+                                <h2 class="mb-2 text-3xl font-bold" id="wprofit" style="font-size:22px">-</h2>
+                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
+                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
+                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
+                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                            stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path
+                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
+                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
+                                            <path d="M13 9l2 2l-2 2" />
+                                        </svg>
+                                    </span><span><?php echo $vtcname ?></span></span>
+                            </div>
+                        </div>
+                        <br>
+                        <p style="font-size:12px;width:100%;text-align:right"><i>* Time in UTC / Week start from Monday</i></p>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1748,7 +1892,7 @@
             </div>
         </div>
         <br>
-        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded memberOnlyTabs" style="display:none">
             <div class="flex px-6 pb-4 border-b">
                 <h3 class="text-xl font-bold"><?php echo $st->export_delivery_log; ?></h3>
             </div>
@@ -2880,8 +3024,10 @@
                             </select>
                             <div
                                 class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                    viewbox="0 0 20 20">
+                                    <path
+                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
                                     </path>
                                 </svg>
                             </div>
@@ -2927,7 +3073,8 @@
                         </div>
 
                         <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Team Update Banner Download Link (File size
+                            <label class="block text-sm font-medium mb-2" for="">Team Update Banner Download Link (File
+                                size
                                 must
                                 <= 1 MB)</label> <input id="webconfig_teamupdate_url"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
@@ -3324,11 +3471,11 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.2.2 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.2.3 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;
-                <?php if($status != "") echo 'Status: <a href="https://'.$status.'" target="_blank">'.$status.'</a>'; ?>
+                <?php if($status != "") echo 'Status: <a href="https://'.$status.'/status/hub" target="_blank">'.$status.'</a>'; ?>
             </div>
         </div>
     </section>

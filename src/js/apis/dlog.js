@@ -1,6 +1,80 @@
 levent = 1;
 ldivision = 1;
 
+function getMonday(d) {
+    d = new Date(d);
+    var day = d.getDay(),
+        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+    return new Date(d.setDate(diff));
+}
+
+function loadDlog() {
+    var start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start = +start + start.getTimezoneOffset() * 60000;
+    start /= 1000;
+    var end = +new Date() / 1000;
+    start = parseInt(start);
+    end = parseInt(end);
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?starttime=" + start + "&endtime=" + end + "&page=1&pagelimit=1",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            users = data.response.list;
+            driver_of_the_day = users[0];
+            discordid = driver_of_the_day.discordid;
+            avatar = driver_of_the_day.avatar;
+            if (avatar != null) {
+                if (avatar.startsWith("a_"))
+                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+                else
+                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+            } else {
+                avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
+            }
+            distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
+            $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b>`);
+            $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
+        }
+    });
+    var start = getMonday(new Date()); 
+    start.setHours(0, 0, 0, 0);
+    start = +start + start.getTimezoneOffset() * 60000;
+    start /= 1000;
+    var end = +new Date() / 1000;
+    start = parseInt(start);
+    end = parseInt(end);
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?starttime=" + start + "&endtime=" + end + "&page=1&pagelimit=1",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            users = data.response.list;
+            driver_of_the_day = users[0];
+            discordid = driver_of_the_day.discordid;
+            avatar = driver_of_the_day.avatar;
+            if (avatar != null) {
+                if (avatar.startsWith("a_"))
+                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+                else
+                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+            } else {
+                avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
+            }
+            distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
+            $("#dotw").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b>`);
+            $("#dotwdistance").html(`Driven ${distance}${distance_unit_txt}`);
+        }
+    });
+}
+
 function loadLeaderboard(recurse = true) {
     page = parseInt($("#lpages").val())
     if (page == "") page = 1;
@@ -118,12 +192,12 @@ function loadLeaderboard(recurse = true) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
                 }
                 console.log(user.totnolimit);
                 $("#leaderboardTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
+                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> ${name}</a></td>
                 <td class="py-5 px-6">${point2rank(user.totnolimit)}</td>
                 <td class="py-5 px-6">${distance}</td>
                 <td class="py-5 px-6">${user.eventpnt}</td>

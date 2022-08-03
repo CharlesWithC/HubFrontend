@@ -237,6 +237,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#Delivery") {
         window.history.pushState("", "", '/delivery');
+        loadDlog();
         loadStats(true);
         loadDelivery();
     }
@@ -378,14 +379,13 @@ function validate() {
         token = "guest";
     }
     if (token == "guest") {
-        $("#recruitment").hide();
+        $("#recruitment a").attr("href", "/login");
+        $("#ProfileTabBtn").attr("onclick", "window.location.href='/login'");
         $("#logout").hide();
-        $("#header").prepend(`<a style='color:grey' href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span>`);
-    } else {
-        $("#recruitment").show();
+        $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Drivers Hub by <a href="https://drivershub.charlws.com" target="_blank">CharlesWithC</a> | Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a></span>`);
     }
     if (userid != -1 && isNumber(userid)) {
-        $("#memberOnlyTabs").show();
+        $(".memberOnlyTabs").show();
     } else {
         $("#DivisionBtn").hide();
         $("#DownloadsTabBtn").hide();
@@ -400,7 +400,7 @@ function validate() {
         success: function (data) {
             if (data.error) {
                 localStorage.setItem("token", "guest");
-                $("#header").prepend(`<a style='color:grey' href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span>`);
+                $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Drivers Hub by <a href="https://drivershub.charlws.com" target="_blank">CharlesWithC</a> | Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a></span>`);
             }
             if (data.response.note == "steamauth") {
                 $("#header").prepend(
@@ -416,7 +416,7 @@ function validate() {
                 <path fill-rule="evenodd"
                   d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                   fill="${color}"></path>
-              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange">&nbsp;&nbsp;&nbsp;Contact or Report Bug: Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a> | Get <a href="https://drivershub.charlws.com" target="_blank">Custom Drivers Hub</a></span></p>`);
+              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange">&nbsp;&nbsp;&nbsp;Drivers Hub by <a href="https://drivershub.charlws.com" target="_blank">CharlesWithC</a> | Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a></span></p>`);
             }
         }
     });
@@ -695,7 +695,7 @@ $(document).ready(function () {
             val = $("#attendeeId").val();
             if (val == "") return;
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/members?page=1&query=" + val,
+                url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=highest_role&order=desc&query=" + val,
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -846,7 +846,7 @@ $(document).ready(function () {
                     parseMarkdown(a.content.replaceAll("\n", "<br>"));
                 TYPES = ["info", "info", "warning", "criticle", "resolved"];
                 banner = genBanner(TYPES[a.atype], a.title, content);
-                $("#HomeTabLeft").append(banner.replaceAll("py-8 ", "pb-8 "));
+                // $("#HomeTabLeft").append(banner.replaceAll("py-8 ", "pb-8 "));
             }
             for (i = 0; i < ann.length; i++) {
                 a = ann[i];
@@ -948,7 +948,7 @@ $(document).ready(function () {
         datalist = "#" + eid + "_datalist";
         content = $("#" + eid).val();
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/members?page=1&query=" + content,
+            url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=highest_role&order=desc&query=" + content,
             type: "GET",
             dataType: "json",
             headers: {
