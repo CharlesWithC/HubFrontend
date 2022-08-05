@@ -795,7 +795,8 @@ function UpdateWebConfig() {
             logo_url: $("#webconfig_logo_url").val(),
             banner_url: $("#webconfig_banner_url").val(),
             bg_url: $("#webconfig_bg_url").val(),
-            teamupdate_url: $("#webconfig_teamupdate_url").val()
+            teamupdate_url: $("#webconfig_teamupdate_url").val(),
+            custom_application: $("#webconfig_custom_application").val()
         },
         success: function (data) {
             $("#updateWebConfigBtn").html("Update");

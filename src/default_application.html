@@ -1,0 +1,191 @@
+<h1 class="mb-2 text-2xl font-bold font-heading text-left">1. Choose Application</h1>
+
+<div class="mb-6">
+    <div class="container px-4 mx-auto">
+        <label class="block text-sm font-medium mb-2 text-left" for="">Are you applying for driver or staff?
+            Or just requesting a LOA?<br>Please select an application:</label>
+        <div class="relative" style="width:200px">
+            <select id="appselect"
+                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name">
+                <option value="1" id="driverappsel">Driver</option>
+                <option value="2">Staff</option>
+                <option value="3">LOA</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h1 class="mb-2 text-2xl font-bold font-heading text-left">2. Fill Application</h1>
+
+<div class="container px-4 mx-auto apptabs" id="Application1">
+    <div class="mb-6" style="width:350px">
+        <label id="application1Question1" class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
+        <input id="application1Answer1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            type="date" name="" placeholder="MM/DD/YYYY">
+    </div>
+
+    <div class="mb-6">
+        <label id="application1Question2" class="block text-sm font-medium mb-2" for="">How did you find us?</label>
+        <textarea id="application1Answer2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded application1Input2"
+            name="field-name" rows="5" placeholder="Enter a short answer"></textarea>
+    </div>
+
+
+    <div class="mb-6">
+        <div class="mb-1">
+            <label id="application1Question3" class="block text-sm font-medium mb-2" for="" style="text-align: left;">Are you
+                currenty in
+                another VTC?</label>
+            <label>
+                <input type="radio" name="application1Answer3" value="Yes" id="in-another-vtc">
+                <span class="ml-2">Yes</span>
+            </label><br>
+            <label>
+                <input type="radio" name="application1Answer3" value="No" checked>
+                <span class="ml-2">No</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <label id="application1Question4" class="block text-sm font-medium mb-2" for="">What are your interests?</label>
+        <textarea id="application1Answer4" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5" placeholder="Tell us a little bit about yourself."></textarea>
+    </div>
+
+    <div class="mb-6">
+        <label id="application1Question5" class="block text-sm font-medium mb-2" for="">Why do you want to be a part our
+            VTC?</label>
+        <textarea id="application1Answer5" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5"
+            placeholder="Why would you like to join us? This doesn\'t need to be complicated."></textarea>
+    </div>
+
+    <div class="mb-6">
+        <label>
+            <input type="checkbox" name="application1Answer6" value="Yes">
+            <span class="ml-2" id="application1Question6">By joining <?php echo $vtcname ?> you agree to follow both discord
+                and VTC rules at
+                all
+                times? Do you agree to our terms?</span>
+        </label>
+    </div>
+</div>
+
+<div class="container px-4 mx-auto apptabs" id="Application2" style="display:none">
+    <div class="mb-6" style="width:350px">
+        <label id="application2Question1" class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
+        <input id="application2Answer1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            type="date" name="" placeholder="MM/DD/YYYY">
+    </div>
+
+    <div class="mb-6">
+        <label id="application2Question2" class="block text-sm font-medium mb-2" for="">What country do you live in? Also
+            include your Time
+            Zone </label>
+        <textarea id="application2Answer2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5" placeholder="US, Canada, UK, etc"></textarea>
+    </div>
+
+
+    <div class="mb-6">
+        <label id="application2Question3" class="block text-sm font-medium mb-2" for="" style="text-align: left;">Which
+            position are you
+            applying for?</label>
+        <div class="relative" style="width:500px">
+            <select id="application2Answer3"
+                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name">
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-6">
+        <label id="application2Question4" class="block text-sm font-medium mb-2" for="">Please provide a summary about
+            yourself. </label>
+        <textarea id="application2Answer4" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5"
+            placeholder="You may include hobbies, work positions, or any unique facts about yourself!"></textarea>
+    </div>
+
+    <div class="mb-6">
+        <label id="application2Question5" class="block text-sm font-medium mb-2" for="">Why are you interested in joining the
+            position you
+            are applying for? What do you want to achieve?</label>
+        <textarea id="application2Answer5" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5"
+            placeholder="Explain why does that position interest you and what do you want to achieve."></textarea>
+    </div>
+
+    <div class="mb-6">
+        <label id="application2Question6" class="block text-sm font-medium mb-2" for="">Do you have a lot of time to dedicate
+            to this
+            position?</label>
+        <textarea id="application2Answer6" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5" placeholder="Explain your time availability."></textarea>
+    </div>
+
+    <div class="mb-6">
+        <label>
+            <input id="application2Answer7" type="checkbox" name="application2Answer7" value="Yes">
+            <span id="application2Question7" class="ml-2">By joining <?php echo $vtcname ?>, you agree to our rules and terms
+                of service. As a
+                Internal or External Staff, you also agree to work without financial compensation.
+                Do you agree to
+                these terms?</span>
+        </label>
+    </div>
+</div>
+
+<div class="container px-4 mx-auto apptabs" id="Application3" style="display:none">
+    <div class="mb-6" style="width:350px">
+        <label id="application3Question1" class="block text-sm font-medium mb-2" for="">Start Date</label>
+        <input id="application3Answer1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            type="date" name="" placeholder="MM/DD/YYYY">
+    </div>
+
+    <div class="mb-6" style="width:350px">
+        <label id="application3Question2" class="block text-sm font-medium mb-2" for="">End Date</label>
+        <input id="application3Answer2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            type="date" name="" placeholder="MM/DD/YYYY">
+    </div>
+
+    <div class="mb-6">
+        <label id="application3Question3" class="block text-sm font-medium mb-2" for="">Reason for LOA </label>
+        <textarea id="application3Answer3" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            name="field-name" rows="5" placeholder="Your answer"></textarea>
+    </div>
+
+    <div class="mb-6">
+        <label id="application3Question4" class="block text-sm font-medium mb-2" for="" style="text-align: left;">Will you
+            leave your
+            position or leave <?php echo $vtcname ?>?</label>
+        <div class="relative" style="width:500px">
+            <select id="application3Answer4"
+                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                name="field-name">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
+                    </path>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>

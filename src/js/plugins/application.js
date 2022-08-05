@@ -1,149 +1,138 @@
 function SubmitApp() {
-    apptype = $("#appselect").find(":selected").attr("value");
+    apptype = parseInt($("#appselect").find(":selected").attr("value"));
     data = "";
-    if (apptype == "driver") {
-        apptype = 1;
-
-        q1 = $("#da-q1").val();
-        q2 = $("#da-q2").val();
-        q3 = $("#da-q3").val();
-        q4 = $("#da-q4").val();
-
-
-        // Check if any of the fields are empty
-        if (q1 == "" || q2 == "" || q3 == "" || q4 == "") {
-            toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
-            return;
-        }
-
-
-        // Checks for is in vtc and terms
-        if ($("#in-another-vtc").prop("checked")) {
-            toastFactory("warning", "Error", "You can only be in one VTC at a time!", 5000, false);
-            return;
-        }
-
-        if (!$("#da-agree").prop("checked")) {
-            toastFactory("warning", "Error", "You must agree to the terms and conditions!", 5000, false);
-            return;
-        }
-
-        // Check if q1 is a vaild date
-        const birthDate = new Date(q1);
-
-        if (isNaN(birthDate.getTime())) {
-            toastFactory("warning", "Error", "You must enter a valid date!", 5000, false);
-            return;
-        }
-
-        // Check that q1 follows the MM/DD/YYYY format
-        if (q1.length != 10) {
-            toastFactory("warning", "Error", "You must enter a date in the MM/DD/YYYY format!", 5000, false);
-            return;
-        }
-
-        // Check if they are at least 13 years old
-        const today = new Date();
-
-        if (today.getFullYear() - birthDate.getFullYear() < 13) {
-            toastFactory("warning", "Error", "You must be at least 13 years old to apply!", 5000, false);
-            return;
-        }
-
-        data = {
-            "Birthday": q1,
-            "How did you find us?": q2,
-            "What are your interests?": q3,
-            "Why do you want to be a part our VTC?": q4
-        };
-    } else if (apptype == "staff") {
-        apptype = 2;
-
-        q1 = $("#sa-q1").val();
-        q2 = $("#sa-q2").val();
-        q3 = $("#sa-q3").val();
-        q4 = $("#sa-q4").val();
-        q5 = $("#sa-q5").val();
-        pos = $("#sa-select").find(":selected").attr("value");
-
-        // Check if any of the fields are empty
-        if (q1 == "" || q2 == "" || q3 == "" || q4 == "" || q5 == "") {
-            toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
-            return;
-        }
-
-        if (!$("#sa-agree").prop("checked")) {
-            toastFactory("warning", "Error", "You must agree to the terms and conditions!", 5000, false);
-            return;
-        }
-
-        if (pos == "") {
-            toastFactory("warning", "Error", "Please select a position! (If you've already selected, try clicking it again)", 5000, false);
-            return;
-        }
-
-        data = {
-            "Applying For": pos,
-            "Birthday": q1,
-            "Country & Time Zone": q2,
-            "Summary": q3,
-            "Why are you interested in joining the position you are applying for? What do you want to achieve?": q4,
-            "Do you have a lot of time to dedicate to this position? ": q5
-        }
-    } else if (apptype == "loa") {
-        apptype = 3;
-        q1 = $("#la-q1").val();
-        q2 = $("#la-q2").val();
-        q3 = $("#la-q3").val();
-        q4 = $("#la-leave").find(":selected").attr("value");
-
-        // Check if any of the fields are empty
-        if (q1 == "" || q2 == "" || q3 == "") {
-            toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
-            return;
-        }
-
-        data = {
-            "Start Date": q1,
-            "End Date": q2,
-            "Reason": q3,
-            "Will they leave position or leave VTC?": q4
-        }
-    } else if (apptype == "division") {
-        apptype = 4;
-        q1 = $("#dca-q1").val();
-        q2 = $("#dca-q2").val();
-        q3 = $("#dca-q3").val();
-        q4 = $("#dca-q4").val();
-        q5 = $("#dca-q5").val();
-
-        // Check if any of the fields are empty
-        if (q1 == "" || q2 == "" || q3 == "" || q4 == "" || q5 == "") {
-            toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
-            return;
-        }
-
-        if (!$("#construction-read").prop("checked")) {
-            toastFactory("warning", "Error", "You must first read the handbook!", 5000, false);
-            return;
-        }
-
-        if (!$("#construction-agree").prop("checked")) {
-            toastFactory("warning", "Error", "You can't join the division if you can't meet the monthly requirement!", 5000, false);
-            return;
-        }
-
-        data = {
-            "Why do you want to join the construction division?": q1,
-            "Have you read over the full division handbook?": "Yes",
-            "What is the biggest difference between hauling construction division loads compared to normal loads?": q2,
-            "What is a flatbed trailer designed to haul?": q3,
-            "After the first 50 miles, how often should you stop and check your load?": q4,
-            "What is the only time when it is appropriate to stop on the shoulder of the road?": q5,
-            "In the construction division, you are required to complete 5 deliveries of 95+ miles with construction loads per month. Do you agree to meet the monthly requirement?": "Yes"
+    if(is_default_application){
+        if (apptype == 1) {
+            q1 = $("#application1Answer1").val();
+            q2 = $("#application1Answer2").val();
+            q3 = $("#application1Answer4").val();
+            q4 = $("#application1Answer5").val();
+    
+    
+            // Check if any of the fields are empty
+            if (q1 == "" || q2 == "" || q3 == "" || q4 == "") {
+                toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
+                return;
+            }
+    
+    
+            // Checks for is in vtc and terms
+            if ($("input[name='application1Answer3']:checked").val() != "No") {
+                toastFactory("warning", "Error", "You can only be in one VTC at a time!", 5000, false);
+                return;
+            }
+    
+            if ($("input[name='application1Answer6']:checked").val() != "Yes") {
+                toastFactory("warning", "Error", "You must agree to the terms and conditions!", 5000, false);
+                return;
+            }
+    
+            // Check if q1 is a vaild date
+            const birthDate = new Date(q1);
+    
+            if (isNaN(birthDate.getTime())) {
+                toastFactory("warning", "Error", "You must enter a valid date!", 5000, false);
+                return;
+            }
+    
+            // Check that q1 follows the MM/DD/YYYY format
+            if (q1.length != 10) {
+                toastFactory("warning", "Error", "You must enter a date in the MM/DD/YYYY format!", 5000, false);
+                return;
+            }
+    
+            // Check if they are at least 13 years old
+            const today = new Date();
+    
+            if (today.getFullYear() - birthDate.getFullYear() < 13) {
+                toastFactory("warning", "Error", "You must be at least 13 years old to apply!", 5000, false);
+                return;
+            }
+    
+            data = {
+                "Birthday": q1,
+                "How did you find us?": q2,
+                "What are your interests?": q3,
+                "Why do you want to be a part our VTC?": q4
+            };
+        } else if (apptype == 2) {
+            q1 = $("#application2Answer1").val();
+            q2 = $("#application2Answer2").val();
+            q3 = $("#application2Answer4").val();
+            q4 = $("#application2Answer5").val();
+            q5 = $("#application2Answer6").val();
+            pos = $("#application2Answer3").find(":selected").attr("value");
+    
+            // Check if any of the fields are empty
+            if (q1 == "" || q2 == "" || q3 == "" || q4 == "" || q5 == "") {
+                toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
+                return;
+            }
+    
+            if ($("input[name='application2Question7']:checked").val() != "Yes") {
+                toastFactory("warning", "Error", "You must agree to the terms and conditions!", 5000, false);
+                return;
+            }
+    
+            if (pos == "") {
+                toastFactory("warning", "Error", "Please select a position! (If you've already selected, try clicking it again)", 5000, false);
+                return;
+            }
+    
+            data = {
+                "Applying For": pos,
+                "Birthday": q1,
+                "Country & Time Zone": q2,
+                "Summary": q3,
+                "Why are you interested in joining the position you are applying for? What do you want to achieve?": q4,
+                "Do you have a lot of time to dedicate to this position? ": q5
+            }
+        } else if (apptype == 3) {
+            q1 = $("#application3Answer1").val();
+            q2 = $("#application3Answer2").val();
+            q3 = $("#application3Answer3").val();
+            q4 = $("#application3Answer4").find(":selected").attr("value");
+    
+            // Check if any of the fields are empty
+            if (q1 == "" || q2 == "" || q3 == "") {
+                toastFactory("warning", "Error", "You must fill in all the fields!", 5000, false);
+                return;
+            }
+    
+            data = {
+                "Start Date": q1,
+                "End Date": q2,
+                "Reason": q3,
+                "Will they leave position or leave VTC?": q4
+            }
+        }  else {
+            apptype = 0;
         }
     } else {
-        apptype = 0;
+        data = {};
+        for(var i = 1 ; i <= 100 ; i++){
+            if($("#application" + apptype + "Question" + i).length != 0){
+                question = $("#application" + apptype + "Question" + i).html().replaceAll("\n","");
+                answerid = "application" + apptype + "Answer" + i;
+                if($("#" + answerid).length != 0){ // can find by id => text input / textarea / select
+                    if(!$("#" + answerid).is(':visible')) continue;
+                    data[question] = $("#" + answerid).val();
+                } else if($("input[name='"+answerid+"']").length != 0){ // can find by name => radio / checkbox
+                    if(!$("input[name='"+answerid+"']").is(':visible')) continue;
+                    answer = [];
+                    answert = $("input[name='"+answerid+"']:checked");
+                    for(var j = 0 ; j < answert.length ; j++){
+                        answer.push(answert[j].value);
+                    }
+                    answer = answer.join(", ");
+                    data[question] = answer;
+                } else {
+                    data[question] = "*Invalid application question: Answer element not found!*";
+                }
+            } else {
+                continue;
+            }
+        }
     }
     data = JSON.stringify(data);
 

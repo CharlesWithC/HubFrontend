@@ -21,6 +21,20 @@
         header('Location: http://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
         exit;
     }
+
+    $application_html = "";
+    if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/application.html')){
+        $application_html = file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/application.html');
+        if($application_html == ""){
+            $application_html = file_get_contents('default_application.html');
+            echo '<script>is_default_application = true;</script>';
+        } else {
+            echo '<script>is_default_application = false;</script>';
+        }
+    } else {
+        $application_html = file_get_contents('default_application.html');
+        echo '<script>is_default_application = true;</script>';
+    }
     ?>
 
     <title><?php echo $vtcname ?></title>
@@ -659,7 +673,7 @@
                                             fill="currentColor"></path>
                                     </svg></span>
                             </a>
-                            <button id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
+                            <a id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
                                 <div class="mr-3">
                                     <p id="name" class="text-sm" style="text-align:right"></p>
                                     <p id="role" class="text-sm text-gray-500" style="text-align:right"></p>
@@ -668,7 +682,7 @@
                                         class="w-10 h-10 rounded-full object-cover object-right" width="40"
                                         src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif"
                                         alt="" /></div>
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -920,9 +934,10 @@
                                                 In order to make the <a href="https://drivershub.charlws.com"
                                                     target="_blank">Drivers Hub Project</a> grow faster and bigger,
                                                 we're opening <b>staff positions</b>.<br>
-                                                <b>Community Helper</b> and <b>Marketing Team (PAID)</b> are available<br>
-                                                <a style="font-size:16px;"
-                                                    href="https://go.charlws.com/hubstaff" target="_blank">Click to Apply</a>
+                                                <b>Community Helper</b> and <b>Marketing Team (PAID)</b> are
+                                                available<br>
+                                                <a style="font-size:16px;" href="https://go.charlws.com/hubstaff"
+                                                    target="_blank">Click to Apply</a>
                                             </p>
                                         </div>
                                     </div>
@@ -933,16 +948,16 @@
                     <br>
                     <div style="width:100%;">
                         <div style="margin-left:20px;margin-bottom:-10px">
-                        <input id="stats_start"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:150px;display:inline" placeholder="">
-                        <p style="display:inline">~</p>
-                        <input id="stats_end"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:150px;display:inline" placeholder="">
-                        <button type="button" style="display:inline"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="refreshStats()" id="refreshStatsBtn">Go</button>
+                            <input id="stats_start"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                type="date" name="" style="width:150px;display:inline" placeholder="">
+                            <p style="display:inline">~</p>
+                            <input id="stats_end"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                type="date" name="" style="width:150px;display:inline" placeholder="">
+                            <button type="button" style="display:inline"
+                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                onclick="refreshStats()" id="refreshStatsBtn">Go</button>
                         </div>
                     </div>
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" style="width:100%;">
@@ -1643,7 +1658,9 @@
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                        <div style="width:100%"><h3 class="text-xl font-bold">Today's statistics</h3></div>
+                        <div style="width:100%">
+                            <h3 class="text-xl font-bold">Today's statistics</h3>
+                        </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
                                 <div class="flex mb-2"><span class="inline-block mr-2">
@@ -1731,7 +1748,9 @@
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                    <div style="width:100%"><h3 class="text-xl font-bold" >This week's statistics</h3></div>
+                        <div style="width:100%">
+                            <h3 class="text-xl font-bold">This week's statistics</h3>
+                        </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
                                 <div class="flex mb-2"><span class="inline-block mr-2">
@@ -1812,7 +1831,8 @@
                             </div>
                         </div>
                         <br>
-                        <p style="font-size:12px;width:100%;text-align:right"><i>* Time in UTC / Week start from Monday</i></p>
+                        <p style="font-size:12px;width:100%;text-align:right"><i>* Time in UTC / Week start from
+                                Monday</i></p>
                     </div>
                 </div>
             </div>
@@ -2373,331 +2393,13 @@
                 </div>
 
                 <div class="p-4 overflow-x-auto" style="display: block;">
-                    <h1 class="mb-2 text-2xl font-bold font-heading text-left">1. Choose Application</h1>
-
-                    <div class="mb-6">
-                        <div class="container px-4 mx-auto">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Are you applying for driver
-                                or staff, or
-                                for joining a division?
-                                Or just requesting a LOA?<br>Please select an application:</label>
-                            <div class="relative" style="width:200px">
-                                <select id="appselect"
-                                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    name="field-name">
-                                    <option value="driver" id="driverappsel">Driver</option>
-                                    <option value="staff">Staff</option>
-                                    <option value="loa">LOA</option>
-                                    <option value="division">Division</option>
-                                </select>
-                                <div
-                                    class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewbox="0 0 20 20">
-                                        <path
-                                            d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h1 class="mb-2 text-2xl font-bold font-heading text-left">2. Fill Application</h1>
-
-                    <div class="container px-4 mx-auto apptabs" id="DriverApp">
-                        <div class="mb-6" style="width:350px">
-                            <label class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
-                            <input id="da-q1"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" placeholder="MM/DD/YYYY">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">How did you find us?</label>
-                            <textarea id="da-q2"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder="Enter a short answer"></textarea>
-                        </div>
-
-
-                        <div class="mb-6">
-                            <div class="mb-1">
-                                <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Are you
-                                    currenty in
-                                    another VTC?</label>
-                                <label>
-                                    <input type="radio" name="in-another-vtc" value="yes" id="in-another-vtc">
-                                    <span class="ml-2">Yes</span>
-                                </label>
-                            </div>
-                            <div>
-                                <label>
-                                    <input type="radio" name="in-another-vtc" value="yes" checked>
-                                    <span class="ml-2">No</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">What are your interests?</label>
-                            <textarea id="da-q3"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5"
-                                placeholder="Tell us a little bit about yourself."></textarea>
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Why do you want to be a part our
-                                VTC?</label>
-                            <textarea id="da-q4"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5"
-                                placeholder="Why would you like to join us? This doesn\'t need to be complicated."></textarea>
-                        </div>
-
-                        <div class="mb-6">
-                            <label>
-                                <input type="checkbox" name="field-name" value="example value" id="da-agree">
-                                <span class="ml-2">By joining <?php echo $vtcname ?> you agree to follow both discord
-    and VTC rules at
-    all
-    times? Do you agree to our terms?</span>
-    </label>
-    </div>
-    </div>
-
-    <div class="container px-4 mx-auto apptabs" id="StaffApp" style="display:none">
-        <div class="mb-6" style="width:350px">
-            <label class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
-            <input id="sa-q1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                type="date" name="" placeholder="MM/DD/YYYY">
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="">What country do you live in? Also
-                include your Time
-                Zone </label>
-            <textarea id="sa-q2"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name" rows="5" placeholder="US, Canada, UK, etc"></textarea>
-        </div>
-
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Which
-                position are you
-                applying for?</label>
-            <div class="relative" style="width:500px">
-                <select id="sa-select"
-                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                    name="field-name">
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                        </path>
-                    </svg>
+                '.$application_html.'
+                <button type="button"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="SubmitApp()" id="submitAppBttn">'.$st->submit.'</button>
                 </div>
             </div>
         </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="">Please provide a summary about
-                yourself. </label>
-            <textarea id="sa-q3"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name" rows="5"
-                placeholder="You may include hobbies, work positions, or any unique facts about yourself!"></textarea>
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="">Why are you interested in joining the
-                position you
-                are applying for? What do you want to achieve?</label>
-            <textarea id="sa-q4"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name" rows="5"
-                placeholder="Explain why does that position interest you and what do you want to achieve."></textarea>
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="">Do you have a lot of time to dedicate
-                to this
-                position?</label>
-            <textarea id="sa-q5"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name" rows="5" placeholder="Explain your time availability."></textarea>
-        </div>
-
-        <div class="mb-6">
-            <label>
-                <input id="sa-agree" type="checkbox" name="field-name" value="example value">
-                <span class="ml-2">By joining <?php echo $vtcname ?>, you agree to our rules and terms
-                    of service. As a
-                    Internal or External Staff, you also agree to work without financial compensation.
-                    Do you agree to
-                    these terms?</span>
-            </label>
-        </div>
-    </div>
-
-    <div class="container px-4 mx-auto apptabs" id="LOAApp" style="display:none">
-        <div class="mb-6" style="width:350px">
-            <label class="block text-sm font-medium mb-2" for="">Start Date</label>
-            <input id="la-q1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                type="date" name="" placeholder="MM/DD/YYYY">
-        </div>
-
-        <div class="mb-6" style="width:350px">
-            <label class="block text-sm font-medium mb-2" for="">End Date</label>
-            <input id="la-q2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                type="date" name="" placeholder="MM/DD/YYYY">
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="">Reason for LOA </label>
-            <textarea id="la-q3"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name" rows="5" placeholder="Your answer"></textarea>
-        </div>
-
-        <div class="mb-6">
-            <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Will you
-                leave your
-                position or leave <?php echo $vtcname ?>?</label>
-            <div class="relative" style="width:500px">
-                <select id="la-leave"
-                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                    name="field-name">
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                        </path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container px-4 mx-auto apptabs" id="DivisionApp" style="display:none">
-        <div class="container px-4 mx-auto">
-            <label class="block text-sm font-medium mb-2 text-left" for="">Select Division:</label>
-            <div class="relative" style="width:200px">
-                <select id="divisionappselect"
-                    class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                    name="field-name">
-                    <option value="seldivplaceholder">Select Division</option>
-                    <option value="construction">Construction</option>
-                    <option value="chilled">Chilled (Not available)</option>
-                    <option value="adr">ADR (Not available)</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                        </path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-        <div class="divisiontabs" id="ConstructionApp" style="display:none">
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">Why do you want to join the
-                    construction
-                    division?</label>
-                <textarea id="dca-q1"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                    name="field-name" rows="5" placeholder=""></textarea>
-            </div>
-
-            <div class="mb-6">
-                <div class="mb-1">
-                    <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Have
-                        you read over the
-                        full division handbook?</label>
-                    <label>
-                        <input type="radio" name="construction-read" value="yes" id="construction-read">
-                        <span class="ml-2">Yes</span>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <input type="radio" name="construction-read" value="yes" checked>
-                        <span class="ml-2">No</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">What is the biggest difference
-                    between hauling
-                    construction division loads compared to normal loads?</label>
-                <input id="dca-q2"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                    name="" placeholder="">
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">What is a flatbed trailer designed
-                    to haul?
-                </label>
-                <input id="dca-q3"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                    name="" placeholder="">
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">After the first 50 miles, how often
-                    should you stop
-                    and check your load? </label>
-                <input id="dca-q4"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                    name="" placeholder="">
-            </div>
-
-            <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">What is the only time when it is
-                    appropriate to
-                    stop
-                    on the shoulder of the road? </label>
-                <input id="dca-q5"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                    name="" placeholder="">
-            </div>
-
-            <div class="mb-6">
-                <div class="mb-1">
-                    <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">In
-                        the construction
-                        division, you are required to complete 5 deliveries of 95+ miles with
-                        construction loads per month.
-                        Do you agree
-                        to
-                        meet the monthly requirement?</label>
-                    <label>
-                        <input type="radio" name="construction-agree" value="yes" id="construction-agree">
-                        <span class="ml-2">Yes</span>
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        <input type="radio" name="construction-agree" value="yes" checked>
-                        <span class="ml-2">No</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <button type="button"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="SubmitApp()" id="submitAppBttn">'.$st->submit.'</button>
-    </div>
-    </div>
-    </div>
     </section>
 
     <section id="AllApp" class="py-8 tabs" style="display: none;">
@@ -3083,12 +2785,56 @@
                     </div>
 
                     <hr><br>
+                    <h3 class="text-l font-bold">Advanced Customization</h3>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for="">Custom Application</label>
+                        <label class="block text-sm font-medium mb-2" for="">1. Info</label>
+                        <label class="block text-sm font-medium mb-2" for="">1.1. script, style tag are filtered
+                            out.</label>
+                        <label class="block text-sm font-medium mb-2" for="">1.2. To go back to default application,
+                            leave the field empty.</label>
+                        <label class="block text-sm font-medium mb-2" for="">1.3. If you haven't set up custom
+                            application before, the text below is default application.</label>
+                        <label class="block text-sm font-medium mb-2" for="">2. Basic Usage</label>
+                        <label class="block text-sm font-medium mb-2" for="">2.1. You are free to code your own HTML
+                            application.</label>
+                        <label class="block text-sm font-medium mb-2" for="">2.2. Text input (e.g. date / text),
+                            textarea, select, radio, checkbox are supported.</label>
+                        <label class="block text-sm font-medium mb-2" for="">2.3. For text input, textarea, select,
+                            assign them ID like "applicationNAnswerA" (N is application type, A is the ID of
+                            question)</label>
+                        <label class="block text-sm font-medium mb-2" for="">2.4. For radio, checkbox, assign them NAME
+                            like "applicationNAnswerA" (e.g. application1Answer3)</label>
+                        <label class="block text-sm font-medium mb-2" for="">2.5. You should add a "question" before the
+                            answer box, assign it ID like "applicationNQuestionA" (A should be the same as the
+                            answer's)</label>
+                        <label class="block text-sm font-medium mb-2" for="">2.6. A maximum of 100 questions & answers
+                            is supported.</label>
+                        <label class="block text-sm font-medium mb-2" for="">3. Advanced Usage</label>
+                        <label class="block text-sm font-medium mb-2" for="">3.1. You can create your own application
+                            type, just add more "option" to #appselect (value is application ID). You also need to add
+                            "div" with ID "ApplicationA" (A is ID) to make them display when user select an
+                            application.</label>
+                        <label class="block text-sm font-medium mb-2" for="">3.2. For staff application, a select with
+                            ID "application2Answer3" is reserved to display open staff positions, updated in Staff -
+                            Application.</label>
+                        <label class="block text-sm font-medium mb-2" for="">3.3. For divisions, you can add divisions
+                            by adding "option" to "application4Answer1". And like application type, add "div" with ID
+                            "DivisionA" (A is ID) to make them display when user select a division.</label>
+
+                        <textarea id="webconfig_custom_application" style="width:100%;height:300px"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                            name="field-name" rows="5" placeholder=""></textarea>
+                    </div>
+
+                    <hr><br>
 
                     <div class="mb-6">
                         <label class="block text-sm font-medium mb-2" for="">Application Token (For
                             authorization)</label>
                         <input id="webconfig_apptoken" type="password"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="text" rows="5" placeholder=""></input>
                     </div>
 
@@ -3471,7 +3217,7 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.2.3 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.3.1 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

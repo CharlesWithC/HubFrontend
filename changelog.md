@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.3.1**  
+Added custom application  
+
 **v1.2.3**  
 **Delivery Tab**  
 1.Resumed Driver of the Day (Counting from 0:00 UTC instead of using relative -24h calculation)  

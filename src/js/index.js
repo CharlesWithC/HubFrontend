@@ -172,7 +172,9 @@ async function ShowTab(tabname, btnname) {
         loadworking = false;
     }, 10);
     $(".tabbtns").removeClass("bg-indigo-500");
-    $(btnname).addClass("bg-indigo-500");
+    if (btnname != "#ProfileTabBtn") {
+        $(btnname).addClass("bg-indigo-500");
+    }
     if (tabname == "#Map") {
         window.history.pushState("", "", '/map');
         window.autofocus["map"] = -2;
@@ -382,7 +384,7 @@ function validate() {
         $("#recruitment a").attr("href", "/login");
         $("#ProfileTabBtn").attr("onclick", "window.location.href='/login'");
         $("#logout").hide();
-        $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Drivers Hub by <a href="https://drivershub.charlws.com" target="_blank">CharlesWithC</a> | Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a></span>`);
+        $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
     }
     if (userid != -1 && isNumber(userid)) {
         $(".memberOnlyTabs").show();
@@ -400,7 +402,7 @@ function validate() {
         success: function (data) {
             if (data.error) {
                 localStorage.setItem("token", "guest");
-                $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">&nbsp;&nbsp;&nbsp;Drivers Hub by <a href="https://drivershub.charlws.com" target="_blank">CharlesWithC</a> | Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a></span>`);
+                $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
             }
             if (data.response.note == "steamauth") {
                 $("#header").prepend(
@@ -416,7 +418,7 @@ function validate() {
                 <path fill-rule="evenodd"
                   d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                   fill="${color}"></path>
-              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange">&nbsp;&nbsp;&nbsp;Drivers Hub by <a href="https://drivershub.charlws.com" target="_blank">CharlesWithC</a> | Join <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a></span></p>`);
+              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange"></p>`);
             }
         }
     });
@@ -594,11 +596,10 @@ function PathDetect() {
     else if (p == "/user") ShowTab("#AllUsers", "#AllUserBtn");
     else if (p == "/audit") ShowTab("#AuditLog", "#AuditLogBtn");
     else if (p == "/admin") ShowTab("#Admin", "#AdminBtn");
-    else if (p.startsWith("/images")){
+    else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
-    }
-    else ShowTab("#HomeTab", "#HomeTabBtn");
+    } else ShowTab("#HomeTab", "#HomeTabBtn");
 }
 
 window.onpopstate = function (event) {
@@ -796,37 +797,13 @@ $(document).ready(function () {
     $('#appselect').on('change', function () {
         var value = $(this).val();
         $(".apptabs").hide();
-        if (value == "driver") {
-            $("#DriverApp").show();
-            $("#submitAppBttn").show();
-        } else if (value == "staff") {
-            $("#StaffApp").show();
-            $("#submitAppBttn").show();
-        } else if (value == "loa") {
-            $("#LOAApp").show();
-            $("#submitAppBttn").show();
-        } else if (value == "division") {
-            $("#DivisionApp").show();
-            $("#submitAppBttn").hide();
-        }
+        $("#Application" + value).show();
+        $("#submitAppBttn").show();
     });
-    $('#divisionappselect').on('change', function () {
+    $('#application4Answer1').on('change', function () {
         var value = $(this).val();
         $(".divisiontabs").hide();
-        if (value == "construction") {
-            $("#ConstructionApp").show();
-            $("#submitAppBttn").show();
-        } else if (value == "chilled") {
-            $("#submitAppBttn").hide();
-            toastFactory("warning", "Error", "Division recruitment has not started yet!", 5000,
-                false);
-        } else if (value == "adr") {
-            $("#submitAppBttn").hide();
-            toastFactory("warning", "Error", "Division recruitment has not started yet!", 5000,
-                false);
-        } else {
-            $("#submitAppBttn").hide();
-        }
+        $("#Division" + value).show();
     });
     annpage = 2;
     $.ajax({
@@ -874,7 +851,7 @@ $(document).ready(function () {
                 positionstxt = "";
                 for (var i = 0; i < positions.length; i++) {
                     positionstxt += positions[i] + "\n";
-                    $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
+                    $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
                 }
                 positionstxt = positionstxt.slice(0, -1);
                 $("#staffposedit").val(positionstxt);
@@ -940,7 +917,8 @@ $(document).ready(function () {
 
     lastnamesearch = 0;
     lnsto = 0;
-    function searchName(eid){
+
+    function searchName(eid) {
         if ($("#" + eid + "_datalist").length == 0) {
             $("#" + eid).attr("list", eid + "_datalist");
             $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
@@ -961,18 +939,20 @@ $(document).ready(function () {
                     $(datalist).append("<option value='No Data'>");
                     return;
                 }
-                for(var i = 0; i < d.length; i++) {
+                for (var i = 0; i < d.length; i++) {
                     $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
                 }
             }
         });
     }
     $(".search-name").on('input', function () {
-        if(+new Date() - lastnamesearch < 1000) return;
+        if (+new Date() - lastnamesearch < 1000) return;
         lastnamesearch = +new Date();
         eid = $(this).attr("id");
         searchName(eid);
         clearTimeout(lnsto);
-        lnsto = setTimeout(function(){searchName(eid)}, 1000);
+        lnsto = setTimeout(function () {
+            searchName(eid)
+        }, 1000);
     });
 });

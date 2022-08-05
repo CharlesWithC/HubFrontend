@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, Response, Header
 from fastapi.responses import RedirectResponse
 import uvicorn
 import requests, json, os, urllib
+from bs4 import BeautifulSoup
 
 app = FastAPI()
 
@@ -52,6 +53,13 @@ async def getConfig(vtc_abbr: str, domain: str, request: Request, response: Resp
         else:
             value = value[value.find('"') + 1 : value.rfind('"')]
         config[item] = value
+
+    application = ""
+    if os.path.exists("/var/hub/cdn/assets/" + vtc_abbr + "/application.html"):
+        application = open("/var/hub/cdn/assets/" + vtc_abbr + "/application.html", "r").read()
+    else:
+        application = open("/var/hub/html/default_application.html", "r").read()
+    config["custom_application"] = application
 
     return {"error": False, "response": {"config": config}}
 
@@ -206,6 +214,14 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     navio_company_id = {navio_company_id};"""
 
     open(f"/var/hub/html/configs/{domain}.js", "w").write(frontend_conf_js)
+
+    custom_application = form["custom_application"]
+    soup = BeautifulSoup(custom_application, "html.parser")
+    while soup.script:
+        soup.script.replaceWith('')
+    while soup.style:
+        soup.style.replaceWith('')
+    open(f"/var/hub/cdn/assets/{vtc_abbr}/application.html","w").write(str(soup))
 
     return {"error": False}
 
