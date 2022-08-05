@@ -225,12 +225,11 @@
     </div>
 	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-		&nbsp;|&nbsp;
-		<a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
+		<a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.3.1 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.3.2 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

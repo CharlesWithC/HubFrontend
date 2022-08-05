@@ -138,6 +138,11 @@
             background-color: <?php echo $vtccolordark ?>;
         }
     </style>
+    <?php 
+    if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
+        echo "<style>".file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')."</style>";
+    }
+    ?>
 </head>
 
 <body class="antialiased bg-body text-body font-body" style="overflow-x:hidden">
@@ -673,7 +678,7 @@
                                             fill="currentColor"></path>
                                     </svg></span>
                             </a>
-                            <a id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
+                            <button id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
                                 <div class="mr-3">
                                     <p id="name" class="text-sm" style="text-align:right"></p>
                                     <p id="role" class="text-sm text-gray-500" style="text-align:right"></p>
@@ -682,7 +687,7 @@
                                         class="w-10 h-10 rounded-full object-cover object-right" width="40"
                                         src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif"
                                         alt="" /></div>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2788,7 +2793,14 @@
                     <h3 class="text-l font-bold">Advanced Customization</h3>
 
                     <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Custom Application</label>
+                        <label class="block text-sm font-medium mb-2" for=""><b>Custom Style (CSS)</b></label>
+
+                        <textarea id="webconfig_custom_style" style="width:100%;height:200px"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
+                            name="field-name" rows="5" placeholder=""></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for=""><b>Custom Application</b></label>
                         <label class="block text-sm font-medium mb-2" for="">1. Info</label>
                         <label class="block text-sm font-medium mb-2" for="">1.1. script, style tag are filtered
                             out.</label>
@@ -3211,13 +3223,12 @@
         <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
             <div style="margin:0.5em;margin-top:auto;text-align:center">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-                &nbsp;|&nbsp;
-                <a href="https://drivershub.charlws.com" target="_blank">drivershub.charlws.com</a>
+                <a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
                 <br>
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.3.1 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.3.2 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

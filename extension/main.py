@@ -61,6 +61,11 @@ async def getConfig(vtc_abbr: str, domain: str, request: Request, response: Resp
         application = open("/var/hub/html/default_application.html", "r").read()
     config["custom_application"] = application
 
+    style = ""
+    if os.path.exists("/var/hub/cdn/assets/" + vtc_abbr + "/style.css"):
+        style = open("/var/hub/cdn/assets/" + vtc_abbr + "/style.css", "r").read()
+    config["style"] = style
+
     return {"error": False, "response": {"config": config}}
 
 @app.patch("/{vtc_abbr}/config")
@@ -76,8 +81,8 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     token = authorization.split(" ")[1]
 
     form = await request.form()
-    domain = form["domain"]
-    apidomain = form["apidomain"]
+    domain = form["domain"].replace("<", "") # prevent html tag
+    apidomain = form["apidomain"].replace("<", "") # prevent html tag
 
     if not apidomain.endswith("charlws.com"):
         return {"error": True, "descriptor": "Invalid API Domain"}
@@ -118,10 +123,10 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
         return {"error": True, "descriptor": "Unauthorized"}
 
     # Update assets
-    logo_url = form["logo_url"]
-    banner_url = form["banner_url"]
-    bg_url = form["bg_url"]
-    teamupdate_url = form["teamupdate_url"]
+    logo_url = form["logo_url"].replace("<", "") # prevent html tag
+    banner_url = form["banner_url"].replace("<", "") # prevent html tag
+    bg_url = form["bg_url"].replace("<", "") # prevent html tag
+    teamupdate_url = form["teamupdate_url"].replace("<", "") # prevent html tag
     headers={
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0'
     }
@@ -178,13 +183,13 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
         return {"error": True, "descriptor": "Unauthorized"}
 
     # Update php config
-    vtc_name = form["vtc_name"]
-    vtc_color = form["vtc_color"].replace("#", "")
+    vtc_name = form["vtc_name"].replace("<", "") # prevent html tag
+    vtc_color = form["vtc_color"].replace("#", "").replace("<", "") # prevent html tag
     intcolor = tuple(int(vtc_color[i:i+2], 16) for i in (0, 2, 4))
     r, g, b = intcolor[0] + 32, intcolor[1] + 32, intcolor[2] + 32
     vtc_color = "#" + vtc_color
     vtc_color_dark = "#{:02x}{:02x}{:02x}".format(r, g, b)
-    slogan = form["slogan"]
+    slogan = form["slogan"].replace("<", "") # prevent html tag
     
     frontend_conf_php = f"""<?php
     $vtcname = "{vtc_name}";
@@ -205,8 +210,8 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     open(f"/var/hub/html/configs/{domain}.php", "w").write(frontend_conf_php)
 
     # Update js config
-    company_distance_unit = form["company_distance_unit"]
-    navio_company_id = form["navio_company_id"]
+    company_distance_unit = form["company_distance_unit"].replace("<", "") # prevent html tag
+    navio_company_id = form["navio_company_id"].replace("<", "") # prevent html tag
     frontend_conf_js = f"""vtcprefix = "{vtc_abbr}";
     company_distance_unit = "{company_distance_unit}";
     vtccolor = "{vtc_color}";
@@ -222,6 +227,14 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     while soup.style:
         soup.style.replaceWith('')
     open(f"/var/hub/cdn/assets/{vtc_abbr}/application.html","w").write(str(soup))
+
+    style = form["style"]
+    soup = BeautifulSoup(style, "html.parser")
+    while soup.script:
+        soup.script.replaceWith('')
+    while soup.style:
+        soup.style.replaceWith('')
+    open(f"/var/hub/cdn/assets/{vtc_abbr}/style.css","w").write(str(soup))
 
     return {"error": False}
 

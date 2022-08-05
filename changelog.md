@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.3.2**  
+Added custom style (css)
+
 **v1.3.1**  
 Added custom application  
 
