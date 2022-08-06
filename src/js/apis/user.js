@@ -575,7 +575,7 @@ function loadConfig() {
             d = newConfigData[keys[i]];
             txt = "";
             for(j = 0; j < d.length; j++){
-                txt += d[j].id + ", " + d[j].name + ", " + d[j].discord_role_id + ", " + d[j].message + "\n";
+                txt += d[j].id + ", " + d[j].name + ", " + d[j].discord_role_id + ", " + d[j].staff_role_id.join('|') + ", " + d[j].message + ", " + d[j].webhook + ", " + d[j].note + "\n";
             }
             $("#config_application_types_txt").val(txt);
         }
@@ -709,8 +709,8 @@ function loadAdmin() {
                 v = $("#config_application_types_txt").val().split("\n");
                 for(j = 0; j < v.length; j++){
                     t = v[j].split(",");
-                    if(t.length != 4) continue;
-                    d.push({"id": t[0].replaceAll(" ", ""), "name": t[1], "discord_role_id": t[2].replaceAll(" ", ""), "message": t[3]});
+                    if(t.length != 7) continue;
+                    d.push({"id": t[0].replaceAll(" ", ""), "name": t[1], "discord_role_id": t[2].replaceAll(" ", ""), "staff_role_id": t[3].replaceAll(" ", "").split("|"), "message": t[4], "webhook": t[5], "note": t[6]});
                 }
                 configData["application_types"] = d;
                 $("#config").val(JSON.stringify(configData, null, 4));

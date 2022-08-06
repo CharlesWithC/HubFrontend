@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.3.3</strong><br>Updated API config wizard to support API v1.11.1</p>
 <p><strong>v1.3.2</strong><br>Added custom style (css)</p>
 <p><strong>v1.3.1</strong><br>Added custom application</p>
 <p><strong>v1.2.3</strong><br><strong>Delivery Tab</strong><br>1.Resumed Driver of the Day (Counting from 0:00 UTC instead of using relative -24h calculation)<br>2.Added Driver of the Week<br>3.Prevented <code>Export Delivery Table</code> from showing when user is not logged in as member<br><strong>Home Tab</strong><br>4.Allowed users who haven&#39;t logged in to see <code>Application</code> section, but redirect them to <code>/login</code> when clicked<br>5.Added link to <code>/login</code> for <code>ProfileTabBtn</code> when user is not logged in<br>6.Changed <code>New Drivers</code> to <code>New Members</code><br>7.<strong>Trace The History</strong> - Added option to set <code>starttime</code> and <code>endtime</code> for <code>/dlog/stats</code> query under <code>Overview</code> tab</p>

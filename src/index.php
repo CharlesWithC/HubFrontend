@@ -3128,7 +3128,7 @@
 
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">Types (Separate types with
-                                line-break / For each type, separate id, name, discord_role_id, message with ',' /
+                                line-break / For each type, separate id, name, discord_role_id, staff_role_id (separate with '|'), message, webhook, note with ',' /
                                 ID 1~4 are reserved and name change will not take effect)</label>
                             <textarea id="config_application_types_txt" style="width:100%;height:100px"
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
@@ -3228,7 +3228,7 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.3.2 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.3.3 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

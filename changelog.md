@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.3.3**  
+Updated API config wizard to support API v1.11.1
+
 **v1.3.2**  
 Added custom style (css)
 
