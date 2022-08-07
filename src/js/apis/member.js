@@ -600,6 +600,12 @@ function loadProfile(userid) {
     $("#udpages").val("1");
     curprofile = userid;
     loadUserDelivery(userid);
+    if(userid == parseInt(localStorage.getItem("userid"))){
+        loadSesions();
+        $("#userSessions").show();
+    } else {
+        $("#userSessions").hide();
+    }
     if (curtab != "#ProfileTab") {
         ShowTab("#ProfileTab", userid);
         return;

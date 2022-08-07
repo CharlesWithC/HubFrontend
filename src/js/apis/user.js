@@ -81,7 +81,7 @@ function loadAuditLog(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load audit log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -116,7 +116,7 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to update About Me. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -146,7 +146,7 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to generate app token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -253,7 +253,7 @@ function loadUsers(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(`Failed to load users. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
@@ -302,7 +302,7 @@ function addUser(discordid = -1) {
         error: function (data) {
             $("#addUserBtn").html("Add");
             $("#addUserBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to add user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -339,7 +339,7 @@ function updateDiscord() {
         error: function (data) {
             $("#updateDiscordBtn").html("Update");
             $("#updateDiscordBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to update user Discord account. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -374,7 +374,7 @@ function deleteUser() {
         error: function (data) {
             $("#deleteUserBtn").html("Delete");
             $("#deleteUserBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to delete user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -383,7 +383,7 @@ function deleteUser() {
     })
 }
 
-function unbindConnections(){
+function unbindConnections() {
     discordid = $("#unbind_discord_id").val();
     $("#unbindConnectionsBtn").html("Working...");
     $("#unbindConnectionsBtn").attr("disabled", "disabled");
@@ -409,7 +409,7 @@ function unbindConnections(){
         error: function (data) {
             $("#unbindConnectionsBtn").html("Unbind");
             $("#unbindConnectionsBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to unbind user account connections. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -468,7 +468,7 @@ function userDetail(discordid) {
         error: function (data) {
             $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
             $("#UserInfoBtn" + discordid).html("Loading...");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load user details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -506,7 +506,7 @@ function banUser() {
             toastFactory("success", "Success", "User banned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to ban user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -536,7 +536,7 @@ function unbanUser() {
             toastFactory("success", "Success", "User unbanned successfully.", 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to unban user. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -560,46 +560,42 @@ function loadConfig() {
     keys = Object.keys(newConfigData);
     for (i = 0; i < keys.length; i++) {
         $("#config_" + keys[i]).val(newConfigData[keys[i]]);
-        if(keys[i] == "truckersmp_bind" || keys[i] == "in_guild_check") $("#config_" + keys[i]).val(String(newConfigData[keys[i]]));
-        else if(keys[i] == "welcome_role_change") $("#config_welcome_role_change_txt").val(newConfigData[keys[i]].join(", "));
-        else if(keys[i] == "delivery_post_gifs") $("#config_delivery_post_gifs_txt").val(newConfigData[keys[i]].join("\n"));
-        else if(keys[i] == "ranks"){
+        if (keys[i] == "truckersmp_bind" || keys[i] == "in_guild_check") $("#config_" + keys[i]).val(String(newConfigData[keys[i]]));
+        else if (keys[i] == "welcome_role_change") $("#config_welcome_role_change_txt").val(newConfigData[keys[i]].join(", "));
+        else if (keys[i] == "delivery_post_gifs") $("#config_delivery_post_gifs_txt").val(newConfigData[keys[i]].join("\n"));
+        else if (keys[i] == "ranks") {
             d = newConfigData[keys[i]];
             txt = "";
-            for(j = 0; j < d.length; j++){
+            for (j = 0; j < d.length; j++) {
                 txt += d[j].distance + ", " + d[j].name + ", " + d[j].discord_role_id + "\n";
             }
             $("#config_ranks_txt").val(txt);
-        }
-        else if(keys[i] == "application_types"){
+        } else if (keys[i] == "application_types") {
             d = newConfigData[keys[i]];
             txt = "";
-            for(j = 0; j < d.length; j++){
+            for (j = 0; j < d.length; j++) {
                 txt += d[j].id + ", " + d[j].name + ", " + d[j].discord_role_id + ", " + d[j].staff_role_id.join('|') + ", " + d[j].message + ", " + d[j].webhook + ", " + d[j].note + "\n";
             }
             $("#config_application_types_txt").val(txt);
-        }
-        else if(keys[i] == "divisions"){
+        } else if (keys[i] == "divisions") {
             d = newConfigData[keys[i]];
             txt = "";
-            for(j = 0; j < d.length; j++){
+            for (j = 0; j < d.length; j++) {
                 txt += d[j].id + ", " + d[j].name + ", " + d[j].point + ", " + d[j].role_id + "\n";
             }
             $("#config_divisions_txt").val(txt);
-        }
-        else if(keys[i] == "perms"){
+        } else if (keys[i] == "perms") {
             d = Object.keys(newConfigData[keys[i]]);
             txt = "";
-            for(j = 0; j < d.length; j++){
+            for (j = 0; j < d.length; j++) {
                 txt += d[j] + ": " + newConfigData[keys[i]][d[j]].join(", ") + "\n";
             }
             $("#config_perms_txt").val(txt);
-        }
-        else if(keys[i] == "roles"){
+        } else if (keys[i] == "roles") {
             d = Object.keys(newConfigData[keys[i]]);
             txt = "";
-            for(j = 0; j < d.length; j++){
-                txt += d[j] + ", " + newConfigData[keys[i]][d[j]]+ "\n";
+            for (j = 0; j < d.length; j++) {
+                txt += d[j] + ", " + newConfigData[keys[i]][d[j]] + "\n";
             }
             $("#config_roles_txt").val(txt);
         }
@@ -617,20 +613,20 @@ function loadAdmin() {
             if (data.error) toastFactory("error", "Error:", data.descriptor, 5000, false);
             webConfigData = data.response.config;
             webConfigKeys = Object.keys(webConfigData);
-            for(var i = 0 ; i < webConfigKeys.length ; i++){
+            for (var i = 0; i < webConfigKeys.length; i++) {
                 key = webConfigKeys[i];
                 $("#webconfig_" + key).val(webConfigData[key]);
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     });
-    
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/config",
         type: "GET",
@@ -644,11 +640,11 @@ function loadAdmin() {
 
             configData = data.response.config;
 
-            $("#config").val(JSON.stringify(configData, null, 4, 
-                (_, value) => 
-                  typeof value === 'number' && value > 1e10
-                    ? BigInt(value)
-                    : value));
+            $("#config").val(JSON.stringify(configData, null, 4,
+                (_, value) =>
+                typeof value === 'number' && value > 1e10 ?
+                BigInt(value) :
+                value));
 
             loadConfig();
 
@@ -668,14 +664,14 @@ function loadAdmin() {
 
             $("#config_truckersmp_bind").on('input', function () {
                 configitem = "truckersmp_bind";
-                if($("#config_truckersmp_bind").val() == "true") configData[configitem] = true;
+                if ($("#config_truckersmp_bind").val() == "true") configData[configitem] = true;
                 else configData[configitem] = false;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
 
             $("#config_in_guild_check").on('input', function () {
                 configitem = "in_guild_check";
-                if($("#config_in_guild_check").val() == "true") configData[configitem] = true;
+                if ($("#config_in_guild_check").val() == "true") configData[configitem] = true;
                 else configData[configitem] = false;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
@@ -691,54 +687,71 @@ function loadAdmin() {
                 configData["welcome_role_change"] = txt.split("\n");
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
-            
+
             $("#config_ranks_txt").on('input', function () {
                 d = [];
                 v = $("#config_ranks_txt").val().split("\n");
-                for(j = 0; j < v.length; j++){
+                for (j = 0; j < v.length; j++) {
                     t = v[j].split(",");
-                    if(t.length != 3) continue;
-                    d.push({"distance": t[0].replaceAll(" ", ""), "name": t[1], "discord_role_id": t[2].replaceAll(" ", "")});
+                    if (t.length != 3) continue;
+                    d.push({
+                        "distance": t[0].replaceAll(" ", ""),
+                        "name": t[1],
+                        "discord_role_id": t[2].replaceAll(" ", "")
+                    });
                 }
                 configData["ranks"] = d;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
-            
+
             $("#config_application_types_txt").on('input', function () {
                 d = [];
                 v = $("#config_application_types_txt").val().split("\n");
-                for(j = 0; j < v.length; j++){
+                for (j = 0; j < v.length; j++) {
                     t = v[j].split(",");
-                    if(t.length != 7) continue;
-                    d.push({"id": t[0].replaceAll(" ", ""), "name": t[1], "discord_role_id": t[2].replaceAll(" ", ""), "staff_role_id": t[3].replaceAll(" ", "").split("|"), "message": t[4], "webhook": t[5], "note": t[6]});
+                    if (t.length != 7) continue;
+                    d.push({
+                        "id": t[0].replaceAll(" ", ""),
+                        "name": t[1],
+                        "discord_role_id": t[2].replaceAll(" ", ""),
+                        "staff_role_id": t[3].replaceAll(" ", "").split("|"),
+                        "message": t[4],
+                        "webhook": t[5],
+                        "note": t[6]
+                    });
                 }
                 configData["application_types"] = d;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
-            
+
             $("#config_divisions_txt").on('input', function () {
                 d = [];
                 v = $("#config_divisions_txt").val().split("\n");
-                for(j = 0; j < v.length; j++){
+                for (j = 0; j < v.length; j++) {
                     t = v[j].split(",");
-                    if(t.length != 4) continue;
-                    d.push({"id": t[0].replaceAll(" ", ""), "name": t[1], "point": t[2].replaceAll(" ", ""), "role_id": t[3].replaceAll(" ", "")});
+                    if (t.length != 4) continue;
+                    d.push({
+                        "id": t[0].replaceAll(" ", ""),
+                        "name": t[1],
+                        "point": t[2].replaceAll(" ", ""),
+                        "role_id": t[3].replaceAll(" ", "")
+                    });
                 }
                 configData["divisions"] = d;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
-            
+
             $("#config_perms_txt").on('input', function () {
                 d = {};
                 v = $("#config_perms_txt").val().split("\n");
-                for(j = 0; j < v.length; j++){
+                for (j = 0; j < v.length; j++) {
                     t = v[j].split(":");
-                    if(t.length != 2) continue;
+                    if (t.length != 2) continue;
                     perm_name = t[0].replaceAll(" ", "");
                     perm_role_t = t[1].replaceAll(" ", "").split(",");
                     perm_role = [];
-                    for(k = 0; k < perm_role_t.length; k++){
-                        if(perm_role_t[k] == "") continue;
+                    for (k = 0; k < perm_role_t.length; k++) {
+                        if (perm_role_t[k] == "") continue;
                         perm_role.push(parseInt(perm_role_t[k]));
                     }
                     d[perm_name] = perm_role;
@@ -746,13 +759,13 @@ function loadAdmin() {
                 configData["perms"] = d;
                 $("#config").val(JSON.stringify(configData, null, 4));
             });
-            
+
             $("#config_roles_txt").on('input', function () {
                 d = {};
                 v = $("#config_roles_txt").val().split("\n");
-                for(j = 0; j < v.length; j++){
+                for (j = 0; j < v.length; j++) {
                     t = v[j].split(",");
-                    if(t.length != 2) continue;
+                    if (t.length != 2) continue;
                     d[t[0]] = t[1];
                 }
                 configData["roles"] = d;
@@ -764,7 +777,7 @@ function loadAdmin() {
             });
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -808,7 +821,7 @@ function UpdateWebConfig() {
         error: function (data) {
             $("#updateWebConfigBtn").html("Update");
             $("#updateWebConfigBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to update config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -838,11 +851,11 @@ function UpdateConfig() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            config: JSON.stringify(config, 
-                (_, value) => 
-                  typeof value === 'number' && value > 1e10
-                    ? BigInt(value)
-                    : value)
+            config: JSON.stringify(config,
+                (_, value) =>
+                typeof value === 'number' && value > 1e10 ?
+                BigInt(value) :
+                value)
         },
         success: function (data) {
             $("#updateConfigBtn").html("Update");
@@ -853,7 +866,7 @@ function UpdateConfig() {
         error: function (data) {
             $("#updateConfigBtn").html("Update");
             $("#updateConfigBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to update config. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -875,7 +888,7 @@ function ReloadServer() {
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to reload server. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -884,7 +897,7 @@ function ReloadServer() {
     })
 }
 
-function resetPassword(){
+function resetPassword() {
     $("#resetPasswordBtn").html("Updating...");
     $("#resetPasswordBtn").attr("disabled", "disabled");
     $.ajax({
@@ -906,10 +919,108 @@ function resetPassword(){
         error: function (data) {
             $("#resetPasswordBtn").html("Update");
             $("#resetPasswordBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to reload server. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
+
+function loadSesions() {
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/token/all",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            $("#sessiontable").empty();
+            sessions = data.response.list;
+            for (var i = 0; i < sessions.length; i++) {
+                if (sha256(localStorage.getItem("token")) != sessions[i].hash) {
+                    $("#sessiontable").append(`
+            <tr class="text-sm">
+              <td class="py-5 px-6 font-medium">${sessions[i].ip}</td>
+              <td class="py-5 px-6 font-medium">${getDateTime(sessions[i].timestamp * 1000)}</td>
+              <td class="py-5 px-6 font-medium">${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
+              <td class="py-5 px-6 font-medium"><button type="button" style="display:inline;padding:5px" id="revokeTokenBtn-${sessions[i].hash}"
+              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+              onclick="revokeToken('${sessions[i].hash}')">Revoke</button></td>
+            </tr>`);
+                } else {
+                    $("#sessiontable").append(`
+            <tr class="text-sm">
+              <td class="py-5 px-6 font-medium">${sessions[i].ip}</td>
+              <td class="py-5 px-6 font-medium">${getDateTime(sessions[i].timestamp * 1000)}</td>
+              <td class="py-5 px-6 font-medium">${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
+              <td class="py-5 px-6 font-medium">(Current)</td>
+            </tr>`);
+                }
+            }
+        },
+        error: function (data) {
+            $("#userSessions").hide();
+        }
+    })
+}
+
+function revokeToken(hsh) {
+    if ($("#revokeTokenBtn-" + hsh).html() == "Revoke") {
+        $("#revokeTokenBtn-" + hsh).html("Confirm?");
+        $("#revokeTokenBtn-" + hsh).attr("background-color", "red");
+        return;
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/token/hash",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "hash": hsh
+        },
+        success: function (data) {
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            toastFactory("success", "Success", data.response, 5000, false);
+            loadSesions();
+        },
+        error: function (data) {
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to revoke token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    })
+}
+
+function revokeAllToken(){
+    if ($("#revokeAllBtn").html() == "Revoke All") {
+        $("#revokeAllBtn").html("Confirm?");
+        $("#revokeAllBtn").attr("background-color", "red");
+        return;
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/token/all",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            toastFactory("success", "Success", data.response, 5000, false);
+            window.location.href = "/login";
+        },
+        error: function (data) {
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to revoke token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })

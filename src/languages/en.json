@@ -86,7 +86,7 @@
     "member_name": "Member Name",
     "fetch_existing_roles": "Fetch Existing Roles",
     "update_member_points": "Update Member Points",
-    "update_member_points_note": "Negative numbers work, they deduct the points.",
+    "update_member_points_note": "Negative numbers work, they deduct the points.<br><span style='color:red'>Only staff with role with Human Resources Manager permission can use this function!</span><br>Distance point should only be updated when tracker doesn't work<br>Event point should be updated at Staff - Event - Update Event Attendees<br>Division point should be updated at Staff - Division - Pending Division Validation Deliveries<br><span style='color:red'>This function is intended to be only a fallback option! DO NOT ask Gehub Team why normal HR staff cannot use it!</span>",
     "user_id": "User ID",
     "event_points": "Event Points",
     "division_points": "Division Points",
@@ -164,5 +164,8 @@
     "export_delivery_log_note": "Leave Start Date / End Date empty to export all delivery logs.",
     "start_date": "Start Date",
     "end_date": "End Date",
-    "export": "Export"
+    "export": "Export",
+    "sessions": "Sessions",
+    "login_time": "Login time",
+    "expire_time": "Expire time"
 }

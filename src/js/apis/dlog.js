@@ -540,7 +540,7 @@ function deliveryDetail(logid) {
                 false);
             info = "";
             if (!data.error) {
-                window.history.pushState("", "", '/delivery?logid=' + logid);
+                window.history.pushState("", "", '/delivery/' + logid);
                 d = data.response;
                 userid = d.userid;
                 name = d.name;

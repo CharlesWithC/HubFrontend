@@ -45,7 +45,15 @@ function LoadETS2PMap(mapid = "pmap") {
             return Object.prototype.hasOwnProperty.call(t, e)
         }, i.p = "", i(i.s = 12)
     }([function (t) {
-        t.exports = JSON.parse('{"b":-107974.758,"c":164069.438,"d":-164611.0,"e":107433.195,"a":8}')
+        mapinfo = {
+            "x1": -108659.555,
+            "x2": 164754.219,
+            "y1": -164611.0,
+            "y2": 108802.773,
+            "minZoom": 0,
+            "maxZoom": 8
+        }
+        t.exports = JSON.parse('{"b":'+mapinfo.x1+',"c":'+mapinfo.x2+',"d":'+mapinfo.y1+',"e":'+mapinfo.y2+',"a":8}');
     }, function (t, e, i) {
         "use strict";
         t.exports = o, t.exports.default = o;

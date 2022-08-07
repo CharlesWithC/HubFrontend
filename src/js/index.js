@@ -385,6 +385,7 @@ function validate() {
         $("#ProfileTabBtn").attr("onclick", "window.location.href='/login'");
         $("#logout").hide();
         $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
+        return;
     }
     if (userid != -1 && isNumber(userid)) {
         $(".memberOnlyTabs").show();
@@ -420,6 +421,8 @@ function validate() {
                   fill="${color}"></path>
               </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange"></p>`);
             }
+        }, error: function(data){
+            window.location.href = "/login";
         }
     });
     $.ajax({
@@ -571,20 +574,30 @@ function PathDetect() {
     else if (p == "/staffannouncement") ShowTab("#StaffAnnTab", "#StaffAnnTabBtn");
     else if (p == "/downloads") ShowTab("#DownloadsTab", "#DownloadsTabBtn");
     else if (p == "/map") ShowTab("#Map", "#MapBtn");
-    else if (p == "/delivery") {
-        logid = getUrlParameter("logid");
-        if (logid) {
+    else if (p.startsWith("/delivery")) {
+        if(getUrlParameter("logid")){
+            logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
             $("#DeliveryBtn").addClass("bg-indigo-500");
             deliveryDetail(logid);
+            return;
+        }
+        if (p.split("/").length >= 3) {
+            $(".tabbtns").removeClass("bg-indigo-500");
+            $("#DeliveryBtn").addClass("bg-indigo-500");
+            deliveryDetail(p.split("/")[2]);
         } else ShowTab("#Delivery", "#DeliveryBtn");
     } else if (p == "/division") ShowTab("#Division", "#DivisionBtn");
     else if (p == "/staffdivision") ShowTab("#StaffDivision", "#StaffDivisionBtn");
     else if (p == "/event") ShowTab("#Event", "#EventBtn");
     else if (p == "/staffevent") ShowTab("#StaffEvent", "#StaffEventBtn");
-    else if (p == "/member") {
-        userid = getUrlParameter("userid");
-        if (userid) loadProfile(parseInt(userid));
+    else if (p.startsWith("/member")) {
+        if(getUrlParameter("userid")){
+            userid = getUrlParameter("userid");
+            loadProfile(userid);
+            return;
+        }
+        if (p.split("/").length >= 3) loadProfile(parseInt(p.split("/")[2]));
         else ShowTab("#AllMembers", "#AllMemberBtn");
     } else if (p == "/staffmember") {
         ShowTab("#StaffMembers", "#StaffMemberBtn");
@@ -592,7 +605,7 @@ function PathDetect() {
     else if (p == "/ranking") ShowTab("#Ranking", "#RankingBtn");
     else if (p == "/myapp") ShowTab("#MyApp", "#MyAppBtn");
     else if (p == "/allapp") ShowTab("#AllApp", "#AllAppBtn");
-    else if (p == "/submitapp") ShowTab("#SubmitApp", "#SubmitAppBtn");
+    else if (p == "/submitapp" || p == "/apply") ShowTab("#SubmitApp", "#SubmitAppBtn");
     else if (p == "/user") ShowTab("#AllUsers", "#AllUserBtn");
     else if (p == "/audit") ShowTab("#AuditLog", "#AuditLogBtn");
     else if (p == "/admin") ShowTab("#Admin", "#AdminBtn");

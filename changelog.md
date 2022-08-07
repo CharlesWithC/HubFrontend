@@ -1,5 +1,15 @@
 # Changelog
 
+**v1.3.4**  
+1.Updated note under "Update Member Points"  
+2.Updated ETS2 ProMods settings to support latest map  
+3.Added redirect from `/apply` to `/submitapp`  
+4.Added sessions section in user profile page  
+5.Added auto redirect to `/login` if token is invalid  
+6.Fixed the bug that url `/member/{id}` is not working  
+7.Added support to `/delivery/{id}`  
+8.Hided time ranged query for `/dlog/stats` (require clicking "All" to show it)  
+
 **v1.3.3**  
 Updated API config wizard to support API v1.11.1
 

@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.3.4</strong><br>1.Updated note under &quot;Update Member Points&quot;<br>2.Updated ETS2 ProMods settings to support latest map<br>3.Added redirect from <code>/apply</code> to <code>/submitapp</code><br>4.Added sessions section in user profile page<br>5.Added auto redirect to <code>/login</code> if token is invalid<br>6.Fixed the bug that url <code>/member/{id}</code> is not working<br>7.Added support to <code>/delivery/{id}</code><br>8.Hided time ranged query for <code>/dlog/stats</code> (require clicking &quot;All&quot; to show it)  </p>
 <p><strong>v1.3.3</strong><br>Updated API config wizard to support API v1.11.1</p>
 <p><strong>v1.3.2</strong><br>Added custom style (css)</p>
 <p><strong>v1.3.1</strong><br>Added custom application</p>
