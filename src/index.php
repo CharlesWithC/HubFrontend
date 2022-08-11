@@ -885,26 +885,11 @@
                         <h3 class="text-xl font-bold"><?php echo $st->security; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3>Password Login</h3>
-                        <label class="block text-sm font-medium mb-2" for="">- The email will be the one connected to
-                            your Discord account.</label>
-                        <label class="block text-sm font-medium mb-2" for="">- If you changed your Discord email, you
-                            have to login with Discord account to update it. Otherwise you can only login with old
-                            email.</label>
-                        <label class="block text-sm font-medium mb-2" for="">- Use an empty password to disable password
-                            login.</label>
-                        <label class="block text-sm font-medium mb-2" for="">- <b>You can only update the password when
-                                you are logged in with Discord.</b></label>
-                        <label class="block text-sm font-medium mb-2" for="">New Password:</label>
-                        <input id="passwordUpd" type="password"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                        <label class="block text-sm font-medium mb-2" for="">- The password should contain at least one
-                            number, one lower-cased letter, one upper-cased letter and one special character, with a
-                            minimum length of 8.</label>
+                        <h3><?php echo $st->password_login ?></h3>
+                        <?php echo $st->password_login_note ?>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="resetPassword()" id="resetPasswordBtn">Update</button>
+                            onclick="resetPassword()" id="resetPasswordBtn"><?php echo $st->update ?></button>
                     </div>
                     <br>
                     <hr>
@@ -1343,6 +1328,13 @@
             <div class="mb-6">
               <label class="block text-sm font-medium mb-2" for="">'.$st->discord_channel_id.'</label>
               <input id="annchan"
+                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
+                name="" placeholder="Leave empty if you don\'t want this announcement to be forwarded to Discord">
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-sm font-medium mb-2" for="">'.$st->discord_message_content.'</label>
+              <input id="annmsg"
                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
                 name="" placeholder="Leave empty if you don\'t want this announcement to be forwarded to Discord">
             </div>
@@ -3215,15 +3207,17 @@
             <div style="margin:0.5em;margin-top:auto;text-align:center">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
                 <a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
+        &nbsp;|&nbsp;
+		<a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
                 <br>
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.3.4 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.3.5 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;
-                <?php if($status != "") echo 'Status: <a href="https://'.$status.'/status/hub" target="_blank">'.$status.'</a>'; ?>
+                <?php if($status != "") echo 'Status: <a href="https://'.$status.'/" target="_blank">'.$status.'</a>'; ?>
             </div>
         </div>
     </section>

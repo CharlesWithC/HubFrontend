@@ -77,6 +77,7 @@
     "public": "Public (All user on Drivers Hub can view)",
     "private": "Private (Only members can view)",
     "discord_channel_id": "Discord Channel ID",
+    "discord_message_content": "Discord Message Content",
     "create_announcement": "Create Announcement",
     "staff_of_the_month": "Staff of the Month",
     "driver_of_the_month": "Driver of the Month",
@@ -167,5 +168,7 @@
     "export": "Export",
     "sessions": "Sessions",
     "login_time": "Login time",
-    "expire_time": "Expire time"
+    "expire_time": "Expire time",
+    "password_login": "Password Login",
+    "password_login_note": "<label class='block text-sm font-medium mb-2' for=''>- The email will be the one connected to your Discord account.</label><label class='block text-sm font-medium mb-2' for=''>- If you changed your Discord email, you have to login with Discord account to update it. Otherwise you can only login with old email.</label><label class='block text-sm font-medium mb-2' for=''>- Use an empty password to disable password login.</label><label class='block text-sm font-medium mb-2' for=''>- <b>You can only update the password when  you are logged in with Discord.</b></label><label class='block text-sm font-medium mb-2' for=''>New Password:</label><input id='passwordUpd' type='password' class='block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded' name='field-name' rows='5' placeholder=''></input><label class='block text-sm font-medium mb-2' for=''>- The password should contain at least one number, one lower-cased letter, one upper-cased letter and one special character, with a minimum length of 8.</label>"
 }

@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.3.5</strong><br>1.Fixed the bug that announcement is sending <code>test</code> as message content<br>2.Fixed the bug that application content shows corrupted questions when user translate the page<br>3.Fixed the bug that default application shows <code>&lt;?php echo ... ?&gt;</code><br>4.Improved auto redirect to <code>/login</code> when token is invalid<br>5.Added option to set custom message content for announcement<br>6.Added French Translation<br>7.Added <code>password_login</code> and <code>password_login_note</code> to string table  </p>
 <p><strong>v1.3.4</strong><br>1.Updated note under &quot;Update Member Points&quot;<br>2.Updated ETS2 ProMods settings to support latest map<br>3.Added redirect from <code>/apply</code> to <code>/submitapp</code><br>4.Added sessions section in user profile page<br>5.Added auto redirect to <code>/login</code> if token is invalid<br>6.Fixed the bug that url <code>/member/{id}</code> is not working<br>7.Added support to <code>/delivery/{id}</code><br>8.Hided time ranged query for <code>/dlog/stats</code> (require clicking &quot;All&quot; to show it)  </p>
 <p><strong>v1.3.3</strong><br>Updated API config wizard to support API v1.11.1</p>
 <p><strong>v1.3.2</strong><br>Added custom style (css)</p>

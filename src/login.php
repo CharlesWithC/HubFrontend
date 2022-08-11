@@ -17,6 +17,8 @@
 	<meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
 	<meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/bg.jpg" name="twitter:card">
 
+    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
 	<style>
 		.formRight form section button {
@@ -37,6 +39,16 @@
     <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
 	<link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/login.css">
 	<script>
+		drivershub = `    ____       _                         __  __      __  
+   / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
+  / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\
+ / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
+/_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
+                                                         `
+console.log(drivershub);
+console.log("Drivers Hub: Frontend (v1.3.5)");
+console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
+console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 		function toastFactory(type, title, text, time, showConfirmButton) {
 			const Toast = Swal.mixin({
 				toast: true,
@@ -186,14 +198,16 @@
 	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
 		<a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
+        &nbsp;|&nbsp;
+		<a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.3.4 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.3.5 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;
-		<?php if($status != "") echo 'Status: <a href="https://'.$status.'/status/hub" target="_blank">'.$status.'</a>'; ?>
+		<?php if($status != "") echo 'Status: <a href="https://'.$status.'/" target="_blank">'.$status.'</a>'; ?>
 	</div>
 </body>
 

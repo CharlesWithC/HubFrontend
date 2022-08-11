@@ -134,7 +134,7 @@ function AnnouncementOp() {
                 "atype": anntype,
                 "pvt": pvt,
                 "channelid": chnid,
-                "discord_message_content": "test"
+                "discord_message_content": $("#annmsg").val()
             },
             success: function (data) {
                 // Un-disable the submit button

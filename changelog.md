@@ -1,5 +1,14 @@
 # Changelog
 
+**v1.3.5**  
+1.Fixed the bug that announcement is sending `test` as message content  
+2.Fixed the bug that application content shows corrupted questions when user translate the page  
+3.Fixed the bug that default application shows `<?php echo ... ?>`  
+4.Improved auto redirect to `/login` when token is invalid  
+5.Added option to set custom message content for announcement  
+6.Added French Translation  
+7.Added `password_login` and `password_login_note` to string table  
+
 **v1.3.4**  
 1.Updated note under "Update Member Points"  
 2.Updated ETS2 ProMods settings to support latest map  

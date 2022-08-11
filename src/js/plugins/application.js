@@ -1,3 +1,17 @@
+applicationQuestions = {}
+function PreserveApplicationQuestion(){
+    for(var apptype = 1; apptype <= 100; apptype++){
+        for(var i = 1 ; i <= 100 ; i++){
+            if($("#application" + apptype + "Question" + i).length != 0){
+                question = $("#application" + apptype + "Question" + i).html().replaceAll("\n"," ").replaceAll("  "," ");
+                applicationQuestions["#application" + apptype + "Question" + i] = question;
+            } else {
+                continue;
+            }
+        }
+    }
+}
+
 function SubmitApp() {
     apptype = parseInt($("#appselect").find(":selected").attr("value"));
     data = "";
@@ -112,7 +126,7 @@ function SubmitApp() {
         data = {};
         for(var i = 1 ; i <= 100 ; i++){
             if($("#application" + apptype + "Question" + i).length != 0){
-                question = $("#application" + apptype + "Question" + i).html().replaceAll("\n","");
+                question = applicationQuestions["#application" + apptype + "Question" + i];
                 answerid = "application" + apptype + "Answer" + i;
                 if($("#" + answerid).length != 0){ // can find by id => text input / textarea / select
                     if(!$("#" + answerid).is(':visible')) continue;
