@@ -5,7 +5,7 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.3.5)");
+console.log("Drivers Hub: Frontend (v1.3.6)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
@@ -405,7 +405,7 @@ function validate() {
         $("#DownloadsTabBtn").hide();
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token",
+        url: apidomain + "/" + vtcprefix + "/user",
         type: "GET",
         dataType: "json",
         headers: {
@@ -416,10 +416,10 @@ function validate() {
                 localStorage.setItem("token", "guest");
                 $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
             }
-            if (data.response.note == "steamauth") {
+            if (data.response.steamid <= 0) {
                 $("#header").prepend(
                     "<p style='color:orange'>Steam not bound! You must bind it to become a member! <a style='color:grey' href='/auth'>Click here to bind it</a></p>");
-            } else if (data.response.note == "truckersmp") {
+            } else if (data.response.truckersmpid <= 0) {
                 $("#header").prepend(
                     "<p style='color:orange'>TruckersMP not bound! You must bind it to become a member! <a style='color:grey' href='/auth'>Click here to bind it</a></p>");
             } else {

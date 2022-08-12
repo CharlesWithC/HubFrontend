@@ -119,7 +119,7 @@ function UpdateEventAttendees() {
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event/attendee",
-        type: "POST",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

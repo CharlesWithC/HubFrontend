@@ -95,7 +95,7 @@ function updateBio() {
     $("#updateBioBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/bio",
-        type: "POST",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -388,8 +388,8 @@ function unbindConnections() {
     $("#unbindConnectionsBtn").html("Working...");
     $("#unbindConnectionsBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/unbind",
-        type: "PATCH",
+        url: apidomain + "/" + vtcprefix + "/user/connection",
+        type: "DELETE",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -422,7 +422,7 @@ function userDetail(discordid) {
     $("#UserInfoBtn" + discordid).attr("disabled", "disabled");
     $("#UserInfoBtn" + discordid).html("Loading...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?qdiscordid=" + String(discordid),
+        url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
         type: "GET",
         dataType: "json",
         headers: {

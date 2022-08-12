@@ -46,7 +46,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.3.5)");
+console.log("Drivers Hub: Frontend (v1.3.6)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 		function toastFactory(type, title, text, time, showConfirmButton) {
@@ -79,7 +79,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 				return;
 			}
 			$.ajax({
-				url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token",
+				url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user",
 				type: "GET",
 				dataType: "json",
 				headers: {
@@ -88,7 +88,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 				success: function (data) {
 					if (data.error == false) {
 						localStorage.setItem("token", token);
-						if (data.response.note == "") {
+						if (data.response.truckersmpid > 0 && data.response.steamid > 0) {
 							window.location.href = "/";
 						} else {
 							window.location.href = "/auth?token=" + token;
@@ -203,7 +203,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.3.5 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.3.6 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

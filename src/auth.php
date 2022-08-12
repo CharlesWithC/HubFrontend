@@ -45,7 +45,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.3.5)");
+console.log("Drivers Hub: Frontend (v1.3.6)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
         function toastFactory(type, title, text, time, showConfirmButton) {
@@ -108,7 +108,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
             } else {
                 token = localStorage.getItem("token");
                 $.ajax({
-                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token",
+                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user",
                     type: "GET",
                     dataType: "json",
                     headers: {
@@ -116,17 +116,17 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
                     },
                     success: function (data) {
                         if (data.error == false) {
-                            if (data.response.note == "") {
+                            if (data.response.truckersmpid > 0 && data.response.steamid > 0) {
                                 window.location.href = "/";
                                 $("#msg").html("You are being redirected to Drivers Hub.");
-                            } else if (data.response.note == "steamauth") {
+                            } else if (data.response.steamid <= 0) {
                                 $("#title").html("Steam Authorization<br>");
                                 $("#title").css("font-size", "1.5em");
                                 $("#msg").html(
                                     "We need to check your steam account to: <br><br> - Bind your TruckersMP account <br> - Add you to our Navio company"
                                 );
                                 $("#steamauth").show();
-                            } else if (data.response.note == "truckersmp") {
+                            } else if (data.response.truckersmpid <= 0) {
                                 $("#title").html("TruckersMP Connection");
                                 $("#title").css("font-size", "1.5em");
                                 $("#msg").html(
@@ -243,7 +243,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.3.5 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.3.6 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

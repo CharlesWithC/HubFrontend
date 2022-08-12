@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.3.6**  
+Updates to catch up with API v1.11.3  
+
 **v1.3.5**  
 1.Fixed the bug that announcement is sending `test` as message content  
 2.Fixed the bug that application content shows corrupted questions when user translate the page  

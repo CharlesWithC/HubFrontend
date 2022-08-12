@@ -377,7 +377,7 @@ function updateMemberPoints() {
     $("#updateMemberPointsBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/point",
-        type: "POST",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -488,7 +488,7 @@ function updateBio() {
     $("#updateBioBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/bio",
-        type: "POST",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
