@@ -107,8 +107,11 @@ function loadLeaderboard(recurse = true) {
     else $("#levent").css("background-color", "");
     if (ldivision) $("#ldivision").css("background-color", "skyblue");
     else $("#ldivision").css("background-color", "");
+    limittype = "distance,myth,"
+    if(levent == 1) limittype += "event,";
+    if(ldivision == 1) limittype += "division,";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game + "&noevent=" + (1 - levent) + "&nodivision=" + (1 - ldivision),
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game + "&limittype=" + limittype,
         type: "GET",
         dataType: "json",
         headers: {
@@ -185,7 +188,7 @@ function loadLeaderboard(recurse = true) {
                 distance = TSeparator(parseInt(user.distance * distance_ratio));
                 discordid = user.discordid;
                 avatar = user.avatar;
-                totalpnt = TSeparator(parseInt(user.totalpnt));
+                totalpnt = TSeparator(parseInt(user.total));
                 if (avatar != null) {
                     if (avatar.startsWith("a_"))
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -194,14 +197,13 @@ function loadLeaderboard(recurse = true) {
                 } else {
                     avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
                 }
-                console.log(user.totnolimit);
                 $("#leaderboardTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> ${name}</a></td>
-                <td class="py-5 px-6">${point2rank(user.totnolimit)}</td>
+                #${user.rank} <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> ${name}</a></td>
+                <td class="py-5 px-6">${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})</td>
                 <td class="py-5 px-6">${distance}</td>
-                <td class="py-5 px-6">${user.eventpnt}</td>
-                <td class="py-5 px-6">${user.divisionpnt}</td>
+                <td class="py-5 px-6">${user.event}</td>
+                <td class="py-5 px-6">${user.division}</td>
               <td class="py-5 px-6">${totalpnt}</td>
             </tr>`);
             }

@@ -5,7 +5,7 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.3.6)");
+console.log("Drivers Hub: Frontend (v1.4.1)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
@@ -555,7 +555,7 @@ function validate() {
                 }
                 if (userid != -1) {
                     $.ajax({
-                        url: apidomain + "/" + vtcprefix + "/member?userid=" + userid,
+                        url: apidomain + "/" + vtcprefix + "/user?userid=" + userid,
                         type: "GET",
                         dataType: "json",
                         headers: {
@@ -564,12 +564,8 @@ function validate() {
                         success: function (data) {
                             if (data.error == false) {
                                 d = data.response;
-                                if (company_distance_unit == "imperial")
-                                    points = parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt));
-                                else
-                                    points = parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt));
-                                rank = point2rank(points);
-                                $("#ranktotpoints").html(TSeparator(points) + " - " + rank);
+                                rank = point2rank(d.totalpnt);
+                                $("#ranktotpoints").html(TSeparator(d.totalpnt) + " - " + rank);
                                 if ($("#role").html() == "Driver")
                                     $("#role").html(rank);
                             }

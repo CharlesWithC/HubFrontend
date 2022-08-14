@@ -178,7 +178,7 @@ function memberDetail(userid) {
     $("#MemberInfoBtn" + userid).attr("disabled", "disabled");
     $("#MemberInfoBtn" + userid).html("Loading...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -273,7 +273,7 @@ function fetchRoles() {
             lastfetch = d[0].userid;
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/member?userid=" + String(lastfetch),
+                url: apidomain + "/" + vtcprefix + "/user?userid=" + String(lastfetch),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -361,16 +361,12 @@ function updateMemberPoints() {
         return;
     }
     distance = $("#memberpntdistance").val();
-    eventpnt = $("#memberpntevent").val();
-    divisionpnt = $("#memberpntdivision").val();
+    mythpoint = $("#memberpntmyth").val();
     if (!isNumber(distance)) {
         distance = 0;
     }
-    if (!isNumber(eventpnt)) {
-        eventpnt = 0;
-    }
-    if (!isNumber(divisionpnt)) {
-        divisionpnt = 0;
+    if (!isNumber(mythpoint)) {
+        mythpoint = 0;
     }
     GeneralLoad();
     $("#updateMemberPointsBtn").html("Working...");
@@ -385,8 +381,7 @@ function updateMemberPoints() {
         data: {
             "userid": userid,
             "distance": distance,
-            "eventpnt": eventpnt,
-            "divisionpnt": divisionpnt
+            "mythpoint": mythpoint,
         },
         success: function (data) {
             $("#updateMemberPointsBtn").html("Update");
@@ -417,7 +412,7 @@ function dismissUser() {
         $("#dismissbtn").html("Fetching name...");
         $("#dismissbtn").attr("disabled", "disabled");
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member?userid=" + String(userid),
+            url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
             type: "GET",
             dataType: "json",
             headers: {
@@ -611,7 +606,7 @@ function loadProfile(userid) {
         return;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member?userid=" + String(userid),
+        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -637,21 +632,23 @@ function loadProfile(userid) {
                 $("#userProfileDetail").html(info);
 
                 info = "";
-                info += "<p><b>Total Jobs:</b> " + d.totjobs + "</p>";
+                info += "<p><b>Jobs:</b> " + d.totjobs + "</p>";
                 if (distance_unit == "metric") {
-                    info += "<p><b>Distance Driven:</b> " + parseInt(d.distance) + "km</p>";
+                    info += "<p><b>Distance:</b> " + parseInt(d.distance) + "km</p>";
                 } else if (distance_unit == "imperial") {
-                    info += "<p><b>Distance Driven:</b> " + parseInt(parseInt(d.distance) * distance_ratio) + "mi</p>";
+                    info += "<p><b>Distance:</b> " + parseInt(parseInt(d.distance) * distance_ratio) + "mi</p>";
                 }
-                info += "<p><b>Fuel Consumed:</b> " + parseInt(d.fuel) + "L</p>";
-                info += "<p><b>XP Earned:</b> " + d.xp + "</p>";
-                info += "<p><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
-                info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
+                info += "<p><b>Fuel:</b> " + parseInt(d.fuel) + "L</p>";
+                info += "<p><b>XP:</b> " + d.xp + "</p>";
+                info += "<p><b>Profit:</b> €" + d.profit.euro + " + $" + d.profit.dollar +"</p>";
+                info += "<p><b>Event:</b> " + parseInt(d.eventpnt) + " Points</p>";
+                info += "<p style='text-align:left'><b>Division:</b> " + parseInt(d.divisionpnt) + " Points</p>";
+                info += "<p style='text-align:left'><b>Myth:</b> " + parseInt(d.mythpnt) + " Points</p>";
                 if (company_distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
+                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.totalpnt) +
                         "</p>";
                 } else if (company_distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
+                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.totalpnt) +
                         "</p>";
                 }
                 $("#user_statistics").html(info);

@@ -337,7 +337,7 @@ function loadStats(basic = false) {
                     name = user.name;
                     discordid = user.discordid;
                     avatar = user.avatar;
-                    totalpnt = TSeparator(parseInt(user.totalpnt));
+                    totalpnt = TSeparator(parseInt(user.total));
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";

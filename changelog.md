@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.4.1**  
+Updates to catch up with API v1.12.1  
+
 **v1.3.6**  
 Updates to catch up with API v1.11.3  
 

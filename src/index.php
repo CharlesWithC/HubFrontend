@@ -1473,8 +1473,6 @@
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
                     <div class="mb-6">
-                        <p><?php echo $st->update_member_points_note; ?></p>
-                        <br>
                         <label class="block text-sm font-medium mb-2" for=""
                             style="display:inline"><?php echo $st->user_id; ?></label>
                         <input id="memberpntid" style="width:200px;display:inline"
@@ -1491,15 +1489,8 @@
                     </div>
                     <div class="mb-6">
                         <label class="block text-sm font-medium mb-2" for=""
-                            style="display:inline"><?php echo $st->event_points; ?></label>
-                        <input id="memberpntevent" style="width:200px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""
-                            style="display:inline"><?php echo $st->division_points; ?></label>
-                        <input id="memberpntdivision" style="width:200px;display:inline"
+                            style="display:inline">Myth Point</label>
+                        <input id="memberpntmyth" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
                     </div>
@@ -3213,7 +3204,7 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.3.6 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.4.1 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

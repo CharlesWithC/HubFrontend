@@ -522,7 +522,7 @@ function appDetail(applicationid, staffmode = false) {
             ret += "";
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/user?qdiscordid=" + String(discordid),
+                url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
                 type: "GET",
                 dataType: "json",
                 headers: {
