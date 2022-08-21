@@ -16,7 +16,7 @@ async def index():
 @app.get("/{vtc_abbr}/config")
 async def getConfig(vtc_abbr: str, domain: str, request: Request, response: Response):
     if not os.path.exists(f"/var/hub/html/config/{domain}.php"):
-        response.status_code = 401
+        response.status_code = 400
         return {"error": True, "descriptor": "Invalid domain"}
     convert = {"vtcprefix": "vtc_abbr", "vtccolor": "vtc_color", "vtcname": "vtc_name", "vtcabbr": "vtc_abbr"}
     toremove = ["vtccolordark", "domain", "domainpure", "api", "apidomain", "status", "enabled_plugins"]
@@ -77,6 +77,9 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     if not authorization.startswith("Application"):
         response.status_code = 401
         return {"error": True, "descriptor": "Only application token is allowed"}
+    if len(authorization.split(" ")) != 2:
+        response.status_code = 401
+        return {"error": True, "descriptor": "Invalid authorization header"}
 
     token = authorization.split(" ")[1]
 
@@ -167,7 +170,7 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     
     # Validate domain
     if not os.path.exists(f"/var/hub/html/config/{domain}.php"):
-        response.status_code = 401
+        response.status_code = 400
         return {"error": True, "descriptor": "Invalid domain"}
         
     ovtcabbr = ""

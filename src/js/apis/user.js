@@ -787,6 +787,9 @@ function loadAdmin() {
 }
 
 function UpdateWebConfig() {
+    if($("#webconfig_apptoken").val().length != 36){
+        return toastFactory("error", "Invalid application token!");
+    }
     $("#updateWebConfigBtn").html("Working...");
     $("#updateWebConfigBtn").attr("disabled", "disabled");
     webdomain = apidomain.replaceAll("https://", "https://web.");

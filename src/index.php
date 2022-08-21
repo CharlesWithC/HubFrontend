@@ -96,7 +96,7 @@
     echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/event.js"></script>';} ?>
     <?php
     if(in_array("addon", $enabled_plugins)){
-        echo '<script src="/js/addon.js"></script>';
+        echo '<script src="https://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/addon.js"></script>';
     }
     ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
