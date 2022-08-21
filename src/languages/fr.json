@@ -167,5 +167,7 @@
     "export": "Exporter",
     "sessions": "Séances",
     "login_time": "Heure de connexion",
-    "expire_time": "Date d'expiration"
+    "expire_time": "Date d'expiration",
+    "myth_points": "Myth Points",
+    "today_statistics": "Today's statistics"
 }

@@ -155,19 +155,14 @@ function refreshStats(){
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
             newjobs = TSeparator(d.job.all.sum.new);
-            if (distance_unit == "metric") {
-                distance = sigfig(d.distance.all.sum.tot) + "km";
-                newdistance = sigfig(d.distance.all.sum.new) + "km";
-            } else if (distance_unit == "imperial") {
-                distance = sigfig(parseInt(d.distance.all.sum.all * distance_ratio)) + "mi";
-                newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + "mi";
-            }
+            distance = sigfig(parseInt(d.distance.all.sum.tot * distance_ratio)) + distance_unit_txt;
+            newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + distance_unit_txt;
             europrofit = "€" + sigfig(d.profit.all.tot.euro);
             neweuroprofit = "€" + sigfig(d.profit.all.new.euro);
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
-            fuel = sigfig(d.fuel.all.sum.tot) + "L";
-            newfuel = sigfig(d.fuel.all.sum.new) + "L";
+            fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
             $("#alldriver").html(drivers);
             $("#newdriver").html(newdrivers);
             $("#alldistance").html(distance);
@@ -229,19 +224,14 @@ function loadStats(basic = false) {
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
             newjobs = TSeparator(d.job.all.sum.new);
-            if (distance_unit == "metric") {
-                distance = sigfig(d.distance.all.sum.tot) + "km";
-                newdistance = sigfig(d.distance.all.sum.new) + "km";
-            } else if (distance_unit == "imperial") {
-                distance = sigfig(parseInt(d.distance.all.sum.all * distance_ratio)) + "mi";
-                newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + "mi";
-            }
+            distance = sigfig(parseInt(d.distance.all.sum.tot * distance_ratio)) + distance_unit_txt;
+            newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + distance_unit_txt;
             europrofit = "€" + sigfig(d.profit.all.tot.euro);
             neweuroprofit = "€" + sigfig(d.profit.all.new.euro);
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
-            fuel = sigfig(d.fuel.all.sum.tot) + "L";
-            newfuel = sigfig(d.fuel.all.sum.new) + "L";
+            fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
             $("#alldriver").html(drivers);
             $("#newdriver").html(newdrivers);
             $("#alldistance").html(distance);
@@ -299,19 +289,14 @@ function loadStats(basic = false) {
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
             newjobs = TSeparator(d.job.all.sum.new);
-            if (distance_unit == "metric") {
-                distance = sigfig(d.distance.all.sum.tot) + "km";
-                newdistance = sigfig(d.distance.all.sum.new) + "km";
-            } else if (distance_unit == "imperial") {
-                distance = sigfig(parseInt(d.distance.all.sum.all * distance_ratio)) + "mi";
-                newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + "mi";
-            }
+            distance = sigfig(parseInt(d.distance.all.sum.tot * distance_ratio)) + distance_unit_txt;
+            newdistance = sigfig(parseInt(d.distance.all.sum.new * distance_ratio)) + distance_unit_txt;
             europrofit = "€" + sigfig(d.profit.all.tot.euro);
             neweuroprofit = "€" + sigfig(d.profit.all.new.euro);
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
-            fuel = sigfig(d.fuel.all.sum.tot) + "L";
-            newfuel = sigfig(d.fuel.all.sum.new) + "L";
+            fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
             $("#wprofit").html(neweuroprofit + " + " + newdollarprofit);
             $("#walljob").html(newjobs);
             $("#wtotdistance").html(newdistance);

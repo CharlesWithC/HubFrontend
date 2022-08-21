@@ -207,6 +207,7 @@ function log10(num) {
 }
 
 function TSeparator(num){
+  num = parseInt(num);
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

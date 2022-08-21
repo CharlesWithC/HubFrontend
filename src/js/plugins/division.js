@@ -130,7 +130,7 @@ function loadDivision() {
                 for (i = 0; i < d.deliveries.length; i++) {
                     const delivery = d.deliveries[i];
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                    cargo_mass = parseInt(delivery.cargo_mass / 1000);
+                    cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                     unittxt = "€";
                     if (delivery.unit == 2) unittxt = "$";
                     profit = TSeparator(delivery.profit);
@@ -144,7 +144,7 @@ function loadDivision() {
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
+              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
               <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
             </tr>`);
                 }

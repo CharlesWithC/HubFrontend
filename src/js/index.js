@@ -5,7 +5,7 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.2)");
+console.log("Drivers Hub: Frontend (v1.4.3)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
@@ -58,7 +58,8 @@ function DarkMode() {
             .bg-white {background-color: rgba(255, 255, 255, 0.2);transition: background-color 1000ms linear;}
             .swal2-popup {background-color: rgb(41 48 57)}
             .rounded-full {background-color: #888;}
-            a:hover {color: white}</style>`);
+            a:hover {color: white}
+            a: {color: #444}</style>`);
         $("#todarksvg").hide();
         $("#tolightsvg").show();
         Chart.defaults.color = "white";
@@ -77,7 +78,8 @@ function DarkMode() {
             .bg-white {background-color: white;transition: background-color 1000ms linear;}
             .swal2-popup {background-color: white;}
             .rounded-full {background-color: #ddd;}
-            a:hover {color: black}</style>`);
+            a:hover {color: black}
+            a {color: #ccc}</style>`);
         setTimeout(function () {
             $("#convertbg2").remove();
         }, 1000);
@@ -142,6 +144,7 @@ async function ShowTab(tabname, btnname) {
     clearInterval(dmapint);
     dmapint = -1;
     $("#map,#dmap,#pmap,#amap").children().remove();
+    setTimeout(function(){ $(".tabs").hide(); $(tabname).show();},3000);// load timeout, in case of js error
     setTimeout(async function () {
         if (isdark) $("#loading").css("border", "solid lightgreen 1px");
         else $("#loading").css("border", "solid green 1px");
@@ -203,7 +206,7 @@ async function ShowTab(tabname, btnname) {
         else userid = localStorage.getItem("userid");
         window.history.pushState("", "", '/member/' + userid);
         $("#UserBanner").show();
-        $("#UserBanner").attr("src", apidomain + "/" + vtcprefix + "/user/banner?userid=" + userid);
+        $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         loadProfile(userid);
@@ -637,17 +640,21 @@ function loadDistanceUnit() {
         $(".distance_unit").html("Mi");
         distance_unit_txt = "Mi";
         fuel_unit_txt = "Gal";
+        weight_unit_txt = "Lb";
         distance_ratio = 0.621371;
         fuel_ratio = 0.2641720524;
+        weight_ratio = 2.2046226218488;
         $("#imperialbtn").css("background-color", "none");
         $("#metricbtn").css("background-color", "#293039");
     } else {
         $(".distance_unit").html("Km");
         distance_unit = "metric";
-        distance_ratio = 1;
-        fuel_ratio = 1;
         distance_unit_txt = "Km";
         fuel_unit_txt = "L";
+        weight_unit_txt = "Lb";
+        distance_ratio = 1;
+        fuel_ratio = 1;
+        weight_ratio = 1;
         $("#metricbtn").css("background-color", "none");
         $("#imperialbtn").css("background-color", "#293039");
     }
@@ -666,7 +673,8 @@ $(document).ready(function () {
             .swal2-popup {background-color: rgb(41 48 57)}
             .rounded-full {background-color: #888}
             th > .fc-scrollgrid-sync-inner {background-color: #444}
-            a:hover {color: white}</style>`);
+            a:hover {color: white}
+            a {color: #ccc}</style>`);
         $("#todarksvg").hide();
         $("#tolightsvg").show();
         Chart.defaults.color = "white";

@@ -27,12 +27,12 @@ memberuserid = {};
 curtab = "#HomeTab";
 distance_unit = localStorage.getItem("distance_unit");
 if(distance_unit == "imperial"){
-    distance_unit_txt = "mi";
+    distance_unit_txt = "Mi";
     distance_ratio = 0.621371;
 } else {
     distance_unit = "metric";
     distance_ratio = 1;
-    distance_unit_txt = "km";
+    distance_unit_txt = "Km";
 }
 
 function UpdateSteam() {

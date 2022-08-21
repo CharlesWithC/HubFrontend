@@ -21,6 +21,11 @@
         header('Location: http://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
         exit;
     }
+    if (str_starts_with($path, '/banner')) {
+        $t = explode("/", $path);
+        header('Location: http://'.$api.'/'.$vtcabbr.'/user/banner?userid='.$t[2]);
+        exit;
+    }
 
     $application_html = "";
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/application.html')){
@@ -711,7 +716,8 @@
                                     onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png');"
                                     style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
                             </div>
-                            <a style="cursor:pointer"><img id="UserBanner" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+                            <a style="cursor:pointer"><img id="UserBanner" onerror="$(this).hide();"
+                                    style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
                         </div>
                     </div>
                     <br>
@@ -814,8 +820,8 @@
                         <h2><b><?php echo $st->sessions; ?></b></h2>
                         &nbsp;&nbsp;&nbsp;
                         <button type="button" style="display:inline;padding:5px" id="revokeAllBtn"
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="revokeAllToken()">Revoke All</button>
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="revokeAllToken()">Revoke All</button>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <table class="table-auto w-full">
@@ -951,7 +957,8 @@
                                                 d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                                                 fill="#382CDD"></path>
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->live; ?></h3><span onclick="$('#statsTimeRange').fadeIn();"
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->live; ?></h3><span
+                                        onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->now; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="livedriver">-</h2>
@@ -980,7 +987,8 @@
                                             <line x1="10" y1="12" x2="3.25" y2="10" />
                                             <line x1="14" y1="12" x2="20.75" y2="10" />
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->drivers; ?></h3><span onclick="$('#statsTimeRange').fadeIn();"
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->drivers; ?></h3><span
+                                        onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alldriver">-</h2>
@@ -1002,7 +1010,8 @@
                                                 d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
                                                 fill="#382CDD"></path>
                                         </svg></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span onclick="$('#statsTimeRange').fadeIn();"
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
+                                        onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alljob">-</h2>
@@ -1026,7 +1035,8 @@
                                             <circle cx="12" cy="10" r="3"></circle>
                                         </svg>
                                     </span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->distance; ?></h3><span onclick="$('#statsTimeRange').fadeIn();"
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->distance; ?></h3><span
+                                        onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alldistance">-</h2>
@@ -1051,7 +1061,8 @@
                                             <path
                                                 d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span onclick="$('#statsTimeRange').fadeIn();"
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
+                                        onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="allprofit">-</h2>
@@ -1074,7 +1085,8 @@
                                                 d="M13,6L13,6v5.5c0,0.2761-0.2239,0.5-0.5,0.5S12,11.7761,12,11.5v-2C12,8.6716,11.3284,8,10.5,8H9V2c0-0.5523-0.4477-1-1-1H2 C1.4477,1,1,1.4477,1,2v11c0,0.5523,0.4477,1,1,1h6c0.5523,0,1-0.4477,1-1V9h1.5C10.7761,9,11,9.2239,11,9.5v2 c0,0.8284,0.6716,1.5,1.5,1.5s1.5-0.6716,1.5-1.5V5c0-0.5523-0.4477-1-1-1l0,0V2.49C12.9946,2.2178,12.7723,1.9999,12.5,2 c-0.2816,0.0047-0.5062,0.2367-0.5015,0.5184C11.9987,2.5289,11.9992,2.5395,12,2.55V5C12,5.5523,12.4477,6,13,6s1-0.4477,1-1 s-0.4477-1-1-1 M8,6.5C8,6.7761,7.7761,7,7.5,7h-5C2.2239,7,2,6.7761,2,6.5v-3C2,3.2239,2.2239,3,2.5,3h5C7.7761,3,8,3.2239,8,3.5 V6.5z"
                                                 fill="#382CDD"></path>
                                         </svg> </span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->fuel; ?></h3><span onclick="$('#statsTimeRange').fadeIn();"
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->fuel; ?></h3><span
+                                        onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="allfuel">-</h2>
@@ -1623,8 +1635,8 @@
                     <p style="display:inline" style="font-size:20px">'.$st->your_points.': <span id="ranktotpoints">'.$st->fetching_data.'</span>
                     </p>
                     <button type="button" style="display:inline"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="requestRole()" id="requestRoleBtn">'.$st->request_discord_role.'</button>
+                        class="requestRoleBtn w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                        onclick="requestRole()">'.$st->request_discord_role.'</button>
                     <br>
                     <div id="ranktable">
 
@@ -1639,7 +1651,7 @@
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
                         <div style="width:100%">
-                            <h3 class="text-xl font-bold">Today's statistics</h3>
+                            <h3 class="text-xl font-bold"><?php echo $st->today_statistics; ?></h3>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
@@ -3200,13 +3212,13 @@
             <div style="margin:0.5em;margin-top:auto;text-align:center">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
                 <a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
-        &nbsp;|&nbsp;
-		<a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
+                &nbsp;|&nbsp;
+                <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
                 <br>
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.4.2 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.4.3 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

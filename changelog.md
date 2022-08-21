@@ -1,5 +1,14 @@
 # Changelog
 
+**v1.4.3**  
+1.Added redirect for `/banner/{userid}`  
+2.Improved `<a>` text color in dark mode  
+3.Added load timeout for `ShowTab` in case errors make loading stop  
+4.Added hyper-link for Driver of the Day / Week  
+5.Improved imperial unit to support fuel and weight  
+6.Added `Request Discord Role` button for `User Statistics`  
+7.Fixed `Request Discord Role` stuck at `Working` when role already exists  
+
 **v1.4.2**  
 Updates to catch up with API v1.12.2  
 

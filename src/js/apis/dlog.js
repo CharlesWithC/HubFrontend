@@ -37,7 +37,7 @@ function loadDlog() {
                 avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
             }
             distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            $("#dotd").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b>`);
+            $("#dotd").html(`<a style="cursor:pointer" onclick="loadProfile(${driver_of_the_day.userid})"><img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b></a>`);
             $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
         }
     });
@@ -69,7 +69,7 @@ function loadDlog() {
                 avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
             }
             distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            $("#dotw").html(`<img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b>`);
+            $("#dotw").html(`<a style="cursor:pointer" onclick="loadProfile(${driver_of_the_day.userid})"><img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b></a>`);
             $("#dotwdistance").html(`Driven ${distance}${distance_unit_txt}`);
         }
     });
@@ -89,12 +89,8 @@ function loadLeaderboard(recurse = true) {
         endtime = +new Date($("#lbend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#lbspeedlimit").val());
-    if (!isNumber(speedlimit)) {
-        speedlimit = 0;
-    } else {
-        if (distance_unit == "imperial")
-            speedlimit /= distance_ratio;
-    }
+    if (!isNumber(speedlimit)) speedlimit = 0;
+    speedlimit /= distance_ratio;
     game = 0;
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
@@ -238,12 +234,8 @@ function loadDelivery(recurse = true) {
         endtime = +new Date($("#dend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#dspeedlimit").val());
-    if (!isNumber(speedlimit)) {
-        speedlimit = 0;
-    } else {
-        if (distance_unit == "imperial")
-            speedlimit /= distance_ratio;
-    }
+    if (!isNumber(speedlimit)) speedlimit = 0;
+    speedlimit /= distance_ratio;
     game = 0;
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
@@ -333,7 +325,7 @@ function loadDelivery(recurse = true) {
                 //  </tr>
                 //
                 distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                cargo_mass = parseInt(delivery.cargo_mass / 1000);
+                cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                 unittxt = "€";
                 if (delivery.unit == 2) unittxt = "$";
                 profit = TSeparator(delivery.profit);
@@ -348,7 +340,7 @@ function loadDelivery(recurse = true) {
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
+              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
               <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
             </tr>`);
             }
@@ -555,15 +547,11 @@ function deliveryDetail(logid) {
                 stop_time = +new Date(d.stop_time);
                 duration = "N/A";
                 if (start_time > 86400 * 1000) duration = String((stop_time - start_time) / 1000).toHHMMSS(); // in case start time is 19700101 and timezone
-                if (distance_unit == "metric") {
-                    planned_distance = TSeparator(parseInt(d.planned_distance)) + "km";
-                } else if (distance_unit == "imperial") {
-                    planned_distance = TSeparator(parseInt(d.planned_distance * distance_ratio)) + "mi";
-                }
+                planned_distance = TSeparator(parseInt(d.planned_distance * distance_ratio)) + distance_unit_txt;
                 fuel_used_org = d.fuel_used;
-                fuel_used = TSeparator(parseInt(d.fuel_used)) + "L";
+                fuel_used = TSeparator(parseInt(d.fuel_used * fuel_ratio)) + fuel_unit_txt;
                 cargo = d.cargo.name;
-                cargo_mass = TSeparator(parseInt(d.cargo.mass)) + "kg";
+                cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
                 source_company = "Unknown company";
                 source_city = "Unknown city";
                 destination_company = "Unknown company";
@@ -592,23 +580,15 @@ function deliveryDetail(logid) {
                     revenue = TSeparator(meta.revenue);
                     earned_xp = meta.earned_xp;
                     cargo_damage = meta.cargo_damage;
-                    if (distance_unit == "metric") {
-                        distance = TSeparator(parseInt(meta.distance)) + "km";
-                    } else if (distance_unit == "imperial") {
-                        distance = TSeparator(parseInt(meta.distance * distance_ratio)) + "mi";
-                    }
+                    distance = TSeparator(parseInt(meta.distance * distance_ratio)) + distance_unit_txt;
                     auto_park = meta.auto_park;
                     auto_load = meta.auto_load;
-                    avg_fuel = TSeparator(parseInt(fuel_used_org / (meta.distance * distance_ratio) * 100));
+                    avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (meta.distance * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
                 } else if (tp == "job.cancelled") {
-                    if (distance_unit == "metric") {
-                        distance = TSeparator(parseInt(d.driven_distance)) + "km";
-                    } else if (distance_unit == "imperial") {
-                        distance = TSeparator(parseInt(d.driven_distance * distance_ratio)) + "mi";
-                    }
+                    distance = TSeparator(parseInt(d.driven_distance * distance_ratio)) + distance_unit_txt;
                     distance_org = d.driven_distance;
                     penalty = TSeparator(meta.penalty);
-                    avg_fuel = TSeparator(parseInt(fuel_used_org / (distance_org * distance_ratio) * 100));
+                    avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
                 }
 
                 $(".ddcol").children().remove();
@@ -637,7 +617,7 @@ function deliveryDetail(logid) {
                     $("#ddcol2").append(`<p>Penalty <b>${penalty} ${punit}</b> / Offence <b>${offence} ${punit}</b></p>`);
                 }
                 $("#ddcol3").append(`<p>Max Speed <b>${top_speed} ${distance_unit_txt}/h</p>`);
-                $("#ddcol3").append(`<p>Fuel Avg <b>${avg_fuel}L/100${distance_unit_txt}</b> / Tot <b>${fuel_used}</b></p>`);
+                $("#ddcol3").append(`<p>Fuel Avg <b>${avg_fuel}</b> / Tot <b>${fuel_used}</b></p>`);
                 $("#ddcol3").append(`<p>Truck <b>${truck}</b> (<i>${license_plate})</i></p>`);
                 $("#ddcol3").append(`<p>Trailer <i>${trailer.slice(0,-3)}</i></p>`);
 
@@ -871,12 +851,8 @@ function loadUserDelivery(recurse = true) {
         endtime = +new Date($("#udend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#udspeedlimit").val());
-    if (!isNumber(speedlimit)) {
-        speedlimit = 0;
-    } else {
-        if (distance_unit == "imperial")
-            speedlimit /= distance_ratio;
-    }
+    if (!isNumber(speedlimit)) speedlimit = 0;
+    speedlimit /= distance_ratio;
     game = 0;
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;

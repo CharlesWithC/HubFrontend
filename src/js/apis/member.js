@@ -1,7 +1,7 @@
 function requestRole() {
     GeneralLoad();
-    $("#requestRoleBtn").html("Working...");
-    $("#requestRoleBtn").attr("disabled", "disabled");
+    $(".requestRoleBtn").html("Working...");
+    $(".requestRoleBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/role/rank",
         type: "PATCH",
@@ -10,14 +10,14 @@ function requestRole() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#requestRoleBtn").html("Request Role");
-            $("#requestRoleBtn").removeAttr("disabled");
+            $(".requestRoleBtn").html("Request Discord Role");
+            $(".requestRoleBtn").removeAttr("disabled");
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             else return toastFactory("success", "Success", "You have got your new role!", 5000, false);
         },
         error: function (data) {
-            $("#loadLeaderboardBtn").html("Go");
-            $("#loadLeaderboardBtn").removeAttr("disabled");
+            $(".requestRoleBtn").html("Request Discord Role");
+            $(".requestRoleBtn").removeAttr("disabled");
             toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load leaderboard. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -210,23 +210,6 @@ function memberDetail(userid) {
                     "<p style='text-align:left'><b>Steam ID:</b> <a href='https://steamcommunity.com/profiles/" +
                     d.steamid + "'>" + d.steamid + "</a></p>";
                 info += "<br><p style='text-align:left'><b>Join:</b> " + getDateTime(d.join * 1000) + "</p>";
-                // info += "<p style='text-align:left'><b>Total Jobs:</b> " + d.totjobs + "</p>";
-                // if (distance_unit == "metric") {
-                //     info += "<p style='text-align:left'><b>Distance Driven:</b> " + parseInt(d.distance) + "mi</p>";
-                // } else if (distance_unit == "imperial") {
-                //     info += "<p style='text-align:left'><b>Distance Driven:</b> " + parseInt(d.distance * distance_ratio) + "km</p>";
-                // }
-                // info += "<p style='text-align:left'><b>Fuel Consumed:</b> " + parseInt(d.fuel) + "L</p>";
-                // info += "<p style='text-align:left'><b>XP Earned:</b> " + d.xp + "</p>";
-                // info += "<p style='text-align:left'><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
-                // info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
-                // if (company_distance_unit == "metric") {
-                //     info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
-                //         "</p>";
-                // } else if (company_distance_unit == "imperial") {
-                //     info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
-                //         "</p>";
-                // }
 
             }
             Swal.fire({
@@ -586,8 +569,8 @@ function resign() {
     });
 }
 
-function CopyBannerURL(userid){
-    navigator.clipboard.writeText(apidomain + "/" + vtcprefix + "/user/banner?userid=" + userid);
+function CopyBannerURL(userid) {
+    navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
     return toastFactory("success", "Banner URL copied to clipboard!")
 }
 
@@ -679,6 +662,7 @@ function loadProfile(userid) {
                     $("#Security").hide();
                 }
 
+                $("#user_statistics").html("Loading...");
                 $.ajax({
                     url: apidomain + "/" + vtcprefix + "/dlog/stats?userid=" + String(userid),
                     type: "GET",
@@ -690,21 +674,23 @@ function loadProfile(userid) {
                         if (!data.error) {
                             d = data.response;
                             info = "";
-                            info += `<p><b>Jobs</b>: ${d.job.all.sum.tot}</p><p> ${d.job.all.ets2.tot} in ETS2 + ${d.job.all.ats.tot} in ATS</p>`;
-                            info += ` <p> ${d.job.delivered.sum.tot} Delivered + ${d.job.cancelled.sum.tot} Cancelled</p><br>`;
+                            info += `<p><b>Jobs</b>: ${TSeparator(d.job.all.sum.tot)}</p><p> ${TSeparator(d.job.all.ets2.tot)} in ETS2 + ${TSeparator(d.job.all.ats.tot)} in ATS</p>`;
+                            info += ` <p> ${TSeparator(d.job.delivered.sum.tot)} Delivered + ${TSeparator(d.job.cancelled.sum.tot)} Cancelled</p><br>`;
 
-                            dtot = d.distance.all.sum.tot * distance_ratio + distance_unit_txt;
-                            dets2 = d.distance.all.ets2.tot * distance_ratio + distance_unit_txt;
-                            dats = d.distance.all.ats.tot * distance_ratio + distance_unit_txt;
+                            dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
+                            dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
+                            dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
                             info += `<p><b>Distance</b>: ${dtot}</p><p> ${dets2} in ETS2 + ${dats} in ATS</p><br>`;
 
-                            dtot = d.fuel.all.sum.tot * fuel_ratio + fuel_unit_txt;
-                            dets2 = d.fuel.all.ets2.tot * fuel_ratio + fuel_unit_txt;
-                            dats = d.fuel.all.ats.tot * fuel_ratio + fuel_unit_txt;
+                            dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
+                            dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
+                            dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
                             info += `<p><b>Fuel</b>: ${dtot}</p><p> ${dets2} in ETS2 + ${dats} in ATS</p><br>`;
 
-                            info += "<p><b>Profit</b>: €" + d.profit.all.tot.euro + " (ETS2) + $" + d.profit.all.tot.dollar + " (ATS)</p>";
-                            info += "<p><b>Including cancellation penalty</b>: -€" + d.profit.cancelled.tot.euro + " + $" + d.profit.cancelled.tot.dollar + "</p><br>";
+                            info += "<p><b>Profit</b>: €" + TSeparator(d.profit.all.tot.euro) + " (ETS2) + $" + TSeparator(d.profit.all.tot.dollar) + " (ATS)</p>";
+                            info += "<p><b>Including cancellation penalty</b>: -€" + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "</p><br>";
+
+                            $("#user_statistics").html(info);
 
                             $.ajax({
                                 url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?limittype=distance,event,division,myth&limituser=" + String(userid),
@@ -724,6 +710,12 @@ function loadProfile(userid) {
                                         info += `<p>Myth: ${d.myth}</p>`;
                                         info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
                                         info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
+                                        if (String(userid) == localStorage.getItem("userid")) {
+                                            info += `
+                                        <button type="button" style="font-size:16px;padding:10px;padding-top:5px;padding-bottom:5px"
+                                            class="requestRoleBtn w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                            onclick="requestRole()">Request Discord Role</button>`;
+                                        }
                                         $("#user_statistics").html(info);
                                     }
                                 },
@@ -732,6 +724,9 @@ function loadProfile(userid) {
                                 }
                             });
                         }
+                    },
+                    error: function (data) {
+                        $("#user_statistics").html("Failed to load: " + JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText);
                     }
                 });
             }
