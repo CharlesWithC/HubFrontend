@@ -18,13 +18,14 @@ function requestRole() {
         error: function (data) {
             $("#loadLeaderboardBtn").html("Go");
             $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load leaderboard. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
 }
+
 function loadMembers(recurse = true) {
     page = parseInt($("#mpages").val())
     if (page == "") page = 1;
@@ -124,14 +125,14 @@ function loadMembers(recurse = true) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
                 }
                 $("#membersTable").append(`
             <tr class="text-sm">
               <td class="py-5 px-6 font-medium">${user.userid}</td>
               <td class="py-5 px-6 font-medium" style="color:${color}">
                 <a style="cursor:pointer;" onclick="loadProfile('${user.userid}')">
-                <img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${user.name}</a></td>
+                <img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> ${user.name}</a></td>
               <td class="py-5 px-6 font-medium" style="color:${color}">${highestrole}</td>
             </tr>`);
             }
@@ -168,12 +169,13 @@ function loadMembers(recurse = true) {
         error: function (data) {
             $("#searchMemberBtn").html("Go");
             $("#searchMemberBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(`Failed to load members. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
         }
     })
 }
+
 function memberDetail(userid) {
     $("#MemberInfoBtn" + userid).attr("disabled", "disabled");
     $("#MemberInfoBtn" + userid).html("Loading...");
@@ -208,23 +210,23 @@ function memberDetail(userid) {
                     "<p style='text-align:left'><b>Steam ID:</b> <a href='https://steamcommunity.com/profiles/" +
                     d.steamid + "'>" + d.steamid + "</a></p>";
                 info += "<br><p style='text-align:left'><b>Join:</b> " + getDateTime(d.join * 1000) + "</p>";
-                info += "<p style='text-align:left'><b>Total Jobs:</b> " + d.totjobs + "</p>";
-                if (distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Distance Driven:</b> " + parseInt(d.distance) + "mi</p>";
-                } else if (distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Distance Driven:</b> " + parseInt(d.distance * distance_ratio) + "km</p>";
-                }
-                info += "<p style='text-align:left'><b>Fuel Consumed:</b> " + parseInt(d.fuel) + "L</p>";
-                info += "<p style='text-align:left'><b>XP Earned:</b> " + d.xp + "</p>";
-                info += "<p style='text-align:left'><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
-                info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
-                if (company_distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
-                        "</p>";
-                } else if (company_distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
-                        "</p>";
-                }
+                // info += "<p style='text-align:left'><b>Total Jobs:</b> " + d.totjobs + "</p>";
+                // if (distance_unit == "metric") {
+                //     info += "<p style='text-align:left'><b>Distance Driven:</b> " + parseInt(d.distance) + "mi</p>";
+                // } else if (distance_unit == "imperial") {
+                //     info += "<p style='text-align:left'><b>Distance Driven:</b> " + parseInt(d.distance * distance_ratio) + "km</p>";
+                // }
+                // info += "<p style='text-align:left'><b>Fuel Consumed:</b> " + parseInt(d.fuel) + "L</p>";
+                // info += "<p style='text-align:left'><b>XP Earned:</b> " + d.xp + "</p>";
+                // info += "<p style='text-align:left'><b>Event Points:</b> " + parseInt(d.eventpnt) + "</p>";
+                // info += "<p style='text-align:left'><b>Division Points:</b> " + parseInt(d.divisionpnt) + "</p>";
+                // if (company_distance_unit == "metric") {
+                //     info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
+                //         "</p>";
+                // } else if (company_distance_unit == "imperial") {
+                //     info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(parseInt(d.distance) * 0.621371 + parseInt(d.eventpnt) + parseInt(d.divisionpnt)) +
+                //         "</p>";
+                // }
 
             }
             Swal.fire({
@@ -239,7 +241,7 @@ function memberDetail(userid) {
         error: function (data) {
             $("#MemberInfoBtn" + userid).removeAttr("disabled");
             $("#MemberInfoBtn" + userid).html("Details");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -298,7 +300,7 @@ function fetchRoles() {
                 error: function (data) {
                     $("#fetchRolesBtn").html("Fetch Existing Roles");
                     $("#fetchRolesBtn").removeAttr("disabled");
-                    toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                    toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                         false);
                     console.warn(
                         `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -345,7 +347,7 @@ function updateMemberRoles() {
         error: function (data) {
             $("#updateMemberRolesBtn").html("Update");
             $("#updateMemberRolesBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -395,7 +397,7 @@ function updateMemberPoints() {
         error: function (data) {
             $("#updateMemberPointsBtn").html("Update");
             $("#updateMemberPointsBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -437,7 +439,7 @@ function dismissUser() {
             error: function (data) {
                 $("#dismissbtn").html("Dismiss");
                 $("#dismissbtn").removeAttr("disabled");
-                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                     false);
                 console.warn(
                     `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -468,7 +470,7 @@ function dismissUser() {
         error: function (data) {
             $("#dismissbtn").removeAttr("disabled");
             $("#dismissbtn").html("Dismiss");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to dismiss member. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -504,7 +506,7 @@ function updateBio() {
         error: function (data) {
             $("#updateBioBtn").html("Update");
             $("#updateBioBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to update About Me. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -534,7 +536,7 @@ function genNewAppToken() {
         error: function (data) {
             $("#genAppTokenBtn").html("Reset Token");
             $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to generate app token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -575,7 +577,7 @@ function resign() {
         error: function (data) {
             $("#resignBtn").html("Resign");
             $("#resignBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to resign. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -583,6 +585,12 @@ function resign() {
         }
     });
 }
+
+function CopyBannerURL(userid){
+    navigator.clipboard.writeText(apidomain + "/" + vtcprefix + "/user/banner?userid=" + userid);
+    return toastFactory("success", "Banner URL copied to clipboard!")
+}
+
 function loadProfile(userid) {
     if (userid < 0) {
         return;
@@ -595,7 +603,7 @@ function loadProfile(userid) {
     $("#udpages").val("1");
     curprofile = userid;
     loadUserDelivery(userid);
-    if(userid == parseInt(localStorage.getItem("userid"))){
+    if (userid == parseInt(localStorage.getItem("userid"))) {
         loadSesions();
         $("#userSessions").show();
     } else {
@@ -621,8 +629,10 @@ function loadProfile(userid) {
                 window.history.pushState("", "", '/member/' + userid);
                 d = data.response;
                 $("#account_id").html(d.userid + " (" + getDateTime(d.join * 1000) + ")");
-                if(d.email != undefined){$("#account_email").html(d.email);$(".email_private").show();}
-                else $(".email_private").hide();
+                if (d.email != undefined) {
+                    $("#account_email").html(d.email);
+                    $(".email_private").show();
+                } else $(".email_private").hide();
                 $("#account_discordid").html(d.discordid);
                 $("#account_steamid").html(d.steamid);
                 $("#account_truckersmpid").html(d.truckersmpid);
@@ -630,28 +640,6 @@ function loadProfile(userid) {
                 info += "<h1 style='font-size:40px'><b>" + d.name + "</b></h1>";
                 info += "" + parseMarkdown(d.bio);
                 $("#userProfileDetail").html(info);
-
-                info = "";
-                info += "<p><b>Jobs:</b> " + d.totjobs + "</p>";
-                if (distance_unit == "metric") {
-                    info += "<p><b>Distance:</b> " + parseInt(d.distance) + "km</p>";
-                } else if (distance_unit == "imperial") {
-                    info += "<p><b>Distance:</b> " + parseInt(parseInt(d.distance) * distance_ratio) + "mi</p>";
-                }
-                info += "<p><b>Fuel:</b> " + parseInt(d.fuel) + "L</p>";
-                info += "<p><b>XP:</b> " + d.xp + "</p>";
-                info += "<p><b>Profit:</b> €" + d.profit.euro + " + $" + d.profit.dollar +"</p>";
-                info += "<p><b>Event:</b> " + parseInt(d.eventpnt) + " Points</p>";
-                info += "<p style='text-align:left'><b>Division:</b> " + parseInt(d.divisionpnt) + " Points</p>";
-                info += "<p style='text-align:left'><b>Myth:</b> " + parseInt(d.mythpnt) + " Points</p>";
-                if (company_distance_unit == "metric") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.totalpnt) +
-                        "</p>";
-                } else if (company_distance_unit == "imperial") {
-                    info += "<p style='text-align:left'><b>Total Points:</b> " + parseInt(d.totalpnt) +
-                        "</p>";
-                }
-                $("#user_statistics").html(info);
 
                 avatar = d.avatar;
                 if (avatar != null) {
@@ -661,7 +649,7 @@ function loadProfile(userid) {
                         src = "https://cdn.discordapp.com/avatars/" + d.discordid + "/" + avatar + ".png";
                     $("#UserProfileAvatar").attr("src", src);
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
                 }
                 roles = d.roles;
                 rtxt = "";
@@ -690,11 +678,67 @@ function loadProfile(userid) {
                     $(".account_private").hide();
                     $("#Security").hide();
                 }
+
+                $.ajax({
+                    url: apidomain + "/" + vtcprefix + "/dlog/stats?userid=" + String(userid),
+                    type: "GET",
+                    dataType: "json",
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    },
+                    success: async function (data) {
+                        if (!data.error) {
+                            d = data.response;
+                            info = "";
+                            info += `<p><b>Jobs</b>: ${d.job.all.sum.tot}</p><p> ${d.job.all.ets2.tot} in ETS2 + ${d.job.all.ats.tot} in ATS</p>`;
+                            info += ` <p> ${d.job.delivered.sum.tot} Delivered + ${d.job.cancelled.sum.tot} Cancelled</p><br>`;
+
+                            dtot = d.distance.all.sum.tot * distance_ratio + distance_unit_txt;
+                            dets2 = d.distance.all.ets2.tot * distance_ratio + distance_unit_txt;
+                            dats = d.distance.all.ats.tot * distance_ratio + distance_unit_txt;
+                            info += `<p><b>Distance</b>: ${dtot}</p><p> ${dets2} in ETS2 + ${dats} in ATS</p><br>`;
+
+                            dtot = d.fuel.all.sum.tot * fuel_ratio + fuel_unit_txt;
+                            dets2 = d.fuel.all.ets2.tot * fuel_ratio + fuel_unit_txt;
+                            dats = d.fuel.all.ats.tot * fuel_ratio + fuel_unit_txt;
+                            info += `<p><b>Fuel</b>: ${dtot}</p><p> ${dets2} in ETS2 + ${dats} in ATS</p><br>`;
+
+                            info += "<p><b>Profit</b>: €" + d.profit.all.tot.euro + " (ETS2) + $" + d.profit.all.tot.dollar + " (ATS)</p>";
+                            info += "<p><b>Including cancellation penalty</b>: -€" + d.profit.cancelled.tot.euro + " + $" + d.profit.cancelled.tot.dollar + "</p><br>";
+
+                            $.ajax({
+                                url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?limittype=distance,event,division,myth&limituser=" + String(userid),
+                                type: "GET",
+                                dataType: "json",
+                                headers: {
+                                    "Authorization": "Bearer " + localStorage.getItem("token")
+                                },
+                                success: async function (data) {
+                                    if (!data.error) {
+                                        info += "<hr><br>";
+                                        d = data.response.list[0];
+                                        info += "<p><b>Points</b></p>";
+                                        info += `<p>Distance: ${d.distance}</p>`;
+                                        info += `<p>Event: ${d.event}</p>`;
+                                        info += `<p>Division: ${d.division}</p>`;
+                                        info += `<p>Myth: ${d.myth}</p>`;
+                                        info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
+                                        info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
+                                        $("#user_statistics").html(info);
+                                    }
+                                },
+                                error: async function (data) {
+                                    $("#user_statistics").html(info);
+                                }
+                            });
+                        }
+                    }
+                });
             }
         },
         error: function (data) {
             ShowTab("#HomeTab", "#HomeTabBtn");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -702,6 +746,7 @@ function loadProfile(userid) {
         }
     });
 }
+
 function resign() {
     if ($("#resignBtn").html() != "Confirm?") {
         $("#resignBtn").html("Confirm?");
@@ -734,7 +779,7 @@ function resign() {
         error: function (data) {
             $("#resignBtn").html("Resign");
             $("#resignBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to resign. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);

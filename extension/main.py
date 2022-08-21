@@ -15,7 +15,7 @@ async def index():
 
 @app.get("/{vtc_abbr}/config")
 async def getConfig(vtc_abbr: str, domain: str, request: Request, response: Response):
-    if not os.path.exists(f"/var/hub/html/configs/{domain}.php"):
+    if not os.path.exists(f"/var/hub/html/config/{domain}.php"):
         response.status_code = 401
         return {"error": True, "descriptor": "Invalid domain"}
     convert = {"vtcprefix": "vtc_abbr", "vtccolor": "vtc_color", "vtcname": "vtc_name", "vtcabbr": "vtc_abbr"}
@@ -23,7 +23,7 @@ async def getConfig(vtc_abbr: str, domain: str, request: Request, response: Resp
 
     config = {}
 
-    o = open(f"/var/hub/html/configs/{domain}.php","r").read().split("\n")
+    o = open(f"/var/hub/html/config/{domain}.php","r").read().split("\n")
     for oo in o:
         oo = oo.split(" = ")
         if len(oo) < 2:
@@ -37,7 +37,7 @@ async def getConfig(vtc_abbr: str, domain: str, request: Request, response: Resp
         value = value[value.find('"') + 1 : value.rfind('"')]
         config[item] = value
 
-    o = open(f"/var/hub/html/configs/{domain}.js","r").read().replace("\n",",").split(",")
+    o = open(f"/var/hub/html/config/{domain}.js","r").read().replace("\n",",").split(",")
     for oo in o:
         oo = oo.split("=")
         if len(oo) < 2:
@@ -166,13 +166,13 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
             pass
     
     # Validate domain
-    if not os.path.exists(f"/var/hub/html/configs/{domain}.php"):
+    if not os.path.exists(f"/var/hub/html/config/{domain}.php"):
         response.status_code = 401
         return {"error": True, "descriptor": "Invalid domain"}
         
     ovtcabbr = ""
     enabled_plugins = ""
-    o = open(f"/var/hub/html/configs/{domain}.php", "r").read().split("\n")
+    o = open(f"/var/hub/html/config/{domain}.php", "r").read().split("\n")
     for oo in o:
         if oo.find("$vtcabbr") != -1:
             ovtcabbr = oo[oo.find('"')+1:oo.rfind('"')]
@@ -207,7 +207,7 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     $enabled_plugins = {enabled_plugins};
     ?>"""
 
-    open(f"/var/hub/html/configs/{domain}.php", "w").write(frontend_conf_php)
+    open(f"/var/hub/html/config/{domain}.php", "w").write(frontend_conf_php)
 
     # Update js config
     company_distance_unit = form["company_distance_unit"].replace("<", "") # prevent html tag
@@ -218,7 +218,7 @@ async def patchConfig(vtc_abbr: str, request: Request, response: Response, autho
     apidomain = "https://{apidomain}";
     navio_company_id = {navio_company_id};"""
 
-    open(f"/var/hub/html/configs/{domain}.js", "w").write(frontend_conf_js)
+    open(f"/var/hub/html/config/{domain}.js", "w").write(frontend_conf_js)
 
     custom_application = form["custom_application"]
     soup = BeautifulSoup(custom_application, "html.parser")

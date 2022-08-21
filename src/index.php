@@ -5,7 +5,7 @@
 <head>
     <?php
     $domain = $_SERVER['HTTP_HOST'];
-    require_once('configs/'.$domain.'.php');
+    require_once('config/'.$domain.'.php');
 
     $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
     $language = substr($language, 0, 2);
@@ -66,7 +66,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
-    <script src="/configs/<?php echo $domainpure ?>.js"></script>
+    <script src="/config/<?php echo $domainpure ?>.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/menu.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/index.js"></script>
@@ -711,6 +711,7 @@
                                     onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png');"
                                     style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
                             </div>
+                            <a style="cursor:pointer"><img id="UserBanner" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
                         </div>
                     </div>
                     <br>
@@ -1489,7 +1490,7 @@
                     </div>
                     <div class="mb-6">
                         <label class="block text-sm font-medium mb-2" for=""
-                            style="display:inline">Myth Point</label>
+                            style="display:inline"><?php echo $st->myth_points; ?></label>
                         <input id="memberpntmyth" style="width:200px;display:inline"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></input>
@@ -1497,7 +1498,7 @@
 
                     <button type="button" id="updateMemberPointsBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateMemberPoints()"><?php echo $st->page; ?></button>
+                        onclick="updateMemberPoints()"><?php echo $st->update; ?></button>
                 </div>
             </div>
             <br>
@@ -1569,6 +1570,7 @@
                                 </th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->event_points; ?></th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->division_points; ?></th>
+                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->myth_points; ?></th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->total_points; ?></th>
                             </tr>
                         </thead>
@@ -3204,7 +3206,7 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.4.1 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.4.2 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

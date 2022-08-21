@@ -5,7 +5,7 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.1)");
+console.log("Drivers Hub: Frontend (v1.4.2)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
@@ -202,6 +202,10 @@ async function ShowTab(tabname, btnname) {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
         window.history.pushState("", "", '/member/' + userid);
+        $("#UserBanner").show();
+        $("#UserBanner").attr("src", apidomain + "/" + vtcprefix + "/user/banner?userid=" + userid);
+        $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
+        $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         loadProfile(userid);
     }
     if (tabname == "#HomeTab") {
@@ -260,6 +264,23 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#Ranking") {
         window.history.pushState("", "", '/ranking');
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?limittype=distance,event,division,myth&limituser=" + userid,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                if (data.error == false) {
+                    d = data.response.list[0];
+                    rank = point2rank(d.total_no_limit);
+                    $("#ranktotpoints").html(TSeparator(d.total_no_limit) + " - " + rank);
+                    if ($("#role").html() == "Driver")
+                        $("#role").html(rank);
+                }
+            }
+        });
     }
     if (tabname == "#Division") {
         window.history.pushState("", "", '/division');
@@ -553,25 +574,6 @@ function validate() {
                         }
                     }
                 }
-                if (userid != -1) {
-                    $.ajax({
-                        url: apidomain + "/" + vtcprefix + "/user?userid=" + userid,
-                        type: "GET",
-                        dataType: "json",
-                        headers: {
-                            "Authorization": "Bearer " + token
-                        },
-                        success: function (data) {
-                            if (data.error == false) {
-                                d = data.response;
-                                rank = point2rank(d.totalpnt);
-                                $("#ranktotpoints").html(TSeparator(d.totalpnt) + " - " + rank);
-                                if ($("#role").html() == "Driver")
-                                    $("#role").html(rank);
-                            }
-                        }
-                    });
-                }
             }
         }
     });
@@ -632,16 +634,20 @@ window.onpopstate = function (event) {
 function loadDistanceUnit() {
     distance_unit = localStorage.getItem("distance_unit");
     if (distance_unit == "imperial") {
-        $(".distance_unit").html("mi");
-        distance_unit_txt = "mi";
+        $(".distance_unit").html("Mi");
+        distance_unit_txt = "Mi";
+        fuel_unit_txt = "Gal";
         distance_ratio = 0.621371;
+        fuel_ratio = 0.2641720524;
         $("#imperialbtn").css("background-color", "none");
         $("#metricbtn").css("background-color", "#293039");
     } else {
-        $(".distance_unit").html("km");
+        $(".distance_unit").html("Km");
         distance_unit = "metric";
         distance_ratio = 1;
-        distance_unit_txt = "km";
+        fuel_ratio = 1;
+        distance_unit_txt = "Km";
+        fuel_unit_txt = "L";
         $("#metricbtn").css("background-color", "none");
         $("#imperialbtn").css("background-color", "#293039");
     }

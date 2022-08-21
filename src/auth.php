@@ -2,7 +2,7 @@
 <html lang="en">
 <?php
   $domain = $_SERVER['HTTP_HOST'];
-  require_once('configs/'.$domain.'.php');
+  require_once('config/'.$domain.'.php');
 ?>
 
 <head>
@@ -30,7 +30,7 @@
     }
 </style>
 
-    <script src="/configs/<?php echo $domainpure ?>.js"></script>
+    <script src="/config/<?php echo $domainpure ?>.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -45,7 +45,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.1)");
+console.log("Drivers Hub: Frontend (v1.4.2)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
         function toastFactory(type, title, text, time, showConfirmButton) {
@@ -243,7 +243,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.4.1 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.4.2 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.4.2</strong><br>Updates to catch up with API v1.12.2  </p>
 <p><strong>v1.4.1</strong><br>Updates to catch up with API v1.12.1  </p>
 <p><strong>v1.3.6</strong><br>Updates to catch up with API v1.11.3  </p>
 <p><strong>v1.3.5</strong><br>1.Fixed the bug that announcement is sending <code>test</code> as message content<br>2.Fixed the bug that application content shows corrupted questions when user translate the page<br>3.Fixed the bug that default application shows <code>&lt;?php echo ... ?&gt;</code><br>4.Improved auto redirect to <code>/login</code> when token is invalid<br>5.Added option to set custom message content for announcement<br>6.Added French Translation<br>7.Added <code>password_login</code> and <code>password_login_note</code> to string table  </p>

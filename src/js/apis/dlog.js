@@ -134,6 +134,7 @@ function loadLeaderboard(recurse = true) {
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
               <td class="py-5 px-6 font-medium"></td>
+              <td class="py-5 px-6 font-medium"></td>
             </tr>`);
                 $("#lpages").val(1);
                 if (recurse) loadLeaderboard(recurse = false);
@@ -204,6 +205,7 @@ function loadLeaderboard(recurse = true) {
                 <td class="py-5 px-6">${distance}</td>
                 <td class="py-5 px-6">${user.event}</td>
                 <td class="py-5 px-6">${user.division}</td>
+                <td class="py-5 px-6">${user.myth}</td>
               <td class="py-5 px-6">${totalpnt}</td>
             </tr>`);
             }
