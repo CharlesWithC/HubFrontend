@@ -30,6 +30,8 @@ lastdownloadsupd = 0;
 function UpdateDownloads() {
     if (+new Date() - lastdownloadsupd < 50) return;
     lastdownloadsupd = +new Date();
+    $("#saveDownloadsBtn").html("Working...");
+    $("#saveDownloadsBtn").attr("disabled", "disabled");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/downloads",
         type: "PATCH",
@@ -41,10 +43,14 @@ function UpdateDownloads() {
             "data": $("#downloadscontent").val()
         },
         success: function (data) {
+            $("#saveDownloadsBtn").html("Update");
+            $("#saveDownloadsBtn").removeAttr("disabled");
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             $("#downloads").html(parseMarkdown($("#downloadscontent").val()));
         },
         error: function (data) {
+            $("#saveDownloadsBtn").html("Update");
+            $("#saveDownloadsBtn").removeAttr("disabled");
             toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to update downloads. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);

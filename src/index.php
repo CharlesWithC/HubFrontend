@@ -674,7 +674,7 @@
                                     </svg>
                                 </span>
                             </a>
-                            <a id="logout" style="cursor: pointer;margin-top:11px">
+                            <a id="logout" style="cursor: pointer;margin-top:11px" onclick="Logout()">
                                 <span class="inline-block mr-4">
                                     <svg class="text-gray-600 w-5 h-5" viewbox="0 0 14 18" fill="none"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -1264,6 +1264,9 @@
                         <textarea id="downloadscontent" style="width:100%;height:60vh"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                             name="field-name" rows="5" placeholder=""></textarea>
+                        <button type="button" id="saveDownloadsBtn"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="UpdateDownloads()"><?php echo $st->update; ?></button>
                     </div>
                 </div>
             </div>

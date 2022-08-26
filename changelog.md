@@ -1,5 +1,9 @@
 # Changelog
 
+**v1.4.4**  
+1.Fixed staff application "Agree to terms" not working  
+2.Added button to save downloads content  
+
 **v1.4.3**  
 1.Added redirect for `/banner/{userid}`  
 2.Improved `<a>` text color in dark mode  

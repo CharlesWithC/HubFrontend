@@ -45,6 +45,26 @@ if (positions != undefined && positions != null) {
     positions = [];
 }
 
+function Logout(){
+    token = localStorage.getItem("token")
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/token",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        },
+        error: function (data) {
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+        }
+    });
+}
+
 function DarkMode() {
     if (!isdark) {
         $("body").css("transition", "color 1000ms linear");
@@ -770,23 +790,22 @@ $(document).ready(function () {
         }
     });
 
-    function devwarn() {
-        return;
-        for (var i = 0; i < 3; i++) {
-            setTimeout(function () {
-                console.log("%cHold Up!", "color: #0000ff; font-size: 100px;");
-                console.log(
-                    "%cYou are likely to be hacked if anyone ask you to paste something here, or look for data in Local Storage!",
-                    "color:red; font-size: 15px;");
-                console.log(
-                    "%cUnless you understand exactly what you are doing, close this window and stay safe.",
-                    "font-size: 15px;");
-                console.log(
-                    "%cIf you do understand exactly what you are doing, you should come work with us, simply submit an application and we'll get back to you very soon",
-                    "font-size: 15px;");
-            }, 800 * i);
-        }
-    }
+    // function devwarn() {
+    //     for (var i = 0; i < 3; i++) {
+    //         setTimeout(function () {
+    //             console.log("%cHold Up!", "color: #0000ff; font-size: 100px;");
+    //             console.log(
+    //                 "%cYou are likely to be hacked if anyone ask you to paste something here, or look for data in Local Storage!",
+    //                 "color:red; font-size: 15px;");
+    //             console.log(
+    //                 "%cUnless you understand exactly what you are doing, close this window and stay safe.",
+    //                 "font-size: 15px;");
+    //             console.log(
+    //                 "%cIf you do understand exactly what you are doing, you should come work with us, simply submit an application and we'll get back to you very soon",
+    //                 "font-size: 15px;");
+    //         }, 800 * i);
+    //     }
+    // }
     //devwarn();
     $("body").keydown(function (e) {
         var keyCode = e.keyCode || e.which;
@@ -811,28 +830,6 @@ $(document).ready(function () {
     $("#allapppage").val("1");
     $("#myapppage").val("1");
 
-    $("#logout").click(function () {
-        token = localStorage.getItem("token")
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token",
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            },
-            error: function (data) {
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            }
-        });
-    });
-    $('#downloadscontent').on('input', function () {
-        UpdateDownloads();
-    });
     $('#appselect').on('change', function () {
         var value = $(this).val();
         $(".apptabs").hide();
