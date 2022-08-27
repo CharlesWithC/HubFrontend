@@ -54,7 +54,7 @@ function SubmitApp() {
             "Authorization": "Bearer " + token
         },
         data: {
-            "apptype": apptype,
+            "application_type": apptype,
             "data": data
         },
         success: function (data) {
@@ -104,7 +104,7 @@ function SubmitApp() {
 function loadMyApp(recurse = true) {
     page = parseInt($("#myapppage").val())
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/applications?page=" + page + "&apptype=0",
+        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -132,7 +132,7 @@ function loadMyApp(recurse = true) {
                 return;
             }
             $("#myappTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#myapppage").val(1);
                 if (recurse) loadMyApp(recurse = false);
@@ -181,10 +181,10 @@ function loadMyApp(recurse = true) {
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
                 //
-                apptype = APPTYPE[application.apptype];
-                creation = getDateTime(application.submitTimestamp * 1000);
-                closedat = getDateTime(application.closedTimestamp * 1000);
-                if (application.closedTimestamp == 0) {
+                apptype = APPTYPE[application.application_type];
+                creation = getDateTime(application.submit_timestamp * 1000);
+                closedat = getDateTime(application.update_timestamp * 1000);
+                if (application.update_timestamp == 0) {
                     closedat = "/";
                     console.log(closedat);
                 }
@@ -262,7 +262,7 @@ function addAppMessage() {
 function loadAllApp(recurse = true) {
     page = parseInt($('#allapppage').val())
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/applications?page=" + page + "&apptype=0&showall=1",
+        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0&all_user=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -273,8 +273,7 @@ function loadAllApp(recurse = true) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
                 false);
             $("#allappTable").empty();
-            $("#totpages").html(Math.ceil(data.response.tot / 10));
-            $("#allapppage").val(data.response.page);
+            $("#totpages").html(Math.ceil(data.response.total_items / 10));
             const applications = data.response.list;
             APPTYPE = ["", "Driver", "Staff", "LOA", "Division"];
             STATUS = ["Pending", "Accepted", "Declined"];
@@ -294,7 +293,7 @@ function loadAllApp(recurse = true) {
                 return;
             }
             $("#allappTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#allapppage").val(1);
                 if (recurse) loadAllApp(recurse = false);
@@ -343,10 +342,10 @@ function loadAllApp(recurse = true) {
                 //    <td class="py-5 px-6 font-medium">name here</td>
                 //  </tr>
                 //
-                apptype = APPTYPE[application.apptype];
-                creation = getDateTime(application.submitTimestamp * 1000);
-                closedat = getDateTime(application.closedTimestamp * 1000);
-                if (application.closedTimestamp == 0) {
+                apptype = APPTYPE[application.application_type];
+                creation = getDateTime(application.submit_timestamp * 1000);
+                closedat = getDateTime(application.update_timestamp * 1000);
+                if (application.update_timestamp == 0) {
                     closedat = "/";
                     console.log(closedat);
                 }
@@ -404,7 +403,7 @@ function appDetail(applicationid, staffmode = false) {
                     false);
             }
             APPTYPE = ["", "Driver", "Staff", "LOA", "Division"];
-            apptype = APPTYPE[data.response.apptype];
+            apptype = APPTYPE[data.response.application_type];
             ret = "";
             for (i = 0; i < keys.length; i++) {
                 ret += "<p style='text-align:left'><b>" + keys[i] + ":</b><br> " + d[keys[i]] + "</p><br>";
@@ -562,7 +561,7 @@ function updateStaffPosition() {
     positions = $("#staffposedit").val().replaceAll("\n", ",");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/positions",
-        type: "POST",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

@@ -46,7 +46,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.3)");
+console.log("Drivers Hub: Frontend (v1.4.5)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 		function toastFactory(type, title, text, time, showConfirmButton) {
@@ -70,7 +70,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		}
 
 		function DiscordLogin() {
-			location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login';
+			location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/auth/discord/redirect';
 		}
 
 		function validate() {
@@ -140,7 +140,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 					email = $("#email").val();
 					password = $("#password").val();
 					$.ajax({
-						url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login/password",
+						url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/auth/password",
 						type: "POST",
 						dataType: "json",
 						data: {
@@ -203,7 +203,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.4.3 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.4.5 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

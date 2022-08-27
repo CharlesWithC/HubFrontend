@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.4.5**  
+Updates to catch up with API v1.12.7
+
 **v1.4.4**  
 1.Fixed staff application "Agree to terms" not working  
 2.Added button to save downloads content  

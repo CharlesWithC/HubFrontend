@@ -3,7 +3,7 @@ function requestRole() {
     $(".requestRoleBtn").html("Working...");
     $(".requestRoleBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/role/rank",
+        url: apidomain + "/" + vtcprefix + "/member/roles/rank",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -34,7 +34,7 @@ function loadMembers(recurse = true) {
     $("#searchMemberBtn").html("...");
     $("#searchMemberBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/members?page=" + page + "&order_by=highest_role&order=desc&query=" + $("#searchname").val(),
+        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + $("#searchname").val(),
         type: "GET",
         dataType: "json",
         headers: {
@@ -59,7 +59,7 @@ function loadMembers(recurse = true) {
                 return;
             }
             $("#membersTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#mpages").val(1);
                 if (recurse) loadMembers(recurse = false);
@@ -242,7 +242,7 @@ function fetchRoles() {
     $("#rolelist").children().children().prop("checked", false);
     $("#memberrolename").html("");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=highest_role&order=desc&query=" + val,
+        url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + val,
         type: "GET",
         dataType: "json",
         headers: {
@@ -308,8 +308,8 @@ function updateMemberRoles() {
         roles.push(d[i].id.replaceAll("role", ""));
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/role",
-        type: "POST",
+        url: apidomain + "/" + vtcprefix + "/member/roles",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -498,36 +498,6 @@ function updateBio() {
     });
 }
 
-function genNewAppToken() {
-    GeneralLoad();
-    $("#genAppTokenBtn").html("Working...");
-    $("#genAppTokenBtn").attr("disabled", "disabled");
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/application",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            $("#genAppTokenBtn").html("Reset Token");
-            $("#genAppTokenBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            $("#userAppToken").html(data.response.token);
-            return toastFactory("success", "Success", "Application Token generated!", 5000, false);
-        },
-        error: function (data) {
-            $("#genAppTokenBtn").html("Reset Token");
-            $("#genAppTokenBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to generate app token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
-        }
-    });
-}
-
 function resign() {
     if ($("#resignBtn").html() != "Confirm?") {
         $("#resignBtn").html("Confirm?");
@@ -664,7 +634,7 @@ function loadProfile(userid) {
 
                 $("#user_statistics").html("Loading...");
                 $.ajax({
-                    url: apidomain + "/" + vtcprefix + "/dlog/stats?userid=" + String(userid),
+                    url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?userid=" + String(userid),
                     type: "GET",
                     dataType: "json",
                     headers: {
@@ -693,7 +663,7 @@ function loadProfile(userid) {
                             $("#user_statistics").html(info);
 
                             $.ajax({
-                                url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?limittype=distance,event,division,myth&limituser=" + String(userid),
+                                url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + String(userid),
                                 type: "GET",
                                 dataType: "json",
                                 headers: {

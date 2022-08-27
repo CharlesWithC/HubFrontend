@@ -7,7 +7,7 @@ function FetchAnnouncement() {
     $("#fetchAnnouncementBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcements?aid=" + aid,
+        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + aid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -21,7 +21,7 @@ function FetchAnnouncement() {
             const announcement = data.response;
             $("#anntitle").val(announcement.title);
             $("#anncontent").val(announcement.content);
-            if (announcement.private) $("#annpvt-1").prop("checked", true);
+            if (announcement.is_private) $("#annpvt-1").prop("checked", true);
             else $("#annpvt-0").prop("checked", true);
             $('#annselect option:eq(' + announcement.atype + ')').prop('selected', true);
         },
@@ -65,14 +65,13 @@ function AnnouncementOp() {
     if (op == "update") {
         annid = parseInt(annid);
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement",
+            url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+annid,
             type: "PATCH",
             dataType: "json",
             headers: {
                 "Authorization": "Bearer " + token
             },
             data: {
-                "aid": annid,
                 "title": title,
                 "content": content,
                 "atype": anntype,
@@ -182,7 +181,7 @@ function AnnouncementOp() {
     } else if (op == "delete") {
         annid = parseInt(annid);
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement?aid=" + annid,
+            url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + annid,
             type: "DELETE",
             dataType: "json",
             headers: {

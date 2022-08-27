@@ -5,7 +5,7 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.3)");
+console.log("Drivers Hub: Frontend (v1.4.5)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
@@ -288,7 +288,7 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#Ranking") {
         window.history.pushState("", "", '/ranking');
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?limittype=distance,event,division,myth&limituser=" + userid,
+            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + userid,
             type: "GET",
             dataType: "json",
             headers: {
@@ -358,12 +358,12 @@ function AnnEventBtn() {
         from = $("#eventfrom").val();
         to = $("#eventto").val();
         distance = $("#eventdistance").val();
-        mts = $("#eventmts").val();
-        dts = $("#eventdts").val();
+        meetup_timestamp = $("#eventmeetup_timestamp").val();
+        departure_timestamp = $("#eventdeparture_timestamp").val();
         eventid = $("#eventid").val();
         if (!$("#newEventBtn").prop("disabled")) {
             if (isNumber(eventid)) {
-                if (title != "" || from != "" || to != "" || distance != "" || mts != "" || dts != "") {
+                if (title != "" || from != "" || to != "" || distance != "" || meetup_timestamp != "" || departure_timestamp != "") {
                     $("#newEventBtn").html("Update Event");
                     $("#newEventBtn").css("background-color", "lightgreen");
                 } else {
@@ -754,7 +754,7 @@ $(document).ready(function () {
             val = $("#attendeeId").val();
             if (val == "") return;
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=highest_role&order=desc&query=" + val,
+                url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + val,
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -807,12 +807,12 @@ $(document).ready(function () {
     //     }
     // }
     //devwarn();
-    $("body").keydown(function (e) {
-        var keyCode = e.keyCode || e.which;
-        if (keyCode == 123) {
-            devwarn();
-        }
-    });
+    // $("body").keydown(function (e) {
+    //     var keyCode = e.keyCode || e.which;
+    //     if (keyCode == 123) {
+    //         devwarn();
+    //     }
+    // });
 
     setInterval(function () {
         if ($("#HomeTab").width() / 3 <= 300) {
@@ -843,7 +843,7 @@ $(document).ready(function () {
     });
     annpage = 2;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcements?page=1",
+        url: apidomain + "/" + vtcprefix + "/announcement?page=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -854,7 +854,7 @@ $(document).ready(function () {
             if (ann.length > 0) {
                 a = ann[0];
                 dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10px;color:grey'><b>#" + a.aid + "</b> | <b>" + dt +
+                content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
                     "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.byuserid + ")'><i>" + a.by + "</i></a></span><br>" +
                     parseMarkdown(a.content.replaceAll("\n", "<br>"));
                 TYPES = ["info", "info", "warning", "criticle", "resolved"];
@@ -864,7 +864,7 @@ $(document).ready(function () {
             for (i = 0; i < ann.length; i++) {
                 a = ann[i];
                 dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10  px;color:grey'><b>#" + a.aid + "</b> | <b>" + dt +
+                content = "<span style='font-size:10  px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
                     "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.byuserid + ")'><i>" + a.by + "</i></a></span><br>" +
                     parseMarkdown(a.content.replaceAll("\n", "<br>"));
                 TYPES = ["info", "info", "warning", "criticle", "resolved"];
@@ -900,7 +900,7 @@ $(document).ready(function () {
         if (curtab != "#AnnTab") return;
         if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/announcements?page=" + annpage,
+                url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -912,7 +912,7 @@ $(document).ready(function () {
                     for (i = 0; i < ann.length; i++) {
                         a = ann[i];
                         dt = getDateTime(a.timestamp * 1000);
-                        content = "<span style='font-size:10px;color:grey'><b>#" + a.aid + "</b> | <b>" + dt +
+                        content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
                             "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.byuserid + ")'><i>" + a.by + "</i></a></span><br>" +
                             parseMarkdown(a.content.replaceAll("\n", "<br>"));
                         TYPES = ["info", "info", "warning", "criticle", "resolved"];
@@ -962,7 +962,7 @@ $(document).ready(function () {
         datalist = "#" + eid + "_datalist";
         content = $("#" + eid).val();
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=highest_role&order=desc&query=" + content,
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + content,
             type: "GET",
             dataType: "json",
             headers: {

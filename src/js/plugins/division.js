@@ -5,7 +5,7 @@ function loadDivisionList(){
     }
     if (+new Date() - lastDivisionUpdate > 86400) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/divisions",
+            url: apidomain + "/" + vtcprefix + "/division/list",
             type: "GET",
             dataType: "json",
             headers: {
@@ -87,11 +87,11 @@ function loadDivision() {
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             const d = data.response;
-            info = d.info;
+            info = d.statistics;
             for (var i = 0; i < info.length; i++) {
-                divisionid = info[i].id;
+                divisionid = info[i].divisionid;
                 divisionname = info[i].name;
-                stats = info[i].stats;
+                stats = info[i].drivers;
                 tablename = "#divisionTable" + divisionid;
                 $(tablename).empty();
                 if (stats.length == 0) {
@@ -112,7 +112,7 @@ function loadDivision() {
             }
 
             $("#divisionDeliveryTable").empty();
-            if (d.deliveries.length == 0) {
+            if (d.recent.length == 0) {
                 $("#divisionDeliveryTableHead").hide();
                 $("#divisionDeliveryTable").append(`
             <tr class="text-sm">
@@ -127,8 +127,8 @@ function loadDivision() {
             </tr>`);
             } else {
                 $("#divisionDeliveryTableHead").show();
-                for (i = 0; i < d.deliveries.length; i++) {
-                    const delivery = d.deliveries[i];
+                for (i = 0; i < d.recent.length; i++) {
+                    const delivery = d.recent[i];
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                     cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                     unittxt = "€";
@@ -161,7 +161,7 @@ function loadDivision() {
 
 function loadStaffDivision() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/divisions/pending",
+        url: apidomain + "/" + vtcprefix + "/division/list/pending",
         type: "GET",
         dataType: "json",
         headers: {
@@ -225,7 +225,7 @@ function divisionInfo(logid) {
             $("#divisioninfobtn").removeAttr("disabled");
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             info = `<div style="text-align:left">`;
-            if (data.response.requestSubmitted == false) {
+            if (data.response.status == "-1") {
                 divisionopt = "";
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
@@ -250,7 +250,7 @@ function divisionInfo(logid) {
                     showConfirmButton: false,
                     confirmButtonText: 'Close'
                 });
-            } else if (data.response.isstaff == true && data.response.status == "0") {
+            } else if (data.response.user_is_staff == true && data.response.status == "0") {
                 divisionopt = "";
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
@@ -294,24 +294,24 @@ function divisionInfo(logid) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
                 if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
-                if (data.response.reason == undefined) {
+                if (data.response.update_reason == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validated at " + getDateTime(parseInt(data.response.updatets) * 1000) +
-                        " by <a onclick='loadProfile(" + data.response.staffid + ");'>" + data.response.staffname + "</a></p>";
+                    info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
+                        " by <a onclick='loadProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
                 } else {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validation requested at " + getDateTime(data.response.requestts * 1000) + "</p>";
+                    info += "<p>Validation requested at " + getDateTime(data.response.request_timestamp * 1000) + "</p>";
                     if (data.response.status == "0") info += "<p>- Pending Validation</p>";
                     else if (data.response.status == "1")
-                        info += "<p>Validated at " + getDateTime(parseInt(data.response.updatets) * 1000) +
-                        " by <a onclick='loadProfile(" + data.response.staffid + ");'>" + data.response.staffname + "</a></p>";
+                        info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
+                        " by <a onclick='loadProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
                     else if (data.response.status == "2")
-                        info += "<p>Denied at " + getDateTime(data.response.updatets * 1000) +
-                        " by <a onclick='loadProfile(" + data.response.staffid + ");'>" + data.response.staffname + "</a></p>";
-                    if (data.response.reason != "")
-                        info += "<p> - For reason " + data.response.reason + "</p>";
+                        info += "<p>Denied at " + getDateTime(data.response.update_timestamp * 1000) +
+                        " by <a onclick='loadProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
+                    if (data.response.update_reason != "")
+                        info += "<p> - For reason " + data.response.update_reason + "</p>";
                 }
-                if (data.response.isstaff == true) {
+                if (data.response.user_is_staff == true) {
                     info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                     onclick="updateDivision(${logid}, 0)">Revalidate</button>`;

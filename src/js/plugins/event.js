@@ -9,7 +9,7 @@ function FetchEvent(showdetail = -1) {
     $("#fetchEventBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/events?eventid=" + eventid,
+        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -24,18 +24,18 @@ function FetchEvent(showdetail = -1) {
             const event = data.response;
             allevents[event.eventid] = event;
             $("#eventtitle").val(event.title);
-            $("#eventtmplink").val(event.tmplink);
+            $("#eventtruckersmp_link").val(event.truckersmp_link);
             $("#eventfrom").val(event.departure);
             $("#eventto").val(event.destination);
             $("#eventdistance").val(event.distance);
             offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
-            $("#eventmts").val(new Date(event.mts * 1000 - offset).toISOString().substring(0, 16));
-            $("#eventdts").val(new Date(event.dts * 1000 - offset).toISOString().substring(0, 16));
+            $("#eventmeetup_timestamp").val(new Date(event.meetup_timestamp * 1000 - offset).toISOString().substring(0, 16));
+            $("#eventdeparture_timestamp").val(new Date(event.departure_timestamp * 1000 - offset).toISOString().substring(0, 16));
             imgs = "";
-            for (let i = 0; i < event.img.length; i++) {
-                imgs += event.img[i] + "\n";
+            for (let i = 0; i < event.images.length; i++) {
+                imgs += event.images[i] + "\n";
             }
-            if (event.private) $("#eventpvt-1").prop("checked", true);
+            if (event.is_private) $("#eventpvt-1").prop("checked", true);
             else $("#eventpvt-0").prop("checked", true);
             $("#eventimgs").val(imgs);
 
@@ -63,7 +63,7 @@ function FetchEventAttendee() {
     $("#fetchEventAttendeeBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/events?eventid=" + eventid,
+        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -76,12 +76,10 @@ function FetchEventAttendee() {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
 
             const event = data.response;
-            attendeeids = event.attendeeid.split(",");
-            attendeenames = event.attendee.split(",");
             $(".attendee").remove();
-            for (let i = 0; i < attendeeids.length; i++) {
-                userid = attendeeids[i];
-                username = attendeenames[i];
+            for (let i = 0; i < event.attendees.length; i++) {
+                userid = event.attendees[i].userid;
+                username = event.attendees[i].name;
                 if (userid == "") continue;
                 $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
                 <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
@@ -118,14 +116,13 @@ function UpdateEventAttendees() {
     $("#attendeeBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/attendee",
+        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid="+eventid,
         type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "eventid": eventid,
             "attendees": attendeeid,
             "points": points
         },
@@ -156,14 +153,14 @@ function UpdateEventAttendees() {
 
 function EventOp() {
     title = $("#eventtitle").val();
-    tmplink = $("#eventtmplink").val();
+    truckersmp_link = $("#eventtruckersmp_link").val();
     from = $("#eventfrom").val();
     to = $("#eventto").val();
     distance = $("#eventdistance").val();
-    mts = +new Date($("#eventmts").val());
-    dts = +new Date($("#eventdts").val());
-    mts /= 1000;
-    dts /= 1000;
+    meetup_timestamp = +new Date($("#eventmeetup_timestamp").val());
+    departure_timestamp = +new Date($("#eventdeparture_timestamp").val());
+    meetup_timestamp /= 1000;
+    departure_timestamp /= 1000;
     eventid = $("#eventid").val();
     pvt = $("#eventpvt-1").prop("checked");
     img = $("#eventimgs").val().replaceAll("\n", ",");
@@ -184,22 +181,21 @@ function EventOp() {
     if (op == "update") {
         eventid = parseInt(eventid);
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event",
+            url: apidomain + "/" + vtcprefix + "/event?eventid="+eventid,
             type: "PATCH",
             dataType: "json",
             headers: {
                 "Authorization": "Bearer " + token
             },
             data: {
-                "eventid": eventid,
                 "title": title,
-                "tmplink": tmplink,
+                "truckersmp_link": truckersmp_link,
                 "departure": from,
                 "destination": to,
                 "distance": distance,
-                "mts": mts,
-                "dts": dts,
-                "img": img,
+                "meetup_timestamp": meetup_timestamp,
+                "departure_timestamp": departure_timestamp,
+                "images": img,
                 "pvt": pvt
             },
             success: function (data) {
@@ -254,13 +250,13 @@ function EventOp() {
             },
             data: {
                 "title": title,
-                "tmplink": tmplink,
+                "truckersmp_link": truckersmp_link,
                 "departure": from,
                 "destination": to,
                 "distance": distance,
-                "mts": mts,
-                "dts": dts,
-                "img": img,
+                "meetup_timestamp": meetup_timestamp,
+                "departure_timestamp": departure_timestamp,
+                "images": img,
                 "pvt": pvt
             },
             success: function (data) {
@@ -367,7 +363,7 @@ function loadEvent(recurse = true) {
 
     if (eventsCalendar == undefined) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/events/all",
+            url: apidomain + "/" + vtcprefix + "/event/all",
             type: "GET",
             dataType: "json",
             headers: {
@@ -381,8 +377,8 @@ function loadEvent(recurse = true) {
                 for (var i = 0; i < d.length; i++) {
                     eventlist.push({
                         "title": d[i].title,
-                        "url": "/events?eventid=" + d[i].eventid,
-                        "start": new Date(d[i].mts * 1000 - offset).toISOString().substring(0, 10)
+                        "url": "/event?eventid=" + d[i].eventid,
+                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().substring(0, 10)
                     })
                 }
 
@@ -419,7 +415,7 @@ function loadEvent(recurse = true) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/events?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/event?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -447,7 +443,7 @@ function loadEvent(recurse = true) {
                 return;
             }
             $("#eventTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#epages").val(1);
                 if (recurse) loadEvent(recurse = false);
@@ -491,28 +487,24 @@ function loadEvent(recurse = true) {
             for (i = 0; i < events.length; i++) {
                 const event = events[i];
                 allevents[event.eventid] = event;
-                mts = event.mts * 1000;
-                dts = event.dts * 1000;
+                meetup_timestamp = event.meetup_timestamp * 1000;
+                departure_timestamp = event.departure_timestamp * 1000;
                 now = +new Date();
                 color = "";
-                if (now >= mts - 1000 * 60 * 60 * 6) {
+                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) {
                     color = "blue";
                 }
-                if (now >= mts && now <= dts + 1000 * 60 * 30) {
+                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) {
                     color = "lightgreen"
                 }
-                if (now > dts + 1000 * 60 * 30) {
+                if (now > departure_timestamp + 1000 * 60 * 30) {
                     color = "grey";
                 }
-                mt = getDateTime(mts);
-                dt = getDateTime(dts);
-                voteids = event.voteid.split(",");
-                voteids = voteids.filter(function (el) {
-                    return el != "";
-                });
-                votecnt = voteids.length;
+                mt = getDateTime(meetup_timestamp);
+                dt = getDateTime(departure_timestamp);
+                votecnt = event.votes.length;
                 pvt = "";
-                if (event.private) pvt = LOCKED;
+                if (event.is_private) pvt = LOCKED;
                 $("#eventTable").append(`
             <tr class="text-sm" style="color:${color}">
               <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
@@ -541,14 +533,11 @@ function loadEvent(recurse = true) {
 
 function eventvote(eventid) {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/vote",
+        url: apidomain + "/" + vtcprefix + "/event/vote?eventid="+eventid,
         type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            "eventid": eventid
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
@@ -583,10 +572,10 @@ async function eventDetail(eventid) {
     event = allevents[eventid];
     voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Vote)</a>`;
     console.log(event);
-    voteids = event.voteid.split(",");
-    voteids = voteids.filter(function (el) {
-        return el != "";
-    });
+    vote = "";
+    for(i = 0 ; i < event.votes.length ; i ++){
+        vote += event.votes[i].name + " ";
+    }
     userid = localStorage.getItem("userid");
     if (voteids.indexOf(String(userid)) != -1) {
         voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Unvote)</a>`;
@@ -597,16 +586,16 @@ async function eventDetail(eventid) {
     info += "<p><b>From</b>: " + event.departure + "</p>";
     info += "<p><b>To</b>: " + event.destination + "</p>";
     info += "<p><b>Distance</b>: " + event.distance + "</p>";
-    info += "<p><b>Meetup Time</b>: " + getDateTime(event.mts * 1000) + "</p>";
-    info += "<p><b>Departure Time</b>: " + getDateTime(event.dts * 1000) + "</p>";
-    info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + event.vote + "</p>";
+    info += "<p><b>Meetup Time</b>: " + getDateTime(event.meetup_timestamp * 1000) + "</p>";
+    info += "<p><b>Departure Time</b>: " + getDateTime(event.departure_timestamp * 1000) + "</p>";
+    info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + vote + "</p>";
     info += "<p><b>Attendees</b>: " + event.attendee + "</p>";
-    for (var i = 0; i < event.img.length; i++) {
-        info += "<img src='" + event.img[i] + "' style='width:100%'/>";
+    for (var i = 0; i < event.images.length; i++) {
+        info += "<img src='" + event.images[i] + "' style='width:100%'/>";
     }
     info += "</div>";
     Swal.fire({
-        title: `<a href='${event.tmplink}' target='_blank'>${event.title}</a>`,
+        title: `<a href='${event.truckersmp_link}' target='_blank'>${event.title}</a>`,
         html: info,
         icon: 'info',
         confirmButtonText: 'Close'

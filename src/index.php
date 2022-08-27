@@ -23,7 +23,7 @@
     }
     if (str_starts_with($path, '/banner')) {
         $t = explode("/", $path);
-        header('Location: http://'.$api.'/'.$vtcabbr.'/user/banner?userid='.$t[2]);
+        header('Location: http://'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
         exit;
     }
 
@@ -909,6 +909,9 @@
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="genNewAppToken()" id="genAppTokenBtn"><?php echo $st->reset_token; ?></button>
+                        <button type="button"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="disableAppToken()" id="disableAppTokenBtn">Disable</button>
                     </div>
                     <br>
                     <hr>
@@ -2208,7 +2211,7 @@
 
                             <div class="mb-6">
                                 <label class="block text-sm font-medium mb-2" for="">'.$st->truckersmp_link.'</label>
-                                <input id="eventtmplink"
+                                <input id="eventtruckersmp_link"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="text" name="" placeholder="">
                             </div>
@@ -2237,14 +2240,14 @@
                             <br>
                             <div class="mb-6" style="display:inline-block;width:49%">
                                 <label class="block text-sm font-medium mb-2" for="">'.$st->meetup_local_time.' (AM / PM)</label>
-                                <input id="eventmts"
+                                <input id="eventmeetup_timestamp"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="datetime-local" name="" placeholder="">
                             </div>
 
                             <div class="mb-6" style="display:inline-block;width:49%">
                                 <label class="block text-sm font-medium mb-2" for="">'.$st->departure_local_time.' (AM / PM)</label>
-                                <input id="eventdts"
+                                <input id="eventdeparture_timestamp"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                     type="datetime-local" name="" placeholder="">
                             </div>
@@ -3221,7 +3224,7 @@
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
                     target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.4.3 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.4.5 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

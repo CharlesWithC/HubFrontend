@@ -3,7 +3,7 @@ function loadAuditLog(recurse = true) {
     if (page == "") page = 1;
     if (page == undefined) page = 1;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auditlog?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/audit?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -27,7 +27,7 @@ function loadAuditLog(recurse = true) {
                 return;
             }
             $("#auditTableHead").show();
-            totpage = Math.ceil(data.response.tot / 30);
+            totpage = Math.ceil(data.response.total_items / 30);
             if (page > totpage) {
                 $("#auditpages").val(1);
                 if (recurse) loadAuditLog(recurse = false);
@@ -154,6 +154,35 @@ function genNewAppToken() {
         }
     });
 }
+function disableAppToken() {
+    GeneralLoad();
+    $("#disableAppTokenBtn").html("Working...");
+    $("#disableAppTokenBtn").attr("disabled", "disabled");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/token/application",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            $("#disableAppTokenBtn").html("Disable");
+            $("#disableAppTokenBtn").removeAttr("disabled");
+            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            $("#userAppToken").html(data.response.token);
+            return toastFactory("success", "Success", "Application Token Disabled!", 5000, false);
+        },
+        error: function (data) {
+            $("#disableAppTokenBtn").html("Disable");
+            $("#disableAppTokenBtn").removeAttr("disabled");
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
+                false);
+            console.warn(
+                `Failed to disable app token. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
+            console.log(data);
+        }
+    });
+}
 bannedUser = {};
 
 function loadUsers(recurse = true) {
@@ -161,7 +190,7 @@ function loadUsers(recurse = true) {
     if (page == "") page = 1;
     if (page == undefined) page = 1;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/users?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -184,7 +213,7 @@ function loadUsers(recurse = true) {
                 return;
             }
             $("#usersTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#pupages").val(1);
                 if (recurse) loadUsers(recurse = false);
@@ -237,7 +266,7 @@ function loadUsers(recurse = true) {
                 bantxt2 = "";
                 color = "";
                 accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
-                if (user.banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUser[user.discordid] = user.banreason;
+                if (user.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUser[user.discordid] = user.ban_reason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="addUser('${user.discordid}')">Accept as member</td>`;
                 $("#usersTable").append(`
             <tr class="text-sm">
@@ -353,7 +382,7 @@ function deleteUser() {
     $("#deleteUserBtn").html("Working...");
     $("#deleteUserBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/delete",
+        url: apidomain + "/" + vtcprefix + "/user",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -388,7 +417,7 @@ function unbindConnections() {
     $("#unbindConnectionsBtn").html("Working...");
     $("#unbindConnectionsBtn").attr("disabled", "disabled");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/connection",
+        url: apidomain + "/" + vtcprefix + "/user/connections",
         type: "DELETE",
         dataType: "json",
         headers: {

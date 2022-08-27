@@ -17,7 +17,7 @@ function loadDlog() {
     start = parseInt(start);
     end = parseInt(end);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?starttime=" + start + "&endtime=" + end + "&page=1&pagelimit=1",
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -49,7 +49,7 @@ function loadDlog() {
     start = parseInt(start);
     end = parseInt(end);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?starttime=" + start + "&endtime=" + end + "&page=1&pagelimit=1",
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -82,11 +82,11 @@ function loadLeaderboard(recurse = true) {
     GeneralLoad();
     $("#loadLeaderboardBtn").html("...");
     $("#loadLeaderboardBtn").attr("disabled", "disabled");
-    starttime = -1;
-    endtime = -1;
+    start_time = -1;
+    end_time = -1;
     if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
-        starttime = +new Date($("#lbstart").val()) / 1000;
-        endtime = +new Date($("#lbend").val()) / 1000 + 86400;
+        start_time = +new Date($("#lbstart").val()) / 1000;
+        end_time = +new Date($("#lbend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#lbspeedlimit").val());
     if (!isNumber(speedlimit)) speedlimit = 0;
@@ -98,7 +98,7 @@ function loadLeaderboard(recurse = true) {
     $(".dgame").css("background-color", "");
     if (game == 0) $(".dgame").css("background-color", "skyblue");
     else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) starttime = 1, endtime = 2;
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
     if (levent) $("#levent").css("background-color", "skyblue");
     else $("#levent").css("background-color", "");
     if (ldivision) $("#ldivision").css("background-color", "skyblue");
@@ -107,7 +107,7 @@ function loadLeaderboard(recurse = true) {
     if(levent == 1) limittype += "event,";
     if(ldivision == 1) limittype += "division,";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game + "&limittype=" + limittype,
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype,
         type: "GET",
         dataType: "json",
         headers: {
@@ -137,7 +137,7 @@ function loadLeaderboard(recurse = true) {
                 return;
             }
             $("#leaderboardTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#lpages").val(1);
                 if (recurse) loadLeaderboard(recurse = false);
@@ -227,11 +227,11 @@ function loadDelivery(recurse = true) {
     GeneralLoad();
     $("#loadDeliveryBtn").html("...");
     $("#loadDeliveryBtn").attr("disabled", "disabled");
-    starttime = -1;
-    endtime = -1;
+    start_time = -1;
+    end_time = -1;
     if ($("#dstart").val() != "" && $("#dend").val() != "") {
-        starttime = +new Date($("#dstart").val()) / 1000;
-        endtime = +new Date($("#dend").val()) / 1000 + 86400;
+        start_time = +new Date($("#dstart").val()) / 1000;
+        end_time = +new Date($("#dend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#dspeedlimit").val());
     if (!isNumber(speedlimit)) speedlimit = 0;
@@ -243,9 +243,9 @@ function loadDelivery(recurse = true) {
     $(".dgame").css("background-color", "");
     if (game == 0) $(".dgame").css("background-color", "skyblue");
     else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) starttime = 1, endtime = 2;
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlogs?page=" + page + "&speedlimit=" + parseInt(speedlimit) + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {
@@ -275,7 +275,7 @@ function loadDelivery(recurse = true) {
                 return;
             }
             $("#deliveryTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#dpages").val(1);
                 if (recurse) loadDelivery(recurse = false);
@@ -632,7 +632,7 @@ function deliveryDetail(logid) {
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
               onclick="divisionInfo(${logid})">Division</button>`);
                 }
-                $("#dlogdistance").html(parseInt(data.response.loggeddistance * distance_ratio));
+                $("#dlogdistance").html(parseInt(data.response.distance * distance_ratio));
                 $("#dlogtime").html(dt);
                 if (tp == "job.delivered") {
                     extra = "";
@@ -844,11 +844,11 @@ function loadUserDelivery(recurse = true) {
     GeneralLoad();
     $("#loadUserDeliveryBtn").html("...");
     $("#loadUserDeliveryBtn").attr("disabled", "disabled");
-    starttime = -1;
-    endtime = -1;
+    start_time = -1;
+    end_time = -1;
     if ($("#udstart").val() != "" && $("#udend").val() != "") {
-        starttime = +new Date($("#udstart").val()) / 1000;
-        endtime = +new Date($("#udend").val()) / 1000 + 86400;
+        start_time = +new Date($("#udstart").val()) / 1000;
+        end_time = +new Date($("#udend").val()) / 1000 + 86400;
     }
     speedlimit = parseInt($("#udspeedlimit").val());
     if (!isNumber(speedlimit)) speedlimit = 0;
@@ -860,9 +860,9 @@ function loadUserDelivery(recurse = true) {
     $(".dgame").css("background-color", "");
     if (game == 0) $(".dgame").css("background-color", "skyblue");
     else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) starttime = 1, endtime = 2;
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlogs?quserid=" + curprofile + "&speedlimit=" + parseInt(speedlimit) + "&page=" + page + "&starttime=" + starttime + "&endtime=" + endtime + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + curprofile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {
@@ -891,7 +891,7 @@ function loadUserDelivery(recurse = true) {
                 return;
             }
             $("#userDeliveryTableHead").show();
-            totpage = Math.ceil(data.response.tot / 10);
+            totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#udpages").val(1);
                 if (recurse) loadUserDelivery(recurse = false);
@@ -1002,8 +1002,8 @@ function exportDLog() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            starttime: start_time,
-            endtime: end_time
+            start_time: start_time,
+            end_time: end_time
         },
         success: function (data) {
             download("export.csv", data);

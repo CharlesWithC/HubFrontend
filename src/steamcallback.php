@@ -45,7 +45,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.3)");
+console.log("Drivers Hub: Frontend (v1.4.5)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
         function toastFactory(type, title, text, time, showConfirmButton) {
@@ -85,18 +85,18 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
                 },
                 success: function (data) {
                     if (data.error == false) {
-                        if (data.response.skiptmp == true) {
-                            toastFactory("success", "TruckesMP Bind Skipped",
-                                "Your TruckersMP account is bound automatically.", 5000, false);
-                            $("#title").html("All set!");
+                        // if (data.response.skiptmp == true) {
+                        //     toastFactory("success", "TruckesMP Bind Skipped",
+                        //         "Your TruckersMP account is bound automatically.", 5000, false);
+                        //     $("#title").html("All set!");
                             window.location.href = "/";
-                            return;
-                        }
-                        $("#title").html("TruckersMP Bind");
-                        $("#msg").html(
-                            "Enter your TruckersMP User ID and we'll check if it's bound to your steam account."
-                            );
-                        $("#truckersmpbind").show();
+                        //     return;
+                        // }
+                        // $("#title").html("TruckersMP Bind");
+                        // $("#msg").html(
+                        //     "Enter your TruckersMP User ID and we'll check if it's bound to your steam account."
+                        //     );
+                        // $("#truckersmpbind").show();
                     } else {
                         $("#msg").html(data.descriptor);
                         $("#steamauth").show();
@@ -159,7 +159,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
                     <p id="msg">Validating steam authorization...</p>
                 </header>
                 <section id="steamauth" style="display:none">
-                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
+                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/auth/steam/redirect">
                         <br>
                         <img src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
@@ -182,7 +182,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.4.3 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.4.5 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

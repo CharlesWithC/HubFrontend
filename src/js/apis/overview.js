@@ -16,7 +16,7 @@ async function loadChart(userid = -1) {
     pref = "s";
     if (userid != -1) pref = "userS";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/chart?scale=" + chartscale + "&sumup=" + addup + "&quserid=" + userid,
+        url: apidomain + "/" + vtcprefix + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -31,7 +31,7 @@ async function loadChart(userid = -1) {
             euro = [];
             dollar = [];
             for (i = 0; i < d.length; i++) {
-                ts = d[i].starttime;
+                ts = d[i].start_time;
                 ts = new Date(ts * 1000);
                 if (chartscale == 1) { // 24h
                     ts = pad(ts.getHours(), 2) + ":" + pad(ts.getMinutes(), 2);
@@ -139,14 +139,14 @@ async function loadChart(userid = -1) {
 deliveryStatsChart = undefined;
 
 function refreshStats(){
-    stats_starttime = parseInt(+ new Date() / 1000 - 86400);
-    stats_endtime = parseInt(+ new Date() / 1000);
+    stats_start_time = parseInt(+ new Date() / 1000 - 86400);
+    stats_end_time = parseInt(+ new Date() / 1000);
     if ($("#stats_start").val() != "" && $("#stats_end").val() != "") {
-        stats_starttime = +new Date($("#stats_start").val()) / 1000;
-        stats_endtime = +new Date($("#stats_end").val()) / 1000 + 86400;
+        stats_start_time = +new Date($("#stats_start").val()) / 1000;
+        stats_end_time = +new Date($("#stats_end").val()) / 1000 + 86400;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + stats_starttime + "&endtime=" + stats_endtime,
+        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -212,10 +212,10 @@ function loadStats(basic = false) {
     if (curtab != "#HomeTab" && curtab != "#Delivery") return;
     loadChart();
 
-    stats_starttime = parseInt(+ new Date() / 1000 - 86400);
-    stats_endtime = parseInt(+ new Date() / 1000);
+    stats_start_time = parseInt(+ new Date() / 1000 - 86400);
+    stats_end_time = parseInt(+ new Date() / 1000);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + stats_starttime + "&endtime=" + stats_endtime,
+        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -277,10 +277,10 @@ function loadStats(basic = false) {
     });
 
     // get weekly data
-    starttime = parseInt(+ new Date() / 1000 - 86400 * 7);
-    endtime = parseInt(+ new Date() / 1000);
+    start_time = parseInt(+ new Date() / 1000 - 86400 * 7);
+    end_time = parseInt(+ new Date() / 1000);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/stats?starttime=" + starttime + "&endtime=" + endtime,
+        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -340,7 +340,7 @@ function loadStats(basic = false) {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/members?page=1&order_by=join_timestamp&order=desc",
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=join_timestamp&order=desc",
             type: "GET",
             dataType: "json",
             headers: {

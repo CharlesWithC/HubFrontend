@@ -45,7 +45,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.3)");
+console.log("Drivers Hub: Frontend (v1.4.5)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
         function toastFactory(type, title, text, time, showConfirmButton) {
@@ -69,7 +69,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
         }
 
         function DiscordLogin() {
-            location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/login';
+            location.href = 'https://<?php echo $api ?>/<?php echo $vtcabbr ?>/auth/discord/redirect';
         }
 
         function validate() {
@@ -84,8 +84,8 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
             token = getUrlParameter("token");
             if (token) {
                 $.ajax({
-                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token",
-                    type: "PATCH",
+                    url: "https://<?php echo $api ?>/<?php echo $vtcabbr ?>/token/renew",
+                    type: "POST",
                     dataType: "json",
                     headers: {
                         "Authorization": "Bearer " + token
@@ -220,7 +220,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
                     <button type="button" onclick="DiscordLogin();">Login With Discord</button>
                 </section>
                 <section id="steamauth" style="display:none">
-                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/user/steam/oauth">
+                    <a href="https://<?php echo $api ?>/<?php echo $vtcabbr ?>/auth/steam/redirect">
                         <br>
                         <img src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_01.png"
                             style="display: block; margin-left: auto; margin-right: auto; width: 50%;">
@@ -243,7 +243,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.4.3 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.4.5 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

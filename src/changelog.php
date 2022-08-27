@@ -1,5 +1,6 @@
 <title>Changelog</title>
 <h1 id="changelog">Changelog</h1>
+<p><strong>v1.4.5</strong><br>Updates to catch up with API v1.12.7</p>
 <p><strong>v1.4.4</strong><br>1.Fixed staff application &quot;Agree to terms&quot; not working<br>2.Added button to save downloads content  </p>
 <p><strong>v1.4.3</strong><br>1.Added redirect for <code>/banner/{userid}</code><br>2.Improved <code>&lt;a&gt;</code> text color in dark mode<br>3.Added load timeout for <code>ShowTab</code> in case errors make loading stop<br>4.Added hyper-link for Driver of the Day / Week<br>5.Improved imperial unit to support fuel and weight<br>6.Added <code>Request Discord Role</code> button for <code>User Statistics</code><br>7.Fixed <code>Request Discord Role</code> stuck at <code>Working</code> when role already exists  </p>
 <p><strong>v1.4.2</strong><br>Updates to catch up with API v1.12.2  </p>
