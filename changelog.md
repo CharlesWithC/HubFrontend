@@ -1,5 +1,8 @@
 # Changelog
 
+**v1.4.6**  
+Fixed the bug that event details are not loading  
+
 **v1.4.5**  
 Updates to catch up with API v1.12.7
 

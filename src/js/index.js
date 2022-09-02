@@ -5,7 +5,7 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.5)");
+console.log("Drivers Hub: Frontend (v1.4.6)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
@@ -855,20 +855,20 @@ $(document).ready(function () {
                 a = ann[0];
                 dt = getDateTime(a.timestamp * 1000);
                 content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.byuserid + ")'><i>" + a.by + "</i></a></span><br>" +
+                    "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
                     parseMarkdown(a.content.replaceAll("\n", "<br>"));
                 TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.atype], a.title, content);
+                banner = genBanner(TYPES[a.announcement_type], a.title, content);
                 // $("#HomeTabLeft").append(banner.replaceAll("py-8 ", "pb-8 "));
             }
             for (i = 0; i < ann.length; i++) {
                 a = ann[i];
                 dt = getDateTime(a.timestamp * 1000);
                 content = "<span style='font-size:10  px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.byuserid + ")'><i>" + a.by + "</i></a></span><br>" +
+                    "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
                     parseMarkdown(a.content.replaceAll("\n", "<br>"));
                 TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.atype], a.title, content);
+                banner = genBanner(TYPES[a.announcement_type], a.title, content);
                 $("#anns").append(banner);
             }
         }
@@ -913,10 +913,10 @@ $(document).ready(function () {
                         a = ann[i];
                         dt = getDateTime(a.timestamp * 1000);
                         content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                            "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.byuserid + ")'><i>" + a.by + "</i></a></span><br>" +
+                            "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
                             parseMarkdown(a.content.replaceAll("\n", "<br>"));
                         TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                        banner = genBanner(TYPES[a.atype], a.title, content);
+                        banner = genBanner(TYPES[a.announcement_type], a.title, content);
                         $("#anns").append(banner);
                         $($("#anns").children()[$("#anns").children().length - 1]).hide();
                         $($("#anns").children()[$("#anns").children().length - 1]).fadeIn();

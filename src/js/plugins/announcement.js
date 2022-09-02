@@ -23,7 +23,7 @@ function FetchAnnouncement() {
             $("#anncontent").val(announcement.content);
             if (announcement.is_private) $("#annpvt-1").prop("checked", true);
             else $("#annpvt-0").prop("checked", true);
-            $('#annselect option:eq(' + announcement.atype + ')').prop('selected', true);
+            $('#annselect option:eq(' + announcement.announcement_type + ')').prop('selected', true);
         },
         error: function (data) {
             $("#fetchAnnouncementBtn").html("Fetch Data");
@@ -74,7 +74,7 @@ function AnnouncementOp() {
             data: {
                 "title": title,
                 "content": content,
-                "atype": anntype,
+                "announcement_type": anntype,
                 "pvt": pvt,
                 "channelid": chnid
             },
@@ -130,7 +130,7 @@ function AnnouncementOp() {
             data: {
                 "title": title,
                 "content": content,
-                "atype": anntype,
+                "announcement_type": anntype,
                 "pvt": pvt,
                 "channelid": chnid,
                 "discord_message_content": $("#annmsg").val()

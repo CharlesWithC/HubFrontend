@@ -44,7 +44,7 @@ function FetchEvent(showdetail = -1) {
         error: function (data) {
             $("#fetchEventBtn").html("Fetch Data");
             $("#fetchEventBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to fetch event. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -88,7 +88,7 @@ function FetchEventAttendee() {
         error: function (data) {
             $("#fetchEventAttendeeBtn").html("Fetch Existing Attendees");
             $("#fetchEventAttendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to fetch event attendees. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -116,7 +116,7 @@ function UpdateEventAttendees() {
     $("#attendeeBtn").attr("disabled", "disabled");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid="+eventid,
+        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid=" + eventid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -142,7 +142,7 @@ function UpdateEventAttendees() {
         error: function (data) {
             $("#attendeeBtn").html("Update");
             $("#attendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to update event attendees. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -181,7 +181,7 @@ function EventOp() {
     if (op == "update") {
         eventid = parseInt(eventid);
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event?eventid="+eventid,
+            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -215,7 +215,7 @@ function EventOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
+                        text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
@@ -231,7 +231,7 @@ function EventOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
+                    text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
@@ -276,7 +276,7 @@ function EventOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
+                        text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
@@ -294,7 +294,7 @@ function EventOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
+                    text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
@@ -329,7 +329,7 @@ function EventOp() {
                     // Trigger req swal.fire
                     Swal.fire({
                         title: 'Error',
-                        text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
+                        text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
                         icon: 'error',
                         confirmButtonText: 'OK'
                     })
@@ -343,7 +343,7 @@ function EventOp() {
                 // Trigger req swal.fire
                 Swal.fire({
                     title: 'Error',
-                    text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
+                    text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
                     icon: 'error',
                     confirmButtonText: 'OK'
                 })
@@ -406,7 +406,7 @@ function loadEvent(recurse = true) {
                 }, 50);
             },
             error: function (data) {
-                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
                 console.warn(
                     `Failed to load events. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
                 console.log(data);
@@ -523,7 +523,7 @@ function loadEvent(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
             console.warn(
                 `Failed to load events. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
             console.log(data);
@@ -533,7 +533,7 @@ function loadEvent(recurse = true) {
 
 function eventvote(eventid) {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/vote?eventid="+eventid,
+        url: apidomain + "/" + vtcprefix + "/event/vote?eventid=" + eventid,
         type: "POST",
         dataType: "json",
         headers: {
@@ -546,7 +546,7 @@ function eventvote(eventid) {
             return toastFactory("success", "Success:", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
+            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
                 false);
             console.warn(
                 `Failed to vote / unvote for event. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
@@ -573,14 +573,14 @@ async function eventDetail(eventid) {
     voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Vote)</a>`;
     console.log(event);
     vote = "";
-    for(i = 0 ; i < event.votes.length ; i ++){
-        vote += event.votes[i].name + " ";
-    }
     userid = localStorage.getItem("userid");
-    if (voteids.indexOf(String(userid)) != -1) {
-        voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Unvote)</a>`;
+    for (i = 0; i < event.votes.length; i++) {
+        vote += event.votes[i].name + " ";
+        if (event.votes[i].userid == String(userid)) {
+            voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Unvote)</a>`;
+        }
     }
-    votecnt = voteids.length;
+    votecnt = event.votes.length;
     info = `<div style="text-align:left">`;
     info += "<p><b>Event ID</b>: " + event.eventid + "</p>";
     info += "<p><b>From</b>: " + event.departure + "</p>";
