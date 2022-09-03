@@ -3,6 +3,7 @@
 <html lang="en">
 
 <head>
+    <meta name="copyrighted-site-verification" content="c6b03041ac3cc909" />
     <?php
     $domain = $_SERVER['HTTP_HOST'];
     require_once('config/'.$domain.'.php');
@@ -636,6 +637,9 @@
                             </a>
                         </li>
                     </ul>
+                </div>
+                <div style="position:fixed;bottom:0;left:0">
+                <a class="copyrighted-badge" title="Copyrighted.com Registered &amp; Protected" target="_blank" href="https://www.copyrighted.com/website/rT5n3c9zN8Y3gDug"><img alt="Copyrighted.com Registered &amp; Protected" border="0" width="125" height="25" srcset="https://static.copyrighted.com/badges/125x25/04_1_2x.png 2x" src="https://static.copyrighted.com/badges/125x25/04_1.png" /></a><script src="https://static.copyrighted.com/badges/helper.js"></script>
                 </div>
             </nav>
         </div>
@@ -3215,14 +3219,13 @@
     </section>
     <section id="footer">
         <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
-            <div style="margin:0.5em;margin-top:auto;text-align:center">
+            <div style="margin:0.5em;margin-top:auto;text-align:center" style="padding-bottom:10px">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
                 <a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
                 &nbsp;|&nbsp;
                 <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
                 <br>
-                API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog"
-                    target="_blank">Changelog</a>
+                API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
                 Web: v1.4.6 <a href="/changelog" target="_blank">Changelog</a>
                 <br>

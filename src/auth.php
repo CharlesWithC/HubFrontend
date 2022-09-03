@@ -235,7 +235,7 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
             </form>
         </div>
     </div>
-	<div style="position: fixed;bottom: 10px;color: lightgrey;text-align: center;text-decoration:none;">
+	<div style="position:fixed;bottom:10px;color:lightgrey;text-align:center;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
 		<a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
         &nbsp;|&nbsp;
@@ -248,6 +248,9 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;
 		<?php if($status != "") echo 'Status: <a href="https://'.$status.'/" target="_blank">'.$status.'</a>'; ?>
+	</div>
+	<div style="position:fixed;top:calc(100% - 75px);right:0">
+	<a class="copyrighted-badge" title="Copyrighted.com Registered &amp; Protected" target="_blank" href="https://www.copyrighted.com/website/rT5n3c9zN8Y3gDug"><img alt="Copyrighted.com Registered &amp; Protected" border="0" width="125" height="75" srcset="https://static.copyrighted.com/badges/125x75/04_2x.png 2x" src="https://static.copyrighted.com/badges/125x75/04.png" /></a><script src="https://static.copyrighted.com/badges/helper.js"></script>
 	</div>
 </body>
 
