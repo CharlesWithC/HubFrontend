@@ -1,7 +1,20 @@
 # Changelog
 
-**v1.4.6**  
-Fixed the bug that event details are not loading  
+**TODO**  
+1.Get X of the Month back  
+12.Improve member management (dismiss button etc)  
+13.Update config editor  
+14.Event details from TruckersMP API  
+15.Combine all files into `bundle.js` and make compression / obfuscation based on it  
+20.Add translation for javascript  
+999.Restyle frontend (tailwind -> bootstrap)  
+
+**v1.5.1**  
+1.Fixed the bug that event details are not loading  
+2.Updated endpoint paths / methods to catch up with API v1.13.1  
+3.Removed "Steam / TruckersMP Not Bound" notification  
+4.Add support to custom application types  
+5.Improved code base  
 
 **v1.4.5**  
 Updates to catch up with API v1.12.7

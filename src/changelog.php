@@ -40,9 +40,11 @@
 <br>
 	<div style="position:fixed;bottom:10px;color:lightgrey;text-align:center;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-		<a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
+		<a href="https://drivershub.charlws.com" target="_blank">(CHub)</a>
         &nbsp;|&nbsp;
-		<a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
+        <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a>
+        &nbsp;|&nbsp;
+        <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;

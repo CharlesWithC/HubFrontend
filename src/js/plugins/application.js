@@ -13,6 +13,9 @@ function PreserveApplicationQuestion(){
 }
 
 function SubmitApp() {
+    GeneralLoad();
+    LockBtn("#submitAppBttn");
+
     apptype = parseInt($("#appselect").find(":selected").attr("value"));
     data = {};
     for(var i = 1 ; i <= 100 ; i++){
@@ -40,12 +43,6 @@ function SubmitApp() {
     }
     data = JSON.stringify(data);
 
-    // After we've reached here, change the submit button text to "Submitting..."
-    $("#submitAppBttn").html("Submitting...");
-
-    // Disable the submit button
-    $("#submitAppBttn").attr("disabled", "disabled");
-
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application",
         type: "POST",
@@ -58,51 +55,22 @@ function SubmitApp() {
             "data": data
         },
         success: function (data) {
-            if (data.error == false) {
-                // Un-disable the submit button
-                $("#submitAppBttn").prop("disabled", false);
-                $("#submitAppBttn").html("Submit");
-
-                // Trigger req swal.fire
-                Swal.fire({
-                    title: 'Success',
-                    text: 'Your application has been submitted! Best of luck!',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                })
-            } else {
-                // Un-disable the submit button
-                $("#submitAppBttn").prop("disabled", false);
-                $("#submitAppBttn").html("Submit");
-
-                // Trigger req swal.fire
-                Swal.fire({
-                    title: 'Error',
-                    text: `${data.descriptor}`,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                })
-            }
+            UnlockBtn("#submitAppBttn");
+            if(data.error) return AjaxError(data);
+            toastFactory("success", "Success", "Application submitted!", 5000, false);
         },
         error: function (data) {
-            // Un-disable the submit button
-            $("#submitAppBttn").prop("disabled", false);
-            $("#submitAppBttn").html("Submit");
-
-            // Trigger req swal.fire
-            Swal.fire({
-                title: 'Error',
-                text: JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
-                icon: 'error',
-                confirmButtonText: 'OK'
-            })
-
-            console.warn('Failed to submit application: ', JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText);
+            UnlockBtn("#submitAppBttn");
+            AjaxError(data);
         }
     });
 }
-function loadMyApp(recurse = true) {
-    page = parseInt($("#myapppage").val())
+function LoadUserApplicationList(recurse = true) {
+    GeneralLoad();
+
+    page = parseInt($("#myapppage").val());
+    if (page == "" || page == undefined || page <= 0) page = 1;
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0",
         type: "GET",
@@ -111,43 +79,30 @@ function loadMyApp(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
-                false);
+            if (data.error) return AjaxError(data);
             $("#myappTable").empty();
-            const applications = data.response.list;
-            APPTYPE = ["", "Driver", "Staff", "LOA", "Division"];
+            applications = data.response.list;
             STATUS = ["Pending", "Accepted", "Declined"]
             if (applications.length == 0) {
                 $("#myappTableHead").hide();
-                $("#myappTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+                $("#myappTable").append(TableNoData(5));
                 $("#myapppage").val(1);
-                if (recurse) loadMyApp(recurse = false);
+                if (recurse) LoadUserApplicationList(recurse = false);
                 return;
             }
             $("#myappTableHead").show();
             totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#myapppage").val(1);
-                if (recurse) loadMyApp(recurse = false);
+                if (recurse) LoadUserApplicationList(recurse = false);
                 return;
-            }
-            if (page <= 0) {
-                $("#myapppage").val(1);
-                page = 1;
             }
             $("#myapptotpages").html(totpage);
             $("#myAppTableControl").children().remove();
             $("#myAppTableControl").append(`
             <button type="button" style="display:inline"
             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#myapppage').val(1);loadMyApp();">1</button>`);
+            onclick="$('#myapppage').val(1);LoadUserApplicationList();">1</button>`);
             if (page > 3) {
                 $("#myAppTableControl").append(`
                 <button type="button" style="display:inline"
@@ -158,7 +113,7 @@ function loadMyApp(recurse = true) {
                 $("#myAppTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#myapppage').val(${i});loadMyApp();">${i}</button>`);
+                onclick="$('#myapppage').val(${i});LoadUserApplicationList();">${i}</button>`);
             }
             if (page < totpage - 2) {
                 $("#myAppTableControl").append(`
@@ -170,18 +125,12 @@ function loadMyApp(recurse = true) {
                 $("#myAppTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#myapppage').val(${totpage});loadMyApp();">${totpage}</button>`);
+                onclick="$('#myapppage').val(${totpage});LoadUserApplicationList();">${totpage}</button>`);
             }
 
             for (i = 0; i < applications.length; i++) {
-                const application = applications[i];
-                // Fill the table using this format: 
-                // <tr class="text-sm">
-                //  <td class="py-5 px-6 font-medium">id here</td>
-                //    <td class="py-5 px-6 font-medium">name here</td>
-                //  </tr>
-                //
-                apptype = APPTYPE[application.application_type];
+                application = applications[i];
+                apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) {
@@ -204,29 +153,24 @@ function loadMyApp(recurse = true) {
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="appDetail(${application.applicationid})">Details</button></td>
+              onclick="GetApplicationDetail(${application.applicationid})">Details</button></td>
             </tr>`);
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
 }
 
-function addAppMessage() {
+function AddMessageToApplication() {
     appid = $("#appmsgid").val();
     if (!isNumber(appid)) {
         toastFactory("error", "Error:", "Please enter a valid application ID.", 5000, false);
         return;
     }
     message = $("#appmsgcontent").val();
-    $("#addAppMessageBtn").html("Adding...");
-    $("#addAppMessageBtn").attr("disabled", "disabled");
+    LockBtn("#addAppMessageBtn");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application",
         type: "PATCH",
@@ -239,28 +183,21 @@ function addAppMessage() {
             "message": message
         },
         success: function (data) {
-            $("#addAppMessageBtn").html("Add");
-            $("#addAppMessageBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            info = "";
-            if (!data.error) {
-                return toastFactory("success", "Success!", "Message added!", 5000, false);
-            }
+            UnlockBtn("#addAppMessageBtn");
+            if (data.error) return AjaxError(data);
+            toastFactory("success", "Success!", "Message added!", 5000, false);
         },
         error: function (data) {
-            $("#addAppMessageBtn").html("Add");
-            $("#addAppMessageBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to load member details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#addAppMessageBtn");
+            AjaxError(data);
         }
     });
 }
 
-function loadAllApp(recurse = true) {
-    page = parseInt($('#allapppage').val())
+function LoadAllApplicationList(recurse = true) {
+    page = parseInt($('#allapppage').val());
+    if (page == "" || page == undefined || page <= 0) page = 1;
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0&all_user=1",
         type: "GET",
@@ -269,46 +206,30 @@ function loadAllApp(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            console.log(data);
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
-                false);
             $("#allappTable").empty();
             $("#totpages").html(Math.ceil(data.response.total_items / 10));
-            const applications = data.response.list;
-            APPTYPE = ["", "Driver", "Staff", "LOA", "Division"];
+            applications = data.response.list;
             STATUS = ["Pending", "Accepted", "Declined"];
             if (applications.length == 0) {
                 $("#allappTableHead").hide();
-                $("#allappTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+                $("#allappTable").append(TableNoData(6));
                 $("#allapppage").val(1);
-                if (recurse) loadAllApp(recurse = false);
+                if (recurse) LoadAllApplicationList(recurse = false);
                 return;
             }
             $("#allappTableHead").show();
             totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#allapppage").val(1);
-                if (recurse) loadAllApp(recurse = false);
+                if (recurse) LoadAllApplicationList(recurse = false);
                 return;
-            }
-            if (page <= 0) {
-                $("#allapppage").val(1);
-                page = 1;
             }
             $("#allapptotpages").html(totpage);
             $("#allAppTableControl").children().remove();
             $("#allAppTableControl").append(`
             <button type="button" style="display:inline"
             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#allapppage').val(1);loadAllApp();">1</button>`);
+            onclick="$('#allapppage').val(1);LoadAllApplicationList();">1</button>`);
             if (page > 3) {
                 $("#allAppTableControl").append(`
                 <button type="button" style="display:inline"
@@ -319,7 +240,7 @@ function loadAllApp(recurse = true) {
                 $("#allAppTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#allapppage').val(${i});loadAllApp();">${i}</button>`);
+                onclick="$('#allapppage').val(${i});LoadAllApplicationList();">${i}</button>`);
             }
             if (page < totpage - 2) {
                 $("#allAppTableControl").append(`
@@ -331,18 +252,12 @@ function loadAllApp(recurse = true) {
                 $("#allAppTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#allapppage').val(${totpage});loadAllApp();">${totpage}</button>`);
+                onclick="$('#allapppage').val(${totpage});LoadAllApplicationList();">${totpage}</button>`);
             }
 
             for (i = 0; i < applications.length; i++) {
-                const application = applications[i];
-                // Fill the table using this format: 
-                // <tr class="text-sm">
-                //  <td class="py-5 px-6 font-medium">id here</td>
-                //    <td class="py-5 px-6 font-medium">name here</td>
-                //  </tr>
-                //
-                apptype = APPTYPE[application.application_type];
+                application = applications[i];
+                apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) {
@@ -366,25 +281,20 @@ function loadAllApp(recurse = true) {
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="AllAppBtn${application.applicationid}" 
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="appDetail(${application.applicationid}, true)">Details</button></td>
+              onclick="GetApplicationDetail(${application.applicationid}, true)">Details</button></td>
             </tr>`);
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
 }
 
-function appDetail(applicationid, staffmode = false) {
-    $("#AllAppBtn" + applicationid).attr("disabled", "disabled");
-    $("#AllAppBtn" + applicationid).html("Loading...");
-    $("#MyAppBtn" + applicationid).attr("disabled", "disabled");
-    $("#MyAppBtn" + applicationid).html("Loading...");
+function GetApplicationDetail(applicationid, staffmode = false) {
+    GeneralLoad();
+    LockBtn("#AllAppBtn" + applicationid, "Loading...");
+    LockBtn("#MyAppBtn" + applicationid, "Loading...");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application?applicationid=" + applicationid,
         type: "GET",
@@ -393,22 +303,20 @@ function appDetail(applicationid, staffmode = false) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
-                false);
+            UnlockBtn("#AllAppBtn" + applicationid);
+            UnlockBtn("#MyAppBtn" + applicationid);
+            if (data.error) return AjaxError(data);
+
             d = data.response.detail;
             discordid = data.response.discordid;
             keys = Object.keys(d);
-            if (keys.length == 0) {
-                return toastFactory("error", "Error:", "Application has no data", 5000,
-                    false);
-            }
-            APPTYPE = ["", "Driver", "Staff", "LOA", "Division"];
-            apptype = APPTYPE[data.response.application_type];
+            if (keys.length == 0)
+                return toastFactory("error", "Error:", "Application has no data", 5000, false);
+                
+            apptype = applicationTypes[data.response.application_type];
             ret = "";
-            for (i = 0; i < keys.length; i++) {
+            for (i = 0; i < keys.length; i++)
                 ret += "<p style='text-align:left'><b>" + keys[i] + ":</b><br> " + d[keys[i]] + "</p><br>";
-            }
-            ret += "";
 
             $.ajax({
                 url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
@@ -448,7 +356,7 @@ function appDetail(applicationid, staffmode = false) {
                     
                             <button type="button" id="addAppMessageBtn" style="float:right"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="addAppMessage()">Add</button>`;
+                                onclick="AddMessageToApplication()">Add</button>`;
                     } else {
                         info += `
                             <hr>
@@ -482,7 +390,7 @@ function appDetail(applicationid, staffmode = false) {
                     
                             <button type="button" style="float:right"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="updateAppStatus()" id="updateAppStatusBtn">Update</button>
+                                onclick="UpdateApplicationStatus()" id="updateAppStatusBtn">Update</button>
                             </div>
                         </div>`;
                     }
@@ -493,33 +401,25 @@ function appDetail(applicationid, staffmode = false) {
                         showConfirmButton: false,
                         confirmButtonText: 'Close'
                     })
-                    $("#AllAppBtn" + applicationid).removeAttr("disabled");
-                    $("#AllAppBtn" + applicationid).html("Details");
-                    $("#MyAppBtn" + applicationid).removeAttr("disabled");
-                    $("#MyAppBtn" + applicationid).html("Details");
                 }
             });
         },
         error: function (data) {
-            $("#AllAppBtn" + applicationid).removeAttr("disabled");
-            $("#AllAppBtn" + applicationid).html("Details");
-            $("#MyAppBtn" + applicationid).removeAttr("disabled");
-            $("#MyAppBtn" + applicationid).html("Details");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#AllAppBtn" + applicationid);
+            UnlockBtn("#MyAppBtn" + applicationid);
+            AjaxError(data);
         }
     })
 }
 
-function updateAppStatus() {
-    $("#updateAppStatusBtn").attr("disabled", true);
-    $("#updateAppStatusBtn").html("Updating...");
+function UpdateApplicationStatus() {
+    GeneralLoad();
+    LockBtn("#updateAppStatusBtn");
+
     appid = $("#appstatusid").val();
     appstatus = parseInt($("#appstatussel").find(":selected").val());
     message = $("#appmessage").val();
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/status",
         type: "PATCH",
@@ -533,31 +433,21 @@ function updateAppStatus() {
             "message": message
         },
         success: function (data) {
-            $("#updateAppStatusBtn").removeAttr("disabled");
-            $("#updateAppStatusBtn").html("Update");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor,
-                5000, false);
-            else {
-                loadAllApp();
-                return toastFactory("success", "Application status updated.", data.response.message, 5000, false);
-            }
+            UnlockBtn("#updateAppStatusBtn");
+            if (data.error) return AjaxError(data);
+            LoadAllApplicationList();
+            toastFactory("success", "Application status updated.", data.response.message, 5000, false);
         },
         error: function (data) {
-            $("#updateAppStatusBtn").removeAttr("disabled");
-            $("#updateAppStat usBtn").html("Update");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
-                5000,
-                false);
-            console.warn(
-                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#updateAppStatusBtn");
+            AjaxError(data);
         }
     })
 }
 
-function updateStaffPosition() {
-    $("#updateStaffPositionBtn").attr("disabled", true);
-    $("#updateStaffPositionBtn").html("Updating...");
+function UpdateApplicationPositions() {
+    GeneralLoad();
+    LockBtn("#updateStaffPositionBtn");
     positions = $("#staffposedit").val().replaceAll("\n", ",");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/positions",
@@ -570,23 +460,13 @@ function updateStaffPosition() {
             "positions": positions
         },
         success: function (data) {
-            $("#updateStaffPositionBtn").removeAttr("disabled");
-            $("#updateStaffPositionBtn").html("Update");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor,
-                5000, false);
-            else {
-                return toastFactory("success", "Success!", data.response.message, 5000, false);
-            }
+            UnlockBtn("#updateStaffPositionBtn");
+            if (data.error) return AjaxError(data);
+            toastFactory("success", "Success!", data.response.message, 5000, false);
         },
         error: function (data) {
-            $("#updateStaffPositionBtn").removeAttr("disabled");
-            $("#updateStaffPositionBtn").html("Update");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText,
-                5000,
-                false);
-            console.warn(
-                `Failed to load applications. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#updateStaffPositionBtn");
+            AjaxError(data);
         }
     })
 }

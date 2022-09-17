@@ -46,7 +46,7 @@
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.6)");
+console.log("Drivers Hub: Frontend (v1.5.1)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 		function toastFactory(type, title, text, time, showConfirmButton) {
@@ -197,13 +197,15 @@ console.log('This product must work with "Drivers Hub: Backend" which is also ma
 	</div>
 	<div style="position:fixed;bottom:10px;color:lightgrey;text-align:center;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-		<a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
+		<a href="https://drivershub.charlws.com" target="_blank">(CHub)</a>
         &nbsp;|&nbsp;
-		<a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
+        <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a>
+        &nbsp;|&nbsp;
+        <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
 		<br>
 		API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
 		&nbsp;|&nbsp;
-		Web: v1.4.6 <a href="/changelog" target="_blank">Changelog</a>
+		Web: v1.5.1 <a href="/changelog" target="_blank">Changelog</a>
 		<br>
 		Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
 		&nbsp;|&nbsp;

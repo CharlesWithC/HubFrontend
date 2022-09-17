@@ -4,6 +4,7 @@
 
 <head>
     <meta name="copyrighted-site-verification" content="c6b03041ac3cc909" />
+
     <?php
     $domain = $_SERVER['HTTP_HOST'];
     require_once('config/'.$domain.'.php');
@@ -26,20 +27,6 @@
         $t = explode("/", $path);
         header('Location: http://'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
         exit;
-    }
-
-    $application_html = "";
-    if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/application.html')){
-        $application_html = file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/application.html');
-        if($application_html == ""){
-            $application_html = file_get_contents('default_application.html');
-            echo '<script>is_default_application = true;</script>';
-        } else {
-            echo '<script>is_default_application = false;</script>';
-        }
-    } else {
-        $application_html = file_get_contents('default_application.html');
-        echo '<script>is_default_application = true;</script>';
     }
     ?>
 
@@ -73,28 +60,28 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/menu.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/index.js"></script>
+    <?php
+        if(stristr($path, 'beta')){
+            echo '<script src="https://drivershub-cdn.charlws.com/js/bundle@beta.js"></script>';
+        } else {
+            echo '<script src="https://drivershub-cdn.charlws.com/js/bundle@v1.5.1.js"></script>';
+        }
+    ?>
+    <?php
+    $application_html = "";
+    if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/application.html')){
+        $application_html = file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/application.html');
+        if($application_html == "")
+            $application_html = file_get_contents('default_application.html');
+    } else {
+        $application_html = file_get_contents('default_application.html');
+    }
+    ?>
     <?php if(in_array("livemap", $enabled_plugins)){
     echo '<script src="https://drivershub-cdn.charlws.com/js/map/ets2map.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/map/ets2map_promods.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/map/atsmap.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/map/naviolive.js"></script>';} ?>
-    <script src="https://drivershub-cdn.charlws.com/js/apis/member.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/apis/overview.js"></script>
-    <?php if(in_array("announcement", $enabled_plugins)){
-    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/announcement.js"></script>';} ?>
-    <?php if(in_array("downloads", $enabled_plugins)){
-    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/downloads.js"></script>';} ?>
-    <?php if(in_array("application", $enabled_plugins)){
-    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/application.js"></script>';} ?>
-    <script src="https://drivershub-cdn.charlws.com/js/apis/user.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/apis/dlog.js"></script>
-    <?php if(in_array("division", $enabled_plugins)){
-    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/division.js"></script><script>loadDivisionList();</script>';} ?>
-    <?php if(in_array("event", $enabled_plugins)){
-    echo '<script src="https://drivershub-cdn.charlws.com/js/plugins/event.js"></script>';} ?>
     <?php
     if(in_array("addon", $enabled_plugins)){
         echo '<script src="https://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/addon.js"></script>';
@@ -658,7 +645,7 @@
                             </div>
                             &nbsp;
                             &nbsp;
-                            <a id="darkmode" style="cursor:pointer;margin-top:11px" onclick="DarkMode()">
+                            <a id="darkmode" style="cursor:pointer;margin-top:11px" onclick="ToggleDarkMode()">
                                 <span class="inline-block mr-4">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                                         xmlns="http://www.w3.org/2000/svg" id="todarksvg">
@@ -749,9 +736,9 @@
                         <div class="flex px-6 pb-4 border-b">
                             <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
                             <div style="margin-left:auto">
-                                <a onclick='dets2=1-dets2;loadUserDelivery();' style='cursor:pointer'><span
+                                <a onclick='dets2=1-dets2;LoadUserDeliveryList();' style='cursor:pointer'><span
                                         class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                                <a onclick='dats=1-dats;loadUserDelivery();' style='cursor:pointer'><span
+                                <a onclick='dats=1-dats;LoadUserDeliveryList();' style='cursor:pointer'><span
                                         class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
                                 <input id="udspeedlimit"
                                     class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
@@ -767,7 +754,7 @@
                                     type="date" name="" style="width:150px;display:inline" placeholder="">
                                 <button type="button" style="display:inline"
                                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                    onclick="loadUserDelivery()"
+                                    onclick="LoadUserDeliveryList()"
                                     id="loadUserDeliveryBtn"><?php echo $st->go; ?></button>
                             </div>
                         </div>
@@ -806,16 +793,16 @@
                                     id="udtotpages">-</span>
                                 <button type="button"
                                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                    onclick="loadUserDelivery()"><?php echo $st->show; ?></button>
+                                    onclick="LoadUserDeliveryList()"><?php echo $st->show; ?></button>
                             </div>
                             <button type="button" style="display:inline"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp-1);loadUserDelivery();">
+                                onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp-1);LoadUserDeliveryList();">
                                 < </button> <div id="userDeliveryTableControl" style="display:inline">
                         </div>
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp+1);loadUserDelivery();">></button>
+                            onclick="tmp=parseInt($('#udpages').val());$('#udpages').val(tmp+1);LoadUserDeliveryList();">></button>
                     </div>
                 </div>
                 <br>
@@ -887,7 +874,7 @@
 
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="updateBio()" id="updateBioBtn"><?php echo $st->update; ?></button>
+                            onclick="UpdateBio()" id="updateBioBtn"><?php echo $st->update; ?></button>
                     </div>
                 </div>
                 <br>
@@ -900,7 +887,7 @@
                         <?php echo $st->password_login_note ?>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="resetPassword()" id="resetPasswordBtn"><?php echo $st->update ?></button>
+                            onclick="UpdatePassword()" id="resetPasswordBtn"><?php echo $st->update ?></button>
                     </div>
                     <br>
                     <hr>
@@ -912,10 +899,10 @@
                             for=""><i><?php echo $st->application_token_note; ?></i></label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="genNewAppToken()" id="genAppTokenBtn"><?php echo $st->reset_token; ?></button>
+                            onclick="RenewApplicationToken()" id="genAppTokenBtn"><?php echo $st->reset_token; ?></button>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="disableAppToken()" id="disableAppTokenBtn">Disable</button>
+                            onclick="DisableApplicationToken()" id="disableAppTokenBtn">Disable</button>
                     </div>
                     <br>
                     <hr>
@@ -925,7 +912,7 @@
                             style="color:red"><?php echo $st->resign_note; ?></label>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="resign()" id="resignBtn"><?php echo $st->resign; ?></button>
+                            onclick="UserResign()" id="resignBtn"><?php echo $st->resign; ?></button>
                     </div>
                 </div>
             </div>
@@ -1417,7 +1404,7 @@
                             type="text" name="" style="width:200px;display:inline" placeholder="Search By Name">
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadMembers()" id="searchMemberBtn"><?php echo $st->go; ?></button>
+                            onclick="LoadMemberList()" id="searchMemberBtn"><?php echo $st->go; ?></button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
@@ -1447,16 +1434,16 @@
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="mtotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadMembers()"><?php echo $st->show; ?></button>
+                            onclick="LoadMemberList()"><?php echo $st->show; ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp-1);loadMembers();">
+                        onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp-1);LoadMemberList();">
                         < </button> <div id="membersTableControl" style="display:inline">
                 </div>
                 <button type="button" style="display:inline"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp+1);loadMembers();">></button>
+                    onclick="tmp=parseInt($('#mpages').val());$('#mpages').val(tmp+1);LoadMemberList();">></button>
             </div>
         </div>
     </section>
@@ -1477,7 +1464,7 @@
                             name="field-name" rows="5" placeholder=""></input>
                         <button type="button" id="fetchRolesBtn"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="fetchRoles()"><?php echo $st->fetch_existing_roles; ?></button>
+                            onclick="GetMemberRoles()"><?php echo $st->fetch_existing_roles; ?></button>
                     </div>
                     <span id="memberrolename" style="font-size:30px"></span>
                     <div class="mb-6" id="rolelist">
@@ -1486,7 +1473,7 @@
 
                     <button type="button" id="updateMemberRolesBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateMemberRoles()"><?php echo $st->update; ?></button>
+                        onclick="UpdateMemberRoles()"><?php echo $st->update; ?></button>
                 </div>
             </div>
             <br>
@@ -1520,7 +1507,7 @@
 
                     <button type="button" id="updateMemberPointsBtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="updateMemberPoints()"><?php echo $st->update; ?></button>
+                        onclick="UpdateMemberPoints()"><?php echo $st->update; ?></button>
                 </div>
             </div>
             <br>
@@ -1542,7 +1529,7 @@
 
                     <button type="button" id="dismissbtn"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="dismissUser()"><?php echo $st->dismiss; ?></button>
+                        onclick="DismissUser()"><?php echo $st->dismiss; ?></button>
                 </div>
             </div>
         </div>
@@ -1646,7 +1633,7 @@
                     </p>
                     <button type="button" style="display:inline"
                         class="requestRoleBtn w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="requestRole()">'.$st->request_discord_role.'</button>
+                        onclick="GetDiscordRankRole()">'.$st->request_discord_role.'</button>
                     <br>
                     <div id="ranktable">
 
@@ -1844,9 +1831,9 @@
                 <div class="flex px-6 pb-4 border-b">
                     <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
                     <div style="margin-left:auto">
-                        <a onclick='dets2=1-dets2;loadDelivery();' style='cursor:pointer'><span
+                        <a onclick='dets2=1-dets2;LoadDeliveryList();' style='cursor:pointer'><span
                                 class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                        <a onclick='dats=1-dats;loadDelivery();' style='cursor:pointer'><span
+                        <a onclick='dats=1-dats;LoadDeliveryList();' style='cursor:pointer'><span
                                 class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
                         <input id="dspeedlimit"
                             class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
@@ -1862,7 +1849,7 @@
                             type="date" name="" style="width:150px;display:inline" placeholder="">
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadDelivery()" id="loadDeliveryBtn">Go</button>
+                            onclick="LoadDeliveryList()" id="loadDeliveryBtn">Go</button>
                     </div>
                 </div>
                 <div class="p-4 overflow-x-auto" style="display: block;">
@@ -1901,16 +1888,16 @@
                             name="field-name" rows="5" placeholder="" value="1"></input> / <span id="dtotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadDelivery()"><?php echo $st->show; ?></button>
+                            onclick="LoadDeliveryList()"><?php echo $st->show; ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp-1);loadDelivery();">
+                        onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp-1);LoadDeliveryList();">
                         < </button> <div id="deliveryTableControl" style="display:inline">
                 </div>
                 <button type="button" style="display:inline"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp+1);loadDelivery();">></button>
+                    onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp+1);LoadDeliveryList();">></button>
             </div>
         </div>
         <br>
@@ -1937,7 +1924,7 @@
                 </div>
                 <button type="button"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="exportDLog()" id="exportDLogBtn"><?php echo $st->export; ?></button>
+                    onclick="ExportDeliveryLog()" id="exportDLogBtn"><?php echo $st->export; ?></button>
             </div>
         </div>
         </div>
@@ -2371,17 +2358,17 @@
                             id="myapptotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadMyApp()">'.$st->show.'</button>
+                            onclick="LoadUserApplicationList()">'.$st->show.'</button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($(\'#myapppage\').val());$(\'#myapppage\').val(tmp-1);loadMyApp();">
+                        onclick="tmp=parseInt($(\'#myapppage\').val());$(\'#myapppage\').val(tmp-1);LoadUserApplicationList();">
                         < </button>
                             <div id="myAppTableControl" style="display:inline">
                             </div>
                             <button type="button" style="display:inline"
                                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="tmp=parseInt($(\'#myapppage\').val());$(\'#myapppage\').val(tmp+1);loadMyApp();">></button>
+                                onclick="tmp=parseInt($(\'#myapppage\').val());$(\'#myapppage\').val(tmp+1);LoadUserApplicationList();">></button>
                 </div>
             </div>
         </div>
@@ -2444,16 +2431,16 @@
                             id="allapptotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadAllApp()">'.$st->show.'</button>
+                            onclick="LoadAllApplicationList()">'.$st->show.'</button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp-1);loadAllApp();">
+                        onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp-1);LoadAllApplicationList();">
                         < </button> <div id="allAppTableControl" style="display:inline">
                 </div>
                 <button type="button" style="display:inline"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp+1);loadAllApp();">></button>
+                    onclick="tmp=parseInt($(\'#allapppage\').val());$(\'#allapppage\').val(tmp+1);LoadAllApplicationList();">></button>
             </div>
         </div>
         <br>
@@ -2471,7 +2458,7 @@
 
                 <button type="button" id="updateStaffPositionBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="updateStaffPosition()" id="updateAppStatusBtn">'.$st->update.'</button>
+                    onclick="UpdateApplicationPositions()" id="updateAppStatusBtn">'.$st->update.'</button>
             </div>
         </div>
         </div>
@@ -2509,16 +2496,16 @@
                             id="putotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadUsers()"><?php echo $st->show ?></button>
+                            onclick="LoadUserList()"><?php echo $st->show ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp-1);loadUsers();">
+                        onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp-1);LoadUserList();">
                         < </button> <div id="usersTableControl" style="display:inline">
                 </div>
                 <button type="button" style="display:inline"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp+1);loadUsers();">></button>
+                    onclick="tmp=parseInt($('#pupages').val());$('#pupages').val(tmp+1);LoadUserList();">></button>
             </div>
         </div>
         <br>
@@ -2546,12 +2533,12 @@
                         name="field-name" rows="5" placeholder="<?php echo $st->reason_note ?>"></textarea>
                 </div>
 
-                <button type="button"
+                <button type="button" id="banUserBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="banUser()"><?php echo $st->ban ?></button>
-                <button type="button" style="background-color:lightgreen"
+                    onclick="BanUser()"><?php echo $st->ban ?></button>
+                <button type="button" style="background-color:lightgreen" id="unbanUserBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="unbanUser()"><?php echo $st->unban ?></button>
+                    onclick="UnbanUser()"><?php echo $st->unban ?></button>
             </div>
         </div>
         <br>
@@ -2571,7 +2558,7 @@
 
                 <button type="button" id="addUserBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="addUser()"><?php echo $st->add ?></button>
+                    onclick="AddUser()"><?php echo $st->add ?></button>
             </div>
         </div>
         <br>
@@ -2596,7 +2583,7 @@
 
                 <button type="button" id="updateDiscordBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="updateDiscord()"><?php echo $st->update ?></button>
+                    onclick="UpdateUserDiscordAccount()"><?php echo $st->update ?></button>
             </div>
         </div>
         <br>
@@ -2614,7 +2601,7 @@
 
                 <button type="button" id="unbindConnectionsBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="unbindConnections()"><?php echo $st->unbind ?></button>
+                    onclick="UnbindUserAccountConnections()"><?php echo $st->unbind ?></button>
             </div>
         </div>
         <br>
@@ -2634,7 +2621,7 @@
 
                 <button type="button" id="deleteUserBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="deleteUser()"><?php echo $st->delete ?></button>
+                    onclick="DeleteUserAccount()"><?php echo $st->delete ?></button>
             </div>
         </div>
     </section>
@@ -2674,16 +2661,16 @@
                             id="audittotpages">-</span>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadAuditLog()"><?php echo $st->show ?></button>
+                            onclick="LoadAuditLog()"><?php echo $st->show ?></button>
                     </div>
                     <button type="button" style="display:inline"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp-1);loadAuditLog();">
+                        onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp-1);LoadAuditLog();">
                         < </button> <div id="auditTableControl" style="display:inline">
                 </div>
                 <button type="button" style="display:inline"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp+1);loadAuditLog();">></button>
+                    onclick="tmp=parseInt($('#auditpages').val());$('#auditpages').val(tmp+1);LoadAuditLog();">></button>
             </div>
         </div>
         </div>
@@ -3221,13 +3208,15 @@
         <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
             <div style="margin:0.5em;margin-top:auto;text-align:center" style="padding-bottom:10px">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-                <a href="https://drivershub.charlws.com" target="_blank">(Gehub)</a>
+                <a href="https://drivershub.charlws.com" target="_blank">(CHub)</a>
                 &nbsp;|&nbsp;
-                <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Get Help</a>
+                <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a>
+                &nbsp;|&nbsp;
+                <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
                 <br>
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.4.6 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.5.1 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

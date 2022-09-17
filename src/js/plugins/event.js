@@ -1,12 +1,54 @@
+function HandleAttendeeInput(){
+    $('#attendeeId').keydown(function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            val = $("#attendeeId").val();
+            if (val == "") return;
+            $.ajax({
+                url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + val,
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                success: function (data) {
+                    d = data.response.list;
+                    if (d.length == 0) {
+                        return toastFactory("error", "Error:", "No member with name " + val + " found.", 5000, false);
+                    }
+                    userid = d[0].userid;
+                    username = d[0].name;
+                    if ($(`#attendeeid-${userid}`).length > 0) {
+                        return toastFactory("error", "Error:", "Member already added.", 5000, false);
+                    }
+                    $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
+                        <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
+                    $("#attendeeId").val("");
+                },
+                error: function (data) {
+                    return toastFactory("error", "Error:", "Failed to get User ID", 5000, false);
+                }
+            })
+        } else if (keyCode == 8) {
+            e.preventDefault();
+            val = $("#attendeeId").val();
+            if (val != "") {
+                $("#attendeeId").val(val.substring(0, val.length - 1));
+                return;
+            }
+            ch = $("#attendeeIdWrap").children();
+            ch[ch.length - 2].remove();
+        }
+    });
+}
+
 function FetchEvent(showdetail = -1) {
     eventid = $("#eventid").val();
-    if (!isNumber(eventid)) {
+    if (!isNumber(eventid))
         return toastFactory("error", "Error", "Event ID must be in integar!", 5000, false);
-    }
 
     GeneralLoad();
-    $("#fetchEventBtn").html("Working...");
-    $("#fetchEventBtn").attr("disabled", "disabled");
+    LockBtn("#fetchEventBtn");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
@@ -16,12 +58,10 @@ function FetchEvent(showdetail = -1) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#fetchEventBtn").html("Fetch Data");
-            $("#fetchEventBtn").removeAttr("disabled");
+            UnlockBtn("#fetchEventBtn");
+            if (data.error) return AjaxError(data);
 
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-
-            const event = data.response;
+            event = data.response;
             allevents[event.eventid] = event;
             $("#eventtitle").val(event.title);
             $("#eventtruckersmp_link").val(event.truckersmp_link);
@@ -42,12 +82,8 @@ function FetchEvent(showdetail = -1) {
             if (showdetail != -1) eventDetail(showdetail);
         },
         error: function (data) {
-            $("#fetchEventBtn").html("Fetch Data");
-            $("#fetchEventBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to fetch event. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#fetchEventBtn");
+            AjaxError(data);
         }
     })
 }
@@ -59,8 +95,7 @@ function FetchEventAttendee() {
     }
 
     GeneralLoad();
-    $("#fetchEventAttendeeBtn").html("Working...");
-    $("#fetchEventAttendeeBtn").attr("disabled", "disabled");
+    LockBtn("#fetchEventAttendeeBtn");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
@@ -70,12 +105,10 @@ function FetchEventAttendee() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#fetchEventAttendeeBtn").html("Fetch Existing Attendees");
-            $("#fetchEventAttendeeBtn").removeAttr("disabled");
+            UnlockBtn("#fetchEventAttendeeBtn");
+            if (data.error) return AjaxError(data);
 
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-
-            const event = data.response;
+            event = data.response;
             $(".attendee").remove();
             for (let i = 0; i < event.attendees.length; i++) {
                 userid = event.attendees[i].userid;
@@ -86,12 +119,8 @@ function FetchEventAttendee() {
             }
         },
         error: function (data) {
-            $("#fetchEventAttendeeBtn").html("Fetch Existing Attendees");
-            $("#fetchEventAttendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to fetch event attendees. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#fetchEventAttendeeBtn");
+            AjaxError(data);
         }
     })
 }
@@ -112,8 +141,7 @@ function UpdateEventAttendees() {
     }
 
     GeneralLoad();
-    $("#attendeeBtn").html("Working...");
-    $("#attendeeBtn").attr("disabled", "disabled");
+    LockBtn("#attendeeBtn");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event/attendee?eventid=" + eventid,
@@ -127,28 +155,23 @@ function UpdateEventAttendees() {
             "points": points
         },
         success: function (data) {
-            $("#attendeeBtn").html("Update");
-            $("#attendeeBtn").removeAttr("disabled");
-
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            loadEvent();
+            UnlockBtn("#attendeeBtn");
+            if (data.error) return AjaxError(data);
+            
             Swal.fire({
                 title: 'Event Attendees Updated!',
                 html: "<p style='text-align:left'>" + data.response.message.replaceAll("\n", "<br>") + "</p>",
                 icon: 'success',
                 confirmButtonText: 'OK'
             })
+            loadEvent();
         },
         error: function (data) {
             $("#attendeeBtn").html("Update");
             $("#attendeeBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to update event attendees. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
-
 }
 
 function EventOp() {
@@ -166,8 +189,7 @@ function EventOp() {
     img = $("#eventimgs").val().replaceAll("\n", ",");
 
     GeneralLoad();
-    $("#newEventBtn").html("Working...");
-    $("#newEventBtn").attr("disabled", "disabled");
+    LockBtn("#newEventBtn");
 
     op = "create";
     if (isNumber(eventid)) {
@@ -196,48 +218,16 @@ function EventOp() {
                 "meetup_timestamp": meetup_timestamp,
                 "departure_timestamp": departure_timestamp,
                 "images": img,
-                "pvt": pvt
+                "is_private": pvt
             },
             success: function (data) {
-                // Un-disable the submit button
-                $("#newEventBtn").prop("disabled", false);
-                $("#newEventBtn").html("Submit");
-                if (data.error == false) {
-                    // Trigger req swal.fire
-                    Swal.fire({
-                        title: 'Success',
-                        text: 'Event updated!',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    })
-                    loadEvent();
-                } else {
-                    // Trigger req swal.fire
-                    Swal.fire({
-                        title: 'Error',
-                        text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    })
-                    console.warn(`Event update failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
-                    console.log(data);
-                }
+                UnlockBtn("#newEventBtn");
+                if (data.error) return AjaxError(data);
+                toastFactory("success", "Success", "", 5000, false);
             },
             error: function (data) {
-                // Un-disable the submit button
-                $("#newEventBtn").prop("disabled", false);
-                $("#newEventBtn").html("Submit");
-
-                // Trigger req swal.fire
-                Swal.fire({
-                    title: 'Error',
-                    text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                })
-
-                console.warn(`Event update failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
-                console.log(data);
+                UnlockBtn("#newEventBtn");
+                AjaxError(data);
             }
         });
     } else if (op == "create") {
@@ -257,50 +247,16 @@ function EventOp() {
                 "meetup_timestamp": meetup_timestamp,
                 "departure_timestamp": departure_timestamp,
                 "images": img,
-                "pvt": pvt
+                "is_private": pvt
             },
             success: function (data) {
-                // Un-disable the submit button
-                $("#newEventBtn").prop("disabled", false);
-                $("#newEventBtn").html("Submit");
-                if (data.error == false) {
-                    // Trigger req swal.fire
-                    Swal.fire({
-                        title: 'Success',
-                        text: 'Event created!',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    })
-                    loadEvent();
-                } else {
-                    // Trigger req swal.fire
-                    Swal.fire({
-                        title: 'Error',
-                        text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    })
-
-                    console.warn(
-                        `Event creation failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
-                    console.log(data);
-                }
+                UnlockBtn("#newEventBtn");
+                if (data.error) return AjaxError(data);
+                toastFactory("success", "Success", "", 5000, false);
             },
             error: function (data) {
-                // Un-disable the submit button
-                $("#newEventBtn").prop("disabled", false);
-                $("#newEventBtn").html("Submit");
-
-                // Trigger req swal.fire
-                Swal.fire({
-                    title: 'Error',
-                    text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                })
-
-                console.warn(`Event creation failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
-                console.log(data);
+                UnlockBtn("#newEventBtn");
+                AjaxError(data);
             }
         });
     } else if (op == "delete") {
@@ -313,53 +269,23 @@ function EventOp() {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                // Un-disable the submit button
-                $("#newEventBtn").prop("disabled", false);
-                $("#newEventBtn").html("Submit");
-                if (data.error == false) {
-                    // Trigger req swal.fire
-                    Swal.fire({
-                        title: 'Success',
-                        text: 'Event deleted!',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    })
-                    loadEvent();
-                } else {
-                    // Trigger req swal.fire
-                    Swal.fire({
-                        title: 'Error',
-                        text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    })
-                }
+                UnlockBtn("#newEventBtn");
+                if (data.error) return AjaxError(data);
+                toastFactory("success", "Success", "", 5000, false);
             },
             error: function (data) {
-                // Un-disable the submit button
-                $("#newEventBtn").prop("disabled", false);
-                $("#newEventBtn").html("Submit");
-
-                // Trigger req swal.fire
-                Swal.fire({
-                    title: 'Error',
-                    text: JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                })
-
-                console.warn(`Event deletion failed: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : 'Unknown error'}`);
-                console.log(data);
+                UnlockBtn("#newEventBtn");
+                AjaxError(data);
             }
         });
     }
 }
+
 allevents = {};
 
 function loadEvent(recurse = true) {
     page = parseInt($("#epages").val())
-    if (page == "") page = 1;
-    if (page == undefined) page = 1;
+    if (page == "" || page == undefined || page <= 0) page = 1;
 
     if (eventsCalendar == undefined) {
         $.ajax({
@@ -371,7 +297,7 @@ function loadEvent(recurse = true) {
             },
             success: async function (data) {
                 if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-                const d = data.response.list;
+                d = data.response.list;
                 var eventlist = [];
                 offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
                 for (var i = 0; i < d.length; i++) {
@@ -406,10 +332,7 @@ function loadEvent(recurse = true) {
                 }, 50);
             },
             error: function (data) {
-                toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-                console.warn(
-                    `Failed to load events. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-                console.log(data);
+                AjaxError(data);
             }
         })
     }
@@ -424,20 +347,10 @@ function loadEvent(recurse = true) {
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             $("#eventTable").empty();
-            const events = data.response.list;
+            events = data.response.list;
             if (events.length == 0) {
                 $("#eventTableHead").hide();
-                $("#eventTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+                $("#eventTable").append(TableNoData(8));
                 $("#epages").val(1);
                 if (recurse) loadEvent(recurse = false);
                 return;
@@ -448,10 +361,6 @@ function loadEvent(recurse = true) {
                 $("#epages").val(1);
                 if (recurse) loadEvent(recurse = false);
                 return;
-            }
-            if (page <= 0) {
-                $("#epages").val(1);
-                page = 1;
             }
             $("#etotpages").html(totpage);
             $("#eventTableControl").children().remove();
@@ -485,26 +394,19 @@ function loadEvent(recurse = true) {
             }
 
             for (i = 0; i < events.length; i++) {
-                const event = events[i];
+                event = events[i];
                 allevents[event.eventid] = event;
                 meetup_timestamp = event.meetup_timestamp * 1000;
                 departure_timestamp = event.departure_timestamp * 1000;
                 now = +new Date();
-                color = "";
-                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) {
-                    color = "blue";
-                }
-                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) {
-                    color = "lightgreen"
-                }
-                if (now > departure_timestamp + 1000 * 60 * 30) {
-                    color = "grey";
-                }
+                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) color = "blue";
+                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) color = "lightgreen"
+                if (now > departure_timestamp + 1000 * 60 * 30) color = "grey";
                 mt = getDateTime(meetup_timestamp);
                 dt = getDateTime(departure_timestamp);
                 votecnt = event.votes.length;
                 pvt = "";
-                if (event.is_private) pvt = LOCKED;
+                if (event.is_private) pvt = SVG_LOCKED;
                 $("#eventTable").append(`
             <tr class="text-sm" style="color:${color}">
               <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
@@ -523,10 +425,7 @@ function loadEvent(recurse = true) {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load events. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
 }
@@ -534,7 +433,7 @@ function loadEvent(recurse = true) {
 function eventvote(eventid) {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event/vote?eventid=" + eventid,
-        type: "POST",
+        type: "PUT",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -543,14 +442,10 @@ function eventvote(eventid) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
             $("#eventid").val(eventid);
             FetchEvent(eventid, showdetail = eventid);
-            return toastFactory("success", "Success:", data.response, 5000, false);
+            toastFactory("success", "Success:", data.response, 5000, false);
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to vote / unvote for event. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     });
 }

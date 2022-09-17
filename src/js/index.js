@@ -5,45 +5,22 @@ drivershub = `    ____       _                         __  __      __
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
 console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.4.6)");
+console.log("Drivers Hub: Frontend (v1.5.1)");
 console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
 console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
 
-VERIFIED = `<svg style="display:inline;position:relative;top:-1.5px;color:skyblue" width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5213 2.62368C11.3147 1.75255 12.6853 1.75255 13.4787 2.62368L14.4989 3.74391C14.8998 4.18418 15.4761 4.42288 16.071 4.39508L17.5845 4.32435C18.7614 4.26934 19.7307 5.23857 19.6757 6.41554L19.6049 7.92905C19.5771 8.52388 19.8158 9.10016 20.2561 9.50111L21.3763 10.5213C22.2475 11.3147 22.2475 12.6853 21.3763 13.4787L20.2561 14.4989C19.8158 14.8998 19.5771 15.4761 19.6049 16.071L19.6757 17.5845C19.7307 18.7614 18.7614 19.7307 17.5845 19.6757L16.071 19.6049C15.4761 19.5771 14.8998 19.8158 14.4989 20.2561L13.4787 21.3763C12.6853 22.2475 11.3147 22.2475 10.5213 21.3763L9.50111 20.2561C9.10016 19.8158 8.52388 19.5771 7.92905 19.6049L6.41553 19.6757C5.23857 19.7307 4.26934 18.7614 4.32435 17.5845L4.39508 16.071C4.42288 15.4761 4.18418 14.8998 3.74391 14.4989L2.62368 13.4787C1.75255 12.6853 1.75255 11.3147 2.62368 10.5213L3.74391 9.50111C4.18418 9.10016 4.42288 8.52388 4.39508 7.92905L4.32435 6.41553C4.26934 5.23857 5.23857 4.26934 6.41554 4.32435L7.92905 4.39508C8.52388 4.42288 9.10016 4.18418 9.50111 3.74391L10.5213 2.62368Z" stroke="currentColor" stroke-width="1.5"/> <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/> </svg> `;
-LOCKED = `<svg style="display:inline;position:relative;top:-1.5px;color:red" xmlns="http://www.w3.org/2000/svg" width="18" height="18" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M17,9V7c0-2.8-2.2-5-5-5S7,4.2,7,7v2c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h10c1.7,0,3-1.3,3-3v-7C20,10.3,18.7,9,17,9z M9,7c0-1.7,1.3-3,3-3s3,1.3,3,3v2H9V7z M13,17c0,0.6-0.4,1-1,1s-1-0.4-1-1v-3c0-0.6,0.4-1,1-1s1,0.4,1,1V17z" fill="red"/></svg>`;
+SVG_VERIFIED = `<svg style="display:inline;position:relative;top:-1.5px;color:skyblue" width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5213 2.62368C11.3147 1.75255 12.6853 1.75255 13.4787 2.62368L14.4989 3.74391C14.8998 4.18418 15.4761 4.42288 16.071 4.39508L17.5845 4.32435C18.7614 4.26934 19.7307 5.23857 19.6757 6.41554L19.6049 7.92905C19.5771 8.52388 19.8158 9.10016 20.2561 9.50111L21.3763 10.5213C22.2475 11.3147 22.2475 12.6853 21.3763 13.4787L20.2561 14.4989C19.8158 14.8998 19.5771 15.4761 19.6049 16.071L19.6757 17.5845C19.7307 18.7614 18.7614 19.7307 17.5845 19.6757L16.071 19.6049C15.4761 19.5771 14.8998 19.8158 14.4989 20.2561L13.4787 21.3763C12.6853 22.2475 11.3147 22.2475 10.5213 21.3763L9.50111 20.2561C9.10016 19.8158 8.52388 19.5771 7.92905 19.6049L6.41553 19.6757C5.23857 19.7307 4.26934 18.7614 4.32435 17.5845L4.39508 16.071C4.42288 15.4761 4.18418 14.8998 3.74391 14.4989L2.62368 13.4787C1.75255 12.6853 1.75255 11.3147 2.62368 10.5213L3.74391 9.50111C4.18418 9.10016 4.42288 8.52388 4.39508 7.92905L4.32435 6.41553C4.26934 5.23857 5.23857 4.26934 6.41554 4.32435L7.92905 4.39508C8.52388 4.42288 9.10016 4.18418 9.50111 3.74391L10.5213 2.62368Z" stroke="currentColor" stroke-width="1.5"/> <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/> </svg> `;
+SVG_LOCKED = `<svg style="display:inline;position:relative;top:-1.5px;color:red" xmlns="http://www.w3.org/2000/svg" width="18" height="18" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M17,9V7c0-2.8-2.2-5-5-5S7,4.2,7,7v2c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h10c1.7,0,3-1.3,3-3v-7C20,10.3,18.7,9,17,9z M9,7c0-1.7,1.3-3,3-3s3,1.3,3,3v2H9V7z M13,17c0,0.6-0.4,1-1,1s-1-0.4-1-1v-3c0-0.6,0.4-1,1-1s1,0.4,1,1V17z" fill="red"/></svg>`;
 
+userid = localStorage.getItem("userid");
+token = localStorage.getItem("token");
 isAdmin = false;
-perms = {};
-rolelist = {};
-dmapint = -1;
-window.mapcenter = {}
-window.autofocus = {}
 highestrole = 99999;
-
-distance_unit = localStorage.getItem("distance_unit");
-
-isdark = parseInt(localStorage.getItem("darkmode"));
-if (localStorage.getItem("darkmode") == undefined) isdark = 1;
-rolelist = localStorage.getItem("rolelist");
-if (rolelist != undefined && rolelist != null) {
-    rolelist = JSON.parse(rolelist);
-} else {
-    rolelist = [];
-}
-
+roles = JSON.parse(localStorage.getItem("roles"));
+rolelist = JSON.parse(localStorage.getItem("rolelist"));
+perms = JSON.parse(localStorage.getItem("perms"));
 positions = localStorage.getItem("positions");
-if (positions != undefined && positions != null) {
-    positions = JSON.parse(positions);
-    positionstxt = "";
-    for (var i = 0; i < positions.length; i++) {
-        positionstxt += positions[i] + "\n";
-        $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
-    }
-    positionstxt = positionstxt.slice(0, -1);
-    $("#staffposedit").val(positionstxt);
-} else {
-    positions = [];
-}
+applicationTypes = localStorage.getItem("applicationTypes");
 
 function Logout(){
     token = localStorage.getItem("token")
@@ -65,7 +42,146 @@ function Logout(){
     });
 }
 
-function DarkMode() {
+function InitRankingDisplay(){
+    if (RANKING != []) {
+        rankpnt = Object.keys(RANKING);
+        for (var i = 0; i < Math.ceil(rankpnt.length / 8); i++) {
+            ranktable = `<table class="table-auto" style="display:inline">
+            <thead>
+              <tr class="text-xs text-gray-500 text-left">
+                <th class="py-5 px-6 pb-3 font-medium">Rank</th>
+                <th class="py-5 px-6 pb-3 font-medium">Points</th>
+              </tr>
+            </thead>
+            <tbody>`;
+            for (var j = 0; j < 8; j++) {
+                if (rankpnt[i * 8 + j] == undefined) break;
+                ranktable += `<tr class="text-sm">
+                    <td class="py-5 px-6 font-medium">${RANKING[rankpnt[i * 8 + j]]}</td>
+                    <td class="py-5 px-6 font-medium">${rankpnt[i * 8 + j]}</td>
+                </tr>`;
+            }
+            ranktable += `</tbody>/table>`;
+            $("#ranktable").append(ranktable);
+        }
+    }
+}
+
+function InitResizeHandler(){
+    setInterval(function () {
+        if ($("#HomeTab").width() / 3 <= 300) {
+            if ($("#HomeTab").width() / 2 <= 300) $(".statscard").css("width", "100%");
+            else $(".statscard").css("width", "50%");
+        } else $(".statscard").css("width", "33%");
+    }, 10);
+}
+
+function InitPhoneView(){
+    if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)) {
+        t = $("div");
+        for (i = 0; i < t.length; i++) {
+            st = $(t[i]).attr("style");
+            if (st == undefined) continue;
+            st = st.replaceAll("padding:50px", "padding:5px");
+            $(t[i]).attr("style", st);
+        }
+        $("#hometableftcontainer").css("width", "100%");
+    }
+}
+
+function InitInputHandler(){
+    $('#searchname').keydown(function (e) {
+        if (e.which == 13) LoadMemberList();
+    });
+    $('#dend,#dspeedlimit').keydown(function (e) {
+        if (e.which == 13) LoadDeliveryList();
+    });
+    $('#udend,#udspeedlimit').keydown(function (e) {
+        if (e.which == 13) LoadUserDeliveryList();
+    });
+    $('#lbend,#lbspeedlimit').keydown(function (e) {
+        if (e.which == 13) loadLeaderboard();
+    });
+    $('#memberroleid').keydown(function (e) {
+        if (e.which == 13) GetMemberRoles();
+    });
+    $('#appselect').on('change', function () {
+        var value = $(this).val();
+        $(".apptabs").hide();
+        $("#Application" + value).show();
+        $("#submitAppBttn").show();
+    });
+    $('#application4Answer1').on('change', function () {
+        var value = $(this).val();
+        $(".divisiontabs").hide();
+        $("#Division" + value).show();
+    });
+}
+
+function InitDistanceUnit() {
+    distance_unit = localStorage.getItem("distance_unit");
+    if (distance_unit == "imperial") {
+        $(".distance_unit").html("Mi");
+        distance_unit_txt = "Mi";
+        fuel_unit_txt = "Gal";
+        weight_unit_txt = "Lb";
+        distance_ratio = 0.621371;
+        fuel_ratio = 0.2641720524;
+        weight_ratio = 2.2046226218488;
+        $("#imperialbtn").css("background-color", "none");
+        $("#metricbtn").css("background-color", "#293039");
+    } else {
+        $(".distance_unit").html("Km");
+        distance_unit = "metric";
+        distance_unit_txt = "Km";
+        fuel_unit_txt = "L";
+        weight_unit_txt = "Lb";
+        distance_ratio = 1;
+        fuel_ratio = 1;
+        weight_ratio = 1;
+        $("#metricbtn").css("background-color", "none");
+        $("#imperialbtn").css("background-color", "#293039");
+    }
+}
+
+function InitLeaderboardTimeRange(){
+    var date = new Date();
+    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+    offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
+    firstDay = new Date(+firstDay - offset);
+    date = new Date(+date - offset);
+    $("#lbstart").val(firstDay.toISOString().substring(0, 10));
+    $("#lbend").val(date.toISOString().substring(0, 10));
+}
+
+function InitDarkMode(){
+    isdark = parseInt(localStorage.getItem("darkmode"));
+    if (localStorage.getItem("darkmode") == undefined) isdark = 1;
+
+    if (localStorage.getItem("darkmode") == "1") {
+        $("body").addClass("bg-gray-800");
+        $("body").css("color", "white");
+        $("head").append(`<style id='convertbg'>
+            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
+            .text-gray-500,.text-gray-600 {color: #ddd;}
+            .bg-white {background-color: rgba(255, 255, 255, 0.1);}
+            .swal2-popup {background-color: rgb(41 48 57)}
+            .rounded-full {background-color: #888}
+            th > .fc-scrollgrid-sync-inner {background-color: #444}
+            a:hover {color: white}
+            a {color: #ccc}</style>`);
+        $("#todarksvg").hide();
+        $("#tolightsvg").show();
+        Chart.defaults.color = "white";
+        $("body").html($("body").html().replaceAll("text-green", "text-temp"));
+        $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
+        $("body").html($("body").html().replaceAll("text-temp", "text-green"));
+    } else {
+        $("head").append(`<style>.rounded-full {background-color: #ddd}</style>`);
+    }
+}
+
+function ToggleDarkMode() {
     if (!isdark) {
         $("body").css("transition", "color 1000ms linear");
         $("body").css("transition", "background-color 1000ms linear");
@@ -111,15 +227,54 @@ function DarkMode() {
     }
     isdark = 1 - isdark;
     localStorage.setItem("darkmode", isdark);
-    loadStats();
+    LoadStats();
 }
 
-token = localStorage.getItem("token");
-$(".pageinput").val("1");
+function InitSearchByName(){
+    lastnamesearch = 0;
+    lnsto = 0;
+
+    function SearchName(eid) {
+        if ($("#" + eid + "_datalist").length == 0) {
+            $("#" + eid).attr("list", eid + "_datalist");
+            $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
+        }
+        datalist = "#" + eid + "_datalist";
+        content = $("#" + eid).val();
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + content,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                $(datalist).children().remove();
+                if (d.length == 0) {
+                    $(datalist).append("<option value='No Data'>");
+                    return;
+                }
+                for (var i = 0; i < d.length; i++) {
+                    $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
+                }
+            }
+        });
+    }
+    $(".search-name").on('input', function () {
+        if (+new Date() - lastnamesearch < 1000) return;
+        lastnamesearch = +new Date();
+        eid = $(this).attr("id");
+        SearchName(eid);
+        clearTimeout(lnsto);
+        lnsto = setTimeout(function () {
+            SearchName(eid)
+        }, 1000);
+    });
+}
 
 eventsCalendar = undefined;
 curtab = "#HomeTab";
-
 loadworking = false;
 async function GeneralLoad() {
     if (loadworking) return;
@@ -229,11 +384,11 @@ async function ShowTab(tabname, btnname) {
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
-        loadProfile(userid);
+        LoadUserProfile(userid);
     }
     if (tabname == "#HomeTab") {
         window.history.pushState("", "", '/');
-        loadStats();
+        LoadStats();
     }
     if (tabname == "#AnnTab") {
         window.history.pushState("", "", '/announcement');
@@ -245,41 +400,41 @@ async function ShowTab(tabname, btnname) {
         }
     }
     if (tabname == "#StaffAnnTab") {
-        window.history.pushState("", "", '/staffannouncement');
+        window.history.pushState("", "", '/staff/announcement');
     }
     if (tabname == "#DownloadsTab") {
         window.history.pushState("", "", '/downloads');
         loadDownloads();
     }
     if (tabname == "#SubmitApp") {
-        window.history.pushState("", "", '/submitapp');
+        window.history.pushState("", "", '/application/submit');
         $("#driverappsel").attr("selected", "selected");
     }
     if (tabname == "#MyApp") {
-        window.history.pushState("", "", '/myapp');
-        loadMyApp();
+        window.history.pushState("", "", '/application/my');
+        LoadUserApplicationList();
     }
     if (tabname == "#AllApp") {
-        window.history.pushState("", "", '/allapp');
-        loadAllApp();
+        window.history.pushState("", "", '/application/all');
+        LoadAllApplicationList();
     }
     if (tabname == "#AllUsers") {
-        window.history.pushState("", "", '/user');
-        loadUsers();
+        window.history.pushState("", "", '/staff/user');
+        LoadUserList();
     }
     if (tabname == "#AllMembers") {
         window.history.pushState("", "", '/member');
-        loadMembers();
+        LoadMemberList();
     }
     if (tabname == "#StaffMembers") {
-        window.history.pushState("", "", '/staffmember');
-        loadMembers();
+        window.history.pushState("", "", '/staff/member');
+        LoadMemberList();
     }
     if (tabname == "#Delivery") {
         window.history.pushState("", "", '/delivery');
-        loadDlog();
-        loadStats(true);
-        loadDelivery();
+        LoadDriverLeaderStatistics();
+        LoadStats(true);
+        LoadDeliveryList();
     }
     if (tabname == "#Leaderboard") {
         window.history.pushState("", "", '/leaderboard');
@@ -310,20 +465,21 @@ async function ShowTab(tabname, btnname) {
         loadDivision();
     }
     if (tabname == "#StaffDivision") {
-        window.history.pushState("", "", '/staffdivision');
+        window.history.pushState("", "", '/staff/division');
         loadStaffDivision();
     }
     if (tabname == "#Event") {
         window.history.pushState("", "", '/event');
         loadEvent();
+        HandleAttendeeInput();
     }
     if (tabname == "#StaffEvent") {
-        window.history.pushState("", "", '/staffevent');
+        window.history.pushState("", "", '/staff/event');
         loadEvent();
     }
     if (tabname == "#AuditLog") {
         window.history.pushState("", "", '/audit');
-        loadAuditLog();
+        LoadAuditLog();
     }
     if (tabname == "#Admin") {
         window.history.pushState("", "", '/admin');
@@ -331,7 +487,103 @@ async function ShowTab(tabname, btnname) {
     }
 }
 
-function AnnEventBtn() {
+function UpdateRolesOnDisplay(){
+    rolestxt = [];
+    for (i = 0; i < roles.length; i++) {
+        rolestxt.push(rolelist[roles[i]]);
+    }
+    hrole = rolestxt[0];
+    localStorage.setItem("highestrole", hrole);
+
+    if (hrole == undefined || hrole == "undefined") hrole = "Loner";
+    $("#role").html(hrole);
+    roleids = Object.keys(rolelist);
+    for (var i = 0; i < roleids.length; i++) {
+        roleids[i] = parseInt(roleids[i]);
+    }
+    ShowStaffTabs();
+    for (var i = 0; i < roleids.length; i++) {
+        if (roleids[i] <= highestrole)
+            $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
+                `" name="assignrole" value="role` + roleids[i] + `">
+<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
+        else
+            $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
+                `" name="assignrole" value="role` + roleids[i] + `">
+<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
+    }                
+}
+
+function LoadCache(){
+    if (positions != undefined && positions != null) {
+        positions = JSON.parse(positions);
+        positionstxt = "";
+        for (var i = 0; i < positions.length; i++) {
+            positionstxt += positions[i] + "\n";
+            $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
+        }
+        positionstxt = positionstxt.slice(0, -1);
+        $("#staffposedit").val(positionstxt);
+    } else {
+        positions = [];
+    }
+
+    cacheExpire = parseInt(localStorage.getItem("cacheExpire"));
+    if (!isNumber(cacheExpire)) cacheExpire = 0;
+    if (cacheExpire <= +new Date()) {
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/application/positions",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                positions = data.response;
+                positionstxt = "";
+                for (var i = 0; i < positions.length; i++) {
+                    positionstxt += positions[i] + "\n";
+                    $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
+                }
+                positionstxt = positionstxt.slice(0, -1);
+                $("#staffposedit").val(positionstxt);
+                localStorage.setItem("positions", JSON.stringify(positions));
+            }
+        });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/perms",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                perms = data.response;
+                localStorage.setItem("perms", JSON.stringify(perms));
+                ShowStaffTabs();
+            }
+        });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/roles",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                rolelist = data.response;
+                UpdateRolesOnDisplay();
+                localStorage.setItem("rolelist", JSON.stringify(rolelist));
+            }
+        });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/application/types",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                d = data.response;
+                applicationTypes = {};
+                for(var i = 0 ; i < d.length ; i++)
+                    applicationTypes[parseInt(d[i].applicationid)] = d[i].name;
+                localStorage.setItem("applicationTypes", JSON.stringify(d));
+            }
+        });
+        localStorage.setItem("cacheExpire", +new Date() + 86400);
+    }
+}
+
+function AnnouncementEventButtonValueUpdate() {
     setInterval(function () {
         title = $("#anntitle").val();
         content = $("#anncontent").val();
@@ -380,74 +632,85 @@ function AnnEventBtn() {
     }, 100);
 }
 
-function ShowStaffTabs() {
-    roles = JSON.parse(localStorage.getItem("roles"));
-    perms = JSON.parse(localStorage.getItem("perms"));
-    if (roles != undefined && perms.admin != undefined) {
-        userPerm = [];
-        for (i = 0; i < roles.length; i++) {
-            for (j = 0; j < Object.keys(perms).length; j++) {
-                if (["driver", "staff_of_the_month", "driver_of_the_month"].includes(Object.keys(perms)[j])) continue;
-                for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
-                    if (perms[Object.keys(perms)[j]][k] == roles[i]) {
-                        userPerm.push(Object.keys(perms)[j]);
-                    }
+function GetUserPermission(){
+    if(roles == undefined || perms.admin == undefined) return;
+    userPerm = [];
+    for (i = 0; i < roles.length; i++) {
+        for (j = 0; j < Object.keys(perms).length; j++) {
+            if (["driver", "staff_of_the_month", "driver_of_the_month"].includes(Object.keys(perms)[j])) continue;
+            for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
+                if (perms[Object.keys(perms)[j]][k] == roles[i]) {
+                    userPerm.push(Object.keys(perms)[j]);
                 }
             }
         }
-        if (userPerm.length > 0) {
-            $("#stafftabs").show();
-            $("#stafftabs a").hide();
-            if (userPerm.includes("admin")) {
-                $("#stafftabs a").show();
-                $(".admin-only").show();
-                $("#AdminBtn").show();
-                AnnEventBtn();
-            } else {
-                $(".admin-only").hide();
-                if (userPerm.includes("event")) {
-                    $("#StaffEventBtn").show();
-                    $("#StaffAnnTabBtn").show();
-                    AnnEventBtn();
-                }
-                if (userPerm.includes("hr") || userPerm.includes("division")) {
-                    $("#StaffMemberBtn").show();
-                    $("#AllAppBtn").show();
-                }
-                if (userPerm.includes("hr")) {
-                    $("#AllUserBtn").show();
-                }
-                if (userPerm.includes("division")) {
-                    $("#StaffDivisionBtn").show();
-                }
-                if (userPerm.includes("audit")) {
-                    $("#AuditLogBtn").show();
-                }
+    }
+    return userPerm;
+}
+
+function ShowStaffTabs() {
+    userPerm = GetUserPermission();
+    if (userPerm.length > 0) {
+        $("#stafftabs").show();
+        $("#stafftabs a").hide();
+        if (userPerm.includes("admin")) {
+            $("#stafftabs a").show();
+            $(".admin-only").show();
+            $("#AdminBtn").show();
+            AnnouncementEventButtonValueUpdate();
+        } else {
+            $(".admin-only").hide();
+            if (userPerm.includes("event")) {
+                $("#StaffEventBtn").show();
+                $("#StaffAnnTabBtn").show();
+                AnnouncementEventButtonValueUpdate();
+            }
+            if (userPerm.includes("hr") || userPerm.includes("division")) {
+                $("#StaffMemberBtn").show();
+                $("#AllAppBtn").show();
+            }
+            if (userPerm.includes("hr")) {
+                $("#AllUserBtn").show();
+            }
+            if (userPerm.includes("division")) {
+                $("#StaffDivisionBtn").show();
+            }
+            if (userPerm.includes("audit")) {
+                $("#AuditLogBtn").show();
             }
         }
     }
 }
 
-function validate() {
+function ValidateToken() {
     token = localStorage.getItem("token");
     userid = localStorage.getItem("userid");
-    if (token == null || token.length != 36) {
+    if (token == null) { // token does not exist
         localStorage.setItem("token", "guest");
         token = "guest";
     }
+
     if (token == "guest") {
+        // Guest, not logged in, update elements
         $("#recruitment a").attr("href", "/login");
         $("#ProfileTabBtn").attr("onclick", "window.location.href='/login'");
         $("#logout").hide();
         $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
+        $("#DivisionBtn").hide();
+        $("#DownloadsTabBtn").hide();
         return;
     }
-    if (userid != -1 && isNumber(userid)) {
+
+    if (userid != -1 && userid != null) {
+        // Logged in, and is member, show membersOnlyTabs
         $(".memberOnlyTabs").show();
     } else {
+        // Logged in, not member, hide division and downloads
         $("#DivisionBtn").hide();
         $("#DownloadsTabBtn").hide();
     }
+    
+    // Validate token and get user information
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user",
         type: "GET",
@@ -457,146 +720,53 @@ function validate() {
         },
         success: function (data) {
             if (data.error) {
-                localStorage.setItem("token", "guest");
-                $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
-            }
-            if (data.response.steamid <= 0) {
-                $("#header").prepend(
-                    "<p style='color:orange'>Steam not bound! You must bind it to become a member! <a style='color:grey' href='/auth'>Click here to bind it</a></p>");
-            } else if (data.response.truckersmpid <= 0) {
-                $("#header").prepend(
-                    "<p style='color:orange'>TruckersMP not bound! You must bind it to become a member! <a style='color:grey' href='/auth'>Click here to bind it</a></p>");
-            } else {
-                color = "green";
-                if (isdark) color = "lightgreen";
-                $("#header").prepend(`<p style="color:${color}"><svg style="color:${color};display:inline" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                  d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
-                  fill="${color}"></path>
-              </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange"></p>`);
-            }
-        }, error: function(data){
-            if(parseInt(data.status) == 401){
+                // Invalid token, log out
                 localStorage.removeItem("token");
                 window.location.href = "/login";
+                return;
             }
-        }
-    });
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + token
-        },
-        success: function (data) {
-            if (data.error == false) {
-                localStorage.setItem("roles", JSON.stringify(data.response.roles));
-                localStorage.setItem("name", data.response.name);
-                localStorage.setItem("avatar", data.response.avatar);
-                localStorage.setItem("discordid", data.response.discordid);
-                localStorage.setItem("userid", data.response.userid);
-                userid = data.response.userid;
-                if (data.response.userid != -1) {
-                    $("#AllMemberBtn").show();
-                }
-                roles = data.response.roles.sort(function (a, b) {
-                    return a - b
-                });
-                highestrole = roles[0];
-                name = data.response.name;
-                avatar = data.response.avatar;
-                discordid = data.response.discordid;
-                $("#name").html(name);
-                if (avatar.startsWith("a_"))
-                    $("#avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
-                else
-                    $("#avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
 
-                rolesLastUpdate = localStorage.getItem("rolesLastUpdate");
-                if (rolesLastUpdate == null || rolesLastUpdate == undefined || parseInt(rolesLastUpdate) < (+new Date() - 86400)) {
-                    $.ajax({
-                        url: apidomain + "/" + vtcprefix + "/member/perms",
-                        type: "GET",
-                        dataType: "json",
-                        success: function (data) {
-                            perms = data.response;
-                            localStorage.setItem("perms", JSON.stringify(perms));
-                            ShowStaffTabs();
-                        }
-                    });
-                    $.ajax({
-                        url: apidomain + "/" + vtcprefix + "/member/roles",
-                        type: "GET",
-                        dataType: "json",
-                        success: function (data) {
-                            rolelist = data.response;
-                            rolestxt = [];
-                            for (i = 0; i < roles.length; i++) {
-                                rolestxt.push(rolelist[roles[i]]);
-                            }
-                            hrole = rolestxt[0];
-                            localStorage.setItem("highestrole", hrole);
-                            localStorage.setItem("rolelist", JSON.stringify(rolelist));
-                            localStorage.setItem("rolesLastUpdate", (+new Date()).toString());
-                            if (hrole == undefined || hrole == "undefined") hrole = "Loner";
-                            $("#role").html(hrole);
-                            roleids = Object.keys(rolelist);
-                            for (var i = 0; i < roleids.length; i++) {
-                                roleids[i] = parseInt(roleids[i]);
-                            }
-                            ShowStaffTabs();
-                            for (var i = 0; i < roleids.length; i++) {
-                                if (roleids[i] <= highestrole)
-                                    $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
-                                        `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                                else
-                                    $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
-                                        `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                            }
-                        }
-                    });
-                } else {
-                    rolestxt = [];
-                    for (i = 0; i < roles.length; i++) {
-                        rolestxt.push(rolelist[roles[i]]);
-                    }
-                    hrole = rolestxt[0];
-                    localStorage.setItem("highestrole", hrole);
-                    if (hrole == undefined || hrole == "undefined") hrole = "Loner";
-                    $("#role").html(hrole);
-                    roleids = Object.keys(rolelist);
-                    for (var i = 0; i < roleids.length; i++) {
-                        roleids[i] = parseInt(roleids[i]);
-                    }
-                    ShowStaffTabs();
-                    if (highestrole >= 30) {
-                        for (var i = 0; i < roleids.length; i++) {
-                            if (roleids[i] < 251 || roleids[i] > 253)
-                                $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
-                                    `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                            else
-                                $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
-                                    `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                        }
-                    } else {
-                        for (var i = 0; i < roleids.length; i++) {
-                            if (roleids[i] <= highestrole)
-                                $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
-                                    `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                            else
-                                $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
-                                    `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
-                        }
-                    }
-                }
+            // X Drivers Trucking Info
+            color = "green";
+            if (isdark) color = "lightgreen";
+            $("#header").prepend(`<p style="color:${color}"><svg style="color:${color};display:inline" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+            fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
+                fill="${color}"></path>
+            </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange"></p>`);
+            
+            // User Information
+            localStorage.setItem("roles", JSON.stringify(data.response.roles));
+            localStorage.setItem("name", data.response.name);
+            localStorage.setItem("avatar", data.response.avatar);
+            localStorage.setItem("discordid", data.response.discordid);
+            localStorage.setItem("userid", data.response.userid);
+
+            // Check if is member
+            userid = data.response.userid;
+            if (data.response.userid != -1) {
+                $("#AllMemberBtn").show();
+            }
+            roles = data.response.roles.sort(function (a, b) {
+                return a - b
+            });
+            highestrole = roles[0];
+            name = data.response.name;
+            avatar = data.response.avatar;
+            discordid = data.response.discordid;
+            $("#name").html(name);
+            if (avatar.startsWith("a_"))
+                $("#avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
+            else
+                $("#avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
+            
+            UpdateRolesOnDisplay();
+        }, error: function(data){
+            // Invalid token, log out
+            if(parseInt(data.status) == 401){ // Prevent connection issue (e.g. refresh)
+                localStorage.removeItem("token");
+                window.location.href = "/login";
             }
         }
     });
@@ -604,9 +774,10 @@ function validate() {
 
 function PathDetect() {
     p = window.location.pathname;
-    if (p == "/") ShowTab("#HomeTab", "#HomeTabBtn");
+    if (p == "/overview") window.history.pushState("", "", '/');
+    else if (p == "/") ShowTab("#HomeTab", "#HomeTabBtn");
     else if (p == "/announcement") ShowTab("#AnnTab", "#AnnTabBtn");
-    else if (p == "/staffannouncement") ShowTab("#StaffAnnTab", "#StaffAnnTabBtn");
+    else if (p == "/staff/announcement") ShowTab("#StaffAnnTab", "#StaffAnnTabBtn");
     else if (p == "/downloads") ShowTab("#DownloadsTab", "#DownloadsTabBtn");
     else if (p == "/map") ShowTab("#Map", "#MapBtn");
     else if (p.startsWith("/delivery")) {
@@ -623,372 +794,60 @@ function PathDetect() {
             deliveryDetail(p.split("/")[2]);
         } else ShowTab("#Delivery", "#DeliveryBtn");
     } else if (p == "/division") ShowTab("#Division", "#DivisionBtn");
-    else if (p == "/staffdivision") ShowTab("#StaffDivision", "#StaffDivisionBtn");
+    else if (p == "/staff/division") ShowTab("#StaffDivision", "#StaffDivisionBtn");
     else if (p == "/event") ShowTab("#Event", "#EventBtn");
-    else if (p == "/staffevent") ShowTab("#StaffEvent", "#StaffEventBtn");
+    else if (p == "/staff/event") ShowTab("#StaffEvent", "#StaffEventBtn");
     else if (p.startsWith("/member")) {
         if(getUrlParameter("userid")){
             userid = getUrlParameter("userid");
-            loadProfile(userid);
+            LoadUserProfile(userid);
             return;
         }
-        if (p.split("/").length >= 3) loadProfile(parseInt(p.split("/")[2]));
+        if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#AllMembers", "#AllMemberBtn");
-    } else if (p == "/staffmember") {
+    } else if (p == "/staff/member") {
         ShowTab("#StaffMembers", "#StaffMemberBtn");
     } else if (p == "/leaderboard") ShowTab("#Leaderboard", "#LeaderboardBtn");
     else if (p == "/ranking") ShowTab("#Ranking", "#RankingBtn");
-    else if (p == "/myapp") ShowTab("#MyApp", "#MyAppBtn");
-    else if (p == "/allapp") ShowTab("#AllApp", "#AllAppBtn");
-    else if (p == "/submitapp" || p == "/apply") ShowTab("#SubmitApp", "#SubmitAppBtn");
-    else if (p == "/user") ShowTab("#AllUsers", "#AllUserBtn");
+    else if (p == "/application/my") ShowTab("#MyApp", "#MyAppBtn");
+    else if (p == "/application/all") ShowTab("#AllApp", "#AllAppBtn");
+    else if (p == "/application/submit" || p == "/apply") ShowTab("#SubmitApp", "#SubmitAppBtn");
+    else if (p == "/staff/user") ShowTab("#AllUsers", "#AllUserBtn");
     else if (p == "/audit") ShowTab("#AuditLog", "#AuditLogBtn");
     else if (p == "/admin") ShowTab("#Admin", "#AdminBtn");
     else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
-    } else ShowTab("#HomeTab", "#HomeTabBtn");
+    } else{
+        ShowTab("#HomeTab", "#HomeTabBtn");
+        window.history.pushState("", "", '/');
+    }
 }
 
 window.onpopstate = function (event) {
     PathDetect();
 };
 
-function loadDistanceUnit() {
-    distance_unit = localStorage.getItem("distance_unit");
-    if (distance_unit == "imperial") {
-        $(".distance_unit").html("Mi");
-        distance_unit_txt = "Mi";
-        fuel_unit_txt = "Gal";
-        weight_unit_txt = "Lb";
-        distance_ratio = 0.621371;
-        fuel_ratio = 0.2641720524;
-        weight_ratio = 2.2046226218488;
-        $("#imperialbtn").css("background-color", "none");
-        $("#metricbtn").css("background-color", "#293039");
-    } else {
-        $(".distance_unit").html("Km");
-        distance_unit = "metric";
-        distance_unit_txt = "Km";
-        fuel_unit_txt = "L";
-        weight_unit_txt = "Lb";
-        distance_ratio = 1;
-        fuel_ratio = 1;
-        weight_ratio = 1;
-        $("#metricbtn").css("background-color", "none");
-        $("#imperialbtn").css("background-color", "#293039");
-    }
-}
-
-$(document).ready(function () {
-    loadDistanceUnit();
-    PreserveApplicationQuestion();
-    if (localStorage.getItem("darkmode") == "1") {
-        $("body").addClass("bg-gray-800");
-        $("body").css("color", "white");
-        $("head").append(`<style id='convertbg'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
-            .text-gray-500,.text-gray-600 {color: #ddd;}
-            .bg-white {background-color: rgba(255, 255, 255, 0.1);}
-            .swal2-popup {background-color: rgb(41 48 57)}
-            .rounded-full {background-color: #888}
-            th > .fc-scrollgrid-sync-inner {background-color: #444}
-            a:hover {color: white}
-            a {color: #ccc}</style>`);
-        $("#todarksvg").hide();
-        $("#tolightsvg").show();
-        Chart.defaults.color = "white";
-        $("body").html($("body").html().replaceAll("text-green", "text-temp"));
-        $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
-        $("body").html($("body").html().replaceAll("text-temp", "text-green"));
-    } else {
-        $("head").append(`<style>
-            .rounded-full {background-color: #ddd}</style>`);
-    }
-    var date = new Date();
-    var firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-    offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
-    firstDay = new Date(+firstDay - offset);
-    date = new Date(+date - offset);
-    $("#lbstart").val(firstDay.toISOString().substring(0, 10));
-    $("#lbend").val(date.toISOString().substring(0, 10));
-
-    if (String(localStorage.getItem("token")).length != 36) {
-        if (window.location.pathname != "/") localStorage.setItem("token", "guest");
-        $("#DivisionBtn").hide();
-        $("#DownloadsTabBtn").hide();
-    }
-    validate();
-    if (window.location.pathname == "/overview") window.history.pushState("", "", '/');
+$(document).ready(async function () {
+    $(".pageinput").val("1");
+    LoadAnnouncement();
     PathDetect();
-
-    if (navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/webOS/i) || navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPod/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/Windows Phone/i)) {
-        t = $("div");
-        for (i = 0; i < t.length; i++) {
-            st = $(t[i]).attr("style");
-            if (st == undefined) continue;
-            st = st.replaceAll("padding:50px", "padding:5px");
-            $(t[i]).attr("style", st);
-        }
-        $("#hometableftcontainer").css("width", "100%");
+    InitDarkMode();
+    InitPhoneView();
+    InitDistanceUnit();
+    InitSearchByName();
+    InitRankingDisplay();
+    InitLeaderboardTimeRange();
+    InitInputHandler();
+    InitResizeHandler();
+    PreserveApplicationQuestion();
+    while(1){
+        rolelist = JSON.parse(localStorage.getItem("rolelist"));
+        perms = JSON.parse(localStorage.getItem("perms"));
+        positions = localStorage.getItem("positions");
+        applicationTypes = localStorage.getItem("applicationTypes");
+        if(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        await sleep(100);
     }
-
-    $('#searchname').keydown(function (e) {
-        if (e.which == 13) loadMembers();
-    });
-    $('#dend,#dspeedlimit').keydown(function (e) {
-        if (e.which == 13) loadDelivery();
-    });
-    $('#udend,#udspeedlimit').keydown(function (e) {
-        if (e.which == 13) loadUserDelivery();
-    });
-    $('#lbend,#lbspeedlimit').keydown(function (e) {
-        if (e.which == 13) loadLeaderboard();
-    });
-    $('#memberroleid').keydown(function (e) {
-        if (e.which == 13) fetchRoles();
-    });
-    $('#attendeeId').keydown(function (e) {
-        var keyCode = e.keyCode || e.which;
-        if (keyCode == 13) {
-            val = $("#attendeeId").val();
-            if (val == "") return;
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + val,
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                },
-                success: function (data) {
-                    d = data.response.list;
-                    if (d.length == 0) {
-                        return toastFactory("error", "Error:", "No member with name " + val + " found.", 5000, false);
-                    }
-                    userid = d[0].userid;
-                    username = d[0].name;
-                    if ($(`#attendeeid-${userid}`).length > 0) {
-                        return toastFactory("error", "Error:", "Member already added.", 5000, false);
-                    }
-                    $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
-                        <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
-                    $("#attendeeId").val("");
-                },
-                error: function (data) {
-                    return toastFactory("error", "Error:", "Failed to get User ID", 5000, false);
-                }
-            })
-        } else if (keyCode == 8) {
-            e.preventDefault();
-            val = $("#attendeeId").val();
-            if (val != "") {
-                $("#attendeeId").val(val.substring(0, val.length - 1));
-                return;
-            }
-            ch = $("#attendeeIdWrap").children();
-            ch[ch.length - 2].remove();
-        }
-    });
-
-    // function devwarn() {
-    //     for (var i = 0; i < 3; i++) {
-    //         setTimeout(function () {
-    //             console.log("%cHold Up!", "color: #0000ff; font-size: 100px;");
-    //             console.log(
-    //                 "%cYou are likely to be hacked if anyone ask you to paste something here, or look for data in Local Storage!",
-    //                 "color:red; font-size: 15px;");
-    //             console.log(
-    //                 "%cUnless you understand exactly what you are doing, close this window and stay safe.",
-    //                 "font-size: 15px;");
-    //             console.log(
-    //                 "%cIf you do understand exactly what you are doing, you should come work with us, simply submit an application and we'll get back to you very soon",
-    //                 "font-size: 15px;");
-    //         }, 800 * i);
-    //     }
-    // }
-    //devwarn();
-    // $("body").keydown(function (e) {
-    //     var keyCode = e.keyCode || e.which;
-    //     if (keyCode == 123) {
-    //         devwarn();
-    //     }
-    // });
-
-    setInterval(function () {
-        if ($("#HomeTab").width() / 3 <= 300) {
-            if ($("#HomeTab").width() / 2 <= 300) {
-                $(".statscard").css("width", "100%");
-            } else {
-                $(".statscard").css("width", "50%");
-            }
-        } else {
-            $(".statscard").css("width", "33%");
-        }
-    }, 10);
-
-    $("#pupages").val("1");
-    $("#allapppage").val("1");
-    $("#myapppage").val("1");
-
-    $('#appselect').on('change', function () {
-        var value = $(this).val();
-        $(".apptabs").hide();
-        $("#Application" + value).show();
-        $("#submitAppBttn").show();
-    });
-    $('#application4Answer1').on('change', function () {
-        var value = $(this).val();
-        $(".divisiontabs").hide();
-        $("#Division" + value).show();
-    });
-    annpage = 2;
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?page=1",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + token
-        },
-        success: function (data) {
-            ann = data.response.list;
-            if (ann.length > 0) {
-                a = ann[0];
-                dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                    parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                // $("#HomeTabLeft").append(banner.replaceAll("py-8 ", "pb-8 "));
-            }
-            for (i = 0; i < ann.length; i++) {
-                a = ann[i];
-                dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10  px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                    parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                $("#anns").append(banner);
-            }
-        }
-    });
-    lastPositionsUpdate = parseInt(localStorage.getItem("positionsLastUpdate"));
-    if (!isNumber(lastPositionsUpdate)) {
-        lastPositionsUpdate = 0;
-    }
-    if (+new Date() - lastPositionsUpdate > 86400) {
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/application/positions",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                positions = data.response;
-                positionstxt = "";
-                for (var i = 0; i < positions.length; i++) {
-                    positionstxt += positions[i] + "\n";
-                    $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
-                }
-                positionstxt = positionstxt.slice(0, -1);
-                $("#staffposedit").val(positionstxt);
-                localStorage.setItem("positionsLastUpdate", +new Date());
-                localStorage.setItem("positions", JSON.stringify(positions));
-            }
-        });
-    }
-    window.onscroll = function (ev) {
-        if (curtab != "#AnnTab") return;
-        if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + token
-                },
-                success: async function (data) {
-                    annpage += 1;
-                    ann = data.response.list;
-                    for (i = 0; i < ann.length; i++) {
-                        a = ann[i];
-                        dt = getDateTime(a.timestamp * 1000);
-                        content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                            "</b> by <a style='cursor:pointer' onclick='loadProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                            parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                        TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                        banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                        $("#anns").append(banner);
-                        $($("#anns").children()[$("#anns").children().length - 1]).hide();
-                        $($("#anns").children()[$("#anns").children().length - 1]).fadeIn();
-                        await sleep(200);
-                    }
-                }
-            });
-        }
-    };
-    if (RANKING != []) {
-        rankpnt = Object.keys(RANKING);
-        for (var i = 0; i < Math.ceil(rankpnt.length / 8); i++) {
-            ranktable = `<table class="table-auto" style="display:inline">
-            <thead>
-              <tr class="text-xs text-gray-500 text-left">
-                <th class="py-5 px-6 pb-3 font-medium">Rank</th>
-                <th class="py-5 px-6 pb-3 font-medium">Points</th>
-              </tr>
-            </thead>
-            <tbody>`;
-            for (var j = 0; j < 8; j++) {
-                if (rankpnt[i * 8 + j] == undefined) break;
-                ranktable += `<tr class="text-sm">
-                <td class="py-5 px-6 font-medium">${RANKING[rankpnt[i * 8 + j]]}</td>
-                <td class="py-5 px-6 font-medium">${rankpnt[i * 8 + j]}</td>
-              </tr>`;
-            }
-            ranktable += `
-            </tbody>
-          </table>`;
-            $("#ranktable").append(ranktable);
-        }
-    }
-
-    lastnamesearch = 0;
-    lnsto = 0;
-
-    function searchName(eid) {
-        if ($("#" + eid + "_datalist").length == 0) {
-            $("#" + eid).attr("list", eid + "_datalist");
-            $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
-        }
-        datalist = "#" + eid + "_datalist";
-        content = $("#" + eid).val();
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + content,
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                d = data.response.list;
-                $(datalist).children().remove();
-                if (d.length == 0) {
-                    $(datalist).append("<option value='No Data'>");
-                    return;
-                }
-                for (var i = 0; i < d.length; i++) {
-                    $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
-                }
-            }
-        });
-    }
-    $(".search-name").on('input', function () {
-        if (+new Date() - lastnamesearch < 1000) return;
-        lastnamesearch = +new Date();
-        eid = $(this).attr("id");
-        searchName(eid);
-        clearTimeout(lnsto);
-        lnsto = setTimeout(function () {
-            searchName(eid)
-        }, 1000);
-    });
+    ValidateToken();
 });

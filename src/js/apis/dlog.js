@@ -1,96 +1,62 @@
+dmapint = -1;
+window.mapcenter = {}
+window.autofocus = {}
+
 levent = 1;
 ldivision = 1;
+dets2 = 1;
+dats = 1;
 
-function getMonday(d) {
-    d = new Date(d);
-    var day = d.getDay(),
-        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
-    return new Date(d.setDate(diff));
-}
-
-function loadDlog() {
-    var start = new Date();
-    start.setHours(0, 0, 0, 0);
-    start = +start + start.getTimezoneOffset() * 60000;
-    start /= 1000;
-    var end = +new Date() / 1000;
-    start = parseInt(start);
-    end = parseInt(end);
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + token
-        },
-        success: function (data) {
-            users = data.response.list;
-            driver_of_the_day = users[0];
-            discordid = driver_of_the_day.discordid;
-            avatar = driver_of_the_day.avatar;
-            if (avatar != null) {
-                if (avatar.startsWith("a_"))
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                else
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            } else {
-                avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
+function LoadDriverLeaderStatistics() {
+    driver_of_the_tag = ["d", "w"];
+    for(var i = 0 ; i < driver_of_the_tag.length ; i++){
+        dott = driver_of_the_tag[i];
+        var start = new Date();
+        if(dott == "d") start = new Date();
+        else if(dott == "w") start = GetMonday(new Date()); 
+        start.setHours(0, 0, 0, 0);
+        start = +start + start.getTimezoneOffset() * 60000;
+        start /= 1000;
+        var end = +new Date() / 1000;
+        start = parseInt(start);
+        end = parseInt(end);
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                users = data.response.list;
+                dottuser = users[0];
+                discordid = dottuser.discordid;
+                avatar = GetAvatarSrc(discordid, dottuser.avatar);
+                distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
+                $("#dot" + dott).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
+                $("#dot" +dott + "distance").html(`Driven ${distance}${distance_unit_txt}`);
             }
-            distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            $("#dotd").html(`<a style="cursor:pointer" onclick="loadProfile(${driver_of_the_day.userid})"><img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b></a>`);
-            $("#dotddistance").html(`Driven ${distance}${distance_unit_txt}`);
-        }
-    });
-    var start = getMonday(new Date()); 
-    start.setHours(0, 0, 0, 0);
-    start = +start + start.getTimezoneOffset() * 60000;
-    start /= 1000;
-    var end = +new Date() / 1000;
-    start = parseInt(start);
-    end = parseInt(end);
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + token
-        },
-        success: function (data) {
-            users = data.response.list;
-            driver_of_the_day = users[0];
-            discordid = driver_of_the_day.discordid;
-            avatar = driver_of_the_day.avatar;
-            if (avatar != null) {
-                if (avatar.startsWith("a_"))
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                else
-                    src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            } else {
-                avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
-            }
-            distance = TSeparator(parseInt(driver_of_the_day.distance * distance_ratio));
-            $("#dotw").html(`<a style="cursor:pointer" onclick="loadProfile(${driver_of_the_day.userid})"><img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> <b>${driver_of_the_day.name}</b></a>`);
-            $("#dotwdistance").html(`Driven ${distance}${distance_unit_txt}`);
-        }
-    });
+        });
+    }
 }
 
 function loadLeaderboard(recurse = true) {
-    page = parseInt($("#lpages").val())
-    if (page == "") page = 1;
-    if (page == undefined) page = 1;
     GeneralLoad();
-    $("#loadLeaderboardBtn").html("...");
-    $("#loadLeaderboardBtn").attr("disabled", "disabled");
-    start_time = -1;
-    end_time = -1;
+    LockBtn("#loadLeaderboardBtn", btntxt = "...");
+
+    page = parseInt($("#lpages").val())
+    if (page == "" || page == undefined || page <= 0) page = 1;
+
+    var start_time = -1, end_time = -1;
     if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
         start_time = +new Date($("#lbstart").val()) / 1000;
         end_time = +new Date($("#lbend").val()) / 1000 + 86400;
     }
+
     speedlimit = parseInt($("#lbspeedlimit").val());
-    if (!isNumber(speedlimit)) speedlimit = 0;
-    speedlimit /= distance_ratio;
+    if (!isNumber(speedlimit)) speedlimit = 0; // make sure speedlimit is valid
+    speedlimit /= distance_ratio; // convert to km/h
+
     game = 0;
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
@@ -98,7 +64,8 @@ function loadLeaderboard(recurse = true) {
     $(".dgame").css("background-color", "");
     if (game == 0) $(".dgame").css("background-color", "skyblue");
     else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) start_time = 1, end_time = 2;
+    if (!dets2 && !dats) start_time = 1, end_time = 2; // no game selected, set time to none
+
     if (levent) $("#levent").css("background-color", "skyblue");
     else $("#levent").css("background-color", "");
     if (ldivision) $("#ldivision").css("background-color", "skyblue");
@@ -106,6 +73,7 @@ function loadLeaderboard(recurse = true) {
     limittype = "distance,myth,"
     if(levent == 1) limittype += "event,";
     if(ldivision == 1) limittype += "division,";
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype,
         type: "GET",
@@ -114,12 +82,13 @@ function loadLeaderboard(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#loadLeaderboardBtn").html("Go");
-            $("#loadLeaderboardBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            $("#leaderboardTable").empty();
-            const leaderboard = data.response.list;
+            UnlockBtn("#loadLeaderboardBtn");
+            if (data.error) return AjaxError(data);
 
+            $("#leaderboardTable").empty();
+            leaderboard = data.response.list;
+
+            // generate table / page control
             if (leaderboard.length == 0) {
                 $("#leaderboardTableHead").hide();
                 $("#leaderboardTable").append(`
@@ -177,26 +146,19 @@ function loadLeaderboard(recurse = true) {
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                 onclick="$('#lpages').val(${totpage});loadLeaderboard();">${totpage}</button>`);
             }
-
+            
+            // fill table
             for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
                 userid = user.userid;
                 name = user.name;
                 distance = TSeparator(parseInt(user.distance * distance_ratio));
                 discordid = user.discordid;
-                avatar = user.avatar;
-                totalpnt = TSeparator(parseInt(user.total));
-                if (avatar != null) {
-                    if (avatar.startsWith("a_"))
-                        src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                    else
-                        src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-                } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/logo.png";
-                }
+                avatar = GetAvatarSrc(discordid, user.avatar);
+                totalpnt = TSeparator(parseInt(user.total));   
                 $("#leaderboardTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                #${user.rank} <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/` + vtcprefix + `/logo.png');"> ${name}</a></td>
+                #${user.rank} ${GetAvatarImg(avatar, userid, name)}</td>
                 <td class="py-5 px-6">${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})</td>
                 <td class="py-5 px-6">${distance}</td>
                 <td class="py-5 px-6">${user.event}</td>
@@ -207,43 +169,39 @@ function loadLeaderboard(recurse = true) {
             }
         },
         error: function (data) {
-            $("#loadLeaderboardBtn").html("Go");
-            $("#loadLeaderboardBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load leaderboard. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#loadLeaderboardBtn");
+            AjaxError(data);
         }
     })
 }
 
-dets2 = 1;
-dats = 1;
-
-function loadDelivery(recurse = true) {
-    page = parseInt($("#dpages").val())
-    if (page == "") page = 1;
-    if (page == undefined) page = 1;
+function LoadDeliveryList(recurse = true) {
     GeneralLoad();
-    $("#loadDeliveryBtn").html("...");
-    $("#loadDeliveryBtn").attr("disabled", "disabled");
-    start_time = -1;
-    end_time = -1;
+    LockBtn("#loadDeliveryBtn", btntxt = "...");
+
+    page = parseInt($("#dpages").val())
+    if (page == "" || page == undefined || page <= 0) page = 1;
+    
+    var start_time = -1, end_time = -1;
     if ($("#dstart").val() != "" && $("#dend").val() != "") {
         start_time = +new Date($("#dstart").val()) / 1000;
         end_time = +new Date($("#dend").val()) / 1000 + 86400;
     }
+
     speedlimit = parseInt($("#dspeedlimit").val());
-    if (!isNumber(speedlimit)) speedlimit = 0;
-    speedlimit /= distance_ratio;
+    if (!isNumber(speedlimit)) speedlimit = 0; // make sure speedlimit is valid
+    speedlimit /= distance_ratio; // convert to km/h
+
     game = 0;
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
     else if (!dets2 && !dats) game = -1;
+
     $(".dgame").css("background-color", "");
     if (game == 0) $(".dgame").css("background-color", "skyblue");
     else $(".dgame" + game).css("background-color", "skyblue");
     if (!dets2 && !dats) start_time = 1, end_time = 2;
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
         type: "GET",
@@ -252,11 +210,11 @@ function loadDelivery(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#loadDeliveryBtn").html("Go");
-            $("#loadDeliveryBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            UnlockBtn("#loadDeliveryBtn");
+            if (data.error) return AjaxError(data);
+
             $("#deliveryTable").empty();
-            const deliveries = data.response.list;
+            deliveries = data.response.list;
 
             if (deliveries.length == 0) {
                 $("#deliveryTableHead").hide();
@@ -271,26 +229,22 @@ function loadDelivery(recurse = true) {
               <td class="py-5 px-6 font-medium"></td>
             </tr>`);
                 $("#dpages").val(1);
-                if (recurse) loadDelivery(recurse = false);
+                if (recurse) LoadDeliveryList(recurse = false);
                 return;
             }
             $("#deliveryTableHead").show();
             totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#dpages").val(1);
-                if (recurse) loadDelivery(recurse = false);
+                if (recurse) LoadDeliveryList(recurse = false);
                 return;
-            }
-            if (page <= 0) {
-                $("#dpages").val(1);
-                page = 1;
             }
             $("#dtotpages").html(totpage);
             $("#deliveryTableControl").children().remove();
             $("#deliveryTableControl").append(`
             <button type="button" style="display:inline"
             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#dpages').val(1);loadDelivery();">1</button>`);
+            onclick="$('#dpages').val(1);LoadDeliveryList();">1</button>`);
             if (page > 3) {
                 $("#deliveryTableControl").append(`
                 <button type="button" style="display:inline"
@@ -301,7 +255,7 @@ function loadDelivery(recurse = true) {
                 $("#deliveryTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#dpages').val(${i});loadDelivery();">${i}</button>`);
+                onclick="$('#dpages').val(${i});LoadDeliveryList();">${i}</button>`);
             }
             if (page < totpage - 2) {
                 $("#deliveryTableControl").append(`
@@ -313,17 +267,11 @@ function loadDelivery(recurse = true) {
                 $("#deliveryTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#dpages').val(${totpage});loadDelivery();">${totpage}</button>`);
+                onclick="$('#dpages').val(${totpage});LoadDeliveryList();">${totpage}</button>`);
             }
 
             for (i = 0; i < deliveries.length; i++) {
-                const delivery = deliveries[i];
-                // Fill the table using this format: 
-                // <tr class="text-sm">
-                //  <td class="py-5 px-6 font-medium">id here</td>
-                //    <td class="py-5 px-6 font-medium">name here</td>
-                //  </tr>
-                //
+                delivery = deliveries[i];
                 distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                 cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                 unittxt = "€";
@@ -332,11 +280,11 @@ function loadDelivery(recurse = true) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + VERIFIED + "</span>";
+                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                 $("#deliveryTable").append(`
             <tr class="text-sm" style="color:${color}">
             <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${delivery.userid})'>${delivery.name}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
@@ -346,12 +294,8 @@ function loadDelivery(recurse = true) {
             }
         },
         error: function (data) {
-            $("#loadDeliveryBtn").html("Go");
-            $("#loadDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#loadDeliveryBtn");
+            AjaxError(data);
         }
     })
 }
@@ -569,9 +513,8 @@ function deliveryDetail(logid) {
                 trailer = "";
                 trs = "";
                 if (d.trailers.length > 1) trs = "s";
-                for (var i = 0; i < d.trailers.length; i++) {
-                    trailer += d.trailers[i].license_plate + " | ";
-                }
+                for (var i = 0; i < d.trailers.length; i++) trailer += d.trailers[i].license_plate + " | ";
+                trailer = trailer.slice(0,-3);
                 punit = "€";
                 if (!d.game.short_name.startsWith("e")) punit = "$";
                 rrevents = d.events;
@@ -619,18 +562,18 @@ function deliveryDetail(logid) {
                 $("#ddcol3").append(`<p>Max Speed <b>${top_speed} ${distance_unit_txt}/h</p>`);
                 $("#ddcol3").append(`<p>Fuel Avg <b>${avg_fuel}</b> / Tot <b>${fuel_used}</b></p>`);
                 $("#ddcol3").append(`<p>Truck <b>${truck}</b> (<i>${license_plate})</i></p>`);
-                $("#ddcol3").append(`<p>Trailer <i>${trailer.slice(0,-3)}</i></p>`);
+                $("#ddcol3").append(`<p>Trailer <i>${trailer}</i></p>`);
 
                 dt = getDateTime(data.response.timestamp * 1000);
 
-                $("#dlogdriver").html(`<a style='cursor:pointer' onclick='loadProfile(${userid})'>${name}</a>`);
+                $("#dlogdriver").html(`<a style='cursor:pointer' onclick='LoadUserProfile(${userid})'>${name}</a>`);
                 if (tp == "job.cancelled") {
                     $("#dlogid").html(`${logid} (Cancelled)`);
                 } else {
                     $("#dlogid").html(`${logid}
                     <button type="button" style="display:inline;padding:5px" id="divisioninfobtn"
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="divisionInfo(${logid})">Division</button>`);
+              onclick="GetDivisionInfo(${logid})">Division</button>`);
                 }
                 $("#dlogdistance").html(parseInt(data.response.distance * distance_ratio));
                 $("#dlogtime").html(dt);
@@ -641,9 +584,6 @@ function deliveryDetail(logid) {
                     if (extra != "") {
                         $("#dlogextra").remove();
                         $("#dlogbasic").append(`<p id="dlogextra"><b>${extra.slice(0, -3)}</b></p>`);
-                        // $("#dlogbasic").append(`<tr class="text-sm">
-                        //     <td class="py-5 px-6 font-medium">Tags</td>
-                        //     <td class="py-5 px-6 font-medium">${extra.slice(0, -3)}</td></tr>`);
                     }
                 }
 
@@ -825,34 +765,28 @@ function deliveryDetail(logid) {
             ShowTab("#HomeTab", "#HomeTabBtn");
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to load delivery log details. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`
-            );
-            console.log(data);
+            AjaxError(data);
         }
     });
 }
 
-curprofile = -1;
-
-function loadUserDelivery(recurse = true) {
-    page = parseInt($("#udpages").val())
-    if (page == "") page = 1;
-    if (page == undefined) page = 1;
+function LoadUserDeliveryList(recurse = true) {
     GeneralLoad();
-    $("#loadUserDeliveryBtn").html("...");
-    $("#loadUserDeliveryBtn").attr("disabled", "disabled");
-    start_time = -1;
-    end_time = -1;
+    LockBtn("#loadUserDeliveryBtn", btntxt = "...");
+
+    page = parseInt($("#udpages").val())
+    if (page == "" || page == undefined || page <= 0) page = 1;
+
+    var start_time = -1, end_time = -1;
     if ($("#udstart").val() != "" && $("#udend").val() != "") {
         start_time = +new Date($("#udstart").val()) / 1000;
         end_time = +new Date($("#udend").val()) / 1000 + 86400;
     }
+
     speedlimit = parseInt($("#udspeedlimit").val());
     if (!isNumber(speedlimit)) speedlimit = 0;
     speedlimit /= distance_ratio;
+
     game = 0;
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
@@ -861,52 +795,41 @@ function loadUserDelivery(recurse = true) {
     if (game == 0) $(".dgame").css("background-color", "skyblue");
     else $(".dgame" + game).css("background-color", "skyblue");
     if (!dets2 && !dats) start_time = 1, end_time = 2;
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + curprofile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + useridCurrentProfile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#loadUserDeliveryBtn").html("Go");
-            $("#loadUserDeliveryBtn").removeAttr("disabled");
-            if (data.userDeliveryTable) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            UnlockBtn("#loadUserDeliveryBtn");
+            if (data.userDeliveryTable) return AjaxError(data);
+            
             $("#userDeliveryTable").empty();
-            const deliveries = data.response.list;
+            deliveries = data.response.list;
 
             if (deliveries.length == 0) {
                 $("#userDeliveryTableHead").hide();
-                $("#userDeliveryTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+                $("#userDeliveryTable").append(TableNoData(6));
                 $("#udpages").val(1);
-                if (recurse) loadUserDelivery(recurse = false);
+                if (recurse) LoadUserDeliveryList(recurse = false);
                 return;
             }
             $("#userDeliveryTableHead").show();
             totpage = Math.ceil(data.response.total_items / 10);
             if (page > totpage) {
                 $("#udpages").val(1);
-                if (recurse) loadUserDelivery(recurse = false);
+                if (recurse) LoadUserDeliveryList(recurse = false);
                 return;
-            }
-            if (page <= 0) {
-                $("#udpages").val(1);
-                page = 1;
             }
             $("#udtotpages").html(totpage);
             $("#userDeliveryTableControl").children().remove();
             $("#userDeliveryTableControl").append(`
             <button type="button" style="display:inline"
             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#udpages').val(1);loadUserDelivery();">1</button>`);
+            onclick="$('#udpages').val(1);LoadUserDeliveryList();">1</button>`);
             if (page > 3) {
                 $("#userDeliveryTableControl").append(`
                 <button type="button" style="display:inline"
@@ -917,7 +840,7 @@ function loadUserDelivery(recurse = true) {
                 $("#userDeliveryTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#udpages').val(${i});loadUserDelivery();">${i}</button>`);
+                onclick="$('#udpages').val(${i});LoadUserDeliveryList();">${i}</button>`);
             }
             if (page < totpage - 2) {
                 $("#userDeliveryTableControl").append(`
@@ -929,17 +852,11 @@ function loadUserDelivery(recurse = true) {
                 $("#userDeliveryTableControl").append(`
                 <button type="button" style="display:inline"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#udpages').val(${totpage});loadUserDelivery();">${totpage}</button>`);
+                onclick="$('#udpages').val(${totpage});LoadUserDeliveryList();">${totpage}</button>`);
             }
 
             for (i = 0; i < deliveries.length; i++) {
-                const delivery = deliveries[i];
-                // Fill the table using this format: 
-                // <tr class="text-sm">
-                //  <td class="py-5 px-6 font-medium">id here</td>
-                //    <td class="py-5 px-6 font-medium">name here</td>
-                //  </tr>
-                //
+                delivery = deliveries[i];
                 distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                 cargo_mass = parseInt(delivery.cargo_mass / 1000);
                 unittxt = "€";
@@ -948,7 +865,7 @@ function loadUserDelivery(recurse = true) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + VERIFIED + "</span>";
+                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                 $("#userDeliveryTable").append(`
             <tr class="text-sm" style="color:${color}">
             <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
@@ -961,40 +878,20 @@ function loadUserDelivery(recurse = true) {
             }
         },
         error: function (data) {
-            $("#loadUserDeliveryBtn").html("Go");
-            $("#loadUserDeliveryBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#loadUserDeliveryBtn");
+            AjaxError(data);
         }
     })
 }
 
-function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-}
-
-function exportDLog() {
-    start_time = +new Date($("#export_start_date").val());
-    end_time = +new Date($("#export_end_date").val());
-    if (isNaN(start_time) || isNaN(end_time)) {
-        start_time = -1000;
-        end_time = -1000;
+function ExportDeliveryLog() {
+    var start_time = -1, end_time = -1;
+    if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
+        start_time = +new Date($("#export_start_date").val()) / 1000;
+        end_time = +new Date($("#export_end_date")) / 1000 + 86400;
     }
-    start_time = start_time / 1000;
-    end_time = end_time / 1000;
-    $("#exportDLogBtn").html("Working...");
-    $("#exportDLogBtn").attr("disabled", "disabled");
+
+    LockBtn("#exportDLogBtn");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/export",
         type: "GET",
@@ -1006,20 +903,13 @@ function exportDLog() {
             end_time: end_time
         },
         success: function (data) {
-            download("export.csv", data);
-            $("#exportDLogBtn").html("Export");
-            $("#exportDLogBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
-                false);
+            UnlockBtn("#exportDLogBtn");
+            FileOutput("export.csv", data);
+            if (data.error) return AjaxError(data);
         },
         error: function (data) {
-            $("#exportDLogBtn").html("Export");
-            $("#exportDLogBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000,
-                false);
-            console.warn(
-                `Failed to export delivery log. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#exportDLogBtn");
+            AjaxError(data);
         }
     })
 }

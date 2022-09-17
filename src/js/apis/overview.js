@@ -1,9 +1,8 @@
-
 sc = undefined;
 chartscale = 2;
 addup = 0;
 
-async function loadChart(userid = -1) {
+async function LoadChart(userid = -1) {
     if (userid != -1) {
         $(".ucs").css("background-color", "");
         $("#ucs" + chartscale).css("background-color", "skyblue");
@@ -208,9 +207,9 @@ function refreshStats(){
     });
 }
 
-function loadStats(basic = false) {
+function LoadStats(basic = false) {
     if (curtab != "#HomeTab" && curtab != "#Delivery") return;
-    loadChart();
+    LoadChart();
 
     stats_start_time = parseInt(+ new Date() / 1000 - 86400);
     stats_end_time = parseInt(+ new Date() / 1000);
@@ -303,7 +302,7 @@ function loadStats(basic = false) {
         }
     });
 
-    if (token.length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
+    if (String(localStorage.getItem("token")).length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/dlog/leaderboard",
@@ -333,7 +332,7 @@ function loadStats(basic = false) {
                     }
                     $("#leaderboard").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
+                <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${totalpnt}</td>
             </tr>`);
                 }
@@ -368,7 +367,7 @@ function loadStats(basic = false) {
                     }
                     $("#newdriverTable").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="loadProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
+                <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${joindt}</td>
             </tr>`);
                 }

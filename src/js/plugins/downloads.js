@@ -7,15 +7,12 @@ function loadDownloads() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return AjaxError(data);
             $("#downloads").html(parseMarkdown(data.response));
             $("#downloadscontent").val(data.response);
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to fetch downloads. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
 }
@@ -25,13 +22,9 @@ function toggleUpdateDownloads() {
     $("#downloads").toggle();
 }
 
-lastdownloadsupd = 0;
-
 function UpdateDownloads() {
-    if (+new Date() - lastdownloadsupd < 50) return;
-    lastdownloadsupd = +new Date();
-    $("#saveDownloadsBtn").html("Working...");
-    $("#saveDownloadsBtn").attr("disabled", "disabled");
+    GeneralLoad();
+    LockBtn("#saveDownloadsBtn");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/downloads",
         type: "PATCH",
@@ -43,18 +36,14 @@ function UpdateDownloads() {
             "data": $("#downloadscontent").val()
         },
         success: function (data) {
-            $("#saveDownloadsBtn").html("Update");
-            $("#saveDownloadsBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            UnlockBtn("#saveDownloadsBtn");
+            if (data.error) return AjaxError(data);
             $("#downloads").html(parseMarkdown($("#downloadscontent").val()));
+            toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            $("#saveDownloadsBtn").html("Update");
-            $("#saveDownloadsBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to update downloads. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#saveDownloadsBtn");
+            AjaxError(data);
         }
     })
 }

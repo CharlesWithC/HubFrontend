@@ -86,7 +86,7 @@ function loadDivision() {
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            const d = data.response;
+            d = data.response;
             info = d.statistics;
             for (var i = 0; i < info.length; i++) {
                 divisionid = info[i].divisionid;
@@ -104,7 +104,7 @@ function loadDivision() {
                     for (j = 0; j < stats.length; j++) {
                         $(tablename).append(`
                         <tr class="text-sm">
-                        <td class="py-5 px-6 font-medium"><a style="cursor:pointer" onclick="loadProfile(${stats[j].userid});">${stats[j].name}</a></td>
+                        <td class="py-5 px-6 font-medium"><a style="cursor:pointer" onclick="LoadUserProfile(${stats[j].userid});">${stats[j].name}</a></td>
                         <td class="py-5 px-6 font-medium">${stats[j].points}</td>
                         </tr>`);
                     }
@@ -114,21 +114,11 @@ function loadDivision() {
             $("#divisionDeliveryTable").empty();
             if (d.recent.length == 0) {
                 $("#divisionDeliveryTableHead").hide();
-                $("#divisionDeliveryTable").append(`
-            <tr class="text-sm">
-                <td class="py-5 px-6 font-medium">No Data</td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+                $("#divisionDeliveryTable").append(TableNoData(8));
             } else {
                 $("#divisionDeliveryTableHead").show();
                 for (i = 0; i < d.recent.length; i++) {
-                    const delivery = d.recent[i];
+                    delivery = d.recent[i];
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                     cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                     unittxt = "€";
@@ -136,11 +126,11 @@ function loadDivision() {
                     profit = TSeparator(delivery.profit);
                     color = "";
                     if (delivery.profit < 0) color = "grey";
-                    dextra = "<span title='Validated Division Delivery'>" + VERIFIED + "</span>";
+                    dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                     $("#divisionDeliveryTable").append(`
             <tr class="text-sm" style="color:${color}">
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${delivery.userid})'>${delivery.name}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
               <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
@@ -151,10 +141,7 @@ function loadDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load division. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
 }
@@ -168,7 +155,8 @@ function loadStaffDivision() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return AjaxError(data);
+
             DIVISION = {};
             divisions = JSON.parse(localStorage.getItem("division"));
             for(var i = 0 ; i < divisions.length ; i++) {
@@ -179,20 +167,15 @@ function loadStaffDivision() {
             d = data.response;
             if (d.length == 0) {
                 $("#staffDisivionTableHead").hide();
-                $("#staffDisivionTable").append(`
-            <tr class="text-sm">
-                <td class="py-5 px-6 font-medium">No Data</td>
-                <td class="py-5 px-6 font-medium"></td>
-                <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+                $("#staffDisivionTable").append(TableNoData(3));
             } else {
                 $("#staffDisivionTableHead").show();
                 for (i = 0; i < d.length; i++) {
-                    const delivery = d[i];
+                    delivery = d[i];
                     $("#staffDisivionTable").append(`
             <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='loadProfile(${delivery.userid})'>${delivery.name}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
@@ -203,16 +186,14 @@ function loadStaffDivision() {
             }
         },
         error: function (data) {
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load division. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            AjaxError(data);
         }
     })
 }
-function divisionInfo(logid) {
-    $("#divisioninfobtn").html("Loading...");
-    $("#divisioninfobtn").attr("disabled", "disabled");
+function GetDivisionInfo(logid) {
+    GeneralLoad();
+    LockBtn("#divisioninfobtn");
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division?logid=" + logid,
         type: "GET",
@@ -221,9 +202,9 @@ function divisionInfo(logid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            $("#divisioninfobtn").html("Division");
-            $("#divisioninfobtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            UnlockBtn("#divisioninfobtn");
+            if (data.error) return AjaxError(data);
+
             info = `<div style="text-align:left">`;
             if (data.response.status == "-1") {
                 divisionopt = "";
@@ -241,7 +222,7 @@ function divisionInfo(logid) {
                 </select>`;
                 info += `<button type="button" style="float:right" id="divisionRequestBtn"
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="requestDivision(${logid})">Request Division Validation</button>`;
+                onclick="SubmitDivisionValidationRequest(${logid})">Request Division Validation</button>`;
                 info += "</div>";
                 Swal.fire({
                     title: `Division Delivery #` + logid,
@@ -297,17 +278,17 @@ function divisionInfo(logid) {
                 if (data.response.update_reason == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
-                        " by <a onclick='loadProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
+                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
                 } else {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validation requested at " + getDateTime(data.response.request_timestamp * 1000) + "</p>";
                     if (data.response.status == "0") info += "<p>- Pending Validation</p>";
                     else if (data.response.status == "1")
                         info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
-                        " by <a onclick='loadProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
+                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
                     else if (data.response.status == "2")
                         info += "<p>Denied at " + getDateTime(data.response.update_timestamp * 1000) +
-                        " by <a onclick='loadProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
+                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
                     if (data.response.update_reason != "")
                         info += "<p> - For reason " + data.response.update_reason + "</p>";
                 }
@@ -326,19 +307,16 @@ function divisionInfo(logid) {
             }
         },
         error: function (data) {
-            $("#divisioninfobtn").html("Division");
-            $("#divisioninfobtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load division information. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            if (data.error) return AjaxError(data);
+            AjaxError(data);
         }
     });
 }
 
-function requestDivision(logid) {
-    $("#divisionRequestBtn").html("Loading...");
-    $("#divisionRequestBtn").attr("disabled", "disabled");
+function SubmitDivisionValidationRequest(logid) {
+    GeneralLoad();
+    LockBtn("#divisionRequestBtn");
+
     division = $("#divisionSelect").val();
     divisionid = "-1";
     divisions = JSON.parse(localStorage.getItem("division"));
@@ -349,6 +327,7 @@ function requestDivision(logid) {
         }
     }
     if(divisionid == "-1") return toastFactory("error", "Error:", "Invalid division.", 5000, false);
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "POST",
@@ -361,30 +340,27 @@ function requestDivision(logid) {
             divisionid: divisionid
         },
         success: async function (data) {
-            $("#divisionRequestBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            UnlockBtn("#divisionRequestBtn");
+            if (data.error) return AjaxError(data);
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            $("#divisionRequestBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load division information. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#divisionRequestBtn");
+            AjaxError(data);
         }
     });
 }
 
 function updateDivision(logid, status) {
+    GeneralLoad();
     if (status <= 1) {
-        $("#divisionAcceptBtn").html("Working...");
-        $("#divisionAcceptBtn").attr("disabled", "disabled");
+        LockBtn("#divisionAcceptBtn");
         $("#divisionRejectBtn").attr("disabled", "disabled");
     } else if (status == 2) {
-        $("#divisionRejectBtn").html("Working...");
-        $("#divisionAcceptBtn").attr("disabled", "disabled");
+        LockBtn("#divisionRejectBtn");
         $("#divisionRejectBtn").attr("disabled", "disabled");
     }
+
     division = $("#divisionSelect").val();
     divisionid = "-1";
     divisions = JSON.parse(localStorage.getItem("division"));
@@ -411,19 +387,16 @@ function updateDivision(logid, status) {
             reason: reason
         },
         success: function (data) {
-            $("#divisionAcceptBtn").removeAttr("disabled");
-            $("#divisionRejectBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            UnlockBtn("#divisionAcceptBtn");
+            UnlockBtn("#divisionRejectBtn");
+            if (data.error) return AjaxError(data);
+            GetDivisionInfo(logid);
             toastFactory("success", "Success", data.response, 5000, false);
-            divisionInfo(logid);
         },
         error: function (data) {
-            $("#divisionAcceptBtn").removeAttr("disabled");
-            $("#divisionRejectBtn").removeAttr("disabled");
-            toastFactory("error", "Error:", JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText, 5000, false);
-            console.warn(
-                `Failed to load division information. Error: ${JSON.parse(data.responseText).descriptor  ? JSON.parse(data.responseText).descriptor  : data.status + " " + data.statusText}`);
-            console.log(data);
+            UnlockBtn("#divisionAcceptBtn");
+            UnlockBtn("#divisionRejectBtn");
+            AjaxError(data);
         }
     });
 }
