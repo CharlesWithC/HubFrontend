@@ -1,7 +1,19 @@
+$(document).ready(function () {
+    drivershub = `    ____       _                         __  __      __  
+   / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
+  / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\
+ / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
+/_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
+                                                         `
+    console.log(drivershub);
+    console.log("Drivers Hub: Frontend (v1.5.2)");
+    console.log("Copyright © 2022 CharlesWithC All rights reserved.");
+    console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
+});
 
 function AjaxError(data, no_notification = false) {
     errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
-    if(!no_notification) toastFactory("error", "Error:", errmsg, 5000, false);
+    if (!no_notification) toastFactory("error", "Error:", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
 
@@ -12,7 +24,7 @@ function GetMonday(d) {
     return new Date(d.setDate(diff));
 }
 
-function GetAvatarSrc(discordid, avatarid){
+function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
         if (avatarid.startsWith("a_"))
             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".gif";
@@ -22,26 +34,24 @@ function GetAvatarSrc(discordid, avatarid){
     return src;
 }
 
-function GetAvatarImg(src, userid, name){
+function GetAvatarImg(src, userid, name) {
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
         <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
         <b>${name}</b>
-    </a>`
+    </a>`;
+}
+
+function GetAvatar(userid, name, discordid, avatarid){
+    src = GetAvatarSrc(discordid, avatarid);
+    return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
+        <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        ${name}
+    </a>`;
 }
 
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
     return toastFactory("success", "Banner URL copied to clipboard!")
-}
-
-function TableNoData(columns){
-    var ret = "";
-    for(var i = 0 ; i < columns - 1 ; i ++)
-        ret += `<td class="py-5 px-6 font-medium"></td>`;
-    return `<tr class="text-sm">
-      <td class="py-5 px-6 font-medium">No Data</td>
-      ${ret}
-    </tr>`
 }
 
 function FileOutput(filename, text) {
@@ -63,14 +73,16 @@ function isString(obj) {
 }
 
 window.btnvals = {};
-function LockBtn(btnid, btntxt = "Working..."){
-    $(btnid).attr("disabled","disabled");
+
+function LockBtn(btnid, btntxt = "Working...") {
+    $(btnid).attr("disabled", "disabled");
     btnvals[btnid] = $(btnid).html();
     $(btnid).html(btntxt);
 }
-function UnlockBtn(btnid){
+
+function UnlockBtn(btnid) {
     $(btnid).removeAttr("disabled");
-    if(btnvals[btnid] == undefined) return;
+    if (btnvals[btnid] == undefined) return;
     $(btnid).html(btnvals[btnid]);
 }
 
@@ -366,6 +378,114 @@ function b62decode(num62) {
     return ret * flag;
 }
 
+function InitTable(table, reload_function, force_init = false){
+    if($(table+"_paginate").length != 0 && !force_init) return;
+    $(table+"_paginate").remove();
+    table = table.replaceAll("#","");
+    $("#"+table).after(`
+    <br>
+    <div id="${table}_paginate">
+        <div style="margin-left:auto;width:fit-content">
+            <div style="margin-left:auto;width:fit-content">
+                <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                <input id="${table}_page_input" style="width:50px;display:inline"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
+                    name="field-name" rows="5" placeholder="" value="1"></input> / <span id="${table}_total_pages">-</span>
+                <button type="button"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="${reload_function}">Show</button>
+            </div>
+            <button type="button" style="display:inline"
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp-1);${reload_function};">
+                < </button> <div id="${table}_paginate_control" style="display:inline"></div>
+            <button type="button" style="display:inline"
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp+1);${reload_function};">></button>
+        </div>
+    </div>`);
+}
+
+function TableNoData(columns) {
+    var ret = "";
+    for (var i = 0; i < columns - 1; i++)
+        ret += `<td class="py-5 px-6 font-medium"></td>`;
+    return `<tr class="text-sm">
+      <td class="py-5 px-6 font-medium">No Data</td>
+      ${ret}
+    </tr>`
+}
+
+function PushTable(table, data, total_pages, reload_function = ""){
+    page = parseInt($(table+"_page_input").val());
+    column_count = $($(table+"_head").children()[0]).children().length;
+    $(table+"_data").empty();
+
+    if(data.length == 0){
+        $(table+"_head").hide();
+        $(table+"_data").append(TableNoData(column_count));
+        $(table+"_page_input").val("1");
+        return;
+    } else {
+        $(table+"_head").show();
+    }
+
+    if (page > total_pages) {
+        $(table+"_page_input").val(1);
+        return;
+    }
+    if (page <= 0) {
+        $(table+"_page_input").val(1);
+        page = 1;
+    }
+
+    $(table + "_total_pages").html(total_pages);
+    $(table + "_paginate_control").children().remove();
+
+    $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="$('${table}_page_input').val(1);${reload_function}">1</button>`);
+    if (page > 3) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        >...</button>`);
+    }
+    for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, total_pages - 1); i++) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="$('${table}_page_input').val(${i});${reload_function}">${i}</button>`);
+    }
+    if (page < total_pages - 2) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        >...</button>`);
+    }
+    if (total_pages > 1) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="$('${table}_page_input').val(${total_pages});${reload_function}">${total_pages}</button>`);
+    }
+    
+    for(var i = 0 ; i < data.length ; i++){
+        if(data[i][0].startsWith("<tr_style>")){
+            s = data[i][0];
+            s = s.substr(10,s.length-21);
+            $(table+"_data").append(`<tr class="text-sm" style="${s}">`);
+        } else {
+            $(table+"_data").append(`<tr class="text-sm">`);
+        }
+        for(var j = 0 ; j < data[i].length ; j++){
+            if(!data[i][j].startsWith("<tr_style>")){
+                $(table+"_data").append(`<td class="py-5 px-6">${data[i][j]}</td>`);
+            }
+        }
+        $(table+"_data").append(`</tr>`);
+    }
+}
+
 $(document).ready(function () {
     version = localStorage.getItem("api-version");
     if (version != null) {
@@ -378,6 +498,10 @@ $(document).ready(function () {
         success: function (data) {
             $("#apiversion").html(data.response.version);
             localStorage.setItem("api-version", data.response.version);
+        }, error: function (data) {
+            if(parseInt(data.status) >= 500 && parseInt(data.status) <= 599){
+                toastFactory("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
+            }
         }
     })
 });
@@ -510,6 +634,7 @@ function LoadDriverLeaderStatistics() {
             url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
             type: "GET",
             dataType: "json",
+            async: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
@@ -520,17 +645,18 @@ function LoadDriverLeaderStatistics() {
                 avatar = GetAvatarSrc(discordid, dottuser.avatar);
                 distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
                 $("#dot" + dott).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
-                $("#dot" +dott + "distance").html(`Driven ${distance}${distance_unit_txt}`);
+                $("#dot" + dott + "distance").html(`Driven ${distance}${distance_unit_txt}`);
             }
         });
     }
 }
 
-function loadLeaderboard(recurse = true) {
+function LoadLeaderboard() {
     GeneralLoad();
-    LockBtn("#loadLeaderboardBtn", btntxt = "...");
+    LockBtn("#LoadLeaderboardBtn", btntxt = "...");
+    InitTable("#table_leaderboard", "LoadLeaderboard();");
 
-    page = parseInt($("#lpages").val())
+    page = parseInt($("#table_leaderboard_page_input").val())
     if (page == "" || page == undefined || page <= 0) page = 1;
 
     var start_time = -1, end_time = -1;
@@ -568,104 +694,32 @@ function loadLeaderboard(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#loadLeaderboardBtn");
+            UnlockBtn("#LoadLeaderboardBtn");
             if (data.error) return AjaxError(data);
 
-            $("#leaderboardTable").empty();
             leaderboard = data.response.list;
-
-            // generate table / page control
-            if (leaderboard.length == 0) {
-                $("#leaderboardTableHead").hide();
-                $("#leaderboardTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
-                $("#lpages").val(1);
-                if (recurse) loadLeaderboard(recurse = false);
-                return;
-            }
-            $("#leaderboardTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#lpages").val(1);
-                if (recurse) loadLeaderboard(recurse = false);
-                return;
-            }
-            if (page <= 0) {
-                $("#lpages").val(1);
-                page = 1;
-            }
-            $("#ltotpages").html(totpage);
-            $("#leaderboardTableControl").children().remove();
-            $("#leaderboardTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#lpages').val(1);loadLeaderboard();">1</button>`);
-            if (page > 3) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#lpages').val(${i});loadLeaderboard();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#lpages').val(${totpage});loadLeaderboard();">${totpage}</button>`);
-            }
-            
-            // fill table
-            for (i = 0; i < leaderboard.length; i++) {
+            total_pages = data.response.total_pages;
+            data = [];
+            for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
-                userid = user.userid;
-                name = user.name;
-                distance = TSeparator(parseInt(user.distance * distance_ratio));
-                discordid = user.discordid;
-                avatar = GetAvatarSrc(discordid, user.avatar);
-                totalpnt = TSeparator(parseInt(user.total));   
-                $("#leaderboardTable").append(`<tr class="text-sm">
-              <td class="py-5 px-6 font-medium">
-                #${user.rank} ${GetAvatarImg(avatar, userid, name)}</td>
-                <td class="py-5 px-6">${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})</td>
-                <td class="py-5 px-6">${distance}</td>
-                <td class="py-5 px-6">${user.event}</td>
-                <td class="py-5 px-6">${user.division}</td>
-                <td class="py-5 px-6">${user.myth}</td>
-              <td class="py-5 px-6">${totalpnt}</td>
-            </tr>`);
+                distance = TSeparator(parseInt(user.distance * distance_ratio)); 
+                data.push([`#${user.rank} ${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.event}`, `${user.division}`, `${user.myth}`, `${user.total}`]);
             }
+            PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
         error: function (data) {
-            UnlockBtn("#loadLeaderboardBtn");
+            UnlockBtn("#LoadLeaderboardBtn");
             AjaxError(data);
         }
     })
 }
 
-function LoadDeliveryList(recurse = true) {
+function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#loadDeliveryBtn", btntxt = "...");
+    InitTable("#table_deliverylog", "LoadDeliveryList();")
 
-    page = parseInt($("#dpages").val())
+    page = parseInt($("#table_deliverylog_page_input").val())
     if (page == "" || page == undefined || page <= 0) page = 1;
     
     var start_time = -1, end_time = -1;
@@ -699,65 +753,12 @@ function LoadDeliveryList(recurse = true) {
             UnlockBtn("#loadDeliveryBtn");
             if (data.error) return AjaxError(data);
 
-            $("#deliveryTable").empty();
-            deliveries = data.response.list;
+            deliverylist = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (deliveries.length == 0) {
-                $("#deliveryTableHead").hide();
-                $("#deliveryTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
-                $("#dpages").val(1);
-                if (recurse) LoadDeliveryList(recurse = false);
-                return;
-            }
-            $("#deliveryTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#dpages").val(1);
-                if (recurse) LoadDeliveryList(recurse = false);
-                return;
-            }
-            $("#dtotpages").html(totpage);
-            $("#deliveryTableControl").children().remove();
-            $("#deliveryTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#dpages').val(1);LoadDeliveryList();">1</button>`);
-            if (page > 3) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#dpages').val(${i});LoadDeliveryList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#dpages').val(${totpage});LoadDeliveryList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < deliveries.length; i++) {
-                delivery = deliveries[i];
+            for (i = 0; i < deliverylist.length; i++) {
+                delivery = deliverylist[i];
                 distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                 cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                 unittxt = "€";
@@ -767,17 +768,11 @@ function LoadDeliveryList(recurse = true) {
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                $("#deliveryTable").append(`
-            <tr class="text-sm" style="color:${color}">
-            <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-            </tr>`);
+
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
+
+            PushTable("#table_deliverylog", data, total_pages, "LoadDeliveryList();");
         },
         error: function (data) {
             UnlockBtn("#loadDeliveryBtn");
@@ -1399,6 +1394,54 @@ function ExportDeliveryLog() {
         }
     })
 }
+function LoadXOfTheMonth(){
+    if($("#dotmdiv").is(":visible") || $("#sotmdiv").is(":visible")) return;
+    if(perms.driver_of_the_month != undefined){
+        dotm_role = perms.driver_of_the_month[0];
+        
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + dotm_role,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                user = d[0];
+                discordid = user.discordid;
+                avatar = GetAvatarSrc(discordid, user.avatar);
+                distance = TSeparator(parseInt(user.distance * distance_ratio));
+                $("#dotm").html(GetAvatarImg(src, user.userid, user.name));
+                $("#x_of_the_month").show();
+                $("#dotmdiv").show();
+            }
+        })
+    }
+    if(perms.staff_of_the_month != undefined){
+        sotm_role = perms.staff_of_the_month[0];
+        
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + sotm_role,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                user = d[0];
+                discordid = user.discordid;
+                avatar = GetAvatarSrc(discordid, user.avatar);
+                distance = TSeparator(parseInt(user.distance * distance_ratio));
+                $("#sotm").html(GetAvatarImg(src, user.userid, user.name));
+                $("#x_of_the_month").show();
+                $("#sotmdiv").show();
+            }
+        })
+    }
+}
+
 function GetDiscordRankRole() {
     GeneralLoad();
     LockBtn(".requestRoleBtn");
@@ -1766,11 +1809,11 @@ useridCurrentProfile = -1;
 function LoadUserProfile(userid) {
     if (userid < 0) return;
 
-    $("#aucs1").attr("onclick", `chartscale=1;loadChart(${userid});`);
-    $("#aucs2").attr("onclick", `chartscale=2;loadChart(${userid});`);
-    $("#aucs3").attr("onclick", `chartscale=3;loadChart(${userid});`);
-    $("#aaddup1").attr("onclick", `addup=1-addup;loadChart(${userid});`);
-    loadChart(userid);
+    $("#aucs1").attr("onclick", `chartscale=1;LoadChart(${userid});`);
+    $("#aucs2").attr("onclick", `chartscale=2;LoadChart(${userid});`);
+    $("#aucs3").attr("onclick", `chartscale=3;LoadChart(${userid});`);
+    $("#aaddup1").attr("onclick", `addup=1-addup;LoadChart(${userid});`);
+    LoadChart(userid);
 
     $("#udpages").val("1");
     useridCurrentProfile = userid;
@@ -1818,6 +1861,7 @@ function LoadUserProfile(userid) {
             $("#userProfileDetail").html(info);
             
             avatar = GetAvatarSrc(d.discordid, d.avatar);
+            $("#UserProfileAvatar").attr("src", avatar);
             
             roles = d.roles;
             rtxt = "";
@@ -2563,6 +2607,7 @@ function AddUser(discordid = -1) {
     }
     GeneralLoad();
     LockBtn("#addUserBtn");
+    LockBtn("#UserAddBtn" + discordid);
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member",
         type: "PUT",
@@ -2575,12 +2620,14 @@ function AddUser(discordid = -1) {
         },
         success: function (data) {
             UnlockBtn("#addUserBtn");
+            UnlockBtn("#UserAddBtn" + discordid);
             if (data.error) return AjaxError(data);
             toastFactory("success", "Success", "User added successfully. User ID: " + data.response.userid, 5000, false);
             LoadUserList();
         },
         error: function (data) {
             UnlockBtn("#addUserBtn");
+            UnlockBtn("#UserAddBtn" + discordid);
             AjaxError(data);
         }
     })
@@ -3240,7 +3287,9 @@ function revokeAllToken(){
         }
     })
 }
+annInit = 0;
 function LoadAnnouncement(){
+    annInit = 1;
     annpage = 2;
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/announcement?page=1",
@@ -3568,10 +3617,8 @@ function LoadUserApplicationList(recurse = true) {
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) {
+                if (application.update_timestamp == 0) 
                     closedat = "/";
-                    console.log(closedat);
-                }
                 status = STATUS[application.status];
 
                 color = "blue";
@@ -3695,10 +3742,8 @@ function LoadAllApplicationList(recurse = true) {
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) {
+                if (application.update_timestamp == 0) 
                     closedat = "/";
-                    console.log(closedat);
-                }
                 status = STATUS[application.status];
 
                 color = "blue";
@@ -3871,7 +3916,7 @@ function UpdateApplicationStatus() {
             UnlockBtn("#updateAppStatusBtn");
             if (data.error) return AjaxError(data);
             LoadAllApplicationList();
-            toastFactory("success", "Application status updated.", data.response.message, 5000, false);
+            toastFactory("success", "Success", "Application status updated.", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateAppStatusBtn");
@@ -3897,7 +3942,7 @@ function UpdateApplicationPositions() {
         success: function (data) {
             UnlockBtn("#updateStaffPositionBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success!", data.response.message, 5000, false);
+            toastFactory("success", "Success!", "", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateStaffPositionBtn");
@@ -3905,9 +3950,10 @@ function UpdateApplicationPositions() {
         }
     })
 }
-function loadDivisionList(){
+function LoadDivisionList(){
     lastDivisionUpdate = parseInt(localStorage.getItem("divisionLastUpdate"));
-    if (!isNumber(lastDivisionUpdate)) {
+    d = localStorage.getItem("division");
+    if (!isNumber(lastDivisionUpdate) || d == null || d == undefined) {
         lastDivisionUpdate = 0;
     }
     if (+new Date() - lastDivisionUpdate > 86400) {
@@ -4182,7 +4228,7 @@ function GetDivisionInfo(logid) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
                 if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
-                if (data.response.update_reason == undefined) {
+                if (data.response.update_message == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
                         " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
@@ -4196,8 +4242,8 @@ function GetDivisionInfo(logid) {
                     else if (data.response.status == "2")
                         info += "<p>Denied at " + getDateTime(data.response.update_timestamp * 1000) +
                         " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
-                    if (data.response.update_reason != "")
-                        info += "<p> - For reason " + data.response.update_reason + "</p>";
+                    if (data.response.update_message != "")
+                        info += "<p> - For reason " + data.response.update_message + "</p>";
                 }
                 if (data.response.user_is_staff == true) {
                     info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
@@ -4291,7 +4337,7 @@ function updateDivision(logid, status) {
             logid: logid,
             divisionid: divisionid,
             status: status,
-            reason: reason
+            message: reason
         },
         success: function (data) {
             UnlockBtn("#divisionAcceptBtn");
@@ -4430,13 +4476,10 @@ function FetchEvent(showdetail = -1) {
             offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
             $("#eventmeetup_timestamp").val(new Date(event.meetup_timestamp * 1000 - offset).toISOString().substring(0, 16));
             $("#eventdeparture_timestamp").val(new Date(event.departure_timestamp * 1000 - offset).toISOString().substring(0, 16));
-            imgs = "";
-            for (let i = 0; i < event.images.length; i++) {
-                imgs += event.images[i] + "\n";
-            }
+            description = event.description;
             if (event.is_private) $("#eventpvt-1").prop("checked", true);
             else $("#eventpvt-0").prop("checked", true);
-            $("#eventimgs").val(imgs);
+            $("#eventimgs").val(description);
 
             if (showdetail != -1) eventDetail(showdetail);
         },
@@ -4576,7 +4619,7 @@ function EventOp() {
                 "distance": distance,
                 "meetup_timestamp": meetup_timestamp,
                 "departure_timestamp": departure_timestamp,
-                "images": img,
+                "description": img,
                 "is_private": pvt
             },
             success: function (data) {
@@ -4605,7 +4648,7 @@ function EventOp() {
                 "distance": distance,
                 "meetup_timestamp": meetup_timestamp,
                 "departure_timestamp": departure_timestamp,
-                "images": img,
+                "description": img,
                 "is_private": pvt
             },
             success: function (data) {
@@ -4758,16 +4801,17 @@ function loadEvent(recurse = true) {
                 meetup_timestamp = event.meetup_timestamp * 1000;
                 departure_timestamp = event.departure_timestamp * 1000;
                 now = +new Date();
-                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) color = "blue";
-                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) color = "lightgreen"
-                if (now > departure_timestamp + 1000 * 60 * 30) color = "grey";
+                style = "";
+                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) style = "color:blue";
+                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) style = "color:lightgreen"
+                if (now > departure_timestamp + 1000 * 60 * 30) style = "color:grey";
                 mt = getDateTime(meetup_timestamp);
                 dt = getDateTime(departure_timestamp);
                 votecnt = event.votes.length;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
                 $("#eventTable").append(`
-            <tr class="text-sm" style="color:${color}">
+            <tr class="text-sm" style="${style}">
               <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
               <td class="py-5 px-6 font-medium">${event.title}</td>
               <td class="py-5 px-6 font-medium">${event.departure}</td>
@@ -4825,16 +4869,21 @@ async function eventDetail(eventid) {
     }
     event = allevents[eventid];
     voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Vote)</a>`;
-    console.log(event);
     vote = "";
     userid = localStorage.getItem("userid");
     for (i = 0; i < event.votes.length; i++) {
-        vote += event.votes[i].name + " ";
+        vote += `<a style="cursor:pointer" onclick="LoadUserProfile(${event.votes[i].userid})">${event.votes[i].name}</a>, `;
         if (event.votes[i].userid == String(userid)) {
             voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Unvote)</a>`;
         }
     }
+    vote = vote.substr(0, vote.length - 2);
     votecnt = event.votes.length;
+    attendee = "";
+    for (i = 0; i < event.attendees.length; i++) {
+        attendee += `<a style="cursor:pointer" onclick="LoadUserProfile(${event.attendees[i].userid})">${event.attendees[i].name}</a>, `;
+    }
+    attendee = attendee.substr(0, attendee.length - 2);
     info = `<div style="text-align:left">`;
     info += "<p><b>Event ID</b>: " + event.eventid + "</p>";
     info += "<p><b>From</b>: " + event.departure + "</p>";
@@ -4843,10 +4892,8 @@ async function eventDetail(eventid) {
     info += "<p><b>Meetup Time</b>: " + getDateTime(event.meetup_timestamp * 1000) + "</p>";
     info += "<p><b>Departure Time</b>: " + getDateTime(event.departure_timestamp * 1000) + "</p>";
     info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + vote + "</p>";
-    info += "<p><b>Attendees</b>: " + event.attendee + "</p>";
-    for (var i = 0; i < event.images.length; i++) {
-        info += "<img src='" + event.images[i] + "' style='width:100%'/>";
-    }
+    info += "<p><b>Attendees</b>: " + attendee + "</p>";
+    info += "<p>" + parseMarkdown(description) + "</p>";
     info += "</div>";
     Swal.fire({
         title: `<a href='${event.truckersmp_link}' target='_blank'>${event.title}</a>`,
@@ -4855,17 +4902,170 @@ async function eventDetail(eventid) {
         confirmButtonText: 'Close'
     });
 }
-drivershub = `    ____       _                         __  __      __  
-   / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
-  / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\
- / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
-/_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
-                                                         `
-console.log(drivershub);
-console.log("Drivers Hub: Frontend (v1.5.1)");
-console.log("Copyright (C) 2022 CharlesWithC All rights reserved.");
-console.log('This product must work with "Drivers Hub: Backend" which is also made by CharlesWithC!');
+function LoginValidate() {
+    token = localStorage.getItem("token");
+    if (token == undefined) {
+        return;
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            if (data.error == false) {
+                localStorage.setItem("token", token);
+                if (data.response.truckersmpid > 0 && data.response.steamid > 0) {
+                    window.location.href = "/";
+                } else {
+                    window.location.href = "/auth?token=" + token;
+                }
+            }
+        }
+    });
+}
 
+function SteamValidate() {
+    var sPageURL = window.location.search.substring(1),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/steam",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "callback": sPageURL
+        },
+        success: function (data) {
+            if (data.error == false) {
+                window.location.href = "/";
+            } else {
+                $("#msg").html(data.descriptor);
+                $("#steamauth").show();
+            }
+        },
+        error: function (data) {
+            $("#msg").html(data.descriptor);
+            $("#steamauth").show();
+        }
+    });
+}
+
+function ShowCaptcha() {
+    email = $("#email").val();
+    password = $("#password").val();
+    if (email == "" || password == "") {
+        return toastFactory("warning", "", "Enter email and password.", 3000, false);
+    }
+    $('#captcha').fadeIn();
+}
+
+function AuthValidate() {
+    message = getUrlParameter("message");
+    if (message) {
+        $("#title").html("Error");
+        $("#msg").html(message.replaceAll("+", " "));
+        $("#msg").show();
+        $("#loginbtn").show();
+        return;
+    }
+    token = getUrlParameter("token");
+    if (token) {
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/token",
+            type: "PATCH",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                if (data.error == false) {
+                    newtoken = data.response.token;
+                    localStorage.setItem("token", newtoken);
+                    window.location.href = "/auth";
+                } else {
+                    $("#msg").html("Invalid token, please retry.");
+                    $("#loginbtn").show();
+                }
+            },
+            error: function (data) {
+                $("#msg").html("Invalid token, please retry.");
+                $("#loginbtn").show();
+            }
+        });
+    } else {
+        token = localStorage.getItem("token");
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/user",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                if (data.error == false) {
+                    if (data.response.truckersmpid > 0 && data.response.steamid > 0) {
+                        window.location.href = "/";
+                        $("#msg").html("You are being redirected to Drivers Hub.");
+                    } else if (data.response.steamid <= 0) {
+                        $("#title").html("Steam Connection<br>");
+                        $("#title").css("font-size", "1.5em");
+                        $("#msg").html(
+                            "Connect to steam account to: <br><br> - Auto-connect TruckersMP account <br> - Auto-join Navio company"
+                        );
+                        $("#connect_steam").show();
+                    } else if (data.response.truckersmpid <= 0) {
+                        $("#title").html("TruckersMP Connection");
+                        $("#title").css("font-size", "1.5em");
+                        $("#msg").html(
+                            "Enter TruckersMP User ID <br> (We'll check if it's connected to your Steam account)"
+                        );
+                        $("#connect_truckersmp").show();
+                    }
+                } else {
+                    $("#msg").html("Invalid token, please retry.");
+                    $("#loginbtn").show();
+                }
+            },
+            error: function (data) {
+                $("#msg").html("Invalid token, please retry.");
+                $("#loginbtn").show();
+            }
+        });
+    }
+}
+
+function TMPBind() {
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/truckersmp",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "truckersmpid": $("#truckersmpid").val()
+        },
+        success: function (data) {
+            if (data.error == false) {
+                $("#title").html("TruckersMP Connected");
+                $("#msg").html("You are being redirected to Drivers Hub.");
+                window.location.href = "/";
+            } else {
+                return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            }
+        },
+        error: function (data) {
+            return toastFactory("error", "Error:", data.descriptor, 5000, false);
+        }
+    });
+}
 SVG_VERIFIED = `<svg style="display:inline;position:relative;top:-1.5px;color:skyblue" width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5213 2.62368C11.3147 1.75255 12.6853 1.75255 13.4787 2.62368L14.4989 3.74391C14.8998 4.18418 15.4761 4.42288 16.071 4.39508L17.5845 4.32435C18.7614 4.26934 19.7307 5.23857 19.6757 6.41554L19.6049 7.92905C19.5771 8.52388 19.8158 9.10016 20.2561 9.50111L21.3763 10.5213C22.2475 11.3147 22.2475 12.6853 21.3763 13.4787L20.2561 14.4989C19.8158 14.8998 19.5771 15.4761 19.6049 16.071L19.6757 17.5845C19.7307 18.7614 18.7614 19.7307 17.5845 19.6757L16.071 19.6049C15.4761 19.5771 14.8998 19.8158 14.4989 20.2561L13.4787 21.3763C12.6853 22.2475 11.3147 22.2475 10.5213 21.3763L9.50111 20.2561C9.10016 19.8158 8.52388 19.5771 7.92905 19.6049L6.41553 19.6757C5.23857 19.7307 4.26934 18.7614 4.32435 17.5845L4.39508 16.071C4.42288 15.4761 4.18418 14.8998 3.74391 14.4989L2.62368 13.4787C1.75255 12.6853 1.75255 11.3147 2.62368 10.5213L3.74391 9.50111C4.18418 9.10016 4.42288 8.52388 4.39508 7.92905L4.32435 6.41553C4.26934 5.23857 5.23857 4.26934 6.41554 4.32435L7.92905 4.39508C8.52388 4.42288 9.10016 4.18418 9.50111 3.74391L10.5213 2.62368Z" stroke="currentColor" stroke-width="1.5"/> <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/> </svg> `;
 SVG_LOCKED = `<svg style="display:inline;position:relative;top:-1.5px;color:red" xmlns="http://www.w3.org/2000/svg" width="18" height="18" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M17,9V7c0-2.8-2.2-5-5-5S7,4.2,7,7v2c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h10c1.7,0,3-1.3,3-3v-7C20,10.3,18.7,9,17,9z M9,7c0-1.7,1.3-3,3-3s3,1.3,3,3v2H9V7z M13,17c0,0.6-0.4,1-1,1s-1-0.4-1-1v-3c0-0.6,0.4-1,1-1s1,0.4,1,1V17z" fill="red"/></svg>`;
 
@@ -4876,8 +5076,9 @@ highestrole = 99999;
 roles = JSON.parse(localStorage.getItem("roles"));
 rolelist = JSON.parse(localStorage.getItem("rolelist"));
 perms = JSON.parse(localStorage.getItem("perms"));
-positions = localStorage.getItem("positions");
-applicationTypes = localStorage.getItem("applicationTypes");
+positions = JSON.parse(localStorage.getItem("positions"));
+applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+isdark = parseInt(localStorage.getItem("darkmode"));
 
 function Logout(){
     token = localStorage.getItem("token")
@@ -4889,10 +5090,6 @@ function Logout(){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            localStorage.removeItem("token");
-            window.location.href = "/login";
-        },
-        error: function (data) {
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
@@ -4918,7 +5115,7 @@ function InitRankingDisplay(){
                     <td class="py-5 px-6 font-medium">${rankpnt[i * 8 + j]}</td>
                 </tr>`;
             }
-            ranktable += `</tbody>/table>`;
+            ranktable += `</tbody></table>`;
             $("#ranktable").append(ranktable);
         }
     }
@@ -4957,7 +5154,7 @@ function InitInputHandler(){
         if (e.which == 13) LoadUserDeliveryList();
     });
     $('#lbend,#lbspeedlimit').keydown(function (e) {
-        if (e.which == 13) loadLeaderboard();
+        if (e.which == 13) LoadLeaderboard();
     });
     $('#memberroleid').keydown(function (e) {
         if (e.which == 13) GetMemberRoles();
@@ -5249,6 +5446,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#AnnTab") {
         window.history.pushState("", "", '/announcement');
+        if(annInit == 0) LoadAnnouncement();
         ch = $("#anns").children();
         ch.hide();
         for (var i = 0; i < ch.length; i++) {
@@ -5281,6 +5479,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#AllMembers") {
         window.history.pushState("", "", '/member');
+        LoadXOfTheMonth();
         LoadMemberList();
     }
     if (tabname == "#StaffMembers") {
@@ -5295,7 +5494,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#Leaderboard") {
         window.history.pushState("", "", '/leaderboard');
-        loadLeaderboard();
+        LoadLeaderboard();
     }
     if (tabname == "#Ranking") {
         window.history.pushState("", "", '/ranking');
@@ -5361,19 +5560,19 @@ function UpdateRolesOnDisplay(){
     ShowStaffTabs();
     for (var i = 0; i < roleids.length; i++) {
         if (roleids[i] <= highestrole)
-            $("#rolelist").append(`<li><input disabled type="checkbox" id="role` + roleids[i] +
-                `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
+            $("#rolelist").append(`<li><input disabled type="checkbox" id="role${roleids[i]}" name="assignrole" value="role${roleids[i]}"> <label for="role${roleids[i]}">${rolelist[roleids[i]]}</label></li>`);
         else
-            $("#rolelist").append(`<li><input type="checkbox" id="role` + roleids[i] +
-                `" name="assignrole" value="role` + roleids[i] + `">
-<label for="role` + roleids[i] + `">` + rolelist[roleids[i]] + `</label></li>`);
+            $("#rolelist").append(`<li><input type="checkbox" id="role${roleids[i]}" name="assignrole" value="role${roleids[i]}"><label for="role${roleids[i]}">${rolelist[roleids[i]]}</label></li>`);
     }                
 }
 
 function LoadCache(){
+    rolelist = JSON.parse(localStorage.getItem("rolelist"));
+    perms = JSON.parse(localStorage.getItem("perms"));
+    positions = JSON.parse(localStorage.getItem("positions"));
+    applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+    
     if (positions != undefined && positions != null) {
-        positions = JSON.parse(positions);
         positionstxt = "";
         for (var i = 0; i < positions.length; i++) {
             positionstxt += positions[i] + "\n";
@@ -5386,6 +5585,8 @@ function LoadCache(){
     }
 
     cacheExpire = parseInt(localStorage.getItem("cacheExpire"));
+    if(!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined))
+        cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
         $.ajax({
@@ -5405,22 +5606,11 @@ function LoadCache(){
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/perms",
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                perms = data.response;
-                localStorage.setItem("perms", JSON.stringify(perms));
-                ShowStaffTabs();
-            }
-        });
-        $.ajax({
             url: apidomain + "/" + vtcprefix + "/member/roles",
             type: "GET",
             dataType: "json",
             success: function (data) {
                 rolelist = data.response;
-                UpdateRolesOnDisplay();
                 localStorage.setItem("rolelist", JSON.stringify(rolelist));
             }
         });
@@ -5433,10 +5623,19 @@ function LoadCache(){
                 applicationTypes = {};
                 for(var i = 0 ; i < d.length ; i++)
                     applicationTypes[parseInt(d[i].applicationid)] = d[i].name;
-                localStorage.setItem("applicationTypes", JSON.stringify(d));
+                localStorage.setItem("applicationTypes", JSON.stringify(applicationTypes));
             }
         });
-        localStorage.setItem("cacheExpire", +new Date() + 86400);
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/perms",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                perms = data.response;
+                localStorage.setItem("perms", JSON.stringify(perms));
+            }
+        });
+        localStorage.setItem("cacheExpire", +new Date() + 86400000);
     }
 }
 
@@ -5681,14 +5880,16 @@ function PathDetect() {
     }
 }
 
-window.onpopstate = function (event) {
-    PathDetect();
-};
+window.onpopstate = function (event){PathDetect();};
 
 $(document).ready(async function () {
     $(".pageinput").val("1");
-    LoadAnnouncement();
+    setInterval(function () {
+        $(".ol-unselectable").css("border-radius", "15px"); // map border
+    }, 1000);
+    LoadCache();
     PathDetect();
+    LoadDivisionList();
     InitDarkMode();
     InitPhoneView();
     InitDistanceUnit();
@@ -5701,8 +5902,8 @@ $(document).ready(async function () {
     while(1){
         rolelist = JSON.parse(localStorage.getItem("rolelist"));
         perms = JSON.parse(localStorage.getItem("perms"));
-        positions = localStorage.getItem("positions");
-        applicationTypes = localStorage.getItem("applicationTypes");
+        positions = JSON.parse(localStorage.getItem("positions"));
+        applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
         if(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
@@ -5748,3 +5949,4 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+

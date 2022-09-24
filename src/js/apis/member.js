@@ -1,3 +1,51 @@
+function LoadXOfTheMonth(){
+    if($("#dotmdiv").is(":visible") || $("#sotmdiv").is(":visible")) return;
+    if(perms.driver_of_the_month != undefined){
+        dotm_role = perms.driver_of_the_month[0];
+        
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + dotm_role,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                user = d[0];
+                discordid = user.discordid;
+                avatar = GetAvatarSrc(discordid, user.avatar);
+                distance = TSeparator(parseInt(user.distance * distance_ratio));
+                $("#dotm").html(GetAvatarImg(src, user.userid, user.name));
+                $("#x_of_the_month").show();
+                $("#dotmdiv").show();
+            }
+        })
+    }
+    if(perms.staff_of_the_month != undefined){
+        sotm_role = perms.staff_of_the_month[0];
+        
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + sotm_role,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                user = d[0];
+                discordid = user.discordid;
+                avatar = GetAvatarSrc(discordid, user.avatar);
+                distance = TSeparator(parseInt(user.distance * distance_ratio));
+                $("#sotm").html(GetAvatarImg(src, user.userid, user.name));
+                $("#x_of_the_month").show();
+                $("#sotmdiv").show();
+            }
+        })
+    }
+}
+
 function GetDiscordRankRole() {
     GeneralLoad();
     LockBtn(".requestRoleBtn");
@@ -365,11 +413,11 @@ useridCurrentProfile = -1;
 function LoadUserProfile(userid) {
     if (userid < 0) return;
 
-    $("#aucs1").attr("onclick", `chartscale=1;loadChart(${userid});`);
-    $("#aucs2").attr("onclick", `chartscale=2;loadChart(${userid});`);
-    $("#aucs3").attr("onclick", `chartscale=3;loadChart(${userid});`);
-    $("#aaddup1").attr("onclick", `addup=1-addup;loadChart(${userid});`);
-    loadChart(userid);
+    $("#aucs1").attr("onclick", `chartscale=1;LoadChart(${userid});`);
+    $("#aucs2").attr("onclick", `chartscale=2;LoadChart(${userid});`);
+    $("#aucs3").attr("onclick", `chartscale=3;LoadChart(${userid});`);
+    $("#aaddup1").attr("onclick", `addup=1-addup;LoadChart(${userid});`);
+    LoadChart(userid);
 
     $("#udpages").val("1");
     useridCurrentProfile = userid;
@@ -417,6 +465,7 @@ function LoadUserProfile(userid) {
             $("#userProfileDetail").html(info);
             
             avatar = GetAvatarSrc(d.discordid, d.avatar);
+            $("#UserProfileAvatar").attr("src", avatar);
             
             roles = d.roles;
             rtxt = "";

@@ -86,6 +86,27 @@ tr {
 	border-width: 1px 0;
 }
 
-thead > tr {
+thead>tr {
 	border: none;
+}
+
+.fc-scrollgrid-sync-inner {
+	background-color: transparent;
+}
+
+div.rounded,
+.tabbtns {
+	border-radius: 5px;
+}
+
+a {
+	color: #888;
+}
+
+a:hover {
+	color: black;
+}
+
+.tabbtns:hover {
+	color: #fff;
 }

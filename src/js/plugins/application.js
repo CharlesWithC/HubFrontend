@@ -133,10 +133,8 @@ function LoadUserApplicationList(recurse = true) {
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) {
+                if (application.update_timestamp == 0) 
                     closedat = "/";
-                    console.log(closedat);
-                }
                 status = STATUS[application.status];
 
                 color = "blue";
@@ -260,10 +258,8 @@ function LoadAllApplicationList(recurse = true) {
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) {
+                if (application.update_timestamp == 0) 
                     closedat = "/";
-                    console.log(closedat);
-                }
                 status = STATUS[application.status];
 
                 color = "blue";
@@ -436,7 +432,7 @@ function UpdateApplicationStatus() {
             UnlockBtn("#updateAppStatusBtn");
             if (data.error) return AjaxError(data);
             LoadAllApplicationList();
-            toastFactory("success", "Application status updated.", data.response.message, 5000, false);
+            toastFactory("success", "Success", "Application status updated.", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateAppStatusBtn");
@@ -462,7 +458,7 @@ function UpdateApplicationPositions() {
         success: function (data) {
             UnlockBtn("#updateStaffPositionBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success!", data.response.message, 5000, false);
+            toastFactory("success", "Success!", "", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateStaffPositionBtn");

@@ -24,6 +24,7 @@ function LoadDriverLeaderStatistics() {
             url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
             type: "GET",
             dataType: "json",
+            async: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
@@ -34,17 +35,18 @@ function LoadDriverLeaderStatistics() {
                 avatar = GetAvatarSrc(discordid, dottuser.avatar);
                 distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
                 $("#dot" + dott).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
-                $("#dot" +dott + "distance").html(`Driven ${distance}${distance_unit_txt}`);
+                $("#dot" + dott + "distance").html(`Driven ${distance}${distance_unit_txt}`);
             }
         });
     }
 }
 
-function loadLeaderboard(recurse = true) {
+function LoadLeaderboard() {
     GeneralLoad();
-    LockBtn("#loadLeaderboardBtn", btntxt = "...");
+    LockBtn("#LoadLeaderboardBtn", btntxt = "...");
+    InitTable("#table_leaderboard", "LoadLeaderboard();");
 
-    page = parseInt($("#lpages").val())
+    page = parseInt($("#table_leaderboard_page_input").val())
     if (page == "" || page == undefined || page <= 0) page = 1;
 
     var start_time = -1, end_time = -1;
@@ -82,104 +84,32 @@ function loadLeaderboard(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#loadLeaderboardBtn");
+            UnlockBtn("#LoadLeaderboardBtn");
             if (data.error) return AjaxError(data);
 
-            $("#leaderboardTable").empty();
             leaderboard = data.response.list;
-
-            // generate table / page control
-            if (leaderboard.length == 0) {
-                $("#leaderboardTableHead").hide();
-                $("#leaderboardTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
-                $("#lpages").val(1);
-                if (recurse) loadLeaderboard(recurse = false);
-                return;
-            }
-            $("#leaderboardTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#lpages").val(1);
-                if (recurse) loadLeaderboard(recurse = false);
-                return;
-            }
-            if (page <= 0) {
-                $("#lpages").val(1);
-                page = 1;
-            }
-            $("#ltotpages").html(totpage);
-            $("#leaderboardTableControl").children().remove();
-            $("#leaderboardTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#lpages').val(1);loadLeaderboard();">1</button>`);
-            if (page > 3) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#lpages').val(${i});loadLeaderboard();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#leaderboardTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#lpages').val(${totpage});loadLeaderboard();">${totpage}</button>`);
-            }
-            
-            // fill table
-            for (i = 0; i < leaderboard.length; i++) {
+            total_pages = data.response.total_pages;
+            data = [];
+            for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
-                userid = user.userid;
-                name = user.name;
-                distance = TSeparator(parseInt(user.distance * distance_ratio));
-                discordid = user.discordid;
-                avatar = GetAvatarSrc(discordid, user.avatar);
-                totalpnt = TSeparator(parseInt(user.total));   
-                $("#leaderboardTable").append(`<tr class="text-sm">
-              <td class="py-5 px-6 font-medium">
-                #${user.rank} ${GetAvatarImg(avatar, userid, name)}</td>
-                <td class="py-5 px-6">${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})</td>
-                <td class="py-5 px-6">${distance}</td>
-                <td class="py-5 px-6">${user.event}</td>
-                <td class="py-5 px-6">${user.division}</td>
-                <td class="py-5 px-6">${user.myth}</td>
-              <td class="py-5 px-6">${totalpnt}</td>
-            </tr>`);
+                distance = TSeparator(parseInt(user.distance * distance_ratio)); 
+                data.push([`#${user.rank} ${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.event}`, `${user.division}`, `${user.myth}`, `${user.total}`]);
             }
+            PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
         error: function (data) {
-            UnlockBtn("#loadLeaderboardBtn");
+            UnlockBtn("#LoadLeaderboardBtn");
             AjaxError(data);
         }
     })
 }
 
-function LoadDeliveryList(recurse = true) {
+function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#loadDeliveryBtn", btntxt = "...");
+    InitTable("#table_deliverylog", "LoadDeliveryList();")
 
-    page = parseInt($("#dpages").val())
+    page = parseInt($("#table_deliverylog_page_input").val())
     if (page == "" || page == undefined || page <= 0) page = 1;
     
     var start_time = -1, end_time = -1;
@@ -213,65 +143,12 @@ function LoadDeliveryList(recurse = true) {
             UnlockBtn("#loadDeliveryBtn");
             if (data.error) return AjaxError(data);
 
-            $("#deliveryTable").empty();
-            deliveries = data.response.list;
+            deliverylist = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (deliveries.length == 0) {
-                $("#deliveryTableHead").hide();
-                $("#deliveryTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
-                $("#dpages").val(1);
-                if (recurse) LoadDeliveryList(recurse = false);
-                return;
-            }
-            $("#deliveryTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#dpages").val(1);
-                if (recurse) LoadDeliveryList(recurse = false);
-                return;
-            }
-            $("#dtotpages").html(totpage);
-            $("#deliveryTableControl").children().remove();
-            $("#deliveryTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#dpages').val(1);LoadDeliveryList();">1</button>`);
-            if (page > 3) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#dpages').val(${i});LoadDeliveryList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#deliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#dpages').val(${totpage});LoadDeliveryList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < deliveries.length; i++) {
-                delivery = deliveries[i];
+            for (i = 0; i < deliverylist.length; i++) {
+                delivery = deliverylist[i];
                 distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                 cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                 unittxt = "€";
@@ -281,17 +158,11 @@ function LoadDeliveryList(recurse = true) {
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                $("#deliveryTable").append(`
-            <tr class="text-sm" style="color:${color}">
-            <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-            </tr>`);
+
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
+
+            PushTable("#table_deliverylog", data, total_pages, "LoadDeliveryList();");
         },
         error: function (data) {
             UnlockBtn("#loadDeliveryBtn");

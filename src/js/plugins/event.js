@@ -71,13 +71,10 @@ function FetchEvent(showdetail = -1) {
             offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
             $("#eventmeetup_timestamp").val(new Date(event.meetup_timestamp * 1000 - offset).toISOString().substring(0, 16));
             $("#eventdeparture_timestamp").val(new Date(event.departure_timestamp * 1000 - offset).toISOString().substring(0, 16));
-            imgs = "";
-            for (let i = 0; i < event.images.length; i++) {
-                imgs += event.images[i] + "\n";
-            }
+            description = event.description;
             if (event.is_private) $("#eventpvt-1").prop("checked", true);
             else $("#eventpvt-0").prop("checked", true);
-            $("#eventimgs").val(imgs);
+            $("#eventimgs").val(description);
 
             if (showdetail != -1) eventDetail(showdetail);
         },
@@ -217,7 +214,7 @@ function EventOp() {
                 "distance": distance,
                 "meetup_timestamp": meetup_timestamp,
                 "departure_timestamp": departure_timestamp,
-                "images": img,
+                "description": img,
                 "is_private": pvt
             },
             success: function (data) {
@@ -246,7 +243,7 @@ function EventOp() {
                 "distance": distance,
                 "meetup_timestamp": meetup_timestamp,
                 "departure_timestamp": departure_timestamp,
-                "images": img,
+                "description": img,
                 "is_private": pvt
             },
             success: function (data) {
@@ -399,16 +396,17 @@ function loadEvent(recurse = true) {
                 meetup_timestamp = event.meetup_timestamp * 1000;
                 departure_timestamp = event.departure_timestamp * 1000;
                 now = +new Date();
-                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) color = "blue";
-                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) color = "lightgreen"
-                if (now > departure_timestamp + 1000 * 60 * 30) color = "grey";
+                style = "";
+                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) style = "color:blue";
+                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) style = "color:lightgreen"
+                if (now > departure_timestamp + 1000 * 60 * 30) style = "color:grey";
                 mt = getDateTime(meetup_timestamp);
                 dt = getDateTime(departure_timestamp);
                 votecnt = event.votes.length;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
                 $("#eventTable").append(`
-            <tr class="text-sm" style="color:${color}">
+            <tr class="text-sm" style="${style}">
               <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
               <td class="py-5 px-6 font-medium">${event.title}</td>
               <td class="py-5 px-6 font-medium">${event.departure}</td>
@@ -466,16 +464,21 @@ async function eventDetail(eventid) {
     }
     event = allevents[eventid];
     voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Vote)</a>`;
-    console.log(event);
     vote = "";
     userid = localStorage.getItem("userid");
     for (i = 0; i < event.votes.length; i++) {
-        vote += event.votes[i].name + " ";
+        vote += `<a style="cursor:pointer" onclick="LoadUserProfile(${event.votes[i].userid})">${event.votes[i].name}</a>, `;
         if (event.votes[i].userid == String(userid)) {
             voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Unvote)</a>`;
         }
     }
+    vote = vote.substr(0, vote.length - 2);
     votecnt = event.votes.length;
+    attendee = "";
+    for (i = 0; i < event.attendees.length; i++) {
+        attendee += `<a style="cursor:pointer" onclick="LoadUserProfile(${event.attendees[i].userid})">${event.attendees[i].name}</a>, `;
+    }
+    attendee = attendee.substr(0, attendee.length - 2);
     info = `<div style="text-align:left">`;
     info += "<p><b>Event ID</b>: " + event.eventid + "</p>";
     info += "<p><b>From</b>: " + event.departure + "</p>";
@@ -484,10 +487,8 @@ async function eventDetail(eventid) {
     info += "<p><b>Meetup Time</b>: " + getDateTime(event.meetup_timestamp * 1000) + "</p>";
     info += "<p><b>Departure Time</b>: " + getDateTime(event.departure_timestamp * 1000) + "</p>";
     info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + vote + "</p>";
-    info += "<p><b>Attendees</b>: " + event.attendee + "</p>";
-    for (var i = 0; i < event.images.length; i++) {
-        info += "<img src='" + event.images[i] + "' style='width:100%'/>";
-    }
+    info += "<p><b>Attendees</b>: " + attendee + "</p>";
+    info += "<p>" + parseMarkdown(description) + "</p>";
     info += "</div>";
     Swal.fire({
         title: `<a href='${event.truckersmp_link}' target='_blank'>${event.title}</a>`,

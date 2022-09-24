@@ -3,8 +3,6 @@
 <html lang="en">
 
 <head>
-    <meta name="copyrighted-site-verification" content="c6b03041ac3cc909" />
-
     <?php
     $domain = $_SERVER['HTTP_HOST'];
     require_once('config/'.$domain.'.php');
@@ -20,19 +18,27 @@
     $path = $_SERVER['REQUEST_URI'];
     if (str_starts_with($path, '/images')) {
         $t = explode("/", $path);
-        header('Location: http://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
-        exit;
+        header('Location: //drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
+        exit();
+    }
+    if (str_starts_with($path, '/js')) {
+        $t = explode("/", $path);
+        $beta_prefix = "";
+        if(stristr($path, 'beta')){
+            $beta_prefix = "beta";
+        }
+        header('Location: //drivershub-cdn.charlws.com/js/'.$beta_prefix.'/'.$t[2]);
+        exit();
     }
     if (str_starts_with($path, '/banner')) {
         $t = explode("/", $path);
-        header('Location: http://'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
-        exit;
+        header('Location: //'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
+        exit();
     }
     ?>
 
     <title><?php echo $vtcname ?></title>
-    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png"
-        type="image/x-icon" />
+    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $vtcname ?> Drivers Hub | <?php echo $slogan ?>">
@@ -40,9 +46,9 @@
     <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $slogan ?>" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
-    <meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" property="og:image" />
+    <meta content="/images/logo.png" property="og:image" />
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
-    <meta content="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/bg.jpg" name="twitter:card">
+    <meta content="/images/bg.jpg" name="twitter:card">
 
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/index.css">
@@ -62,9 +68,9 @@
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
         if(stristr($path, 'beta')){
-            echo '<script src="https://drivershub-cdn.charlws.com/js/bundle@beta.js"></script>';
+            echo '<script src="https://drivershub-cdn.charlws.com/js/bundles/beta.js"></script>';
         } else {
-            echo '<script src="https://drivershub-cdn.charlws.com/js/bundle@v1.5.1.js"></script>';
+            echo '<script src="https://drivershub-cdn.charlws.com/js/bundles/cc52acf1c8db4168.js"></script>';
         }
     ?>
     <?php
@@ -87,55 +93,22 @@
         echo '<script src="https://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/addon.js"></script>';
     }
     ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-        gtag('config', 'G-7EDVTC3J2E');
-
-        setInterval(function () {
-            $(".ol-unselectable").css("border-radius", "15px");
-        }, 1000);
-    </script>
     <style>
-        .fc-scrollgrid-sync-inner {
-            background-color: transparent;
-        }
-
-        div.rounded,
-        .tabbtns {
-            border-radius: 5px;
-        }
-
-        a {
-            color: #888;
-        }
-
-        a:hover {
-            color: black;
-        }
-
-        .tabbtns:hover {
-            color: #fff;
-        }
-
-        .bg-indigo-500 {
-            background-color: <?php echo $vtccolor ?>;
-        }
-
-        .bg-indigo-500:hover {
-            background-color: <?php echo $vtccolordark ?>;
-        }
+        .bg-indigo-500 {background-color: <?php echo $vtccolor ?>;}
+        .bg-indigo-500:hover {background-color: <?php echo $vtccolordark ?>;}
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
         echo "<style>".file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')."</style>";
     }
     ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-7EDVTC3J2E');
+    </script>
 </head>
 
 <body class="antialiased bg-body text-body font-body" style="overflow-x:hidden">
@@ -625,9 +598,6 @@
                         </li>
                     </ul>
                 </div>
-                <div style="position:fixed;bottom:0;left:0">
-                <a class="copyrighted-badge" title="Copyrighted.com Registered &amp; Protected" target="_blank" href="https://www.copyrighted.com/website/rT5n3c9zN8Y3gDug"><img alt="Copyrighted.com Registered &amp; Protected" border="0" width="125" height="25" srcset="https://static.copyrighted.com/badges/125x25/04_1_2x.png 2x" src="https://static.copyrighted.com/badges/125x25/04_1.png" /></a><script src="https://static.copyrighted.com/badges/helper.js"></script>
-                </div>
             </nav>
         </div>
         <section class="py-5 px-6 bg-white shadow mx-auto lg:ml-80">
@@ -704,7 +674,7 @@
                             </div>
                             <div class="py-8 px-6 pt-4 mb-6" style="width:170px;padding:10px;float:right">
                                 <img id="UserProfileAvatar"
-                                    onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png');"
+                                    onerror="$(this).attr('src','/images/logo.png');"
                                     style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
                             </div>
                             <a style="cursor:pointer"><img id="UserBanner" onerror="$(this).hide();"
@@ -715,14 +685,14 @@
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded">
                         <h2><b>Statistics</b>
                             <div style="margin-left:auto;width:fit-content">
-                                <a id="aucs1" onclick='chartscale=1;loadChart()' style='cursor:pointer'><span id="ucs1"
+                                <a id="aucs1" onclick='chartscale=1;LoadChart()' style='cursor:pointer'><span id="ucs1"
                                         class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
-                                <a id="aucs2" onclick='chartscale=2;loadChart()' style='cursor:pointer'><span id="ucs2"
+                                <a id="aucs2" onclick='chartscale=2;LoadChart()' style='cursor:pointer'><span id="ucs2"
                                         class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span></a>
-                                <a id="aucs3" onclick='chartscale=3;loadChart()' style='cursor:pointer'><span id="ucs3"
+                                <a id="aucs3" onclick='chartscale=3;LoadChart()' style='cursor:pointer'><span id="ucs3"
                                         class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
                                 |
-                                <a id="aaddup1" onclick='addup=1-addup;loadChart()' style='cursor:pointer'><span
+                                <a id="aaddup1" onclick='addup=1-addup;LoadChart()' style='cursor:pointer'><span
                                         id="uaddup1"
                                         class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
                             </div>
@@ -1097,14 +1067,14 @@
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
                         <h2><b><?php echo $st->statistics; ?></b>
                             <div style="margin-left:auto;width:fit-content">
-                                <a onclick='chartscale=1;loadChart()' style='cursor:pointer'><span id="cs1"
+                                <a onclick='chartscale=1;LoadChart()' style='cursor:pointer'><span id="cs1"
                                         class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
-                                <a onclick='chartscale=2;loadChart()' style='cursor:pointer'><span id="cs2"
+                                <a onclick='chartscale=2;LoadChart()' style='cursor:pointer'><span id="cs2"
                                         class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span></a>
-                                <a onclick='chartscale=3;loadChart()' style='cursor:pointer'><span id="cs3"
+                                <a onclick='chartscale=3;LoadChart()' style='cursor:pointer'><span id="cs3"
                                         class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
                                 |
-                                <a onclick='addup=1-addup;loadChart()' style='cursor:pointer'><span id="addup1"
+                                <a onclick='addup=1-addup;LoadChart()' style='cursor:pointer'><span id="addup1"
                                         class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
                             </div>
                         </h2>
@@ -1361,39 +1331,30 @@
   ?>
 
     <section id="AllMembers" class="py-8 tabs" style="display:none">
-        <!-- <?php
-            if(in_array("x_of_the_month", $enabled_plugins)){
-            echo '
-            <div class="px-4 mx-auto mx-auto lg:ml-80">
-                <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
-                    <div class="px-4 mb-4 md:mb-0" style="width:100%">
-                        <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                            <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0">
-                                <div class="p-6 rounded bg-white" style="text-align:center">
-                                    <img src="https://cdn.discordapp.com/emojis/930128573111623751.webp?size=128&quality=lossless"
-                                        id="sotma"
-                                        style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
-                                    <h2 class="mb-2 text-3xl font-bold" id="sotm" style="font-size:22px">-</h2>
-                                    <div class="mb-2">
-                                        <h3 class="text-sm text-gray-600">'.$st->staff_of_the_month.'</h3>
-                                    </div>
+        <div class="px-4 mx-auto mx-auto lg:ml-80" id="x_of_the_month" style="display:none">
+            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
+                <div class="px-4 mb-4 md:mb-0" style="width:100%">
+                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
+                        <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0" id="sotmdiv">
+                            <div class="p-6 rounded bg-white" style="text-align:center">
+                                <h2 class="mb-2 text-3xl font-bold" id="sotm" style="font-size:22px">-</h2>
+                                <div class="mb-2">
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->staff_of_the_month;?></h3>
                                 </div>
                             </div>
-                            <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0">
-                                <div class="p-6 rounded bg-white" style="text-align:center">
-                                    <img src="https://cdn.discordapp.com/emojis/930128573589749780.webp?size=128&quality=lossless"
-                                        id="dotma"
-                                        style="height:60px;margin:auto;border-radius:100%;border:solid <?php echo $vtccolor ?> 5px;">
-                                    <h2 class="mb-2 text-3xl font-bold" id="dotm" style="font-size:22px;">-</h2>
-                                    <div class="mb-2">
-                                        <h3 class="text-sm text-gray-600">'.$st->driver_of_the_month.'</h3>
-                                    </div>
+                        </div>
+                        <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0" id="dotmdiv">
+                            <div class="p-6 rounded bg-white" style="text-align:center">
+                                <h2 class="mb-2 text-3xl font-bold" id="dotm" style="font-size:22px;">-</h2>
+                                <div class="mb-2">
+                                    <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_month;?></h3>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>';} ?> -->
+            </div>
+        </div>
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1541,13 +1502,13 @@
                 <div class="flex px-6 pb-4 border-b">
                     <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->leaderboard; ?></h3>
                     <div style="margin-left:auto">
-                        <a onclick='dets2=1-dets2;loadLeaderboard();' style='cursor:pointer'><span
+                        <a onclick='dets2=1-dets2;LoadLeaderboard();' style='cursor:pointer'><span
                                 class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                        <a onclick='dats=1-dats;loadLeaderboard();' style='cursor:pointer'><span
+                        <a onclick='dats=1-dats;LoadLeaderboard();' style='cursor:pointer'><span
                                 class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
-                        <a onclick='levent=1-levent;loadLeaderboard();' style='cursor:pointer'><span id="levent"
+                        <a onclick='levent=1-levent;LoadLeaderboard();' style='cursor:pointer'><span id="levent"
                                 class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->event; ?></span></a>
-                        <a onclick='ldivision=1-ldivision;loadLeaderboard();' style='cursor:pointer'><span
+                        <a onclick='ldivision=1-ldivision;LoadLeaderboard();' style='cursor:pointer'><span
                                 id="ldivision"
                                 class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->division; ?></span></a>
 
@@ -1565,12 +1526,12 @@
                             type="date" name="" style="width:150px;display:inline" placeholder="">
                         <button type="button" style="display:inline"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadLeaderboard()" id="loadLeaderboardBtn"><?php echo $st->go; ?></button>
+                            onclick="LoadLeaderboard()" id="LoadLeaderboardBtn"><?php echo $st->go; ?></button>
                     </div>
                 </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="p-4 overflow-x-auto" style="display: block;" id="table_leaderboard">
                     <table class="table-auto w-full">
-                        <thead id="leaderboardTableHead">
+                        <thead id="table_leaderboard_head">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->rank; ?></th>
@@ -1583,7 +1544,7 @@
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->total_points; ?></th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboardTable">
+                        <tbody id="table_leaderboard_data">
                             <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1595,25 +1556,6 @@
                         </tbody>
                     </table>
                 </div>
-                <div style="margin-left:auto;width:fit-content">
-                    <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline"
-                            for=""><?php echo $st->page; ?></label>
-                        <input id="lpages" style="width:50px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
-                            name="field-name" rows="5" placeholder="" value="1"></input> / <span id="ltotpages">-</span>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="loadLeaderboard()"><?php echo $st->show; ?></button>
-                    </div>
-                    <button type="button" style="display:inline"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($('#lpages').val());$('#lpages').val(tmp-1);loadLeaderboard();">
-                        < </button> <div id="leaderboardTableControl" style="display:inline">
-                </div>
-                <button type="button" style="display:inline"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($('#lpages').val());$('#lpages').val(tmp+1);loadLeaderboard();">></button>
             </div>
         </div>
         </div>
@@ -1852,9 +1794,9 @@
                             onclick="LoadDeliveryList()" id="loadDeliveryBtn">Go</button>
                     </div>
                 </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
+                <div class="p-4 overflow-x-auto" style="display: block;" id="table_deliverylog">
                     <table class="table-auto w-full">
-                        <thead id="deliveryTableHead">
+                        <thead id="table_deliverylog_head">
                             <tr class="text-xs text-gray-500 text-left">
                                 <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driver; ?></th>
@@ -1865,7 +1807,7 @@
                                 <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->net_profit; ?></th>
                             </tr>
                         </thead>
-                        <tbody id="deliveryTable">
+                        <tbody id="table_deliverylog_data">
                             <tr class="text-sm">
                                 <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
                                 <td class="py-5 px-6 font-medium"></td>
@@ -1879,26 +1821,6 @@
                         </tbody>
                     </table>
                 </div>
-                <div style="margin-left:auto;width:fit-content">
-                    <div style="margin-left:auto;width:fit-content">
-                        <label class="text-sm font-medium mb-2" display="display:inline"
-                            for=""><?php echo $st->page; ?></label>
-                        <input id="dpages" style="width:50px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
-                            name="field-name" rows="5" placeholder="" value="1"></input> / <span id="dtotpages">-</span>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="LoadDeliveryList()"><?php echo $st->show; ?></button>
-                    </div>
-                    <button type="button" style="display:inline"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp-1);LoadDeliveryList();">
-                        < </button> <div id="deliveryTableControl" style="display:inline">
-                </div>
-                <button type="button" style="display:inline"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="tmp=parseInt($('#dpages').val());$('#dpages').val(tmp+1);LoadDeliveryList();">></button>
-            </div>
         </div>
         <br>
         <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded memberOnlyTabs" style="display:none">
@@ -3216,7 +3138,7 @@
                 <br>
                 API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.5.1 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.5.2 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

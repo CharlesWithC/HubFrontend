@@ -1,6 +1,19 @@
+$(document).ready(function () {
+    drivershub = `    ____       _                         __  __      __  
+   / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
+  / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\
+ / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
+/_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
+                                                         `
+    console.log(drivershub);
+    console.log("Drivers Hub: Frontend (v1.5.2)");
+    console.log("Copyright © 2022 CharlesWithC All rights reserved.");
+    console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
+});
+
 function AjaxError(data, no_notification = false) {
     errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
-    if(!no_notification) toastFactory("error", "Error:", errmsg, 5000, false);
+    if (!no_notification) toastFactory("error", "Error:", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
 
@@ -11,7 +24,7 @@ function GetMonday(d) {
     return new Date(d.setDate(diff));
 }
 
-function GetAvatarSrc(discordid, avatarid){
+function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
         if (avatarid.startsWith("a_"))
             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".gif";
@@ -21,26 +34,24 @@ function GetAvatarSrc(discordid, avatarid){
     return src;
 }
 
-function GetAvatarImg(src, userid, name){
+function GetAvatarImg(src, userid, name) {
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
         <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
         <b>${name}</b>
-    </a>`
+    </a>`;
+}
+
+function GetAvatar(userid, name, discordid, avatarid){
+    src = GetAvatarSrc(discordid, avatarid);
+    return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
+        <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        ${name}
+    </a>`;
 }
 
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
     return toastFactory("success", "Banner URL copied to clipboard!")
-}
-
-function TableNoData(columns){
-    var ret = "";
-    for(var i = 0 ; i < columns - 1 ; i ++)
-        ret += `<td class="py-5 px-6 font-medium"></td>`;
-    return `<tr class="text-sm">
-      <td class="py-5 px-6 font-medium">No Data</td>
-      ${ret}
-    </tr>`
 }
 
 function FileOutput(filename, text) {
@@ -62,14 +73,16 @@ function isString(obj) {
 }
 
 window.btnvals = {};
-function LockBtn(btnid, btntxt = "Working..."){
-    $(btnid).attr("disabled","disabled");
+
+function LockBtn(btnid, btntxt = "Working...") {
+    $(btnid).attr("disabled", "disabled");
     btnvals[btnid] = $(btnid).html();
     $(btnid).html(btntxt);
 }
-function UnlockBtn(btnid){
+
+function UnlockBtn(btnid) {
     $(btnid).removeAttr("disabled");
-    if(btnvals[btnid] == undefined) return;
+    if (btnvals[btnid] == undefined) return;
     $(btnid).html(btnvals[btnid]);
 }
 
@@ -365,6 +378,114 @@ function b62decode(num62) {
     return ret * flag;
 }
 
+function InitTable(table, reload_function, force_init = false){
+    if($(table+"_paginate").length != 0 && !force_init) return;
+    $(table+"_paginate").remove();
+    table = table.replaceAll("#","");
+    $("#"+table).after(`
+    <br>
+    <div id="${table}_paginate">
+        <div style="margin-left:auto;width:fit-content">
+            <div style="margin-left:auto;width:fit-content">
+                <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+                <input id="${table}_page_input" style="width:50px;display:inline"
+                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
+                    name="field-name" rows="5" placeholder="" value="1"></input> / <span id="${table}_total_pages">-</span>
+                <button type="button"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="${reload_function}">Show</button>
+            </div>
+            <button type="button" style="display:inline"
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp-1);${reload_function};">
+                < </button> <div id="${table}_paginate_control" style="display:inline"></div>
+            <button type="button" style="display:inline"
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp+1);${reload_function};">></button>
+        </div>
+    </div>`);
+}
+
+function TableNoData(columns) {
+    var ret = "";
+    for (var i = 0; i < columns - 1; i++)
+        ret += `<td class="py-5 px-6 font-medium"></td>`;
+    return `<tr class="text-sm">
+      <td class="py-5 px-6 font-medium">No Data</td>
+      ${ret}
+    </tr>`
+}
+
+function PushTable(table, data, total_pages, reload_function = ""){
+    page = parseInt($(table+"_page_input").val());
+    column_count = $($(table+"_head").children()[0]).children().length;
+    $(table+"_data").empty();
+
+    if(data.length == 0){
+        $(table+"_head").hide();
+        $(table+"_data").append(TableNoData(column_count));
+        $(table+"_page_input").val("1");
+        return;
+    } else {
+        $(table+"_head").show();
+    }
+
+    if (page > total_pages) {
+        $(table+"_page_input").val(1);
+        return;
+    }
+    if (page <= 0) {
+        $(table+"_page_input").val(1);
+        page = 1;
+    }
+
+    $(table + "_total_pages").html(total_pages);
+    $(table + "_paginate_control").children().remove();
+
+    $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="$('${table}_page_input').val(1);${reload_function}">1</button>`);
+    if (page > 3) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        >...</button>`);
+    }
+    for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, total_pages - 1); i++) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="$('${table}_page_input').val(${i});${reload_function}">${i}</button>`);
+    }
+    if (page < total_pages - 2) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        >...</button>`);
+    }
+    if (total_pages > 1) {
+        $(table + "_paginate_control").append(`
+        <button type="button" style="display:inline"
+        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+        onclick="$('${table}_page_input').val(${total_pages});${reload_function}">${total_pages}</button>`);
+    }
+    
+    for(var i = 0 ; i < data.length ; i++){
+        if(data[i][0].startsWith("<tr_style>")){
+            s = data[i][0];
+            s = s.substr(10,s.length-21);
+            $(table+"_data").append(`<tr class="text-sm" style="${s}">`);
+        } else {
+            $(table+"_data").append(`<tr class="text-sm">`);
+        }
+        for(var j = 0 ; j < data[i].length ; j++){
+            if(!data[i][j].startsWith("<tr_style>")){
+                $(table+"_data").append(`<td class="py-5 px-6">${data[i][j]}</td>`);
+            }
+        }
+        $(table+"_data").append(`</tr>`);
+    }
+}
+
 $(document).ready(function () {
     version = localStorage.getItem("api-version");
     if (version != null) {
@@ -377,6 +498,10 @@ $(document).ready(function () {
         success: function (data) {
             $("#apiversion").html(data.response.version);
             localStorage.setItem("api-version", data.response.version);
+        }, error: function (data) {
+            if(parseInt(data.status) >= 500 && parseInt(data.status) <= 599){
+                toastFactory("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
+            }
         }
     })
 });

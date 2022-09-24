@@ -1,6 +1,7 @@
-function loadDivisionList(){
+function LoadDivisionList(){
     lastDivisionUpdate = parseInt(localStorage.getItem("divisionLastUpdate"));
-    if (!isNumber(lastDivisionUpdate)) {
+    d = localStorage.getItem("division");
+    if (!isNumber(lastDivisionUpdate) || d == null || d == undefined) {
         lastDivisionUpdate = 0;
     }
     if (+new Date() - lastDivisionUpdate > 86400) {
@@ -275,7 +276,7 @@ function GetDivisionInfo(logid) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
                 if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
-                if (data.response.update_reason == undefined) {
+                if (data.response.update_message == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
                         " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
@@ -289,8 +290,8 @@ function GetDivisionInfo(logid) {
                     else if (data.response.status == "2")
                         info += "<p>Denied at " + getDateTime(data.response.update_timestamp * 1000) +
                         " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
-                    if (data.response.update_reason != "")
-                        info += "<p> - For reason " + data.response.update_reason + "</p>";
+                    if (data.response.update_message != "")
+                        info += "<p> - For reason " + data.response.update_message + "</p>";
                 }
                 if (data.response.user_is_staff == true) {
                     info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
@@ -384,7 +385,7 @@ function updateDivision(logid, status) {
             logid: logid,
             divisionid: divisionid,
             status: status,
-            reason: reason
+            message: reason
         },
         success: function (data) {
             UnlockBtn("#divisionAcceptBtn");

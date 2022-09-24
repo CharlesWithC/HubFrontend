@@ -1,13 +1,26 @@
 # Changelog
 
 **TODO**  
-1.Get X of the Month back  
-12.Improve member management (dismiss button etc)  
-13.Update config editor  
-14.Event details from TruckersMP API  
-15.Combine all files into `bundle.js` and make compression / obfuscation based on it  
+1.Templatize tables  
+2.Update config editor  
+3.Table page size selector  
+4.Separate user profile & settings into 2 pages, add hover for user pfp  
 20.Add translation for javascript  
 999.Restyle frontend (tailwind -> bootstrap)  
+1000.Improve assign role  
+
+**v1.5.2**  
+1.Fixed `LoadCache()` is not called which made entire website not loading  
+2.Fixed User Profile does not load  
+3.Fixed no notification pops up on update application status  
+4.Fixed application type showing `[object]`  
+5.Fixed event attendee being `undefined`  
+6.Added markdown parser for event description  
+7.Added clickable event votes and attendees  
+8.Added "X of the month" back  
+9.Added Steam Login button  
+10.Templatized partial tables  
+11.Removed copyrighted.com badge for better visual experience  
 
 **v1.5.1**  
 1.Fixed the bug that event details are not loading  

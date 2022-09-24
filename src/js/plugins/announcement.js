@@ -1,4 +1,6 @@
+annInit = 0;
 function LoadAnnouncement(){
+    annInit = 1;
     annpage = 2;
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/announcement?page=1",

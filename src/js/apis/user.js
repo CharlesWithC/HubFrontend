@@ -263,6 +263,7 @@ function AddUser(discordid = -1) {
     }
     GeneralLoad();
     LockBtn("#addUserBtn");
+    LockBtn("#UserAddBtn" + discordid);
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member",
         type: "PUT",
@@ -275,12 +276,14 @@ function AddUser(discordid = -1) {
         },
         success: function (data) {
             UnlockBtn("#addUserBtn");
+            UnlockBtn("#UserAddBtn" + discordid);
             if (data.error) return AjaxError(data);
             toastFactory("success", "Success", "User added successfully. User ID: " + data.response.userid, 5000, false);
             LoadUserList();
         },
         error: function (data) {
             UnlockBtn("#addUserBtn");
+            UnlockBtn("#UserAddBtn" + discordid);
             AjaxError(data);
         }
     })
