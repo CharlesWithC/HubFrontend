@@ -6,7 +6,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v1.5.2)");
+    console.log("Drivers Hub: Frontend (v1.5.3)");
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
@@ -657,7 +657,7 @@ function LoadLeaderboard() {
     InitTable("#table_leaderboard", "LoadLeaderboard();");
 
     page = parseInt($("#table_leaderboard_page_input").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     var start_time = -1, end_time = -1;
     if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
@@ -717,10 +717,10 @@ function LoadLeaderboard() {
 function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#loadDeliveryBtn", btntxt = "...");
-    InitTable("#table_deliverylog", "LoadDeliveryList();")
+    InitTable("#table_deliverylog", "LoadDeliveryList();");
 
-    page = parseInt($("#table_deliverylog_page_input").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    page = parseInt($("#table_deliverylog_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
     var start_time = -1, end_time = -1;
     if ($("#dstart").val() != "" && $("#dend").val() != "") {
@@ -780,6 +780,74 @@ function LoadDeliveryList() {
         }
     })
 }
+
+
+function LoadUserDeliveryList() {
+    GeneralLoad();
+    LockBtn("#loadUserDeliveryBtn", btntxt = "...");
+    InitTable("#table_deliverylog_user", "LoadUserDeliveryList();");
+
+    page = parseInt($("#table_deliverylog_user_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    var start_time = -1, end_time = -1;
+    if ($("#udstart").val() != "" && $("#udend").val() != "") {
+        start_time = +new Date($("#udstart").val()) / 1000;
+        end_time = +new Date($("#udend").val()) / 1000 + 86400;
+    }
+
+    speedlimit = parseInt($("#udspeedlimit").val());
+    if (!isNumber(speedlimit)) speedlimit = 0;
+    speedlimit /= distance_ratio;
+
+    game = 0;
+    if (dets2 && !dats) game = 1;
+    else if (!dets2 && dats) game = 2;
+    else if (!dets2 && !dats) game = -1;
+    $(".dgame").css("background-color", "");
+    if (game == 0) $(".dgame").css("background-color", "skyblue");
+    else $(".dgame" + game).css("background-color", "skyblue");
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + useridCurrentProfile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#loadUserDeliveryBtn");
+            if (data.error) return AjaxError(data);
+
+            deliverylist = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < deliverylist.length; i++) {
+                delivery = deliverylist[i];
+                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
+                cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
+                unittxt = "€";
+                if (delivery.unit == 2) unittxt = "$";
+                profit = TSeparator(delivery.profit);
+                color = "";
+                if (delivery.profit < 0) color = "grey";
+                dextra = "";
+                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+            }
+
+            PushTable("#table_deliverylog_user", data, total_pages, "LoadUserDeliveryList();");
+        },
+        error: function (data) {
+            UnlockBtn("#loadUserDeliveryBtn");
+            AjaxError(data);
+        }
+    })
+}
+
 deliveryRoute = [];
 rri = 0;
 rrspeed = 20;
@@ -1251,120 +1319,6 @@ function deliveryDetail(logid) {
     });
 }
 
-function LoadUserDeliveryList(recurse = true) {
-    GeneralLoad();
-    LockBtn("#loadUserDeliveryBtn", btntxt = "...");
-
-    page = parseInt($("#udpages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
-
-    var start_time = -1, end_time = -1;
-    if ($("#udstart").val() != "" && $("#udend").val() != "") {
-        start_time = +new Date($("#udstart").val()) / 1000;
-        end_time = +new Date($("#udend").val()) / 1000 + 86400;
-    }
-
-    speedlimit = parseInt($("#udspeedlimit").val());
-    if (!isNumber(speedlimit)) speedlimit = 0;
-    speedlimit /= distance_ratio;
-
-    game = 0;
-    if (dets2 && !dats) game = 1;
-    else if (!dets2 && dats) game = 2;
-    else if (!dets2 && !dats) game = -1;
-    $(".dgame").css("background-color", "");
-    if (game == 0) $(".dgame").css("background-color", "skyblue");
-    else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) start_time = 1, end_time = 2;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + useridCurrentProfile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#loadUserDeliveryBtn");
-            if (data.userDeliveryTable) return AjaxError(data);
-            
-            $("#userDeliveryTable").empty();
-            deliveries = data.response.list;
-
-            if (deliveries.length == 0) {
-                $("#userDeliveryTableHead").hide();
-                $("#userDeliveryTable").append(TableNoData(6));
-                $("#udpages").val(1);
-                if (recurse) LoadUserDeliveryList(recurse = false);
-                return;
-            }
-            $("#userDeliveryTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#udpages").val(1);
-                if (recurse) LoadUserDeliveryList(recurse = false);
-                return;
-            }
-            $("#udtotpages").html(totpage);
-            $("#userDeliveryTableControl").children().remove();
-            $("#userDeliveryTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#udpages').val(1);LoadUserDeliveryList();">1</button>`);
-            if (page > 3) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#udpages').val(${i});LoadUserDeliveryList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#udpages').val(${totpage});LoadUserDeliveryList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < deliveries.length; i++) {
-                delivery = deliveries[i];
-                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                cargo_mass = parseInt(delivery.cargo_mass / 1000);
-                unittxt = "€";
-                if (delivery.unit == 2) unittxt = "$";
-                profit = TSeparator(delivery.profit);
-                color = "";
-                if (delivery.profit < 0) color = "grey";
-                dextra = "";
-                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                $("#userDeliveryTable").append(`
-            <tr class="text-sm" style="color:${color}">
-            <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-            </tr>`);
-            }
-        },
-        error: function (data) {
-            UnlockBtn("#loadUserDeliveryBtn");
-            AjaxError(data);
-        }
-    })
-}
-
 function ExportDeliveryLog() {
     var start_time = -1, end_time = -1;
     if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
@@ -1465,12 +1419,13 @@ function GetDiscordRankRole() {
     })
 }
 
-function LoadMemberList(recurse = true) {
+function LoadMemberList() {
     GeneralLoad();
-    LockBtn("#searchMemberBtn", btntxt = "...");
+    LockBtn("#loadMemberListBtn", btntxt = "...");
+    InitTable("#table_member_list", "LoadMemberList();");
 
-    page = parseInt($("#mpages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    page = parseInt($("#table_member_list_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + $("#searchname").val(),
@@ -1480,106 +1435,29 @@ function LoadMemberList(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#searchMemberBtn");
+            UnlockBtn("#loadMemberListBtn");
             if (data.error) return AjaxError(data);
 
-            $("#membersTable").empty();
-            users = data.response.list;
+            memberList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (users.length == 0) {
-                $("#membersTableHead").hide();
-                $("#membersTable").append(TableNoData(2));
-                $("#mpages").val(1);
-                if (recurse) LoadMemberList(recurse = false);
-                return;
-            }
-            $("#membersTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#mpages").val(1);
-                if (recurse) LoadMemberList(recurse = false);
-                return;
-            }
-            $("#mtotpages").html(totpage);
-            $("#membersTableControl").children().remove();
-            $("#membersTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#mpages').val(1);LoadMemberList();">1</button>`);
-            if (page > 3) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#mpages').val(${i});LoadMemberList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#mpages').val(${totpage});LoadMemberList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < users.length; i++) {
-                user = users[i];
+            for (i = 0; i < memberList.length; i++) {
+                user = memberList[i];
                 highestrole = user.highestrole;
-                color = vtccolor; // Member
-                if (highestrole < 100) color = "#ff0000"; // Staff
                 highestrole = rolelist[highestrole];
                 if (highestrole == undefined) highestrole = "/";
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
                 totalpnt = parseInt(user.totalpnt);
-                $("#membersTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">${user.userid}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${GetAvatarImg(avatar, user.userid, user.name)}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${highestrole}</td>
-            </tr>`);
+                
+                data.push([`${user.userid}`, `${GetAvatarImg(avatar, user.userid, user.name)}`, `${highestrole}`]);
             }
 
-            // user = data.response.staff_of_the_month;
-            // discordid = user.discordid;
-            // avatar = user.avatar;
-            // src = "";
-            // if (avatar != null) {
-            //     if (avatar.startsWith("a_"))
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-            //     else
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            // } else {
-            //     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
-            // }
-            // $("#sotm").html(`<a style='cursor:pointer' onclick='LoadUserProfile("${user.userid}")'>${user.name}</a>`);
-            // $("#sotma").attr("src", src);
-
-            // user = data.response.driver_of_the_month;
-            // discordid = user.discordid;
-            // avatar = user.avatar;
-            // src = "";
-            // if (avatar != null) {
-            //     if (avatar.startsWith("a_"))
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-            //     else
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            // }
-            // $("#dotm").html(`<a style='cursor:pointer' onclick='LoadUserProfile("${user.userid}")'>${user.name}</a>`);
-            // $("#dotma").attr("src", src);
-
+            PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
         },
         error: function (data) {
-            UnlockBtn("#searchMemberBtn");
+            UnlockBtn("#loadMemberListBtn");
             AjaxError(data);
         }
     })
@@ -2281,7 +2159,7 @@ function LoadStats(basic = false) {
             success: function (data) {
                 if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
                 users = data.response.list;
-                $("#leaderboard").empty();
+                $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
                     userid = user.userid;
@@ -2297,7 +2175,7 @@ function LoadStats(basic = false) {
                     } else {
                         avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
-                    $("#leaderboard").append(`<tr class="text-sm">
+                    $("#table_mini_leaderboard_data").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${totalpnt}</td>
@@ -2315,7 +2193,7 @@ function LoadStats(basic = false) {
             success: function (data) {
                 if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
                 users = data.response.list;
-                $("#newdriverTable").empty();
+                $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
                     userid = user.userid;
@@ -2332,7 +2210,7 @@ function LoadStats(basic = false) {
                     } else {
                         avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
-                    $("#newdriverTable").append(`<tr class="text-sm">
+                    $("#table_new_driver_data").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${joindt}</td>
@@ -2342,9 +2220,11 @@ function LoadStats(basic = false) {
         });
     }
 }
-function LoadAuditLog(recurse = true) {
-    page = parseInt($("#auditpages").val());
-    if (page == "" || page == undefined || page <= 0) page = 1;
+function LoadAuditLog() {
+    GeneralLoad();
+    InitTable("#table_audit_log", "LoadAuditLog();")
+    page = parseInt($("#table_audit_log_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/audit?page=" + page,
@@ -2356,65 +2236,19 @@ function LoadAuditLog(recurse = true) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            $("#auditTable").empty();
-            audits = data.response.list;
+            auditLog = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (audits.length == 0) {
-                $("#auditTableHead").hide();
-                $("#auditTable").append(TableNoData(3));
-                $("#auditpages").val(1);
-                if (recurse) LoadAuditLog(recurse = false);
-                return;
-            }
-            $("#auditTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 30);
-            if (page > totpage) {
-                $("#auditpages").val(1);
-                if (recurse) LoadAuditLog(recurse = false);
-                return;
-            }
-            $("#audittotpages").html(totpage);
-            $("#auditTableControl").children().remove();
-            $("#auditTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#auditpages').val(1);LoadAuditLog();">1</button>`);
-            if (page > 3) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#auditpages').val(${i});LoadAuditLog();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#auditpages').val(${totpage});LoadAuditLog();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < audits.length; i++) {
-                audit = audits[i];
+            for (i = 0; i < auditLog.length; i++) {
+                audit = auditLog[i];
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
-                $("#auditTable").append(`
-        <tr class="text-sm">
-          <td class="py-5 px-6 font-medium">${audit.user}</td>
-          <td class="py-5 px-6 font-medium">${op}</td>
-          <td class="py-5 px-6 font-medium">${dt}</td>
-        </tr>`);
+
+                data.push([`${audit.user}`, `${op}`, `${dt}`]);
             }
+
+            PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
         },
         error: function (data) {
             AjaxError(data);
@@ -2498,9 +2332,11 @@ function DisableApplicationToken() {
 
 bannedUserList = {};
 
-function LoadUserList(recurse = true) {
-    page = parseInt($("#pupages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+function LoadUserList() {
+    GeneralLoad();
+    InitTable("#table_pending_user_list", "LoadUserList();");
+    page = parseInt($("#table_pending_user_list_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/list?page=" + page,
@@ -2512,74 +2348,25 @@ function LoadUserList(recurse = true) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            $("#usersTable").empty();
-            users = data.response.list;
+            userList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (users.length == 0) {
-                $("#usersTableHead").hide();
-                $("#usersTable").append(TableNoData(2));
-                $("#pupages").val(1);
-                if (recurse) LoadUserList(recurse = false);
-                return;
-            }
-            $("#usersTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#pupages").val(1);
-                if (recurse) LoadUserList(recurse = false);
-                return;
-            }
-            $("#putotpages").html(totpage);
-            $("#usersTableControl").children().remove();
-            $("#usersTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#pupages').val(1);LoadUserList();">1</button>`);
-            if (page > 3) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#pupages').val(${i});LoadUserList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#pupages').val(${totpage});LoadUserList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < users.length; i++) {
-                user = users[i];
+            for (i = 0; i < userList.length; i++) {
+                user = userList[i];
                 bantxt = "Ban";
                 bantxt2 = "";
                 color = "";
                 accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
                 if (user.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban_reason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="AddUser('${user.discordid}')">Accept as member</td>`;
-                $("#usersTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium" style='color:${color}'>${user.discordid}</td>
-              <td class="py-5 px-6 font-medium" style='color:${color}'>${user.name} ${bantxt2}</td>
-              ${accept}
-              <td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetUserDetail('${user.discordid}')">Details</button></td>
-            </tr>`)
+
+                data.push([`<span style='color:${color}'>${user.discordid}</span>`, `<span style='color:${color}'>${user.name} ${bantxt2}</span>`, `<a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</a>`, `<button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="GetUserDetail('${user.discordid}')">Details</button>`]);
             }
+
+            PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
         },
         error: function (data) {
             AjaxError(data);
@@ -3213,7 +3000,7 @@ function LoadUserSessions() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#sessiontable").empty();
+            $("#table_session_data").empty();
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
@@ -3222,7 +3009,7 @@ function LoadUserSessions() {
                     onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
                 else opbtn = `(Current)`;
 
-                $("#sessiontable").append(`<tr class="text-sm">
+                $("#table_session_data").append(`<tr class="text-sm">
                     <td class="py-5 px-6 font-medium">${sessions[i].ip}</td>
                     <td class="py-5 px-6 font-medium">${getDateTime(sessions[i].timestamp * 1000)}</td>
                     <td class="py-5 px-6 font-medium">${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
@@ -3549,11 +3336,12 @@ function SubmitApp() {
         }
     });
 }
-function LoadUserApplicationList(recurse = true) {
+function LoadUserApplicationList() {
     GeneralLoad();
+    InitTable("#table_my_application", "LoadUserApplicationList();");
 
-    page = parseInt($("#myapppage").val());
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    page = parseInt($("#table_my_application_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0",
@@ -3564,80 +3352,31 @@ function LoadUserApplicationList(recurse = true) {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            $("#myappTable").empty();
-            applications = data.response.list;
-            STATUS = ["Pending", "Accepted", "Declined"]
-            if (applications.length == 0) {
-                $("#myappTableHead").hide();
-                $("#myappTable").append(TableNoData(5));
-                $("#myapppage").val(1);
-                if (recurse) LoadUserApplicationList(recurse = false);
-                return;
-            }
-            $("#myappTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#myapppage").val(1);
-                if (recurse) LoadUserApplicationList(recurse = false);
-                return;
-            }
-            $("#myapptotpages").html(totpage);
-            $("#myAppTableControl").children().remove();
-            $("#myAppTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#myapppage').val(1);LoadUserApplicationList();">1</button>`);
-            if (page > 3) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#myapppage').val(${i});LoadUserApplicationList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#myapppage').val(${totpage});LoadUserApplicationList();">${totpage}</button>`);
-            }
 
-            for (i = 0; i < applications.length; i++) {
-                application = applications[i];
+            STATUS = ["Pending", "Accepted", "Declined"];
+
+            applicationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < applicationList.length; i++) {
+                application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) 
-                    closedat = "/";
+                if (application.update_timestamp == 0)  closedat = "/";
                 status = STATUS[application.status];
 
                 color = "blue";
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                $("#myappTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">${application.applicationid}</td>
-              <td class="py-5 px-6 font-medium">${apptype}</td>
-              <td class="py-5 px-6 font-medium">${creation}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${status}</td>
-              <td class="py-5 px-6 font-medium">${closedat}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetApplicationDetail(${application.applicationid})">Details</button></td>
-            </tr>`);
+                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
             }
+
+            PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
         },
         error: function (data) {
             AjaxError(data);
@@ -3676,9 +3415,12 @@ function AddMessageToApplication() {
     });
 }
 
-function LoadAllApplicationList(recurse = true) {
-    page = parseInt($('#allapppage').val());
-    if (page == "" || page == undefined || page <= 0) page = 1;
+function LoadAllApplicationList() {
+    GeneralLoad();
+    InitTable("#table_all_application", "LoadAllApplicationList();");
+
+    page = parseInt($('#table_all_application_page_input').val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0&all_user=1",
@@ -3688,57 +3430,16 @@ function LoadAllApplicationList(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#allappTable").empty();
-            $("#totpages").html(Math.ceil(data.response.total_items / 10));
-            applications = data.response.list;
-            STATUS = ["Pending", "Accepted", "Declined"];
-            if (applications.length == 0) {
-                $("#allappTableHead").hide();
-                $("#allappTable").append(TableNoData(6));
-                $("#allapppage").val(1);
-                if (recurse) LoadAllApplicationList(recurse = false);
-                return;
-            }
-            $("#allappTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#allapppage").val(1);
-                if (recurse) LoadAllApplicationList(recurse = false);
-                return;
-            }
-            $("#allapptotpages").html(totpage);
-            $("#allAppTableControl").children().remove();
-            $("#allAppTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#allapppage').val(1);LoadAllApplicationList();">1</button>`);
-            if (page > 3) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#allapppage').val(${i});LoadAllApplicationList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#allapppage').val(${totpage});LoadAllApplicationList();">${totpage}</button>`);
-            }
+            if (data.error) return AjaxError(data);
 
-            for (i = 0; i < applications.length; i++) {
-                application = applications[i];
+            STATUS = ["Pending", "Accepted", "Declined"];
+
+            applicationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < applicationList.length; i++) {
+                application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
@@ -3750,20 +3451,12 @@ function LoadAllApplicationList(recurse = true) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                $("#allappTable").append(`
-            <tr class="text-sm" id="AllApp${application.applicationid}">
-              <td class="py-5 px-6 font-medium">${application.applicationid}</td>
-              <td class="py-5 px-6 font-medium">${application.name}</td>
-              <td class="py-5 px-6 font-medium">${apptype}</td>
-              <td class="py-5 px-6 font-medium">${creation}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${status}</td>
-              <td class="py-5 px-6 font-medium">${closedat}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="AllAppBtn${application.applicationid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetApplicationDetail(${application.applicationid}, true)">Details</button></td>
-            </tr>`);
+                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
             }
+
+            PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
         },
         error: function (data) {
             AjaxError(data);
@@ -4029,7 +3722,7 @@ function LoadDivisionList(){
     }
 }
 
-function loadDivision() {
+function LoadDivisionInfo() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "GET",
@@ -4064,12 +3757,12 @@ function loadDivision() {
                 }
             }
 
-            $("#divisionDeliveryTable").empty();
+            $("#table_division_delivery_data").empty();
             if (d.recent.length == 0) {
-                $("#divisionDeliveryTableHead").hide();
-                $("#divisionDeliveryTable").append(TableNoData(8));
+                $("#table_division_delivery_head").hide();
+                $("#table_division_delivery_data").append(TableNoData(8));
             } else {
-                $("#divisionDeliveryTableHead").show();
+                $("#table_division_delivery_head").show();
                 for (i = 0; i < d.recent.length; i++) {
                     delivery = d.recent[i];
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
@@ -4080,7 +3773,7 @@ function loadDivision() {
                     color = "";
                     if (delivery.profit < 0) color = "grey";
                     dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                    $("#divisionDeliveryTable").append(`
+                    $("#table_division_delivery_data").append(`
             <tr class="text-sm" style="color:${color}">
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
@@ -4099,7 +3792,7 @@ function loadDivision() {
     })
 }
 
-function loadStaffDivision() {
+function LoadPendingDivisionValidation() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division/list/pending",
         type: "GET",
@@ -4116,16 +3809,16 @@ function loadStaffDivision() {
                 DIVISION[divisions[i].id] = divisions[i].name;
             }
             if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
-            $("#staffDisivionTable").empty();
+            $("#table_division_validation_data").empty();
             d = data.response;
             if (d.length == 0) {
-                $("#staffDisivionTableHead").hide();
-                $("#staffDisivionTable").append(TableNoData(3));
+                $("#table_division_validation_head").hide();
+                $("#table_division_validation_data").append(TableNoData(3));
             } else {
-                $("#staffDisivionTableHead").show();
+                $("#table_division_validation_head").show();
                 for (i = 0; i < d.length; i++) {
                     delivery = d[i];
-                    $("#staffDisivionTable").append(`
+                    $("#table_division_validation_data").append(`
             <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
@@ -4566,7 +4259,7 @@ function UpdateEventAttendees() {
                 icon: 'success',
                 confirmButtonText: 'OK'
             })
-            loadEvent();
+            LoadEventInfo();
         },
         error: function (data) {
             $("#attendeeBtn").html("Update");
@@ -4685,10 +4378,7 @@ function EventOp() {
 
 allevents = {};
 
-function loadEvent(recurse = true) {
-    page = parseInt($("#epages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
-
+function LoadEventInfo() {
     if (eventsCalendar == undefined) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/event/all",
@@ -4739,6 +4429,9 @@ function loadEvent(recurse = true) {
         })
     }
 
+    InitTable("#table_event_list", "LoadEventInfo();");
+    page = parseInt($("#table_event_list_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event?page=" + page,
         type: "GET",
@@ -4748,55 +4441,13 @@ function loadEvent(recurse = true) {
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            $("#eventTable").empty();
-            events = data.response.list;
-            if (events.length == 0) {
-                $("#eventTableHead").hide();
-                $("#eventTable").append(TableNoData(8));
-                $("#epages").val(1);
-                if (recurse) loadEvent(recurse = false);
-                return;
-            }
-            $("#eventTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#epages").val(1);
-                if (recurse) loadEvent(recurse = false);
-                return;
-            }
-            $("#etotpages").html(totpage);
-            $("#eventTableControl").children().remove();
-            $("#eventTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#epages').val(1);loadEvent();">1</button>`);
-            if (page > 3) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#epages').val(${i});loadEvent();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#epages').val(${totpage});loadEvent();">${totpage}</button>`);
-            }
+            
+            eventList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            for (i = 0; i < events.length; i++) {
-                event = events[i];
+            for (i = 0; i < eventList.length; i++) {
+                event = eventList[i];
                 allevents[event.eventid] = event;
                 meetup_timestamp = event.meetup_timestamp * 1000;
                 departure_timestamp = event.departure_timestamp * 1000;
@@ -4810,22 +4461,14 @@ function loadEvent(recurse = true) {
                 votecnt = event.votes.length;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
-                $("#eventTable").append(`
-            <tr class="text-sm" style="${style}">
-              <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
-              <td class="py-5 px-6 font-medium">${event.title}</td>
-              <td class="py-5 px-6 font-medium">${event.departure}</td>
-              <td class="py-5 px-6 font-medium">${event.destination}</td>
-              <td class="py-5 px-6 font-medium">${event.distance}</td>
-              <td class="py-5 px-6 font-medium">${mt}</td>
-              <td class="py-5 px-6 font-medium">${dt}</td>
-              <td class="py-5 px-6 font-medium">${votecnt}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="eventDetail('${event.eventid}')">Details</button></td>
-            </tr>`);
+
+                data.push([`<tr_style>${style}</tr_style>`, `${event.eventid} ${pvt}`, `${event.title}`, `${event.departure}`, 
+                    `${event.destination}`, `${event.distance}`, `${mt}`, `${dt}`, `${votecnt}`, `<button type="button" style="display:inline;padding:5px"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="eventDetail('${event.eventid}')">Details</button>`]);
             }
+
+            PushTable("#table_event_list", data, total_pages, "LoadEventInfo();");
         },
         error: function (data) {
             AjaxError(data);
@@ -5518,20 +5161,20 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#Division") {
         window.history.pushState("", "", '/division');
-        loadDivision();
+        LoadDivisionInfo();
     }
     if (tabname == "#StaffDivision") {
         window.history.pushState("", "", '/staff/division');
-        loadStaffDivision();
+        LoadPendingDivisionValidation();
     }
     if (tabname == "#Event") {
         window.history.pushState("", "", '/event');
-        loadEvent();
+        LoadEventInfo();
         HandleAttendeeInput();
     }
     if (tabname == "#StaffEvent") {
         window.history.pushState("", "", '/staff/event');
-        loadEvent();
+        LoadEventInfo();
     }
     if (tabname == "#AuditLog") {
         window.history.pushState("", "", '/audit');

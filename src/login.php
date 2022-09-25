@@ -137,9 +137,9 @@
     &nbsp;|&nbsp;
     <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
     <br>
-    API: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
+    <a href="/api" target="_blank">API</a>: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
     &nbsp;|&nbsp;
-    Web: v1.5.2 <a href="/changelog" target="_blank">Changelog</a>
+    Web: v1.5.3 <a href="/changelog" target="_blank">Changelog</a>
     <br>
     Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
     &nbsp;|&nbsp;

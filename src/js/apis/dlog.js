@@ -47,7 +47,7 @@ function LoadLeaderboard() {
     InitTable("#table_leaderboard", "LoadLeaderboard();");
 
     page = parseInt($("#table_leaderboard_page_input").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     var start_time = -1, end_time = -1;
     if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
@@ -107,10 +107,10 @@ function LoadLeaderboard() {
 function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#loadDeliveryBtn", btntxt = "...");
-    InitTable("#table_deliverylog", "LoadDeliveryList();")
+    InitTable("#table_deliverylog", "LoadDeliveryList();");
 
-    page = parseInt($("#table_deliverylog_page_input").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    page = parseInt($("#table_deliverylog_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
     var start_time = -1, end_time = -1;
     if ($("#dstart").val() != "" && $("#dend").val() != "") {
@@ -170,6 +170,74 @@ function LoadDeliveryList() {
         }
     })
 }
+
+
+function LoadUserDeliveryList() {
+    GeneralLoad();
+    LockBtn("#loadUserDeliveryBtn", btntxt = "...");
+    InitTable("#table_deliverylog_user", "LoadUserDeliveryList();");
+
+    page = parseInt($("#table_deliverylog_user_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    var start_time = -1, end_time = -1;
+    if ($("#udstart").val() != "" && $("#udend").val() != "") {
+        start_time = +new Date($("#udstart").val()) / 1000;
+        end_time = +new Date($("#udend").val()) / 1000 + 86400;
+    }
+
+    speedlimit = parseInt($("#udspeedlimit").val());
+    if (!isNumber(speedlimit)) speedlimit = 0;
+    speedlimit /= distance_ratio;
+
+    game = 0;
+    if (dets2 && !dats) game = 1;
+    else if (!dets2 && dats) game = 2;
+    else if (!dets2 && !dats) game = -1;
+    $(".dgame").css("background-color", "");
+    if (game == 0) $(".dgame").css("background-color", "skyblue");
+    else $(".dgame" + game).css("background-color", "skyblue");
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + useridCurrentProfile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#loadUserDeliveryBtn");
+            if (data.error) return AjaxError(data);
+
+            deliverylist = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < deliverylist.length; i++) {
+                delivery = deliverylist[i];
+                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
+                cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
+                unittxt = "€";
+                if (delivery.unit == 2) unittxt = "$";
+                profit = TSeparator(delivery.profit);
+                color = "";
+                if (delivery.profit < 0) color = "grey";
+                dextra = "";
+                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+            }
+
+            PushTable("#table_deliverylog_user", data, total_pages, "LoadUserDeliveryList();");
+        },
+        error: function (data) {
+            UnlockBtn("#loadUserDeliveryBtn");
+            AjaxError(data);
+        }
+    })
+}
+
 deliveryRoute = [];
 rri = 0;
 rrspeed = 20;
@@ -639,120 +707,6 @@ function deliveryDetail(logid) {
             AjaxError(data);
         }
     });
-}
-
-function LoadUserDeliveryList(recurse = true) {
-    GeneralLoad();
-    LockBtn("#loadUserDeliveryBtn", btntxt = "...");
-
-    page = parseInt($("#udpages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
-
-    var start_time = -1, end_time = -1;
-    if ($("#udstart").val() != "" && $("#udend").val() != "") {
-        start_time = +new Date($("#udstart").val()) / 1000;
-        end_time = +new Date($("#udend").val()) / 1000 + 86400;
-    }
-
-    speedlimit = parseInt($("#udspeedlimit").val());
-    if (!isNumber(speedlimit)) speedlimit = 0;
-    speedlimit /= distance_ratio;
-
-    game = 0;
-    if (dets2 && !dats) game = 1;
-    else if (!dets2 && dats) game = 2;
-    else if (!dets2 && !dats) game = -1;
-    $(".dgame").css("background-color", "");
-    if (game == 0) $(".dgame").css("background-color", "skyblue");
-    else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) start_time = 1, end_time = 2;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + useridCurrentProfile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#loadUserDeliveryBtn");
-            if (data.userDeliveryTable) return AjaxError(data);
-            
-            $("#userDeliveryTable").empty();
-            deliveries = data.response.list;
-
-            if (deliveries.length == 0) {
-                $("#userDeliveryTableHead").hide();
-                $("#userDeliveryTable").append(TableNoData(6));
-                $("#udpages").val(1);
-                if (recurse) LoadUserDeliveryList(recurse = false);
-                return;
-            }
-            $("#userDeliveryTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#udpages").val(1);
-                if (recurse) LoadUserDeliveryList(recurse = false);
-                return;
-            }
-            $("#udtotpages").html(totpage);
-            $("#userDeliveryTableControl").children().remove();
-            $("#userDeliveryTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#udpages').val(1);LoadUserDeliveryList();">1</button>`);
-            if (page > 3) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#udpages').val(${i});LoadUserDeliveryList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#userDeliveryTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#udpages').val(${totpage});LoadUserDeliveryList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < deliveries.length; i++) {
-                delivery = deliveries[i];
-                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                cargo_mass = parseInt(delivery.cargo_mass / 1000);
-                unittxt = "€";
-                if (delivery.unit == 2) unittxt = "$";
-                profit = TSeparator(delivery.profit);
-                color = "";
-                if (delivery.profit < 0) color = "grey";
-                dextra = "";
-                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                $("#userDeliveryTable").append(`
-            <tr class="text-sm" style="color:${color}">
-            <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass}t)</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-            </tr>`);
-            }
-        },
-        error: function (data) {
-            UnlockBtn("#loadUserDeliveryBtn");
-            AjaxError(data);
-        }
-    })
 }
 
 function ExportDeliveryLog() {

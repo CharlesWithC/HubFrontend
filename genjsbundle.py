@@ -1,8 +1,12 @@
 import os, hashlib, sys
 
-nohtmlupd = False
-if "nohtmlupd" in sys.argv:
-    nohtmlupd = True
+genonly = False
+if "genonly" in sys.argv:
+    genonly = True
+
+eid = "bundle"
+if "beta" in sys.argv:
+    eid = "bundle_beta"
 
 bundle = ""
 
@@ -38,12 +42,14 @@ dfs("src/js")
 
 hsh = hashlib.sha256(bundle.encode()).hexdigest()[:16]
 
-l = os.listdir("src/js/bundles")
-cur = l[0]
-if cur != "" and not nohtmlupd:
-    t = open(f"src/index.php","r").read()
-    t = t.replace(cur, f"{hsh}.js")
-    open(f"src/index.php","w").write(t)
+if not genonly:
+    f = open(f"src/index.php","r").read()
+    t = f.split("\n")
+    for tt in t:
+        if f'id="{eid}"' in tt:
+            cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
+            f = f.replace(cur, hsh + ".js")
+    open(f"src/index.php","w").write(f)
     os.remove("src/js/bundles/" + cur)
 
 open(f"src/js/bundles/{hsh}.js","w",encoding="utf-8").write(bundle)

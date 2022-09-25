@@ -314,7 +314,7 @@ function LoadStats(basic = false) {
             success: function (data) {
                 if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
                 users = data.response.list;
-                $("#leaderboard").empty();
+                $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
                     userid = user.userid;
@@ -330,7 +330,7 @@ function LoadStats(basic = false) {
                     } else {
                         avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
-                    $("#leaderboard").append(`<tr class="text-sm">
+                    $("#table_mini_leaderboard_data").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${totalpnt}</td>
@@ -348,7 +348,7 @@ function LoadStats(basic = false) {
             success: function (data) {
                 if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
                 users = data.response.list;
-                $("#newdriverTable").empty();
+                $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
                     userid = user.userid;
@@ -365,7 +365,7 @@ function LoadStats(basic = false) {
                     } else {
                         avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
-                    $("#newdriverTable").append(`<tr class="text-sm">
+                    $("#table_new_driver_data").append(`<tr class="text-sm">
               <td class="py-5 px-6 font-medium">
                 <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
               <td class="py-5 px-6">${joindt}</td>

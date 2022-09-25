@@ -3,11 +3,15 @@
 **TODO**  
 1.Templatize tables  
 2.Update config editor  
-3.Table page size selector  
-4.Separate user profile & settings into 2 pages, add hover for user pfp  
+3.Add pending user search  
+4.Table page size selector  
+5.Separate user profile & settings into 2 pages, add hover for user pfp  
 20.Add translation for javascript  
 999.Restyle frontend (tailwind -> bootstrap)  
 1000.Improve assign role  
+
+**v1.5.3**  
+Templatized all tables  
 
 **v1.5.2**  
 1.Fixed `LoadCache()` is not called which made entire website not loading  

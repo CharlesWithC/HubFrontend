@@ -77,7 +77,7 @@ function LoadDivisionList(){
     }
 }
 
-function loadDivision() {
+function LoadDivisionInfo() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "GET",
@@ -112,12 +112,12 @@ function loadDivision() {
                 }
             }
 
-            $("#divisionDeliveryTable").empty();
+            $("#table_division_delivery_data").empty();
             if (d.recent.length == 0) {
-                $("#divisionDeliveryTableHead").hide();
-                $("#divisionDeliveryTable").append(TableNoData(8));
+                $("#table_division_delivery_head").hide();
+                $("#table_division_delivery_data").append(TableNoData(8));
             } else {
-                $("#divisionDeliveryTableHead").show();
+                $("#table_division_delivery_head").show();
                 for (i = 0; i < d.recent.length; i++) {
                     delivery = d.recent[i];
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
@@ -128,7 +128,7 @@ function loadDivision() {
                     color = "";
                     if (delivery.profit < 0) color = "grey";
                     dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                    $("#divisionDeliveryTable").append(`
+                    $("#table_division_delivery_data").append(`
             <tr class="text-sm" style="color:${color}">
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
@@ -147,7 +147,7 @@ function loadDivision() {
     })
 }
 
-function loadStaffDivision() {
+function LoadPendingDivisionValidation() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division/list/pending",
         type: "GET",
@@ -164,16 +164,16 @@ function loadStaffDivision() {
                 DIVISION[divisions[i].id] = divisions[i].name;
             }
             if(Object.keys(DIVISION).length == 0) return toastFactory("error", "Error:", "No division found.", 5000, false);
-            $("#staffDisivionTable").empty();
+            $("#table_division_validation_data").empty();
             d = data.response;
             if (d.length == 0) {
-                $("#staffDisivionTableHead").hide();
-                $("#staffDisivionTable").append(TableNoData(3));
+                $("#table_division_validation_head").hide();
+                $("#table_division_validation_data").append(TableNoData(3));
             } else {
-                $("#staffDisivionTableHead").show();
+                $("#table_division_validation_head").show();
                 for (i = 0; i < d.length; i++) {
                     delivery = d[i];
-                    $("#staffDisivionTable").append(`
+                    $("#table_division_validation_data").append(`
             <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>

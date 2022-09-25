@@ -65,11 +65,12 @@ function SubmitApp() {
         }
     });
 }
-function LoadUserApplicationList(recurse = true) {
+function LoadUserApplicationList() {
     GeneralLoad();
+    InitTable("#table_my_application", "LoadUserApplicationList();");
 
-    page = parseInt($("#myapppage").val());
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    page = parseInt($("#table_my_application_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0",
@@ -80,80 +81,31 @@ function LoadUserApplicationList(recurse = true) {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            $("#myappTable").empty();
-            applications = data.response.list;
-            STATUS = ["Pending", "Accepted", "Declined"]
-            if (applications.length == 0) {
-                $("#myappTableHead").hide();
-                $("#myappTable").append(TableNoData(5));
-                $("#myapppage").val(1);
-                if (recurse) LoadUserApplicationList(recurse = false);
-                return;
-            }
-            $("#myappTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#myapppage").val(1);
-                if (recurse) LoadUserApplicationList(recurse = false);
-                return;
-            }
-            $("#myapptotpages").html(totpage);
-            $("#myAppTableControl").children().remove();
-            $("#myAppTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#myapppage').val(1);LoadUserApplicationList();">1</button>`);
-            if (page > 3) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#myapppage').val(${i});LoadUserApplicationList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#myAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#myapppage').val(${totpage});LoadUserApplicationList();">${totpage}</button>`);
-            }
 
-            for (i = 0; i < applications.length; i++) {
-                application = applications[i];
+            STATUS = ["Pending", "Accepted", "Declined"];
+
+            applicationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < applicationList.length; i++) {
+                application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) 
-                    closedat = "/";
+                if (application.update_timestamp == 0)  closedat = "/";
                 status = STATUS[application.status];
 
                 color = "blue";
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                $("#myappTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">${application.applicationid}</td>
-              <td class="py-5 px-6 font-medium">${apptype}</td>
-              <td class="py-5 px-6 font-medium">${creation}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${status}</td>
-              <td class="py-5 px-6 font-medium">${closedat}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetApplicationDetail(${application.applicationid})">Details</button></td>
-            </tr>`);
+                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
             }
+
+            PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
         },
         error: function (data) {
             AjaxError(data);
@@ -192,9 +144,12 @@ function AddMessageToApplication() {
     });
 }
 
-function LoadAllApplicationList(recurse = true) {
-    page = parseInt($('#allapppage').val());
-    if (page == "" || page == undefined || page <= 0) page = 1;
+function LoadAllApplicationList() {
+    GeneralLoad();
+    InitTable("#table_all_application", "LoadAllApplicationList();");
+
+    page = parseInt($('#table_all_application_page_input').val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0&all_user=1",
@@ -204,57 +159,16 @@ function LoadAllApplicationList(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#allappTable").empty();
-            $("#totpages").html(Math.ceil(data.response.total_items / 10));
-            applications = data.response.list;
-            STATUS = ["Pending", "Accepted", "Declined"];
-            if (applications.length == 0) {
-                $("#allappTableHead").hide();
-                $("#allappTable").append(TableNoData(6));
-                $("#allapppage").val(1);
-                if (recurse) LoadAllApplicationList(recurse = false);
-                return;
-            }
-            $("#allappTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#allapppage").val(1);
-                if (recurse) LoadAllApplicationList(recurse = false);
-                return;
-            }
-            $("#allapptotpages").html(totpage);
-            $("#allAppTableControl").children().remove();
-            $("#allAppTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#allapppage').val(1);LoadAllApplicationList();">1</button>`);
-            if (page > 3) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#allapppage').val(${i});LoadAllApplicationList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#allAppTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#allapppage').val(${totpage});LoadAllApplicationList();">${totpage}</button>`);
-            }
+            if (data.error) return AjaxError(data);
 
-            for (i = 0; i < applications.length; i++) {
-                application = applications[i];
+            STATUS = ["Pending", "Accepted", "Declined"];
+
+            applicationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < applicationList.length; i++) {
+                application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
@@ -266,20 +180,12 @@ function LoadAllApplicationList(recurse = true) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                $("#allappTable").append(`
-            <tr class="text-sm" id="AllApp${application.applicationid}">
-              <td class="py-5 px-6 font-medium">${application.applicationid}</td>
-              <td class="py-5 px-6 font-medium">${application.name}</td>
-              <td class="py-5 px-6 font-medium">${apptype}</td>
-              <td class="py-5 px-6 font-medium">${creation}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${status}</td>
-              <td class="py-5 px-6 font-medium">${closedat}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="AllAppBtn${application.applicationid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetApplicationDetail(${application.applicationid}, true)">Details</button></td>
-            </tr>`);
+                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
             }
+
+            PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
         },
         error: function (data) {
             AjaxError(data);

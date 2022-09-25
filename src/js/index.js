@@ -450,20 +450,20 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#Division") {
         window.history.pushState("", "", '/division');
-        loadDivision();
+        LoadDivisionInfo();
     }
     if (tabname == "#StaffDivision") {
         window.history.pushState("", "", '/staff/division');
-        loadStaffDivision();
+        LoadPendingDivisionValidation();
     }
     if (tabname == "#Event") {
         window.history.pushState("", "", '/event');
-        loadEvent();
+        LoadEventInfo();
         HandleAttendeeInput();
     }
     if (tabname == "#StaffEvent") {
         window.history.pushState("", "", '/staff/event');
-        loadEvent();
+        LoadEventInfo();
     }
     if (tabname == "#AuditLog") {
         window.history.pushState("", "", '/audit');

@@ -1,6 +1,8 @@
-function LoadAuditLog(recurse = true) {
-    page = parseInt($("#auditpages").val());
-    if (page == "" || page == undefined || page <= 0) page = 1;
+function LoadAuditLog() {
+    GeneralLoad();
+    InitTable("#table_audit_log", "LoadAuditLog();")
+    page = parseInt($("#table_audit_log_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/audit?page=" + page,
@@ -12,65 +14,19 @@ function LoadAuditLog(recurse = true) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            $("#auditTable").empty();
-            audits = data.response.list;
+            auditLog = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (audits.length == 0) {
-                $("#auditTableHead").hide();
-                $("#auditTable").append(TableNoData(3));
-                $("#auditpages").val(1);
-                if (recurse) LoadAuditLog(recurse = false);
-                return;
-            }
-            $("#auditTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 30);
-            if (page > totpage) {
-                $("#auditpages").val(1);
-                if (recurse) LoadAuditLog(recurse = false);
-                return;
-            }
-            $("#audittotpages").html(totpage);
-            $("#auditTableControl").children().remove();
-            $("#auditTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#auditpages').val(1);LoadAuditLog();">1</button>`);
-            if (page > 3) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#auditpages').val(${i});LoadAuditLog();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#auditTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#auditpages').val(${totpage});LoadAuditLog();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < audits.length; i++) {
-                audit = audits[i];
+            for (i = 0; i < auditLog.length; i++) {
+                audit = auditLog[i];
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
-                $("#auditTable").append(`
-        <tr class="text-sm">
-          <td class="py-5 px-6 font-medium">${audit.user}</td>
-          <td class="py-5 px-6 font-medium">${op}</td>
-          <td class="py-5 px-6 font-medium">${dt}</td>
-        </tr>`);
+
+                data.push([`${audit.user}`, `${op}`, `${dt}`]);
             }
+
+            PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
         },
         error: function (data) {
             AjaxError(data);
@@ -154,9 +110,11 @@ function DisableApplicationToken() {
 
 bannedUserList = {};
 
-function LoadUserList(recurse = true) {
-    page = parseInt($("#pupages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+function LoadUserList() {
+    GeneralLoad();
+    InitTable("#table_pending_user_list", "LoadUserList();");
+    page = parseInt($("#table_pending_user_list_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/list?page=" + page,
@@ -168,74 +126,25 @@ function LoadUserList(recurse = true) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            $("#usersTable").empty();
-            users = data.response.list;
+            userList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (users.length == 0) {
-                $("#usersTableHead").hide();
-                $("#usersTable").append(TableNoData(2));
-                $("#pupages").val(1);
-                if (recurse) LoadUserList(recurse = false);
-                return;
-            }
-            $("#usersTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#pupages").val(1);
-                if (recurse) LoadUserList(recurse = false);
-                return;
-            }
-            $("#putotpages").html(totpage);
-            $("#usersTableControl").children().remove();
-            $("#usersTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#pupages').val(1);LoadUserList();">1</button>`);
-            if (page > 3) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#pupages').val(${i});LoadUserList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#usersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#pupages').val(${totpage});LoadUserList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < users.length; i++) {
-                user = users[i];
+            for (i = 0; i < userList.length; i++) {
+                user = userList[i];
                 bantxt = "Ban";
                 bantxt2 = "";
                 color = "";
                 accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
                 if (user.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban_reason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="AddUser('${user.discordid}')">Accept as member</td>`;
-                $("#usersTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium" style='color:${color}'>${user.discordid}</td>
-              <td class="py-5 px-6 font-medium" style='color:${color}'>${user.name} ${bantxt2}</td>
-              ${accept}
-              <td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetUserDetail('${user.discordid}')">Details</button></td>
-            </tr>`)
+
+                data.push([`<span style='color:${color}'>${user.discordid}</span>`, `<span style='color:${color}'>${user.name} ${bantxt2}</span>`, `<a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</a>`, `<button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
+                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                onclick="GetUserDetail('${user.discordid}')">Details</button>`]);
             }
+
+            PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
         },
         error: function (data) {
             AjaxError(data);
@@ -869,7 +778,7 @@ function LoadUserSessions() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#sessiontable").empty();
+            $("#table_session_data").empty();
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
@@ -878,7 +787,7 @@ function LoadUserSessions() {
                     onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
                 else opbtn = `(Current)`;
 
-                $("#sessiontable").append(`<tr class="text-sm">
+                $("#table_session_data").append(`<tr class="text-sm">
                     <td class="py-5 px-6 font-medium">${sessions[i].ip}</td>
                     <td class="py-5 px-6 font-medium">${getDateTime(sessions[i].timestamp * 1000)}</td>
                     <td class="py-5 px-6 font-medium">${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>

@@ -6,7 +6,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v1.5.2)");
+    console.log("Drivers Hub: Frontend (v1.5.3)");
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });

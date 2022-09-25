@@ -125,20 +125,13 @@ setInterval(function () {
     t = pad(dt.getHours(), 2) + ":" + pad(dt.getMinutes(), 2) + ":" + pad(dt.getSeconds(), 2);
     $("#livedriverdt").html(t);
 
-    $("#onlinedriver").empty();
+    $("#table_online_driver_data").empty();
     if (cnt == 0) {
-        $("#onlinedriverHead").hide();
-        $("#onlinedriver").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">No Data</td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-              <td class="py-5 px-6 font-medium"></td>
-            </tr>`);
+        $("#table_online_driver_head").hide();
+        $("#table_online_driver_data").append(TableNoData(5));
         return;
     }
-    $("#onlinedriverHead").show();
+    $("#table_online_driver_head").show();
 
     for (var i = 0; i < cnt; i++) {
         steamid = Object.keys(steamids)[i];
@@ -152,7 +145,7 @@ setInterval(function () {
             cargo = d.job.cargo.name;
         speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
         distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
-        $("#onlinedriver").append(`
+        $("#table_online_driver_data").append(`
             <tr class="text-sm">
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${drivername}</a></td>
               <td class="py-5 px-6 font-medium">${truck}</td>

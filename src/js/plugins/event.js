@@ -161,7 +161,7 @@ function UpdateEventAttendees() {
                 icon: 'success',
                 confirmButtonText: 'OK'
             })
-            loadEvent();
+            LoadEventInfo();
         },
         error: function (data) {
             $("#attendeeBtn").html("Update");
@@ -280,10 +280,7 @@ function EventOp() {
 
 allevents = {};
 
-function loadEvent(recurse = true) {
-    page = parseInt($("#epages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
-
+function LoadEventInfo() {
     if (eventsCalendar == undefined) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/event/all",
@@ -334,6 +331,9 @@ function loadEvent(recurse = true) {
         })
     }
 
+    InitTable("#table_event_list", "LoadEventInfo();");
+    page = parseInt($("#table_event_list_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event?page=" + page,
         type: "GET",
@@ -343,55 +343,13 @@ function loadEvent(recurse = true) {
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            $("#eventTable").empty();
-            events = data.response.list;
-            if (events.length == 0) {
-                $("#eventTableHead").hide();
-                $("#eventTable").append(TableNoData(8));
-                $("#epages").val(1);
-                if (recurse) loadEvent(recurse = false);
-                return;
-            }
-            $("#eventTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#epages").val(1);
-                if (recurse) loadEvent(recurse = false);
-                return;
-            }
-            $("#etotpages").html(totpage);
-            $("#eventTableControl").children().remove();
-            $("#eventTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#epages').val(1);loadEvent();">1</button>`);
-            if (page > 3) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#epages').val(${i});loadEvent();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#eventTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#epages').val(${totpage});loadEvent();">${totpage}</button>`);
-            }
+            
+            eventList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            for (i = 0; i < events.length; i++) {
-                event = events[i];
+            for (i = 0; i < eventList.length; i++) {
+                event = eventList[i];
                 allevents[event.eventid] = event;
                 meetup_timestamp = event.meetup_timestamp * 1000;
                 departure_timestamp = event.departure_timestamp * 1000;
@@ -405,22 +363,14 @@ function loadEvent(recurse = true) {
                 votecnt = event.votes.length;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
-                $("#eventTable").append(`
-            <tr class="text-sm" style="${style}">
-              <td class="py-5 px-6 font-medium">${event.eventid} ${pvt}</td>
-              <td class="py-5 px-6 font-medium">${event.title}</td>
-              <td class="py-5 px-6 font-medium">${event.departure}</td>
-              <td class="py-5 px-6 font-medium">${event.destination}</td>
-              <td class="py-5 px-6 font-medium">${event.distance}</td>
-              <td class="py-5 px-6 font-medium">${mt}</td>
-              <td class="py-5 px-6 font-medium">${dt}</td>
-              <td class="py-5 px-6 font-medium">${votecnt}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="eventDetail('${event.eventid}')">Details</button></td>
-            </tr>`);
+
+                data.push([`<tr_style>${style}</tr_style>`, `${event.eventid} ${pvt}`, `${event.title}`, `${event.departure}`, 
+                    `${event.destination}`, `${event.distance}`, `${mt}`, `${dt}`, `${votecnt}`, `<button type="button" style="display:inline;padding:5px"
+                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                    onclick="eventDetail('${event.eventid}')">Details</button>`]);
             }
+
+            PushTable("#table_event_list", data, total_pages, "LoadEventInfo();");
         },
         error: function (data) {
             AjaxError(data);

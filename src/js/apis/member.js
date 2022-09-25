@@ -69,12 +69,13 @@ function GetDiscordRankRole() {
     })
 }
 
-function LoadMemberList(recurse = true) {
+function LoadMemberList() {
     GeneralLoad();
-    LockBtn("#searchMemberBtn", btntxt = "...");
+    LockBtn("#loadMemberListBtn", btntxt = "...");
+    InitTable("#table_member_list", "LoadMemberList();");
 
-    page = parseInt($("#mpages").val())
-    if (page == "" || page == undefined || page <= 0) page = 1;
+    page = parseInt($("#table_member_list_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + $("#searchname").val(),
@@ -84,106 +85,29 @@ function LoadMemberList(recurse = true) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#searchMemberBtn");
+            UnlockBtn("#loadMemberListBtn");
             if (data.error) return AjaxError(data);
 
-            $("#membersTable").empty();
-            users = data.response.list;
+            memberList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
 
-            if (users.length == 0) {
-                $("#membersTableHead").hide();
-                $("#membersTable").append(TableNoData(2));
-                $("#mpages").val(1);
-                if (recurse) LoadMemberList(recurse = false);
-                return;
-            }
-            $("#membersTableHead").show();
-            totpage = Math.ceil(data.response.total_items / 10);
-            if (page > totpage) {
-                $("#mpages").val(1);
-                if (recurse) LoadMemberList(recurse = false);
-                return;
-            }
-            $("#mtotpages").html(totpage);
-            $("#membersTableControl").children().remove();
-            $("#membersTableControl").append(`
-            <button type="button" style="display:inline"
-            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-            onclick="$('#mpages').val(1);LoadMemberList();">1</button>`);
-            if (page > 3) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, totpage - 1); i++) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#mpages').val(${i});LoadMemberList();">${i}</button>`);
-            }
-            if (page < totpage - 2) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                >...</button>`);
-            }
-            if (totpage > 1) {
-                $("#membersTableControl").append(`
-                <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="$('#mpages').val(${totpage});LoadMemberList();">${totpage}</button>`);
-            }
-
-            for (i = 0; i < users.length; i++) {
-                user = users[i];
+            for (i = 0; i < memberList.length; i++) {
+                user = memberList[i];
                 highestrole = user.highestrole;
-                color = vtccolor; // Member
-                if (highestrole < 100) color = "#ff0000"; // Staff
                 highestrole = rolelist[highestrole];
                 if (highestrole == undefined) highestrole = "/";
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
                 totalpnt = parseInt(user.totalpnt);
-                $("#membersTable").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium">${user.userid}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${GetAvatarImg(avatar, user.userid, user.name)}</td>
-              <td class="py-5 px-6 font-medium" style="color:${color}">${highestrole}</td>
-            </tr>`);
+                
+                data.push([`${user.userid}`, `${GetAvatarImg(avatar, user.userid, user.name)}`, `${highestrole}`]);
             }
 
-            // user = data.response.staff_of_the_month;
-            // discordid = user.discordid;
-            // avatar = user.avatar;
-            // src = "";
-            // if (avatar != null) {
-            //     if (avatar.startsWith("a_"))
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-            //     else
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            // } else {
-            //     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
-            // }
-            // $("#sotm").html(`<a style='cursor:pointer' onclick='LoadUserProfile("${user.userid}")'>${user.name}</a>`);
-            // $("#sotma").attr("src", src);
-
-            // user = data.response.driver_of_the_month;
-            // discordid = user.discordid;
-            // avatar = user.avatar;
-            // src = "";
-            // if (avatar != null) {
-            //     if (avatar.startsWith("a_"))
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-            //     else
-            //         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-            // }
-            // $("#dotm").html(`<a style='cursor:pointer' onclick='LoadUserProfile("${user.userid}")'>${user.name}</a>`);
-            // $("#dotma").attr("src", src);
-
+            PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
         },
         error: function (data) {
-            UnlockBtn("#searchMemberBtn");
+            UnlockBtn("#loadMemberListBtn");
             AjaxError(data);
         }
     })
