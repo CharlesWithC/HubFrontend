@@ -170,6 +170,7 @@ function LoadAllApplicationList() {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
+                username = application.name;
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) 
@@ -180,9 +181,9 @@ function LoadAllApplicationList() {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
+                data.push([`${application.applicationid}`, `${username}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
+                onclick="GetApplicationDetail(${application.applicationid}, true)">Details</button>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");

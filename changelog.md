@@ -1,14 +1,19 @@
 # Changelog
 
 **TODO**  
-1.Templatize tables  
-2.Update config editor  
-3.Add pending user search  
-4.Table page size selector  
-5.Separate user profile & settings into 2 pages, add hover for user pfp  
+1.Update config editor  
+2.Add pending user search  
+3.Table page size selector  
+4.Separate user profile & settings into 2 pages, add hover for user pfp  
 20.Add translation for javascript  
 999.Restyle frontend (tailwind -> bootstrap)  
 1000.Improve assign role  
+
+**v1.5.4**  
+1.Fixed staff controls not showing up  
+2.Fixed staff positions not showing up  
+3.Fixed event details not showing up  
+4.Fixed event attendee cannot add new attendee  
 
 **v1.5.3**  
 Templatized all tables  

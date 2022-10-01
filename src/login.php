@@ -40,7 +40,7 @@
 
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <script src="https://drivershub-cdn.charlws.com/js/functions.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/bundles/d6db1f74d9a6c6d3.js"></script>
+    <script src="https://drivershub-cdn.charlws.com/js/bundles/2d7272b0a25d7f8a.js"></script>
 	<script>
 	$(document).ready(function () {
 		LoginValidate();
@@ -129,21 +129,8 @@
 			<div class="h-captcha" data-sitekey="1788882d-3695-4807-abac-7d7166ec6325"></div>
 		</div>
 	</div>
-	<div style="position:fixed;bottom:10px;color:lightgrey;text-align:center;text-decoration:none;">
+	<div style="position:fixed;bottom:10px;right:10px;color:lightgrey;text-decoration:none;">
 		&copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-    <a href="https://drivershub.charlws.com" target="_blank">(CHub)</a>
-    &nbsp;|&nbsp;
-    <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a>
-    &nbsp;|&nbsp;
-    <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
-    <br>
-    <a href="/api" target="_blank">API</a>: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
-    &nbsp;|&nbsp;
-    Web: v1.5.3 <a href="/changelog" target="_blank">Changelog</a>
-    <br>
-    Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
-    &nbsp;|&nbsp;
-    <?php if($status != "") echo 'Status: <a href="https://'.$status.'/" target="_blank">'.$status.'</a>'; ?>
 	</div>
 </body>
 

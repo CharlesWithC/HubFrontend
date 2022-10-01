@@ -6,7 +6,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v1.5.3)");
+    console.log("Drivers Hub: Frontend (v1.5.4)");
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
@@ -3441,6 +3441,7 @@ function LoadAllApplicationList() {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
+                username = application.name;
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) 
@@ -3451,9 +3452,9 @@ function LoadAllApplicationList() {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
+                data.push([`${application.applicationid}`, `${username}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
                 class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
+                onclick="GetApplicationDetail(${application.applicationid}, true)">Details</button>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
@@ -4536,7 +4537,7 @@ async function eventDetail(eventid) {
     info += "<p><b>Departure Time</b>: " + getDateTime(event.departure_timestamp * 1000) + "</p>";
     info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + vote + "</p>";
     info += "<p><b>Attendees</b>: " + attendee + "</p>";
-    info += "<p>" + parseMarkdown(description) + "</p>";
+    info += "<p>" + parseMarkdown(event.description) + "</p>";
     info += "</div>";
     Swal.fire({
         title: `<a href='${event.truckersmp_link}' target='_blank'>${event.title}</a>`,
@@ -4619,6 +4620,33 @@ function AuthValidate() {
         return;
     }
     token = getUrlParameter("token");
+    mfa = getUrlParameter("mfa");
+    if(mfa){
+        otp = prompt("Please enter OTP for MFA:");
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/auth/mfa",
+            type: "POST",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                if (data.error == false) {
+                    newtoken = data.response.token;
+                    localStorage.setItem("token", newtoken);
+                    window.location.href = "/auth";
+                } else {
+                    $("#msg").html("Invalid token, please retry.");
+                    $("#loginbtn").show();
+                }
+            },
+            error: function (data) {
+                $("#msg").html("Invalid token, please retry.");
+                $("#loginbtn").show();
+            }
+        });
+        return;
+    }
     if (token) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/token",
@@ -5170,11 +5198,11 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#Event") {
         window.history.pushState("", "", '/event');
         LoadEventInfo();
-        HandleAttendeeInput();
     }
     if (tabname == "#StaffEvent") {
         window.history.pushState("", "", '/staff/event');
         LoadEventInfo();
+        HandleAttendeeInput();
     }
     if (tabname == "#AuditLog") {
         window.history.pushState("", "", '/audit');
@@ -5238,13 +5266,6 @@ function LoadCache(){
             dataType: "json",
             success: function (data) {
                 positions = data.response;
-                positionstxt = "";
-                for (var i = 0; i < positions.length; i++) {
-                    positionstxt += positions[i] + "\n";
-                    $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
-                }
-                positionstxt = positionstxt.slice(0, -1);
-                $("#staffposedit").val(positionstxt);
                 localStorage.setItem("positions", JSON.stringify(positions));
             }
         });
@@ -5253,7 +5274,11 @@ function LoadCache(){
             type: "GET",
             dataType: "json",
             success: function (data) {
-                rolelist = data.response;
+                roles = data.response;
+                rolelist = {};
+                for(var i = 0 ; i < roles.length ; i++){
+                    rolelist[roles[i].id] = roles[i].name;
+                }
                 localStorage.setItem("rolelist", JSON.stringify(rolelist));
             }
         });
@@ -5550,6 +5575,13 @@ $(document).ready(async function () {
         if(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
+    positionstxt = "";
+    for (var i = 0; i < positions.length; i++) {
+        positionstxt += positions[i] + "\n";
+        $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
+    }
+    positionstxt = positionstxt.slice(0, -1);
+    $("#staffposedit").val(positionstxt);
     ValidateToken();
 });
 // Burger menus

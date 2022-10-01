@@ -70,7 +70,7 @@
         if(stristr($path, 'beta')){
             echo '<script id="bundle_beta" src="https://drivershub-cdn.charlws.com/js/bundles/beta.js"></script>';
         } else {
-            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/b83b74cd55422a31.js"></script>';
+            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/1196488ace484905.js"></script>';
         }
     ?>
     <?php
@@ -2123,7 +2123,7 @@
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">'.$st->members.' ('.$st->hit_enter_to.')</label>
                             <div class="inputWrapper" id="attendeeIdWrap" style="background-color:rgba(255,255,255,0.2)">
-                                <input id="attendeeId" class="inputDefault inputInner" name="field-name" rows="5"
+                                <input id="attendeeId" class="inputDefault inputInner search-name" name="field-name" rows="5"
                                     placeholder=""></input>
                             </div>
                         </div>
@@ -2567,10 +2567,9 @@
                     <h3 class="text-xl font-bold">API Config</h3>
                 </div>
                 <div class="mb-6" style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Program will reload automatically after
-                        config is updated, which might take up to 5 minutes.</label>
+                    <label class="block text-sm font-medium mb-2" for="">Program will not reload automatically. You need to manually reload it.</label>
                     <label class="block text-sm font-medium mb-2" for="" style="color:red">Warning: Misconfiguration
-                        may lead to API failing to start or function not working properly!</label>
+                        may lead to API service failing to start or not working properly!</label>
                     <br>
                     <div>
                         <h3 class="text-l font-bold">Company</h3>
@@ -2938,7 +2937,7 @@
                 <br>
                 <a href="/api" target="_blank">API</a>: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
                 &nbsp;|&nbsp;
-                Web: v1.5.3 <a href="/changelog" target="_blank">Changelog</a>
+                Web: v1.5.4 <a href="/changelog" target="_blank">Changelog</a>
                 <br>
                 Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
                 &nbsp;|&nbsp;

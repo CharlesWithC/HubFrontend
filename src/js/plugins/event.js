@@ -438,7 +438,7 @@ async function eventDetail(eventid) {
     info += "<p><b>Departure Time</b>: " + getDateTime(event.departure_timestamp * 1000) + "</p>";
     info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + vote + "</p>";
     info += "<p><b>Attendees</b>: " + attendee + "</p>";
-    info += "<p>" + parseMarkdown(description) + "</p>";
+    info += "<p>" + parseMarkdown(event.description) + "</p>";
     info += "</div>";
     Swal.fire({
         title: `<a href='${event.truckersmp_link}' target='_blank'>${event.title}</a>`,

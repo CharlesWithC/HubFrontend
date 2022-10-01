@@ -72,6 +72,39 @@ function AuthValidate() {
         return;
     }
     token = getUrlParameter("token");
+    mfa = getUrlParameter("mfa");
+    if(mfa){
+        setTimeout(function(){
+            otp = prompt("Please enter OTP for MFA:");
+            $.ajax({
+                url: apidomain + "/" + vtcprefix + "/auth/mfa",
+                type: "POST",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
+                data: {
+                    tip: token,
+                    otp: otp
+                },
+                success: function (data) {
+                    if (data.error == false) {
+                        newtoken = data.response.token;
+                        localStorage.setItem("token", newtoken);
+                        window.location.href = "/auth";
+                    } else {
+                        $("#msg").html("Invalid token, please retry.");
+                        $("#loginbtn").show();
+                    }
+                },
+                error: function (data) {
+                    $("#msg").html("Invalid token, please retry.");
+                    $("#loginbtn").show();
+                }
+            });
+        }, 500);
+        return;
+    }
     if (token) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/token",

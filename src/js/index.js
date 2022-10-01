@@ -459,11 +459,11 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#Event") {
         window.history.pushState("", "", '/event');
         LoadEventInfo();
-        HandleAttendeeInput();
     }
     if (tabname == "#StaffEvent") {
         window.history.pushState("", "", '/staff/event');
         LoadEventInfo();
+        HandleAttendeeInput();
     }
     if (tabname == "#AuditLog") {
         window.history.pushState("", "", '/audit');
@@ -527,13 +527,6 @@ function LoadCache(){
             dataType: "json",
             success: function (data) {
                 positions = data.response;
-                positionstxt = "";
-                for (var i = 0; i < positions.length; i++) {
-                    positionstxt += positions[i] + "\n";
-                    $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
-                }
-                positionstxt = positionstxt.slice(0, -1);
-                $("#staffposedit").val(positionstxt);
                 localStorage.setItem("positions", JSON.stringify(positions));
             }
         });
@@ -542,7 +535,11 @@ function LoadCache(){
             type: "GET",
             dataType: "json",
             success: function (data) {
-                rolelist = data.response;
+                roles = data.response;
+                rolelist = {};
+                for(var i = 0 ; i < roles.length ; i++){
+                    rolelist[roles[i].id] = roles[i].name;
+                }
                 localStorage.setItem("rolelist", JSON.stringify(rolelist));
             }
         });
@@ -839,5 +836,12 @@ $(document).ready(async function () {
         if(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
+    positionstxt = "";
+    for (var i = 0; i < positions.length; i++) {
+        positionstxt += positions[i] + "\n";
+        $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
+    }
+    positionstxt = positionstxt.slice(0, -1);
+    $("#staffposedit").val(positionstxt);
     ValidateToken();
 });
