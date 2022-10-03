@@ -6,7 +6,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v1.5.5)");
+    console.log("Drivers Hub: Frontend (v1.5.6)");
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
@@ -23,6 +23,16 @@ function GetMonday(d) {
         diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
 }
+
+function RandomString(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+ }
 
 function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
@@ -608,6 +618,7 @@ function sha256(ascii) {
     }
     return result;
 };
+
 dmapint = -1;
 window.mapcenter = {}
 window.autofocus = {}
@@ -1745,6 +1756,13 @@ function LoadUserProfile(userid) {
                 $(".account_private").show();
                 $("#Security").show();
                 $("#biocontent").val(d.bio);
+                if(d.mfa == false){
+                    $("#button-enable-mfa-modal").show();
+                    $("#p-mfa-enabled").hide();
+                } else {
+                    $("#button-enable-mfa-modal").hide();
+                    $("#p-mfa-enabled").show();
+                }
             } else {
                 $("#UpdateAM").hide();
                 $(".account_private").hide();
@@ -1822,6 +1840,62 @@ function LoadUserProfile(userid) {
         error: function (data) {
             ShowTab("#HomeTab", "#HomeTabBtn");
             AjaxError(data);
+        }
+    });
+}
+
+mfa_secret = "";
+function EnableMFAModal(){
+    mfa_secret = RandomString(16).toUpperCase();
+    Swal.fire({
+        title: "Enable MFA",
+        html: `<p style="text-align:left">Please download MFA app, enter the secret <b>${mfa_secret}</b>, then enter the generated OTP below. (QR Code is not supported yet).</p><br>
+        <p id="p-mfa-message" style="color:red;text-align:left"></p>
+        <input id="input-mfa-otp"
+            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+            type="text" name="" placeholder="000 000">
+        <button type="button" id="button-enable-mfa" style="float:right"
+            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+            onclick="EnableMFA()">Enable</button>`,
+        icon: 'info',
+        showConfirmButton: false,
+        confirmButtonText: 'Close'
+    });
+}
+
+function EnableMFA(){
+    otp = $("#input-mfa-otp").val();
+    if(!isNumber(otp) || otp.length != 6){
+        $("#p-mfa-message").html("Invalid OTP!");
+        return;
+    }
+
+    GeneralLoad();
+    LockBtn("#button-enable-mfa");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            secret: mfa_secret,
+            otp: otp
+        },
+        success: function (data) {
+            UnlockBtn("#button-enable-mfa");
+            if (data.error){
+                $("#p-mfa-message").html(data.descriptor);
+                return;
+            }
+            
+            toastFactory("success", "Success", "MFA Enabled.", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-enable-mfa");
+            $("#p-mfa-message").html(JSON.parse(data.responseText).descriptor);
         }
     });
 }
@@ -2909,12 +2983,19 @@ function UpdateConfig() {
 }
 
 function ReloadServer() {
+    otp = $("#input-reload-otp").val();
+    if(!isNumber(otp) || otp.length != 6){
+        return toastFactory("error", "Error:", "Invalid OTP.", 5000, false);
+    }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
         type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            otp: otp
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);

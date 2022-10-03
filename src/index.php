@@ -82,7 +82,7 @@
         if(stristr($path, 'beta')){
             echo '<script id="bundle_beta" src="https://drivershub-cdn.charlws.com/js/bundles/beta.js"></script>';
         } else {
-            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/6b8537b1a252b226.js"></script>';
+            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0b87f0ac2c7ca79e.js"></script>';
         }
     ?>
     <?php
@@ -603,14 +603,21 @@
                         <h3 class="text-xl font-bold"><?php echo $st->security; ?></h3>
                     </div>
                     <div class="p-4 overflow-x-auto" style="display: block;">
+                        <h3>Multiple Factor Authentication</h3>
+                        <p id="p-mfa-enabled" style="display:none">You have already enabled MFA. Currently disabling it is not supported by frontend.</p>
+                        <button type="button" id="button-enable-mfa-modal" style="display:none"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="EnableMFAModal()">Enable</button>
+                    </div>
+                    <br><hr>
+                    <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3><?php echo $st->password_login ?></h3>
                         <?php echo $st->password_login_note ?>
                         <button type="button"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                             onclick="UpdatePassword()" id="resetPasswordBtn"><?php echo $st->update ?></button>
                     </div>
-                    <br>
-                    <hr>
+                    <br><hr>
                     <div class="p-4 overflow-x-auto" style="display: block;">
                         <h3><?php echo $st->external_application_authorization; ?></h3>
                         <label class="block text-sm font-medium mb-2"
@@ -1186,7 +1193,6 @@
                     </table>
                 </div>
             </div>
-        </div>
         </div>
     </section>
 
@@ -2495,12 +2501,18 @@
                     <h3 class="text-xl font-bold">Reload</h3>
                 </div>
                 <div style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Only do this if you find the Drivers Hub
-                        not functioning correctly.</label>
+                    <label class="block text-sm font-medium mb-2" for="">You have to reload API when you want to update config.</label>
+                    <label class="block text-sm font-medium mb-2" for="">MFA must be enabled and you have to enter OTP before reload.</label>
                     <label class="block text-sm font-medium mb-2" for="">The process may take up to 5 minutes and
                         API will be inaccessible during reload. Deliveries are not logged when API is
                         offline.</label>
                     <br>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2" for="">MFA OTP</label>
+                        <input id="input-reload-otp"
+                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                            type="text" name="" style="width:200px;display:inline" placeholder="000 000">
+                    </div>
                     <button type="button"
                         class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                         onclick="ReloadServer()" id="reloadBtn">Reload</button>

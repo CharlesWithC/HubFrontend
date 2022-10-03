@@ -9,6 +9,9 @@
 999.Restyle frontend (tailwind -> bootstrap)  
 1000.Improve assign role  
 
+**v1.5.6**  
+Added partial MFA support  
+
 **v1.5.5**  
 1.Removed Dark Mode transition  
 2.Added SimpleBar for menu  

@@ -705,12 +705,19 @@ function UpdateConfig() {
 }
 
 function ReloadServer() {
+    otp = $("#input-reload-otp").val();
+    if(!isNumber(otp) || otp.length != 6){
+        return toastFactory("error", "Error:", "Invalid OTP.", 5000, false);
+    }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
         type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            otp: otp
         },
         success: function (data) {
             if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
