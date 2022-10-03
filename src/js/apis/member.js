@@ -119,51 +119,32 @@ function GetMemberRoles() {
     GeneralLoad();
     LockBtn("#fetchRolesBtn");
 
-    val = $("#memberroleid").val();
+    s = $("#memberroleid").val();
+    useridToUpdateRole = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     $("#rolelist").children().children().prop("checked", false);
-    $("#memberrolename").html("");
+    
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + val,
+        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(useridToUpdateRole),
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            d = data.response.list;
-            if (d.length == 0) {
-                UnlockBtn("#fetchRolesBtn");
-                return toastFactory("error", "Error:", "No member with name " + val + " found.", 5000, false);
-            }
-            useridToUpdateRole = d[0].userid;
-
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/user?userid=" + String(useridToUpdateRole),
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                },
-                success: function (data) {
-                    UnlockBtn("#fetchRolesBtn");
-                    if (data.error) return AjaxError(data);
-                    d = data.response;
-                    roles = d.roles;
-                    $("#memberrolename").html(d.name + " (" + useridToUpdateRole + ")");
-                    for (var i = 0; i < roles.length; i++)
-                        $("#role" + roles[i]).prop("checked", true);
-                    toastFactory("success", "Success!", "Existing roles are fetched!", 5000, false);
-                },
-                error: function (data) {
-                    UnlockBtn("#fetchRolesBtn");
-                    AjaxError(data);
-                }
-            });
+            UnlockBtn("#fetchRolesBtn");
+            if (data.error) return AjaxError(data);
+            d = data.response;
+            roles = d.roles;
+            $("#memberrolename").html(d.name + " (" + useridToUpdateRole + ")");
+            for (var i = 0; i < roles.length; i++)
+                $("#role" + roles[i]).prop("checked", true);
+            toastFactory("success", "Success!", "Existing roles are fetched!", 5000, false);
         },
         error: function (data) {
-            return toastFactory("error", "Error:", "Failed to get User ID", 5000, false);
+            UnlockBtn("#fetchRolesBtn");
+            AjaxError(data);
         }
-    })
+    });
 }
 
 function UpdateMemberRoles() {
@@ -200,7 +181,8 @@ function UpdateMemberRoles() {
 }
 
 function UpdateMemberPoints() {
-    userid = $("#memberpntid").val();
+    s = $("#memberpntid").val();
+    userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     if (!isNumber(userid)) {
         toastFactory("error", "Error:", "Invalid User ID", 5000, false);
         return;
@@ -241,7 +223,8 @@ function UpdateMemberPoints() {
 useridToDismiss = 0;
 
 function DismissUser() {
-    userid = $("#dismissUserID").val();
+    s = $("#dismissUserID").val();
+    userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     GeneralLoad();
 
     if ($("#dismissbtn").html() != "Confirm?" || useridToDismiss != userid) {
@@ -256,12 +239,10 @@ function DismissUser() {
             },
             success: function (data) {
                 UnlockBtn("#dismissbtn");
-                $("#memberdismissname").html("");
                 if (data.error) return AjaxError(data);
 
                 d = data.response;
                 roles = d.roles;
-                $("#memberdismissname").html("Dismiss <b>" + d.name + "</b>?");
                 $("#dismissbtn").html("Confirm?");
                 useridToDismiss = userid;
             },
@@ -282,7 +263,6 @@ function DismissUser() {
             },
             success: function (data) {
                 UnlockBtn("#dismissbtn");
-                $("#memberdismissname").html("");
                 $("#dismissUserID").val("");
                 if (data.error) return AjaxError(data);
                 toastFactory("success", "Success", "Member dismissed", 5000, false);

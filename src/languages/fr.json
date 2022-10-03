@@ -83,7 +83,7 @@
     "highest_role": "Rôle le plus élevé",
     "assign_roles": "Attribuer des rôles",
     "assign_roles_note": "<p>Récupérez d'abord les rôles des membres, cela écrasera tous les rôles existants.</p><p style='color:red'>Avertissement! La suppression du rôle de chauffeur effacera le journal de livraison des membres et expulsera le membre de la société navio !</p>",
-    "member_name": "Nom de membre",
+    "member": "Membre",
     "fetch_existing_roles": "Récupérer les rôles existants",
     "update_member_points": "Mettre à jour les points de membre",
     "update_member_points_note": "Les nombres négatifs fonctionnent, ils déduisent les points.<br><span style='color:red'>Seul le personnel ayant un rôle avec l'autorisation de responsable des ressources humaines peut utiliser cette fonction !</span><br>Le point de distance ne doit être mis à jour que lorsque le tracker ne fonctionne pas<br>Le point de l'évènement doit être mis à jour dans Personnel - Événement - Mettre à jour les participants à l'évènement<br>Le point de division doit être mis à jour dans Personnel - Division - Livraisons en attente de validation de la division<br><span style='color:red'>Cette fonction est destinée à n'être qu'une option de secours ! NE demandez PAS à l'équipe CHub pourquoi le personnel RH normal ne peut pas l'utiliser !</span>",

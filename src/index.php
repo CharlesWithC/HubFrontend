@@ -50,7 +50,7 @@
     <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
     <meta content="/images/bg.jpg" name="twitter:card">
 
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/unisans/css/unisans.min.css">
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/index.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
@@ -58,9 +58,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
 
+    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/regular.min.css" rel="stylesheet">
+    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/solid.min.css" rel="stylesheet">
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
+
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.css"/>
+    <script src="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
@@ -70,7 +82,7 @@
         if(stristr($path, 'beta')){
             echo '<script id="bundle_beta" src="https://drivershub-cdn.charlws.com/js/bundles/beta.js"></script>';
         } else {
-            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/1196488ace484905.js"></script>';
+            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/6b8537b1a252b226.js"></script>';
         }
     ?>
     <?php
@@ -96,6 +108,9 @@
     <style>
         .bg-indigo-500 {background-color: <?php echo $vtccolor ?>;}
         .bg-indigo-500:hover {background-color: <?php echo $vtccolordark ?>;}
+        .rect-20 {width:20px;height:20px;margin-right:6px;}
+        .rect-32 {width:32px;height:32px;margin-right:5px;}
+        .flexdatalist-alias {width:200px;display:inline-block;}
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -113,11 +128,6 @@
 
 <body class="antialiased bg-body text-body font-body" style="overflow-x:hidden">
     <style>
-        .rounded-full {
-            transition: background-color 1000ms linear;
-            color: #555;
-        }
-
         .tabbtns {
             transition: background-color 300ms linear;
         }
@@ -129,7 +139,7 @@
         }
     </style>
     <div>
-        <nav class="lg:hidden py-6 px-6 bg-gray-800">
+        <nav class="lg:hidden py-6 px-6" style="background-color:#2F3136;z-index:10000;">
             <div class="flex items-center justify-between">
                 <a class="text-2xl text-white font-semibold" style="cursor: pointer"><img
                         src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
@@ -143,9 +153,9 @@
             </div>
         </nav>
         <div class="hidden lg:block navbar-menu relative z-50">
-            <div class="navbar-backdrop fixed lg:hidden inset-0 bg-gray-800 opacity-10"></div>
-            <nav
-                class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8 bg-gray-800 overflow-y-auto">
+            <nav 
+                class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8">
+                <div id="navbar" style="height:100%">
                 <div class="flex w-full items-center px-6 pb-6 mb-6 lg:border-b border-gray-700">
                     <a class="text-xl text-white font-semibold" style="cursor: pointer"
                         onclick="ShowTab('#HomeTab', '#HomeTabBtn')"><img
@@ -159,21 +169,8 @@
                             <a id="HomeTabBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns bg-indigo-500"
                                 style="cursor: pointer" onclick="ShowTab('#HomeTab', '#HomeTabBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 3V19C3 20.1046 3.89543 21 5 21H21" stroke="#fff" stroke-width="2"
-                                            stroke-miterlimit="5.75877" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path d="M7 14L11 10L15 14L21 8" stroke="#fff" stroke-width="2"
-                                            stroke-miterlimit="5.75877" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                        <path d="M18 8H21V11" stroke="#fff" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
                                 <span><?php echo $st->overview; ?></span>
-                                <span class="inline-block ml-auto">
-                                </span>
                             </a>
                         </li>
 
@@ -183,17 +180,8 @@
                             <li>
                             <a id="AnnTabBtn" class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#AnnTab\', \'#AnnTabBtn\')">
-                                <span class="inline-block mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                    class="bi bi-newspaper" viewBox="0 0 16 16">
-                                    <path
-                                    d="M0 2.5A1.5 1.5 0 0 1 1.5 1h11A1.5 1.5 0 0 1 14 2.5v10.528c0 .3-.05.654-.238.972h.738a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 1 1 0v9a1.5 1.5 0 0 1-1.5 1.5H1.497A1.497 1.497 0 0 1 0 13.5v-11zM12 14c.37 0 .654-.211.853-.441.092-.106.147-.279.147-.531V2.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5v11c0 .278.223.5.497.5H12z" />
-                                    <path
-                                    d="M2 3h10v2H2V3zm0 3h4v3H2V6zm0 4h4v1H2v-1zm0 2h4v1H2v-1zm5-6h2v1H7V6zm3 0h2v1h-2V6zM7 8h2v1H7V8zm3 0h2v1h-2V8zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1z" />
-                                </svg> </span>
+                                <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
                                 <span>'.$st->announcements.'</span>
-                                <span class="inline-block ml-auto">
-                                </span>
                             </a>
                             </li>';}?>
 
@@ -204,17 +192,8 @@
                             <a id="DownloadsTabBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#DownloadsTab\', \'#DownloadsTabBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                        class="bi bi-download" viewBox="0 0 16 16">
-                                        <path
-                                            d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-                                        <path
-                                            d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-download"></i></span>
                                 <span>'.$st->downloads.'</span>
-                                <span class="inline-block ml-auto">
-                                </span>
                             </a>
                         </li>';}?>
                     </ul>
@@ -231,15 +210,8 @@
                             <a id="MapBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#Map\', \'#MapBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-map" viewBox="0 0 16 16">
-                                        <path fill-rule="evenodd"
-                                            d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-regular fa-map"></i></span>
                                 <span>'.$st->map.'</span>
-                                <span class="inline-block ml-auto">
-                                </span>
                             </a>
                         </li>';}?>
 
@@ -247,18 +219,8 @@
                             <a id="DeliveryBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#Delivery', '#DeliveryBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-truck" viewBox="0 0 16 16">
-                                        <path
-                                            d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z">
-                                        </path>
-                                    </svg>
-                                </span>
+                                <span class="rect-20"><i class="fa-solid fa-truck"></i></span>
                                 <span><?php echo $st->deliveries ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
 
@@ -269,17 +231,8 @@
                             <a id="DivisionBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#Division\', \'#DivisionBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        viewBox="0 0 640 512">
-                                        <path
-                                            d="M32 32C49.67 32 64 46.33 64 64V96H149.2L64 266.3V448C64 465.7 49.67 480 32 480C14.33 480 0 465.7 0 448V64C0 46.33 14.33 32 32 32V32zM309.2 288H234.8L330.8 96H405.2L309.2 288zM458.8 96H533.2L437.2 288H362.8L458.8 96zM202.8 96H277.2L181.2 288H106.8L202.8 96zM576 117.7V64C576 46.33 590.3 32 608 32C625.7 32 640 46.33 640 64V448C640 465.7 625.7 480 608 480C590.3 480 576 465.7 576 448V288H490.8L576 117.7z" />
-                                    </svg>
-                                </span>
+                                <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                                 <span>'.$st->divisions.'</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
 
@@ -290,18 +243,8 @@
                             <a id="EventBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#Event\', \'#EventBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-card-checklist" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z" />
-                                        <path
-                                            d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
                                 <span>'.$st->events.'</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
                     </ul>
@@ -315,19 +258,8 @@
                             <a id="AllMemberBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#AllMembers', '#AllMemberBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="feather feather-users">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="9" cy="7" r="4"></circle>
-                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
                                 <span><?php echo $st->members; ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
 
@@ -335,26 +267,8 @@
                             <a id="LeaderboardBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#Leaderboard', '#LeaderboardBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M15 21H9V12.6C9 12.2686 9.26863 12 9.6 12H14.4C14.7314 12 15 12.2686 15 12.6V21Z"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M20.4 21H15V18.1C15 17.7686 15.2686 17.5 15.6 17.5H20.4C20.7314 17.5 21 17.7686 21 18.1V20.4C21 20.7314 20.7314 21 20.4 21Z"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M9 21V16.1C9 15.7686 8.73137 15.5 8.4 15.5H3.6C3.26863 15.5 3 15.7686 3 16.1V20.4C3 20.7314 3.26863 21 3.6 21H9Z"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M10.8056 5.11325L11.7147 3.1856C11.8314 2.93813 12.1686 2.93813 12.2853 3.1856L13.1944 5.11325L15.2275 5.42427C15.4884 5.46418 15.5923 5.79977 15.4035 5.99229L13.9326 7.4917L14.2797 9.60999C14.3243 9.88202 14.0515 10.0895 13.8181 9.96099L12 8.96031L10.1819 9.96099C9.94851 10.0895 9.67568 9.88202 9.72026 9.60999L10.0674 7.4917L8.59651 5.99229C8.40766 5.79977 8.51163 5.46418 8.77248 5.42427L10.8056 5.11325Z"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span>
                                 <span><?php echo $st->leaderboard; ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
 
@@ -365,22 +279,8 @@
                             <a id="RankingBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#Ranking\', \'#RankingBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="icon icon-tabler icon-tabler-steering-wheel" width="18" height="18"
-                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                        <circle cx="12" cy="12" r="9" />
-                                        <circle cx="12" cy="12" r="2" />
-                                        <line x1="12" y1="14" x2="12" y2="21" />
-                                        <line x1="10" y1="12" x2="3.25" y2="10" />
-                                        <line x1="14" y1="12" x2="20.75" y2="10" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
                                 <span>'.$st->rankings.'</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
                     </ul>
@@ -396,16 +296,8 @@
                             <a id="MyAppBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#MyApp\', \'#MyAppBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-archive" viewBox="0 0 16 16">
-                                        <path
-                                            d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
-                                    </svg>
-                                </span>
+                                <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
                                 <span id="MyAppSpan">'.$st->my_applications.'</span>
-                                <span class="inline-block ml-auto">
-                                </span>
                             </a>
                         </li>
 
@@ -414,25 +306,8 @@
                             <a id="SubmitAppBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#SubmitApp\', \'#SubmitAppBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M2 12H5M8 12H5M5 12V9M5 12V15" stroke="currentColor"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M6.25 6L6.49485 5.72018C7.29167 4.80952 8.70833 4.80952 9.50515 5.72017L13.8476 10.683C14.5074 11.437 14.5074 12.563 13.8476 13.317L9.50515 18.2798C8.70833 19.1905 7.29167 19.1905 6.49485 18.2798L6.25 18"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M13 19L17.8844 13.3016C18.5263 12.5526 18.5263 11.4474 17.8844 10.6984L13 5"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                        <path
-                                            d="M17 19L21.8844 13.3016C22.5263 12.5526 22.5263 11.4474 21.8844 10.6984L17 5"
-                                            stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
                                 <span>'.$st->submit_application.'</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                     </ul>
                 </div>';}?>
@@ -447,17 +322,8 @@
                             <a id="StaffAnnTabBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#StaffAnnTab\', \'#StaffAnnTabBtn\')">
-                                <span class="inline-block mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                    class="bi bi-newspaper" viewBox="0 0 16 16">
-                                    <path
-                                    d="M0 2.5A1.5 1.5 0 0 1 1.5 1h11A1.5 1.5 0 0 1 14 2.5v10.528c0 .3-.05.654-.238.972h.738a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 1 1 0v9a1.5 1.5 0 0 1-1.5 1.5H1.497A1.497 1.497 0 0 1 0 13.5v-11zM12 14c.37 0 .654-.211.853-.441.092-.106.147-.279.147-.531V2.5a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0-.5.5v11c0 .278.223.5.497.5H12z" />
-                                    <path
-                                    d="M2 3h10v2H2V3zm0 3h4v3H2V6zm0 4h4v1H2v-1zm0 2h4v1H2v-1zm5-6h2v1H7V6zm3 0h2v1h-2V6zM7 8h2v1H7V8zm3 0h2v1h-2V8zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1zm-3 2h2v1H7v-1zm3 0h2v1h-2v-1z" />
-                                </svg> </span>
+                                <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
                                 <span>'.$st->announcements.'</span>
-                                <span class="inline-block ml-auto">
-                                </span>
                             </a>
                             </li>';}?>
 
@@ -468,18 +334,8 @@
                             <a id="StaffEventBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#StaffEvent\', \'#StaffEventBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-card-checklist" viewBox="0 0 16 16">
-                                        <path
-                                            d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z" />
-                                        <path
-                                            d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0zM7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
                                 <span>'.$st->events.'</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
 
@@ -489,17 +345,8 @@
                             <li>
                             <a id="StaffDivisionBtn" class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#StaffDivision\', \'#StaffDivisionBtn\')">
-                                <span class="inline-block mr-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                    viewBox="0 0 640 512">
-                                    <path
-                                    d="M32 32C49.67 32 64 46.33 64 64V96H149.2L64 266.3V448C64 465.7 49.67 480 32 480C14.33 480 0 465.7 0 448V64C0 46.33 14.33 32 32 32V32zM309.2 288H234.8L330.8 96H405.2L309.2 288zM458.8 96H533.2L437.2 288H362.8L458.8 96zM202.8 96H277.2L181.2 288H106.8L202.8 96zM576 117.7V64C576 46.33 590.3 32 608 32C625.7 32 640 46.33 640 64V448C640 465.7 625.7 480 608 480C590.3 480 576 465.7 576 448V288H490.8L576 117.7z" />
-                                </svg>
-                                </span>
+                                <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                                 <span>'.$st->divisions.'</span>
-                                <span class="inline-block ml-auto">
-                                <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                             </li>';}?>
 
@@ -507,19 +354,8 @@
                             <a id="StaffMemberBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#StaffMembers', '#StaffMemberBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="feather feather-users">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="9" cy="7" r="4"></circle>
-                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
                                 <span><?php echo $st->members; ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
 
@@ -527,16 +363,8 @@
                             <a id="AllUserBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#AllUsers', '#AllUserBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="currentColor">
-                                        <path
-                                            d="M14 14.252V22H4a8 8 0 0 1 10-7.748zM12 13c-3.315 0-6-2.685-6-6s2.685-6 6-6 6 2.685 6 6-2.685 6-6 6zm6 4v-3h2v3h3v2h-3v3h-2v-3h-3v-2h3z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
                                 <span><?php echo $st->users; ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
 
@@ -547,59 +375,33 @@
                             <a id="AllAppBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab(\'#AllApp\', \'#AllAppBtn\')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-archive" viewBox="0 0 16 16">
-                                        <path
-                                            d="M0 2a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1v7.5a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 1 12.5V5a1 1 0 0 1-1-1V2zm2 3v7.5A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V5H2zm13-3H1v2h14V2zM5 7.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z" />
-                                    </svg>
-                                </span>
+                                <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
                                 <span>'.$st->applications.'</span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>';}?>
                         <li>
                             <a id="AuditLogBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#AuditLog', '#AuditLogBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                                        class="bi bi-terminal" viewBox="0 0 16 16">
-                                        <path
-                                            d="M6 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 6 9zM3.854 4.146a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2z" />
-                                        <path
-                                            d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-terminal"></i></span>
                                 <span><?php echo $st->audit_log ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
                         <li>
                             <a id="AdminBtn"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
                                 style="cursor: pointer" onclick="ShowTab('#Admin', '#AdminBtn')">
-                                <span class="inline-block mr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="currentColor">
-                                        <path
-                                            d="M17,11c0.34,0,0.67,0.04,1,0.09V6.27L10.5,3L3,6.27v4.91c0,4.54,3.2,8.79,7.5,9.82c0.55-0.13,1.08-0.32,1.6-0.55 C11.41,19.47,11,18.28,11,17C11,13.69,13.69,11,17,11z" />
-                                        <path
-                                            d="M17,13c-2.21,0-4,1.79-4,4c0,2.21,1.79,4,4,4s4-1.79,4-4C21,14.79,19.21,13,17,13z M17,14.38c0.62,0,1.12,0.51,1.12,1.12 s-0.51,1.12-1.12,1.12s-1.12-0.51-1.12-1.12S16.38,14.38,17,14.38z M17,19.75c-0.93,0-1.74-0.46-2.24-1.17 c0.05-0.72,1.51-1.08,2.24-1.08s2.19,0.36,2.24,1.08C18.74,19.29,17.93,19.75,17,19.75z" />
-                                    </svg> </span>
+                                <span class="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span>
                                 <span><?php echo $st->administrator ?></span>
-                                <span class="inline-block ml-auto">
-                                    <svg class="text-gray-400 w-3 h-3" viewbox="0 0 10 6" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg"></svg></span>
                             </a>
                         </li>
                     </ul>
                 </div>
+                </div>
             </nav>
         </div>
+
+        <div>
         <section class="py-5 px-6 bg-white shadow mx-auto lg:ml-80">
             <nav class="relative">
                 <div class="flex items-center" id="header">
@@ -616,33 +418,10 @@
                             &nbsp;
                             &nbsp;
                             <a id="darkmode" style="cursor:pointer;margin-top:11px" onclick="ToggleDarkMode()">
-                                <span class="inline-block mr-4">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg" id="todarksvg">
-                                        <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z"
-                                            fill="currentColor" />
-                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                            d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z"
-                                            fill="currentColor" />
-                                    </svg>
-                                    <svg style="color: white;display:none" width="18" height="18" viewBox="0 0 24 24"
-                                        fill="none" id="tolightsvg" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8V16Z"
-                                            fill="white"></path>
-                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                            d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM12 4V8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16V20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z"
-                                            fill="white"></path>
-                                    </svg>
-                                </span>
+                                <span class="rect-32" id="darkmode-svg"><i class="fa-solid fa-moon"></i></span>
                             </a>
                             <a id="logout" style="cursor: pointer;margin-top:11px" onclick="Logout()">
-                                <span class="inline-block mr-4">
-                                    <svg class="text-gray-600 w-5 h-5" viewbox="0 0 14 18" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M0.333618 8.99996C0.333618 9.22097 0.421416 9.43293 0.577696 9.58922C0.733976 9.7455 0.945938 9.83329 1.16695 9.83329H7.49195L5.57528 11.7416C5.49718 11.8191 5.43518 11.9113 5.39287 12.0128C5.35057 12.1144 5.32879 12.2233 5.32879 12.3333C5.32879 12.4433 5.35057 12.5522 5.39287 12.6538C5.43518 12.7553 5.49718 12.8475 5.57528 12.925C5.65275 13.0031 5.74492 13.0651 5.84647 13.1074C5.94802 13.1497 6.05694 13.1715 6.16695 13.1715C6.27696 13.1715 6.38588 13.1497 6.48743 13.1074C6.58898 13.0651 6.68115 13.0031 6.75862 12.925L10.0919 9.59163C10.1678 9.51237 10.2273 9.41892 10.2669 9.31663C10.3503 9.11374 10.3503 8.88618 10.2669 8.68329C10.2273 8.581 10.1678 8.48755 10.0919 8.40829L6.75862 5.07496C6.68092 4.99726 6.58868 4.93563 6.48716 4.89358C6.38564 4.85153 6.27683 4.82988 6.16695 4.82988C6.05707 4.82988 5.94826 4.85153 5.84674 4.89358C5.74522 4.93563 5.65298 4.99726 5.57528 5.07496C5.49759 5.15266 5.43595 5.2449 5.3939 5.34642C5.35185 5.44794 5.33021 5.55674 5.33021 5.66663C5.33021 5.77651 5.35185 5.88532 5.3939 5.98683C5.43595 6.08835 5.49759 6.18059 5.57528 6.25829L7.49195 8.16663H1.16695C0.945938 8.16663 0.733976 8.25442 0.577696 8.4107C0.421416 8.56698 0.333618 8.77895 0.333618 8.99996ZM11.1669 0.666626H2.83362C2.17058 0.666626 1.53469 0.930018 1.06585 1.39886C0.59701 1.8677 0.333618 2.50358 0.333618 3.16663V5.66663C0.333618 5.88764 0.421416 6.0996 0.577696 6.25588C0.733976 6.41216 0.945938 6.49996 1.16695 6.49996C1.38797 6.49996 1.59993 6.41216 1.75621 6.25588C1.91249 6.0996 2.00028 5.88764 2.00028 5.66663V3.16663C2.00028 2.94561 2.08808 2.73365 2.24436 2.57737C2.40064 2.42109 2.6126 2.33329 2.83362 2.33329H11.1669C11.388 2.33329 11.5999 2.42109 11.7562 2.57737C11.9125 2.73365 12.0003 2.94561 12.0003 3.16663V14.8333C12.0003 15.0543 11.9125 15.2663 11.7562 15.4225C11.5999 15.5788 11.388 15.6666 11.1669 15.6666H2.83362C2.6126 15.6666 2.40064 15.5788 2.24436 15.4225C2.08808 15.2663 2.00028 15.0543 2.00028 14.8333V12.3333C2.00028 12.1123 1.91249 11.9003 1.75621 11.744C1.59993 11.5878 1.38797 11.5 1.16695 11.5C0.945938 11.5 0.733976 11.5878 0.577696 11.744C0.421416 11.9003 0.333618 12.1123 0.333618 12.3333V14.8333C0.333618 15.4963 0.59701 16.1322 1.06585 16.6011C1.53469 17.0699 2.17058 17.3333 2.83362 17.3333H11.1669C11.83 17.3333 12.4659 17.0699 12.9347 16.6011C13.4036 16.1322 13.6669 15.4963 13.6669 14.8333V3.16663C13.6669 2.50358 13.4036 1.8677 12.9347 1.39886C12.4659 0.930018 11.83 0.666626 11.1669 0.666626Z"
-                                            fill="currentColor"></path>
-                                    </svg></span>
+                                <span class="rect-32"><i class="fa-solid fa-right-from-bracket"></i></span>
                             </a>
                             <button id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
                                 <div class="mr-3">
@@ -661,7 +440,7 @@
         </section>
         <div id="loading" class="lg:ml-80"></div>
     </div>
-
+    
     <section id="ProfileTab" class="py-8 tabs mx-auto lg:ml-80" style="display:none;margin-top:-40px">
         <div class="px-4 mx-auto">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
@@ -885,153 +664,68 @@
                     <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" style="width:100%;">
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd"
-                                                d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
-                                                fill="#382CDD"></path>
-                                        </svg> </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->live; ?></h3><span
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->now; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="livedriver">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"
-                                            fill="currentColor" class="bi bi-clock" viewBox="0 0 16 16">
-                                            <path
-                                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-                                            <path
-                                                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
-                                        </svg>
-                                    </span><span><span id="livedriverdt"></span></span></span>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-regular fa-clock"></i></span><span><span id="livedriverdt"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-steering-wheel" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <circle cx="12" cy="12" r="9" />
-                                            <circle cx="12" cy="12" r="2" />
-                                            <line x1="12" y1="14" x2="12" y2="21" />
-                                            <line x1="10" y1="12" x2="3.25" y2="10" />
-                                            <line x1="14" y1="12" x2="20.75" y2="10" />
-                                        </svg> </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-id-card"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->drivers; ?></h3><span
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alldriver">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg width="18" height="10" viewbox="0 0 18 10" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M16.5 5.83333C16.3906 5.83339 16.2822 5.81188 16.181 5.77002C16.0799 5.72817 15.988 5.66678 15.9106 5.58939C15.8332 5.512 15.7719 5.42011 15.73 5.31897C15.6881 5.21784 15.6666 5.10945 15.6667 5V2.84505L10.4225 8.08916C10.3452 8.16656 10.2533 8.22796 10.1522 8.26985C10.0511 8.31175 9.94277 8.33331 9.83333 8.33331C9.7239 8.33331 9.61554 8.31175 9.51445 8.26985C9.41335 8.22796 9.3215 8.16656 9.24414 8.08916L6.50002 5.34505L2.08919 9.75583C1.93245 9.90975 1.72127 9.99555 1.50159 9.99456C1.28191 9.99356 1.07151 9.90586 0.91617 9.75052C0.760831 9.59518 0.673123 9.38478 0.672128 9.1651C0.671133 8.94542 0.756932 8.73424 0.910858 8.5775L5.91086 3.5775C5.98822 3.5001 6.08007 3.4387 6.18116 3.39681C6.28226 3.35492 6.39062 3.33335 6.50005 3.33335C6.60948 3.33335 6.71784 3.35492 6.81893 3.39681C6.92003 3.4387 7.01188 3.5001 7.08924 3.5775L9.83336 6.32161L14.4883 1.66666H12.3334C12.1123 1.66666 11.9004 1.57887 11.7441 1.42259C11.5878 1.2663 11.5 1.05434 11.5 0.833329C11.5 0.612315 11.5878 0.400352 11.7441 0.244073C11.9004 0.0877924 12.1123 -4.76837e-06 12.3334 -4.76837e-06H16.5C16.6095 -6.67572e-05 16.7179 0.0214453 16.819 0.063302C16.9201 0.105159 17.012 0.166539 17.0894 0.243935C17.1668 0.321329 17.2282 0.413218 17.2701 0.514352C17.3119 0.615484 17.3334 0.723876 17.3334 0.833329V5C17.3334 5.10945 17.3119 5.21784 17.2701 5.31897C17.2282 5.42011 17.1668 5.512 17.0894 5.58939C17.012 5.66678 16.9201 5.72817 16.819 5.77002C16.7179 5.81188 16.6095 5.83339 16.5 5.83333Z"
-                                                fill="#17BB84"></path>
-                                        </svg></span><span><span id="newdriver"></span></span></span>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newdriver"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                                                fill="#382CDD"></path>
-                                        </svg></span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alljob">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg width="18" height="10" viewbox="0 0 18 10" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M16.5 5.83333C16.3906 5.83339 16.2822 5.81188 16.181 5.77002C16.0799 5.72817 15.988 5.66678 15.9106 5.58939C15.8332 5.512 15.7719 5.42011 15.73 5.31897C15.6881 5.21784 15.6666 5.10945 15.6667 5V2.84505L10.4225 8.08916C10.3452 8.16656 10.2533 8.22796 10.1522 8.26985C10.0511 8.31175 9.94277 8.33331 9.83333 8.33331C9.7239 8.33331 9.61554 8.31175 9.51445 8.26985C9.41335 8.22796 9.3215 8.16656 9.24414 8.08916L6.50002 5.34505L2.08919 9.75583C1.93245 9.90975 1.72127 9.99555 1.50159 9.99456C1.28191 9.99356 1.07151 9.90586 0.91617 9.75052C0.760831 9.59518 0.673123 9.38478 0.672128 9.1651C0.671133 8.94542 0.756932 8.73424 0.910858 8.5775L5.91086 3.5775C5.98822 3.5001 6.08007 3.4387 6.18116 3.39681C6.28226 3.35492 6.39062 3.33335 6.50005 3.33335C6.60948 3.33335 6.71784 3.35492 6.81893 3.39681C6.92003 3.4387 7.01188 3.5001 7.08924 3.5775L9.83336 6.32161L14.4883 1.66666H12.3334C12.1123 1.66666 11.9004 1.57887 11.7441 1.42259C11.5878 1.2663 11.5 1.05434 11.5 0.833329C11.5 0.612315 11.5878 0.400352 11.7441 0.244073C11.9004 0.0877924 12.1123 -4.76837e-06 12.3334 -4.76837e-06H16.5C16.6095 -6.67572e-05 16.7179 0.0214453 16.819 0.063302C16.9201 0.105159 17.012 0.166539 17.0894 0.243935C17.1668 0.321329 17.2282 0.413218 17.2701 0.514352C17.3119 0.615484 17.3334 0.723876 17.3334 0.833329V5C17.3334 5.10945 17.3119 5.21784 17.2701 5.31897C17.2282 5.42011 17.1668 5.512 17.0894 5.58939C17.012 5.66678 16.9201 5.72817 16.819 5.77002C16.7179 5.81188 16.6095 5.83339 16.5 5.83333Z"
-                                                fill="#17BB84"></path>
-                                        </svg></span><span><span id="newjob"></span></span></span>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newjob"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                            class="feather feather-map-pin">
-                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                            <circle cx="12" cy="10" r="3"></circle>
-                                        </svg>
-                                    </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-road"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->distance; ?></h3><span
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="alldistance">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg width="18" height="10" viewbox="0 0 18 10" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M16.5 5.83333C16.3906 5.83339 16.2822 5.81188 16.181 5.77002C16.0799 5.72817 15.988 5.66678 15.9106 5.58939C15.8332 5.512 15.7719 5.42011 15.73 5.31897C15.6881 5.21784 15.6666 5.10945 15.6667 5V2.84505L10.4225 8.08916C10.3452 8.16656 10.2533 8.22796 10.1522 8.26985C10.0511 8.31175 9.94277 8.33331 9.83333 8.33331C9.7239 8.33331 9.61554 8.31175 9.51445 8.26985C9.41335 8.22796 9.3215 8.16656 9.24414 8.08916L6.50002 5.34505L2.08919 9.75583C1.93245 9.90975 1.72127 9.99555 1.50159 9.99456C1.28191 9.99356 1.07151 9.90586 0.91617 9.75052C0.760831 9.59518 0.673123 9.38478 0.672128 9.1651C0.671133 8.94542 0.756932 8.73424 0.910858 8.5775L5.91086 3.5775C5.98822 3.5001 6.08007 3.4387 6.18116 3.39681C6.28226 3.35492 6.39062 3.33335 6.50005 3.33335C6.60948 3.33335 6.71784 3.35492 6.81893 3.39681C6.92003 3.4387 7.01188 3.5001 7.08924 3.5775L9.83336 6.32161L14.4883 1.66666H12.3334C12.1123 1.66666 11.9004 1.57887 11.7441 1.42259C11.5878 1.2663 11.5 1.05434 11.5 0.833329C11.5 0.612315 11.5878 0.400352 11.7441 0.244073C11.9004 0.0877924 12.1123 -4.76837e-06 12.3334 -4.76837e-06H16.5C16.6095 -6.67572e-05 16.7179 0.0214453 16.819 0.063302C16.9201 0.105159 17.012 0.166539 17.0894 0.243935C17.1668 0.321329 17.2282 0.413218 17.2701 0.514352C17.3119 0.615484 17.3334 0.723876 17.3334 0.833329V5C17.3334 5.10945 17.3119 5.21784 17.2701 5.31897C17.2282 5.42011 17.1668 5.512 17.0894 5.58939C17.012 5.66678 16.9201 5.72817 16.819 5.77002C16.7179 5.81188 16.6095 5.83339 16.5 5.83333Z"
-                                                fill="#17BB84"></path>
-                                        </svg></span><span><span id="newdistance"></span></span></span>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newdistance"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
-                                            <path
-                                                d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z" />
-                                            <path
-                                                d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                            <path
-                                                d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
-                                        </svg> </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="allprofit">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg width="18" height="10" viewbox="0 0 18 10" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M16.5 5.83333C16.3906 5.83339 16.2822 5.81188 16.181 5.77002C16.0799 5.72817 15.988 5.66678 15.9106 5.58939C15.8332 5.512 15.7719 5.42011 15.73 5.31897C15.6881 5.21784 15.6666 5.10945 15.6667 5V2.84505L10.4225 8.08916C10.3452 8.16656 10.2533 8.22796 10.1522 8.26985C10.0511 8.31175 9.94277 8.33331 9.83333 8.33331C9.7239 8.33331 9.61554 8.31175 9.51445 8.26985C9.41335 8.22796 9.3215 8.16656 9.24414 8.08916L6.50002 5.34505L2.08919 9.75583C1.93245 9.90975 1.72127 9.99555 1.50159 9.99456C1.28191 9.99356 1.07151 9.90586 0.91617 9.75052C0.760831 9.59518 0.673123 9.38478 0.672128 9.1651C0.671133 8.94542 0.756932 8.73424 0.910858 8.5775L5.91086 3.5775C5.98822 3.5001 6.08007 3.4387 6.18116 3.39681C6.28226 3.35492 6.39062 3.33335 6.50005 3.33335C6.60948 3.33335 6.71784 3.35492 6.81893 3.39681C6.92003 3.4387 7.01188 3.5001 7.08924 3.5775L9.83336 6.32161L14.4883 1.66666H12.3334C12.1123 1.66666 11.9004 1.57887 11.7441 1.42259C11.5878 1.2663 11.5 1.05434 11.5 0.833329C11.5 0.612315 11.5878 0.400352 11.7441 0.244073C11.9004 0.0877924 12.1123 -4.76837e-06 12.3334 -4.76837e-06H16.5C16.6095 -6.67572e-05 16.7179 0.0214453 16.819 0.063302C16.9201 0.105159 17.012 0.166539 17.0894 0.243935C17.1668 0.321329 17.2282 0.413218 17.2701 0.514352C17.3119 0.615484 17.3334 0.723876 17.3334 0.833329V5C17.3334 5.10945 17.3119 5.21784 17.2701 5.31897C17.2282 5.42011 17.1668 5.512 17.0894 5.58939C17.012 5.66678 16.9201 5.72817 16.819 5.77002C16.7179 5.81188 16.6095 5.83339 16.5 5.83333Z"
-                                                fill="#17BB84"></path>
-                                        </svg></span><span><span id="newprofit"></span></span></span>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newprofit"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard mb-6">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD;position:relative;top:4px" version="1.1" id="fuel"
-                                            xmlns="http://www.w3.org/2000/svg" width="15" height="15"
-                                            viewBox="0 0 18 18">
-                                            <path
-                                                d="M13,6L13,6v5.5c0,0.2761-0.2239,0.5-0.5,0.5S12,11.7761,12,11.5v-2C12,8.6716,11.3284,8,10.5,8H9V2c0-0.5523-0.4477-1-1-1H2 C1.4477,1,1,1.4477,1,2v11c0,0.5523,0.4477,1,1,1h6c0.5523,0,1-0.4477,1-1V9h1.5C10.7761,9,11,9.2239,11,9.5v2 c0,0.8284,0.6716,1.5,1.5,1.5s1.5-0.6716,1.5-1.5V5c0-0.5523-0.4477-1-1-1l0,0V2.49C12.9946,2.2178,12.7723,1.9999,12.5,2 c-0.2816,0.0047-0.5062,0.2367-0.5015,0.5184C11.9987,2.5289,11.9992,2.5395,12,2.55V5C12,5.5523,12.4477,6,13,6s1-0.4477,1-1 s-0.4477-1-1-1 M8,6.5C8,6.7761,7.7761,7,7.5,7h-5C2.2239,7,2,6.7761,2,6.5v-3C2,3.2239,2.2239,3,2.5,3h5C7.7761,3,8,3.2239,8,3.5 V6.5z"
-                                                fill="#382CDD"></path>
-                                        </svg> </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-gas-pump"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->fuel; ?></h3><span
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="allfuel">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg width="18" height="10" viewbox="0 0 18 10" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M16.5 5.83333C16.3906 5.83339 16.2822 5.81188 16.181 5.77002C16.0799 5.72817 15.988 5.66678 15.9106 5.58939C15.8332 5.512 15.7719 5.42011 15.73 5.31897C15.6881 5.21784 15.6666 5.10945 15.6667 5V2.84505L10.4225 8.08916C10.3452 8.16656 10.2533 8.22796 10.1522 8.26985C10.0511 8.31175 9.94277 8.33331 9.83333 8.33331C9.7239 8.33331 9.61554 8.31175 9.51445 8.26985C9.41335 8.22796 9.3215 8.16656 9.24414 8.08916L6.50002 5.34505L2.08919 9.75583C1.93245 9.90975 1.72127 9.99555 1.50159 9.99456C1.28191 9.99356 1.07151 9.90586 0.91617 9.75052C0.760831 9.59518 0.673123 9.38478 0.672128 9.1651C0.671133 8.94542 0.756932 8.73424 0.910858 8.5775L5.91086 3.5775C5.98822 3.5001 6.08007 3.4387 6.18116 3.39681C6.28226 3.35492 6.39062 3.33335 6.50005 3.33335C6.60948 3.33335 6.71784 3.35492 6.81893 3.39681C6.92003 3.4387 7.01188 3.5001 7.08924 3.5775L9.83336 6.32161L14.4883 1.66666H12.3334C12.1123 1.66666 11.9004 1.57887 11.7441 1.42259C11.5878 1.2663 11.5 1.05434 11.5 0.833329C11.5 0.612315 11.5878 0.400352 11.7441 0.244073C11.9004 0.0877924 12.1123 -4.76837e-06 12.3334 -4.76837e-06H16.5C16.6095 -6.67572e-05 16.7179 0.0214453 16.819 0.063302C16.9201 0.105159 17.012 0.166539 17.0894 0.243935C17.1668 0.321329 17.2282 0.413218 17.2701 0.514352C17.3119 0.615484 17.3334 0.723876 17.3334 0.833329V5C17.3334 5.10945 17.3119 5.21784 17.2701 5.31897C17.2282 5.42011 17.1668 5.512 17.0894 5.58939C17.012 5.66678 16.9201 5.72817 16.819 5.77002C16.7179 5.81188 16.6095 5.83339 16.5 5.83333Z"
-                                                fill="#17BB84"></path>
-                                        </svg></span><span><span id="newfuel"></span></span></span>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newfuel"></span></span></span>
                             </div>
                         </div>
                     </div>
@@ -1177,13 +871,7 @@
                 <div class="flex px-6 pb-4 border-b">
                     <h3 class="text-xl font-bold">'.$st->downloads.'</h3>
                     <a style="cursor:pointer;display:none;" onclick="toggleUpdateDownloads()" class="admin-only">
-                        <span style="position:relative;top:3px;left:3px">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" style="color: #382CDD"
-                                viewBox="0 0 24 24" fill="none">
-                                <path fill="#382CDD" fill-rule="evenodd"
-                                    d="M15.586 3a2 2 0 0 1 2.828 0L21 5.586a2 2 0 0 1 0 2.828L19.414 10 14 4.586 15.586 3zm-3 3-9 9A2 2 0 0 0 3 16.414V19a2 2 0 0 0 2 2h2.586A2 2 0 0 0 9 20.414l9-9L12.586 6z"
-                                    clip-rule="evenodd" />
-                            </svg> </span></a>
+                        <span style="position:relative;top:3px;left:3px"><i class="fa-solid fa-pen-to-square"></i></span></a>
                 </div>
                 <div class="container px-4">
                     <div style="margin:20px" id="downloads">
@@ -1355,87 +1043,88 @@
     </section>
 
     <section id="StaffMembers" class="py-8 tabs" style="display:none">
-        <div class="px-4 mx-auto" style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->assign_roles; ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;padding:20px">
-                    <div class="mb-6">
-                        <?php echo $st->assign_roles_note; ?>
-                        <br>
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->member_name; ?></label>
-                        <input id="memberroleid" style="width:200px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name"
-                            name="field-name" rows="5" placeholder=""></input>
-                        <button type="button" id="fetchRolesBtn"
+        <div class="lg:ml-80 px-4 mx-auto flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
+            <div class="px-4 mb-4 md:mb-0" style="width:49.5%;display:inline-block">
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
+                    <div class="flex px-6 pb-4 border-b">
+                        <h3 class="text-xl font-bold"><?php echo $st->assign_roles; ?></h3>
+                    </div>
+                    <div class="p-4 overflow-x-auto" style="display: block;padding:20px">
+                        <div class="mb-6">
+                            <?php echo $st->assign_roles_note; ?>
+                            <br>
+                            <label class="block text-sm font-medium mb-2" for=""><?php echo $st->member; ?></label>
+                            <input id="memberroleid" style="width:200px;display:inline" placeholder='Select one from list'
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name" list="all_member_datalist" 
+                                name="field-name" rows="5" placeholder=""></input>
+                            <button type="button" id="fetchRolesBtn"
+                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                                onclick="GetMemberRoles()"><?php echo $st->fetch_existing_roles; ?></button>
+                        </div>
+                        <div class="mb-6" id="rolelist">
+
+                        </div>
+
+                        <button type="button" id="updateMemberRolesBtn"
                             class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="GetMemberRoles()"><?php echo $st->fetch_existing_roles; ?></button>
+                            onclick="UpdateMemberRoles()"><?php echo $st->update; ?></button>
                     </div>
-                    <span id="memberrolename" style="font-size:30px"></span>
-                    <div class="mb-6" id="rolelist">
-
-                    </div>
-
-                    <button type="button" id="updateMemberRolesBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UpdateMemberRoles()"><?php echo $st->update; ?></button>
                 </div>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->update_member_points; ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""
-                            style="display:inline"><?php echo $st->user_id; ?></label>
-                        <input id="memberpntid" style="width:200px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
+            <div class="px-4 mb-4 md:mb-0" style="width:49.5%;display:inline-block">
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
+                    <div class="flex px-6 pb-4 border-b">
+                        <h3 class="text-xl font-bold"><?php echo $st->update_member_points; ?></h3>
                     </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""
-                            style="display:inline"><?php echo $st->distance; ?>
-                            (km)</label>
-                        <input id="memberpntdistance" style="width:200px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""
-                            style="display:inline"><?php echo $st->myth_points; ?></label>
-                        <input id="memberpntmyth" style="width:200px;display:inline"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
+                    <div class="p-4 overflow-x-auto" style="display: block;">
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for=""
+                                style="display:inline"><?php echo $st->member; ?></label>
+                            <input id="memberpntid" style="width:200px;display:inline" placeholder='Select one from list'
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name" list="all_member_datalist"
+                                name="field-name" rows="5" placeholder=""></input>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for=""
+                                style="display:inline"><?php echo $st->distance; ?>
+                                (km)</label>
+                            <input id="memberpntdistance" style="width:200px;display:inline"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></input>
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2" for=""
+                                style="display:inline"><?php echo $st->myth_points; ?></label>
+                            <input id="memberpntmyth" style="width:200px;display:inline"
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
+                                name="field-name" rows="5" placeholder=""></input>
+                        </div>
 
-                    <button type="button" id="updateMemberPointsBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UpdateMemberPoints()"><?php echo $st->update; ?></button>
-                </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->dismiss; ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <p style="color:red"><?php echo $st->dismiss_note; ?></p>
-                        <br>
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->user_id; ?></label>
-                        <input id="dismissUserID" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
+                        <button type="button" id="updateMemberPointsBtn"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="UpdateMemberPoints()"><?php echo $st->update; ?></button>
                     </div>
+                </div>
+                <br>
+                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
+                    <div class="flex px-6 pb-4 border-b">
+                        <h3 class="text-xl font-bold"><?php echo $st->dismiss; ?></h3>
+                    </div>
+                    <div class="p-4 overflow-x-auto" style="display: block;">
+                        <div class="mb-6">
+                            <p style="color:red"><?php echo $st->dismiss_note; ?></p>
+                            <br>
+                            <label class="block text-sm font-medium mb-2" for=""
+                                style="display:inline"><?php echo $st->member; ?></label>
+                            <input id="dismissUserID" style="width:200px;display:inline" placeholder='Select one from list'
+                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name" list="all_member_datalist"
+                                name="field-name" rows="5" placeholder=""></input>
+                        </div>
 
-                    <p><span id="memberdismissname" style="font-size:20px"></span></p>
-
-                    <button type="button" id="dismissbtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="DismissUser()"><?php echo $st->dismiss; ?></button>
+                        <button type="button" id="dismissbtn"
+                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
+                            onclick="DismissUser()"><?php echo $st->dismiss; ?></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1534,81 +1223,28 @@
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 576 512" width="18" height="18">
-                                            <path fill="#382CDD"
-                                                d="M576 136c0 22.09-17.91 40-40 40c-.248 0-.4551-.1266-.7031-.1305l-50.52 277.9C482 468.9 468.8 480 453.3 480H122.7c-15.46 0-28.72-11.06-31.48-26.27L40.71 175.9C40.46 175.9 40.25 176 39.1 176c-22.09 0-40-17.91-40-40S17.91 96 39.1 96s40 17.91 40 40c0 8.998-3.521 16.89-8.537 23.57l89.63 71.7c15.91 12.73 39.5 7.544 48.61-10.68l57.6-115.2C255.1 98.34 247.1 86.34 247.1 72C247.1 49.91 265.9 32 288 32s39.1 17.91 39.1 40c0 14.34-7.963 26.34-19.3 33.4l57.6 115.2c9.111 18.22 32.71 23.4 48.61 10.68l89.63-71.7C499.5 152.9 496 144.1 496 136C496 113.9 513.9 96 536 96S576 113.9 576 136z" />
-                                        </svg> </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-crown"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_day; ?></h3>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="dotd" style="font-size:22px">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
-                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
-                                            <path d="M13 9l2 2l-2 2" />
-                                        </svg>
-                                    </span><span><span id="dotddistance"></span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="dotd"></span> <span id="dotddistance" style="font-size:14px"></span></h2>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                                                fill="#382CDD"></path>
-                                        </svg></span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="dalljob" style="font-size:22px">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
-                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
-                                            <path d="M13 9l2 2l-2 2" />
-                                        </svg>
-                                    </span><span><span id="dtotdistance">-</span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="dalljob"></span> / <span id="dtotdistance"></span></h2>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                                                fill="#382CDD"></path>
-                                        </svg></span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="dprofit" style="font-size:22px">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
-                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
-                                            <path d="M13 9l2 2l-2 2" />
-                                        </svg>
-                                    </span><span><?php echo $vtcname ?></span></span>
                             </div>
                         </div>
                     </div>
@@ -1624,81 +1260,28 @@
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 576 512" width="18" height="18">
-                                            <path fill="#382CDD"
-                                                d="M576 136c0 22.09-17.91 40-40 40c-.248 0-.4551-.1266-.7031-.1305l-50.52 277.9C482 468.9 468.8 480 453.3 480H122.7c-15.46 0-28.72-11.06-31.48-26.27L40.71 175.9C40.46 175.9 40.25 176 39.1 176c-22.09 0-40-17.91-40-40S17.91 96 39.1 96s40 17.91 40 40c0 8.998-3.521 16.89-8.537 23.57l89.63 71.7c15.91 12.73 39.5 7.544 48.61-10.68l57.6-115.2C255.1 98.34 247.1 86.34 247.1 72C247.1 49.91 265.9 32 288 32s39.1 17.91 39.1 40c0 14.34-7.963 26.34-19.3 33.4l57.6 115.2c9.111 18.22 32.71 23.4 48.61 10.68l89.63-71.7C499.5 152.9 496 144.1 496 136C496 113.9 513.9 96 536 96S576 113.9 576 136z" />
-                                        </svg> </span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-crown"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_week; ?></h3>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="dotw" style="font-size:22px">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
-                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
-                                            <path d="M13 9l2 2l-2 2" />
-                                        </svg>
-                                    </span><span><span id="dotwdistance"></span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="dotw"></span> <span id="dotwdistance" style="font-size:14px"></span></h2>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                                                fill="#382CDD"></path>
-                                        </svg></span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="walljob" style="font-size:22px">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
-                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
-                                            <path d="M13 9l2 2l-2 2" />
-                                        </svg>
-                                    </span><span><span id="wtotdistance">-</span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="walljob"></span> / <span id="wtotdistance"></span></h2>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
                             <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="inline-block mr-2">
-                                        <svg style="color: #382CDD" xmlns="http://www.w3.org/2000/svg" width="18"
-                                            height="18" fill="currentColor" class="bi bi-truck" viewBox="0 0 16 16">
-                                            <path
-                                                d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
-                                                fill="#382CDD"></path>
-                                        </svg></span>
+                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span>
                                     <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span>
                                 </div>
                                 <h2 class="mb-2 text-3xl font-bold" id="wprofit" style="font-size:22px">-</h2>
-                                <span class="text-xs text-green-500"><span class="inline-block mr-2">
-                                        <svg style="position:relative;top:4px" xmlns="http://www.w3.org/2000/svg"
-                                            class="icon icon-tabler icon-tabler-road-sign" width="18" height="18"
-                                            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                            <path
-                                                d="M10.5 20.4l-6.9 -6.9c-.781 -.781 -.781 -2.219 0 -3l6.9 -6.9c.781 -.781 2.219 -.781 3 0l6.9 6.9c.781 .781 .781 2.219 0 3l-6.9 6.9c-.781 .781 -2.219 .781 -3 0z" />
-                                            <path d="M9 14v-2c0 -.59 .414 -1 1 -1h5" />
-                                            <path d="M13 9l2 2l-2 2" />
-                                        </svg>
-                                    </span><span><?php echo $vtcname ?></span></span>
                             </div>
                         </div>
                         <br>
@@ -2123,7 +1706,7 @@
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">'.$st->members.' ('.$st->hit_enter_to.')</label>
                             <div class="inputWrapper" id="attendeeIdWrap" style="background-color:rgba(255,255,255,0.2)">
-                                <input id="attendeeId" class="inputDefault inputInner search-name" name="field-name" rows="5"
+                                <input id="attendeeId" class="inputDefault inputInner search-name-mul" name="field-name" rows="5"
                                     placeholder=""></input>
                             </div>
                         </div>
@@ -2571,7 +2154,7 @@
                     <label class="block text-sm font-medium mb-2" for="" style="color:red">Warning: Misconfiguration
                         may lead to API service failing to start or not working properly!</label>
                     <br>
-                    <div>
+                    <!-- <div>
                         <h3 class="text-l font-bold">Company</h3>
 
                         <div class="mb-6" style="display:inline-block;width:24.5%">
@@ -2883,7 +2466,7 @@
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
                                 name="field-name" rows="5" placeholder=""></textarea></div>
                     </div>
-                    <hr><br>
+                    <hr><br> 
                     <div>
                         <h3 class="text-l font-bold">Audit Log</h3>
 
@@ -2893,7 +2476,7 @@
                                 class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
                                 type="text" name="" placeholder=""></div>
                     </div>
-                    <hr><br>
+                    <hr><br> -->
                     <h3 class="text-l font-bold">JSON Config Editor</h3>
                     <label class="block text-sm font-medium mb-2" for="">For advanced user who knows JSON format
                         well</label>
@@ -2925,23 +2508,21 @@
             </div>
         </div>
     </section>
+    <datalist id="all_member_datalist" style="display:none">
+        
+    </datalist>
     <section id="footer">
-        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
-            <div style="margin:0.5em;margin-top:auto;text-align:center" style="padding-bottom:10px">
+        <div class="px-6 mx-auto lg:ml-80 pb-4">
+            <hr style="border:1px solid #777;margin-bottom:8px">
+            <div style="width:49.5%;text-align:left;display:inline-block">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
-                <a href="https://drivershub.charlws.com" target="_blank">(CHub)</a>
-                &nbsp;|&nbsp;
+            </div>
+            <div style="width:49.5%;text-align:right;display:inline-block">
+                <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>
+                &nbsp;&nbsp;
                 <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a>
-                &nbsp;|&nbsp;
+                &nbsp;&nbsp;
                 <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
-                <br>
-                <a href="/api" target="_blank">API</a>: <span id="apiversion">v?.?.?</span> <a href="https://drivershub.charlws.com/changelog" target="_blank">Changelog</a>
-                &nbsp;|&nbsp;
-                Web: v1.5.4 <a href="/changelog" target="_blank">Changelog</a>
-                <br>
-                Map: <a href="https://map.charlws.com" target="_blank">map.charlws.com</a>
-                &nbsp;|&nbsp;
-                <?php if($status != "") echo 'Status: <a href="https://'.$status.'/" target="_blank">'.$status.'</a>'; ?>
             </div>
         </div>
     </section>

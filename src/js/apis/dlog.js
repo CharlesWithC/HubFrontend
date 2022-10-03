@@ -7,7 +7,26 @@ ldivision = 1;
 dets2 = 1;
 dats = 1;
 
-function LoadDriverLeaderStatistics() {
+function LoadDriverLeaderStatistics() {   
+    function AjaxLDLS(start, end, dottag){
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                users = data.response.list;
+                dottuser = users[0];
+                discordid = dottuser.discordid;
+                avatar = GetAvatarSrc(discordid, dottuser.avatar);
+                distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
+                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
+                $("#dot" + dottag + "distance").html(`(${distance}${distance_unit_txt})`);
+            }
+        });
+    } 
     driver_of_the_tag = ["d", "w"];
     for(var i = 0 ; i < driver_of_the_tag.length ; i++){
         dott = driver_of_the_tag[i];
@@ -20,24 +39,7 @@ function LoadDriverLeaderStatistics() {
         var end = +new Date() / 1000;
         start = parseInt(start);
         end = parseInt(end);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
-            type: "GET",
-            dataType: "json",
-            async: false,
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                users = data.response.list;
-                dottuser = users[0];
-                discordid = dottuser.discordid;
-                avatar = GetAvatarSrc(discordid, dottuser.avatar);
-                distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
-                $("#dot" + dott).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
-                $("#dot" + dott + "distance").html(`Driven ${distance}${distance_unit_txt}`);
-            }
-        });
+        AjaxLDLS(start, end, dott);
     }
 }
 

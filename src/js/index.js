@@ -141,11 +141,11 @@ function InitLeaderboardTimeRange(){
 }
 
 function InitDarkMode(){
+    localStorage.setItem("darkmode", "1"); // NOTE
     isdark = parseInt(localStorage.getItem("darkmode"));
     if (localStorage.getItem("darkmode") == undefined) isdark = 1;
-
     if (localStorage.getItem("darkmode") == "1") {
-        $("body").addClass("bg-gray-800");
+        $("body").css("background-color", "#2F3136");
         $("body").css("color", "white");
         $("head").append(`<style id='convertbg'>
             h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
@@ -155,9 +155,9 @@ function InitDarkMode(){
             .rounded-full {background-color: #888}
             th > .fc-scrollgrid-sync-inner {background-color: #444}
             a:hover {color: white}
+            .flexdatalist-results {background-color:#57595D};
             a {color: #ccc}</style>`);
-        $("#todarksvg").hide();
-        $("#tolightsvg").show();
+        $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
         Chart.defaults.color = "white";
         $("body").html($("body").html().replaceAll("text-green", "text-temp"));
         $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
@@ -168,46 +168,41 @@ function InitDarkMode(){
 }
 
 function ToggleDarkMode() {
+    isdark = 0; // NOTE
     if (!isdark) {
-        $("body").css("transition", "color 1000ms linear");
-        $("body").css("transition", "background-color 1000ms linear");
-        $("body").addClass("bg-gray-800");
+        $("body").css("background-color", "#2F3136");
         $("body").css("color", "white");
         $("head").append(`<style id='convertbg'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;transition: color 1000ms linear;}
-            svg{transition: color 1000ms linear;}
-            .text-gray-500,.text-gray-600 {color: #ddd;transition: color 1000ms linear;}
-            .bg-white {background-color: rgba(255, 255, 255, 0.2);transition: background-color 1000ms linear;}
+            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
+            svg{}
+            .text-gray-500,.text-gray-600 {color: #ddd;}
+            .bg-white {background-color: rgba(255, 255, 255, 0.2);}
             .swal2-popup {background-color: rgb(41 48 57)}
             .rounded-full {background-color: #888;}
             a:hover {color: white}
+            .flexdatalist-results {background-color:#57595D};
             a: {color: #444}</style>`);
-        $("#todarksvg").hide();
-        $("#tolightsvg").show();
         Chart.defaults.color = "white";
+        $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
         $("body").html($("body").html().replaceAll("text-green", "text-temp"));
         $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
         $("body").html($("body").html().replaceAll("text-temp", "text-green"));
     } else {
-        $("body").css("transition", "color 1000ms linear");
-        $("body").css("transition", "background-color 1000ms linear");
-        $("body").removeClass("bg-gray-800");
+        $("body").css("background-color", "white");
         $("body").css("color", "");
         $("head").append(`<style id='convertbg2'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {transition: color 1000ms linear;}
-            svg{transition: color 1000ms linear;}
-            .text-gray-500,.text-gray-600 {transition: color 1000ms linear;}
-            .bg-white {background-color: white;transition: background-color 1000ms linear;}
+            h1,h2,h3,p,span,text,label,input,textarea,select,tr {}
+            svg{}
+            .text-gray-500,.text-gray-600 {}
+            .bg-white {background-color: white;}
             .swal2-popup {background-color: white;}
             .rounded-full {background-color: #ddd;}
             a:hover {color: black}
+            .flexdatalist-results {background-color:white};
             a {color: #ccc}</style>`);
-        setTimeout(function () {
-            $("#convertbg2").remove();
-        }, 1000);
+        $("#darkmode-svg").html(`<i class="fa-solid fa-moon"></i>`);
+        $("#convertbg2").remove();
         $("#convertbg").remove();
-        $("#todarksvg").show();
-        $("#tolightsvg").hide();
         Chart.defaults.color = "black";
         $("body").html($("body").html().replaceAll("skyblue", "#382CDD").replaceAll("lightgreen", "green"));
     }
@@ -217,46 +212,32 @@ function ToggleDarkMode() {
 }
 
 function InitSearchByName(){
-    lastnamesearch = 0;
-    lnsto = 0;
-
-    function SearchName(eid) {
-        if ($("#" + eid + "_datalist").length == 0) {
-            $("#" + eid).attr("list", eid + "_datalist");
-            $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
-        }
-        datalist = "#" + eid + "_datalist";
-        content = $("#" + eid).val();
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + content,
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                d = data.response.list;
-                $(datalist).children().remove();
-                if (d.length == 0) {
-                    $(datalist).append("<option value='No Data'>");
-                    return;
-                }
-                for (var i = 0; i < d.length; i++) {
-                    $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
-                }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member/list/all",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return;
+            l = data.response.list;
+            for (var i = 0; i < l.length; i++) {
+                $("#all_member_datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
             }
-        });
-    }
-    $(".search-name").on('input', function () {
-        if (+new Date() - lastnamesearch < 1000) return;
-        lastnamesearch = +new Date();
-        eid = $(this).attr("id");
-        SearchName(eid);
-        clearTimeout(lnsto);
-        lnsto = setTimeout(function () {
-            SearchName(eid)
-        }, 1000);
+            $(".search-name").flexdatalist({
+                selectionRequired: true,
+                minLength: 1,
+                limitOfValues: 1
+           });
+           $(".search-name-mul").flexdatalist({
+               selectionRequired: true,
+               minLength: 1,
+               limitOfValues: 0
+          });
+        }
     });
+
 }
 
 eventsCalendar = undefined;
@@ -268,30 +249,19 @@ async function GeneralLoad() {
     if (isdark) $("#loading").css("border", "solid lightgreen 1px");
     else $("#loading").css("border", "solid green 1px");
     $("#loading").css("width", "50%");
+    $("#loading").css("transition", "width: 0.1s");
     maxajax = 0;
     lastw = 0;
     while ($.active > 0) {
         maxajax = Math.max($.active + 1, maxajax);
         neww = parseInt(100 - $.active / maxajax * 100);
-        while (neww > lastw) {
-            lastw += 1;
-            $("#loading").css("width", `${lastw}%`);
-            await sleep(5);
-        }
-        await sleep(10);
+        $("#loading").css("width", `${neww}%`);
+        await sleep(50);
     }
     neww = 100;
-    while (neww > lastw) {
-        lastw += 1;
-        $("#loading").css("width", `${lastw}%`);
-        await sleep(5);
-    }
+    $("#loading").css("width", `${neww}%`);
     neww = 1;
-    while (neww < lastw) {
-        lastw -= 5;
-        $("#loading").css("width", `${lastw}%`);
-        await sleep(1);
-    }
+    $("#loading").css("width", `${neww}%`);
     $("#loading").css("border", "solid transparent 1px");
     loadworking = false;
 }
@@ -420,9 +390,9 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#Delivery") {
         window.history.pushState("", "", '/delivery');
+        LoadDeliveryList();
         LoadDriverLeaderStatistics();
         LoadStats(true);
-        LoadDeliveryList();
     }
     if (tabname == "#Leaderboard") {
         window.history.pushState("", "", '/leaderboard');
@@ -816,6 +786,7 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
+    setTimeout(function(){new SimpleBar($('#navbar')[0]);},500);
     LoadCache();
     PathDetect();
     LoadDivisionList();

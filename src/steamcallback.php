@@ -31,7 +31,7 @@
 		integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
 		crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/font.css">
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/unisans/css/unisans.min.css">
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/login.css">
 	<style>
 		.formRight form section button {background-color:<?php echo $vtccolor ?>;}

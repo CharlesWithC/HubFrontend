@@ -9,6 +9,14 @@
 999.Restyle frontend (tailwind -> bootstrap)  
 1000.Improve assign role  
 
+**v1.5.5**  
+1.Removed Dark Mode transition  
+2.Added SimpleBar for menu  
+3.Improved svg icons - Genuine FontAwesome  
+4.Improved footer  
+5.Optimized Loading Bar  
+6.Improved member searcher for Assign Roles, Update Member Points, Dismiss  
+
 **v1.5.4**  
 1.Fixed staff controls not showing up  
 2.Fixed staff positions not showing up  

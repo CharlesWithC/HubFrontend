@@ -84,7 +84,7 @@ function AuthValidate() {
                     "Authorization": "Bearer " + token
                 },
                 data: {
-                    tip: token,
+                    token: token,
                     otp: otp
                 },
                 success: function (data) {
