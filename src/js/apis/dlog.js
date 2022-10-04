@@ -703,7 +703,7 @@ function deliveryDetail(logid) {
             }
         },
         error: function (data) {
-            ShowTab("#HomeTab", "#HomeTabBtn");
+            ShowTab("#overview-tab", "#button-overview-tab");
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
             AjaxError(data);

@@ -55,8 +55,8 @@ function InitRankingDisplay(){
 
 function InitResizeHandler(){
     setInterval(function () {
-        if ($("#HomeTab").width() / 3 <= 300) {
-            if ($("#HomeTab").width() / 2 <= 300) $(".statscard").css("width", "100%");
+        if ($("#overview-tab").width() / 3 <= 300) {
+            if ($("#overview-tab").width() / 2 <= 300) $(".statscard").css("width", "100%");
             else $(".statscard").css("width", "50%");
         } else $(".statscard").css("width", "33%");
     }, 10);
@@ -100,7 +100,7 @@ function InitInputHandler(){
     $('#application4Answer1').on('change', function () {
         var value = $(this).val();
         $(".divisiontabs").hide();
-        $("#Division" + value).show();
+        $("#division-tab" + value).show();
     });
 }
 
@@ -230,18 +230,53 @@ function InitSearchByName(){
                 minLength: 1,
                 limitOfValues: 1
            });
-           $(".search-name-mul").flexdatalist({
-               selectionRequired: true,
-               minLength: 1,
-               limitOfValues: 0
-          });
         }
     });
 
+    lastnamesearch = 0;
+    lnsto = 0;
+
+    function SearchName(eid) {
+        if ($("#" + eid + "_datalist").length == 0) {
+            $("#" + eid).attr("list", eid + "_datalist");
+            $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
+        }
+        datalist = "#" + eid + "_datalist";
+        content = $("#" + eid).val();
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + content,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response.list;
+                $(datalist).children().remove();
+                if (d.length == 0) {
+                    $(datalist).append("<option value='No Data'>");
+                    return;
+                }
+                for (var i = 0; i < d.length; i++) {
+                    $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
+                }
+            }
+        });
+    }
+    $(".search-name-old").on('input', function () {
+        if (+new Date() - lastnamesearch < 1000) return;
+        lastnamesearch = +new Date();
+        eid = $(this).attr("id");
+        SearchName(eid);
+        clearTimeout(lnsto);
+        lnsto = setTimeout(function () {
+            SearchName(eid)
+        }, 1000);
+    });
 }
 
 eventsCalendar = undefined;
-curtab = "#HomeTab";
+curtab = "#overview-tab";
 loadworking = false;
 async function GeneralLoad() {
     if (loadworking) return;
@@ -308,7 +343,7 @@ async function ShowTab(tabname, btnname) {
             $("#loading").css("width", `${lastw}%`);
             await sleep(1);
         }
-        if (curtab != "#Event") {
+        if (curtab != "#event-tab") {
             eventsCalendar = undefined;
             $("#eventsCalendar").children().remove();
             $("#eventsCalendar").attr("class", "");
@@ -320,7 +355,7 @@ async function ShowTab(tabname, btnname) {
     if (btnname != "#ProfileTabBtn") {
         $(btnname).addClass("bg-indigo-500");
     }
-    if (tabname == "#Map") {
+    if (tabname == "#map-tab") {
         window.history.pushState("", "", '/map');
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
@@ -342,11 +377,11 @@ async function ShowTab(tabname, btnname) {
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
     }
-    if (tabname == "#HomeTab") {
+    if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
         LoadStats();
     }
-    if (tabname == "#AnnTab") {
+    if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
         if(annInit == 0) LoadAnnouncement();
         ch = $("#anns").children();
@@ -356,49 +391,49 @@ async function ShowTab(tabname, btnname) {
             await sleep(200);
         }
     }
-    if (tabname == "#StaffAnnTab") {
+    if (tabname == "#staff-announcement-tab") {
         window.history.pushState("", "", '/staff/announcement');
     }
-    if (tabname == "#DownloadsTab") {
+    if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
         loadDownloads();
     }
-    if (tabname == "#SubmitApp") {
+    if (tabname == "#submit-application-tab") {
         window.history.pushState("", "", '/application/submit');
         $("#driverappsel").attr("selected", "selected");
     }
-    if (tabname == "#MyApp") {
+    if (tabname == "#my-application-tab") {
         window.history.pushState("", "", '/application/my');
         LoadUserApplicationList();
     }
-    if (tabname == "#AllApp") {
+    if (tabname == "#button-staff-application") {
         window.history.pushState("", "", '/application/all');
         LoadAllApplicationList();
     }
-    if (tabname == "#AllUsers") {
+    if (tabname == "#staff-user-tab") {
         window.history.pushState("", "", '/staff/user');
         LoadUserList();
     }
-    if (tabname == "#AllMembers") {
+    if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
         LoadXOfTheMonth();
         LoadMemberList();
     }
-    if (tabname == "#StaffMembers") {
+    if (tabname == "#staff-member-tab") {
         window.history.pushState("", "", '/staff/member');
         LoadMemberList();
     }
-    if (tabname == "#Delivery") {
+    if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
         LoadDeliveryList();
         LoadDriverLeaderStatistics();
         LoadStats(true);
     }
-    if (tabname == "#Leaderboard") {
+    if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
         LoadLeaderboard();
     }
-    if (tabname == "#Ranking") {
+    if (tabname == "#ranking-tab") {
         window.history.pushState("", "", '/ranking');
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + userid,
@@ -418,28 +453,28 @@ async function ShowTab(tabname, btnname) {
             }
         });
     }
-    if (tabname == "#Division") {
+    if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
         LoadDivisionInfo();
     }
-    if (tabname == "#StaffDivision") {
+    if (tabname == "#staff-division-tab") {
         window.history.pushState("", "", '/staff/division');
         LoadPendingDivisionValidation();
     }
-    if (tabname == "#Event") {
+    if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
         LoadEventInfo();
     }
-    if (tabname == "#StaffEvent") {
+    if (tabname == "#staff-event-tab") {
         window.history.pushState("", "", '/staff/event');
+        setTimeout(function(){HandleAttendeeInput();},2000);
         LoadEventInfo();
-        HandleAttendeeInput();
     }
-    if (tabname == "#AuditLog") {
+    if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
         LoadAuditLog();
     }
-    if (tabname == "#Admin") {
+    if (tabname == "#config-tab") {
         window.history.pushState("", "", '/admin');
         loadAdmin();
     }
@@ -606,32 +641,32 @@ function GetUserPermission(){
 function ShowStaffTabs() {
     userPerm = GetUserPermission();
     if (userPerm.length > 0) {
-        $("#stafftabs").show();
-        $("#stafftabs a").hide();
+        $("#sidebar-staff").show();
+        $("#sidebar-staff a").hide();
         if (userPerm.includes("admin")) {
-            $("#stafftabs a").show();
+            $("#sidebar-staff a").show();
             $(".admin-only").show();
-            $("#AdminBtn").show();
+            $("#button-config-tab").show();
             AnnouncementEventButtonValueUpdate();
         } else {
             $(".admin-only").hide();
             if (userPerm.includes("event")) {
-                $("#StaffEventBtn").show();
-                $("#StaffAnnTabBtn").show();
+                $("#button-staff-event-tab").show();
+                $("#button-staff-announcement-tab").show();
                 AnnouncementEventButtonValueUpdate();
             }
             if (userPerm.includes("hr") || userPerm.includes("division")) {
-                $("#StaffMemberBtn").show();
-                $("#AllAppBtn").show();
+                $("#button-staff-member-tab").show();
+                $("#button-staff-application-tab").show();
             }
             if (userPerm.includes("hr")) {
-                $("#AllUserBtn").show();
+                $("#button-staff-user").show();
             }
             if (userPerm.includes("division")) {
-                $("#StaffDivisionBtn").show();
+                $("#button-staff-division-tab").show();
             }
             if (userPerm.includes("audit")) {
-                $("#AuditLogBtn").show();
+                $("#button-audit-tab").show();
             }
         }
     }
@@ -647,22 +682,22 @@ function ValidateToken() {
 
     if (token == "guest") {
         // Guest, not logged in, update elements
-        $("#recruitment a").attr("href", "/login");
+        $("#sidebar-application a").attr("href", "/login");
         $("#ProfileTabBtn").attr("onclick", "window.location.href='/login'");
         $("#logout").hide();
         $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
-        $("#DivisionBtn").hide();
-        $("#DownloadsTabBtn").hide();
+        $("#button-division-tab").hide();
+        $("#button-downloads-tab").hide();
         return;
     }
 
     if (userid != -1 && userid != null) {
         // Logged in, and is member, show membersOnlyTabs
-        $(".memberOnlyTabs").show();
+        $(".member-only-tab").show();
     } else {
         // Logged in, not member, hide division and downloads
-        $("#DivisionBtn").hide();
-        $("#DownloadsTabBtn").hide();
+        $("#button-division-tab").hide();
+        $("#button-downloads-tab").hide();
     }
     
     // Validate token and get user information
@@ -701,7 +736,7 @@ function ValidateToken() {
             // Check if is member
             userid = data.response.userid;
             if (data.response.userid != -1) {
-                $("#AllMemberBtn").show();
+                $("#button-member-tab").show();
             }
             roles = data.response.roles.sort(function (a, b) {
                 return a - b
@@ -730,28 +765,28 @@ function ValidateToken() {
 function PathDetect() {
     p = window.location.pathname;
     if (p == "/overview") window.history.pushState("", "", '/');
-    else if (p == "/") ShowTab("#HomeTab", "#HomeTabBtn");
-    else if (p == "/announcement") ShowTab("#AnnTab", "#AnnTabBtn");
-    else if (p == "/staff/announcement") ShowTab("#StaffAnnTab", "#StaffAnnTabBtn");
-    else if (p == "/downloads") ShowTab("#DownloadsTab", "#DownloadsTabBtn");
-    else if (p == "/map") ShowTab("#Map", "#MapBtn");
+    else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
+    else if (p == "/staff/announcement") ShowTab("#staff-announcement-tab", "#button-staff-announcement-tab");
+    else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
+    else if (p == "/map") ShowTab("#map-tab", "#button-map-tab");
     else if (p.startsWith("/delivery")) {
         if(getUrlParameter("logid")){
             logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
-            $("#DeliveryBtn").addClass("bg-indigo-500");
+            $("#button-delivery-tab").addClass("bg-indigo-500");
             deliveryDetail(logid);
             return;
         }
         if (p.split("/").length >= 3) {
             $(".tabbtns").removeClass("bg-indigo-500");
-            $("#DeliveryBtn").addClass("bg-indigo-500");
+            $("#button-delivery-tab").addClass("bg-indigo-500");
             deliveryDetail(p.split("/")[2]);
-        } else ShowTab("#Delivery", "#DeliveryBtn");
-    } else if (p == "/division") ShowTab("#Division", "#DivisionBtn");
-    else if (p == "/staff/division") ShowTab("#StaffDivision", "#StaffDivisionBtn");
-    else if (p == "/event") ShowTab("#Event", "#EventBtn");
-    else if (p == "/staff/event") ShowTab("#StaffEvent", "#StaffEventBtn");
+        } else ShowTab("#delivery-tab", "#button-delivery-tab");
+    } else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
+    else if (p == "/staff/division") ShowTab("#staff-division-tab", "#button-staff-division-tab");
+    else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
+    else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
         if(getUrlParameter("userid")){
             userid = getUrlParameter("userid");
@@ -759,22 +794,22 @@ function PathDetect() {
             return;
         }
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
-        else ShowTab("#AllMembers", "#AllMemberBtn");
+        else ShowTab("#member-tab", "#button-member-tab");
     } else if (p == "/staff/member") {
-        ShowTab("#StaffMembers", "#StaffMemberBtn");
-    } else if (p == "/leaderboard") ShowTab("#Leaderboard", "#LeaderboardBtn");
-    else if (p == "/ranking") ShowTab("#Ranking", "#RankingBtn");
-    else if (p == "/application/my") ShowTab("#MyApp", "#MyAppBtn");
-    else if (p == "/application/all") ShowTab("#AllApp", "#AllAppBtn");
-    else if (p == "/application/submit" || p == "/apply") ShowTab("#SubmitApp", "#SubmitAppBtn");
-    else if (p == "/staff/user") ShowTab("#AllUsers", "#AllUserBtn");
-    else if (p == "/audit") ShowTab("#AuditLog", "#AuditLogBtn");
-    else if (p == "/admin") ShowTab("#Admin", "#AdminBtn");
+        ShowTab("#staff-member-tab", "#button-staff-member-tab");
+    } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
+    else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
+    else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
+    else if (p == "/application/all") ShowTab("#button-staff-application", "#button-staff-application-tab");
+    else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
+    else if (p == "/staff/user") ShowTab("#staff-user-tab", "#button-staff-user");
+    else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
+    else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
     else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
     } else{
-        ShowTab("#HomeTab", "#HomeTabBtn");
+        ShowTab("#overview-tab", "#button-overview-tab");
         window.history.pushState("", "", '/');
     }
 }
@@ -786,7 +821,7 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
-    setTimeout(function(){new SimpleBar($('#navbar')[0]);},500);
+    setTimeout(function(){new SimpleBar($('#sidebar')[0]);},500);
     LoadCache();
     PathDetect();
     LoadDivisionList();

@@ -79,11 +79,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        if(stristr($path, 'beta')){
-            echo '<script id="bundle_beta" src="https://drivershub-cdn.charlws.com/js/bundles/beta.js"></script>';
-        } else {
-            echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0b87f0ac2c7ca79e.js"></script>';
-        }
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2faa8440ba166c01.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -155,10 +151,10 @@
         <div class="hidden lg:block navbar-menu relative z-50">
             <nav 
                 class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8">
-                <div id="navbar" style="height:100%">
+                <div id="sidebar" style="height:100%">
                 <div class="flex w-full items-center px-6 pb-6 mb-6 lg:border-b border-gray-700">
                     <a class="text-xl text-white font-semibold" style="cursor: pointer"
-                        onclick="ShowTab('#HomeTab', '#HomeTabBtn')"><img
+                        onclick="ShowTab('#overview-tab', '#button-overview-tab')"><img
                             src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
                             width="100%"></a>
                 </div>
@@ -166,9 +162,9 @@
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $vtcname ?></h3>
                     <ul class="text-sm font-medium">
                         <li>
-                            <a id="HomeTabBtn"
+                            <a id="button-overview-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns bg-indigo-500"
-                                style="cursor: pointer" onclick="ShowTab('#HomeTab', '#HomeTabBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#overview-tab', '#button-overview-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
                                 <span><?php echo $st->overview; ?></span>
                             </a>
@@ -178,8 +174,8 @@
                             if(in_array("announcement", $enabled_plugins)){
                             echo '
                             <li>
-                            <a id="AnnTabBtn" class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#AnnTab\', \'#AnnTabBtn\')">
+                            <a id="button-announcement-tab" class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
+                                style="cursor: pointer" onclick="ShowTab(\'#announcement-tab\', \'#button-announcement-tab\')">
                                 <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
                                 <span>'.$st->announcements.'</span>
                             </a>
@@ -189,9 +185,9 @@
                             if(in_array("downloads", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="DownloadsTabBtn"
+                            <a id="button-downloads-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#DownloadsTab\', \'#DownloadsTabBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#downloads-tab\', \'#button-downloads-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-download"></i></span>
                                 <span>'.$st->downloads.'</span>
                             </a>
@@ -207,18 +203,18 @@
                             if(in_array("livemap", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="MapBtn"
+                            <a id="button-map-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#Map\', \'#MapBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#map-tab\', \'#button-map-tab\')">
                                 <span class="rect-20"><i class="fa-regular fa-map"></i></span>
                                 <span>'.$st->map.'</span>
                             </a>
                         </li>';}?>
 
                         <li>
-                            <a id="DeliveryBtn"
+                            <a id="button-delivery-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#Delivery', '#DeliveryBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#delivery-tab', '#button-delivery-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-truck"></i></span>
                                 <span><?php echo $st->deliveries ?></span>
                             </a>
@@ -228,10 +224,10 @@
                             if(in_array("division", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="DivisionBtn"
+                            <a id="button-division-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#Division\', \'#DivisionBtn\')">
-                                <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
+                                style="cursor: pointer" onclick="ShowTab(\'#division-tab\', \'#button-division-tab\')">
+                                <span class="rect-"20""><i class="fa-solid fa-warehouse"></i></span>
                                 <span>'.$st->divisions.'</span>
                             </a>
                         </li>';}?>
@@ -240,9 +236,9 @@
                             if(in_array("event", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="EventBtn"
+                            <a id="button-event-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#Event\', \'#EventBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#event-tab\', \'#button-event-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
                                 <span>'.$st->events.'</span>
                             </a>
@@ -250,23 +246,23 @@
                     </ul>
                 </div>
 
-                <div class="px-4 pb-6 memberOnlyTabs" style="display:none">
+                <div class="px-4 pb-6 member-only-tab" style="display:none">
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->drivers; ?>
                     </h3>
                     <ul class="text-sm font-medium">
                         <li>
-                            <a id="AllMemberBtn"
+                            <a id="button-member-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#AllMembers', '#AllMemberBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#member-tab', '#button-member-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
                                 <span><?php echo $st->members; ?></span>
                             </a>
                         </li>
 
                         <li>
-                            <a id="LeaderboardBtn"
+                            <a id="button-leaderboard-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#Leaderboard', '#LeaderboardBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#leaderboard-tab', '#button-leaderboard-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span>
                                 <span><?php echo $st->leaderboard; ?></span>
                             </a>
@@ -276,9 +272,9 @@
                             if(in_array("ranking", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="RankingBtn"
+                            <a id="button-ranking-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#Ranking\', \'#RankingBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#ranking-tab\', \'#button-ranking-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
                                 <span>'.$st->rankings.'</span>
                             </a>
@@ -289,13 +285,13 @@
                 <?php
                             if(in_array("application", $enabled_plugins)){
                             echo '
-                <div class="px-4 pb-6" id="recruitment">
+                <div class="px-4 pb-6" id="sidebar-application">
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">'.$st->applications.'</h3>
                     <ul class="text-sm font-medium">
                         <li>
-                            <a id="MyAppBtn"
+                            <a id="button-my-application-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#MyApp\', \'#MyAppBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#my-application-tab\', \'#button-my-application-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
                                 <span id="MyAppSpan">'.$st->my_applications.'</span>
                             </a>
@@ -303,15 +299,15 @@
 
                         </li>
                         <li>
-                            <a id="SubmitAppBtn"
+                            <a id="button-submit-application-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#SubmitApp\', \'#SubmitAppBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#submit-application-tab\', \'#button-submit-application-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
                                 <span>'.$st->submit_application.'</span>
                             </a>
                     </ul>
                 </div>';}?>
-                <div class="px-4 pb-6" id="stafftabs" style="display:none">
+                <div class="px-4 pb-6" id="sidebar-staff" style="display:none">
                     <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->staff; ?>
                     </h3>
                     <ul class="mb-8 text-sm font-medium">
@@ -319,9 +315,9 @@
                             if(in_array("announcement", $enabled_plugins)){
                             echo '
                             <li>
-                            <a id="StaffAnnTabBtn"
+                            <a id="button-staff-announcement-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#StaffAnnTab\', \'#StaffAnnTabBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#staff-announcement-tab\', \'#button-staff-announcement-tab\')">
                                 <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
                                 <span>'.$st->announcements.'</span>
                             </a>
@@ -331,9 +327,9 @@
                             if(in_array("event", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="StaffEventBtn"
+                            <a id="button-staff-event-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#StaffEvent\', \'#StaffEventBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#staff-event-tab\', \'#button-staff-event-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
                                 <span>'.$st->events.'</span>
                             </a>
@@ -343,26 +339,26 @@
                             if(in_array("division", $enabled_plugins)){
                             echo '
                             <li>
-                            <a id="StaffDivisionBtn" class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#StaffDivision\', \'#StaffDivisionBtn\')">
+                            <a id="button-staff-division-tab" class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
+                                style="cursor: pointer" onclick="ShowTab(\'#staff-division-tab\', \'#button-staff-division-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                                 <span>'.$st->divisions.'</span>
                             </a>
                             </li>';}?>
 
                         <li>
-                            <a id="StaffMemberBtn"
+                            <a id="button-staff-member-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#StaffMembers', '#StaffMemberBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#staff-member-tab', '#button-staff-member-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
                                 <span><?php echo $st->members; ?></span>
                             </a>
                         </li>
 
                         <li>
-                            <a id="AllUserBtn"
+                            <a id="button-staff-user"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#AllUsers', '#AllUserBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#staff-user-tab', '#button-staff-user')">
                                 <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
                                 <span><?php echo $st->users; ?></span>
                             </a>
@@ -372,25 +368,25 @@
                             if(in_array("application", $enabled_plugins)){
                             echo '
                         <li>
-                            <a id="AllAppBtn"
+                            <a id="button-staff-application-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#AllApp\', \'#AllAppBtn\')">
+                                style="cursor: pointer" onclick="ShowTab(\'#button-staff-application\', \'#button-staff-application-tab\')">
                                 <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
                                 <span>'.$st->applications.'</span>
                             </a>
                         </li>';}?>
                         <li>
-                            <a id="AuditLogBtn"
+                            <a id="button-audit-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#AuditLog', '#AuditLogBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#audit-tab', '#button-audit-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-terminal"></i></span>
                                 <span><?php echo $st->audit_log ?></span>
                             </a>
                         </li>
                         <li>
-                            <a id="AdminBtn"
+                            <a id="button-config-tab"
                                 class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#Admin', '#AdminBtn')">
+                                style="cursor: pointer" onclick="ShowTab('#config-tab', '#button-config-tab')">
                                 <span class="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span>
                                 <span><?php echo $st->administrator ?></span>
                             </a>
@@ -648,11 +644,11 @@
         </div>
     </section>
 
-    <section id="HomeTab" class="py-8 tabs mx-auto lg:ml-80" style="display:none">
+    <section id="overview-tab" class="py-8 tabs mx-auto lg:ml-80" style="display:none">
         <div class="px-4 mx-auto">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
                 <div class="md:w-2/3 px-4 mb-4 md:mb-0" id="hometableftcontainer">
-                    <!-- <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" id="HomeTabLeft">
+                    <!-- <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" id="overview-tabLeft">
                     </div> -->
                     <div id="statsTimeRange" style="width:100%;display:none">
                         <div style="margin-left:20px;margin-bottom:-10px">
@@ -776,7 +772,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0" id="HomeTabRight">
+                <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0" id="overview-tabRight">
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
                         <h2><b>Leaderboard</b></h2>
                         <div class="p-4 overflow-x-auto" style="display: block;" id="table_mini_leaderboard">
@@ -826,7 +822,7 @@
     <?php
         if(in_array("livemap", $enabled_plugins)){
         echo '
-    <section id="Map" class="py-8 tabs" style="display:none">
+    <section id="map-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
                 <h2 style="position:relative;display:inline;top:30px;left:10px;z-index:1000;color:white">Euro Truck
@@ -859,7 +855,7 @@
     <?php
         if(in_array("announcement", $enabled_plugins)){
         echo '
-    <section id="AnnTab" class="py-8 tabs" style="display:none">
+    <section id="announcement-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
                 <div id="anns">
@@ -872,7 +868,7 @@
     <?php
         if(in_array("downloads", $enabled_plugins)){
         echo '
-    <section id="DownloadsTab" class="py-8 tabs" style="display:none">
+    <section id="downloads-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -901,7 +897,7 @@
     <?php
   if(in_array("announcement", $enabled_plugins)){
     echo '
-  <section id="StaffAnnTab" class="py-8 tabs" style="display:none">
+  <section id="staff-announcement-tab" class="py-8 tabs" style="display:none">
     <div style="padding:50px;padding-top:0;">
       <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="newann">
         <div class="flex px-6 pb-4 border-b">
@@ -991,7 +987,7 @@
   }
   ?>
 
-    <section id="AllMembers" class="py-8 tabs" style="display:none">
+    <section id="member-tab" class="py-8 tabs" style="display:none">
         <div class="px-4 mx-auto mx-auto lg:ml-80" id="x_of_the_month" style="display:none">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
@@ -1049,7 +1045,7 @@
         </div>
     </section>
 
-    <section id="StaffMembers" class="py-8 tabs" style="display:none">
+    <section id="staff-member-tab" class="py-8 tabs" style="display:none">
         <div class="lg:ml-80 px-4 mx-auto flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
             <div class="px-4 mb-4 md:mb-0" style="width:49.5%;display:inline-block">
                 <div class="py-8 px-6 pt-4 bg-white shadow rounded">
@@ -1137,7 +1133,7 @@
         </div>
     </section>
 
-    <section id="Leaderboard" class="py-8 tabs" style="display:none">
+    <section id="leaderboard-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1199,7 +1195,7 @@
     <?php
         if(in_array("ranking", $enabled_plugins)){
         echo '
-    <section id="Ranking" class="py-8 tabs" style="display:none">
+    <section id="ranking-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" style="padding-bottom:80px">
                 <div class="flex px-6 pb-4 border-b">
@@ -1219,7 +1215,7 @@
             </div>
     </section>';}?>
 
-    <section id="Delivery" class="py-8 tabs" style="display:none">
+    <section id="delivery-tab" class="py-8 tabs" style="display:none">
         <div class="px-4 mx-auto mx-auto lg:ml-80">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
@@ -1345,7 +1341,7 @@
                 </div>
         </div>
         <br>
-        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded memberOnlyTabs" style="display:none">
+        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded member-only-tab" style="display:none">
             <div class="flex px-6 pb-4 border-b">
                 <h3 class="text-xl font-bold"><?php echo $st->export_delivery_log; ?></h3>
             </div>
@@ -1475,7 +1471,7 @@
     <?php
         if(in_array("division", $enabled_plugins)){
         echo '
-    <section id="Division" class="py-8 tabs" style="display:none">
+    <section id="division-tab" class="py-8 tabs" style="display:none">
         <div class="px-4 mx-auto mx-auto lg:ml-80">
             <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
                 <div class="px-4 mb-4 md:mb-0" style="width:100%">
@@ -1512,7 +1508,7 @@
             </div>
         </div>
     </section>
-    <section id="StaffDivision" class="py-8 tabs" style="display:none">
+    <section id="staff-division-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1540,7 +1536,7 @@
     <?php
         if(in_array("event", $enabled_plugins)){
         echo '
-        <section id="Event" class="py-8 tabs" style="display:none">
+        <section id="event-tab" class="py-8 tabs" style="display:none">
             <div style="padding:50px;padding-top:0;">
                 <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                     <div class="flex px-6 pb-4 border-b">
@@ -1581,7 +1577,7 @@
             </div>
         </section>
 
-        <section id="StaffEvent" class="py-8 tabs" style="display:none">
+        <section id="staff-event-tab" class="py-8 tabs" style="display:none">
             <div style="padding:50px;padding-top:0;">
                 <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                     <div class="container px-4">
@@ -1712,7 +1708,7 @@
                         <div class="mb-6">
                             <label class="block text-sm font-medium mb-2" for="">'.$st->members.' ('.$st->hit_enter_to.')</label>
                             <div class="inputWrapper" id="attendeeIdWrap" style="background-color:rgba(255,255,255,0.2)">
-                                <input id="attendeeId" class="inputDefault inputInner search-name-mul" name="field-name" rows="5"
+                                <input id="attendeeId" class="inputDefault inputInner search-name-old" name="field-name" rows="5"
                                     placeholder=""></input>
                             </div>
                         </div>
@@ -1727,7 +1723,7 @@
     <?php
         if(in_array("application", $enabled_plugins)){
         echo '
-    <section id="MyApp" class="py-8 tabs" style="display:none">
+    <section id="my-application-tab" class="py-8 tabs" style="display:none">
         <div style="padding:50px; padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1756,7 +1752,7 @@
         </div>
     </section>
 
-    <section id="SubmitApp" class="py-8 tabs" style="display: none;">
+    <section id="submit-application-tab" class="py-8 tabs" style="display: none;">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1773,7 +1769,7 @@
         </div>
     </section>
 
-    <section id="AllApp" class="py-8 tabs" style="display: none;">
+    <section id="button-staff-application" class="py-8 tabs" style="display: none;">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1820,7 +1816,7 @@
         </div>
     </section>';}?>
 
-    <section id="AllUsers" class="py-8 tabs" style="display: none;">
+    <section id="staff-user-tab" class="py-8 tabs" style="display: none;">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1961,7 +1957,7 @@
         </div>
     </section>
 
-    <section id="AuditLog" class="py-8 tabs" style="display: none;">
+    <section id="audit-tab" class="py-8 tabs" style="display: none;">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">
@@ -1987,7 +1983,7 @@
         </div>
     </section>
 
-    <section id="Admin" class="py-8 tabs" style="display: none;">
+    <section id="config-tab" class="py-8 tabs" style="display: none;">
         <div style="padding:50px;padding-top:0;">
             <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
                 <div class="flex px-6 pb-4 border-b">

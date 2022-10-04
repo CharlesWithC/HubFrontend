@@ -33,7 +33,7 @@ function LoadAnnouncement(){
         }
     });
     window.onscroll = function (ev) {
-        if (curtab != "#AnnTab") return;
+        if (curtab != "#announcement-tab") return;
         if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
             $.ajax({
                 url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,

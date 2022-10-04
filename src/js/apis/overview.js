@@ -208,7 +208,7 @@ function refreshStats(){
 }
 
 function LoadStats(basic = false) {
-    if (curtab != "#HomeTab" && curtab != "#Delivery") return;
+    if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
     LoadChart();
 
     stats_start_time = parseInt(+ new Date() / 1000 - 86400);

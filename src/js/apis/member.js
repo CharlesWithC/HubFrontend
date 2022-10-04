@@ -350,7 +350,7 @@ function LoadUserProfile(userid) {
         success: async function (data) {
             window.history.pushState("", "", '/member/' + userid);
             if (data.error) {
-                ShowTab("#HomeTab", "#HomeTabBtn");
+                ShowTab("#overview-tab", "#button-overview-tab");
                 return AjaxError(data);
             }
 
@@ -475,7 +475,7 @@ function LoadUserProfile(userid) {
             });
         },
         error: function (data) {
-            ShowTab("#HomeTab", "#HomeTabBtn");
+            ShowTab("#overview-tab", "#button-overview-tab");
             AjaxError(data);
         }
     });
