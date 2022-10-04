@@ -79,7 +79,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2faa8440ba166c01.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/v1.final.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -672,8 +672,8 @@
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->now; ?></span>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="livedriver">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-regular fa-clock"></i></span><span><span id="livedriverdt"></span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" id="overview-stats-live">-</h2>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-regular fa-clock"></i></span><span><span id="overview-stats-live-datetime"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
@@ -683,8 +683,8 @@
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="alldriver">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newdriver"></span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" id="overview-stats-driver-tot">-</h2>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="overview-stats-driver-new"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
@@ -694,8 +694,8 @@
                                         onclick="$('#statsTimeRange').fadeIn();"
                                         class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="alljob">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newjob"></span></span></span>
+                                <h2 class="mb-2 text-3xl font-bold" id="overview-stats-delivery-tot">-</h2>
+                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="overview-stats-delivery-new"></span></span></span>
                             </div>
                         </div>
                         <div class="md:w-1/2 lg:w-1/4 p-4 statscard">

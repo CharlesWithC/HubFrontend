@@ -310,50 +310,11 @@ async function ShowTab(tabname, btnname) {
     clearInterval(dmapint);
     dmapint = -1;
     $("#map,#dmap,#pmap,#amap").children().remove();
-    setTimeout(function(){ $(".tabs").hide(); $(tabname).show();},3000);// load timeout, in case of js error
-    setTimeout(async function () {
-        if (isdark) $("#loading").css("border", "solid lightgreen 1px");
-        else $("#loading").css("border", "solid green 1px");
-        $("#loading").css("width", "50%");
-        maxajax = 0;
-        lastw = 0;
-        while ($.active > 0) {
-            maxajax = Math.max($.active + 1, maxajax);
-            neww = parseInt(100 - $.active / maxajax * 100);
-            while (neww > lastw) {
-                lastw += 1;
-                $("#loading").css("width", `${lastw}%`);
-                await sleep(5);
-            }
-            await sleep(10);
-        }
-        neww = 100;
-        while (neww > lastw) {
-            lastw += 1;
-            $("#loading").css("width", `${lastw}%`);
-            await sleep(5);
-        }
-        if (tabname == curtab) { // in case user switch tab too fast
-            $(".tabs").hide();
-            $(tabname).show();
-        }
-        neww = 1;
-        while (neww < lastw) {
-            lastw -= 5;
-            $("#loading").css("width", `${lastw}%`);
-            await sleep(1);
-        }
-        if (curtab != "#event-tab") {
-            eventsCalendar = undefined;
-            $("#eventsCalendar").children().remove();
-            $("#eventsCalendar").attr("class", "");
-        }
-        $("#loading").css("border", "solid transparent 1px");
-        loadworking = false;
-    }, 10);
-    $(".tabbtns").removeClass("bg-indigo-500");
+    $(".tabs").hide();
+    $(tabname).show();
+    $(".nav-link").removeClass("active");
     if (btnname != "#ProfileTabBtn") {
-        $(btnname).addClass("bg-indigo-500");
+        $(btnname).addClass("active");
     }
     if (tabname == "#map-tab") {
         window.history.pushState("", "", '/map');
@@ -378,7 +339,7 @@ async function ShowTab(tabname, btnname) {
         LoadUserProfile(userid);
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/');
+        window.history.pushState("", "", '/beta');
         LoadStats();
     }
     if (tabname == "#announcement-tab") {
@@ -447,8 +408,8 @@ async function ShowTab(tabname, btnname) {
                     d = data.response.list[0];
                     rank = point2rank(d.total_no_limit);
                     $("#ranktotpoints").html(TSeparator(d.total_no_limit) + " - " + rank);
-                    if ($("#role").html() == "Driver")
-                        $("#role").html(rank);
+                    if ($("#sidebar-role").html() == "Driver")
+                        $("#sidebar-role").html(rank);
                 }
             }
         });
@@ -489,7 +450,7 @@ function UpdateRolesOnDisplay(){
     localStorage.setItem("highestrole", hrole);
 
     if (hrole == undefined || hrole == "undefined") hrole = "Loner";
-    $("#role").html(hrole);
+    $("#sidebar-role").html(hrole);
     roleids = Object.keys(rolelist);
     for (var i = 0; i < roleids.length; i++) {
         roleids[i] = parseInt(roleids[i]);
@@ -724,7 +685,7 @@ function ValidateToken() {
             <path fill-rule="evenodd"
                 d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                 fill="${color}"></path>
-            </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange"></p>`);
+            </svg>&nbsp;&nbsp;<span id="topbar-message" style="color:${color}"></span><span style="color:orange"></p>`);
             
             // User Information
             localStorage.setItem("roles", JSON.stringify(data.response.roles));
@@ -745,11 +706,14 @@ function ValidateToken() {
             name = data.response.name;
             avatar = data.response.avatar;
             discordid = data.response.discordid;
-            $("#name").html(name);
+            $("#sidebar-username").html(name);
+            $("#sidebar-userid").html("#" + userid);
+            $("#sidebar-bio").html(data.response.bio);
+            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
-                $("#avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
+                $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else
-                $("#avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
+                $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
             
             UpdateRolesOnDisplay();
         }, error: function(data){
@@ -764,7 +728,7 @@ function ValidateToken() {
 
 function PathDetect() {
     p = window.location.pathname;
-    if (p == "/overview") window.history.pushState("", "", '/');
+    if (p == "/overview") window.history.pushState("", "", '/beta');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
     else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
     else if (p == "/staff/announcement") ShowTab("#staff-announcement-tab", "#button-staff-announcement-tab");
@@ -810,7 +774,7 @@ function PathDetect() {
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
     } else{
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/');
+        window.history.pushState("", "", '/beta');
     }
 }
 

@@ -118,12 +118,12 @@ function CountOnlineDriver() {
 
 setInterval(function () {
     cnt = CountOnlineDriver()
-    $("#livedriver").html(cnt);
-    if(cnt <= 1) $("#livedriver2").html(cnt + " driver trucking");
-    else $("#livedriver2").html(cnt + " drivers trucking");
+    $("#overview-stats-live").html(cnt);
+    if(cnt <= 1) $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Driver Trucking");
+    else $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Drivers Trucking");
     dt = new Date();
     t = pad(dt.getHours(), 2) + ":" + pad(dt.getMinutes(), 2) + ":" + pad(dt.getSeconds(), 2);
-    $("#livedriverdt").html(t);
+    $("#overview-stats-live-datetime").html(t);
 
     $("#table_online_driver_data").empty();
     if (cnt == 0) {
@@ -146,12 +146,12 @@ setInterval(function () {
         speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
         distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
         $("#table_online_driver_data").append(`
-            <tr class="text-sm">
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${drivername}</a></td>
-              <td class="py-5 px-6 font-medium">${truck}</td>
-              <td class="py-5 px-6 font-medium">${cargo}</td>
-              <td class="py-5 px-6 font-medium">${speed}</td>
-              <td class="py-5 px-6 font-medium">${distance}</td>
+            <tr>
+              <td><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${drivername}</a></td>
+              <td>${truck}</td>
+              <td>${cargo}</td>
+              <td>${speed}</td>
+              <td>${distance}</td>
             </tr>`);
     }
 }, 1000);

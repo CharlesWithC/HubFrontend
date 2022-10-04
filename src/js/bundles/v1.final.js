@@ -2063,12 +2063,12 @@ function refreshStats(){
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
             newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
-            $("#alldriver").html(drivers);
-            $("#newdriver").html(newdrivers);
+            $("#overview-stats-driver-tot").html(drivers);
+            $("#overview-stats-driver-new").html(newdrivers);
             $("#alldistance").html(distance);
             $("#newdistance").html(newdistance);
-            $("#alljob").html(jobs);
-            $("#newjob").html(newjobs);
+            $("#overview-stats-delivery-tot").html(jobs);
+            $("#overview-stats-delivery-new").html(newjobs);
             $("#allprofit").html(europrofit + " + " + dollarprofit);
             $("#newprofit").html(neweuroprofit + " + " + newdollarprofit);
             $("#dprofit").html(neweuroprofit + " + " + newdollarprofit);
@@ -2132,12 +2132,12 @@ function LoadStats(basic = false) {
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
             newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
-            $("#alldriver").html(drivers);
-            $("#newdriver").html(newdrivers);
+            $("#overview-stats-driver-tot").html(drivers);
+            $("#overview-stats-driver-new").html(newdrivers);
             $("#alldistance").html(distance);
             $("#newdistance").html(newdistance);
-            $("#alljob").html(jobs);
-            $("#newjob").html(newjobs);
+            $("#overview-stats-delivery-tot").html(jobs);
+            $("#overview-stats-delivery-new").html(newjobs);
             $("#allprofit").html(europrofit + " + " + dollarprofit);
             $("#newprofit").html(neweuroprofit + " + " + newdollarprofit);
             $("#dprofit").html(neweuroprofit + " + " + newdollarprofit);
@@ -5532,7 +5532,7 @@ function ValidateToken() {
             <path fill-rule="evenodd"
                 d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
                 fill="${color}"></path>
-            </svg>&nbsp;&nbsp;<span id="livedriver2" style="color:${color}"></span><span style="color:orange"></p>`);
+            </svg>&nbsp;&nbsp;<span id="topbar-message" style="color:${color}"></span><span style="color:orange"></p>`);
             
             // User Information
             localStorage.setItem("roles", JSON.stringify(data.response.roles));

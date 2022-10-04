@@ -317,10 +317,10 @@ useridCurrentProfile = -1;
 function LoadUserProfile(userid) {
     if (userid < 0) return;
 
-    $("#aucs1").attr("onclick", `chartscale=1;LoadChart(${userid});`);
-    $("#aucs2").attr("onclick", `chartscale=2;LoadChart(${userid});`);
-    $("#aucs3").attr("onclick", `chartscale=3;LoadChart(${userid});`);
-    $("#aaddup1").attr("onclick", `addup=1-addup;LoadChart(${userid});`);
+    $("#overview-chart-scale-1").attr("onclick", `chartscale=1;LoadChart(${userid});`);
+    $("#overview-chart-scale-2").attr("onclick", `chartscale=2;LoadChart(${userid});`);
+    $("#overview-chart-scale-3").attr("onclick", `chartscale=3;LoadChart(${userid});`);
+    $("#overview-chart-sum").attr("onclick", `addup=1-addup;LoadChart(${userid});`);
     LoadChart(userid);
 
     $("#udpages").val("1");

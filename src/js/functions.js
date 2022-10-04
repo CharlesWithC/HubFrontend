@@ -417,9 +417,9 @@ function InitTable(table, reload_function, force_init = false){
 function TableNoData(columns) {
     var ret = "";
     for (var i = 0; i < columns - 1; i++)
-        ret += `<td class="py-5 px-6 font-medium"></td>`;
-    return `<tr class="text-sm">
-      <td class="py-5 px-6 font-medium">No Data</td>
+        ret += `<td></td>`;
+    return `<tr>
+      <td style="color:#ccc"><i>No Data</i></td>
       ${ret}
     </tr>`
 }

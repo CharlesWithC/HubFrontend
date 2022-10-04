@@ -43,13 +43,13 @@ dfs("src/js")
 hsh = hashlib.sha256(bundle.encode()).hexdigest()[:16]
 
 if not genonly:
-    f = open(f"src/index.php","r").read()
-    t = f.split("\n")
-    for tt in t:
-        if f'id="{eid}"' in tt:
-            cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
-            f = f.replace(cur, hsh + ".js")
-    open(f"src/index.php","w").write(f)
+    # f = open(f"src/index.php","r").read()
+    # t = f.split("\n")
+    # for tt in t:
+    #     if f'id="{eid}"' in tt:
+    #         cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
+    #         f = f.replace(cur, hsh + ".js")
+    # open(f"src/index.php","w").write(f)
     f = open(f"src/beta.php","r").read()
     t = f.split("\n")
     for tt in t:

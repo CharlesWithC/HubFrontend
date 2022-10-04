@@ -1,6 +1,6 @@
 sc = undefined;
-chartscale = 2;
-addup = 0;
+chartscale = 3;
+addup = 1;
 
 async function LoadChart(userid = -1) {
     if (userid != -1) {
@@ -8,9 +8,10 @@ async function LoadChart(userid = -1) {
         $("#ucs" + chartscale).css("background-color", "skyblue");
         $("#uaddup" + addup).css("background-color", "skyblue");
     } else {
-        $(".cs").css("background-color", "");
-        $("#cs" + chartscale).css("background-color", "skyblue");
-        $("#addup" + addup).css("background-color", "skyblue");
+        $("#overview-chart-scale-group").children().removeClass("active");
+        $("#overview-chart-scale-"+chartscale).addClass("active");
+        if(!addup) $("#overview-chart-sum").removeClass("active");
+        else $("#overview-chart-sum").addClass("active");
     }
     pref = "s";
     if (userid != -1) pref = "userS";
@@ -162,47 +163,47 @@ function refreshStats(){
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
             newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
-            $("#alldriver").html(drivers);
-            $("#newdriver").html(newdrivers);
-            $("#alldistance").html(distance);
-            $("#newdistance").html(newdistance);
-            $("#alljob").html(jobs);
-            $("#newjob").html(newjobs);
-            $("#allprofit").html(europrofit + " + " + dollarprofit);
-            $("#newprofit").html(neweuroprofit + " + " + newdollarprofit);
+            $("#overview-stats-driver-tot").html(drivers);
+            $("#overview-stats-driver-new").html(newdrivers);
+            $("#overview-stats-distance-tot").html(distance);
+            $("#overview-stats-distance-new").html(newdistance);
+            $("#overview-stats-delivery-tot").html(jobs);
+            $("#overview-stats-delivery-new").html(newjobs);
+            $("#overview-stats-profit-tot").html(europrofit + " + " + dollarprofit);
+            $("#overview-stats-profit-new").html(neweuroprofit + " + " + newdollarprofit);
             $("#dprofit").html(neweuroprofit + " + " + newdollarprofit);
-            $("#allfuel").html(fuel);
-            $("#newfuel").html(newfuel);
+            $("#overview-stats-fuel-tot").html(fuel);
+            $("#overview-stats-fuel-new").html(newfuel);
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
 
-            const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
-            const config = {
-                type: 'pie',
-                data: {
-                    labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
-                    datasets: [{
-                        label: 'Game Preference',
-                        data: [d.job.all.ets2.tot, d.job.all.ats.tot],
-                        backgroundColor: ["skyblue", "pink"],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Game Preference'
-                        }
-                    }
-                },
-            };
-            if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
-            deliveryStatsChart = new Chart(ctx, config);
+            // const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
+            // const config = {
+            //     type: 'pie',
+            //     data: {
+            //         labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
+            //         datasets: [{
+            //             label: 'Game Preference',
+            //             data: [d.job.all.ets2.tot, d.job.all.ats.tot],
+            //             backgroundColor: ["skyblue", "pink"],
+            //         }]
+            //     },
+            //     options: {
+            //         responsive: true,
+            //         plugins: {
+            //             legend: {
+            //                 position: 'top',
+            //             },
+            //             title: {
+            //                 display: true,
+            //                 text: 'Game Preference'
+            //             }
+            //         }
+            //     },
+            // };
+            // if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
+            // deliveryStatsChart = new Chart(ctx, config);
         }
     });
 }
@@ -231,47 +232,47 @@ function LoadStats(basic = false) {
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
             newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
-            $("#alldriver").html(drivers);
-            $("#newdriver").html(newdrivers);
-            $("#alldistance").html(distance);
-            $("#newdistance").html(newdistance);
-            $("#alljob").html(jobs);
-            $("#newjob").html(newjobs);
-            $("#allprofit").html(europrofit + " + " + dollarprofit);
-            $("#newprofit").html(neweuroprofit + " + " + newdollarprofit);
+            $("#overview-stats-driver-tot").html(drivers);
+            $("#overview-stats-driver-new").html(newdrivers);
+            $("#overview-stats-distance-tot").html(distance);
+            $("#overview-stats-distance-new").html(newdistance);
+            $("#overview-stats-delivery-tot").html(jobs);
+            $("#overview-stats-delivery-new").html(newjobs);
+            $("#overview-stats-profit-tot").html(europrofit + " + " + dollarprofit);
+            $("#overview-stats-profit-new").html(neweuroprofit + " + " + newdollarprofit);
             $("#dprofit").html(neweuroprofit + " + " + newdollarprofit);
-            $("#allfuel").html(fuel);
-            $("#newfuel").html(newfuel);
+            $("#overview-stats-fuel-tot").html(fuel);
+            $("#overview-stats-fuel-new").html(newfuel);
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
 
-            const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
-            const config = {
-                type: 'pie',
-                data: {
-                    labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
-                    datasets: [{
-                        label: 'Game Preference',
-                        data: [d.job.all.ets2.tot, d.job.all.ats.tot],
-                        backgroundColor: ["skyblue", "pink"],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Game Preference'
-                        }
-                    }
-                },
-            };
-            if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
-            deliveryStatsChart = new Chart(ctx, config);
+            // const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
+            // const config = {
+            //     type: 'pie',
+            //     data: {
+            //         labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
+            //         datasets: [{
+            //             label: 'Game Preference',
+            //             data: [d.job.all.ets2.tot, d.job.all.ats.tot],
+            //             backgroundColor: ["skyblue", "pink"],
+            //         }]
+            //     },
+            //     options: {
+            //         responsive: true,
+            //         plugins: {
+            //             legend: {
+            //                 position: 'top',
+            //             },
+            //             title: {
+            //                 display: true,
+            //                 text: 'Game Preference'
+            //             }
+            //         }
+            //     },
+            // };
+            // if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
+            // deliveryStatsChart = new Chart(ctx, config);
         }
     });
 
@@ -330,10 +331,11 @@ function LoadStats(basic = false) {
                     } else {
                         avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
-                    $("#table_mini_leaderboard_data").append(`<tr class="text-sm">
-              <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
-              <td class="py-5 px-6">${totalpnt}</td>
+                    $("#table_mini_leaderboard_data").append(`<tr>
+              <td>
+                <img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+            <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+              <td>${totalpnt}</td>
             </tr>`);
                 }
             }
@@ -356,7 +358,7 @@ function LoadStats(basic = false) {
                     discordid = user.discordid;
                     avatar = user.avatar;
                     dt = new Date(user.join_timestamp * 1000);
-                    joindt = pad(dt.getDate(), 2) + "/" + pad(dt.getMonth() + 1, 2);
+                    joindt = pad(dt.getMonth() + 1, 2) + "/" + pad(dt.getDate(), 2);
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -365,10 +367,11 @@ function LoadStats(basic = false) {
                     } else {
                         avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                     }
-                    $("#table_new_driver_data").append(`<tr class="text-sm">
-              <td class="py-5 px-6 font-medium">
-                <a style="cursor: pointer" onclick="LoadUserProfile(${userid})"><img src='${src}' width="20px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"> ${name}</a></td>
-              <td class="py-5 px-6">${joindt}</td>
+                    $("#table_new_driver_data").append(`<tr>
+              <td>
+                <img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+              <td>${joindt}</td>
             </tr>`);
                 }
             }
