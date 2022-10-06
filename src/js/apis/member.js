@@ -72,7 +72,7 @@ function GetDiscordRankRole() {
 function LoadMemberList() {
     GeneralLoad();
     LockBtn("#loadMemberListBtn", btntxt = "...");
-    InitTable("#table_member_list", "LoadMemberList();");
+    InitPaginate("#table_member_list", "LoadMemberList();");
 
     page = parseInt($("#table_member_list_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -94,7 +94,7 @@ function LoadMemberList() {
 
             for (i = 0; i < memberList.length; i++) {
                 user = memberList[i];
-                highestrole = user.highestrole;
+                highestrole = user.roles[0];
                 highestrole = rolelist[highestrole];
                 if (highestrole == undefined) highestrole = "/";
                 discordid = user.discordid;
@@ -448,10 +448,10 @@ function LoadUserProfile(userid) {
                                     info += "<hr><br>";
                                     d = data.response.list[0];
                                     info += "<p><b>Points</b></p>";
-                                    info += `<p>Distance: ${d.distance}</p>`;
-                                    info += `<p>Event: ${d.event}</p>`;
-                                    info += `<p>Division: ${d.division}</p>`;
-                                    info += `<p>Myth: ${d.myth}</p>`;
+                                    info += `<p>Distance: ${d.points.distance}</p>`;
+                                    info += `<p>Event: ${d.points.event}</p>`;
+                                    info += `<p>Division: ${d.points.division}</p>`;
+                                    info += `<p>Myth: ${d.points.myth}</p>`;
                                     info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
                                     info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
                                     if (String(userid) == localStorage.getItem("userid")) {

@@ -640,10 +640,10 @@ function LoadDriverLeaderStatistics() {
             success: function (data) {
                 users = data.response.list;
                 dottuser = users[0];
-                discordid = dottuser.discordid;
-                avatar = GetAvatarSrc(discordid, dottuser.avatar);
-                distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
-                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
+                discordid = dottuser.user.discordid;
+                avatar = GetAvatarSrc(discordid, dottuser.user.avatar);
+                distance = TSeparator(parseInt(dottuser.points.distance * distance_ratio));
+                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.user.userid, dottuser.user.name));
                 $("#dot" + dottag + "distance").html(`(${distance}${distance_unit_txt})`);
             }
         });
@@ -715,8 +715,8 @@ function LoadLeaderboard() {
             data = [];
             for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
-                distance = TSeparator(parseInt(user.distance * distance_ratio)); 
-                data.push([`#${user.rank} ${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.event}`, `${user.division}`, `${user.myth}`, `${user.total}`]);
+                distance = TSeparator(parseInt(user.points.distance * distance_ratio)); 
+                data.push([`#${user.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.total}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -782,7 +782,7 @@ function LoadDeliveryList() {
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
 
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
             PushTable("#table_deliverylog", data, total_pages, "LoadDeliveryList();");
@@ -1044,8 +1044,8 @@ function deliveryDetail(logid) {
             if (!data.error) {
                 window.history.pushState("", "", '/delivery/' + logid);
                 d = data.response;
-                userid = d.userid;
-                name = d.name;
+                userid = d.user.userid;
+                name = d.user.name;
                 d = d.detail;
                 tp = d.type;
                 d = d.data.object;
@@ -1457,7 +1457,7 @@ function LoadMemberList() {
 
             for (i = 0; i < memberList.length; i++) {
                 user = memberList[i];
-                highestrole = user.highestrole;
+                highestrole = user.roles[0];
                 highestrole = rolelist[highestrole];
                 if (highestrole == undefined) highestrole = "/";
                 discordid = user.discordid;
@@ -1811,10 +1811,10 @@ function LoadUserProfile(userid) {
                                     info += "<hr><br>";
                                     d = data.response.list[0];
                                     info += "<p><b>Points</b></p>";
-                                    info += `<p>Distance: ${d.distance}</p>`;
-                                    info += `<p>Event: ${d.event}</p>`;
-                                    info += `<p>Division: ${d.division}</p>`;
-                                    info += `<p>Myth: ${d.myth}</p>`;
+                                    info += `<p>Distance: ${d.points.distance}</p>`;
+                                    info += `<p>Event: ${d.points.event}</p>`;
+                                    info += `<p>Division: ${d.points.division}</p>`;
+                                    info += `<p>Myth: ${d.points.myth}</p>`;
                                     info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
                                     info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
                                     if (String(userid) == localStorage.getItem("userid")) {
@@ -2218,10 +2218,10 @@ function LoadStats(basic = false) {
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
-                    userid = user.userid;
-                    name = user.name;
-                    discordid = user.discordid;
-                    avatar = user.avatar;
+                    userid = user.user.userid;
+                    name = user.user.name;
+                    discordid = user.user.discordid;
+                    avatar = user.user.avatar;
                     totalpnt = TSeparator(parseInt(user.total));
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
@@ -2301,7 +2301,7 @@ function LoadAuditLog() {
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
 
-                data.push([`${audit.user}`, `${op}`, `${dt}`]);
+                data.push([`${audit.user.name}`, `${op}`, `${dt}`]);
             }
 
             PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
@@ -2414,7 +2414,7 @@ function LoadUserList() {
                 bantxt2 = "";
                 color = "";
                 accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
-                if (user.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban_reason;
+                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="AddUser('${user.discordid}')">Accept as member</td>`;
 
                 data.push([`<span style='color:${color}'>${user.discordid}</span>`, `<span style='color:${color}'>${user.name} ${bantxt2}</span>`, `<a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</a>`, `<button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
@@ -3504,7 +3504,7 @@ function LoadAllApplicationList() {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                username = application.name;
+                username = application.creator.name;
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) 
@@ -3545,7 +3545,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             if (data.error) return AjaxError(data);
 
             d = data.response.detail;
-            discordid = data.response.discordid;
+            discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastFactory("error", "Error:", "Application has no data", 5000, false);
@@ -3885,7 +3885,7 @@ function LoadPendingDivisionValidation() {
                     $("#table_division_validation_data").append(`
             <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
@@ -3941,7 +3941,7 @@ function GetDivisionInfo(logid) {
                     showConfirmButton: false,
                     confirmButtonText: 'Close'
                 });
-            } else if (data.response.user_is_staff == true && data.response.status == "0") {
+            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
                 divisionopt = "";
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
@@ -4002,7 +4002,7 @@ function GetDivisionInfo(logid) {
                     if (data.response.update_message != "")
                         info += "<p> - For reason " + data.response.update_message + "</p>";
                 }
-                if (data.response.user_is_staff == true) {
+                if (userPerm.includes("division") || userPerm.includes("admin")) {
                     info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                     onclick="updateDivision(${logid}, 0)">Revalidate</button>`;

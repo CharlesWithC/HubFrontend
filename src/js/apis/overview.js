@@ -36,7 +36,7 @@ async function LoadChart(userid = -1) {
                 if (chartscale == 1) { // 24h
                     ts = pad(ts.getHours(), 2) + ":" + pad(ts.getMinutes(), 2);
                 } else if (chartscale >= 2) { // 7 d / 30 d
-                    ts = pad(ts.getDate(), 2) + "/" + pad((ts.getMonth() + 1), 2);
+                    ts = MONTH_ABBR[ts.getMonth()] + " " + OrdinalSuffix(ts.getDate());
                 }
                 labels.push(ts);
                 if (d[i].distance == 0) {
@@ -318,10 +318,10 @@ function LoadStats(basic = false) {
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
-                    userid = user.userid;
-                    name = user.name;
-                    discordid = user.discordid;
-                    avatar = user.avatar;
+                    userid = user.user.userid;
+                    name = user.user.name;
+                    discordid = user.user.discordid;
+                    avatar = user.user.avatar;
                     totalpnt = TSeparator(parseInt(user.total));
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
@@ -358,7 +358,7 @@ function LoadStats(basic = false) {
                     discordid = user.discordid;
                     avatar = user.avatar;
                     dt = new Date(user.join_timestamp * 1000);
-                    joindt = pad(dt.getMonth() + 1, 2) + "/" + pad(dt.getDate(), 2);
+                    joindt = MONTH_ABBR[dt.getMonth()] + " " + OrdinalSuffix(dt.getDate());
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";

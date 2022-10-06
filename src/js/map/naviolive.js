@@ -128,7 +128,7 @@ setInterval(function () {
     $("#table_online_driver_data").empty();
     if (cnt == 0) {
         $("#table_online_driver_head").hide();
-        $("#table_online_driver_data").append(TableNoData(5));
+        $("#table_online_driver_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
         return;
     }
     $("#table_online_driver_head").show();

@@ -1,67 +1,63 @@
 annInit = 0;
+
+ANNOUNCEMENT_ICON = [`<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-triangle-exclamation" style="color:yellow"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-xmark"style="color:red"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-check"style="color:green"></i></span>`];
+
+announcement_placeholder_row = `<div class="row">
+<div class="announcement shadow p-3 m-3 bg-dark rounded col">
+    <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-8"></span></strong></h5>
+    <h6 style="font-size:15px"><span class="placeholder col-8"></span> <span class="placeholder col-6"></span></h6>
+    <p><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
+    <p><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span></p>
+</div>
+<div class="announcement shadow p-3 m-3 bg-dark rounded col">
+    <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-7"></span></strong></h5>
+    <h6 style="font-size:15px"><span class="placeholder col-3"></span> <span class="placeholder col-4"></span></h6>
+    <p><span class="placeholder col-3"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></p>
+    <p><span class="placeholder col-5"></span>&nbsp;&nbsp;<span class="placeholder col-4"></span></p>
+</div>
+</div>`;
+
 function LoadAnnouncement(){
-    annInit = 1;
-    annpage = 2;
+    InitPaginate("#announcements", "LoadAnnouncement()");
+    $("#announcement-tab .page-item").addClass("disabled");
+
+    $("#announcements").children().remove();
+    for(i = 0 ; i < 5 ; i++){
+        $("#announcements").append(announcement_placeholder_row);
+    }
+
+    page = parseInt($("#announcements_page_input").val());
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?page=1",
+        url: apidomain + "/" + vtcprefix + "/announcement?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            ann = data.response.list;
-            if (ann.length > 0) {
-                a = ann[0];
-                dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='LoadUserProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                    parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.announcement_type], a.title, content);
+            announcements = data.response.list;
+            content = "";
+            for (i = 0; i < announcements.length; i++) {
+                if(i % 2 == 0){
+                    if(i != 0) content += `</div>`;
+                    content += `<div class="row">`;
+                }
+                announcement = announcements[i];
+                announcement_datetime = getDateTime(announcement.timestamp * 1000);
+                author = announcement.author;
+                content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col" id="announcement-${announcement.announcementid}">
+                    <h5><strong>${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</strong></h5>
+                    <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
+                    <p>${parseMarkdown(announcement.content.replaceAll("\n", "<br>"))}</p>
+                </div>`;
             }
-            for (i = 0; i < ann.length; i++) {
-                a = ann[i];
-                dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10  px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='LoadUserProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                    parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                $("#anns").append(banner);
-            }
+            content += `</div>`;
+            $("#announcements").children().remove();
+            $("#announcements").append(content);
+            UpdatePaginate("#announcements", data.response.total_pages, "LoadAnnouncement();");
         }
     });
-    window.onscroll = function (ev) {
-        if (curtab != "#announcement-tab") return;
-        if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + token
-                },
-                success: async function (data) {
-                    annpage += 1;
-                    ann = data.response.list;
-                    for (i = 0; i < ann.length; i++) {
-                        a = ann[i];
-                        dt = getDateTime(a.timestamp * 1000);
-                        content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                            "</b> by <a style='cursor:pointer' onclick='LoadUserProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                            parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                        TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                        banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                        $("#anns").append(banner);
-                        $($("#anns").children()[$("#anns").children().length - 1]).hide();
-                        $($("#anns").children()[$("#anns").children().length - 1]).fadeIn();
-                        await sleep(200);
-                    }
-                }
-            });
-        }
-    };
 }
 
 function FetchAnnouncement() {

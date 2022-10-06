@@ -115,7 +115,7 @@ function LoadDivisionInfo() {
             $("#table_division_delivery_data").empty();
             if (d.recent.length == 0) {
                 $("#table_division_delivery_head").hide();
-                $("#table_division_delivery_data").append(TableNoData(8));
+                $("#table_division_delivery_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
             } else {
                 $("#table_division_delivery_head").show();
                 for (i = 0; i < d.recent.length; i++) {
@@ -168,7 +168,7 @@ function LoadPendingDivisionValidation() {
             d = data.response;
             if (d.length == 0) {
                 $("#table_division_validation_head").hide();
-                $("#table_division_validation_data").append(TableNoData(3));
+                $("#table_division_validation_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
             } else {
                 $("#table_division_validation_head").show();
                 for (i = 0; i < d.length; i++) {
@@ -176,7 +176,7 @@ function LoadPendingDivisionValidation() {
                     $("#table_division_validation_data").append(`
             <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
@@ -232,7 +232,7 @@ function GetDivisionInfo(logid) {
                     showConfirmButton: false,
                     confirmButtonText: 'Close'
                 });
-            } else if (data.response.user_is_staff == true && data.response.status == "0") {
+            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
                 divisionopt = "";
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
@@ -293,7 +293,7 @@ function GetDivisionInfo(logid) {
                     if (data.response.update_message != "")
                         info += "<p> - For reason " + data.response.update_message + "</p>";
                 }
-                if (data.response.user_is_staff == true) {
+                if (userPerm.includes("division") || userPerm.includes("admin")) {
                     info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                     onclick="updateDivision(${logid}, 0)">Revalidate</button>`;

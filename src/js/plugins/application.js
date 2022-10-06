@@ -67,7 +67,7 @@ function SubmitApp() {
 }
 function LoadUserApplicationList() {
     GeneralLoad();
-    InitTable("#table_my_application", "LoadUserApplicationList();");
+    InitPaginate("#table_my_application", "LoadUserApplicationList();");
 
     page = parseInt($("#table_my_application_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -146,7 +146,7 @@ function AddMessageToApplication() {
 
 function LoadAllApplicationList() {
     GeneralLoad();
-    InitTable("#table_all_application", "LoadAllApplicationList();");
+    InitPaginate("#table_all_application", "LoadAllApplicationList();");
 
     page = parseInt($('#table_all_application_page_input').val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -170,7 +170,7 @@ function LoadAllApplicationList() {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                username = application.name;
+                username = application.creator.name;
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) 
@@ -211,7 +211,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             if (data.error) return AjaxError(data);
 
             d = data.response.detail;
-            discordid = data.response.discordid;
+            discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastFactory("error", "Error:", "Application has no data", 5000, false);

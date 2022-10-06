@@ -1,3 +1,5 @@
+MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 $(document).ready(function () {
     drivershub = `    ____       _                         __  __      __  
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
@@ -22,6 +24,21 @@ function GetMonday(d) {
     var day = d.getDay(),
         diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
+}
+
+function OrdinalSuffix(i) {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+        return i + "st";
+    }
+    if (j == 2 && k != 12) {
+        return i + "nd";
+    }
+    if (j == 3 && k != 13) {
+        return i + "rd";
+    }
+    return i + "th";
 }
 
 function RandomString(length) {
@@ -141,102 +158,6 @@ function getCookie(cookiename) {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function genBanner(btype, title, content) {
-    if (btype == "info") {
-        return `
-        <div class="py-8 px-6" style="width:100%">
-          <div class="p-6 border-l-4 border-2 border-indigo-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-              <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                  <svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM11 14C11 14.6 10.6 15 10 15C9.4 15 9 14.6 9 14V10C9 9.4 9.4 9 10 9C10.6 9 11 9.4 11 10V14ZM10 7C9.4 7 9 6.6 9 6C9 5.4 9.4 5 10 5C10.6 5 11 5.4 11 6C11 6.6 10.6 7 10 7Z" fill="#382CDD"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <h3 class="text-indigo-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                  <p class="text-sm text-indigo-700">` + content + `</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    } else if (btype == "criticle") {
-        return `
-        <div class="py-8 px-6" style="width:100%">
-          <div class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-              <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                  <svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM10 15C9.4 15 9 14.6 9 14C9 13.4 9.4 13 10 13C10.6 13 11 13.4 11 14C11 14.6 10.6 15 10 15ZM11 10C11 10.6 10.6 11 10 11C9.4 11 9 10.6 9 10V6C9 5.4 9.4 5 10 5C10.6 5 11 5.4 11 6V10Z" fill="#E85444"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <h3 class="text-red-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                  <p class="text-sm text-red-700">` + content + `</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    } else if (btype == "resolved") {
-        return `
-        <div class="py-8 px-6" style="width:100%">
-          <div class="p-6 border-l-4 border-2 border-green-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-              <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                  <svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM14.2 8.3L9.4 13.1C9 13.5 8.4 13.5 8 13.1L5.8 10.9C5.4 10.5 5.4 9.9 5.8 9.5C6.2 9.1 6.8 9.1 7.2 9.5L8.7 11L12.8 6.9C13.2 6.5 13.8 6.5 14.2 6.9C14.6 7.3 14.6 7.9 14.2 8.3Z" fill="#17BB84"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <h3 class="text-green-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                  <p class="text-sm text-green-700">` + content + `</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    } else if (btype == "warning") {
-        return `<div class="py-8 px-6" style="width:100%">
-            <div class="p-6 border-l-4 border-2 border-orange-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-                <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                    <svg width="24" height="20" viewbox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.7 15.5001L14.6 1.50011C13.8 0.100109 11.9 -0.399891 10.5 0.400109C10 0.700109 9.60001 1.10011 9.40001 1.50011L1.30001 15.5001C0.500011 16.9001 1.00001 18.8001 2.40001 19.6001C2.90001 19.9001 3.40001 20.0001 3.90001 20.0001H20C21.7 20.0001 23 18.6001 23 17.0001C23.1 16.4001 22.9 15.9001 22.7 15.5001ZM12 16.0001C11.4 16.0001 11 15.6001 11 15.0001C11 14.4001 11.4 14.0001 12 14.0001C12.6 14.0001 13 14.4001 13 15.0001C13 15.6001 12.6 16.0001 12 16.0001ZM13 11.0001C13 11.6001 12.6 12.0001 12 12.0001C11.4 12.0001 11 11.6001 11 11.0001V7.00011C11 6.40011 11.4 6.00011 12 6.00011C12.6 6.00011 13 6.40011 13 7.00011V11.0001Z" fill="#F67A28"></path>
-                    </svg>
-                </span>
-                </div>
-                <div class="w-full">
-                <div class="flex">
-                    <h3 class="text-orange-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                    <p class="text-sm text-orange-700">` + content + `</p>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        </div>`;
-    }
 }
 
 function pad(num, size) {
@@ -388,108 +309,118 @@ function b62decode(num62) {
     return ret * flag;
 }
 
-function InitTable(table, reload_function, force_init = false){
-    if($(table+"_paginate").length != 0 && !force_init) return;
-    $(table+"_paginate").remove();
-    table = table.replaceAll("#","");
-    $("#"+table).after(`
-    <br>
-    <div id="${table}_paginate">
-        <div style="margin-left:auto;width:fit-content">
-            <div style="margin-left:auto;width:fit-content">
-                <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
-                <input id="${table}_page_input" style="width:50px;display:inline"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
-                    name="field-name" rows="5" placeholder="" value="1"></input> / <span id="${table}_total_pages">-</span>
-                <button type="button"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="${reload_function}">Show</button>
-            </div>
-            <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp-1);${reload_function};">
-                < </button> <div id="${table}_paginate_control" style="display:inline"></div>
-            <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp+1);${reload_function};">></button>
-        </div>
-    </div>`);
+function InitPaginate(element, reload_function, force_init = false){
+    if($(element+"_paginate").length != 0 && !force_init) return;
+    $(element+"_paginate").remove();
+    element = element.replaceAll("#","");
+    $("#"+element).after(`
+    <div style="margin-left:auto;width:fit-content;display:none;">
+        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+        <input id="${element}_page_input" style="width:50px;display:inline"
+            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
+            name="field-name" rows="5" placeholder="" value="1"></input> / <span id="${element}_total_pages">-</span>
+        <button type="button"
+            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="${reload_function}">Show</button>
+    </div>
+    <ul id="${element}_paginate" class="pagination" style="margin-left:auto;width:fit-content">
+        <li class="page-item disabled">
+            <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        <li class="page-item disabled">
+            <a class="page-link bg-dark text-white" style="cursor:pointer">
+                ...
+            </a>
+        </li>
+
+        <li class="page-item disabled">
+            <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>`);
 }
 
-function TableNoData(columns) {
-    var ret = "";
-    for (var i = 0; i < columns - 1; i++)
-        ret += `<td></td>`;
-    return `<tr>
-      <td style="color:#ccc"><i>No Data</i></td>
-      ${ret}
-    </tr>`
+function UpdatePaginate(element, total_pages, reload_function = ""){
+    page = parseInt($(element+"_page_input").val());
+
+    if (page > total_pages) {
+        $(element+"_page_input").val(1);
+        return;
+    }
+    if (page <= 0) {
+        $(element+"_page_input").val(1);
+        page = 1;
+    }
+
+    $(element + "_total_pages").html(total_pages);
+    $(element + "_paginate").children().remove();
+
+    disable_previous = "";
+    if (page <= 1) disable_previous = "disabled";
+
+    disable_next = "";
+    if (page >= total_pages) disable_next = "disabled";
+
+    $(element + "_paginate").append(`
+    <li class="page-item ${disable_previous}">
+        <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Previous" onclick="tmp=parseInt($('${element}_page_input').val());$('${element}_page_input').val(tmp-1);${reload_function};">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>`);
+    $(element + "_paginate").append(`
+        <li class="page-item"><a class="page-link bg-dark text-white" style="cursor:pointer" onclick="$('${element}_page_input').val(1);${reload_function}">1</a></li>`);
+    if (page > 3) {
+        $(element + "_paginate").append(`
+        <li class="page-item disabled"><a class="page-link bg-dark text-white" style="cursor:pointer">...</a></li>`);
+    }
+    for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, total_pages - 1); i++) {
+        $(element + "_paginate").append(`
+        <li class="page-item"><a class="page-link bg-dark text-white" style="cursor:pointer" onclick="$('${element}_page_input').val(${i});${reload_function}">${i}</a></li>`);
+    }
+    if (page < total_pages - 2) {
+        $(element + "_paginate").append(`
+        <li class="page-item disabled"><a class="page-link bg-dark text-white" style="cursor:pointer">...</a></li>`);
+    }
+    if (total_pages > 1) {
+        $(element + "_paginate").append(`
+        <li class="page-item"><a class="page-link bg-dark text-white" style="cursor:pointer" onclick="$('${element}_page_input').val(${total_pages});${reload_function}">${total_pages}</a></li>`);
+    }
+    $(element + "_paginate").append(`
+    <li class="page-item ${disable_next}">
+        <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Next" onclick="tmp=parseInt($('${element}_page_input').val());$('${element}_page_input').val(tmp+1);${reload_function};">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>`);
 }
 
 function PushTable(table, data, total_pages, reload_function = ""){
-    page = parseInt($(table+"_page_input").val());
-    column_count = $($(table+"_head").children()[0]).children().length;
+    UpdatePaginate(table, total_pages, reload_function);
+
     $(table+"_data").empty();
 
     if(data.length == 0){
         $(table+"_head").hide();
-        $(table+"_data").append(TableNoData(column_count));
+        $(table+"_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
         $(table+"_page_input").val("1");
         return;
     } else {
         $(table+"_head").show();
-    }
-
-    if (page > total_pages) {
-        $(table+"_page_input").val(1);
-        return;
-    }
-    if (page <= 0) {
-        $(table+"_page_input").val(1);
-        page = 1;
-    }
-
-    $(table + "_total_pages").html(total_pages);
-    $(table + "_paginate_control").children().remove();
-
-    $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="$('${table}_page_input').val(1);${reload_function}">1</button>`);
-    if (page > 3) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        >...</button>`);
-    }
-    for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, total_pages - 1); i++) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="$('${table}_page_input').val(${i});${reload_function}">${i}</button>`);
-    }
-    if (page < total_pages - 2) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        >...</button>`);
-    }
-    if (total_pages > 1) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="$('${table}_page_input').val(${total_pages});${reload_function}">${total_pages}</button>`);
     }
     
     for(var i = 0 ; i < data.length ; i++){
         if(data[i][0].startsWith("<tr_style>")){
             s = data[i][0];
             s = s.substr(10,s.length-21);
-            $(table+"_data").append(`<tr class="text-sm" style="${s}">`);
+            $(table+"_data").append(`<tr style="${s}">`);
         } else {
-            $(table+"_data").append(`<tr class="text-sm">`);
+            $(table+"_data").append(`<tr>`);
         }
         for(var j = 0 ; j < data[i].length ; j++){
             if(!data[i][j].startsWith("<tr_style>")){
-                $(table+"_data").append(`<td class="py-5 px-6">${data[i][j]}</td>`);
+                $(table+"_data").append(`<td>${data[i][j]}</td>`);
             }
         }
         $(table+"_data").append(`</tr>`);
@@ -640,10 +571,10 @@ function LoadDriverLeaderStatistics() {
             success: function (data) {
                 users = data.response.list;
                 dottuser = users[0];
-                discordid = dottuser.discordid;
-                avatar = GetAvatarSrc(discordid, dottuser.avatar);
-                distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
-                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
+                discordid = dottuser.user.discordid;
+                avatar = GetAvatarSrc(discordid, dottuser.user.avatar);
+                distance = TSeparator(parseInt(dottuser.points.distance * distance_ratio));
+                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.user.userid, dottuser.user.name));
                 $("#dot" + dottag + "distance").html(`(${distance}${distance_unit_txt})`);
             }
         });
@@ -667,7 +598,7 @@ function LoadDriverLeaderStatistics() {
 function LoadLeaderboard() {
     GeneralLoad();
     LockBtn("#LoadLeaderboardBtn", btntxt = "...");
-    InitTable("#table_leaderboard", "LoadLeaderboard();");
+    InitPaginate("#table_leaderboard", "LoadLeaderboard();");
 
     page = parseInt($("#table_leaderboard_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -715,8 +646,8 @@ function LoadLeaderboard() {
             data = [];
             for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
-                distance = TSeparator(parseInt(user.distance * distance_ratio)); 
-                data.push([`#${user.rank} ${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.event}`, `${user.division}`, `${user.myth}`, `${user.total}`]);
+                distance = TSeparator(parseInt(user.points.distance * distance_ratio)); 
+                data.push([`#${user.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.total}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -730,7 +661,7 @@ function LoadLeaderboard() {
 function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#loadDeliveryBtn", btntxt = "...");
-    InitTable("#table_deliverylog", "LoadDeliveryList();");
+    InitPaginate("#table_deliverylog", "LoadDeliveryList();");
 
     page = parseInt($("#table_deliverylog_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -782,7 +713,7 @@ function LoadDeliveryList() {
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
 
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
             PushTable("#table_deliverylog", data, total_pages, "LoadDeliveryList();");
@@ -798,7 +729,7 @@ function LoadDeliveryList() {
 function LoadUserDeliveryList() {
     GeneralLoad();
     LockBtn("#loadUserDeliveryBtn", btntxt = "...");
-    InitTable("#table_deliverylog_user", "LoadUserDeliveryList();");
+    InitPaginate("#table_deliverylog_user", "LoadUserDeliveryList();");
 
     page = parseInt($("#table_deliverylog_user_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -1044,8 +975,8 @@ function deliveryDetail(logid) {
             if (!data.error) {
                 window.history.pushState("", "", '/delivery/' + logid);
                 d = data.response;
-                userid = d.userid;
-                name = d.name;
+                userid = d.user.userid;
+                name = d.user.name;
                 d = d.detail;
                 tp = d.type;
                 d = d.data.object;
@@ -1435,7 +1366,7 @@ function GetDiscordRankRole() {
 function LoadMemberList() {
     GeneralLoad();
     LockBtn("#loadMemberListBtn", btntxt = "...");
-    InitTable("#table_member_list", "LoadMemberList();");
+    InitPaginate("#table_member_list", "LoadMemberList();");
 
     page = parseInt($("#table_member_list_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -1457,7 +1388,7 @@ function LoadMemberList() {
 
             for (i = 0; i < memberList.length; i++) {
                 user = memberList[i];
-                highestrole = user.highestrole;
+                highestrole = user.roles[0];
                 highestrole = rolelist[highestrole];
                 if (highestrole == undefined) highestrole = "/";
                 discordid = user.discordid;
@@ -1811,10 +1742,10 @@ function LoadUserProfile(userid) {
                                     info += "<hr><br>";
                                     d = data.response.list[0];
                                     info += "<p><b>Points</b></p>";
-                                    info += `<p>Distance: ${d.distance}</p>`;
-                                    info += `<p>Event: ${d.event}</p>`;
-                                    info += `<p>Division: ${d.division}</p>`;
-                                    info += `<p>Myth: ${d.myth}</p>`;
+                                    info += `<p>Distance: ${d.points.distance}</p>`;
+                                    info += `<p>Event: ${d.points.event}</p>`;
+                                    info += `<p>Division: ${d.points.division}</p>`;
+                                    info += `<p>Myth: ${d.points.myth}</p>`;
                                     info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
                                     info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
                                     if (String(userid) == localStorage.getItem("userid")) {
@@ -1937,7 +1868,7 @@ async function LoadChart(userid = -1) {
                 if (chartscale == 1) { // 24h
                     ts = pad(ts.getHours(), 2) + ":" + pad(ts.getMinutes(), 2);
                 } else if (chartscale >= 2) { // 7 d / 30 d
-                    ts = pad(ts.getDate(), 2) + "/" + pad((ts.getMonth() + 1), 2);
+                    ts = MONTH_ABBR[ts.getMonth()] + " " + OrdinalSuffix(ts.getDate());
                 }
                 labels.push(ts);
                 if (d[i].distance == 0) {
@@ -2219,10 +2150,10 @@ function LoadStats(basic = false) {
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
-                    userid = user.userid;
-                    name = user.name;
-                    discordid = user.discordid;
-                    avatar = user.avatar;
+                    userid = user.user.userid;
+                    name = user.user.name;
+                    discordid = user.user.discordid;
+                    avatar = user.user.avatar;
                     totalpnt = TSeparator(parseInt(user.total));
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
@@ -2259,7 +2190,7 @@ function LoadStats(basic = false) {
                     discordid = user.discordid;
                     avatar = user.avatar;
                     dt = new Date(user.join_timestamp * 1000);
-                    joindt = pad(dt.getMonth() + 1, 2) + "/" + pad(dt.getDate(), 2);
+                    joindt = MONTH_ABBR[dt.getMonth()] + " " + OrdinalSuffix(dt.getDate());
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -2281,7 +2212,7 @@ function LoadStats(basic = false) {
 }
 function LoadAuditLog() {
     GeneralLoad();
-    InitTable("#table_audit_log", "LoadAuditLog();")
+    InitPaginate("#table_audit_log", "LoadAuditLog();")
     page = parseInt($("#table_audit_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
@@ -2304,7 +2235,7 @@ function LoadAuditLog() {
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
 
-                data.push([`${audit.user}`, `${op}`, `${dt}`]);
+                data.push([`${audit.user.name}`, `${op}`, `${dt}`]);
             }
 
             PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
@@ -2393,7 +2324,7 @@ bannedUserList = {};
 
 function LoadUserList() {
     GeneralLoad();
-    InitTable("#table_pending_user_list", "LoadUserList();");
+    InitPaginate("#table_pending_user_list", "LoadUserList();");
     page = parseInt($("#table_pending_user_list_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
@@ -2417,7 +2348,7 @@ function LoadUserList() {
                 bantxt2 = "";
                 color = "";
                 accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
-                if (user.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban_reason;
+                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="AddUser('${user.discordid}')">Accept as member</td>`;
 
                 data.push([`<span style='color:${color}'>${user.discordid}</span>`, `<span style='color:${color}'>${user.name} ${bantxt2}</span>`, `<a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</a>`, `<button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
@@ -3141,69 +3072,65 @@ function revokeAllToken(){
     })
 }
 annInit = 0;
+
+ANNOUNCEMENT_ICON = [`<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-triangle-exclamation" style="color:yellow"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-xmark"style="color:red"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-check"style="color:green"></i></span>`];
+
+announcement_placeholder_row = `<div class="row">
+<div class="announcement shadow p-3 m-3 bg-dark rounded col">
+    <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-8"></span></strong></h5>
+    <h6 style="font-size:15px"><span class="placeholder col-8"></span> <span class="placeholder col-6"></span></h6>
+    <p><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
+    <p><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span></p>
+</div>
+<div class="announcement shadow p-3 m-3 bg-dark rounded col">
+    <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-7"></span></strong></h5>
+    <h6 style="font-size:15px"><span class="placeholder col-3"></span> <span class="placeholder col-4"></span></h6>
+    <p><span class="placeholder col-3"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></p>
+    <p><span class="placeholder col-5"></span>&nbsp;&nbsp;<span class="placeholder col-4"></span></p>
+</div>
+</div>`;
+
 function LoadAnnouncement(){
-    annInit = 1;
-    annpage = 2;
+    InitPaginate("#announcements", "LoadAnnouncement()");
+    $("#announcement-tab .page-item").addClass("disabled");
+
+    $("#announcements").children().remove();
+    for(i = 0 ; i < 5 ; i++){
+        $("#announcements").append(announcement_placeholder_row);
+    }
+
+    page = parseInt($("#announcements_page_input").val());
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?page=1",
+        url: apidomain + "/" + vtcprefix + "/announcement?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            ann = data.response.list;
-            if (ann.length > 0) {
-                a = ann[0];
-                dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='LoadUserProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                    parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.announcement_type], a.title, content);
+            announcements = data.response.list;
+            content = "";
+            for (i = 0; i < announcements.length; i++) {
+                if(i % 2 == 0){
+                    if(i != 0) content += `</div>`;
+                    content += `<div class="row">`;
+                }
+                announcement = announcements[i];
+                announcement_datetime = getDateTime(announcement.timestamp * 1000);
+                author = announcement.author;
+                content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col">
+                    <h5><strong>${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</strong></h5>
+                    <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime} | #${announcement.announcementid}</strong></h6>
+                    <p>${parseMarkdown(announcement.content.replaceAll("\n", "<br>"))}</p>
+                </div>`;
             }
-            for (i = 0; i < ann.length; i++) {
-                a = ann[i];
-                dt = getDateTime(a.timestamp * 1000);
-                content = "<span style='font-size:10  px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                    "</b> by <a style='cursor:pointer' onclick='LoadUserProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                    parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                $("#anns").append(banner);
-            }
+            content += `</div>`;
+            $("#announcements").children().remove();
+            $("#announcements").append(content);
+            UpdatePaginate("#announcements", data.response.total_pages, "LoadAnnouncement();");
         }
     });
-    window.onscroll = function (ev) {
-        if (curtab != "#announcement-tab") return;
-        if ((window.innerHeight + window.scrollY + 100) >= document.body.offsetHeight) {
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/announcement?page=" + annpage,
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + token
-                },
-                success: async function (data) {
-                    annpage += 1;
-                    ann = data.response.list;
-                    for (i = 0; i < ann.length; i++) {
-                        a = ann[i];
-                        dt = getDateTime(a.timestamp * 1000);
-                        content = "<span style='font-size:10px;color:grey'><b>#" + a.announcementid + "</b> | <b>" + dt +
-                            "</b> by <a style='cursor:pointer' onclick='LoadUserProfile(" + a.author.userid + ")'><i>" + a.author.name + "</i></a></span><br>" +
-                            parseMarkdown(a.content.replaceAll("\n", "<br>"));
-                        TYPES = ["info", "info", "warning", "criticle", "resolved"];
-                        banner = genBanner(TYPES[a.announcement_type], a.title, content);
-                        $("#anns").append(banner);
-                        $($("#anns").children()[$("#anns").children().length - 1]).hide();
-                        $($("#anns").children()[$("#anns").children().length - 1]).fadeIn();
-                        await sleep(200);
-                    }
-                }
-            });
-        }
-    };
 }
 
 function FetchAnnouncement() {
@@ -3404,7 +3331,7 @@ function SubmitApp() {
 }
 function LoadUserApplicationList() {
     GeneralLoad();
-    InitTable("#table_my_application", "LoadUserApplicationList();");
+    InitPaginate("#table_my_application", "LoadUserApplicationList();");
 
     page = parseInt($("#table_my_application_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -3483,7 +3410,7 @@ function AddMessageToApplication() {
 
 function LoadAllApplicationList() {
     GeneralLoad();
-    InitTable("#table_all_application", "LoadAllApplicationList();");
+    InitPaginate("#table_all_application", "LoadAllApplicationList();");
 
     page = parseInt($('#table_all_application_page_input').val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -3507,7 +3434,7 @@ function LoadAllApplicationList() {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                username = application.name;
+                username = application.creator.name;
                 creation = getDateTime(application.submit_timestamp * 1000);
                 closedat = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0) 
@@ -3548,7 +3475,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             if (data.error) return AjaxError(data);
 
             d = data.response.detail;
-            discordid = data.response.discordid;
+            discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastFactory("error", "Error:", "Application has no data", 5000, false);
@@ -3827,7 +3754,7 @@ function LoadDivisionInfo() {
             $("#table_division_delivery_data").empty();
             if (d.recent.length == 0) {
                 $("#table_division_delivery_head").hide();
-                $("#table_division_delivery_data").append(TableNoData(8));
+                $("#table_division_delivery_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
             } else {
                 $("#table_division_delivery_head").show();
                 for (i = 0; i < d.recent.length; i++) {
@@ -3880,7 +3807,7 @@ function LoadPendingDivisionValidation() {
             d = data.response;
             if (d.length == 0) {
                 $("#table_division_validation_head").hide();
-                $("#table_division_validation_data").append(TableNoData(3));
+                $("#table_division_validation_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
             } else {
                 $("#table_division_validation_head").show();
                 for (i = 0; i < d.length; i++) {
@@ -3888,7 +3815,7 @@ function LoadPendingDivisionValidation() {
                     $("#table_division_validation_data").append(`
             <tr class="text-sm">
             <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
@@ -3944,7 +3871,7 @@ function GetDivisionInfo(logid) {
                     showConfirmButton: false,
                     confirmButtonText: 'Close'
                 });
-            } else if (data.response.user_is_staff == true && data.response.status == "0") {
+            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
                 divisionopt = "";
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
@@ -4005,7 +3932,7 @@ function GetDivisionInfo(logid) {
                     if (data.response.update_message != "")
                         info += "<p> - For reason " + data.response.update_message + "</p>";
                 }
-                if (data.response.user_is_staff == true) {
+                if (userPerm.includes("division") || userPerm.includes("admin")) {
                     info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
                     class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
                     onclick="updateDivision(${logid}, 0)">Revalidate</button>`;
@@ -4114,7 +4041,7 @@ function updateDivision(logid, status) {
     });
 }
 
-function loadDownloads() {
+async function LoadDownloads() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/downloads",
         type: "GET",
@@ -4124,23 +4051,29 @@ function loadDownloads() {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            $("#downloads").html(parseMarkdown(data.response));
-            $("#downloadscontent").val(data.response);
+            $("#downloads-content").html(parseMarkdown(data.response));
+            $("#downloads-edit-content").val(data.response);
         },
         error: function (data) {
             AjaxError(data);
         }
-    })
-}
+    });
 
-function toggleUpdateDownloads() {
-    $("#downloadsedit").toggle();
-    $("#downloads").toggle();
+    while(1){
+        if(userPerm.length != 0) break;
+        await sleep(100);
+    }
+    if(userPerm.includes("downloads") || userPerm.includes("admin")){
+        $("#downloads-edit-button-wrapper").show();
+        $("#downloads-edit-content").on("input", function(){
+            $("#downloads-content").html(parseMarkdown($("#downloads-edit-content").val()));
+            $("#downloads-unsaved").show();
+        });
+    }
 }
 
 function UpdateDownloads() {
-    GeneralLoad();
-    LockBtn("#saveDownloadsBtn");
+    LockBtn("#button-downloads-edit-save", "Saving...");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/downloads",
         type: "PATCH",
@@ -4149,16 +4082,17 @@ function UpdateDownloads() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "data": $("#downloadscontent").val()
+            "data": $("#downloads-edit-content").val()
         },
         success: function (data) {
-            UnlockBtn("#saveDownloadsBtn");
+            UnlockBtn("#button-downloads-edit-save");
+            $("#downloads-unsaved").hide();
             if (data.error) return AjaxError(data);
-            $("#downloads").html(parseMarkdown($("#downloadscontent").val()));
+            $("#downloads-content").html(parseMarkdown($("#downloads-edit-content").val()));
             toastFactory("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#saveDownloadsBtn");
+            UnlockBtn("#button-downloads-edit-save");
             AjaxError(data);
         }
     })
@@ -4496,7 +4430,7 @@ function LoadEventInfo() {
         })
     }
 
-    InitTable("#table_event_list", "LoadEventInfo();");
+    InitPaginate("#table_event_list", "LoadEventInfo();");
     page = parseInt($("#table_event_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
@@ -5114,15 +5048,17 @@ async function GeneralLoad() {
 
 async function ShowTab(tabname, btnname) {
     loadworking = true;
-    $("html, body").animate({
-        scrollTop: 0
-    }, "slow");
+    // $("html, body").animate({
+    //     scrollTop: 0
+    // }, "slow");
     curtab = tabname;
     clearInterval(dmapint);
     dmapint = -1;
     $("#map,#dmap,#pmap,#amap").children().remove();
     $(".tabs").hide();
     $(tabname).show();
+    loaded = $(tabname).hasClass("loaded");
+    $(tabname).addClass("loaded");
     $(".nav-link").removeClass("active");
     if (btnname != "#ProfileTabBtn") {
         $(btnname).addClass("active");
@@ -5151,24 +5087,18 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/beta');
-        LoadStats();
+        if(!loaded) LoadStats();
     }
     if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
-        if(annInit == 0) LoadAnnouncement();
-        ch = $("#anns").children();
-        ch.hide();
-        for (var i = 0; i < ch.length; i++) {
-            $(ch[i]).fadeIn();
-            await sleep(200);
-        }
+        if(!loaded) LoadAnnouncement();
     }
     if (tabname == "#staff-announcement-tab") {
         window.history.pushState("", "", '/staff/announcement');
     }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
-        loadDownloads();
+        if(!loaded) LoadDownloads();
     }
     if (tabname == "#submit-application-tab") {
         window.history.pushState("", "", '/application/submit');
@@ -5394,12 +5324,11 @@ function AnnouncementEventButtonValueUpdate() {
     }, 100);
 }
 
+userPerm = [];
 function GetUserPermission(){
     if(roles == undefined || perms.admin == undefined) return;
-    userPerm = [];
     for (i = 0; i < roles.length; i++) {
         for (j = 0; j < Object.keys(perms).length; j++) {
-            if (["driver", "staff_of_the_month", "driver_of_the_month"].includes(Object.keys(perms)[j])) continue;
             for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
                 if (perms[Object.keys(perms)[j]][k] == roles[i]) {
                     userPerm.push(Object.keys(perms)[j]);
@@ -5407,6 +5336,7 @@ function GetUserPermission(){
             }
         }
     }
+    userPerm.push("user");
     return userPerm;
 }
 
@@ -5597,8 +5527,8 @@ $(document).ready(async function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
     setTimeout(function(){new SimpleBar($('#sidebar')[0]);},500);
-    LoadCache();
     PathDetect();
+    LoadCache();
     LoadDivisionList();
     InitDarkMode();
     InitPhoneView();

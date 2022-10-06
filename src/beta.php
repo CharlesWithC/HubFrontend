@@ -81,7 +81,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/762fa6679949d975.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0ca9bae464f4d21c.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -141,6 +141,15 @@
 
         .col {
             overflow: hidden;
+        }
+
+        .tabs {
+            display: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
         }
     </style>
     <?php 
@@ -339,7 +348,7 @@
         <strong style="position:fixed;right:20px;top:20px;">Drivers Hub</strong>
     </div>
     <div class="container" style="margin:20px;margin-left:280px;margin-top:80px;width:calc(100% - 300px);">
-        <section id="overview-tab" style="display:none">
+        <section id="overview-tab" class="tabs">
             <div class="row">
                 <div class="col-8">
                     <div class="row">
@@ -493,6 +502,53 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </section>
+        <section id="announcement-tab" class="tabs">
+            <div id="announcements">
+                <div class="row">
+                    <div class="announcement shadow p-3 m-3 bg-dark rounded col">
+                        <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-8"></span></strong></h5>
+                        <h6 style="font-size:15px"><span class="placeholder col-8"></span> <span class="placeholder col-6"></span></h6>
+                        <p><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
+                        <p><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span></p>
+                    </div>
+                    <div class="announcement shadow p-3 m-3 bg-dark rounded col">
+                        <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-7"></span></strong></h5>
+                        <h6 style="font-size:15px"><span class="placeholder col-3"></span> <span class="placeholder col-4"></span></h6>
+                        <p><span class="placeholder col-3"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></p>
+                        <p><span class="placeholder col-5"></span>&nbsp;&nbsp;<span class="placeholder col-4"></span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="downloads-tab" class="tabs">
+            <div class="row">
+                <div id="downloads-display" class="shadow p-3 m-3 bg-dark rounded col">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-download"></i></span> Downloads<span id="downloads-unsaved" style="display:none">*</span></strong></h5>
+                    <div id="downloads-edit-button-wrapper" style="float:right;display:none;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").hide();'>Edit</a></div>
+                    <p id="downloads-content"><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span><br><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-3"></span><br><span class="placeholder col-2"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
+                </div>
+                <div id="downloads-edit-div" class="shadow p-3 m-3 bg-dark rounded col" style="display:none">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span> Edit</strong></h5>
+                    <div id="downloads-edit-hide-button-wrapper" style="float:right;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").show();'>Hide</a></div>
+                    <textarea class="form-control bg-dark text-white" id="downloads-edit-content" style="height:calc(100% - 100px)"></textarea>
+                    <br>
+                    <button id="button-downloads-edit-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateDownloads();">Save</button>
+                </div>
+            </div>
+        </section>
+        <section id="footer">
+            <hr style="border:1px solid #777;margin-bottom:8px">
+            <div style="width:49.5%;text-align:left;display:inline-block">
+                &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
+            </div>
+            <div style="width:49.5%;text-align:right;display:inline-block">
+                <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>
+                &nbsp;&nbsp;
+                <a href="https://discord.gg/wNTaaBZ5qd" target="_blank">Discord</a>
+                &nbsp;&nbsp;
+                <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
             </div>
         </section>
     </div>

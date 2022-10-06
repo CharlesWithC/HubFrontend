@@ -303,15 +303,17 @@ async function GeneralLoad() {
 
 async function ShowTab(tabname, btnname) {
     loadworking = true;
-    $("html, body").animate({
-        scrollTop: 0
-    }, "slow");
+    // $("html, body").animate({
+    //     scrollTop: 0
+    // }, "slow");
     curtab = tabname;
     clearInterval(dmapint);
     dmapint = -1;
     $("#map,#dmap,#pmap,#amap").children().remove();
     $(".tabs").hide();
     $(tabname).show();
+    loaded = $(tabname).hasClass("loaded");
+    $(tabname).addClass("loaded");
     $(".nav-link").removeClass("active");
     if (btnname != "#ProfileTabBtn") {
         $(btnname).addClass("active");
@@ -340,24 +342,18 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/beta');
-        LoadStats();
+        if(!loaded) LoadStats();
     }
     if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
-        if(annInit == 0) LoadAnnouncement();
-        ch = $("#anns").children();
-        ch.hide();
-        for (var i = 0; i < ch.length; i++) {
-            $(ch[i]).fadeIn();
-            await sleep(200);
-        }
+        if(!loaded) LoadAnnouncement();
     }
     if (tabname == "#staff-announcement-tab") {
         window.history.pushState("", "", '/staff/announcement');
     }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
-        loadDownloads();
+        if(!loaded) LoadDownloads();
     }
     if (tabname == "#submit-application-tab") {
         window.history.pushState("", "", '/application/submit');
@@ -583,12 +579,11 @@ function AnnouncementEventButtonValueUpdate() {
     }, 100);
 }
 
+userPerm = [];
 function GetUserPermission(){
     if(roles == undefined || perms.admin == undefined) return;
-    userPerm = [];
     for (i = 0; i < roles.length; i++) {
         for (j = 0; j < Object.keys(perms).length; j++) {
-            if (["driver", "staff_of_the_month", "driver_of_the_month"].includes(Object.keys(perms)[j])) continue;
             for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
                 if (perms[Object.keys(perms)[j]][k] == roles[i]) {
                     userPerm.push(Object.keys(perms)[j]);
@@ -596,6 +591,7 @@ function GetUserPermission(){
             }
         }
     }
+    userPerm.push("user");
     return userPerm;
 }
 
@@ -786,8 +782,8 @@ $(document).ready(async function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
     setTimeout(function(){new SimpleBar($('#sidebar')[0]);},500);
-    LoadCache();
     PathDetect();
+    LoadCache();
     LoadDivisionList();
     InitDarkMode();
     InitPhoneView();

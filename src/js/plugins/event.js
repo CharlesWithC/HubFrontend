@@ -331,7 +331,7 @@ function LoadEventInfo() {
         })
     }
 
-    InitTable("#table_event_list", "LoadEventInfo();");
+    InitPaginate("#table_event_list", "LoadEventInfo();");
     page = parseInt($("#table_event_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({

@@ -19,10 +19,10 @@ function LoadDriverLeaderStatistics() {
             success: function (data) {
                 users = data.response.list;
                 dottuser = users[0];
-                discordid = dottuser.discordid;
-                avatar = GetAvatarSrc(discordid, dottuser.avatar);
-                distance = TSeparator(parseInt(dottuser.distance * distance_ratio));
-                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.userid, dottuser.name));
+                discordid = dottuser.user.discordid;
+                avatar = GetAvatarSrc(discordid, dottuser.user.avatar);
+                distance = TSeparator(parseInt(dottuser.points.distance * distance_ratio));
+                $("#dot" + dottag).html(GetAvatarImg(src, dottuser.user.userid, dottuser.user.name));
                 $("#dot" + dottag + "distance").html(`(${distance}${distance_unit_txt})`);
             }
         });
@@ -46,7 +46,7 @@ function LoadDriverLeaderStatistics() {
 function LoadLeaderboard() {
     GeneralLoad();
     LockBtn("#LoadLeaderboardBtn", btntxt = "...");
-    InitTable("#table_leaderboard", "LoadLeaderboard();");
+    InitPaginate("#table_leaderboard", "LoadLeaderboard();");
 
     page = parseInt($("#table_leaderboard_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -94,8 +94,8 @@ function LoadLeaderboard() {
             data = [];
             for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
-                distance = TSeparator(parseInt(user.distance * distance_ratio)); 
-                data.push([`#${user.rank} ${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.event}`, `${user.division}`, `${user.myth}`, `${user.total}`]);
+                distance = TSeparator(parseInt(user.points.distance * distance_ratio)); 
+                data.push([`#${user.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.total}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -109,7 +109,7 @@ function LoadLeaderboard() {
 function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#loadDeliveryBtn", btntxt = "...");
-    InitTable("#table_deliverylog", "LoadDeliveryList();");
+    InitPaginate("#table_deliverylog", "LoadDeliveryList();");
 
     page = parseInt($("#table_deliverylog_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -161,7 +161,7 @@ function LoadDeliveryList() {
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
 
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
             PushTable("#table_deliverylog", data, total_pages, "LoadDeliveryList();");
@@ -177,7 +177,7 @@ function LoadDeliveryList() {
 function LoadUserDeliveryList() {
     GeneralLoad();
     LockBtn("#loadUserDeliveryBtn", btntxt = "...");
-    InitTable("#table_deliverylog_user", "LoadUserDeliveryList();");
+    InitPaginate("#table_deliverylog_user", "LoadUserDeliveryList();");
 
     page = parseInt($("#table_deliverylog_user_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -423,8 +423,8 @@ function deliveryDetail(logid) {
             if (!data.error) {
                 window.history.pushState("", "", '/delivery/' + logid);
                 d = data.response;
-                userid = d.userid;
-                name = d.name;
+                userid = d.user.userid;
+                name = d.user.name;
                 d = d.detail;
                 tp = d.type;
                 d = d.data.object;

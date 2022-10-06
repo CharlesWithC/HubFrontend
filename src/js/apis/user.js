@@ -1,6 +1,6 @@
 function LoadAuditLog() {
     GeneralLoad();
-    InitTable("#table_audit_log", "LoadAuditLog();")
+    InitPaginate("#table_audit_log", "LoadAuditLog();")
     page = parseInt($("#table_audit_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
@@ -23,7 +23,7 @@ function LoadAuditLog() {
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
 
-                data.push([`${audit.user}`, `${op}`, `${dt}`]);
+                data.push([`${audit.user.name}`, `${op}`, `${dt}`]);
             }
 
             PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
@@ -112,7 +112,7 @@ bannedUserList = {};
 
 function LoadUserList() {
     GeneralLoad();
-    InitTable("#table_pending_user_list", "LoadUserList();");
+    InitPaginate("#table_pending_user_list", "LoadUserList();");
     page = parseInt($("#table_pending_user_list_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
@@ -136,7 +136,7 @@ function LoadUserList() {
                 bantxt2 = "";
                 color = "";
                 accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
-                if (user.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban_reason;
+                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
                 else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="AddUser('${user.discordid}')">Accept as member</td>`;
 
                 data.push([`<span style='color:${color}'>${user.discordid}</span>`, `<span style='color:${color}'>${user.name} ${bantxt2}</span>`, `<a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</a>`, `<button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 

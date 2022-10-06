@@ -1,3 +1,5 @@
+MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 $(document).ready(function () {
     drivershub = `    ____       _                         __  __      __  
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
@@ -22,6 +24,21 @@ function GetMonday(d) {
     var day = d.getDay(),
         diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
     return new Date(d.setDate(diff));
+}
+
+function OrdinalSuffix(i) {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+        return i + "st";
+    }
+    if (j == 2 && k != 12) {
+        return i + "nd";
+    }
+    if (j == 3 && k != 13) {
+        return i + "rd";
+    }
+    return i + "th";
 }
 
 function RandomString(length) {
@@ -141,102 +158,6 @@ function getCookie(cookiename) {
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function genBanner(btype, title, content) {
-    if (btype == "info") {
-        return `
-        <div class="py-8 px-6" style="width:100%">
-          <div class="p-6 border-l-4 border-2 border-indigo-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-              <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                  <svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM11 14C11 14.6 10.6 15 10 15C9.4 15 9 14.6 9 14V10C9 9.4 9.4 9 10 9C10.6 9 11 9.4 11 10V14ZM10 7C9.4 7 9 6.6 9 6C9 5.4 9.4 5 10 5C10.6 5 11 5.4 11 6C11 6.6 10.6 7 10 7Z" fill="#382CDD"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <h3 class="text-indigo-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                  <p class="text-sm text-indigo-700">` + content + `</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    } else if (btype == "criticle") {
-        return `
-        <div class="py-8 px-6" style="width:100%">
-          <div class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-              <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                  <svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM10 15C9.4 15 9 14.6 9 14C9 13.4 9.4 13 10 13C10.6 13 11 13.4 11 14C11 14.6 10.6 15 10 15ZM11 10C11 10.6 10.6 11 10 11C9.4 11 9 10.6 9 10V6C9 5.4 9.4 5 10 5C10.6 5 11 5.4 11 6V10Z" fill="#E85444"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <h3 class="text-red-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                  <p class="text-sm text-red-700">` + content + `</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    } else if (btype == "resolved") {
-        return `
-        <div class="py-8 px-6" style="width:100%">
-          <div class="p-6 border-l-4 border-2 border-green-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-              <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                  <svg width="20" height="20" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 0C4.5 0 0 4.5 0 10C0 15.5 4.5 20 10 20C15.5 20 20 15.5 20 10C20 4.5 15.5 0 10 0ZM14.2 8.3L9.4 13.1C9 13.5 8.4 13.5 8 13.1L5.8 10.9C5.4 10.5 5.4 9.9 5.8 9.5C6.2 9.1 6.8 9.1 7.2 9.5L8.7 11L12.8 6.9C13.2 6.5 13.8 6.5 14.2 6.9C14.6 7.3 14.6 7.9 14.2 8.3Z" fill="#17BB84"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="w-full">
-                <div class="flex">
-                  <h3 class="text-green-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                  <p class="text-sm text-green-700">` + content + `</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-    } else if (btype == "warning") {
-        return `<div class="py-8 px-6" style="width:100%">
-            <div class="p-6 border-l-4 border-2 border-orange-500 rounded-r-lg bg-gray-50">
-            <div class="flex">
-                <div class="w-auto">
-                <span class="w-auto inline-block mr-2">
-                    <svg width="24" height="20" viewbox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22.7 15.5001L14.6 1.50011C13.8 0.100109 11.9 -0.399891 10.5 0.400109C10 0.700109 9.60001 1.10011 9.40001 1.50011L1.30001 15.5001C0.500011 16.9001 1.00001 18.8001 2.40001 19.6001C2.90001 19.9001 3.40001 20.0001 3.90001 20.0001H20C21.7 20.0001 23 18.6001 23 17.0001C23.1 16.4001 22.9 15.9001 22.7 15.5001ZM12 16.0001C11.4 16.0001 11 15.6001 11 15.0001C11 14.4001 11.4 14.0001 12 14.0001C12.6 14.0001 13 14.4001 13 15.0001C13 15.6001 12.6 16.0001 12 16.0001ZM13 11.0001C13 11.6001 12.6 12.0001 12 12.0001C11.4 12.0001 11 11.6001 11 11.0001V7.00011C11 6.40011 11.4 6.00011 12 6.00011C12.6 6.00011 13 6.40011 13 7.00011V11.0001Z" fill="#F67A28"></path>
-                    </svg>
-                </span>
-                </div>
-                <div class="w-full">
-                <div class="flex">
-                    <h3 class="text-orange-800 font-medium">` + title + `</h3>
-                </div>
-                <div class="pr-6">
-                    <p class="text-sm text-orange-700">` + content + `</p>
-                </div>
-                </div>
-            </div>
-            </div>
-        </div>
-        </div>`;
-    }
 }
 
 function pad(num, size) {
@@ -388,108 +309,118 @@ function b62decode(num62) {
     return ret * flag;
 }
 
-function InitTable(table, reload_function, force_init = false){
-    if($(table+"_paginate").length != 0 && !force_init) return;
-    $(table+"_paginate").remove();
-    table = table.replaceAll("#","");
-    $("#"+table).after(`
-    <br>
-    <div id="${table}_paginate">
-        <div style="margin-left:auto;width:fit-content">
-            <div style="margin-left:auto;width:fit-content">
-                <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
-                <input id="${table}_page_input" style="width:50px;display:inline"
-                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
-                    name="field-name" rows="5" placeholder="" value="1"></input> / <span id="${table}_total_pages">-</span>
-                <button type="button"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="${reload_function}">Show</button>
-            </div>
-            <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp-1);${reload_function};">
-                < </button> <div id="${table}_paginate_control" style="display:inline"></div>
-            <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="tmp=parseInt($('#${table}_page_input').val());$('#${table}_page_input').val(tmp+1);${reload_function};">></button>
-        </div>
-    </div>`);
+function InitPaginate(element, reload_function, force_init = false){
+    if($(element+"_paginate").length != 0 && !force_init) return;
+    $(element+"_paginate").remove();
+    element = element.replaceAll("#","");
+    $("#"+element).after(`
+    <div style="margin-left:auto;width:fit-content;display:none;">
+        <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
+        <input id="${element}_page_input" style="width:50px;display:inline"
+            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded pageinput"
+            name="field-name" rows="5" placeholder="" value="1"></input> / <span id="${element}_total_pages">-</span>
+        <button type="button"
+            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200" onclick="${reload_function}">Show</button>
+    </div>
+    <ul id="${element}_paginate" class="pagination" style="margin-left:auto;width:fit-content">
+        <li class="page-item disabled">
+            <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+
+        <li class="page-item disabled">
+            <a class="page-link bg-dark text-white" style="cursor:pointer">
+                ...
+            </a>
+        </li>
+
+        <li class="page-item disabled">
+            <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>`);
 }
 
-function TableNoData(columns) {
-    var ret = "";
-    for (var i = 0; i < columns - 1; i++)
-        ret += `<td></td>`;
-    return `<tr>
-      <td style="color:#ccc"><i>No Data</i></td>
-      ${ret}
-    </tr>`
+function UpdatePaginate(element, total_pages, reload_function = ""){
+    page = parseInt($(element+"_page_input").val());
+
+    if (page > total_pages) {
+        $(element+"_page_input").val(1);
+        return;
+    }
+    if (page <= 0) {
+        $(element+"_page_input").val(1);
+        page = 1;
+    }
+
+    $(element + "_total_pages").html(total_pages);
+    $(element + "_paginate").children().remove();
+
+    disable_previous = "";
+    if (page <= 1) disable_previous = "disabled";
+
+    disable_next = "";
+    if (page >= total_pages) disable_next = "disabled";
+
+    $(element + "_paginate").append(`
+    <li class="page-item ${disable_previous}">
+        <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Previous" onclick="tmp=parseInt($('${element}_page_input').val());$('${element}_page_input').val(tmp-1);${reload_function};">
+            <span aria-hidden="true">&laquo;</span>
+        </a>
+    </li>`);
+    $(element + "_paginate").append(`
+        <li class="page-item"><a class="page-link bg-dark text-white" style="cursor:pointer" onclick="$('${element}_page_input').val(1);${reload_function}">1</a></li>`);
+    if (page > 3) {
+        $(element + "_paginate").append(`
+        <li class="page-item disabled"><a class="page-link bg-dark text-white" style="cursor:pointer">...</a></li>`);
+    }
+    for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, total_pages - 1); i++) {
+        $(element + "_paginate").append(`
+        <li class="page-item"><a class="page-link bg-dark text-white" style="cursor:pointer" onclick="$('${element}_page_input').val(${i});${reload_function}">${i}</a></li>`);
+    }
+    if (page < total_pages - 2) {
+        $(element + "_paginate").append(`
+        <li class="page-item disabled"><a class="page-link bg-dark text-white" style="cursor:pointer">...</a></li>`);
+    }
+    if (total_pages > 1) {
+        $(element + "_paginate").append(`
+        <li class="page-item"><a class="page-link bg-dark text-white" style="cursor:pointer" onclick="$('${element}_page_input').val(${total_pages});${reload_function}">${total_pages}</a></li>`);
+    }
+    $(element + "_paginate").append(`
+    <li class="page-item ${disable_next}">
+        <a class="page-link bg-dark text-white" style="cursor:pointer" aria-label="Next" onclick="tmp=parseInt($('${element}_page_input').val());$('${element}_page_input').val(tmp+1);${reload_function};">
+            <span aria-hidden="true">&raquo;</span>
+        </a>
+    </li>`);
 }
 
 function PushTable(table, data, total_pages, reload_function = ""){
-    page = parseInt($(table+"_page_input").val());
-    column_count = $($(table+"_head").children()[0]).children().length;
+    UpdatePaginate(table, total_pages, reload_function);
+
     $(table+"_data").empty();
 
     if(data.length == 0){
         $(table+"_head").hide();
-        $(table+"_data").append(TableNoData(column_count));
+        $(table+"_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
         $(table+"_page_input").val("1");
         return;
     } else {
         $(table+"_head").show();
-    }
-
-    if (page > total_pages) {
-        $(table+"_page_input").val(1);
-        return;
-    }
-    if (page <= 0) {
-        $(table+"_page_input").val(1);
-        page = 1;
-    }
-
-    $(table + "_total_pages").html(total_pages);
-    $(table + "_paginate_control").children().remove();
-
-    $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="$('${table}_page_input').val(1);${reload_function}">1</button>`);
-    if (page > 3) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        >...</button>`);
-    }
-    for (var i = Math.max(page - 1, 2); i <= Math.min(page + 1, total_pages - 1); i++) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="$('${table}_page_input').val(${i});${reload_function}">${i}</button>`);
-    }
-    if (page < total_pages - 2) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        >...</button>`);
-    }
-    if (total_pages > 1) {
-        $(table + "_paginate_control").append(`
-        <button type="button" style="display:inline"
-        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-        onclick="$('${table}_page_input').val(${total_pages});${reload_function}">${total_pages}</button>`);
     }
     
     for(var i = 0 ; i < data.length ; i++){
         if(data[i][0].startsWith("<tr_style>")){
             s = data[i][0];
             s = s.substr(10,s.length-21);
-            $(table+"_data").append(`<tr class="text-sm" style="${s}">`);
+            $(table+"_data").append(`<tr style="${s}">`);
         } else {
-            $(table+"_data").append(`<tr class="text-sm">`);
+            $(table+"_data").append(`<tr>`);
         }
         for(var j = 0 ; j < data[i].length ; j++){
             if(!data[i][j].startsWith("<tr_style>")){
-                $(table+"_data").append(`<td class="py-5 px-6">${data[i][j]}</td>`);
+                $(table+"_data").append(`<td>${data[i][j]}</td>`);
             }
         }
         $(table+"_data").append(`</tr>`);
