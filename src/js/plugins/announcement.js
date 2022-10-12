@@ -4,10 +4,10 @@ ANNOUNCEMENT_ICON = [`<span class="rect-20"><i class="fa-solid fa-circle-info"><
 
 announcement_placeholder_row = `<div class="row">
 <div class="announcement shadow p-3 m-3 bg-dark rounded col">
-    <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-8"></span></strong></h5>
-    <h6 style="font-size:15px"><span class="placeholder col-8"></span> <span class="placeholder col-6"></span></h6>
-    <p><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
-    <p><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span></p>
+    <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-7"></span></strong></h5>
+    <h6 style="font-size:15px"><span class="placeholder col-3"></span> <span class="placeholder col-4"></span></h6>
+    <p><span class="placeholder col-3"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></p>
+    <p><span class="placeholder col-5"></span>&nbsp;&nbsp;<span class="placeholder col-4"></span></p>
 </div>
 <div class="announcement shadow p-3 m-3 bg-dark rounded col">
     <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-7"></span></strong></h5>
@@ -46,10 +46,51 @@ function LoadAnnouncement(){
                 announcement = announcements[i];
                 announcement_datetime = getDateTime(announcement.timestamp * 1000);
                 author = announcement.author;
+                announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
+                announcement_control_title_style = `width:calc(100% - 70px)`;
+                announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
+                public_checked = "";
+                private_checked = "";
+                if(announcement.is_private == true) private_checked = "checked";
+                else public_checked = "checked";
+                type_checked = [];
+                for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
+                    type_checked.push("");
+                }
+                type_checked.push("checked");
+                for(var j = 0 ; j < 4 ; j++){
+                    type_checked.push("");
+                }
+                announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
+                    <textarea type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%">${announcement.content}</textarea></div>
+                <div style="display:inline">
+                    <div class="form-check" style="display:inline-block;width:80px;">
+                        <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
+                            <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
+                                Public
+                            </label>
+                        </div>
+                    <div class="form-check" style="display:inline-block;width:80px;">
+                        <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
+                        <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
+                            Private
+                        </label>
+                    </div>
+                    <select style="display:inline-block;width:130px" class="form-select  bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
+                        <option value="0" ${type_checked[0]}>Information</option>
+                        <option value="1" ${type_checked[1]}>Event</option>
+                        <option value="2" ${type_checked[2]}>Warning</option>
+                        <option value="3" ${type_checked[3]}>Critical</option>
+                        <option value="4" ${type_checked[4]}>Resolved</option>
+                    </select>
+                </div>
+                <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
                 content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col" id="announcement-${announcement.announcementid}">
-                    <h5><strong>${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</strong></h5>
+                    <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
+                    ${announcement_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
-                    <p>${parseMarkdown(announcement.content.replaceAll("\n", "<br>"))}</p>
+                    <p id="announcement-display-${announcement.announcementid}-content">${parseMarkdown(announcement.content.replaceAll("\n", "<br>"))}</p>
+                    ${announcement_control_bottom}
                 </div>`;
             }
             content += `</div>`;
@@ -58,6 +99,14 @@ function LoadAnnouncement(){
             UpdatePaginate("#announcements", data.response.total_pages, "LoadAnnouncement();");
         }
     });
+}
+
+function EditAnnouncementToggle(announcementid){
+    $(`#announcement-edit-${announcementid}-bottom-div`).css("height", ($(`#announcement-display-${announcementid}-content`).height()) + "px");
+    $(`#announcement-edit-${announcementid}-bottom-div`).toggle();
+    $(`#announcement-edit-${announcementid}-title`).toggle();
+    $(`#announcement-display-${announcementid}-content`).toggle();
+    $(`#announcement-display-${announcementid}-title`).toggle();
 }
 
 function FetchAnnouncement() {
@@ -80,8 +129,8 @@ function FetchAnnouncement() {
             announcement = data.response;
             $("#anntitle").val(announcement.title);
             $("#anncontent").val(announcement.content);
-            if (announcement.is_private) $("#annpvt-1").prop("checked", true);
-            else $("#annpvt-0").prop("checked", true);
+            if (announcement.is_private) $("#announcement-visibility-private").prop("checked", true);
+            else $("#announcement-visibility-public").prop("checked", true);
             $('#annselect option:eq(' + announcement.announcement_type + ')').prop('selected', true);
         },
         error: function (data) {
@@ -91,16 +140,20 @@ function FetchAnnouncement() {
     })
 }
 
+function CreateAnnouncement(){
+    
+}
+
 function AnnouncementOp() {
     anntype = parseInt($("#annselect").find(":selected").val());
     title = $("#anntitle").val();
     content = $("#anncontent").val();
     annid = $("#annid").val();
-    pvt = $("#annpvt-1").prop("checked");
+    pvt = $("#announcement-visibility-private").prop("checked");
     chnid = $("#annchan").val().replaceAll(" ", "");
 
     if (chnid != "" && !isNumber(chnid)) {
-        toastFactory("warning", "Error", "Channel ID must be an integar if specified!", 5000, false);
+        toastNotification("warning", "Error", "Channel ID must be an integar if specified!", 5000, false);
         return;
     }
 
@@ -135,7 +188,7 @@ function AnnouncementOp() {
             success: function (data) {
                 UnlockBtn("#newAnnBtn");
                 if (data.error) AjaxError(data);
-                toastFactory("success", "Success", "", 5000, false);
+                toastNotification("success", "Success", "", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#newAnnBtn");
@@ -161,7 +214,7 @@ function AnnouncementOp() {
             success: function (data) {
                 UnlockBtn("#newAnnBtn");
                 if (data.error) AjaxError(data);
-                toastFactory("success", "Success", "", 5000, false);
+                toastNotification("success", "Success", "", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#newAnnBtn");
@@ -180,7 +233,7 @@ function AnnouncementOp() {
             success: function (data) {
                 UnlockBtn("#newAnnBtn");
                 if (data.error) AjaxError(data);
-                toastFactory("success", "Success", "", 5000, false);
+                toastNotification("success", "Success", "", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#newAnnBtn");

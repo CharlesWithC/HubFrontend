@@ -57,7 +57,7 @@ function ShowCaptcha() {
     email = $("#email").val();
     password = $("#password").val();
     if (email == "" || password == "") {
-        return toastFactory("warning", "", "Enter email and password.", 3000, false);
+        return toastNotification("warning", "", "Enter email and password.", 3000, false);
     }
     $('#captcha').fadeIn();
 }
@@ -187,11 +187,11 @@ function TMPBind() {
                 $("#msg").html("You are being redirected to Drivers Hub.");
                 window.location.href = "/";
             } else {
-                return toastFactory("error", "Error:", data.descriptor, 5000, false);
+                return toastNotification("error", "Error:", data.descriptor, 5000, false);
             }
         },
         error: function (data) {
-            return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            return toastNotification("error", "Error:", data.descriptor, 5000, false);
         }
     });
 }

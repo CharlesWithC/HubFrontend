@@ -52,7 +52,7 @@ function UpdateBio() {
             UnlockBtn("#updateBioBtn");
             if (data.error) return AjaxError(data);
             LoadUserProfile(localStorage.getItem("userid"));
-            toastFactory("success", "Success!", "About Me updated!", 5000, false);
+            toastNotification("success", "Success!", "About Me updated!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateBioBtn");
@@ -76,7 +76,7 @@ function RenewApplicationToken() {
             UnlockBtn("#genAppTokenBtn");
             if (data.error) return AjaxError(data);
             $("#userAppToken").html(data.response.token);
-            toastFactory("success", "Success", "Application Token generated!", 5000, false);
+            toastNotification("success", "Success", "Application Token generated!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#genAppTokenBtn");
@@ -99,7 +99,7 @@ function DisableApplicationToken() {
         success: function (data) {
             UnlockBtn("#disableAppTokenBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success", "Application Token Disabled!", 5000, false);
+            toastNotification("success", "Success", "Application Token Disabled!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#disableAppTokenBtn");
@@ -161,7 +161,7 @@ function AddUser(discordid = -1) {
     if (discordid == "-1") {
         discordid = $("#adddiscordid").val();
         if (!isNumber(discordid)) {
-            return toastFactory("error", "Error:", "Please enter a valid discord id.", 5000, false);
+            return toastNotification("error", "Error:", "Please enter a valid discord id.", 5000, false);
         }
     } else {
         if ($("#UserAddBtn" + discordid).html() != "Confirm?") {
@@ -187,7 +187,7 @@ function AddUser(discordid = -1) {
             UnlockBtn("#addUserBtn");
             UnlockBtn("#UserAddBtn" + discordid);
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success", "User added successfully. User ID: " + data.response.userid, 5000, false);
+            toastNotification("success", "Success", "User added successfully. User ID: " + data.response.userid, 5000, false);
             LoadUserList();
         },
         error: function (data) {
@@ -218,7 +218,7 @@ function UpdateUserDiscordAccount() {
         success: function (data) {
             UnlockBtn("#updateDiscordBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success", "User Discord Account Updated!", 5000, false);
+            toastNotification("success", "Success", "User Discord Account Updated!", 5000, false);
             LoadUserList();
         },
         error: function (data) {
@@ -245,7 +245,7 @@ function DeleteUserAccount() {
             UnlockBtn("#deleteUserBtn");
             if (data.error) return AjaxError(data);
             LoadUserList();
-            toastFactory("success", "Success", "User deleted!", 5000, false);
+            toastNotification("success", "Success", "User deleted!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#deleteUserBtn");
@@ -272,7 +272,7 @@ function UnbindUserAccountConnections() {
             UnlockBtn("#unbindConnectionsBtn");
             if (data.error) return AjaxError(data);
             LoadUserList();
-            toastFactory("success", "Success", "User account connections unbound!", 5000, false);
+            toastNotification("success", "Success", "User account connections unbound!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#unbindConnectionsBtn");
@@ -331,7 +331,7 @@ function GetUserDetail(discordid) {
 function BanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid)) 
-        return toastFactory("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
 
     GeneralLoad();
     LockBtn("#banUserBtn");
@@ -356,7 +356,7 @@ function BanUser() {
             UnlockBtn("#banUserBtn");
             if (data.error) return AjaxError(data);
             LoadUserList();
-            toastFactory("success", "Success", "User banned successfully.", 5000, false);
+            toastNotification("success", "Success", "User banned successfully.", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#banUserBtn");
@@ -368,7 +368,7 @@ function BanUser() {
 function UnbanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid))
-        return toastFactory("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
     
     GeneralLoad();
     LockBtn("#unbanUserBtn");
@@ -386,7 +386,7 @@ function UnbanUser() {
         success: function (data) {
             UnlockBtn("#unbanUserBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success", "User unbanned successfully.", 5000, false);
+            toastNotification("success", "Success", "User unbanned successfully.", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#unbanUserBtn");
@@ -452,7 +452,7 @@ function loadAdmin() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            if (data.error) toastFactory("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) toastNotification("error", "Error:", data.descriptor, 5000, false);
             webConfigData = data.response.config;
             webConfigKeys = Object.keys(webConfigData);
             for (var i = 0; i < webConfigKeys.length; i++) {
@@ -473,7 +473,7 @@ function loadAdmin() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
                 false);
 
             configData = data.response.config;
@@ -622,7 +622,7 @@ function loadAdmin() {
 
 function UpdateWebConfig() {
     if($("#webconfig_apptoken").val().length != 36){
-        return toastFactory("error", "Invalid application token!");
+        return toastNotification("error", "Invalid application token!");
     }
     $("#updateWebConfigBtn").html("Working...");
     $("#updateWebConfigBtn").attr("disabled", "disabled");
@@ -652,8 +652,8 @@ function UpdateWebConfig() {
         success: function (data) {
             $("#updateWebConfigBtn").html("Update");
             $("#updateWebConfigBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            toastFactory("success", "Success", data.response, 5000, false);
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             $("#updateWebConfigBtn").html("Update");
@@ -668,7 +668,7 @@ function UpdateConfig() {
     try {
         config = JSON.parse(config);
     } catch {
-        toastFactory("error", "Error:", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+        toastNotification("error", "Error:", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
         return;
     }
     if (config["navio_token"] == "") delete config["navio_token"];
@@ -693,8 +693,8 @@ function UpdateConfig() {
         success: function (data) {
             $("#updateConfigBtn").html("Update");
             $("#updateConfigBtn").removeAttr("disabled");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            toastFactory("success", "Success", data.response, 5000, false);
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             $("#updateConfigBtn").html("Update");
@@ -707,7 +707,7 @@ function UpdateConfig() {
 function ReloadServer() {
     otp = $("#input-reload-otp").val();
     if(!isNumber(otp) || otp.length != 6){
-        return toastFactory("error", "Error:", "Invalid OTP.", 5000, false);
+        return toastNotification("error", "Error:", "Invalid OTP.", 5000, false);
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
@@ -720,8 +720,8 @@ function ReloadServer() {
             otp: otp
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            toastFactory("success", "Success", data.response, 5000, false);
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -744,7 +744,7 @@ function UpdatePassword() {
             success: function (data) {
                 UnlockBtn("#resetPasswordBtn");
                 if (data.error) return AjaxError(data);
-                toastFactory("success", "Success", "Password login disabled", 5000, false);
+                toastNotification("success", "Success", "Password login disabled", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#resetPasswordBtn");
@@ -767,7 +767,7 @@ function UpdatePassword() {
         success: function (data) {
             UnlockBtn("#resetPasswordBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success", data.response, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             UnlockBtn("#resetPasswordBtn");
@@ -828,7 +828,7 @@ function RevokeToken(hsh) {
         success: function (data) {
             if (data.error) return AjaxError(data);
             LoadUserSessions();
-            toastFactory("success", "Success", data.response, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -851,8 +851,8 @@ function revokeAllToken(){
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            setTimeout(function(){window.location.href = "/login";},1000);
-            toastFactory("success", "Success", data.response, 5000, false);
+            setTimeout(function(){ShowTab("#signin-tab", "#button-signin-tab");},1000);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             AjaxError(data);

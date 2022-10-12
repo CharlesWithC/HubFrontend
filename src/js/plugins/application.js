@@ -57,7 +57,7 @@ function SubmitApp() {
         success: function (data) {
             UnlockBtn("#submitAppBttn");
             if(data.error) return AjaxError(data);
-            toastFactory("success", "Success", "Application submitted!", 5000, false);
+            toastNotification("success", "Success", "Application submitted!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#submitAppBttn");
@@ -116,7 +116,7 @@ function LoadUserApplicationList() {
 function AddMessageToApplication() {
     appid = $("#appmsgid").val();
     if (!isNumber(appid)) {
-        toastFactory("error", "Error:", "Please enter a valid application ID.", 5000, false);
+        toastNotification("error", "Error:", "Please enter a valid application ID.", 5000, false);
         return;
     }
     message = $("#appmsgcontent").val();
@@ -135,7 +135,7 @@ function AddMessageToApplication() {
         success: function (data) {
             UnlockBtn("#addAppMessageBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success!", "Message added!", 5000, false);
+            toastNotification("success", "Success!", "Message added!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#addAppMessageBtn");
@@ -214,7 +214,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
-                return toastFactory("error", "Error:", "Application has no data", 5000, false);
+                return toastNotification("error", "Error:", "Application has no data", 5000, false);
                 
             apptype = applicationTypes[data.response.application_type];
             ret = "";
@@ -339,7 +339,7 @@ function UpdateApplicationStatus() {
             UnlockBtn("#updateAppStatusBtn");
             if (data.error) return AjaxError(data);
             LoadAllApplicationList();
-            toastFactory("success", "Success", "Application status updated.", 5000, false);
+            toastNotification("success", "Success", "Application status updated.", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateAppStatusBtn");
@@ -365,7 +365,7 @@ function UpdateApplicationPositions() {
         success: function (data) {
             UnlockBtn("#updateStaffPositionBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success!", "", 5000, false);
+            toastNotification("success", "Success!", "", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateStaffPositionBtn");

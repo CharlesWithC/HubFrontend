@@ -8,14 +8,14 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v1.5.6)");
+    console.log("Drivers Hub: Frontend (v2.0.0)");
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
 
 function AjaxError(data, no_notification = false) {
     errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
-    if (!no_notification) toastFactory("error", "Error:", errmsg, 5000, false);
+    if (!no_notification) toastNotification("error", "Error:", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
 
@@ -42,14 +42,14 @@ function OrdinalSuffix(i) {
 }
 
 function RandomString(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
- }
+}
 
 function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
@@ -68,7 +68,7 @@ function GetAvatarImg(src, userid, name) {
     </a>`;
 }
 
-function GetAvatar(userid, name, discordid, avatarid){
+function GetAvatar(userid, name, discordid, avatarid) {
     src = GetAvatarSrc(discordid, avatarid);
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
         <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
@@ -78,7 +78,7 @@ function GetAvatar(userid, name, discordid, avatarid){
 
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
-    return toastFactory("success", "Banner URL copied to clipboard!")
+    return toastNotification("success", "Banner URL copied to clipboard!")
 }
 
 function FileOutput(filename, text) {
@@ -102,6 +102,7 @@ function isString(obj) {
 window.btnvals = {};
 
 function LockBtn(btnid, btntxt = "Working...") {
+    if($(btnid).attr("disabled") == "disabled") return;
     $(btnid).attr("disabled", "disabled");
     btnvals[btnid] = $(btnid).html();
     $(btnid).html(btntxt);
@@ -129,24 +130,14 @@ function getUrlParameter(sParam) {
     return false;
 };
 
-function toastFactory(type, title, text, time, showConfirmButton) {
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-start',
-        showConfirmButton: showConfirmButton || false,
-        timer: time || '3000',
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer);
-            toast.addEventListener('mouseleave', Swal.resumeTimer);
-        },
-    });
-
-    Toast.fire({
-        icon: type,
-        title: '<strong>' + title + '</strong>',
-        html: text,
-    });
+function toastNotification(type, title, text, time = 5) {
+    new Noty({
+        type: type,
+        layout: 'topRight',
+        text: text,
+        timeout: time,
+        theme: "mint"
+    }).show();
 }
 
 function getCookie(cookiename) {
@@ -309,11 +300,11 @@ function b62decode(num62) {
     return ret * flag;
 }
 
-function InitPaginate(element, reload_function, force_init = false){
-    if($(element+"_paginate").length != 0 && !force_init) return;
-    $(element+"_paginate").remove();
-    element = element.replaceAll("#","");
-    $("#"+element).after(`
+function InitPaginate(element, reload_function, force_init = false) {
+    if ($(element + "_paginate").length != 0 && !force_init) return;
+    $(element + "_paginate").remove();
+    element = element.replaceAll("#", "");
+    $("#" + element).after(`
     <div style="margin-left:auto;width:fit-content;display:none;">
         <label class="text-sm font-medium mb-2" display="display:inline" for="">Page</label>
         <input id="${element}_page_input" style="width:50px;display:inline"
@@ -343,15 +334,15 @@ function InitPaginate(element, reload_function, force_init = false){
     </ul>`);
 }
 
-function UpdatePaginate(element, total_pages, reload_function = ""){
-    page = parseInt($(element+"_page_input").val());
+function UpdatePaginate(element, total_pages, reload_function = "") {
+    page = parseInt($(element + "_page_input").val());
 
     if (page > total_pages) {
-        $(element+"_page_input").val(1);
+        $(element + "_page_input").val(1);
         return;
     }
     if (page <= 0) {
-        $(element+"_page_input").val(1);
+        $(element + "_page_input").val(1);
         page = 1;
     }
 
@@ -396,34 +387,34 @@ function UpdatePaginate(element, total_pages, reload_function = ""){
     </li>`);
 }
 
-function PushTable(table, data, total_pages, reload_function = ""){
+function PushTable(table, data, total_pages, reload_function = "") {
     UpdatePaginate(table, total_pages, reload_function);
 
-    $(table+"_data").empty();
+    $(table + "_data").empty();
 
-    if(data.length == 0){
-        $(table+"_head").hide();
-        $(table+"_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
-        $(table+"_page_input").val("1");
+    if (data.length == 0) {
+        $(table + "_head").hide();
+        $(table + "_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
+        $(table + "_page_input").val("1");
         return;
     } else {
-        $(table+"_head").show();
+        $(table + "_head").show();
     }
-    
-    for(var i = 0 ; i < data.length ; i++){
-        if(data[i][0].startsWith("<tr_style>")){
+
+    for (var i = 0; i < data.length; i++) {
+        if (data[i][0].startsWith("<tr_style>")) {
             s = data[i][0];
-            s = s.substr(10,s.length-21);
-            $(table+"_data").append(`<tr style="${s}">`);
+            s = s.substr(10, s.length - 21);
+            $(table + "_data").append(`<tr style="${s}">`);
         } else {
-            $(table+"_data").append(`<tr>`);
+            $(table + "_data").append(`<tr>`);
         }
-        for(var j = 0 ; j < data[i].length ; j++){
-            if(!data[i][j].startsWith("<tr_style>")){
-                $(table+"_data").append(`<td>${data[i][j]}</td>`);
+        for (var j = 0; j < data[i].length; j++) {
+            if (!data[i][j].startsWith("<tr_style>")) {
+                $(table + "_data").append(`<td>${data[i][j]}</td>`);
             }
         }
-        $(table+"_data").append(`</tr>`);
+        $(table + "_data").append(`</tr>`);
     }
 }
 
@@ -439,9 +430,10 @@ $(document).ready(function () {
         success: function (data) {
             $("#apiversion").html(data.response.version);
             localStorage.setItem("api-version", data.response.version);
-        }, error: function (data) {
-            if(parseInt(data.status) >= 500 && parseInt(data.status) <= 599){
-                toastFactory("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
+        },
+        error: function (data) {
+            if (parseInt(data.status) >= 500 && parseInt(data.status) <= 599) {
+                toastNotification("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
             }
         }
     })

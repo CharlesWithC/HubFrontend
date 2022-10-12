@@ -53,13 +53,97 @@ function SteamValidate() {
     });
 }
 
+var CaptchaCallback = function(hcaptcha_response){
+    email = $("#signin-email").val();
+    password = $("#signin-password").val();
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/auth/password",
+        type: "POST",
+        dataType: "json",
+        data: {
+            email: email,
+            password: password,
+            "h-captcha-response": hcaptcha_response
+        },
+        success: function (data) {
+            hcaptcha.reset();
+            requireCaptcha = false;
+            if (!data.error) {
+                token = data.response.token;
+                mfa = data.response.mfa;
+                if(mfa){
+                    localStorage.setItem("tip", token);
+                    localStorage.setItem("pending-mfa", +new Date());
+                    ShowTab("#mfa-tab");
+                    setTimeout(function(){$("#mfa-otp").on("input", function(){
+                        if($("#mfa-otp").val().length == 6){
+                            MFAVerify();
+                        }
+                    });},50);
+                } else {
+                    localStorage.setItem("token", token);
+                    ValidateToken();
+                    $(".tabs").removeClass("loaded");
+                    toastNotification("success", "Success", "Welcome back!", 5000);
+                    setTimeout(function(){ShowTab("#overview-tab");},1000);
+                }
+            } else {
+                AjaxError(data);
+                ShowTab("#signin-tab");
+            }
+        },
+        error: function (data) {
+            hcaptcha.reset();
+            requireCaptcha = false;
+            AjaxError(data);
+            ShowTab("#signin-tab");
+        }
+    });
+}
+
 function ShowCaptcha() {
-    email = $("#email").val();
-    password = $("#password").val();
+    email = $("#signin-email").val();
+    password = $("#signin-password").val();
     if (email == "" || password == "") {
-        return toastFactory("warning", "", "Enter email and password.", 3000, false);
+        return toastNotification("warning", "", "Enter email and password.", 3000, false);
     }
-    $('#captcha').fadeIn();
+    LockBtn("#button-signin", `<span class="rect-20"><i class="fa-solid fa-right-to-bracket"></i></span> Logging in`);
+    requireCaptcha = true;
+    setTimeout(function(){UnlockBtn("#button-signin");setTimeout(function(){ShowTab("#captcha-tab");},500);},1000);
+}
+
+function MFAVerify(){
+    LockBtn("#button-mfa-verify", "Verifying...");
+    otp = $("#mfa-otp").val();
+    token = localStorage.getItem("tip");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        type: "POST",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            token: token,
+            otp: otp
+        },
+        success: function (data) {
+            UnlockBtn("#button-mfa-verify");
+            if (data.error == true) AjaxError(data);
+            newtoken = data.response.token;
+            localStorage.setItem("token", newtoken);
+            localStorage.removeItem("tip");
+            localStorage.removeItem("pending-mfa");
+            $(".tabs").removeClass("loaded");
+            ValidateToken();
+            toastNotification("success", "Success", "Welcome back!", 5000);
+            setTimeout(function(){ShowTab("#overview-tab");},1000);
+        },
+        error: function (data) {
+            UnlockBtn("#button-mfa-verify");
+            AjaxError(data);
+        }
+    });
 }
 
 function AuthValidate() {
@@ -187,11 +271,11 @@ function TMPBind() {
                 $("#msg").html("You are being redirected to Drivers Hub.");
                 window.location.href = "/";
             } else {
-                return toastFactory("error", "Error:", data.descriptor, 5000, false);
+                return toastNotification("error", "Error:", data.descriptor, 5000, false);
             }
         },
         error: function (data) {
-            return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            return toastNotification("error", "Error:", data.descriptor, 5000, false);
         }
     });
 }

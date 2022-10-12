@@ -14,19 +14,19 @@ function HandleAttendeeInput(){
                 success: function (data) {
                     d = data.response.list;
                     if (d.length == 0) {
-                        return toastFactory("error", "Error:", "No member with name " + val + " found.", 5000, false);
+                        return toastNotification("error", "Error:", "No member with name " + val + " found.", 5000, false);
                     }
                     userid = d[0].userid;
                     username = d[0].name;
                     if ($(`#attendeeid-${userid}`).length > 0) {
-                        return toastFactory("error", "Error:", "Member already added.", 5000, false);
+                        return toastNotification("error", "Error:", "Member already added.", 5000, false);
                     }
                     $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
                         <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
                     $("#attendeeId").val("");
                 },
                 error: function (data) {
-                    return toastFactory("error", "Error:", "Failed to get User ID", 5000, false);
+                    return toastNotification("error", "Error:", "Failed to get User ID", 5000, false);
                 }
             })
         } else if (keyCode == 8) {
@@ -45,7 +45,7 @@ function HandleAttendeeInput(){
 function FetchEvent(showdetail = -1) {
     eventid = $("#eventid").val();
     if (!isNumber(eventid))
-        return toastFactory("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
 
     GeneralLoad();
     LockBtn("#fetchEventBtn");
@@ -88,7 +88,7 @@ function FetchEvent(showdetail = -1) {
 function FetchEventAttendee() {
     eventid = $("#aeventid").val();
     if (!isNumber(eventid)) {
-        return toastFactory("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
     }
 
     GeneralLoad();
@@ -125,7 +125,7 @@ function FetchEventAttendee() {
 function UpdateEventAttendees() {
     eventid = $("#aeventid").val();
     if (!isNumber(eventid)) {
-        return toastFactory("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
     }
     attendeeid = "";
     $(".attendee").each(function (index, value) {
@@ -134,7 +134,7 @@ function UpdateEventAttendees() {
     attendeeid = attendeeid.substring(0, attendeeid.length - 1);
     points = $("#attendeePoints").val();
     if (!isNumber(points)) {
-        return toastFactory("error", "Error", "Points must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Points must be in integar!", 5000, false);
     }
 
     GeneralLoad();
@@ -220,7 +220,7 @@ function EventOp() {
             success: function (data) {
                 UnlockBtn("#newEventBtn");
                 if (data.error) return AjaxError(data);
-                toastFactory("success", "Success", "", 5000, false);
+                toastNotification("success", "Success", "", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#newEventBtn");
@@ -249,7 +249,7 @@ function EventOp() {
             success: function (data) {
                 UnlockBtn("#newEventBtn");
                 if (data.error) return AjaxError(data);
-                toastFactory("success", "Success", "", 5000, false);
+                toastNotification("success", "Success", "", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#newEventBtn");
@@ -268,7 +268,7 @@ function EventOp() {
             success: function (data) {
                 UnlockBtn("#newEventBtn");
                 if (data.error) return AjaxError(data);
-                toastFactory("success", "Success", "", 5000, false);
+                toastNotification("success", "Success", "", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#newEventBtn");
@@ -290,7 +290,7 @@ function LoadEventInfo() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: async function (data) {
-                if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
                 d = data.response.list;
                 var eventlist = [];
                 offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
@@ -342,7 +342,7 @@ function LoadEventInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
             
             eventList = data.response.list;
             total_pages = data.response.total_pages;
@@ -387,10 +387,10 @@ function eventvote(eventid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
             $("#eventid").val(eventid);
             FetchEvent(eventid, showdetail = eventid);
-            toastFactory("success", "Success:", data.response, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -409,7 +409,7 @@ async function eventDetail(eventid) {
         }
         keys = Object.keys(allevents);
         if (keys.indexOf(String(eventid)) == -1) {
-            return toastFactory("error", "Error:", "Event not found.", 5000, false);
+            return toastNotification("error", "Error:", "Event not found.", 5000, false);
         }
     }
     event = allevents[eventid];

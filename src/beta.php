@@ -75,13 +75,18 @@
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.css" />
     <script src="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/noty/noty.css" />
+    <script src="https://drivershub-cdn.charlws.com/assets/noty/noty.min.js"></script>
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/noty/themes/mint.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
+	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0ca9bae464f4d21c.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/533179d8bd274258.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -151,6 +156,10 @@
             text-decoration: none;
             color: #fff;
         }
+
+        .form-label {
+            font-weight: bold;
+        }
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -172,7 +181,7 @@
 <body style="width:100vw;overflow-x:hidden">
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
         <div style="height:60px">
-            <a href="#" onclick="ShowTab('#overview-tab', '#button-overview-tab')">
+            <a href="#" onclick="ShowTab('#overview-tab', '#button-overview-tab')" style="display:inline;height:0">
                 <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
             </a>
         </div>
@@ -248,7 +257,7 @@
                         </a>
                     </li>
                 </div>
-                <div class="sidebar-application" style="margin:5px 0;">
+                <div id="sidebar-application" style="margin:5px 0;">
                     <li><strong style="color:darkgrey">Applications</strong></li>
                     <li class="nav-item">
                         <a id="button-my-application-tab" href="#" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white" aria-current="page">
@@ -263,7 +272,7 @@
                         </a>
                     </li>
                 </div>
-                <div id="sidebar-staff" style="margin:5px 0;">
+                <div id="sidebar-staff" style="margin:5px 0;display:none">
                     <li><strong style="color:darkgrey">Staff</strong></li>
                     <li class="nav-item">
                         <a id="button-staff-announcement-tab" href="#" onclick="ShowTab('#staff-announcement-tab', '#button-staff-announcement-tab')" class="nav-link text-white" aria-current="page">
@@ -319,8 +328,8 @@
         </div>
         <div class="dropdown text-bg-dark" style="position:fixed;bottom:0;width:220px;height:80px;z-index:100;">
             <hr style="margin:10px 0;">
-        <a href="#" class="text-white text-decoration-none"
-                data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
+            <a id="button-user-profile" href="#" class="text-white text-decoration-none"
+                    data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
                 <img id="sidebar-avatar" src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif" alt="" class="rounded-circle me-2"
                     width="30" height="30">
                 <span style="display:inline-block;position:relative;top:10px;line-height:14px;">
@@ -329,8 +338,8 @@
                     <span style="font-size:12px;color:#ccc;max-width:100px;width:100px;overflow:hidden;max-height:14px;display:inline-block;"><span id="sidebar-userid" style="color:#ccc;"><span class="placeholder col-2"></span></span> | <span id="sidebar-role" style="color:#ccc;"><span class="placeholder col-6"></span></span></span>
                 </span>
             </a>
-            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" style="padding-top:0">
-                <img id="sidebar-banner" src="" alt="User Banner" style="border-radius:5px 5px 0 0"
+            <ul id="user-profile-dropdown" class="dropdown-menu dropdown-menu-dark text-small shadow" style="padding-top:0">
+                <img id="sidebar-banner" src="" alt="" style="border-radius:5px 5px 0 0" onerror="$(this).hide();"
                         width="566px" height="100px">
                 <div style="padding:var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);margin-top:10px;">
                     <strong>About Me</strong>
@@ -345,12 +354,56 @@
     </div>
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
         <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
-        <strong style="position:fixed;right:20px;top:20px;">Drivers Hub</strong>
+        <strong style="position:fixed;right:20px;top:20px;"><?php echo $slogan ?></strong>
     </div>
-    <div class="container" style="margin:20px;margin-left:280px;margin-top:80px;width:calc(100% - 300px);">
+    <div class="container" style="margin:20px;margin-left:270px;margin-top:80px;width:calc(100% - 300px);">
+        <section id="signin-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:800px">
+                <h1><strong>Welcome back</strong></h1>
+                <div class="row">
+                    <div class="col-8">
+                        <label for="signin-email" class="form-label">Email</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="signin-email" placeholder="somebody@charlws.com">
+                        </div>
+                        <label for="signin-password" class="form-label">Password</label>
+                        <div class="input-group mb-3">
+                            <input type="password" class="form-control bg-dark text-white" id="signin-password" placeholder="12345678">
+                        </div>
+                        <button id="button-signin" type="button" class="btn btn-primary w-100" onclick="ShowCaptcha();"><span class="rect-20"><i class="fa-solid fa-right-to-bracket"></i></span> Log in</button>
+                    </div>
+                    <div class="col-4 py-3" style="border-left:solid 1px grey">
+                        <p class="mb-0">Alternatively, sign in with:</p>
+                        <button id="signin-discord" type="button" class="btn btn-secondary w-100 m-1" onclick="DiscordSignIn();"><span class="rect-20"><i class="fa-brands fa-discord"></i></span> Discord</button>
+                        <button id="signin-steam" type="button" class="btn btn-secondary w-100 m-1" onclick="SteamSignIn();"><span class="rect-20"><i class="fa-brands fa-steam"></i></span> Steam</button>
+                        <p style="font-size:12px">*If you are not yet registered, you are required to sign up with Discord.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="captcha-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 300px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
+                <h1><strong>Security Challenge</strong></h1>
+                <label class="form-label">Wait, are you a robot?</label>
+                <div class="h-captcha" data-sitekey="1788882d-3695-4807-abac-7d7166ec6325" data-theme="dark" data-callback="CaptchaCallback"></div>
+            </div>
+        </section>
+        <section id="mfa-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
+                <h1><strong>Multiple Factor Authentication</strong></h1>
+                <label for="mfa-otp" class="form-label">One Time Pass</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control bg-dark text-white" id="mfa-otp" placeholder="000 000">
+                </div>
+                <button id="button-mfa-verify" type="button" class="btn btn-primary w-100" onclick="MFAVerify();">Verify</button>
+            </div>
+        </section>
         <section id="overview-tab" class="tabs">
             <div class="row">
-                <div class="col-8">
+                <div class="col-8" id="overview-left-col">
                     <div class="row">
                         <div class="shadow p-3 m-3 bg-dark rounded col card">
                             <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> Online</strong></h5>
@@ -442,7 +495,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
+                <div class="col-4" id="overview-right-col">
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> Leaderboard</strong></h5>
                         <table class="table_mini_leaderboard">
@@ -505,6 +558,63 @@
             </div>
         </section>
         <section id="announcement-tab" class="tabs">
+            <div id="announcement-new" class="shadow p-3 m-3 bg-dark rounded row">
+                <h5 id="announcement-new-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#announcement-new-collapse" aria-expanded="false" aria-controls="announcement-new-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Announcement</strong>
+                    </button>
+                </h5>
+                <div id="announcement-new-collapse" class="collapse row" aria-labelledby="announcement-new-heading" data-bs-parent="#announcement-new">
+                    <div class="col">
+                        <label for="announcement-new-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-title" placeholder="A short and nice title">
+                        </div>
+                        <label for="announcement-new-content" class="form-label">Content</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="announcement-new-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="announcement-new-type" class="form-label">Type</label>
+                        <div class="mb-3">
+                            <select class="form-select  bg-dark text-white" aria-label="Default select example" id="announcement-new-type">
+                                <option selected>Select one from the list</option>
+                                <option value="0">Information</option>
+                                <option value="1">Event</option>
+                                <option value="2">Warning</option>
+                                <option value="3">Critical</option>
+                                <option value="4">Resolved</option>
+                            </select>
+                        </div>
+                        <label for="announcement-new-visibility" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="announcement-new-visibility" id="announcement-visibility-public" checked>
+                                    <label class="form-check-label" for="announcement-visibility-public">
+                                        Public
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="announcement-new-visibility" id="announcement-visibility-private">
+                                <label class="form-check-label" for="announcement-visibility-private">
+                                    Private
+                                </label>
+                            </div>
+                        </div>
+                        <label for="announcement-new-discord" class="form-label">Discord Integration</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="announcement-new-discord-channel-label">Channel ID</span>
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-channel" placeholder="(Optional) Discord channel to forward the announcement" aria-describedby="announcement-new-discord-channel-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="announcement-new-discord-message-label">Message</span>
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-message" placeholder="(Optional) Discord message content" aria-describedby="announcement-new-discord-message-label">
+                        </div>
+                        <button id="button-announcement-new-post" type="button" class="btn btn-primary" style="float:right;width:100px;" onclick="PostAnnouncement();">Post</button>
+                    </div>
+                </div>
+            </div>
             <div id="announcements">
                 <div class="row">
                     <div class="announcement shadow p-3 m-3 bg-dark rounded col">
@@ -535,6 +645,55 @@
                     <textarea class="form-control bg-dark text-white" id="downloads-edit-content" style="height:calc(100% - 100px)"></textarea>
                     <br>
                     <button id="button-downloads-edit-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateDownloads();">Save</button>
+                </div>
+            </div>
+        </section>
+        <section id="map-tab" class="tabs" style="display:none">
+            <div class="shadow m-3 mb-5 bg-dark rounded">
+                <h5 style="float:left;padding:10px;">Euro Truck Simulator 2</h5>
+                <div id="map" style="height:80vh;background-color:#484E66;border-radius:5px">
+                </div>
+            </div>
+            <div class="shadow m-3 mb-5 bg-dark rounded">
+                <h5 style="float:left;padding:10px;">ProMods Europe</h5>
+                <div id="pmap" style="height:80vh;background-color:#484E66;border-radius:5px">
+                </div>
+            </div>
+            <div class="shadow m-3 mb-5 bg-dark rounded">
+                <h5 style="float:left;padding:10px;">American Truck Simulator</h5>
+                <div id="amap" style="height:80vh;background-color:#484E66;border-radius:5px">
+                </div>
+            </div>
+        </section>
+        <section id="delivery-tab" class="tabs" style="display:none">
+            <div class="row">
+                <h3><strong>Daily Statistics</strong></h3>
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
+                    <p class="card-text"><span id="dotd"></span> <span id="dotddistance" style="font-size:14px"></span></p>
+                </div>
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered (Distance)</strong></h5>
+                    <p class="card-text"><span id="dalljob"></span> / <span id="dtotdistance"></span></p>
+                </div>
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                    <p class="card-text"><span id="dprofit"></span></p>
+                </div>
+            </div>
+            <div class="row">
+                <h3><strong>Weekly Statistics</strong></h3>
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
+                    <p class="card-text"><span id="dotd"></span> <span id="dotwdistance" style="font-size:14px"></span></p>
+                </div>
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered (Distance)</strong></h5>
+                    <p class="card-text"><span id="walljob"></span> / <span id="wtotdistance"></span></p>
+                </div>
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                    <p class="card-text"><span id="wprofit"></span></p>
                 </div>
             </div>
         </section>

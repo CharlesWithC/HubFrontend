@@ -23,7 +23,16 @@ function Logout(){
         },
         success: function (data) {
             localStorage.removeItem("token");
-            window.location.href = "/login";
+            $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
+            $("#button-user-profile").attr("data-bs-toggle", "");
+            $("#sidebar-username").html("Guest");
+            $("#sidebar-userid").html("Login First");
+            $("#sidebar-role").html("Loner");
+            $("#sidebar-avatar").attr("src","https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif");
+            $("#sidebar-application").hide();
+            $("#sidebar-staff").hide();
+            NonMemberMode();
+            ShowTab("#signin-tab", "#button-signin-tab");
         }
     });
 }
@@ -323,12 +332,9 @@ async function ShowTab(tabname, btnname) {
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
         window.autofocus["pmap"] = -2;
-        setTimeout(async function () {
-            while ($("#loading").width() != 0) await sleep(50);
-            LoadETS2Map();
-            LoadETS2PMap();
-            LoadATSMap();
-        }, 50);
+        LoadETS2Map();
+        LoadETS2PMap();
+        LoadATSMap();
     }
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
@@ -343,6 +349,46 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/beta');
         if(!loaded) LoadStats();
+    }
+    if (tabname == "#signin-tab") {
+        if(localStorage.getItem("token") != null && localStorage.getItem("token").length == 36){
+            ShowTab("#overview-tab", "#button-overview-tab");
+            return;
+        }
+        $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
+        window.history.pushState("", "", '/login');
+        $("#signin-email").keypress(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                if ($("#signin-password").val() == "") {
+                    $("#signin-password").focus();
+                } else {
+                    ShowCaptcha();
+                }
+            }
+        });
+        $("#signin-password").keypress(function (e) {
+            var key = e.which;
+            if (key == 13) {
+                ShowCaptcha();
+            }
+        });
+    }
+    if (tabname == "#captcha-tab"){
+        if(!requireCaptcha){
+            ShowTab("#overview-tab", "#button-overview-tab");
+            return;
+        }
+        $("#button-user-profile").attr("onclick",`ShowTab("#captcha-tab", "#button-captcha-tab");`);
+        window.history.pushState("", "", '/captcha');
+    }
+    if (tabname == "#mfa-tab"){
+        pmfa = localStorage.getItem("pending-mfa");
+        if(pmfa == null || (+new Date() - parseInt(pmfa)) > 600000){
+            ShowTab("#overview-tab", "#button-overview-tab");
+            return;
+        }
+        window.history.pushState("", "", '/mfa');
     }
     if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
@@ -597,7 +643,10 @@ function GetUserPermission(){
 
 function ShowStaffTabs() {
     userPerm = GetUserPermission();
-    if (userPerm.length > 0) {
+    t = userPerm;
+    t.pop("user");
+    t.pop("driver");
+    if (t.length > 0) {
         $("#sidebar-staff").show();
         $("#sidebar-staff a").hide();
         if (userPerm.includes("admin")) {
@@ -629,6 +678,25 @@ function ShowStaffTabs() {
     }
 }
 
+function NonMemberMode(){
+    $("#sidebar-role").html("Loner");
+    $("#overview-right-col").hide();
+    $("#overview-left-col").removeClass("col-8");
+    $("#overview-left-col").addClass("col");
+    $("#button-division-tab").hide();
+    $("#button-downloads-tab").hide();
+    $(".member-only-tab").hide();
+}
+
+function MemberMode(){
+    $("#overview-right-col").show();
+    $("#overview-left-col").addClass("col-8");
+    $("#overview-left-col").removeClass("col");
+    $("#button-division-tab").show();
+    $("#button-downloads-tab").show();
+    $(".member-only-tab").show();
+}
+
 function ValidateToken() {
     token = localStorage.getItem("token");
     userid = localStorage.getItem("userid");
@@ -639,22 +707,27 @@ function ValidateToken() {
 
     if (token == "guest") {
         // Guest, not logged in, update elements
-        $("#sidebar-application a").attr("href", "/login");
-        $("#ProfileTabBtn").attr("onclick", "window.location.href='/login'");
-        $("#logout").hide();
-        $("#header").prepend(`<a href='/login'>Login</a> <span style="color:orange">`);
-        $("#button-division-tab").hide();
-        $("#button-downloads-tab").hide();
+        $("#sidebar-application").hide();
+        $("#sidebar-username").html("Guest");
+        $("#sidebar-userid").html("Login First");
+        $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
+        $("#button-user-profile").attr("data-bs-toggle", "");
+        NonMemberMode();
         return;
     }
 
-    if (userid != -1 && userid != null) {
-        // Logged in, and is member, show membersOnlyTabs
-        $(".member-only-tab").show();
+    $("#sidebar-application").show();
+    $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
+    $("#sidebar-userid").html(`<span class="placeholder col-2"></span>`);
+    $("#sidebar-role").html(`<span class="placeholder col-6"></span>`);
+    $("#button-user-profile").attr("onclick",``);
+    $("#button-user-profile").attr("data-bs-toggle", "dropdown");
+
+    if(userid != -1 && userid != null){
+        MemberMode();
+        $("#sidebar-banner").show();
     } else {
-        // Logged in, not member, hide division and downloads
-        $("#button-division-tab").hide();
-        $("#button-downloads-tab").hide();
+        NonMemberMode();
     }
     
     // Validate token and get user information
@@ -669,9 +742,11 @@ function ValidateToken() {
             if (data.error) {
                 // Invalid token, log out
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                ShowTab("#signin-tab", "#button-signin-tab");
                 return;
             }
+
+            $("#button-user-profile").attr("data-bs-toggle", "dropdown");
 
             // X Drivers Trucking Info
             color = "green";
@@ -689,6 +764,17 @@ function ValidateToken() {
             localStorage.setItem("avatar", data.response.avatar);
             localStorage.setItem("discordid", data.response.discordid);
             localStorage.setItem("userid", data.response.userid);
+
+            userid = data.response.userid;
+
+            if (userid != -1 && userid != null) {
+                // Logged in, and is member, show membersOnlyTabs
+                MemberMode();
+                $("#sidebar-banner").show();
+            } else {
+                // Logged in, not member, hide division and downloads
+                NonMemberMode();
+            }
 
             // Check if is member
             userid = data.response.userid;
@@ -712,11 +798,16 @@ function ValidateToken() {
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
             
             UpdateRolesOnDisplay();
+
+            if(!userPerm.includes("driver") && !userPerm.includes("admin")){
+                $("#sidebar-userid").html("##");
+                NonMemberMode();
+            }
         }, error: function(data){
             // Invalid token, log out
             if(parseInt(data.status) == 401){ // Prevent connection issue (e.g. refresh)
                 localStorage.removeItem("token");
-                window.location.href = "/login";
+                ShowTab("#signin-tab", "#button-signin-tab");
             }
         }
     });
@@ -726,6 +817,9 @@ function PathDetect() {
     p = window.location.pathname;
     if (p == "/overview") window.history.pushState("", "", '/beta');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
+    else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
+    else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
     else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
     else if (p == "/staff/announcement") ShowTab("#staff-announcement-tab", "#button-staff-announcement-tab");
     else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");

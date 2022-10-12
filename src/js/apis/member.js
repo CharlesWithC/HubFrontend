@@ -59,8 +59,8 @@ function GetDiscordRankRole() {
         },
         success: function (data) {
             UnlockBtn(".requestRoleBtn");
-            if (data.error) return toastFactory("error", "Error:", data.descriptor, 5000, false);
-            else return toastFactory("success", "Success", "You have got your new role!", 5000, false);
+            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            else return toastNotification("success", "Success", "You have got your new role!", 5000, false);
         },
         error: function (data) {
             UnlockBtn(".requestRoleBtn");
@@ -138,7 +138,7 @@ function GetMemberRoles() {
             $("#memberrolename").html(d.name + " (" + useridToUpdateRole + ")");
             for (var i = 0; i < roles.length; i++)
                 $("#role" + roles[i]).prop("checked", true);
-            toastFactory("success", "Success!", "Existing roles are fetched!", 5000, false);
+            toastNotification("success", "Success!", "Existing roles are fetched!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#fetchRolesBtn");
@@ -171,7 +171,7 @@ function UpdateMemberRoles() {
         success: function (data) {
             UnlockBtn("#updateMemberRolesBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success!", "Member roles updated!", 5000, false);
+            toastNotification("success", "Success!", "Member roles updated!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateMemberRolesBtn");
@@ -184,7 +184,7 @@ function UpdateMemberPoints() {
     s = $("#memberpntid").val();
     userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     if (!isNumber(userid)) {
-        toastFactory("error", "Error:", "Invalid User ID", 5000, false);
+        toastNotification("error", "Error:", "Invalid User ID", 5000, false);
         return;
     }
 
@@ -211,7 +211,7 @@ function UpdateMemberPoints() {
         success: function (data) {
             UnlockBtn("#updateMemberPointsBtn");
             if (data.error) return AjaxError(data);
-            toastFactory("success", "Success!", "Member points updated!", 5000, false);
+            toastNotification("success", "Success!", "Member points updated!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#updateMemberPointsBtn");
@@ -265,7 +265,7 @@ function DismissUser() {
                 UnlockBtn("#dismissbtn");
                 $("#dismissUserID").val("");
                 if (data.error) return AjaxError(data);
-                toastFactory("success", "Success", "Member dismissed", 5000, false);
+                toastNotification("success", "Success", "Member dismissed", 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#dismissbtn");
@@ -528,7 +528,7 @@ function EnableMFA(){
                 return;
             }
             
-            toastFactory("success", "Success", "MFA Enabled.", 5000, false);
+            toastNotification("success", "Success", "MFA Enabled.", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-enable-mfa");
