@@ -116,7 +116,7 @@ function LoadUserApplicationList() {
 function AddMessageToApplication() {
     appid = $("#appmsgid").val();
     if (!isNumber(appid)) {
-        toastNotification("error", "Error:", "Please enter a valid application ID.", 5000, false);
+        toastNotification("error", "Error", "Please enter a valid application ID.", 5000, false);
         return;
     }
     message = $("#appmsgcontent").val();
@@ -214,7 +214,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
-                return toastNotification("error", "Error:", "Application has no data", 5000, false);
+                return toastNotification("error", "Error", "Application has no data", 5000, false);
                 
             apptype = applicationTypes[data.response.application_type];
             ret = "";

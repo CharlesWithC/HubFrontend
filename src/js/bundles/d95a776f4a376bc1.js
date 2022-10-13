@@ -15,7 +15,7 @@ $(document).ready(function () {
 
 function AjaxError(data, no_notification = false) {
     errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
-    if (!no_notification) toastNotification("error", "Error:", errmsg, 5000, false);
+    if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
 
@@ -433,7 +433,7 @@ $(document).ready(function () {
         },
         error: function (data) {
             if (parseInt(data.status) >= 500 && parseInt(data.status) <= 599) {
-                toastNotification("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
+                toastNotification("error", "Error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
             }
         }
     })
@@ -541,6 +541,28 @@ function sha256(ascii) {
     }
     return result;
 };
+
+function ShowModal(title, content, footer){
+    modalid = RandomString(6);
+    $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header" style="border:none">
+                    <h5 class="modal-title"><strong>${title}</strong></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ${content}
+                </div>
+                <div class="modal-footer" style="border:none">
+                    ${footer}
+                </div>
+            </div>
+        </div>
+    </div>
+    `);
+    return modalid;
+}
 dmapint = -1;
 window.mapcenter = {}
 window.autofocus = {}
@@ -790,7 +812,7 @@ rrevents = [];
 punit = "€";
 curlogid = -1;
 async function deliveryRoutePlay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error:", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     clearInterval(dmapint);
     dmapint = -999;
     lastevent = 0;
@@ -926,7 +948,7 @@ async function deliveryRoutePlay() {
 
 function rrplayswitch() {
     if ($("#rrplay").html() == "Replay") deliveryDetail(curlogid);
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error:", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     if (dmapint == -999) {
         dmapint = -2;
         $("#rrplay").html("Play");
@@ -959,7 +981,7 @@ function deliveryDetail(logid) {
         success: function (data) {
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
                 false);
             info = "";
             if (!data.error) {
@@ -1084,7 +1106,7 @@ function deliveryDetail(logid) {
                     else if (basic[0].startsWith("v4")) tver = 4;
                     else if (basic[0].startsWith("v5")) tver = 5;
                     else if (basic[0].startsWith("v")) {
-                        return toastNotification("error", "Error:", "Unsupported telemetry data compression version", 5000, false);
+                        return toastNotification("error", "Error", "Unsupported telemetry data compression version", 5000, false);
                     }
                     basic[0] = basic[0].slice(2);
                     game = basic[0];
@@ -1343,7 +1365,7 @@ function GetDiscordRankRole() {
         },
         success: function (data) {
             UnlockBtn(".requestRoleBtn");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             else return toastNotification("success", "Success", "You have got your new role!", 5000, false);
         },
         error: function (data) {
@@ -1468,7 +1490,7 @@ function UpdateMemberPoints() {
     s = $("#memberpntid").val();
     userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     if (!isNumber(userid)) {
-        toastNotification("error", "Error:", "Invalid User ID", 5000, false);
+        toastNotification("error", "Error", "Invalid User ID", 5000, false);
         return;
     }
 
@@ -2135,7 +2157,7 @@ function LoadStats(basic = false) {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 users = data.response.list;
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
@@ -2170,7 +2192,7 @@ function LoadStats(basic = false) {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 users = data.response.list;
                 $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
@@ -2363,7 +2385,7 @@ function AddUser(discordid = -1) {
     if (discordid == "-1") {
         discordid = $("#adddiscordid").val();
         if (!isNumber(discordid)) {
-            return toastNotification("error", "Error:", "Please enter a valid discord id.", 5000, false);
+            return toastNotification("error", "Error", "Please enter a valid discord id.", 5000, false);
         }
     } else {
         if ($("#UserAddBtn" + discordid).html() != "Confirm?") {
@@ -2533,7 +2555,7 @@ function GetUserDetail(discordid) {
 function BanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid)) 
-        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
 
     GeneralLoad();
     LockBtn("#banUserBtn");
@@ -2570,7 +2592,7 @@ function BanUser() {
 function UnbanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid))
-        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
     
     GeneralLoad();
     LockBtn("#unbanUserBtn");
@@ -2654,7 +2676,7 @@ function loadAdmin() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            if (data.error) toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) toastNotification("error", "Error", data.descriptor, 5000, false);
             webConfigData = data.response.config;
             webConfigKeys = Object.keys(webConfigData);
             for (var i = 0; i < webConfigKeys.length; i++) {
@@ -2675,7 +2697,7 @@ function loadAdmin() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
                 false);
 
             configData = data.response.config;
@@ -2824,7 +2846,7 @@ function loadAdmin() {
 
 function UpdateWebConfig() {
     if($("#webconfig_apptoken").val().length != 36){
-        return toastNotification("error", "Invalid application token!");
+        return toastNotification("error", "Error", "Invalid application token!");
     }
     $("#updateWebConfigBtn").html("Working...");
     $("#updateWebConfigBtn").attr("disabled", "disabled");
@@ -2854,7 +2876,7 @@ function UpdateWebConfig() {
         success: function (data) {
             $("#updateWebConfigBtn").html("Update");
             $("#updateWebConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -2870,7 +2892,7 @@ function UpdateConfig() {
     try {
         config = JSON.parse(config);
     } catch {
-        toastNotification("error", "Error:", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+        toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
         return;
     }
     if (config["navio_token"] == "") delete config["navio_token"];
@@ -2895,7 +2917,7 @@ function UpdateConfig() {
         success: function (data) {
             $("#updateConfigBtn").html("Update");
             $("#updateConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -2909,7 +2931,7 @@ function UpdateConfig() {
 function ReloadServer() {
     otp = $("#input-reload-otp").val();
     if(!isNumber(otp) || otp.length != 6){
-        return toastNotification("error", "Error:", "Invalid OTP.", 5000, false);
+        return toastNotification("error", "Error", "Invalid OTP.", 5000, false);
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
@@ -2922,7 +2944,7 @@ function ReloadServer() {
             otp: otp
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -3098,7 +3120,14 @@ function LoadAnnouncement(){
         headers: {
             "Authorization": "Bearer " + token
         },
-        success: function (data) {
+        success: async function (data) {
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+            if(userPerm.includes("announcement") || userPerm.includes("admin")){
+                $("#announcement-new").show();
+            }
             announcements = data.response.list;
             content = "";
             for (i = 0; i < announcements.length; i++) {
@@ -3109,45 +3138,55 @@ function LoadAnnouncement(){
                 announcement = announcements[i];
                 announcement_datetime = getDateTime(announcement.timestamp * 1000);
                 author = announcement.author;
-                announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
-                announcement_control_title_style = `width:calc(100% - 70px)`;
-                announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
-                public_checked = "";
-                private_checked = "";
-                if(announcement.is_private == true) private_checked = "checked";
-                else public_checked = "checked";
-                type_checked = [];
-                for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
-                    type_checked.push("");
-                }
-                type_checked.push("checked");
-                for(var j = 0 ; j < 4 ; j++){
-                    type_checked.push("");
-                }
-                announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
-                    <textarea type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%">${announcement.content}</textarea></div>
-                <div style="display:inline">
-                    <div class="form-check" style="display:inline-block;width:80px;">
-                        <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
-                            <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
-                                Public
+                announcement_control = "";
+                announcement_control_title_style = "";
+                announcement_control_top = "";
+                announcement_control_bottom = "";
+                if(userPerm.includes("announcement") || userPerm.includes("admin")){
+                    announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
+                    announcement_control_title_style = `width:calc(100% - 70px)`;
+                    announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
+                    public_checked = "";
+                    private_checked = "";
+                    if(announcement.is_private == true) private_checked = "checked";
+                    else public_checked = "checked";
+                    type_checked = [];
+                    for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
+                        type_checked.push("");
+                    }
+                    type_checked.push("selected");
+                    for(var j = 0 ; j < 4 ; j++){
+                        type_checked.push("");
+                    }
+                    announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
+                        <textarea type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%">${announcement.content}</textarea></div>
+                    <div class="pb-2">
+                        <div class="form-check" style="display:inline-block;width:80px;">
+                            <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
+                                <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
+                                    Public
+                                </label>
+                            </div>
+                        <div class="form-check" style="display:inline-block;width:80px;">
+                            <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
+                            <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
+                                Private
                             </label>
                         </div>
-                    <div class="form-check" style="display:inline-block;width:80px;">
-                        <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
-                        <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
-                            Private
-                        </label>
+                        <select style="display:inline-block;width:130px" class="form-select bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
+                            <option value="0" ${type_checked[0]}>Information</option>
+                            <option value="1" ${type_checked[1]}>Event</option>
+                            <option value="2" ${type_checked[2]}>Warning</option>
+                            <option value="3" ${type_checked[3]}>Critical</option>
+                            <option value="4" ${type_checked[4]}>Resolved</option>
+                        </select>
                     </div>
-                    <select style="display:inline-block;width:130px" class="form-select  bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
-                        <option value="0" ${type_checked[0]}>Information</option>
-                        <option value="1" ${type_checked[1]}>Event</option>
-                        <option value="2" ${type_checked[2]}>Warning</option>
-                        <option value="3" ${type_checked[3]}>Critical</option>
-                        <option value="4" ${type_checked[4]}>Resolved</option>
-                    </select>
-                </div>
-                <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
+                    <div style="display:inline">
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="Channel ID" style="width: 150px;display:inline-block;margin-right:10px;">
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="Discord Message" style="width:250px;display:inline-block;">
+                    </div>
+                    <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
+                }
                 content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col" id="announcement-${announcement.announcementid}">
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
@@ -3172,138 +3211,122 @@ function EditAnnouncementToggle(announcementid){
     $(`#announcement-display-${announcementid}-title`).toggle();
 }
 
-function FetchAnnouncement() {
-    aid = $("#annid").val();
-
-    GeneralLoad();
-    LockBtn("#fetchAnnouncementBtn");
-
+function PostAnnouncement(){
+    title = $("#announcement-new-title").val();
+    content = $("#announcement-new-content").val();
+    anntype = $("#announcement-new-type").find(":selected").val();
+    if(!isNumber(anntype)){
+        return toastNotification("warning", "Warning", "Please select an announcement type!", 3000);
+    }
+    is_private = $("#announcement-visibility-private").is(":checked");
+    discord_channelid = $("#announcement-new-discord-channel").val();
+    discord_message = $("#announcement-new-discord-message").val();
+    if(!isNumber(discord_channelid)){
+        discord_channelid = 0;
+        discord_message = "";
+    }
+    LockBtn("#button-announcement-new-post", "Posting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + aid,
-        type: "GET",
+        url: apidomain + "/" + vtcprefix + "/announcement",
+        type: "POST",
         dataType: "json",
         headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            "title": title,
+            "content": content,
+            "announcement_type": anntype,
+            "is_private": is_private,
+            "channelid": discord_channelid,
+            "discord_message_content": discord_message
         },
         success: function (data) {
-            UnlockBtn("#fetchAnnouncementBtn");
-            if (data.error) return AjaxError(data);
-
-            announcement = data.response;
-            $("#anntitle").val(announcement.title);
-            $("#anncontent").val(announcement.content);
-            if (announcement.is_private) $("#announcement-visibility-private").prop("checked", true);
-            else $("#announcement-visibility-public").prop("checked", true);
-            $('#annselect option:eq(' + announcement.announcement_type + ')').prop('selected', true);
+            UnlockBtn("#button-announcement-new-post");
+            if (data.error) AjaxError(data);
+            toastNotification("success", "Success", "Announcement posted!", 5000, false);
+            LoadAnnouncement();
         },
         error: function (data) {
-            UnlockBtn("#fetchAnnouncementBtn");
+            UnlockBtn("#button-announcement-new-post");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function CreateAnnouncement(){
-    
-}
-
-function AnnouncementOp() {
-    anntype = parseInt($("#annselect").find(":selected").val());
-    title = $("#anntitle").val();
-    content = $("#anncontent").val();
-    annid = $("#annid").val();
-    pvt = $("#announcement-visibility-private").prop("checked");
-    chnid = $("#annchan").val().replaceAll(" ", "");
-
-    if (chnid != "" && !isNumber(chnid)) {
-        toastNotification("warning", "Error", "Channel ID must be an integar if specified!", 5000, false);
-        return;
+function EditAnnouncement(announcementid){
+    title = $("#announcement-edit-"+announcementid+"-title").val();
+    content = $("#announcement-edit-"+announcementid+"-content").val();
+    anntype = $("#announcement-edit-"+announcementid+"-type").find(":selected").val();
+    is_private = $("#announcement-edit-"+announcementid+"-visibility-private").is(":checked");
+    discord_channelid = $("#announcement-edit-"+announcementid+"-discord-channel").val();
+    discord_message = $("#announcement-edit-"+announcementid+"-discord-message").val();
+    if(!isNumber(discord_channelid)){
+        discord_channelid = 0;
+        discord_message = "";
     }
-
-    GeneralLoad();
-    LockBtn("#newAnnBtn");
-
-    op = "create";
-    if (isNumber(annid)) {
-        if (title != "" || content != "") {
-            op = "update";
-        } else {
-            op = "delete";
+    LockBtn("#button-announcement-edit-"+announcementid+"-save", "Saving...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+announcementid,
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            "title": title,
+            "content": content,
+            "announcement_type": anntype,
+            "is_private": is_private,
+            "channelid": discord_channelid,
+            "discord_message_content": discord_message
+        },
+        success: function (data) {
+            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            if (data.error) AjaxError(data);
+            LoadAnnouncement();
+            toastNotification("success", "Success", "Edit saved!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            AjaxError(data);
         }
-    }
+    });
+}
 
-    if (op == "update") {
-        annid = parseInt(annid);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+annid,
-            type: "PATCH",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            data: {
-                "title": title,
-                "content": content,
-                "announcement_type": anntype,
-                "is_private": pvt,
-                "channelid": chnid
-            },
-            success: function (data) {
-                UnlockBtn("#newAnnBtn");
-                if (data.error) AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newAnnBtn");
-                AjaxError(data);
+deleteAnnouncementModal = null;
+function DeleteAnnouncementShow(announcementid){
+    if(shiftdown) return DeleteAnnouncement(announcementid);
+    content = $("#announcement-display-"+announcementid+"-title").html();
+    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
+    deleteAnnouncementModal = new bootstrap.Modal('#modal-' + modalid);
+    deleteAnnouncementModal.show();
+}
+
+function DeleteAnnouncement(announcementid){
+    LockBtn("#button-announcement-delete-"+announcementid, "Deleting...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + announcementid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            UnlockBtn("#button-announcement-delete-"+announcementid);
+            if (data.error) AjaxError(data);
+            LoadAnnouncement();
+            toastNotification("success", "Success", "Announcement deleted!", 5000, false);
+            if(deleteAnnouncementModal != null){
+                deleteAnnouncementModal.hide();
+                setTimeout(function(){deleteAnnouncementModal.dispose();deleteAnnouncementModal = null;}, 1000);
             }
-        });
-    } else if (op == "create") {
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement",
-            type: "POST",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            data: {
-                "title": title,
-                "content": content,
-                "announcement_type": anntype,
-                "is_private": pvt,
-                "channelid": chnid,
-                "discord_message_content": $("#annmsg").val()
-            },
-            success: function (data) {
-                UnlockBtn("#newAnnBtn");
-                if (data.error) AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newAnnBtn");
-                AjaxError(data);
-            }
-        });
-    } else if (op == "delete") {
-        annid = parseInt(annid);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + annid,
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                UnlockBtn("#newAnnBtn");
-                if (data.error) AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newAnnBtn");
-                AjaxError(data);
-            }
-        });
-    }
+        },
+        error: function (data) {
+            UnlockBtn("#button-announcement-delete-"+announcementid);
+            AjaxError(data);
+        }
+    });
 }
 applicationQuestions = {}
 function PreserveApplicationQuestion(){
@@ -3423,7 +3446,7 @@ function LoadUserApplicationList() {
 function AddMessageToApplication() {
     appid = $("#appmsgid").val();
     if (!isNumber(appid)) {
-        toastNotification("error", "Error:", "Please enter a valid application ID.", 5000, false);
+        toastNotification("error", "Error", "Please enter a valid application ID.", 5000, false);
         return;
     }
     message = $("#appmsgcontent").val();
@@ -3521,7 +3544,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
-                return toastNotification("error", "Error:", "Application has no data", 5000, false);
+                return toastNotification("error", "Error", "Application has no data", 5000, false);
                 
             apptype = applicationTypes[data.response.application_type];
             ret = "";
@@ -3695,7 +3718,7 @@ function LoadDivisionList(){
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 d = data.response;
                 localStorage.setItem("division", JSON.stringify(d));
                 localStorage.setItem("divisionLastUpdate", + new Date());
@@ -3768,7 +3791,7 @@ function LoadDivisionInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             d = data.response;
             info = d.statistics;
             for (var i = 0; i < info.length; i++) {
@@ -3845,7 +3868,7 @@ function LoadPendingDivisionValidation() {
             for(var i = 0 ; i < divisions.length ; i++) {
                 DIVISION[divisions[i].id] = divisions[i].name;
             }
-            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error:", "No division found.", 5000, false);
+            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
             $("#table_division_validation_data").empty();
             d = data.response;
             if (d.length == 0) {
@@ -3895,7 +3918,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
                 }
-                if(divisionopt == "") return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
                 <select id="divisionSelect"
@@ -3920,7 +3943,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
                 }
-                if(divisionopt == "") return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <p>This delivery is pending division validation.</p>
                 <p>The division is selected by driver and changeable.</p>
@@ -3957,7 +3980,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
-                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
                 if (data.response.update_message == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
@@ -4009,7 +4032,7 @@ function SubmitDivisionValidationRequest(logid) {
             break;
         }
     }
-    if(divisionid == "-1") return toastNotification("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -4053,7 +4076,7 @@ function updateDivision(logid, status) {
             break;
         }
     }
-    if(divisionid == "-1") return toastNotification("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({
@@ -4103,7 +4126,7 @@ async function LoadDownloads() {
     });
 
     while(1){
-        if(userPerm.length != 0) break;
+        if(userPermLoaded) break;
         await sleep(100);
     }
     if(userPerm.includes("downloads") || userPerm.includes("admin")){
@@ -4156,19 +4179,19 @@ function HandleAttendeeInput(){
                 success: function (data) {
                     d = data.response.list;
                     if (d.length == 0) {
-                        return toastNotification("error", "Error:", "No member with name " + val + " found.", 5000, false);
+                        return toastNotification("error", "Error", "No member with name " + val + " found.", 5000, false);
                     }
                     userid = d[0].userid;
                     username = d[0].name;
                     if ($(`#attendeeid-${userid}`).length > 0) {
-                        return toastNotification("error", "Error:", "Member already added.", 5000, false);
+                        return toastNotification("error", "Error", "Member already added.", 5000, false);
                     }
                     $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
                         <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
                     $("#attendeeId").val("");
                 },
                 error: function (data) {
-                    return toastNotification("error", "Error:", "Failed to get User ID", 5000, false);
+                    return toastNotification("error", "Error", "Failed to get User ID", 5000, false);
                 }
             })
         } else if (keyCode == 8) {
@@ -4187,7 +4210,7 @@ function HandleAttendeeInput(){
 function FetchEvent(showdetail = -1) {
     eventid = $("#eventid").val();
     if (!isNumber(eventid))
-        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
 
     GeneralLoad();
     LockBtn("#fetchEventBtn");
@@ -4230,7 +4253,7 @@ function FetchEvent(showdetail = -1) {
 function FetchEventAttendee() {
     eventid = $("#aeventid").val();
     if (!isNumber(eventid)) {
-        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
     }
 
     GeneralLoad();
@@ -4267,7 +4290,7 @@ function FetchEventAttendee() {
 function UpdateEventAttendees() {
     eventid = $("#aeventid").val();
     if (!isNumber(eventid)) {
-        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
     }
     attendeeid = "";
     $(".attendee").each(function (index, value) {
@@ -4276,7 +4299,7 @@ function UpdateEventAttendees() {
     attendeeid = attendeeid.substring(0, attendeeid.length - 1);
     points = $("#attendeePoints").val();
     if (!isNumber(points)) {
-        return toastNotification("error", "Error", "Points must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Points must be in integar!", 5000, false);
     }
 
     GeneralLoad();
@@ -4432,7 +4455,7 @@ function LoadEventInfo() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: async function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 d = data.response.list;
                 var eventlist = [];
                 offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
@@ -4484,7 +4507,7 @@ function LoadEventInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             
             eventList = data.response.list;
             total_pages = data.response.total_pages;
@@ -4529,7 +4552,7 @@ function eventvote(eventid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             $("#eventid").val(eventid);
             FetchEvent(eventid, showdetail = eventid);
             toastNotification("success", "Success", data.response, 5000, false);
@@ -4551,7 +4574,7 @@ async function eventDetail(eventid) {
         }
         keys = Object.keys(allevents);
         if (keys.indexOf(String(eventid)) == -1) {
-            return toastNotification("error", "Error:", "Event not found.", 5000, false);
+            return toastNotification("error", "Error", "Event not found.", 5000, false);
         }
     }
     event = allevents[eventid];
@@ -4862,11 +4885,11 @@ function TMPBind() {
                 $("#msg").html("You are being redirected to Drivers Hub.");
                 window.location.href = "/";
             } else {
-                return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                return toastNotification("error", "Error", data.descriptor, 5000, false);
             }
         },
         error: function (data) {
-            return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            return toastNotification("error", "Error", data.descriptor, 5000, false);
         }
     });
 }
@@ -4883,6 +4906,7 @@ perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
+shiftdown = false;
 
 function Logout(){
     token = localStorage.getItem("token")
@@ -5219,7 +5243,7 @@ async function ShowTab(tabname, btnname) {
         LoadUserProfile(userid);
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/beta');
+        window.history.pushState("", "", '/yAFgHRTt');
         if(!loaded) LoadStats();
     }
     if (tabname == "#signin-tab") {
@@ -5369,6 +5393,7 @@ function UpdateRolesOnDisplay(){
     for (var i = 0; i < roleids.length; i++) {
         roleids[i] = parseInt(roleids[i]);
     }
+    userPerm = GetUserPermission();
     ShowStaffTabs();
     for (var i = 0; i < roleids.length; i++) {
         if (roleids[i] <= highestrole)
@@ -5498,6 +5523,7 @@ function AnnouncementEventButtonValueUpdate() {
 }
 
 userPerm = [];
+userPermLoaded = false;
 function GetUserPermission(){
     if(roles == undefined || perms.admin == undefined) return;
     for (i = 0; i < roles.length; i++) {
@@ -5510,11 +5536,11 @@ function GetUserPermission(){
         }
     }
     userPerm.push("user");
+    userPermLoaded = true;
     return userPerm;
 }
 
 function ShowStaffTabs() {
-    userPerm = GetUserPermission();
     t = userPerm;
     t.pop("user");
     t.pop("driver");
@@ -5555,8 +5581,6 @@ function NonMemberMode(){
     $("#overview-right-col").hide();
     $("#overview-left-col").removeClass("col-8");
     $("#overview-left-col").addClass("col");
-    $("#button-division-tab").hide();
-    $("#button-downloads-tab").hide();
     $(".member-only-tab").hide();
 }
 
@@ -5564,8 +5588,6 @@ function MemberMode(){
     $("#overview-right-col").show();
     $("#overview-left-col").addClass("col-8");
     $("#overview-left-col").removeClass("col");
-    $("#button-division-tab").show();
-    $("#button-downloads-tab").show();
     $(".member-only-tab").show();
 }
 
@@ -5585,6 +5607,7 @@ function ValidateToken() {
         $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-profile").attr("data-bs-toggle", "");
         NonMemberMode();
+        userPermLoaded = true;
         return;
     }
 
@@ -5687,7 +5710,7 @@ function ValidateToken() {
 
 function PathDetect() {
     p = window.location.pathname;
-    if (p == "/overview") window.history.pushState("", "", '/beta');
+    if (p == "/overview") window.history.pushState("", "", '/yAFgHRTt');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
     else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
@@ -5736,13 +5759,15 @@ function PathDetect() {
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
     } else{
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/beta');
+        window.history.pushState("", "", '/yAFgHRTt');
     }
 }
 
 window.onpopstate = function (event){PathDetect();};
 
 $(document).ready(async function () {
+    $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
+    $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
     $(".pageinput").val("1");
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
@@ -5765,7 +5790,7 @@ $(document).ready(async function () {
         perms = JSON.parse(localStorage.getItem("perms"));
         positions = JSON.parse(localStorage.getItem("positions"));
         applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
-        if(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        if(rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
     positionstxt = "";

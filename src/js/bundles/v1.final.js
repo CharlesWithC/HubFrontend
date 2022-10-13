@@ -13,7 +13,7 @@ $(document).ready(function () {
 
 function AjaxError(data, no_notification = false) {
     errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
-    if (!no_notification) toastNotification("error", "Error:", errmsg, 5000, false);
+    if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
 
@@ -510,7 +510,7 @@ $(document).ready(function () {
             localStorage.setItem("api-version", data.response.version);
         }, error: function (data) {
             if(parseInt(data.status) >= 500 && parseInt(data.status) <= 599){
-                toastNotification("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
+                toastNotification("error", "Error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
             }
         }
     })
@@ -868,7 +868,7 @@ rrevents = [];
 punit = "€";
 curlogid = -1;
 async function deliveryRoutePlay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error:", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     clearInterval(dmapint);
     dmapint = -999;
     lastevent = 0;
@@ -1005,7 +1005,7 @@ async function deliveryRoutePlay() {
 
 function rrplayswitch() {
     if ($("#rrplay").html() == "Replay") deliveryDetail(curlogid);
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error:", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     if (dmapint == -999) {
         dmapint = -2;
         $("#rrplay").html("Play");
@@ -1038,7 +1038,7 @@ function deliveryDetail(logid) {
         success: function (data) {
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
                 false);
             info = "";
             if (!data.error) {
@@ -1163,7 +1163,7 @@ function deliveryDetail(logid) {
                     else if (basic[0].startsWith("v4")) tver = 4;
                     else if (basic[0].startsWith("v5")) tver = 5;
                     else if (basic[0].startsWith("v")) {
-                        return toastNotification("error", "Error:", "Unsupported telemetry data compression version", 5000, false);
+                        return toastNotification("error", "Error", "Unsupported telemetry data compression version", 5000, false);
                     }
                     basic[0] = basic[0].slice(2);
                     game = basic[0];
@@ -1422,7 +1422,7 @@ function GetDiscordRankRole() {
         },
         success: function (data) {
             UnlockBtn(".requestRoleBtn");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             else return toastNotification("success", "Success", "You have got your new role!", 5000, false);
         },
         error: function (data) {
@@ -1547,7 +1547,7 @@ function UpdateMemberPoints() {
     s = $("#memberpntid").val();
     userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     if (!isNumber(userid)) {
-        toastNotification("error", "Error:", "Invalid User ID", 5000, false);
+        toastNotification("error", "Error", "Invalid User ID", 5000, false);
         return;
     }
 
@@ -2213,7 +2213,7 @@ function LoadStats(basic = false) {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 users = data.response.list;
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
@@ -2247,7 +2247,7 @@ function LoadStats(basic = false) {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 users = data.response.list;
                 $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
@@ -2439,7 +2439,7 @@ function AddUser(discordid = -1) {
     if (discordid == "-1") {
         discordid = $("#adddiscordid").val();
         if (!isNumber(discordid)) {
-            return toastNotification("error", "Error:", "Please enter a valid discord id.", 5000, false);
+            return toastNotification("error", "Error", "Please enter a valid discord id.", 5000, false);
         }
     } else {
         if ($("#UserAddBtn" + discordid).html() != "Confirm?") {
@@ -2609,7 +2609,7 @@ function GetUserDetail(discordid) {
 function BanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid)) 
-        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
 
     GeneralLoad();
     LockBtn("#banUserBtn");
@@ -2646,7 +2646,7 @@ function BanUser() {
 function UnbanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid))
-        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
     
     GeneralLoad();
     LockBtn("#unbanUserBtn");
@@ -2730,7 +2730,7 @@ function loadAdmin() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            if (data.error) toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) toastNotification("error", "Error", data.descriptor, 5000, false);
             webConfigData = data.response.config;
             webConfigKeys = Object.keys(webConfigData);
             for (var i = 0; i < webConfigKeys.length; i++) {
@@ -2751,7 +2751,7 @@ function loadAdmin() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
                 false);
 
             configData = data.response.config;
@@ -2900,7 +2900,7 @@ function loadAdmin() {
 
 function UpdateWebConfig() {
     if($("#webconfig_apptoken").val().length != 36){
-        return toastNotification("error", "Invalid application token!");
+        return toastNotification("error", "Error", "Invalid application token!");
     }
     $("#updateWebConfigBtn").html("Working...");
     $("#updateWebConfigBtn").attr("disabled", "disabled");
@@ -2930,7 +2930,7 @@ function UpdateWebConfig() {
         success: function (data) {
             $("#updateWebConfigBtn").html("Update");
             $("#updateWebConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -2946,7 +2946,7 @@ function UpdateConfig() {
     try {
         config = JSON.parse(config);
     } catch {
-        toastNotification("error", "Error:", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+        toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
         return;
     }
     if (config["navio_token"] == "") delete config["navio_token"];
@@ -2971,7 +2971,7 @@ function UpdateConfig() {
         success: function (data) {
             $("#updateConfigBtn").html("Update");
             $("#updateConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -2985,7 +2985,7 @@ function UpdateConfig() {
 function ReloadServer() {
     otp = $("#input-reload-otp").val();
     if(!isNumber(otp) || otp.length != 6){
-        return toastNotification("error", "Error:", "Invalid OTP.", 5000, false);
+        return toastNotification("error", "Error", "Invalid OTP.", 5000, false);
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
@@ -2998,7 +2998,7 @@ function ReloadServer() {
             otp: otp
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -3450,7 +3450,7 @@ function LoadUserApplicationList() {
 function AddMessageToApplication() {
     appid = $("#appmsgid").val();
     if (!isNumber(appid)) {
-        toastNotification("error", "Error:", "Please enter a valid application ID.", 5000, false);
+        toastNotification("error", "Error", "Please enter a valid application ID.", 5000, false);
         return;
     }
     message = $("#appmsgcontent").val();
@@ -3548,7 +3548,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             discordid = data.response.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
-                return toastNotification("error", "Error:", "Application has no data", 5000, false);
+                return toastNotification("error", "Error", "Application has no data", 5000, false);
                 
             apptype = applicationTypes[data.response.application_type];
             ret = "";
@@ -3722,7 +3722,7 @@ function LoadDivisionList(){
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 d = data.response;
                 localStorage.setItem("division", JSON.stringify(d));
                 localStorage.setItem("divisionLastUpdate", + new Date());
@@ -3795,7 +3795,7 @@ function LoadDivisionInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             d = data.response;
             info = d.statistics;
             for (var i = 0; i < info.length; i++) {
@@ -3872,7 +3872,7 @@ function LoadPendingDivisionValidation() {
             for(var i = 0 ; i < divisions.length ; i++) {
                 DIVISION[divisions[i].id] = divisions[i].name;
             }
-            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error:", "No division found.", 5000, false);
+            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
             $("#table_division_validation_data").empty();
             d = data.response;
             if (d.length == 0) {
@@ -3922,7 +3922,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
                 }
-                if(divisionopt == "") return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
                 <select id="divisionSelect"
@@ -3947,7 +3947,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
                 }
-                if(divisionopt == "") return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <p>This delivery is pending division validation.</p>
                 <p>The division is selected by driver and changeable.</p>
@@ -3984,7 +3984,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
-                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
                 if (data.response.update_message == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
@@ -4036,7 +4036,7 @@ function SubmitDivisionValidationRequest(logid) {
             break;
         }
     }
-    if(divisionid == "-1") return toastNotification("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -4080,7 +4080,7 @@ function updateDivision(logid, status) {
             break;
         }
     }
-    if(divisionid == "-1") return toastNotification("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({
@@ -4176,19 +4176,19 @@ function HandleAttendeeInput(){
                 success: function (data) {
                     d = data.response.list;
                     if (d.length == 0) {
-                        return toastNotification("error", "Error:", "No member with name " + val + " found.", 5000, false);
+                        return toastNotification("error", "Error", "No member with name " + val + " found.", 5000, false);
                     }
                     userid = d[0].userid;
                     username = d[0].name;
                     if ($(`#attendeeid-${userid}`).length > 0) {
-                        return toastNotification("error", "Error:", "Member already added.", 5000, false);
+                        return toastNotification("error", "Error", "Member already added.", 5000, false);
                     }
                     $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
                         <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
                     $("#attendeeId").val("");
                 },
                 error: function (data) {
-                    return toastNotification("error", "Error:", "Failed to get User ID", 5000, false);
+                    return toastNotification("error", "Error", "Failed to get User ID", 5000, false);
                 }
             })
         } else if (keyCode == 8) {
@@ -4207,7 +4207,7 @@ function HandleAttendeeInput(){
 function FetchEvent(showdetail = -1) {
     eventid = $("#eventid").val();
     if (!isNumber(eventid))
-        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
 
     GeneralLoad();
     LockBtn("#fetchEventBtn");
@@ -4250,7 +4250,7 @@ function FetchEvent(showdetail = -1) {
 function FetchEventAttendee() {
     eventid = $("#aeventid").val();
     if (!isNumber(eventid)) {
-        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
     }
 
     GeneralLoad();
@@ -4287,7 +4287,7 @@ function FetchEventAttendee() {
 function UpdateEventAttendees() {
     eventid = $("#aeventid").val();
     if (!isNumber(eventid)) {
-        return toastNotification("error", "Error", "Event ID must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
     }
     attendeeid = "";
     $(".attendee").each(function (index, value) {
@@ -4296,7 +4296,7 @@ function UpdateEventAttendees() {
     attendeeid = attendeeid.substring(0, attendeeid.length - 1);
     points = $("#attendeePoints").val();
     if (!isNumber(points)) {
-        return toastNotification("error", "Error", "Points must be in integar!", 5000, false);
+        return toastNotification("error", "Error", "Error", "Points must be in integar!", 5000, false);
     }
 
     GeneralLoad();
@@ -4452,7 +4452,7 @@ function LoadEventInfo() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: async function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 d = data.response.list;
                 var eventlist = [];
                 offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
@@ -4504,7 +4504,7 @@ function LoadEventInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             
             eventList = data.response.list;
             total_pages = data.response.total_pages;
@@ -4549,7 +4549,7 @@ function eventvote(eventid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             $("#eventid").val(eventid);
             FetchEvent(eventid, showdetail = eventid);
             toastNotification("success", "Success:", data.response, 5000, false);
@@ -4571,7 +4571,7 @@ async function eventDetail(eventid) {
         }
         keys = Object.keys(allevents);
         if (keys.indexOf(String(eventid)) == -1) {
-            return toastNotification("error", "Error:", "Event not found.", 5000, false);
+            return toastNotification("error", "Error", "Event not found.", 5000, false);
         }
     }
     event = allevents[eventid];
@@ -4798,11 +4798,11 @@ function TMPBind() {
                 $("#msg").html("You are being redirected to Drivers Hub.");
                 window.location.href = "/";
             } else {
-                return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                return toastNotification("error", "Error", data.descriptor, 5000, false);
             }
         },
         error: function (data) {
-            return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            return toastNotification("error", "Error", data.descriptor, 5000, false);
         }
     });
 }

@@ -247,7 +247,7 @@ rrevents = [];
 punit = "€";
 curlogid = -1;
 async function deliveryRoutePlay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error:", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     clearInterval(dmapint);
     dmapint = -999;
     lastevent = 0;
@@ -383,7 +383,7 @@ async function deliveryRoutePlay() {
 
 function rrplayswitch() {
     if ($("#rrplay").html() == "Replay") deliveryDetail(curlogid);
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error:", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     if (dmapint == -999) {
         dmapint = -2;
         $("#rrplay").html("Play");
@@ -416,7 +416,7 @@ function deliveryDetail(logid) {
         success: function (data) {
             $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
             $("#DeliveryInfoBtn" + logid).html("Details");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
                 false);
             info = "";
             if (!data.error) {
@@ -541,7 +541,7 @@ function deliveryDetail(logid) {
                     else if (basic[0].startsWith("v4")) tver = 4;
                     else if (basic[0].startsWith("v5")) tver = 5;
                     else if (basic[0].startsWith("v")) {
-                        return toastNotification("error", "Error:", "Unsupported telemetry data compression version", 5000, false);
+                        return toastNotification("error", "Error", "Unsupported telemetry data compression version", 5000, false);
                     }
                     basic[0] = basic[0].slice(2);
                     game = basic[0];

@@ -11,6 +11,7 @@ perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
+shiftdown = false;
 
 function Logout(){
     token = localStorage.getItem("token")
@@ -347,7 +348,7 @@ async function ShowTab(tabname, btnname) {
         LoadUserProfile(userid);
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/beta');
+        window.history.pushState("", "", '/yAFgHRTt');
         if(!loaded) LoadStats();
     }
     if (tabname == "#signin-tab") {
@@ -497,6 +498,7 @@ function UpdateRolesOnDisplay(){
     for (var i = 0; i < roleids.length; i++) {
         roleids[i] = parseInt(roleids[i]);
     }
+    userPerm = GetUserPermission();
     ShowStaffTabs();
     for (var i = 0; i < roleids.length; i++) {
         if (roleids[i] <= highestrole)
@@ -626,6 +628,7 @@ function AnnouncementEventButtonValueUpdate() {
 }
 
 userPerm = [];
+userPermLoaded = false;
 function GetUserPermission(){
     if(roles == undefined || perms.admin == undefined) return;
     for (i = 0; i < roles.length; i++) {
@@ -638,11 +641,11 @@ function GetUserPermission(){
         }
     }
     userPerm.push("user");
+    userPermLoaded = true;
     return userPerm;
 }
 
 function ShowStaffTabs() {
-    userPerm = GetUserPermission();
     t = userPerm;
     t.pop("user");
     t.pop("driver");
@@ -683,8 +686,6 @@ function NonMemberMode(){
     $("#overview-right-col").hide();
     $("#overview-left-col").removeClass("col-8");
     $("#overview-left-col").addClass("col");
-    $("#button-division-tab").hide();
-    $("#button-downloads-tab").hide();
     $(".member-only-tab").hide();
 }
 
@@ -692,8 +693,6 @@ function MemberMode(){
     $("#overview-right-col").show();
     $("#overview-left-col").addClass("col-8");
     $("#overview-left-col").removeClass("col");
-    $("#button-division-tab").show();
-    $("#button-downloads-tab").show();
     $(".member-only-tab").show();
 }
 
@@ -713,6 +712,7 @@ function ValidateToken() {
         $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-profile").attr("data-bs-toggle", "");
         NonMemberMode();
+        userPermLoaded = true;
         return;
     }
 
@@ -815,7 +815,7 @@ function ValidateToken() {
 
 function PathDetect() {
     p = window.location.pathname;
-    if (p == "/overview") window.history.pushState("", "", '/beta');
+    if (p == "/overview") window.history.pushState("", "", '/yAFgHRTt');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
     else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
@@ -864,13 +864,15 @@ function PathDetect() {
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
     } else{
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/beta');
+        window.history.pushState("", "", '/yAFgHRTt');
     }
 }
 
 window.onpopstate = function (event){PathDetect();};
 
 $(document).ready(async function () {
+    $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
+    $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
     $(".pageinput").val("1");
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
@@ -893,7 +895,7 @@ $(document).ready(async function () {
         perms = JSON.parse(localStorage.getItem("perms"));
         positions = JSON.parse(localStorage.getItem("positions"));
         applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
-        if(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        if(rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
     positionstxt = "";

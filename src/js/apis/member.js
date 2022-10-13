@@ -59,7 +59,7 @@ function GetDiscordRankRole() {
         },
         success: function (data) {
             UnlockBtn(".requestRoleBtn");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             else return toastNotification("success", "Success", "You have got your new role!", 5000, false);
         },
         error: function (data) {
@@ -184,7 +184,7 @@ function UpdateMemberPoints() {
     s = $("#memberpntid").val();
     userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
     if (!isNumber(userid)) {
-        toastNotification("error", "Error:", "Invalid User ID", 5000, false);
+        toastNotification("error", "Error", "Invalid User ID", 5000, false);
         return;
     }
 

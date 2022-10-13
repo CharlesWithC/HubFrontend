@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/533179d8bd274258.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/d95a776f4a376bc1.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -143,7 +143,7 @@
         td {
             padding-right: 10px;
         }
-
+        
         .col {
             overflow: hidden;
         }
@@ -159,6 +159,10 @@
 
         .form-label {
             font-weight: bold;
+        }
+
+        .member-only-tab {
+            display: none;
         }
     </style>
     <?php 
@@ -181,9 +185,7 @@
 <body style="width:100vw;overflow-x:hidden">
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
         <div style="height:60px">
-            <a href="#" onclick="ShowTab('#overview-tab', '#button-overview-tab')" style="display:inline;height:0">
-                <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
-            </a>
+            <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
         </div>
         <hr>
         <div id="sidebar" style="height:calc(100% - 150px);">
@@ -202,7 +204,7 @@
                             Announcements
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item member-only-tab">
                         <a id="button-downloads-tab" href="#" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-download"></i></span>
                             Downloads
@@ -223,7 +225,7 @@
                             Deliveries
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item member-only-tab">
                         <a id="button-division-tab" href="#" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                             Divisions
@@ -257,7 +259,7 @@
                         </a>
                     </li>
                 </div>
-                <div id="sidebar-application" style="margin:5px 0;">
+                <div id="sidebar-application" style="margin:5px 0;display:none;">
                     <li><strong style="color:darkgrey">Applications</strong></li>
                     <li class="nav-item">
                         <a id="button-my-application-tab" href="#" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white" aria-current="page">
@@ -274,12 +276,6 @@
                 </div>
                 <div id="sidebar-staff" style="margin:5px 0;display:none">
                     <li><strong style="color:darkgrey">Staff</strong></li>
-                    <li class="nav-item">
-                        <a id="button-staff-announcement-tab" href="#" onclick="ShowTab('#staff-announcement-tab', '#button-staff-announcement-tab')" class="nav-link text-white" aria-current="page">
-                            <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
-                            Announcements
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a id="button-staff-division-tab" href="#" onclick="ShowTab('#staff-division-tab', '#button-staff-division-tab')" class="nav-link text-white" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
@@ -506,7 +502,7 @@
                                     <th scope="col" style="width:40%">Points</th>
                                 </tr>
                             </thead>
-                            <tbody id="table_mini_leaderboard_data" style="line-height:50px">
+                            <tbody id="table_mini_leaderboard_data">
                                 <tr>
                                     <td style="width:10%;"><span class="placeholder w-100"></span></td>
                                     <td style="width:55%;"><span class="placeholder w-100"></span></td>
@@ -535,7 +531,7 @@
                                     <th scope="col" style="width:40%">Date</th>
                                 </tr>
                             </thead>
-                            <tbody id="table_new_driver_data" style="line-height:50px">
+                            <tbody id="table_new_driver_data">
                                 <tr>
                                     <td style="width:10%;"><span class="placeholder w-100"></span></td>
                                     <td style="width:55%;"><span class="placeholder w-100"></span></td>
@@ -558,7 +554,7 @@
             </div>
         </section>
         <section id="announcement-tab" class="tabs">
-            <div id="announcement-new" class="shadow p-3 m-3 bg-dark rounded row">
+            <div id="announcement-new" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
                 <h5 id="announcement-new-heading">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#announcement-new-collapse" aria-expanded="false" aria-controls="announcement-new-collapse">
                         <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Announcement</strong>

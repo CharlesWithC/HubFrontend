@@ -187,11 +187,11 @@ function TMPBind() {
                 $("#msg").html("You are being redirected to Drivers Hub.");
                 window.location.href = "/";
             } else {
-                return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                return toastNotification("error", "Error", data.descriptor, 5000, false);
             }
         },
         error: function (data) {
-            return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            return toastNotification("error", "Error", data.descriptor, 5000, false);
         }
     });
 }

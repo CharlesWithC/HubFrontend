@@ -13,7 +13,7 @@ function LoadDivisionList(){
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 d = data.response;
                 localStorage.setItem("division", JSON.stringify(d));
                 localStorage.setItem("divisionLastUpdate", + new Date());
@@ -86,7 +86,7 @@ function LoadDivisionInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             d = data.response;
             info = d.statistics;
             for (var i = 0; i < info.length; i++) {
@@ -163,7 +163,7 @@ function LoadPendingDivisionValidation() {
             for(var i = 0 ; i < divisions.length ; i++) {
                 DIVISION[divisions[i].id] = divisions[i].name;
             }
-            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error:", "No division found.", 5000, false);
+            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
             $("#table_division_validation_data").empty();
             d = data.response;
             if (d.length == 0) {
@@ -213,7 +213,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
                 }
-                if(divisionopt == "") return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
                 <select id="divisionSelect"
@@ -238,7 +238,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
                 }
-                if(divisionopt == "") return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <p>This delivery is pending division validation.</p>
                 <p>The division is selected by driver and changeable.</p>
@@ -275,7 +275,7 @@ function GetDivisionInfo(logid) {
                 for(var i = 0 ; i < divisions.length ; i++) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
-                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error:", "No division found.", 5000, false);
+                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
                 if (data.response.update_message == undefined) {
                     info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
                     info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
@@ -327,7 +327,7 @@ function SubmitDivisionValidationRequest(logid) {
             break;
         }
     }
-    if(divisionid == "-1") return toastNotification("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -371,7 +371,7 @@ function updateDivision(logid, status) {
             break;
         }
     }
-    if(divisionid == "-1") return toastNotification("error", "Error:", "Invalid division.", 5000, false);
+    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     reason = $("#divisionReason").val();
     if (reason == undefined || reason == null) reason = "";
     $.ajax({

@@ -17,7 +17,7 @@ async function LoadDownloads() {
     });
 
     while(1){
-        if(userPerm.length != 0) break;
+        if(userPermLoaded) break;
         await sleep(100);
     }
     if(userPerm.includes("downloads") || userPerm.includes("admin")){

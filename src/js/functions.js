@@ -15,7 +15,7 @@ $(document).ready(function () {
 
 function AjaxError(data, no_notification = false) {
     errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
-    if (!no_notification) toastNotification("error", "Error:", errmsg, 5000, false);
+    if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
 
@@ -433,7 +433,7 @@ $(document).ready(function () {
         },
         error: function (data) {
             if (parseInt(data.status) >= 500 && parseInt(data.status) <= 599) {
-                toastNotification("error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
+                toastNotification("error", "Error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
             }
         }
     })
@@ -541,3 +541,25 @@ function sha256(ascii) {
     }
     return result;
 };
+
+function ShowModal(title, content, footer){
+    modalid = RandomString(6);
+    $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header" style="border:none">
+                    <h5 class="modal-title"><strong>${title}</strong></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ${content}
+                </div>
+                <div class="modal-footer" style="border:none">
+                    ${footer}
+                </div>
+            </div>
+        </div>
+    </div>
+    `);
+    return modalid;
+}

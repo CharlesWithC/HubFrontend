@@ -86,7 +86,7 @@
 					},
 					error: function (data) {
 						$("#captcha").fadeOut();
-						toastNotification("error", "Error:", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
+						toastNotification("error", "Error", JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText, 5000, false);
 						setTimeout(function () {
 							working = false;
 						}, 1000);

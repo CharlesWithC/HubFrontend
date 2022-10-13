@@ -313,7 +313,7 @@ function LoadStats(basic = false) {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 users = data.response.list;
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
@@ -348,7 +348,7 @@ function LoadStats(basic = false) {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
                 users = data.response.list;
                 $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {

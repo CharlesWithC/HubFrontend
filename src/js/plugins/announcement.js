@@ -35,7 +35,14 @@ function LoadAnnouncement(){
         headers: {
             "Authorization": "Bearer " + token
         },
-        success: function (data) {
+        success: async function (data) {
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+            if(userPerm.includes("announcement") || userPerm.includes("admin")){
+                $("#announcement-new").show();
+            }
             announcements = data.response.list;
             content = "";
             for (i = 0; i < announcements.length; i++) {
@@ -46,45 +53,55 @@ function LoadAnnouncement(){
                 announcement = announcements[i];
                 announcement_datetime = getDateTime(announcement.timestamp * 1000);
                 author = announcement.author;
-                announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
-                announcement_control_title_style = `width:calc(100% - 70px)`;
-                announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
-                public_checked = "";
-                private_checked = "";
-                if(announcement.is_private == true) private_checked = "checked";
-                else public_checked = "checked";
-                type_checked = [];
-                for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
-                    type_checked.push("");
-                }
-                type_checked.push("checked");
-                for(var j = 0 ; j < 4 ; j++){
-                    type_checked.push("");
-                }
-                announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
-                    <textarea type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%">${announcement.content}</textarea></div>
-                <div style="display:inline">
-                    <div class="form-check" style="display:inline-block;width:80px;">
-                        <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
-                            <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
-                                Public
+                announcement_control = "";
+                announcement_control_title_style = "";
+                announcement_control_top = "";
+                announcement_control_bottom = "";
+                if(userPerm.includes("announcement") || userPerm.includes("admin")){
+                    announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
+                    announcement_control_title_style = `width:calc(100% - 70px)`;
+                    announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
+                    public_checked = "";
+                    private_checked = "";
+                    if(announcement.is_private == true) private_checked = "checked";
+                    else public_checked = "checked";
+                    type_checked = [];
+                    for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
+                        type_checked.push("");
+                    }
+                    type_checked.push("selected");
+                    for(var j = 0 ; j < 4 ; j++){
+                        type_checked.push("");
+                    }
+                    announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
+                        <textarea type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%">${announcement.content}</textarea></div>
+                    <div class="pb-2">
+                        <div class="form-check" style="display:inline-block;width:80px;">
+                            <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
+                                <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
+                                    Public
+                                </label>
+                            </div>
+                        <div class="form-check" style="display:inline-block;width:80px;">
+                            <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
+                            <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
+                                Private
                             </label>
                         </div>
-                    <div class="form-check" style="display:inline-block;width:80px;">
-                        <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
-                        <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
-                            Private
-                        </label>
+                        <select style="display:inline-block;width:130px" class="form-select bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
+                            <option value="0" ${type_checked[0]}>Information</option>
+                            <option value="1" ${type_checked[1]}>Event</option>
+                            <option value="2" ${type_checked[2]}>Warning</option>
+                            <option value="3" ${type_checked[3]}>Critical</option>
+                            <option value="4" ${type_checked[4]}>Resolved</option>
+                        </select>
                     </div>
-                    <select style="display:inline-block;width:130px" class="form-select  bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
-                        <option value="0" ${type_checked[0]}>Information</option>
-                        <option value="1" ${type_checked[1]}>Event</option>
-                        <option value="2" ${type_checked[2]}>Warning</option>
-                        <option value="3" ${type_checked[3]}>Critical</option>
-                        <option value="4" ${type_checked[4]}>Resolved</option>
-                    </select>
-                </div>
-                <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
+                    <div style="display:inline">
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="Channel ID" style="width: 150px;display:inline-block;margin-right:10px;">
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="Discord Message" style="width:250px;display:inline-block;">
+                    </div>
+                    <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
+                }
                 content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col" id="announcement-${announcement.announcementid}">
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
@@ -109,136 +126,120 @@ function EditAnnouncementToggle(announcementid){
     $(`#announcement-display-${announcementid}-title`).toggle();
 }
 
-function FetchAnnouncement() {
-    aid = $("#annid").val();
-
-    GeneralLoad();
-    LockBtn("#fetchAnnouncementBtn");
-
+function PostAnnouncement(){
+    title = $("#announcement-new-title").val();
+    content = $("#announcement-new-content").val();
+    anntype = $("#announcement-new-type").find(":selected").val();
+    if(!isNumber(anntype)){
+        return toastNotification("warning", "Warning", "Please select an announcement type!", 3000);
+    }
+    is_private = $("#announcement-visibility-private").is(":checked");
+    discord_channelid = $("#announcement-new-discord-channel").val();
+    discord_message = $("#announcement-new-discord-message").val();
+    if(!isNumber(discord_channelid)){
+        discord_channelid = 0;
+        discord_message = "";
+    }
+    LockBtn("#button-announcement-new-post", "Posting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + aid,
-        type: "GET",
+        url: apidomain + "/" + vtcprefix + "/announcement",
+        type: "POST",
         dataType: "json",
         headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            "title": title,
+            "content": content,
+            "announcement_type": anntype,
+            "is_private": is_private,
+            "channelid": discord_channelid,
+            "discord_message_content": discord_message
         },
         success: function (data) {
-            UnlockBtn("#fetchAnnouncementBtn");
-            if (data.error) return AjaxError(data);
-
-            announcement = data.response;
-            $("#anntitle").val(announcement.title);
-            $("#anncontent").val(announcement.content);
-            if (announcement.is_private) $("#announcement-visibility-private").prop("checked", true);
-            else $("#announcement-visibility-public").prop("checked", true);
-            $('#annselect option:eq(' + announcement.announcement_type + ')').prop('selected', true);
+            UnlockBtn("#button-announcement-new-post");
+            if (data.error) AjaxError(data);
+            toastNotification("success", "Success", "Announcement posted!", 5000, false);
+            LoadAnnouncement();
         },
         error: function (data) {
-            UnlockBtn("#fetchAnnouncementBtn");
+            UnlockBtn("#button-announcement-new-post");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function CreateAnnouncement(){
-    
-}
-
-function AnnouncementOp() {
-    anntype = parseInt($("#annselect").find(":selected").val());
-    title = $("#anntitle").val();
-    content = $("#anncontent").val();
-    annid = $("#annid").val();
-    pvt = $("#announcement-visibility-private").prop("checked");
-    chnid = $("#annchan").val().replaceAll(" ", "");
-
-    if (chnid != "" && !isNumber(chnid)) {
-        toastNotification("warning", "Error", "Channel ID must be an integar if specified!", 5000, false);
-        return;
+function EditAnnouncement(announcementid){
+    title = $("#announcement-edit-"+announcementid+"-title").val();
+    content = $("#announcement-edit-"+announcementid+"-content").val();
+    anntype = $("#announcement-edit-"+announcementid+"-type").find(":selected").val();
+    is_private = $("#announcement-edit-"+announcementid+"-visibility-private").is(":checked");
+    discord_channelid = $("#announcement-edit-"+announcementid+"-discord-channel").val();
+    discord_message = $("#announcement-edit-"+announcementid+"-discord-message").val();
+    if(!isNumber(discord_channelid)){
+        discord_channelid = 0;
+        discord_message = "";
     }
-
-    GeneralLoad();
-    LockBtn("#newAnnBtn");
-
-    op = "create";
-    if (isNumber(annid)) {
-        if (title != "" || content != "") {
-            op = "update";
-        } else {
-            op = "delete";
+    LockBtn("#button-announcement-edit-"+announcementid+"-save", "Saving...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+announcementid,
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            "title": title,
+            "content": content,
+            "announcement_type": anntype,
+            "is_private": is_private,
+            "channelid": discord_channelid,
+            "discord_message_content": discord_message
+        },
+        success: function (data) {
+            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            if (data.error) AjaxError(data);
+            LoadAnnouncement();
+            toastNotification("success", "Success", "Edit saved!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            AjaxError(data);
         }
-    }
+    });
+}
 
-    if (op == "update") {
-        annid = parseInt(annid);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+annid,
-            type: "PATCH",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            data: {
-                "title": title,
-                "content": content,
-                "announcement_type": anntype,
-                "is_private": pvt,
-                "channelid": chnid
-            },
-            success: function (data) {
-                UnlockBtn("#newAnnBtn");
-                if (data.error) AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newAnnBtn");
-                AjaxError(data);
+deleteAnnouncementModal = null;
+function DeleteAnnouncementShow(announcementid){
+    if(shiftdown) return DeleteAnnouncement(announcementid);
+    content = $("#announcement-display-"+announcementid+"-title").html();
+    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
+    deleteAnnouncementModal = new bootstrap.Modal('#modal-' + modalid);
+    deleteAnnouncementModal.show();
+}
+
+function DeleteAnnouncement(announcementid){
+    LockBtn("#button-announcement-delete-"+announcementid, "Deleting...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + announcementid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            UnlockBtn("#button-announcement-delete-"+announcementid);
+            if (data.error) AjaxError(data);
+            LoadAnnouncement();
+            toastNotification("success", "Success", "Announcement deleted!", 5000, false);
+            if(deleteAnnouncementModal != null){
+                deleteAnnouncementModal.hide();
+                setTimeout(function(){deleteAnnouncementModal.dispose();deleteAnnouncementModal = null;}, 1000);
             }
-        });
-    } else if (op == "create") {
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement",
-            type: "POST",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            data: {
-                "title": title,
-                "content": content,
-                "announcement_type": anntype,
-                "is_private": pvt,
-                "channelid": chnid,
-                "discord_message_content": $("#annmsg").val()
-            },
-            success: function (data) {
-                UnlockBtn("#newAnnBtn");
-                if (data.error) AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newAnnBtn");
-                AjaxError(data);
-            }
-        });
-    } else if (op == "delete") {
-        annid = parseInt(annid);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + annid,
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                UnlockBtn("#newAnnBtn");
-                if (data.error) AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newAnnBtn");
-                AjaxError(data);
-            }
-        });
-    }
+        },
+        error: function (data) {
+            UnlockBtn("#button-announcement-delete-"+announcementid);
+            AjaxError(data);
+        }
+    });
 }

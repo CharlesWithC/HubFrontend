@@ -161,7 +161,7 @@ function AddUser(discordid = -1) {
     if (discordid == "-1") {
         discordid = $("#adddiscordid").val();
         if (!isNumber(discordid)) {
-            return toastNotification("error", "Error:", "Please enter a valid discord id.", 5000, false);
+            return toastNotification("error", "Error", "Please enter a valid discord id.", 5000, false);
         }
     } else {
         if ($("#UserAddBtn" + discordid).html() != "Confirm?") {
@@ -331,7 +331,7 @@ function GetUserDetail(discordid) {
 function BanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid)) 
-        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
 
     GeneralLoad();
     LockBtn("#banUserBtn");
@@ -368,7 +368,7 @@ function BanUser() {
 function UnbanUser() {
     discordid = $("#bandiscordid").val();
     if (!isNumber(discordid))
-        return toastNotification("error", "Error:", "Invalid discord id.", 5000, false);
+        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
     
     GeneralLoad();
     LockBtn("#unbanUserBtn");
@@ -452,7 +452,7 @@ function loadAdmin() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            if (data.error) toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) toastNotification("error", "Error", data.descriptor, 5000, false);
             webConfigData = data.response.config;
             webConfigKeys = Object.keys(webConfigData);
             for (var i = 0; i < webConfigKeys.length; i++) {
@@ -473,7 +473,7 @@ function loadAdmin() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000,
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
                 false);
 
             configData = data.response.config;
@@ -622,7 +622,7 @@ function loadAdmin() {
 
 function UpdateWebConfig() {
     if($("#webconfig_apptoken").val().length != 36){
-        return toastNotification("error", "Invalid application token!");
+        return toastNotification("error", "Error", "Invalid application token!");
     }
     $("#updateWebConfigBtn").html("Working...");
     $("#updateWebConfigBtn").attr("disabled", "disabled");
@@ -652,7 +652,7 @@ function UpdateWebConfig() {
         success: function (data) {
             $("#updateWebConfigBtn").html("Update");
             $("#updateWebConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -668,7 +668,7 @@ function UpdateConfig() {
     try {
         config = JSON.parse(config);
     } catch {
-        toastNotification("error", "Error:", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+        toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
         return;
     }
     if (config["navio_token"] == "") delete config["navio_token"];
@@ -693,7 +693,7 @@ function UpdateConfig() {
         success: function (data) {
             $("#updateConfigBtn").html("Update");
             $("#updateConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
@@ -707,7 +707,7 @@ function UpdateConfig() {
 function ReloadServer() {
     otp = $("#input-reload-otp").val();
     if(!isNumber(otp) || otp.length != 6){
-        return toastNotification("error", "Error:", "Invalid OTP.", 5000, false);
+        return toastNotification("error", "Error", "Invalid OTP.", 5000, false);
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
@@ -720,7 +720,7 @@ function ReloadServer() {
             otp: otp
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error:", data.descriptor, 5000, false);
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {

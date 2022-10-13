@@ -1,42 +1,42 @@
+<?php
+$domain = $_SERVER['HTTP_HOST'];
+require_once('config/'.$domain.'.php');
+
+$language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+$language = substr($language, 0, 2);
+if(file_exists('languages/'.$language.'.json')){
+    $st = json_decode(file_get_contents('languages/'.$language.'.json'));
+} else {
+    $st = json_decode(file_get_contents('languages/en.json'));
+}
+
+$path = $_SERVER['REQUEST_URI'];
+if (str_starts_with($path, '/images')) {
+    $t = explode("/", $path);
+    header('Location: https://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
+    exit;
+}
+if (str_starts_with($path, '/js')) {
+    $t = explode("/", $path);
+    $beta_prefix = "";
+    if(stristr($path, 'beta')){
+        $beta_prefix = "beta";
+    }
+    header('Location: https://drivershub-cdn.charlws.com/js/'.$beta_prefix.'/'.$t[2]);
+    exit;
+}
+if (str_starts_with($path, '/banner')) {
+    $t = explode("/", $path);
+    header('Location: https://'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
+    exit;
+}
+?>
+    
 <!DOCTYPE html>
 
 <html lang="en">
 
 <head>
-    <?php
-    $domain = $_SERVER['HTTP_HOST'];
-    require_once('config/'.$domain.'.php');
-
-    $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-    $language = substr($language, 0, 2);
-    if(file_exists('languages/'.$language.'.json')){
-        $st = json_decode(file_get_contents('languages/'.$language.'.json'));
-    } else {
-        $st = json_decode(file_get_contents('languages/en.json'));
-    }
-
-    $path = $_SERVER['REQUEST_URI'];
-    if (str_starts_with($path, '/images')) {
-        $t = explode("/", $path);
-        header('Location: //drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
-        exit();
-    }
-    if (str_starts_with($path, '/js')) {
-        $t = explode("/", $path);
-        $beta_prefix = "";
-        if(stristr($path, 'beta')){
-            $beta_prefix = "beta";
-        }
-        header('Location: //drivershub-cdn.charlws.com/js/'.$beta_prefix.'/'.$t[2]);
-        exit();
-    }
-    if (str_starts_with($path, '/banner')) {
-        $t = explode("/", $path);
-        header('Location: //'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
-        exit();
-    }
-    ?>
-
     <title><?php echo $vtcname ?></title>
     <link rel="icon" href="/images/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
