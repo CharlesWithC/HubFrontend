@@ -17,13 +17,15 @@ announcement_placeholder_row = `<div class="row">
 </div>
 </div>`;
 
-function LoadAnnouncement(){
+function LoadAnnouncement(noplaceholder = false){
     InitPaginate("#announcements", "LoadAnnouncement()");
     $("#announcement-tab .page-item").addClass("disabled");
 
-    $("#announcements").children().remove();
-    for(i = 0 ; i < 5 ; i++){
-        $("#announcements").append(announcement_placeholder_row);
+    if(noplaceholder){
+        $("#announcements").children().remove();
+        for(i = 0 ; i < 5 ; i++){
+            $("#announcements").append(announcement_placeholder_row);
+        }
     }
 
     page = parseInt($("#announcements_page_input").val());
@@ -160,7 +162,7 @@ function PostAnnouncement(){
             UnlockBtn("#button-announcement-new-post");
             if (data.error) AjaxError(data);
             toastNotification("success", "Success", "Announcement posted!", 5000, false);
-            LoadAnnouncement();
+            LoadAnnouncement(noplaceholder = false);
         },
         error: function (data) {
             UnlockBtn("#button-announcement-new-post");
@@ -199,7 +201,7 @@ function EditAnnouncement(announcementid){
         success: function (data) {
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
             if (data.error) AjaxError(data);
-            LoadAnnouncement();
+            LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", "Edit saved!", 5000, false);
         },
         error: function (data) {
@@ -213,7 +215,7 @@ deleteAnnouncementModal = null;
 function DeleteAnnouncementShow(announcementid){
     if(shiftdown) return DeleteAnnouncement(announcementid);
     content = $("#announcement-display-"+announcementid+"-title").html();
-    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
+    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
     deleteAnnouncementModal = new bootstrap.Modal('#modal-' + modalid);
     deleteAnnouncementModal.show();
 }
@@ -230,7 +232,7 @@ function DeleteAnnouncement(announcementid){
         success: function (data) {
             UnlockBtn("#button-announcement-delete-"+announcementid);
             if (data.error) AjaxError(data);
-            LoadAnnouncement();
+            LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", "Announcement deleted!", 5000, false);
             if(deleteAnnouncementModal != null){
                 deleteAnnouncementModal.hide();

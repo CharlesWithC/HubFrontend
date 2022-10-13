@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/d95a776f4a376bc1.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/d63358d727758543.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -163,6 +163,10 @@
 
         .member-only-tab {
             display: none;
+        }
+
+        .clickable {
+            cursor: pointer;
         }
     </style>
     <?php 
@@ -392,7 +396,7 @@
                 <h1><strong>Multiple Factor Authentication</strong></h1>
                 <label for="mfa-otp" class="form-label">One Time Pass</label>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control bg-dark text-white" id="mfa-otp" placeholder="000 000">
+                    <input type="number" class="form-control bg-dark text-white" id="mfa-otp" placeholder="000 000">
                 </div>
                 <button id="button-mfa-verify" type="button" class="btn btn-primary w-100" onclick="MFAVerify();">Verify</button>
             </div>
@@ -454,101 +458,107 @@
                     <div class="row">
                         <div class="shadow p-3 m-3 bg-dark rounded col">
                             <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> Online Drivers</strong></h5>
-                            <table class="table_online_driver">
-                                <thead id="table_online_driver_head">
-                                    <tr>
-                                        <th scope="col" style="width:20%">Name</th>
-                                        <th scope="col" style="width:20%">Truck</th>
-                                        <th scope="col" style="width:40%">Cargo</th>
-                                        <th scope="col" style="width:10%">Speed</th>
-                                        <th scope="col" style="width:10%">Destination</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table_online_driver_data">
-                                    <tr>
-                                        <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:40%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:40%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:40%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div id="table_online_driver">
+                                <table>
+                                    <thead id="table_online_driver_head">
+                                        <tr>
+                                            <th scope="col" style="width:20%">Name</th>
+                                            <th scope="col" style="width:20%">Truck</th>
+                                            <th scope="col" style="width:40%">Cargo</th>
+                                            <th scope="col" style="width:10%">Speed</th>
+                                            <th scope="col" style="width:10%">Destination</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table_online_driver_data">
+                                        <tr>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:40%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:40%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:40%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-4" id="overview-right-col">
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> Leaderboard</strong></h5>
-                        <table class="table_mini_leaderboard">
-                            <thead id="table_mini_leaderboard_head">
-                                <tr>
-                                    <th scope="col" style="width:40px"></th>
-                                    <th scope="col" style="width:60%">Driver</th>
-                                    <th scope="col" style="width:40%">Points</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table_mini_leaderboard_data">
-                                <tr>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:55%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:35%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:55%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:35%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:55%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:35%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div id="table_mini_leaderboard">
+                            <table>
+                                <thead id="table_mini_leaderboard_head">
+                                    <tr>
+                                        <th scope="col" style="width:40px"></th>
+                                        <th scope="col" style="width:60%">Driver</th>
+                                        <th scope="col" style="width:40%">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_mini_leaderboard_data">
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5><strong><span class="rect-20"><i class="fa-solid fa-user-plus"></i></span> New Members</strong></h5>
-                        <table class="table_new_driver">
-                            <thead id="table_new_driver_head">
-                                <tr>
-                                    <th scope="col" style="width:40px"></th>
-                                    <th scope="col" style="width:60%">Name</th>
-                                    <th scope="col" style="width:40%">Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table_new_driver_data">
-                                <tr>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:55%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:35%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:55%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:35%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:55%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:35%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div id="table_new_driver">
+                            <table>
+                                <thead id="table_new_driver_head">
+                                    <tr>
+                                        <th scope="col" style="width:40px"></th>
+                                        <th scope="col" style="width:60%">Name</th>
+                                        <th scope="col" style="width:40%">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_new_driver_data">
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -645,51 +655,181 @@
             </div>
         </section>
         <section id="map-tab" class="tabs" style="display:none">
-            <div class="shadow m-3 mb-5 bg-dark rounded">
-                <h5 style="float:left;padding:10px;">Euro Truck Simulator 2</h5>
-                <div id="map" style="height:80vh;background-color:#484E66;border-radius:5px">
+            <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
+                <h5 style="position:fixed;z-index:100;padding:10px;">Euro Truck Simulator 2</h5>
+                <div id="map">
                 </div>
             </div>
-            <div class="shadow m-3 mb-5 bg-dark rounded">
-                <h5 style="float:left;padding:10px;">ProMods Europe</h5>
-                <div id="pmap" style="height:80vh;background-color:#484E66;border-radius:5px">
+            <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
+                <h5 style="position:fixed;z-index:100;padding:10px;">ProMods Europe</h5>
+                <div id="pmap">
                 </div>
             </div>
-            <div class="shadow m-3 mb-5 bg-dark rounded">
-                <h5 style="float:left;padding:10px;">American Truck Simulator</h5>
-                <div id="amap" style="height:80vh;background-color:#484E66;border-radius:5px">
+            <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
+                <h5 style="position:fixed;z-index:100;padding:10px;">American Truck Simulator</h5>
+                <div id="amap">
                 </div>
             </div>
         </section>
         <section id="delivery-tab" class="tabs" style="display:none">
             <div class="row">
                 <h3><strong>Daily Statistics</strong></h3>
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
                     <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
-                    <p class="card-text"><span id="dotd"></span> <span id="dotddistance" style="font-size:14px"></span></p>
+                    <p class="card-text"><span id="dotd"><span class="placeholder" style="width:60%"></span></span> <span id="dotddistance" style="font-size:14px"></span></p>
                 </div>
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered (Distance)</strong></h5>
-                    <p class="card-text"><span id="dalljob"></span> / <span id="dtotdistance"></span></p>
+                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
+                    <p class="card-text"><span id="dalljob"><span class="placeholder" style="width:40%"></span></span> / <span id="dtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
                 </div>
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
                     <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
-                    <p class="card-text"><span id="dprofit"></span></p>
+                    <p class="card-text"><span id="dprofit"><span class="placeholder" style="width:50%"></span></span></p>
                 </div>
             </div>
             <div class="row">
                 <h3><strong>Weekly Statistics</strong></h3>
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
-                    <p class="card-text"><span id="dotd"></span> <span id="dotwdistance" style="font-size:14px"></span></p>
+                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Week</strong></h5>
+                    <p class="card-text"><span id="dotw"><span class="placeholder" style="width:60%"></span></span> <span id="dotwdistance" style="font-size:14px"></span></p>
                 </div>
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered (Distance)</strong></h5>
-                    <p class="card-text"><span id="walljob"></span> / <span id="wtotdistance"></span></p>
+                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
+                    <p class="card-text"><span id="walljob"><span class="placeholder" style="width:40%"></span></span> / <span id="wtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
                 </div>
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
                     <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
-                    <p class="card-text"><span id="wprofit"></span></p>
+                    <p class="card-text"><span id="wprofit"><span class="placeholder" style="width:50%"></span></span></p>
+                </div>
+            </div>
+            <div class="row">
+                <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> Deliveries</strong></h5>
+                    <div id="delivery-log-advanced-show" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-advanced-show").hide();$("#delivery-log-advanced").show();'>Options</a></div>
+                    <div id="table_delivery_log">
+                        <table class="w-100">
+                            <thead id="table_delivery_log_head">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Driver</th>
+                                    <th scope="col">Source</th>
+                                    <th scope="col">Destination</th>
+                                    <th scope="col">Distance</th>
+                                    <th scope="col">Cargo</th>
+                                    <th scope="col">Net Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_delivery_log_data">
+                                <tr>
+                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                </tr>
+                                <tr>
+                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="delivery-log-advanced" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
+                    <h5 style="display:inline-block"><strong>Options</strong></h5>
+                    <div id="delivery-log-advanced-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-advanced-show").show();$("#delivery-log-advanced").hide();'>Hide</a></div>
+                    <div>
+                        <label class="form-label">Game</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-ets2" checked>
+                            <label class="form-check-label" for="delivery-log-ets2">
+                                ETS2
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-ats" checked>
+                            <label class="form-check-label" for="delivery-log-ats">
+                                ATS
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Status</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-delivered" checked>
+                            <label class="form-check-label" for="delivery-log-delivered">
+                                Delivered
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-cancelled">
+                            <label class="form-check-label" for="delivery-log-cancelled">
+                                Cancelled
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Max. Speed</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-speed-limit" placeholder="0">
+                            <span class="input-group-text">km/h</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Date Range</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">From</span>
+                            <input type="date" class="form-control bg-dark text-white" id="delivery-log-start-time">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">To</span>
+                            <input type="date" class="form-control bg-dark text-white" id="delivery-log-end-time">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Page Size</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-page-size" placeholder="10">
+                            <span class="input-group-text">rows</span>
+                        </div>
+                    </div>
+                    <button id="button-delivery-log-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadDeliveryList();">Update</button>
                 </div>
             </div>
         </section>

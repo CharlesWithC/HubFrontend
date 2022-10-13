@@ -569,8 +569,6 @@ window.autofocus = {}
 
 levent = 1;
 ldivision = 1;
-dets2 = 1;
-dats = 1;
 
 function LoadDriverLeaderStatistics() {   
     function AjaxLDLS(start, end, dottag){
@@ -673,41 +671,49 @@ function LoadLeaderboard() {
 
 function LoadDeliveryList() {
     GeneralLoad();
-    LockBtn("#loadDeliveryBtn", btntxt = "...");
-    InitPaginate("#table_deliverylog", "LoadDeliveryList();");
+    LockBtn("#button-delivery-log-options-update", btntxt = "...");
+    InitPaginate("#table_delivery_log", "LoadDeliveryList();");
 
-    page = parseInt($("#table_deliverylog_page_input").val());
+    page = parseInt($("#table_delivery_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
     var start_time = -1, end_time = -1;
-    if ($("#dstart").val() != "" && $("#dend").val() != "") {
-        start_time = +new Date($("#dstart").val()) / 1000;
-        end_time = +new Date($("#dend").val()) / 1000 + 86400;
+    if ($("#delivery-log-start-time").val() != "" && $("#delivery-log-end-time").val() != "") {
+        start_time = +new Date($("#delivery-log-start-time").val()) / 1000;
+        end_time = +new Date($("#delivery-log-end-time").val()) / 1000 + 86400;
     }
 
-    speedlimit = parseInt($("#dspeedlimit").val());
+    speedlimit = parseInt($("#delivery-log-speed-limit").val());
     if (!isNumber(speedlimit)) speedlimit = 0; // make sure speedlimit is valid
     speedlimit /= distance_ratio; // convert to km/h
 
     game = 0;
+    dets2 = $("#delivery-log-ets2").is(":checked");
+    dats = $("#delivery-log-ats").is(":checked");
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
     else if (!dets2 && !dats) game = -1;
 
-    $(".dgame").css("background-color", "");
-    if (game == 0) $(".dgame").css("background-color", "skyblue");
-    else $(".dgame" + game).css("background-color", "skyblue");
+    status = 0;
+    delivered = $("#delivery-log-delivered").is(":checked");
+    cancelled = $("#delivery-log-cancelled").is(":checked");
+    if(delivered && !cancelled) status = 1;
+    else if(!delivered && cancelled) status = 2;
+
     if (!dets2 && !dats) start_time = 1, end_time = 2;
 
+    page_size = parseInt($("#delivery-log-page-size").val());
+    if (!isNumber(page_size)) page_size = 10;
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&status=" + status,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#loadDeliveryBtn");
+            UnlockBtn("#button-delivery-log-options-update");
             if (data.error) return AjaxError(data);
 
             deliverylist = data.response.list;
@@ -729,10 +735,10 @@ function LoadDeliveryList() {
                 data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
-            PushTable("#table_deliverylog", data, total_pages, "LoadDeliveryList();");
+            PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
         },
         error: function (data) {
-            UnlockBtn("#loadDeliveryBtn");
+            UnlockBtn("#button-delivery-log-options-update");
             AjaxError(data);
         }
     })
@@ -742,9 +748,9 @@ function LoadDeliveryList() {
 function LoadUserDeliveryList() {
     GeneralLoad();
     LockBtn("#loadUserDeliveryBtn", btntxt = "...");
-    InitPaginate("#table_deliverylog_user", "LoadUserDeliveryList();");
+    InitPaginate("#table_delivery_log_user", "LoadUserDeliveryList();");
 
-    page = parseInt($("#table_deliverylog_user_page_input").val());
+    page = parseInt($("#table_delivery_log_user_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     var start_time = -1, end_time = -1;
@@ -796,7 +802,7 @@ function LoadUserDeliveryList() {
                 data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
-            PushTable("#table_deliverylog_user", data, total_pages, "LoadUserDeliveryList();");
+            PushTable("#table_delivery_log_user", data, total_pages, "LoadUserDeliveryList();");
         },
         error: function (data) {
             UnlockBtn("#loadUserDeliveryBtn");
@@ -3298,7 +3304,7 @@ deleteAnnouncementModal = null;
 function DeleteAnnouncementShow(announcementid){
     if(shiftdown) return DeleteAnnouncement(announcementid);
     content = $("#announcement-display-"+announcementid+"-title").html();
-    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
+    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
     deleteAnnouncementModal = new bootstrap.Modal('#modal-' + modalid);
     deleteAnnouncementModal.show();
 }
@@ -5765,6 +5771,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -5772,7 +5779,7 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
-    setTimeout(function(){new SimpleBar($('#sidebar')[0]);},500);
+    setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();
     LoadDivisionList();

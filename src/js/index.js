@@ -870,6 +870,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -877,7 +878,7 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
-    setTimeout(function(){new SimpleBar($('#sidebar')[0]);},500);
+    setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();
     LoadDivisionList();
