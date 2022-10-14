@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/97e93b97a1f7117b.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/919309b716cb3ed6.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -248,6 +248,7 @@
         }
 
         h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
+        a:hover {color: white;}
         th > .fc-scrollgrid-sync-inner {background-color: #444}
         .flexdatalist-results {background-color:#57595D};
     </style>
@@ -279,19 +280,19 @@
                 <div style="margin:5px 0;">
                     <li><strong style="color:darkgrey">Information</strong></li>
                     <li class="nav-item">
-                        <a id="button-overview-tab" href="#" onclick="ShowTab('#overview-tab', '#button-overview-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-overview-tab" onclick="ShowTab('#overview-tab', '#button-overview-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
                             Overview
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-announcement-tab" href="#" onclick="ShowTab('#announcement-tab', '#button-announcement-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-announcement-tab" onclick="ShowTab('#announcement-tab', '#button-announcement-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
                             Announcements
                         </a>
                     </li>
                     <li class="nav-item member-only-tab">
-                        <a id="button-downloads-tab" href="#" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-downloads-tab" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-download"></i></span>
                             Downloads
                         </a>
@@ -300,25 +301,25 @@
                 <div style="margin:5px 0;">
                     <li><strong style="color:darkgrey">Game</strong></li>
                     <li class="nav-item">
-                        <a id="button-map-tab" href="#" onclick="ShowTab('#map-tab', '#button-map-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-map-tab" onclick="ShowTab('#map-tab', '#button-map-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-map"></i></span>
                             Live Map
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-delivery-tab" href="#" onclick="ShowTab('#delivery-tab', '#button-delivery-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-delivery-tab" onclick="ShowTab('#delivery-tab', '#button-delivery-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-truck"></i></span>
                             Deliveries
                         </a>
                     </li>
                     <li class="nav-item member-only-tab">
-                        <a id="button-division-tab" href="#" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-division-tab" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                             Divisions
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-event-tab" href="#" onclick="ShowTab('#event-tab', '#button-event-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-event-tab" onclick="ShowTab('#event-tab', '#button-event-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
                             Events
                         </a>
@@ -327,19 +328,19 @@
                 <div class="member-only-tab" style="margin:5px 0;">
                     <li><strong style="color:darkgrey">Drivers</strong></li>
                     <li class="nav-item">
-                        <a id="button-member-tab" href="#" onclick="ShowTab('#member-tab', '#button-member-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-member-tab" onclick="ShowTab('#member-tab', '#button-member-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
                             Members
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-leaderboard-tab" href="#" onclick="ShowTab('#leaderboard-tab', '#button-leaderboard-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-leaderboard-tab" onclick="ShowTab('#leaderboard-tab', '#button-leaderboard-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span>
                             Leaderboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-ranking-tab" href="#" onclick="ShowTab('#ranking-tab', '#button-ranking-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-ranking-tab" onclick="ShowTab('#ranking-tab', '#button-ranking-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
                             Rankings
                         </a>
@@ -348,13 +349,13 @@
                 <div id="sidebar-application" style="margin:5px 0;display:none;">
                     <li><strong style="color:darkgrey">Applications</strong></li>
                     <li class="nav-item">
-                        <a id="button-my-application-tab" href="#" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-my-application-tab" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
                             My Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-submit-application-tab" href="#" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-submit-application-tab" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
                             Submit Application
                         </a>
@@ -363,43 +364,37 @@
                 <div id="sidebar-staff" style="margin:5px 0;display:none">
                     <li><strong style="color:darkgrey">Staff</strong></li>
                     <li class="nav-item">
-                        <a id="button-staff-division-tab" href="#" onclick="ShowTab('#staff-division-tab', '#button-staff-division-tab')" class="nav-link text-white" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
-                            Divisions
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="button-staff-event-tab" href="#" onclick="ShowTab('#staff-event-tab', '#button-staff-event-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-staff-event-tab" onclick="ShowTab('#staff-event-tab', '#button-staff-event-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
                             Events
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-staff-application-tab" href="#" onclick="ShowTab('#staff-application-tab', '#button-staff-application-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-staff-application-tab" onclick="ShowTab('#staff-application-tab', '#button-staff-application-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
                             Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-staff-user-tab" href="#" onclick="ShowTab('#staff-user-tab', '#button-staff-user-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-staff-user-tab" onclick="ShowTab('#staff-user-tab', '#button-staff-user-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
                             Users
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-staff-member-tab" href="#" onclick="ShowTab('#staff-member-tab', '#button-staff-member-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-staff-member-tab" onclick="ShowTab('#staff-member-tab', '#button-staff-member-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
                             Members
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-audit-tab" href="#" onclick="ShowTab('#audit-tab', '#button-audit-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-audit-tab" onclick="ShowTab('#audit-tab', '#button-audit-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-terminal"></i></span>
                             Audit Log
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-config-tab" href="#" onclick="ShowTab('#config-tab', '#button-config-tab')" class="nav-link text-white" aria-current="page">
+                        <a id="button-config-tab" onclick="ShowTab('#config-tab', '#button-config-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span>
                             Configuration
                         </a>
@@ -410,7 +405,7 @@
         </div>
         <div class="dropdown text-bg-dark" style="position:fixed;bottom:0;width:220px;height:80px;z-index:100;">
             <hr style="margin:10px 0;">
-            <a id="button-user-profile" href="#" class="text-white text-decoration-none"
+            <a id="button-user-profile" class="text-white text-decoration-none clickable"
                     data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
                 <img id="sidebar-avatar" src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif" alt="" class="rounded-circle me-2"
                     width="30" height="30">
@@ -428,10 +423,10 @@
                     <p style="margin-bottom:0" id="sidebar-bio"><span class="placeholder col-8"></span>&nbsp;&nbsp;<span class="placeholder col-2"></span><br><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></span>
                 </div>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" onclick="Logout()">Sign out</a></li>
+                <li><a class="dropdown-item clickable" onclick="Logout()">Sign out</a></li>
             </ul>
-            <a id="button-user-delivery-tab" href="#" onclick="$('#delivery-log-userid').val(localStorage.getItem('userid'));ShowTab('#user-delivery-tab', '#button-user-delivery-tab')" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
-            <a href="#" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
+            <a id="button-user-delivery-tab" class="clickable" onclick="$('#delivery-log-userid').val(localStorage.getItem('userid'));ShowTab('#user-delivery-tab', '#button-user-delivery-tab')" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
+            <a class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
         </div>
     </div>
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
@@ -798,7 +793,7 @@
                         <table class="w-100">
                             <thead id="table_delivery_log_head">
                                 <tr>
-                                    <th scope="col">ID</th>
+                                    <th scope="col" style="min-width:80px">ID</th>
                                     <th scope="col">Driver</th>
                                     <th scope="col">Source</th>
                                     <th scope="col">Destination</th>
@@ -808,51 +803,6 @@
                                 </tr>
                             </thead>
                             <tbody id="table_delivery_log_data">
-                                <tr>
-                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                </tr>
-                                <tr>
-                                    <td style="width:5%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:15%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-                                    <td style="width:10%;"><span class="placeholder w-100"></span></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -966,6 +916,65 @@
                                 <p><span class="placeholder" style="width:120px"></span></p>
                             </li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="division-tab" class="tabs">
+            <div class="row mb-3">
+                <div class="col-4" id="division-summary-list">
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                    </div>
+                </div>
+                <div class="shadow p-3 bg-dark rounded col-8">
+                    <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> Recent Division Deliveries</strong></h5>
+                    <div id="table_division_delivery" style="height:fit-content">
+                        <table class="w-100">
+                            <thead id="table_division_delivery_head">
+                                <tr>
+                                    <th scope="col" style="min-width:80px">ID</th>
+                                    <th scope="col">Driver</th>
+                                    <th scope="col">Source</th>
+                                    <th scope="col">Destination</th>
+                                    <th scope="col">Distance</th>
+                                    <th scope="col">Cargo</th>
+                                    <th scope="col">Net Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_division_delivery_data">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="shadow p-3 bg-dark rounded w-100" id="division-pending-list" style="display:none">
+                    <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> Pending Division Validation Requests</strong></h5>
+                    <div id="table_division_pending">
+                        <table class="w-100">
+                            <thead id="table_division_pending_head">
+                                <tr>
+                                    <th scope="col">Log ID</th>
+                                    <th scope="col">Division</th>
+                                    <th scope="col">Driver</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_division_pending_data">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

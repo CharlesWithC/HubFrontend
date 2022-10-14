@@ -1,83 +1,25 @@
-function LoadDivisionList(){
-    lastDivisionUpdate = parseInt(localStorage.getItem("divisionLastUpdate"));
-    d = localStorage.getItem("division");
-    if (!isNumber(lastDivisionUpdate) || d == null || d == undefined) {
-        lastDivisionUpdate = 0;
-    }
-    if (+new Date() - lastDivisionUpdate > 86400) {
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/division/list",
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                d = data.response;
-                localStorage.setItem("division", JSON.stringify(d));
-                localStorage.setItem("divisionLastUpdate", + new Date());
-                for (var i = 0; i < d.length; i++) {
-                    $("#divisionList").append(
-                        `<div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="mb-2">
-                                    <h2 style="display:inline">${d[i].name}</h2>
-                                    <div class="p-4 overflow-x-auto" style="display: block;max-height:60vh">
-                                        <table class="table-auto w-full">
-                                            <thead id="divisionTable${d[i].id}Head">
-                                                <tr class="text-xs text-gray-500 text-left">
-                                                    <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                                    <th class="py-5 px-6 pb-3 font-medium">Points</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="divisionTable${d[i].id}">
-                                                <tr class="text-sm">
-                                                    <td class="py-5 px-6 font-medium">No Data</td>
-                                                    <td class="py-5 px-6 font-medium"></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`);
-                }
-            }
-        })
-    } else {
-        d = localStorage.getItem("division");
-        d = JSON.parse(d);
-        for (var i = 0; i < d.length; i++) {
-            $("#divisionList").append(
-                `<div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                    <div class="p-6 rounded bg-white">
-                        <div class="mb-2">
-                            <h2 style="display:inline">${d[i].name}</h2>
-                            <div class="p-4 overflow-x-auto" style="display: block;max-height:60vh">
-                                <table class="table-auto w-full">
-                                    <thead id="divisionTable${d[i].id}Head">
-                                        <tr class="text-xs text-gray-500 text-left">
-                                            <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                            <th class="py-5 px-6 pb-3 font-medium">Points</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="divisionTable${d[i].id}">
-                                        <tr class="text-sm">
-                                            <td class="py-5 px-6 font-medium">No Data</td>
-                                            <td class="py-5 px-6 font-medium"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>`);
-        }
-    }
-}
+division_placeholder_row = `
+<div class="shadow p-3 m-3 bg-dark rounded col card">
+    <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> <span class="placeholder" style="width:100px"></span></p>
+    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> <span class="placeholder" style="width:120px"></span></p>
+</div>`;
 
-function LoadDivisionInfo() {
+division_pending_row = `<tr>
+<td style="width:25%;"><span class="placeholder w-100"></span></td>
+<td style="width:25%;"><span class="placeholder w-100"></span></td>
+<td style="width:50%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+async function LoadDivisionInfo() {
+    $("#division-summary-list").children().remove();
+    for(var i=0;i<3;i++){
+        $("#division-summary-list").append(division_placeholder_row);
+    }
+    $("#table_division_delivery_data").empty();
+    for(var i=0;i<10;i++){
+        $("#table_division_delivery_data").append(dlog_placeholder_row);
+    }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "GET",
@@ -86,57 +28,50 @@ function LoadDivisionInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+            if (data.error) return AjaxError(data);
+
             d = data.response;
+
+            $("#division-summary-list").children().remove();
             info = d.statistics;
             for (var i = 0; i < info.length; i++) {
                 divisionid = info[i].divisionid;
                 divisionname = info[i].name;
-                stats = info[i].drivers;
-                tablename = "#divisionTable" + divisionid;
-                $(tablename).empty();
-                if (stats.length == 0) {
-                    $(tablename).append(`
-                <tr class="text-sm">
-                  <td class="py-5 px-6 font-medium">No Data</td>
-                  <td class="py-5 px-6 font-medium"></td>
-                </tr>`);
-                } else {
-                    for (j = 0; j < stats.length; j++) {
-                        $(tablename).append(`
-                        <tr class="text-sm">
-                        <td class="py-5 px-6 font-medium"><a style="cursor:pointer" onclick="LoadUserProfile(${stats[j].userid});">${stats[j].name}</a></td>
-                        <td class="py-5 px-6 font-medium">${stats[j].points}</td>
-                        </tr>`);
-                    }
-                }
+                totaldrivers = TSeparator(info[i].total_drivers);
+                totalpnt = TSeparator(info[i].total_points);
+                $("#division-summary-list").append(`
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong>${divisionname}</strong></h5>
+                    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ${totaldrivers} Drivers</p>
+                    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ${totalpnt} Points</p>
+                </div>`);
             }
 
             $("#table_division_delivery_data").empty();
-            if (d.recent.length == 0) {
+            if (d.recent_deliveries.length == 0) {
                 $("#table_division_delivery_head").hide();
                 $("#table_division_delivery_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
             } else {
                 $("#table_division_delivery_head").show();
-                for (i = 0; i < d.recent.length; i++) {
-                    delivery = d.recent[i];
+                for (i = 0; i < d.recent_deliveries.length; i++) {
+                    delivery = d.recent_deliveries[i];
+                    user = delivery.user;
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                     cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                     unittxt = "€";
                     if (delivery.unit == 2) unittxt = "$";
                     profit = TSeparator(delivery.profit);
-                    color = "";
-                    if (delivery.profit < 0) color = "grey";
+                    
                     dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                     $("#table_division_delivery_data").append(`
-            <tr class="text-sm" style="color:${color}">
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
+            <tr>
+              <td><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
+              <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
+              <td>${delivery.source_company}, ${delivery.source_city}</td>
+              <td>${delivery.destination_company}, ${delivery.destination_city}</td>
+              <td>${distance}${distance_unit_txt}</td>
+              <td>${delivery.cargo} (${cargo_mass})</td>
+              <td>${unittxt}${profit}</td>
             </tr>`);
                 }
             }
@@ -144,52 +79,15 @@ function LoadDivisionInfo() {
         error: function (data) {
             AjaxError(data);
         }
-    })
-}
-
-function LoadPendingDivisionValidation() {
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/list/pending",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return AjaxError(data);
-
-            DIVISION = {};
-            divisions = JSON.parse(localStorage.getItem("division"));
-            for(var i = 0 ; i < divisions.length ; i++) {
-                DIVISION[divisions[i].id] = divisions[i].name;
-            }
-            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
-            $("#table_division_validation_data").empty();
-            d = data.response;
-            if (d.length == 0) {
-                $("#table_division_validation_head").hide();
-                $("#table_division_validation_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
-            } else {
-                $("#table_division_validation_head").show();
-                for (i = 0; i < d.length; i++) {
-                    delivery = d[i];
-                    $("#table_division_validation_data").append(`
-            <tr class="text-sm">
-            <td class="py-5 px-6 font-medium"><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
-              <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="ShowDeliveryDetail('${delivery.logid}')">Details</button></td>
-            </tr>`);
-                }
-            }
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
+    });
+    while(1){
+        if(userPermLoaded) break;
+        await sleep(100);
+    }
+    if(userPerm.includes("division") || userPerm.includes("admin")){
+        $("#division-pending-list").show();
+        LoadPendingDivisionValidation();
+    }
 }
 
 function GetDivisionInfo(logid) {
@@ -207,9 +105,8 @@ function GetDivisionInfo(logid) {
             if (data.error) return AjaxError(data);
 
             divisionopt = "";
-            divisions = JSON.parse(localStorage.getItem("division"));
-            for(var i = 0 ; i < divisions.length ; i++) {
-                divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division-${divisions[i].id}">${divisions[i].name}</option>`;
+            for(var i = 0 ; i < Object.keys(divisions).length ; i++) {
+                divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
             }
             if(divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
             
@@ -217,7 +114,7 @@ function GetDivisionInfo(logid) {
             if (data.response.status == "-1") {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
-                    <option selected>Select Division</option>
+                    <option value="-1" selected>Select Division</option>
                     ${divisionopt}
                 </select>`;
                 info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">Request Validation</button>`;
@@ -243,16 +140,10 @@ function GetDivisionInfo(logid) {
                 InitModal("division_detail", modalid, top = true);
                 $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
-                DIVISION = {};
-                divisions = JSON.parse(localStorage.getItem("division"));
-                for(var i = 0 ; i < divisions.length ; i++) {
-                    DIVISION[divisions[i].id] = divisions[i].name;
-                }
-
                 if (data.response.update_message == undefined) {
-                    $("#delivery-detail-division").html(DIVISION[data.response.divisionid]);
+                    $("#delivery-detail-division").html(divisions[data.response.divisionid].name);
                 } else {
-                    info += DIVISION[data.response.divisionid] + " ";
+                    info += divisions[data.response.divisionid].name + " ";
                     if (data.response.status == "0") info += "| Pending Validation";
                     else if (data.response.status == "1") info += SVG_VERIFIED;
                     else if (data.response.status == "2"){
@@ -280,15 +171,7 @@ function GetDivisionInfo(logid) {
 }
 
 function SubmitDivisionValidationRequest(logid) {
-    division = $("#select-division").val();
-    divisionid = "-1";
-    divisions = JSON.parse(localStorage.getItem("division"));
-    for(var i = 0 ; i < divisions.length ; i++) {
-        if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
-            divisionid = divisions[i].id;
-            break;
-        }
-    }
+    divisionid = $("#select-division").find(":selected").val();
     if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     LockBtn("#button-request-division-validation", "Requesting...");
@@ -316,17 +199,50 @@ function SubmitDivisionValidationRequest(logid) {
     });
 }
 
+function LoadPendingDivisionValidation() {
+    $("#table_division_pending_data").empty();
+    for(var i = 0 ; i < 5 ; i++){
+        $("#table_division_pending_data").append(division_pending_row);
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/division/list/pending",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            $("#table_division_pending_data").empty();
+            d = data.response;
+            if (d.length == 0) {
+                $("#table_division_pending_head").hide();
+                $("#table_division_pending_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
+            } else {
+                $("#table_division_pending_head").show();
+                for (i = 0; i < d.length; i++) {
+                    delivery = d[i];
+                    user = delivery.user;
+                    $("#table_division_pending_data").append(`
+                        <tr>
+                        <td><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
+                        <td>${divisions[delivery.divisionid].name}</td>
+                        <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
+                    </tr>`);
+                }
+            }
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
 function UpdateDivision(logid, status) {
     divisionid = "-1";
     if(status >= 1){
-        division = $("#select-division").val();
-        divisions = JSON.parse(localStorage.getItem("division"));
-        for(var i = 0 ; i < divisions.length ; i++) {
-            if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
-                divisionid = divisions[i].id;
-                break;
-            }
-        }
+        divisionid = $("#select-division").find(":selected").val();
         if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     }
 

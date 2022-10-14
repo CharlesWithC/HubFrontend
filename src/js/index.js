@@ -9,6 +9,7 @@ roles = JSON.parse(localStorage.getItem("roles"));
 rolelist = JSON.parse(localStorage.getItem("rolelist"));
 perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
+divisions = JSON.parse(localStorage.getItem("divisions"));
 applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
@@ -394,9 +395,6 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/announcement');
         if(!loaded) LoadAnnouncement();
     }
-    if (tabname == "#staff-announcement-tab") {
-        window.history.pushState("", "", '/staff/announcement');
-    }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
         if(!loaded) LoadDownloads();
@@ -435,13 +433,21 @@ async function ShowTab(tabname, btnname) {
             LoadDriverLeaderStatistics();
             LoadStats(true);
         }
-        LoadDeliveryList();
+        $("#delivery-tab").removeClass("last-load-user");
+        if(!$("#delivery-tab").hasClass("last-load-company")){
+            LoadDeliveryList();
+        }
+        $("#delivery-tab").addClass("last-load-company");
     }
     if (tabname == "#user-delivery-tab") {
         window.history.pushState("", "", '/member/'+userid+'/delivery');
         $("#company-statistics").hide();
         $("#user-statistics").show();
-        LoadDeliveryList();
+        $("#delivery-tab").removeClass("last-load-company");
+        if(!$("#delivery-tab").hasClass("last-load-user")){
+            LoadDeliveryList();
+        }
+        $("#delivery-tab").addClass("last-load-user");
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
@@ -459,8 +465,8 @@ async function ShowTab(tabname, btnname) {
             success: function (data) {
                 if (data.error == false) {
                     d = data.response.list[0];
-                    rank = point2rank(d.total_no_limit);
-                    $("#ranktotpoints").html(TSeparator(d.total_no_limit) + " - " + rank);
+                    rank = point2rank(d.points.total_no_limit);
+                    $("#ranktotpoints").html(TSeparator(d.points.total_no_limit) + " - " + rank);
                     if ($("#sidebar-role").html() == "Driver")
                         $("#sidebar-role").html(rank);
                 }
@@ -469,11 +475,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
-        LoadDivisionInfo();
-    }
-    if (tabname == "#staff-division-tab") {
-        window.history.pushState("", "", '/staff/division');
-        LoadPendingDivisionValidation();
+        if(!loaded) LoadDivisionInfo();
     }
     if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
@@ -582,6 +584,22 @@ function LoadCache(){
             success: function (data) {
                 perms = data.response;
                 localStorage.setItem("perms", JSON.stringify(perms));
+            }
+        });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/division/list",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response;
+                divisions = {};
+                for(i=0;i<d.length;i++){
+                    divisions[d[i].id] = d[i];
+                }
+                localStorage.setItem("divisions", JSON.stringify(divisions));
             }
         });
         localStorage.setItem("cacheExpire", +new Date() + 86400000);
@@ -780,7 +798,6 @@ function PathDetect() {
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
     else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
     else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
-    else if (p == "/staff/announcement") ShowTab("#staff-announcement-tab", "#button-staff-announcement-tab");
     else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
     else if (p == "/map") ShowTab("#map-tab", "#button-map-tab");
     else if (p.startsWith("/delivery")) {
@@ -797,7 +814,6 @@ function PathDetect() {
             ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
     } else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
-    else if (p == "/staff/division") ShowTab("#staff-division-tab", "#button-staff-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
@@ -838,7 +854,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -849,7 +865,6 @@ $(document).ready(async function () {
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();
-    LoadDivisionList();
     InitPhoneView();
     InitDistanceUnit();
     InitSearchByName();

@@ -452,8 +452,8 @@ function LoadUserProfile(userid) {
                                     info += `<p>Event: ${d.points.event}</p>`;
                                     info += `<p>Division: ${d.points.division}</p>`;
                                     info += `<p>Myth: ${d.points.myth}</p>`;
-                                    info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
-                                    info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
+                                    info += `<p><b>Total: ${d.points.total_no_limit}</b></p>`;
+                                    info += `<p><b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b></p>`;
                                     if (String(userid) == localStorage.getItem("userid")) {
                                         info += `
                                     <button type="button" style="font-size:16px;padding:10px;padding-top:5px;padding-bottom:5px"

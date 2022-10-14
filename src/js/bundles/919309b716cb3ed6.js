@@ -418,27 +418,6 @@ function PushTable(table, data, total_pages, reload_function = "") {
     }
 }
 
-$(document).ready(function () {
-    version = localStorage.getItem("api-version");
-    if (version != null) {
-        $("#apiversion").html(version);
-    }
-    $.ajax({
-        url: apidomain + "/" + vtcprefix,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            $("#apiversion").html(data.response.version);
-            localStorage.setItem("api-version", data.response.version);
-        },
-        error: function (data) {
-            if (parseInt(data.status) >= 500 && parseInt(data.status) <= 599) {
-                toastNotification("error", "Error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
-            }
-        }
-    })
-});
-
 function sha256(ascii) {
     function rightRotate(value, amount) {
         return (value >>> amount) | (value << (32 - amount));
@@ -691,7 +670,7 @@ function LoadLeaderboard() {
             for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio)); 
-                data.push([`#${user.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.total}`]);
+                data.push([`#${user.points.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${user.points.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.points.total}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -778,6 +757,7 @@ function LoadDeliveryList() {
 
             for (i = 0; i < deliverylist.length; i++) {
                 delivery = deliverylist[i];
+                user = delivery.user;
                 distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                 cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                 unittxt = "€";
@@ -786,11 +766,11 @@ function LoadDeliveryList() {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division_validated == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                 
-                dloguser = delivery.user.name;
+                dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${dloguser}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
             PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
@@ -1941,8 +1921,8 @@ function LoadUserProfile(userid) {
                                     info += `<p>Event: ${d.points.event}</p>`;
                                     info += `<p>Division: ${d.points.division}</p>`;
                                     info += `<p>Myth: ${d.points.myth}</p>`;
-                                    info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
-                                    info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
+                                    info += `<p><b>Total: ${d.points.total_no_limit}</b></p>`;
+                                    info += `<p><b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b></p>`;
                                     if (String(userid) == localStorage.getItem("userid")) {
                                         info += `
                                     <button type="button" style="font-size:16px;padding:10px;padding-top:5px;padding-bottom:5px"
@@ -2349,7 +2329,7 @@ function LoadStats(basic = false) {
                     name = user.user.name;
                     discordid = user.user.discordid;
                     avatar = user.user.avatar;
-                    totalpnt = TSeparator(parseInt(user.total));
+                    totalpnt = TSeparator(parseInt(user.points.total));
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -3883,86 +3863,28 @@ function UpdateApplicationPositions() {
         }
     })
 }
-function LoadDivisionList(){
-    lastDivisionUpdate = parseInt(localStorage.getItem("divisionLastUpdate"));
-    d = localStorage.getItem("division");
-    if (!isNumber(lastDivisionUpdate) || d == null || d == undefined) {
-        lastDivisionUpdate = 0;
-    }
-    if (+new Date() - lastDivisionUpdate > 86400) {
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/division/list",
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                d = data.response;
-                localStorage.setItem("division", JSON.stringify(d));
-                localStorage.setItem("divisionLastUpdate", + new Date());
-                for (var i = 0; i < d.length; i++) {
-                    $("#divisionList").append(
-                        `<div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="mb-2">
-                                    <h2 style="display:inline">${d[i].name}</h2>
-                                    <div class="p-4 overflow-x-auto" style="display: block;max-height:60vh">
-                                        <table class="table-auto w-full">
-                                            <thead id="divisionTable${d[i].id}Head">
-                                                <tr class="text-xs text-gray-500 text-left">
-                                                    <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                                    <th class="py-5 px-6 pb-3 font-medium">Points</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="divisionTable${d[i].id}">
-                                                <tr class="text-sm">
-                                                    <td class="py-5 px-6 font-medium">No Data</td>
-                                                    <td class="py-5 px-6 font-medium"></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`);
-                }
-            }
-        })
-    } else {
-        d = localStorage.getItem("division");
-        d = JSON.parse(d);
-        for (var i = 0; i < d.length; i++) {
-            $("#divisionList").append(
-                `<div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                    <div class="p-6 rounded bg-white">
-                        <div class="mb-2">
-                            <h2 style="display:inline">${d[i].name}</h2>
-                            <div class="p-4 overflow-x-auto" style="display: block;max-height:60vh">
-                                <table class="table-auto w-full">
-                                    <thead id="divisionTable${d[i].id}Head">
-                                        <tr class="text-xs text-gray-500 text-left">
-                                            <th class="py-5 px-6 pb-3 font-medium">Name</th>
-                                            <th class="py-5 px-6 pb-3 font-medium">Points</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="divisionTable${d[i].id}">
-                                        <tr class="text-sm">
-                                            <td class="py-5 px-6 font-medium">No Data</td>
-                                            <td class="py-5 px-6 font-medium"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>`);
-        }
-    }
-}
+division_placeholder_row = `
+<div class="shadow p-3 m-3 bg-dark rounded col card">
+    <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> <span class="placeholder" style="width:100px"></span></p>
+    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> <span class="placeholder" style="width:120px"></span></p>
+</div>`;
 
-function LoadDivisionInfo() {
+division_pending_row = `<tr>
+<td style="width:25%;"><span class="placeholder w-100"></span></td>
+<td style="width:25%;"><span class="placeholder w-100"></span></td>
+<td style="width:50%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+async function LoadDivisionInfo() {
+    $("#division-summary-list").children().remove();
+    for(var i=0;i<3;i++){
+        $("#division-summary-list").append(division_placeholder_row);
+    }
+    $("#table_division_delivery_data").empty();
+    for(var i=0;i<10;i++){
+        $("#table_division_delivery_data").append(dlog_placeholder_row);
+    }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "GET",
@@ -3971,57 +3893,50 @@ function LoadDivisionInfo() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+            if (data.error) return AjaxError(data);
+
             d = data.response;
+
+            $("#division-summary-list").children().remove();
             info = d.statistics;
             for (var i = 0; i < info.length; i++) {
                 divisionid = info[i].divisionid;
                 divisionname = info[i].name;
-                stats = info[i].drivers;
-                tablename = "#divisionTable" + divisionid;
-                $(tablename).empty();
-                if (stats.length == 0) {
-                    $(tablename).append(`
-                <tr class="text-sm">
-                  <td class="py-5 px-6 font-medium">No Data</td>
-                  <td class="py-5 px-6 font-medium"></td>
-                </tr>`);
-                } else {
-                    for (j = 0; j < stats.length; j++) {
-                        $(tablename).append(`
-                        <tr class="text-sm">
-                        <td class="py-5 px-6 font-medium"><a style="cursor:pointer" onclick="LoadUserProfile(${stats[j].userid});">${stats[j].name}</a></td>
-                        <td class="py-5 px-6 font-medium">${stats[j].points}</td>
-                        </tr>`);
-                    }
-                }
+                totaldrivers = TSeparator(info[i].total_drivers);
+                totalpnt = TSeparator(info[i].total_points);
+                $("#division-summary-list").append(`
+                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <h5 class="card-title"><strong>${divisionname}</strong></h5>
+                    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ${totaldrivers} Drivers</p>
+                    <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ${totalpnt} Points</p>
+                </div>`);
             }
 
             $("#table_division_delivery_data").empty();
-            if (d.recent.length == 0) {
+            if (d.recent_deliveries.length == 0) {
                 $("#table_division_delivery_head").hide();
                 $("#table_division_delivery_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
             } else {
                 $("#table_division_delivery_head").show();
-                for (i = 0; i < d.recent.length; i++) {
-                    delivery = d.recent[i];
+                for (i = 0; i < d.recent_deliveries.length; i++) {
+                    delivery = d.recent_deliveries[i];
+                    user = delivery.user;
                     distance = TSeparator(parseInt(delivery.distance * distance_ratio));
                     cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
                     unittxt = "€";
                     if (delivery.unit == 2) unittxt = "$";
                     profit = TSeparator(delivery.profit);
-                    color = "";
-                    if (delivery.profit < 0) color = "grey";
+                    
                     dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                     $("#table_division_delivery_data").append(`
-            <tr class="text-sm" style="color:${color}">
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
+            <tr>
+              <td><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
+              <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
+              <td>${delivery.source_company}, ${delivery.source_city}</td>
+              <td>${delivery.destination_company}, ${delivery.destination_city}</td>
+              <td>${distance}${distance_unit_txt}</td>
+              <td>${delivery.cargo} (${cargo_mass})</td>
+              <td>${unittxt}${profit}</td>
             </tr>`);
                 }
             }
@@ -4029,52 +3944,15 @@ function LoadDivisionInfo() {
         error: function (data) {
             AjaxError(data);
         }
-    })
-}
-
-function LoadPendingDivisionValidation() {
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/list/pending",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return AjaxError(data);
-
-            DIVISION = {};
-            divisions = JSON.parse(localStorage.getItem("division"));
-            for(var i = 0 ; i < divisions.length ; i++) {
-                DIVISION[divisions[i].id] = divisions[i].name;
-            }
-            if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
-            $("#table_division_validation_data").empty();
-            d = data.response;
-            if (d.length == 0) {
-                $("#table_division_validation_head").hide();
-                $("#table_division_validation_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
-            } else {
-                $("#table_division_validation_head").show();
-                for (i = 0; i < d.length; i++) {
-                    delivery = d[i];
-                    $("#table_division_validation_data").append(`
-            <tr class="text-sm">
-            <td class="py-5 px-6 font-medium"><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
-              <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
-              <td class="py-5 px-6 font-medium">
-              <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="ShowDeliveryDetail('${delivery.logid}')">Details</button></td>
-            </tr>`);
-                }
-            }
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
+    });
+    while(1){
+        if(userPermLoaded) break;
+        await sleep(100);
+    }
+    if(userPerm.includes("division") || userPerm.includes("admin")){
+        $("#division-pending-list").show();
+        LoadPendingDivisionValidation();
+    }
 }
 
 function GetDivisionInfo(logid) {
@@ -4092,9 +3970,8 @@ function GetDivisionInfo(logid) {
             if (data.error) return AjaxError(data);
 
             divisionopt = "";
-            divisions = JSON.parse(localStorage.getItem("division"));
-            for(var i = 0 ; i < divisions.length ; i++) {
-                divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division-${divisions[i].id}">${divisions[i].name}</option>`;
+            for(var i = 0 ; i < Object.keys(divisions).length ; i++) {
+                divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
             }
             if(divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
             
@@ -4102,7 +3979,7 @@ function GetDivisionInfo(logid) {
             if (data.response.status == "-1") {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
-                    <option selected>Select Division</option>
+                    <option value="-1" selected>Select Division</option>
                     ${divisionopt}
                 </select>`;
                 info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">Request Validation</button>`;
@@ -4128,16 +4005,10 @@ function GetDivisionInfo(logid) {
                 InitModal("division_detail", modalid, top = true);
                 $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
-                DIVISION = {};
-                divisions = JSON.parse(localStorage.getItem("division"));
-                for(var i = 0 ; i < divisions.length ; i++) {
-                    DIVISION[divisions[i].id] = divisions[i].name;
-                }
-
                 if (data.response.update_message == undefined) {
-                    $("#delivery-detail-division").html(DIVISION[data.response.divisionid]);
+                    $("#delivery-detail-division").html(divisions[data.response.divisionid].name);
                 } else {
-                    info += DIVISION[data.response.divisionid] + " ";
+                    info += divisions[data.response.divisionid].name + " ";
                     if (data.response.status == "0") info += "| Pending Validation";
                     else if (data.response.status == "1") info += SVG_VERIFIED;
                     else if (data.response.status == "2"){
@@ -4165,15 +4036,7 @@ function GetDivisionInfo(logid) {
 }
 
 function SubmitDivisionValidationRequest(logid) {
-    division = $("#select-division").val();
-    divisionid = "-1";
-    divisions = JSON.parse(localStorage.getItem("division"));
-    for(var i = 0 ; i < divisions.length ; i++) {
-        if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
-            divisionid = divisions[i].id;
-            break;
-        }
-    }
+    divisionid = $("#select-division").find(":selected").val();
     if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     LockBtn("#button-request-division-validation", "Requesting...");
@@ -4201,17 +4064,50 @@ function SubmitDivisionValidationRequest(logid) {
     });
 }
 
+function LoadPendingDivisionValidation() {
+    $("#table_division_pending_data").empty();
+    for(var i = 0 ; i < 5 ; i++){
+        $("#table_division_pending_data").append(division_pending_row);
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/division/list/pending",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            $("#table_division_pending_data").empty();
+            d = data.response;
+            if (d.length == 0) {
+                $("#table_division_pending_head").hide();
+                $("#table_division_pending_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
+            } else {
+                $("#table_division_pending_head").show();
+                for (i = 0; i < d.length; i++) {
+                    delivery = d[i];
+                    user = delivery.user;
+                    $("#table_division_pending_data").append(`
+                        <tr>
+                        <td><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
+                        <td>${divisions[delivery.divisionid].name}</td>
+                        <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
+                    </tr>`);
+                }
+            }
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
 function UpdateDivision(logid, status) {
     divisionid = "-1";
     if(status >= 1){
-        division = $("#select-division").val();
-        divisions = JSON.parse(localStorage.getItem("division"));
-        for(var i = 0 ; i < divisions.length ; i++) {
-            if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
-                divisionid = divisions[i].id;
-                break;
-            }
-        }
+        divisionid = $("#select-division").find(":selected").val();
         if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     }
 
@@ -5073,6 +4969,7 @@ roles = JSON.parse(localStorage.getItem("roles"));
 rolelist = JSON.parse(localStorage.getItem("rolelist"));
 perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
+divisions = JSON.parse(localStorage.getItem("divisions"));
 applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
@@ -5458,9 +5355,6 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/announcement');
         if(!loaded) LoadAnnouncement();
     }
-    if (tabname == "#staff-announcement-tab") {
-        window.history.pushState("", "", '/staff/announcement');
-    }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
         if(!loaded) LoadDownloads();
@@ -5499,13 +5393,21 @@ async function ShowTab(tabname, btnname) {
             LoadDriverLeaderStatistics();
             LoadStats(true);
         }
-        LoadDeliveryList();
+        $("#delivery-tab").removeClass("last-load-user");
+        if(!$("#delivery-tab").hasClass("last-load-company")){
+            LoadDeliveryList();
+        }
+        $("#delivery-tab").addClass("last-load-company");
     }
     if (tabname == "#user-delivery-tab") {
         window.history.pushState("", "", '/member/'+userid+'/delivery');
         $("#company-statistics").hide();
         $("#user-statistics").show();
-        LoadDeliveryList();
+        $("#delivery-tab").removeClass("last-load-company");
+        if(!$("#delivery-tab").hasClass("last-load-user")){
+            LoadDeliveryList();
+        }
+        $("#delivery-tab").addClass("last-load-user");
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
@@ -5523,8 +5425,8 @@ async function ShowTab(tabname, btnname) {
             success: function (data) {
                 if (data.error == false) {
                     d = data.response.list[0];
-                    rank = point2rank(d.total_no_limit);
-                    $("#ranktotpoints").html(TSeparator(d.total_no_limit) + " - " + rank);
+                    rank = point2rank(d.points.total_no_limit);
+                    $("#ranktotpoints").html(TSeparator(d.points.total_no_limit) + " - " + rank);
                     if ($("#sidebar-role").html() == "Driver")
                         $("#sidebar-role").html(rank);
                 }
@@ -5533,11 +5435,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
-        LoadDivisionInfo();
-    }
-    if (tabname == "#staff-division-tab") {
-        window.history.pushState("", "", '/staff/division');
-        LoadPendingDivisionValidation();
+        if(!loaded) LoadDivisionInfo();
     }
     if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
@@ -5646,6 +5544,22 @@ function LoadCache(){
             success: function (data) {
                 perms = data.response;
                 localStorage.setItem("perms", JSON.stringify(perms));
+            }
+        });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/division/list",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                d = data.response;
+                divisions = {};
+                for(i=0;i<d.length;i++){
+                    divisions[d[i].id] = d[i];
+                }
+                localStorage.setItem("divisions", JSON.stringify(divisions));
             }
         });
         localStorage.setItem("cacheExpire", +new Date() + 86400000);
@@ -5844,7 +5758,6 @@ function PathDetect() {
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
     else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
     else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
-    else if (p == "/staff/announcement") ShowTab("#staff-announcement-tab", "#button-staff-announcement-tab");
     else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
     else if (p == "/map") ShowTab("#map-tab", "#button-map-tab");
     else if (p.startsWith("/delivery")) {
@@ -5861,7 +5774,6 @@ function PathDetect() {
             ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
     } else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
-    else if (p == "/staff/division") ShowTab("#staff-division-tab", "#button-staff-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
@@ -5902,7 +5814,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -5913,7 +5825,6 @@ $(document).ready(async function () {
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();
-    LoadDivisionList();
     InitPhoneView();
     InitDistanceUnit();
     InitSearchByName();

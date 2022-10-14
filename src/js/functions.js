@@ -418,27 +418,6 @@ function PushTable(table, data, total_pages, reload_function = "") {
     }
 }
 
-$(document).ready(function () {
-    version = localStorage.getItem("api-version");
-    if (version != null) {
-        $("#apiversion").html(version);
-    }
-    $.ajax({
-        url: apidomain + "/" + vtcprefix,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            $("#apiversion").html(data.response.version);
-            localStorage.setItem("api-version", data.response.version);
-        },
-        error: function (data) {
-            if (parseInt(data.status) >= 500 && parseInt(data.status) <= 599) {
-                toastNotification("error", "Error", "API seems to be offline", "This is usually due to an ongoing service reload. If it still doesn't work after a few minutes, please report the issue.", 5000, false);
-            }
-        }
-    })
-});
-
 function sha256(ascii) {
     function rightRotate(value, amount) {
         return (value >>> amount) | (value << (32 - amount));
