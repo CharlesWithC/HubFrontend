@@ -1,21 +1,12 @@
-function toastNotification(type, title, text, time, showConfirmButton) {
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-start',
-        showConfirmButton: showConfirmButton || false,
-        timer: time || '3000',
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.addEventListener('mouseenter', Swal.stopTimer);
-            toast.addEventListener('mouseleave', Swal.resumeTimer);
-        },
-    });
 
-    Toast.fire({
-        icon: type,
-        title: '<strong>' + title + '</strong>',
-        html: text,
-    });
+function toastNotification(type, title, text, time = 5) {
+    new Noty({
+        type: type,
+        layout: 'topRight',
+        text: text,
+        timeout: time,
+        theme: "mint"
+    }).show();
 }
 
 steamids = {};
@@ -27,12 +18,12 @@ memberuserid = {};
 curtab = "#overview-tab";
 distance_unit = localStorage.getItem("distance_unit");
 if(distance_unit == "imperial"){
-    distance_unit_txt = "Mi";
+    distance_unit_txt = "mi";
     distance_ratio = 0.621371;
 } else {
     distance_unit = "metric";
     distance_ratio = 1;
-    distance_unit_txt = "Km";
+    distance_unit_txt = "km";
 }
 
 function UpdateSteam() {
@@ -190,7 +181,7 @@ function PlayerPoint(steamid, mapid){
     }, 100)
 }
 
-trucksvg = `<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-truck-delivery" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" color="red" fill="none" stroke-linecap="round" stroke-linejoin="round"> <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <circle cx="7" cy="17" r="2" /> <circle cx="17" cy="17" r="2" /> <path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /> <line x1="3" y1="9" x2="7" y2="9" /> </svg> `;
+trucksvg = `<svg id="truck-svg" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-truck-delivery" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" color="red" fill="none" stroke-linecap="round" stroke-linejoin="round"> <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <circle cx="7" cy="17" r="2" /> <circle cx="17" cy="17" r="2" /> <path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /> <line x1="3" y1="9" x2="7" y2="9" /> </svg> `;
 
 function RenderPoint(mapid, steamid, x, y, scale, nodetail = false, truckicon = false) {
     // console.log("Render point " + x + ", " + y);

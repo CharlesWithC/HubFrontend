@@ -130,7 +130,7 @@ function LoadDivisionInfo() {
                     dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                     $("#table_division_delivery_data").append(`
             <tr class="text-sm" style="color:${color}">
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
@@ -175,13 +175,13 @@ function LoadPendingDivisionValidation() {
                     delivery = d[i];
                     $("#table_division_validation_data").append(`
             <tr class="text-sm">
-            <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
+            <td class="py-5 px-6 font-medium"><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="deliveryDetail('${delivery.logid}')">Details</button></td>
+              onclick="ShowDeliveryDetail('${delivery.logid}')">Details</button></td>
             </tr>`);
                 }
             }
@@ -191,9 +191,9 @@ function LoadPendingDivisionValidation() {
         }
     })
 }
+
 function GetDivisionInfo(logid) {
-    GeneralLoad();
-    LockBtn("#divisioninfobtn");
+    LockBtn("#button-delivery-detail-division", "Checking...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division?logid=" + logid,
@@ -203,122 +203,84 @@ function GetDivisionInfo(logid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            UnlockBtn("#divisioninfobtn");
+            UnlockBtn("#button-delivery-detail-division");
             if (data.error) return AjaxError(data);
 
-            info = `<div style="text-align:left">`;
+            divisionopt = "";
+            divisions = JSON.parse(localStorage.getItem("division"));
+            for(var i = 0 ; i < divisions.length ; i++) {
+                divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division-${divisions[i].id}">${divisions[i].name}</option>`;
+            }
+            if(divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
+            
+            info = ``;
             if (data.response.status == "-1") {
-                divisionopt = "";
-                divisions = JSON.parse(localStorage.getItem("division"));
-                for(var i = 0 ; i < divisions.length ; i++) {
-                    divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
-                }
-                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
-                <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
-                <select id="divisionSelect"
-                  class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                  name="field-name">
-                  ${divisionopt}
+                <select class="form-select bg-dark text-white" id="select-division">
+                    <option selected>Select Division</option>
+                    ${divisionopt}
                 </select>`;
-                info += `<button type="button" style="float:right" id="divisionRequestBtn"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="SubmitDivisionValidationRequest(${logid})">Request Division Validation</button>`;
-                info += "</div>";
-                Swal.fire({
-                    title: `Division Delivery #` + logid,
-                    html: info,
-                    icon: 'info',
-                    showConfirmButton: false,
-                    confirmButtonText: 'Close'
-                });
+                info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">Request Validation</button>`;
+                $("#delivery-detail-division").html(info);
             } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
-                divisionopt = "";
-                divisions = JSON.parse(localStorage.getItem("division"));
-                for(var i = 0 ; i < divisions.length ; i++) {
-                    divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
-                }
-                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <p>This delivery is pending division validation.</p>
-                <p>The division is selected by driver and changeable.</p>
-                <p>A short reason should be provided if you'd reject it.</p>
-                <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
-                <select id="divisionSelect"
-                  class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                  name="field-name">
-                  ${divisionopt}
-                </select>
-                <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Reason: </h3>
-                <textarea id="divisionReason"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                rows="5" placeholder=""></textarea>
+                <label for="select-division" class="form-label">Division</label>
+                <div class="mb-3">
+                    <select class="form-select bg-dark text-white" id="select-division">
+                        ${divisionopt}
+                    </select>
+                </div>
+                <label for="validate-division-message" class="form-label">Message</label>
+                <div class="input-group mb-3" style="height:100px;">
+                    <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="(Optional, a reason should be provided here if you need to reject the request)" style="height:100%"></textarea>
+                </div>
                 `;
-                info += `<button type="button" style="float:right;background-color:green;margin:5px" id="divisionAcceptBtn"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="updateDivision(${logid}, 1)">Accept</button>`;
-                info += `<button type="button" style="float:right;background-color:red;margin:5px" id="divisionRejectBtn"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="updateDivision(${logid}, 2)">Deny</button>`;
-                info += "</div>";
-                Swal.fire({
-                    title: `Division Delivery #` + logid,
-                    html: info,
-                    icon: 'info',
-                    showConfirmButton: false,
-                    confirmButtonText: 'Close'
-                });
-                $("#division" + data.response.divisionid).prop("selected", true);
+                modalid = ShowModal(`Division Validation`, info, `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="button-division-danger" type="button" class="btn btn-danger" style="width:100px;" onclick="UpdateDivision(${logid}, 2);">Reject</button>
+                <button id="button-division-accept" type="button" class="btn btn-success" style="width:100px;" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
+                InitModal("division_detail", modalid, top = true);
+                $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
                 DIVISION = {};
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
-                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
+
                 if (data.response.update_message == undefined) {
-                    info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
-                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
+                    $("#delivery-detail-division").html(DIVISION[data.response.divisionid]);
                 } else {
-                    info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validation requested at " + getDateTime(data.response.request_timestamp * 1000) + "</p>";
-                    if (data.response.status == "0") info += "<p>- Pending Validation</p>";
-                    else if (data.response.status == "1")
-                        info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
-                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
-                    else if (data.response.status == "2")
-                        info += "<p>Denied at " + getDateTime(data.response.update_timestamp * 1000) +
-                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
-                    if (data.response.update_message != "")
-                        info += "<p> - For reason " + data.response.update_message + "</p>";
+                    info += DIVISION[data.response.divisionid] + " ";
+                    if (data.response.status == "0") info += "| Pending Validation";
+                    else if (data.response.status == "1") info += SVG_VERIFIED;
+                    else if (data.response.status == "2"){
+                        staff = data.response.update_staff;
+                        staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
+                        info += `| Rejected By ` + staff;
+                    }
                 }
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
-                    info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="updateDivision(${logid}, 0)">Revalidate</button>`;
+                    modalid = ShowModal(`Division Validation`, info, `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="button-division-revalidate" type="button" class="btn btn-primary" style="width:100px;" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
+                    InitModal("division_detail", modalid, top = true);
+                } else {
+                    $("#delivery-detail-division").html(info);
                 }
-                info += "</div>";
-                Swal.fire({
-                    title: `Division Delivery #` + logid,
-                    html: info,
-                    icon: 'info',
-                    confirmButtonText: 'Close'
-                });
             }
         },
         error: function (data) {
-            if (data.error) return AjaxError(data);
-            AjaxError(data);
+            UnlockBtn("#button-delivery-detail-division");
+            errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+            $("#delivery-detail-division").html(`<span style="color:red">${errmsg}</span>`);
         }
     });
 }
 
 function SubmitDivisionValidationRequest(logid) {
-    GeneralLoad();
-    LockBtn("#divisionRequestBtn");
-
-    division = $("#divisionSelect").val();
+    division = $("#select-division").val();
     divisionid = "-1";
     divisions = JSON.parse(localStorage.getItem("division"));
     for(var i = 0 ; i < divisions.length ; i++) {
@@ -328,6 +290,8 @@ function SubmitDivisionValidationRequest(logid) {
         }
     }
     if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+
+    LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -341,39 +305,44 @@ function SubmitDivisionValidationRequest(logid) {
             divisionid: divisionid
         },
         success: async function (data) {
-            UnlockBtn("#divisionRequestBtn");
+            UnlockBtn("#button-request-division-validation");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", data.response, 5000, false);
+            toastNotification("success", "Success", "Request submitted!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#divisionRequestBtn");
+            UnlockBtn("#button-request-division-validation");
             AjaxError(data);
         }
     });
 }
 
-function updateDivision(logid, status) {
-    GeneralLoad();
-    if (status <= 1) {
-        LockBtn("#divisionAcceptBtn");
-        $("#divisionRejectBtn").attr("disabled", "disabled");
-    } else if (status == 2) {
-        LockBtn("#divisionRejectBtn");
-        $("#divisionRejectBtn").attr("disabled", "disabled");
+function UpdateDivision(logid, status) {
+    divisionid = "-1";
+    if(status >= 1){
+        division = $("#select-division").val();
+        divisions = JSON.parse(localStorage.getItem("division"));
+        for(var i = 0 ; i < divisions.length ; i++) {
+            if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
+                divisionid = divisions[i].id;
+                break;
+            }
+        }
+        if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     }
 
-    division = $("#divisionSelect").val();
-    divisionid = "-1";
-    divisions = JSON.parse(localStorage.getItem("division"));
-    for(var i = 0 ; i < divisions.length ; i++) {
-        if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
-            divisionid = divisions[i].id;
-            break;
-        }
+    if (status == 1) {
+        LockBtn("#button-division-accept", "Accepting...");
+        $("#button-division-reject").attr("disabled", "disabled");
+    } else if (status == 2) {
+        LockBtn("#button-division-reject", "Rejecting...");
+        $("#button-division-accept").attr("disabled", "disabled");
+    } else if(status == 0){
+        LockBtn("#button-division-revalidate", "Requesting...");
     }
-    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
-    reason = $("#divisionReason").val();
-    if (reason == undefined || reason == null) reason = "";
+
+    message = $("#validate-division-message").val();
+    if (message == undefined || message == null) message = "";
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "PATCH",
@@ -385,18 +354,38 @@ function updateDivision(logid, status) {
             logid: logid,
             divisionid: divisionid,
             status: status,
-            message: reason
+            message: message
         },
         success: function (data) {
-            UnlockBtn("#divisionAcceptBtn");
-            UnlockBtn("#divisionRejectBtn");
+            if (status == 1) {
+                UnlockBtn("#button-division-accept");
+                $("#button-division-reject").removeAttr("disabled");
+            } else if (status == 2) {
+                UnlockBtn("#button-division-reject");
+                $("#button-division-accept").removeAttr("disabled");
+            } else if(status == 0){
+                UnlockBtn("#button-division-revalidate");
+            }
             if (data.error) return AjaxError(data);
             GetDivisionInfo(logid);
-            toastNotification("success", "Success", data.response, 5000, false);
+            if (status == 1) {
+                toastNotification("success", "Success", "Division delivery accepted!", 5000, false);
+            } else if (status == 2) {
+                toastNotification("success", "Success", "Division delivery rejected!", 5000, false);
+            } else if(status == 0){
+                toastNotification("success", "Success", "Division delivery validation status updated to pending!", 5000, false);
+            }
         },
         error: function (data) {
-            UnlockBtn("#divisionAcceptBtn");
-            UnlockBtn("#divisionRejectBtn");
+            if (status == 1) {
+                UnlockBtn("#button-division-accept");
+                $("#button-division-reject").removeAttr("disabled");
+            } else if (status == 2) {
+                UnlockBtn("#button-division-reject");
+                $("#button-division-accept").removeAttr("disabled");
+            } else if(status == 0){
+                UnlockBtn("#button-division-revalidate");
+            }
             AjaxError(data);
         }
     });

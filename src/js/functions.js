@@ -294,7 +294,7 @@ function b62decode(num62) {
     }
     ret = 0;
     l = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for (i = 0; i < num62.length; i++) {
+    for (var i = 0; i < num62.length; i++) {
         ret += l.indexOf(num62[i]) * 62 ** (num62.length - i - 1);
     }
     return ret * flag;
@@ -542,7 +542,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer){
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`){
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -562,4 +562,37 @@ function ShowModal(title, content, footer){
     </div>
     `);
     return modalid;
+}
+
+function InitModal(name, modalid, top = false){
+    DestroyModal(name, immediately = true);
+    modalName2ID[name] = modalid;
+    modals[name] = new bootstrap.Modal('#modal-' + modalid);
+    modals[name].show();
+    $("#modal-"+modalid).on('hidden.bs.modal', function(){
+        modals[name].dispose();$("#modal-"+modalid).remove();delete modals[name];
+    })
+    if(top){
+        $("#modal-"+modalid).css("z-index", "1060");
+        $($("#modal-"+modalid).nextAll(".modal-backdrop")[0]).css("z-index", "1059");
+    }
+}
+
+function DestroyModal(name, immediately = false){
+    if(Object.keys(modals).includes(name)){
+        if(!immediately){
+            modals[name].hide();
+            setTimeout(function(){
+                modals[name].dispose();
+                $("#modal-"+modalName2ID[name]).remove();
+                delete modals[name];
+                delete modalName2ID[name];
+            }, 1000);
+        } else {
+            modals[name].dispose();
+            $("#modal-"+modalName2ID[name]).remove();
+            delete modals[name];
+            delete modalName2ID[name];
+        }
+    }
 }

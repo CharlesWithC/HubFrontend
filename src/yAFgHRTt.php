@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/d63358d727758543.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/97e93b97a1f7117b.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -168,6 +168,88 @@
         .clickable {
             cursor: pointer;
         }
+        
+        .dot {
+            height: 15px;
+            width: 15px;
+            background-color: skyblue;
+            border: blue solid 2px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-small {
+            height: 10px;
+            width: 10px;
+            background-color: skyblue;
+            border: blue solid 1px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-area {
+            height: 50px;
+            width: 50px;
+            background-color: red;
+            opacity: 50%;
+            border-radius: 50%;
+            display: inline-block;
+
+        }
+
+        .timeline {
+            border-left: 1px solid #888;
+            position: relative;
+            list-style: none;
+        }
+
+        .timeline .timeline-item {
+            position: relative;
+        }
+
+        .timeline .timeline-item:after {
+            position: absolute;
+            display: block;
+            top: 0;
+        }
+
+        .timeline .timeline-item:after {
+            top: 6px;
+            left: -38px;
+            border-radius: 20%;
+            height: 11px;
+            width: 11px;
+            content: "";
+        }
+
+        .timeline .timeline-white:after {
+            background-color: hsl(0, 0%, 90%);
+        }
+
+        .timeline .timeline-green:after {
+            background-color: hsl(126, 92%, 61%);
+        }
+
+        .timeline .timeline-red:after {
+            background-color: hsl(0, 86%, 60%);
+        }
+
+        .timeline .timeline-yellow:after {
+            background-color: hsl(64, 97%, 65%);
+        }
+        
+        .blink {
+            animation: blinker 1s linear 1;
+        }
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
+        th > .fc-scrollgrid-sync-inner {background-color: #444}
+        .flexdatalist-results {background-color:#57595D};
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -186,7 +268,7 @@
     </script>
 </head>
 
-<body style="width:100vw;overflow-x:hidden">
+<body style="width:100%;overflow-x:hidden;background-color:#2F3136;color:white;">
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
         <div style="height:60px">
             <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
@@ -348,7 +430,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#" onclick="Logout()">Sign out</a></li>
             </ul>
-            <a href="#" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
+            <a id="button-user-delivery-tab" href="#" onclick="$('#delivery-log-userid').val(localStorage.getItem('userid'));ShowTab('#user-delivery-tab', '#button-user-delivery-tab')" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
             <a href="#" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
         </div>
     </div>
@@ -356,7 +438,7 @@
         <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
         <strong style="position:fixed;right:20px;top:20px;"><?php echo $slogan ?></strong>
     </div>
-    <div class="container" style="margin:20px;margin-left:270px;margin-top:80px;width:calc(100% - 300px);">
+    <div class="container" style="margin:20px;margin-left:280px;margin-top:80px;width:calc(100% - 300px);">
         <section id="signin-tab" class="tabs" style="height:80vh">
             <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
             <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:800px">
@@ -584,7 +666,7 @@
                     <div class="col">
                         <label for="announcement-new-type" class="form-label">Type</label>
                         <div class="mb-3">
-                            <select class="form-select  bg-dark text-white" aria-label="Default select example" id="announcement-new-type">
+                            <select class="form-select bg-dark text-white" id="announcement-new-type">
                                 <option selected>Select one from the list</option>
                                 <option value="0">Information</option>
                                 <option value="1">Event</option>
@@ -654,58 +736,64 @@
                 </div>
             </div>
         </section>
-        <section id="map-tab" class="tabs" style="display:none">
+        <section id="map-tab" class="tabs">
             <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
-                <h5 style="position:fixed;z-index:100;padding:10px;">Euro Truck Simulator 2</h5>
+                <h5 style="position:absolute;z-index:10;padding:10px;">Euro Truck Simulator 2</h5>
                 <div id="map">
                 </div>
             </div>
             <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
-                <h5 style="position:fixed;z-index:100;padding:10px;">ProMods Europe</h5>
+                <h5 style="position:absolute;z-index:10;padding:10px;">ProMods Europe</h5>
                 <div id="pmap">
                 </div>
             </div>
             <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
-                <h5 style="position:fixed;z-index:100;padding:10px;">American Truck Simulator</h5>
+                <h5 style="position:absolute;z-index:10;padding:10px;">American Truck Simulator</h5>
                 <div id="amap">
                 </div>
             </div>
         </section>
-        <section id="delivery-tab" class="tabs" style="display:none">
-            <div class="row">
-                <h3><strong>Daily Statistics</strong></h3>
-                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
-                    <p class="card-text"><span id="dotd"><span class="placeholder" style="width:60%"></span></span> <span id="dotddistance" style="font-size:14px"></span></p>
+        <section id="delivery-tab" class="tabs">
+            <div id="company-statistics">
+                <div class="row">
+                    <h3><strong>Daily Statistics</strong></h3>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
+                        <p class="card-text"><span id="dotd"><span class="placeholder" style="width:60%"></span></span> <span id="dotddistance" style="font-size:14px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
+                        <p class="card-text"><span id="dalljob"><span class="placeholder" style="width:40%"></span></span> / <span id="dtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                        <p class="card-text"><span id="dprofit"><span class="placeholder" style="width:50%"></span></span></p>
+                    </div>
                 </div>
-                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
-                    <p class="card-text"><span id="dalljob"><span class="placeholder" style="width:40%"></span></span> / <span id="dtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
-                </div>
-                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
-                    <p class="card-text"><span id="dprofit"><span class="placeholder" style="width:50%"></span></span></p>
+                <div class="row">
+                    <h3><strong>Weekly Statistics</strong></h3>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Week</strong></h5>
+                        <p class="card-text"><span id="dotw"><span class="placeholder" style="width:60%"></span></span> <span id="dotwdistance" style="font-size:14px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
+                        <p class="card-text"><span id="walljob"><span class="placeholder" style="width:40%"></span></span> / <span id="wtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                        <p class="card-text"><span id="wprofit"><span class="placeholder" style="width:50%"></span></span></p>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <h3><strong>Weekly Statistics</strong></h3>
-                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Week</strong></h5>
-                    <p class="card-text"><span id="dotw"><span class="placeholder" style="width:60%"></span></span> <span id="dotwdistance" style="font-size:14px"></span></p>
-                </div>
-                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
-                    <p class="card-text"><span id="walljob"><span class="placeholder" style="width:40%"></span></span> / <span id="wtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
-                </div>
-                <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
-                    <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
-                    <p class="card-text"><span id="wprofit"><span class="placeholder" style="width:50%"></span></span></p>
-                </div>
+            <div id="user-statistics" style="display:none">
+
             </div>
             <div class="row">
-                <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col">
+                <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> Deliveries</strong></h5>
-                    <div id="delivery-log-advanced-show" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-advanced-show").hide();$("#delivery-log-advanced").show();'>Options</a></div>
+                    <div id="delivery-log-export-show" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();">Export</a>&nbsp;&nbsp;&nbsp;
+                    <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'>Options</a></div>
                     <div id="table_delivery_log">
                         <table class="w-100">
                             <thead id="table_delivery_log_head">
@@ -769,9 +857,9 @@
                         </table>
                     </div>
                 </div>
-                <div id="delivery-log-advanced" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
+                <div id="delivery-log-options" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
                     <h5 style="display:inline-block"><strong>Options</strong></h5>
-                    <div id="delivery-log-advanced-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-advanced-show").show();$("#delivery-log-advanced").hide();'>Hide</a></div>
+                    <div id="delivery-log-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-options-show").show();$("#delivery-log-options").hide();'>Hide</a></div>
                     <div>
                         <label class="form-label">Game</label>
                         <br>
@@ -808,7 +896,7 @@
                         <label class="form-label">Max. Speed</label>
                         <div class="input-group mb-2">
                             <input type="text" class="form-control bg-dark text-white" id="delivery-log-speed-limit" placeholder="0">
-                            <span class="input-group-text">km/h</span>
+                            <span class="input-group-text"><span class="distance_unit text-black"></span>/h</span>
                         </div>
                     </div>
                     <div>
@@ -822,6 +910,12 @@
                             <input type="date" class="form-control bg-dark text-white" id="delivery-log-end-time">
                         </div>
                     </div>
+                    <div style="display:none">
+                        <label class="form-label">User ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-userid" placeholder="0">
+                        </div>
+                    </div>
                     <div>
                         <label class="form-label">Page Size</label>
                         <div class="input-group mb-2">
@@ -830,6 +924,49 @@
                         </div>
                     </div>
                     <button id="button-delivery-log-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadDeliveryList();">Update</button>
+                </div>
+            </div>
+        </section>
+        <section id="delivery-detail-tab" class="tabs">
+            <div class="m-3">
+                <h3 style="display:inline-block"><strong><span id="delivery-detail-title"><span class="placeholder" style="width:150px"></span></span></strong></h3>
+                <h3 style="float:right"><span id="delivery-detail-user"><span class="placeholder" style="width:100px"></span></span></h3>
+            </div>
+            <div class="row m-3">
+                <div class="shadow p-3 bg-dark rounded col-3" style="text-align:center">
+                    <p style="font-size:25px;margin-bottom:0;"><b><span id="delivery-detail-source-company"><span class="placeholder col-8"></span></span></b></p>
+                    <p><span id="delivery-detail-source-city" style="font-size:15px;color:#aaa"><span class="placeholder col-4"></span></span></p>
+                </div>
+                <div class="col-6 m-auto" style="text-align:center">
+                    <p style="font-size:15px;margin-bottom:0;"><span id="delivery-detail-cargo"><span class="placeholder col-6"></span></span></p>
+                    <div class="progress" style="height:5px;margin:5px;">
+                        <div id="delivery-detail-progress" class="progress-bar progress-bar-striped" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p style="font-size:15px;margin-bottom:0;"><span id="delivery-detail-distance"><span class="placeholder col-8"></span></span></p>
+                </div>
+                <div class="shadow p-3 bg-dark rounded col-3" style="text-align:center">
+                    <p style="font-size:25px;margin-bottom:0;"><b><span id="delivery-detail-destination-company"><span class="placeholder col-8"></span></span></b></p>
+                    <p><span id="delivery-detail-destination-city" style="font-size:15px;color:#aaa"><span class="placeholder col-4"></span></span></p>
+                </div>
+            </div>
+            <div class="row m-3" style="height:500px">
+                <div id="dmap" class="col-8 h-100" style="background-color:#484E66;padding:0;border-radius:5px">
+                </div>
+                <div class="col-4" style="padding-right:0;">
+                    <div id="delivery-detail-timeline-div" class="shadow p-5 bg-dark rounded" style="height:500px;overflow:auto;">
+                        <ul class="timeline" id="delivery-detail-timeline">
+                            <li class="timeline-item timeline-white mb-5">
+                                <h5 class="fw-bold"><span class="placeholder" style="width:100px"></span></h5>
+                                <p class="text-muted mb-2 fw-bold"><span class="placeholder" style="width:40px"></span></p>
+                                <p><span class="placeholder" style="width:120px"></span></p>
+                            </li>
+                            <li class="timeline-item timeline-white mb-5">
+                                <h5 class="fw-bold"><span class="placeholder" style="width:100px"></span></h5>
+                                <p class="text-muted mb-2 fw-bold"><span class="placeholder" style="width:40px"></span></p>
+                                <p><span class="placeholder" style="width:120px"></span></p>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </section>

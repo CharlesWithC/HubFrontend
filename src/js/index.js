@@ -11,7 +11,10 @@ perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
+Chart.defaults.color = "white";
 shiftdown = false;
+modals = {};
+modalName2ID = {};
 
 function Logout(){
     token = localStorage.getItem("token")
@@ -117,21 +120,21 @@ function InitInputHandler(){
 function InitDistanceUnit() {
     distance_unit = localStorage.getItem("distance_unit");
     if (distance_unit == "imperial") {
-        $(".distance_unit").html("Mi");
-        distance_unit_txt = "Mi";
-        fuel_unit_txt = "Gal";
-        weight_unit_txt = "Lb";
+        $(".distance_unit").html("mi");
+        distance_unit_txt = "mi";
+        fuel_unit_txt = "gal";
+        weight_unit_txt = "lb";
         distance_ratio = 0.621371;
         fuel_ratio = 0.2641720524;
         weight_ratio = 2.2046226218488;
         $("#imperialbtn").css("background-color", "none");
         $("#metricbtn").css("background-color", "#293039");
     } else {
-        $(".distance_unit").html("Km");
+        $(".distance_unit").html("km");
         distance_unit = "metric";
-        distance_unit_txt = "Km";
-        fuel_unit_txt = "L";
-        weight_unit_txt = "Lb";
+        distance_unit_txt = "km";
+        fuel_unit_txt = "l";
+        weight_unit_txt = "kg";
         distance_ratio = 1;
         fuel_ratio = 1;
         weight_ratio = 1;
@@ -158,7 +161,7 @@ function InitDarkMode(){
         $("body").css("background-color", "#2F3136");
         $("body").css("color", "white");
         $("head").append(`<style id='convertbg'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
+            h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
             .text-gray-500,.text-gray-600 {color: #ddd;}
             .bg-white {background-color: rgba(255, 255, 255, 0.1);}
             .swal2-popup {background-color: rgb(41 48 57)}
@@ -168,10 +171,6 @@ function InitDarkMode(){
             .flexdatalist-results {background-color:#57595D};
             a {color: #ccc}</style>`);
         $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
-        Chart.defaults.color = "white";
-        $("body").html($("body").html().replaceAll("text-green", "text-temp"));
-        $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
-        $("body").html($("body").html().replaceAll("text-temp", "text-green"));
     } else {
         $("head").append(`<style>.rounded-full {background-color: #ddd}</style>`);
     }
@@ -194,9 +193,6 @@ function ToggleDarkMode() {
             a: {color: #444}</style>`);
         Chart.defaults.color = "white";
         $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
-        $("body").html($("body").html().replaceAll("text-green", "text-temp"));
-        $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
-        $("body").html($("body").html().replaceAll("text-temp", "text-green"));
     } else {
         $("body").css("background-color", "white");
         $("body").css("color", "");
@@ -322,6 +318,9 @@ async function ShowTab(tabname, btnname) {
     $("#map,#dmap,#pmap,#amap").children().remove();
     $(".tabs").hide();
     $(tabname).show();
+    if(tabname == "#user-delivery-tab"){
+        $("#delivery-tab").show();
+    }
     loaded = $(tabname).hasClass("loaded");
     $(tabname).addClass("loaded");
     $(".nav-link").removeClass("active");
@@ -429,9 +428,20 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
+        $("#delivery-log-userid").val("");
+        $("#company-statistics").show();
+        $("#user-statistics").hide();
+        if(!loaded){
+            LoadDriverLeaderStatistics();
+            LoadStats(true);
+        }
         LoadDeliveryList();
-        LoadDriverLeaderStatistics();
-        LoadStats(true);
+    }
+    if (tabname == "#user-delivery-tab") {
+        window.history.pushState("", "", '/member/'+userid+'/delivery');
+        $("#company-statistics").hide();
+        $("#user-statistics").show();
+        LoadDeliveryList();
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
@@ -578,55 +588,6 @@ function LoadCache(){
     }
 }
 
-function AnnouncementEventButtonValueUpdate() {
-    setInterval(function () {
-        title = $("#anntitle").val();
-        content = $("#anncontent").val();
-        annid = $("#annid").val();
-        if (!$("#newAnnBtn").prop("disabled")) {
-            if (isNumber(annid)) {
-                if (title != "" || content != "") {
-                    $("#newAnnBtn").html("Update Announcement");
-                    $("#newAnnBtn").css("background-color", "lightgreen");
-                } else {
-                    $("#newAnnBtn").html("Delete Announcement");
-                    $("#newAnnBtn").css("background-color", "red");
-                }
-            } else {
-                $("#newAnnBtn").html("Create Announcement");
-                $("#newAnnBtn").css("background-color", "blue");
-            }
-        } else {
-            $("#newAnnBtn").html("Working...");
-        }
-    }, 100);
-    setInterval(function () {
-        title = $("#eventtitle").val();
-        from = $("#eventfrom").val();
-        to = $("#eventto").val();
-        distance = $("#eventdistance").val();
-        meetup_timestamp = $("#eventmeetup_timestamp").val();
-        departure_timestamp = $("#eventdeparture_timestamp").val();
-        eventid = $("#eventid").val();
-        if (!$("#newEventBtn").prop("disabled")) {
-            if (isNumber(eventid)) {
-                if (title != "" || from != "" || to != "" || distance != "" || meetup_timestamp != "" || departure_timestamp != "") {
-                    $("#newEventBtn").html("Update Event");
-                    $("#newEventBtn").css("background-color", "lightgreen");
-                } else {
-                    $("#newEventBtn").html("Delete Event");
-                    $("#newEventBtn").css("background-color", "red");
-                }
-            } else {
-                $("#newEventBtn").html("Create Event");
-                $("#newEventBtn").css("background-color", "blue");
-            }
-        } else {
-            $("#newEventBtn").html("Working...");
-        }
-    }, 100);
-}
-
 userPerm = [];
 userPermLoaded = false;
 function GetUserPermission(){
@@ -656,13 +617,11 @@ function ShowStaffTabs() {
             $("#sidebar-staff a").show();
             $(".admin-only").show();
             $("#button-config-tab").show();
-            AnnouncementEventButtonValueUpdate();
         } else {
             $(".admin-only").hide();
             if (userPerm.includes("event")) {
                 $("#button-staff-event-tab").show();
                 $("#button-staff-announcement-tab").show();
-                AnnouncementEventButtonValueUpdate();
             }
             if (userPerm.includes("hr") || userPerm.includes("division")) {
                 $("#button-staff-member-tab").show();
@@ -829,19 +788,28 @@ function PathDetect() {
             logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
             $("#button-delivery-tab").addClass("bg-indigo-500");
-            deliveryDetail(logid);
+            ShowDeliveryDetail(logid);
             return;
         }
         if (p.split("/").length >= 3) {
             $(".tabbtns").removeClass("bg-indigo-500");
             $("#button-delivery-tab").addClass("bg-indigo-500");
-            deliveryDetail(p.split("/")[2]);
+            ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
     } else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
     else if (p == "/staff/division") ShowTab("#staff-division-tab", "#button-staff-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
+        if(p.endsWith("/delivery")){
+            if (p.split("/").length >= 3){
+                $('#delivery-log-userid').val(parseInt(p.split("/")[2]));
+                ShowTab("#user-delivery-tab", "#button-user-delivery-tab")
+            } else {
+                ShowTab("#delivery-tab", "#button-delivery-tab");
+            }
+            return;
+        }
         if(getUrlParameter("userid")){
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);
@@ -882,7 +850,6 @@ $(document).ready(async function () {
     PathDetect();
     LoadCache();
     LoadDivisionList();
-    InitDarkMode();
     InitPhoneView();
     InitDistanceUnit();
     InitSearchByName();

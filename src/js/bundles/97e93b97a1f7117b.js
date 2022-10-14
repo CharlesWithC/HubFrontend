@@ -294,7 +294,7 @@ function b62decode(num62) {
     }
     ret = 0;
     l = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    for (i = 0; i < num62.length; i++) {
+    for (var i = 0; i < num62.length; i++) {
         ret += l.indexOf(num62[i]) * 62 ** (num62.length - i - 1);
     }
     return ret * flag;
@@ -542,7 +542,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer){
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`){
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -562,6 +562,39 @@ function ShowModal(title, content, footer){
     </div>
     `);
     return modalid;
+}
+
+function InitModal(name, modalid, top = false){
+    DestroyModal(name, immediately = true);
+    modalName2ID[name] = modalid;
+    modals[name] = new bootstrap.Modal('#modal-' + modalid);
+    modals[name].show();
+    $("#modal-"+modalid).on('hidden.bs.modal', function(){
+        modals[name].dispose();$("#modal-"+modalid).remove();delete modals[name];
+    })
+    if(top){
+        $("#modal-"+modalid).css("z-index", "1060");
+        $($("#modal-"+modalid).nextAll(".modal-backdrop")[0]).css("z-index", "1059");
+    }
+}
+
+function DestroyModal(name, immediately = false){
+    if(Object.keys(modals).includes(name)){
+        if(!immediately){
+            modals[name].hide();
+            setTimeout(function(){
+                modals[name].dispose();
+                $("#modal-"+modalName2ID[name]).remove();
+                delete modals[name];
+                delete modalName2ID[name];
+            }, 1000);
+        } else {
+            modals[name].dispose();
+            $("#modal-"+modalName2ID[name]).remove();
+            delete modals[name];
+            delete modalName2ID[name];
+        }
+    }
 }
 dmapint = -1;
 window.mapcenter = {}
@@ -669,10 +702,26 @@ function LoadLeaderboard() {
     })
 }
 
+dlog_placeholder_row = `
+<tr>
+    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
 function LoadDeliveryList() {
     GeneralLoad();
     LockBtn("#button-delivery-log-options-update", btntxt = "...");
     InitPaginate("#table_delivery_log", "LoadDeliveryList();");
+
+    $("#table_delivery_log_data").children().remove();
+    for(i = 0 ; i < 10 ; i++){
+        $("#table_delivery_log_data").append(dlog_placeholder_row);
+    }
 
     page = parseInt($("#table_delivery_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
@@ -705,8 +754,15 @@ function LoadDeliveryList() {
     page_size = parseInt($("#delivery-log-page-size").val());
     if (!isNumber(page_size)) page_size = 10;
 
+    uid = parseInt($("#delivery-log-userid").val());
+    if(!isNumber(uid) || uid < 0){
+        uid = "";
+    } else {
+        uid = "&userid=" + uid;
+    }
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&status=" + status,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&status=" + status + uid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -731,8 +787,10 @@ function LoadDeliveryList() {
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
                 if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                
+                dloguser = delivery.user.name;
+                if($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
+                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${dloguser}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
             PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
@@ -744,68 +802,47 @@ function LoadDeliveryList() {
     })
 }
 
+function ShowDeliveryLogExport(){
+    modalid = ShowModal("Export Delivery Log", `
+        <p>A csv table will be downloaded containing delivery logs of the selected date range.</p>
+        <p><i>Rate limit: 3 downloads / hour</i></p>
+        <label class="form-label">Date Range</label>
+        <div class="input-group mb-2">
+            <span class="input-group-text">From</span>
+            <input type="date" class="form-control bg-dark text-white" id="delivery-log-export-start-time">
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">To</span>
+            <input type="date" class="form-control bg-dark text-white" id="delivery-log-export-end-time">
+        </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delivery-log-export" type="button" class="btn btn-primary" onclick="DeliveryLogExport();">Export</button>`);
+    InitModal("delivery_log_export", modalid);
+}
 
-function LoadUserDeliveryList() {
-    GeneralLoad();
-    LockBtn("#loadUserDeliveryBtn", btntxt = "...");
-    InitPaginate("#table_delivery_log_user", "LoadUserDeliveryList();");
-
-    page = parseInt($("#table_delivery_log_user_page_input").val());
-    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-
+function DeliveryLogExport(){
     var start_time = -1, end_time = -1;
-    if ($("#udstart").val() != "" && $("#udend").val() != "") {
-        start_time = +new Date($("#udstart").val()) / 1000;
-        end_time = +new Date($("#udend").val()) / 1000 + 86400;
+    if ($("#delivery-log-export-start-time").val() != "" && $("#delivery-log-export-end-time").val() != "") {
+        start_time = +new Date($("#delivery-log-export-start-time").val()) / 1000;
+        end_time = +new Date($("#delivery-log-export-end-time").val()) / 1000 + 86400;
     }
-
-    speedlimit = parseInt($("#udspeedlimit").val());
-    if (!isNumber(speedlimit)) speedlimit = 0;
-    speedlimit /= distance_ratio;
-
-    game = 0;
-    if (dets2 && !dats) game = 1;
-    else if (!dets2 && dats) game = 2;
-    else if (!dets2 && !dats) game = -1;
-    $(".dgame").css("background-color", "");
-    if (game == 0) $(".dgame").css("background-color", "skyblue");
-    else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) start_time = 1, end_time = 2;
-
+    LockBtn("#button-delivery-log-export", "Exporting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?userid=" + useridCurrentProfile + "&speed_limit=" + parseInt(speedlimit) + "&page=" + page + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game,
+        url: apidomain + "/" + vtcprefix + "/dlog/export",
         type: "GET",
-        dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
+        data: {
+            start_time: start_time,
+            end_time: end_time
+        },
         success: function (data) {
-            UnlockBtn("#loadUserDeliveryBtn");
+            UnlockBtn("#button-delivery-log-export");
             if (data.error) return AjaxError(data);
-
-            deliverylist = data.response.list;
-            total_pages = data.response.total_pages;
-            data = [];
-
-            for (i = 0; i < deliverylist.length; i++) {
-                delivery = deliverylist[i];
-                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
-                unittxt = "€";
-                if (delivery.unit == 2) unittxt = "$";
-                profit = TSeparator(delivery.profit);
-                color = "";
-                if (delivery.profit < 0) color = "grey";
-                dextra = "";
-                if (delivery.isdivision == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `<a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a>`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
-            }
-
-            PushTable("#table_delivery_log_user", data, total_pages, "LoadUserDeliveryList();");
+            toastNotification("success", "Success", "Delivery log exported!", 5000);
+            FileOutput("export.csv", data);
         },
         error: function (data) {
-            UnlockBtn("#loadUserDeliveryBtn");
+            UnlockBtn("#button-delivery-log-export");
             AjaxError(data);
         }
     })
@@ -813,11 +850,11 @@ function LoadUserDeliveryList() {
 
 deliveryRoute = [];
 rri = 0;
-rrspeed = 20;
+rrspeed = 10;
 rrevents = [];
 punit = "€";
 curlogid = -1;
-async function deliveryRoutePlay() {
+async function DeliveryRoutePlay() {
     if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     clearInterval(dmapint);
     dmapint = -999;
@@ -832,9 +869,8 @@ async function deliveryRoutePlay() {
         if (rri < 0) rri = 0;
         if (rri >= deliveryRoute.length) rri = deliveryRoute.length - 1;
         window.mapcenter["dmap"] = [deliveryRoute[rri][0], -deliveryRoute[rri][1]];
-        $("#rp_speed").html(rrspeed);
-        $("#rp_cur").html(rri + 1);
-        $("#rp_pct").html(Math.round(rri / deliveryRoute.length * 100));
+        $("#delivery-detail-progress").css("width", (rri / deliveryRoute.length * 100).toFixed(4) + "%");
+        $("#delivery-detail-progress").attr("aria-valuenow", (rri / deliveryRoute.length * 100).toFixed(4));
         dmapw = $("#dmap").width();
         dmaph = $("#dmap").height();
         if (prew != dmapw || preh != dmaph) {
@@ -874,66 +910,22 @@ async function deliveryRoutePlay() {
             }
         }
 
-        x = deliveryRoute[rri][0];
-        z = deliveryRoute[rri][1];
+        x = deliveryRoute[Math.min(rri + 10, deliveryRoute.length - 1)][0];
+        z = deliveryRoute[Math.min(rri + 10, deliveryRoute.length - 1)][1];
         for (var i = lastevent; i < rrevents.length; i++) {
             ex = rrevents[i].location.x;
             ez = rrevents[i].location.z;
             // distance of (x,z) and (ex,ez) <= 50, use euclid distance
             if (Math.sqrt(Math.pow(x - ex, 2) + Math.pow(z - ez, 2)) <= 50) {
                 lastevent = i + 1;
-                mt = $("#dmap").position().top;
-                ml = $("#dmap").position().left;
-                eventmsg = "";
-                if (rrevents[i].type == "tollgate") {
-                    cost = rrevents[i].meta.cost;
-                    eventmsg = "Paid " + punit + TSeparator(cost) + " at toll gate.";
-                } else if (rrevents[i].type == "refuel") {
-                    amount = rrevents[i].meta.amount;
-                    eventmsg = "Refueled " + TSeparator(parseInt(amount)) + "L of fuel.";
-                } else if (rrevents[i].type == "collision") {
-                    meta = rrevents[i].meta;
-                    pct = parseFloat(meta.wear_engine) + parseFloat(meta.wear_chassis) + parseFloat(meta.wear_transmission) + parseFloat(meta.wear_cabin) + parseFloat(meta.wear_wheels);
-                    eventmsg = "Collision!";
-                    if (pct != NaN) eventmsg += " Damage: " + Math.round(pct * 1000) / 10 + "%";
-                } else if (rrevents[i].type == "repair") {
-                    eventmsg = "Truck repaired.";
-                } else if (rrevents[i].type == "teleport") {
-                    eventmsg = "Teleported.";
-                } else if (rrevents[i].type == "fine") {
-                    meta = rrevents[i].meta;
-                    finetype = meta.offence;
-                    if (finetype == "speeding_camera") {
-                        curspeed = TSeparator(parseInt(meta.speed * 3.6 * distance_ratio));
-                        speedlimit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio));
-                        eventmsg = `Captured by speeding camera<br>${curspeed}${distance_unit_txt}/h (Speed Limit ${speedlimit}${distance_unit_txt}/h)<br>Fined ` + punit + TSeparator(meta.amount);
-                    } else if (finetype == "speeding") {
-                        curspeed = TSeparator(parseInt(meta.speed * 3.6 * distance_ratio));
-                        speedlimit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio));
-                        eventmsg = `Caught by police car for speeding<br>${curspeed}${distance_unit_txt}/h (Speed Limit ${speedlimit}${distance_unit_txt}/h)<br>Fined ` + punit + TSeparator(meta.amount);
-                    } else if (finetype == "crash") {
-                        eventmsg = `Crash<br>Fined ` + punit + TSeparator(meta.amount);
-                    } else if (finetype == "red_signal") {
-                        eventmsg = `Red Signal Offence<br>Fined ` + punit + TSeparator(meta.amount);
-                    } else if (finetype == "wrong_way") {
-                        eventmsg = `Wrong Way<br>Fined ` + punit + TSeparator(meta.amount);
-                    }
-                } else if (rrevents[i].type == "speeding") {
-                    meta = rrevents[i].meta;
-                    curspeed = TSeparator(parseInt(parseInt(meta.max_speed) * 3.6 * distance_ratio));
-                    speedlimit = TSeparator(parseInt(parseInt(meta.speed_limit) * 3.6 * distance_ratio));
-                    eventmsg = `Speeding (No Fine)<br>${curspeed}${distance_unit_txt}/h (Speed Limit ${speedlimit}${distance_unit_txt}/h)`;
-                } else if (rrevents[i].type == "ferry") {
-                    meta = rrevents[i].meta;
-                    eventmsg = `Ferry from ${meta.source_name} to ${meta.target_name}<br>Cost ${punit}${TSeparator(meta.cost)}`;
-                }
-                if (eventmsg != "") {
-                    randomid = Math.random().toString(36).substring(7);
-                    $(".rrevent").hide();
-                    $("#dmap").append(`<a class="rrevent" id="rrevent-${randomid}" style='position:absolute;top:${mt+dmaph/2}px;left:${ml+dmapw/2}px;color:red;'>${eventmsg}</a>`);
-                    setTimeout(function () {
-                        $("#rrevent-" + randomid).fadeOut();
-                    }, 3000);
+                if(document.getElementById('delivery-detail-timeline-' + i) != null){
+                    document.getElementById('delivery-detail-timeline-' + i).scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                        inline: 'center'
+                    });
+                    $(".blink").removeClass("blink");
+                    $('#delivery-detail-timeline-' + i).addClass("blink");
                 }
             }
         }
@@ -945,38 +937,114 @@ async function deliveryRoutePlay() {
             rri -= 1;
         }
     }
-    $("#rrplay").html("Replay");
+    
+    $("#delivery-route-control").remove();
+    $("#delivery-detail-progress").css("width", "100%");
+    $("#delivery-detail-progress").attr("aria-valuenow", "100");
     setTimeout(function () {
         $(".dmap-player").remove();
         window.mapcenter["dmap"] = undefined;
+        dmapint = setInterval(UpdateDeliveryRoutePoints, 500);
     }, 5000);
 }
 
-function rrplayswitch() {
-    if ($("#rrplay").html() == "Replay") deliveryDetail(curlogid);
+function ToggleRouteReplay() {
     if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
     if (dmapint == -999) {
         dmapint = -2;
-        $("#rrplay").html("Play");
+        $("#truck-svg").hide();
+        $("#delivery-detail-route-replay-toggle").html(`<i class="fa-solid fa-play"></i>`);
     } else {
-        $("#rrplay").html("Pause");
-        deliveryRoutePlay(50);
+        $("#truck-svg").show();
+        $("#delivery-detail-route-replay-toggle").html(`<i class="fa-solid fa-pause"></i>`);
+        DeliveryRoutePlay();
     }
 }
 
-function deliveryDetail(logid) {
+deliveryDetailTabPlaceholder = `
+<div class="m-3">
+    <h3 style="display:inline-block"><strong><span id="delivery-detail-title"><span class="placeholder" style="width:150px"></span></span></strong></h3>
+    <h3 style="float:right"><span id="delivery-detail-user"><span class="placeholder" style="width:100px"></span></span></h3>
+</div>
+<div class="row m-3">
+    <div class="shadow p-3 bg-dark rounded col-3" style="text-align:center">
+        <p style="font-size:25px;margin-bottom:0;"><b><span id="delivery-detail-source-company"><span class="placeholder col-8"></span></span></b></p>
+        <p><span id="delivery-detail-source-city" style="font-size:15px;color:#aaa"><span class="placeholder col-4"></span></span></p>
+    </div>
+    <div class="col-6 m-auto" style="text-align:center">
+        <p style="font-size:15px;margin-bottom:0;"><span id="delivery-detail-cargo"><span class="placeholder col-6"></span></span></p>
+        <div class="progress" style="height:5px;margin:5px;">
+            <div id="delivery-detail-progress" class="progress-bar progress-bar-striped" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <p style="font-size:15px;margin-bottom:0;"><span id="delivery-detail-distance"><span class="placeholder col-8"></span></span></p>
+    </div>
+    <div class="shadow p-3 bg-dark rounded col-3" style="text-align:center">
+        <p style="font-size:25px;margin-bottom:0;"><b><span id="delivery-detail-destination-company"><span class="placeholder col-8"></span></span></b></p>
+        <p><span id="delivery-detail-destination-city" style="font-size:15px;color:#aaa"><span class="placeholder col-4"></span></span></p>
+    </div>
+</div>
+<div class="row m-3" style="height:500px">
+    <div id="dmap" class="col-8 h-100" style="background-color:#484E66;padding:0;border-radius:5px">
+    </div>
+    <div class="col-4" style="padding-right:0;">
+        <div id="delivery-detail-timeline-div" class="shadow p-5 bg-dark rounded" style="height:500px;overflow:auto;">
+            <ul class="timeline" id="delivery-detail-timeline">
+                <li class="timeline-item timeline-white mb-5">
+                    <h5 class="fw-bold"><span class="placeholder" style="width:100px"></span></h5>
+                    <p class="text-muted mb-2 fw-bold"><span class="placeholder" style="width:40px"></span></p>
+                    <p><span class="placeholder" style="width:120px"></span></p>
+                </li>
+                <li class="timeline-item timeline-white mb-5">
+                    <h5 class="fw-bold"><span class="placeholder" style="width:100px"></span></h5>
+                    <p class="text-muted mb-2 fw-bold"><span class="placeholder" style="width:40px"></span></p>
+                    <p><span class="placeholder" style="width:120px"></span></p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>`;
+
+function UpdateDeliveryRoutePoints() {
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return;
+    window.dmapRange = {};
+    dmapRange["top"] = window.dn.previousExtent_[3];
+    dmapRange["left"] = window.dn.previousExtent_[0];
+    dmapRange["bottom"] = window.dn.previousExtent_[1];
+    dmapRange["right"] = window.dn.previousExtent_[2];
+    $(".dmap-player").remove();
+    dmapxl = dmapRange["left"];
+    dmapxr = dmapRange["right"];
+    dmapyt = dmapRange["top"];
+    dmapyb = dmapRange["bottom"];
+    dmapw = $("#dmap").width();
+    dmaph = $("#dmap").height();
+    dscale = (dmapxr - dmapxl) / $("#dmap").width();
+    ddpoints = dpoints;
+    if (dscale >= 150 && i % 300 != 0) ddpoints = dpoints150;
+    else if (dscale >= 30 && i % 100 != 0) ddpoints = dpoints30;
+    else if (dscale >= 20 && i % 50 != 0) ddpoints = dpoints20;
+    else if (dscale >= 10 && i % 10 != 0) ddpoints = dpoints10;
+    for (var i = 0; i < ddpoints.length; i++) {
+        x = ddpoints[i][0];
+        z = -ddpoints[i][1];
+        if (x > dmapxl && x < dmapxr && z > dmapyb && z < dmapyt) {
+            rx = (x - dmapxl) / (dmapxr - dmapxl) * dmapw;
+            rz = (z - dmapyt) / (dmapyb - dmapyt) * dmaph;
+            RenderPoint("dmap", 0, rz, rx, 5, nodetail = true);
+        }
+    }
+}
+
+currentDeliveryLog = {};
+function ShowDeliveryDetail(logid) {
+    $(".tabs").hide();
+    $("#delivery-detail-tab").html(deliveryDetailTabPlaceholder);
+    $("#delivery-detail-tab").show();
+
     curlogid = logid;
     window.autofocus["dmap"] = -2;
-    $("#routereplaydiv").hide();
-    $("#routereplayload").show();
     rri = 0;
-    rrspeed = 20;
-    $("#DeliveryInfoBtn" + logid).attr("disabled", "disabled");
-    $("#DeliveryInfoBtn" + logid).html("Loading...");
-    $("#rp_cur").html("0");
-    $("#rp_tot").html("0");
-    $("#rp_pct").html("0");
-    $("#rrplay").html("Play");
+    rrspeed = 10;
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog?logid=" + String(logid),
         type: "GET",
@@ -985,330 +1053,439 @@ function deliveryDetail(logid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
-            $("#DeliveryInfoBtn" + logid).html("Details");
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
-                false);
-            info = "";
-            if (!data.error) {
-                window.history.pushState("", "", '/delivery/' + logid);
-                d = data.response;
-                userid = d.user.userid;
-                name = d.user.name;
-                d = d.detail;
-                tp = d.type;
-                d = d.data.object;
-                start_time = +new Date(d.start_time);
-                stop_time = +new Date(d.stop_time);
-                duration = "N/A";
-                if (start_time > 86400 * 1000) duration = String((stop_time - start_time) / 1000).toHHMMSS(); // in case start time is 19700101 and timezone
-                planned_distance = TSeparator(parseInt(d.planned_distance * distance_ratio)) + distance_unit_txt;
-                fuel_used_org = d.fuel_used;
-                fuel_used = TSeparator(parseInt(d.fuel_used * fuel_ratio)) + fuel_unit_txt;
-                cargo = d.cargo.name;
-                cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
-                source_company = "Unknown company";
-                source_city = "Unknown city";
-                destination_company = "Unknown company";
-                destination_city = "Unknown city";
-                source_company_id = "";
-                destination_company_id = "";
-                if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
-                if (d.source_city != null) source_city = d.source_city.name;
-                if (d.destination_company != null) destination_company = d.destination_company.name, destination_company_id = d.destination_company.unique_id;
-                if (d.destination_city != null) destination_city = d.destination_city.name;
-                truck = d.truck.brand.name + " " + d.truck.name;
-                truck_brand_id = d.truck.brand.unique_id;
-                license_plate = d.truck.license_plate;
-                top_speed = parseInt(d.truck.top_speed * 3.6 * distance_ratio);
-                trailer = "";
-                trs = "";
-                if (d.trailers.length > 1) trs = "s";
-                for (var i = 0; i < d.trailers.length; i++) trailer += d.trailers[i].license_plate + " | ";
-                trailer = trailer.slice(0,-3);
-                punit = "€";
-                if (!d.game.short_name.startsWith("e")) punit = "$";
-                rrevents = d.events;
-                meta = d.events[d.events.length - 1].meta;
-                if (tp == "job.delivered") {
-                    revenue = TSeparator(meta.revenue);
-                    earned_xp = meta.earned_xp;
-                    cargo_damage = meta.cargo_damage;
-                    distance = TSeparator(parseInt(meta.distance * distance_ratio)) + distance_unit_txt;
-                    auto_park = meta.auto_park;
-                    auto_load = meta.auto_load;
-                    avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (meta.distance * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
-                } else if (tp == "job.cancelled") {
-                    distance = TSeparator(parseInt(d.driven_distance * distance_ratio)) + distance_unit_txt;
-                    distance_org = d.driven_distance;
-                    penalty = TSeparator(meta.penalty);
-                    avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
-                }
-
-                $(".ddcol").children().remove();
-                $(".ddcol").children().remove();
-                $("#ddcol1t>img,#ddcol2t>img,#ddcol3t>img").remove();
-                $("#ddcol1t").append(`<img style="display:inline" onerror="$(this).hide();" src="https://map.charlws.com/overlays/${source_company_id}.png">`);
-                $("#ddcol2t").append(`<img style="display:inline" onerror="$(this).hide();" src="https://map.charlws.com/overlays/${destination_company_id}.png">`);
-                $("#ddcol1").append(`<p><b>${source_company}</b>, ${source_city}</p>`);
-                $("#ddcol1").append(`<p><b>${cargo}</b> <i>(${cargo_mass})</i></p>`);
-                $("#ddcol1").append(`<p>Planned <b>${planned_distance}</b></p>`);
-                $("#ddcol2").append(`<p><b>${destination_company}</b>, ${destination_city}</p>`);
-                $("#ddcol2").append(`<p>Driven <b>${distance}</b></p>`);
-                offence = 0;
-                for (var i = 0; i < rrevents.length; i++) {
-                    if (rrevents[i].type == "fine") {
-                        offence += parseInt(rrevents[i].meta.amount);
-                    }
-                }
-                offence = -offence;
-                offence = TSeparator(offence);
-                if (tp == "job.delivered") {
-                    $("#ddcol2").append(`<p>Damage <b>${parseInt(cargo_damage * 100)}%</b> / XP <b>${earned_xp}</b></p>`);
-                    $("#ddcol2").append(`<p>Profit <b>${revenue} ${punit}</b> / Offence <b>${offence} ${punit}</b></p>`);
-                } else if (tp == "job.cancelled") {
-                    $("#ddcol2").append(`<p>Damage <b>${parseInt(data.response.data.data.object.cargo.damage * 100)}%</b></p>`);
-                    $("#ddcol2").append(`<p>Penalty <b>${penalty} ${punit}</b> / Offence <b>${offence} ${punit}</b></p>`);
-                }
-                $("#ddcol3").append(`<p>Max Speed <b>${top_speed} ${distance_unit_txt}/h</p>`);
-                $("#ddcol3").append(`<p>Fuel Avg <b>${avg_fuel}</b> / Tot <b>${fuel_used}</b></p>`);
-                $("#ddcol3").append(`<p>Truck <b>${truck}</b> (<i>${license_plate})</i></p>`);
-                $("#ddcol3").append(`<p>Trailer <i>${trailer}</i></p>`);
-
-                dt = getDateTime(data.response.timestamp * 1000);
-
-                $("#dlogdriver").html(`<a style='cursor:pointer' onclick='LoadUserProfile(${userid})'>${name}</a>`);
-                if (tp == "job.cancelled") {
-                    $("#dlogid").html(`${logid} (Cancelled)`);
-                } else {
-                    $("#dlogid").html(`${logid}
-                    <button type="button" style="display:inline;padding:5px" id="divisioninfobtn"
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="GetDivisionInfo(${logid})">Division</button>`);
-                }
-                $("#dlogdistance").html(parseInt(data.response.distance * distance_ratio));
-                $("#dlogtime").html(dt);
-                if (tp == "job.delivered") {
-                    extra = "";
-                    if (auto_park == "1") extra += "Auto Park | ";
-                    if (auto_load == "1") extra += "Auto Load | ";
-                    if (extra != "") {
-                        $("#dlogextra").remove();
-                        $("#dlogbasic").append(`<p id="dlogextra"><b>${extra.slice(0, -3)}</b></p>`);
-                    }
-                }
-
-                $("#routereplayload").html("Route replay loading...");
-
-                tabname = "#DeliveryDetailTab";
-                $(".tabs").hide();
-                $(tabname).show();
-                setTimeout(function () {
-                    telemetry = data.response.telemetry.split(";");
-                    basic = telemetry[0].split(",");
-                    tver = 1;
-                    if (basic[0].startsWith("v2")) tver = 2;
-                    else if (basic[0].startsWith("v3")) tver = 3;
-                    else if (basic[0].startsWith("v4")) tver = 4;
-                    else if (basic[0].startsWith("v5")) tver = 5;
-                    else if (basic[0].startsWith("v")) {
-                        return toastNotification("error", "Error", "Unsupported telemetry data compression version", 5000, false);
-                    }
-                    basic[0] = basic[0].slice(2);
-                    game = basic[0];
-                    mods = basic[1];
-                    route = telemetry.slice(1);
-                    dpoints = [];
-                    lastx = 0;
-                    lastz = 0;
-                    if (tver <= 4) {
-                        for (i = 0; i < route.length; i++) {
-                            if (tver == 4) {
-                                if (route[i].split(",") == 1 && route[i].startsWith("idle")) {
-                                    idlecnt = parseInt(route[i].split("e")[1]);
-                                    for (var j = 0; j < idlecnt; j++) {
-                                        dpoints.push([lastx, lastz]);
-                                    }
-                                    continue;
-                                }
-                            }
-                            p = route[i].split(",");
-                            if (p.length < 2) continue;
-                            if (tver == 1) dpoints.push([p[0], p[2]]); // x, z
-                            else if (tver == 2) dpoints.push([b62decode(p[0]), b62decode(p[1])]);
-                            else if (tver >= 3) {
-                                relx = b62decode(p[0]);
-                                relz = b62decode(p[1]);
-                                dpoints.push([lastx + relx, lastz + relz]);
-                                lastx = lastx + relx;
-                                lastz = lastz + relz;
-                            }
-                        }
-                    } else if (tver == 5) {
-                        nroute = "";
-                        for (i = 0; i < route.length; i++) {
-                            nroute += route[i] + ";";
-                        }
-                        route = nroute;
-                        for (i = 0, j = 0; i < route.length; i++) {
-                            x = route[i];
-                            if (x == "^") {
-                                for (j = i + 1; j < route.length; j++) {
-                                    if (route[j] == "^") {
-                                        c = parseInt(route.substr(i + 1, j - i - 1));
-                                        for (k = 0; k < c; k++) {
-                                            dpoints.push([lastx, lastz]);
-                                        }
-                                        break;
-                                    }
-                                }
-                                i = j;
-                            } else if (x == ";") {
-                                cx = 0;
-                                cz = 0;
-                                for (j = i + 1; j < route.length; j++) {
-                                    if (route[j] == ",") {
-                                        cx = route.substr(i + 1, j - i - 1);
-                                        break;
-                                    }
-                                }
-                                i = j;
-                                for (j = i + 1; j < route.length; j++) {
-                                    if (route[j] == ";") {
-                                        cz = route.substr(i + 1, j - i - 1);
-                                        break;
-                                    }
-                                }
-                                i = j;
-                                if (cx == 0 && cz == 0) continue;
-                                relx = b62decode(cx);
-                                relz = b62decode(cz);
-                                dpoints.push([lastx + relx, lastz + relz]);
-                                lastx = lastx + relx;
-                                lastz = lastz + relz;
-                            } else {
-                                st = "ZYXWVUTSRQPONMLKJIHGFEDCBA0abcdefghijklmnopqrstuvwxyz";
-                                if (i + 1 >= route.length) break;
-                                z = route[i + 1];
-                                relx = st.indexOf(x) - 26;
-                                relz = st.indexOf(z) - 26;
-                                dpoints.push([lastx + relx, lastz + relz]);
-                                lastx = lastx + relx;
-                                lastz = lastz + relz;
-                                i += 1;
-                            }
-                        }
-                    }
-                    minx = 100000000000000;
-                    for (i = 0; i < dpoints.length; i++) {
-                        if (dpoints[i][0] < minx) minx = dpoints[i][0];
-                    }
-                    $("#dmap").children().remove();
-                    window.dn = {};
-                    window.mapcenter["dmap"] = undefined;
-                    if (game == 1 && (mods == "promod" || JSON.stringify(data.response).toLowerCase().indexOf("promod") != -1)) {
-                        LoadETS2PMap("dmap");
-                    } else if (game == 1) { // ets2
-                        LoadETS2Map("dmap");
-                    } else if (game == 2) { // ats
-                        LoadATSMap("dmap");
-                    } else {
-                        $("#routereplayload").html("Route replay not available.");
-                        return;
-                    }
-                    setTimeout(function () {
-                        $("#routereplayload").hide();
-                        $("#routereplaydiv").fadeIn();
-                    }, 2000);
-                    deliveryRoute = dpoints;
-                    $("#rp_tot").html(deliveryRoute.length);
-                    dpoints150 = dpoints.filter(function (el, i) {
-                        return i % 300 == 0;
-                    });
-                    dpoints30 = dpoints.filter(function (el, i) {
-                        return i % 100 == 0;
-                    });
-                    dpoints20 = dpoints.filter(function (el, i) {
-                        return i % 50 == 0;
-                    });
-                    dpoints10 = dpoints.filter(function (el, i) {
-                        return i % 10 == 0;
-                    });
-                    dpoints = dpoints.filter(function (el, i) {
-                        return i % 5 == 0;
-                    });
-                    window.dn = {};
-                    if (dmapint != -1) clearInterval(dmapint);
-                    dmapint = setInterval(function () {
-                        if (window.dn == undefined || window.dn.previousExtent_ == undefined) return;
-                        window.dmapRange = {};
-                        dmapRange["top"] = window.dn.previousExtent_[3];
-                        dmapRange["left"] = window.dn.previousExtent_[0];
-                        dmapRange["bottom"] = window.dn.previousExtent_[1];
-                        dmapRange["right"] = window.dn.previousExtent_[2];
-                        $(".dmap-player").remove();
-                        dmapxl = dmapRange["left"];
-                        dmapxr = dmapRange["right"];
-                        dmapyt = dmapRange["top"];
-                        dmapyb = dmapRange["bottom"];
-                        dmapw = $("#dmap").width();
-                        dmaph = $("#dmap").height();
-                        dscale = (dmapxr - dmapxl) / $("#dmap").width();
-                        ddpoints = dpoints;
-                        if (dscale >= 150 && i % 300 != 0) ddpoints = dpoints150;
-                        else if (dscale >= 30 && i % 100 != 0) ddpoints = dpoints30;
-                        else if (dscale >= 20 && i % 50 != 0) ddpoints = dpoints20;
-                        else if (dscale >= 10 && i % 10 != 0) ddpoints = dpoints10;
-                        for (var i = 0; i < ddpoints.length; i++) {
-                            x = ddpoints[i][0];
-                            z = -ddpoints[i][1];
-                            if (x > dmapxl && x < dmapxr && z > dmapyb && z < dmapyt) {
-                                rx = (x - dmapxl) / (dmapxr - dmapxl) * dmapw;
-                                rz = (z - dmapyt) / (dmapyb - dmapyt) * dmaph;
-                                RenderPoint("dmap", 0, rz, rx, 5, nodetail = true);
-                            }
-                        }
-                    }, 500);
-                }, 500);
+            if (data.error){
+                ShowTab("#delivery-tab", "#button-delivery-tab");
+                return AjaxError(data);
             }
+            
+            window.history.pushState("", "", '/delivery/' + logid);
+
+            d = data.response;
+            currentDeliveryLog = d;
+            user = d.user;
+            distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
+            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a>`);
+            $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));
+
+            d = d.detail;
+            tp = d.type;
+            d = d.data.object;
+
+            start_time = +new Date(d.start_time);
+            stop_time = +new Date(d.stop_time);
+            duration = "";
+            if (start_time > 86400 * 1000) duration = String((stop_time - start_time) / 1000).toHHMMSS(); // in case start time is 19700101 and timezone
+
+            cargo = d.cargo.name;
+            cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
+
+            source_company = "Unknown company";
+            source_city = "Unknown city";
+            destination_company = "Unknown company";
+            destination_city = "Unknown city";
+            source_company_id = "";
+            destination_company_id = "";
+            if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
+            if (d.source_city != null) source_city = d.source_city.name;
+            if (d.destination_company != null) destination_company = d.destination_company.name, destination_company_id = d.destination_company.unique_id;
+            if (d.destination_city != null) destination_city = d.destination_city.name;
+
+            $("#delivery-detail-source-company").html(source_company);
+            $("#delivery-detail-source-city").html(source_city);
+            $("#delivery-detail-destination-company").html(destination_company);
+            $("#delivery-detail-destination-city").html(destination_city);
+            $("#delivery-detail-cargo").html(`${cargo} (${cargo_mass})`);
+            $("#delivery-detail-distance").html(`${distance}<br>${duration}`);
+            
+            punit = "€";
+            if (!d.game.short_name.startsWith("e")) punit = "$";
+
+            $("#delivery-detail-timeline").children().remove();
+            ECOLOR = {"started": "green", "delivered": "green", "cancelled": "red", "fine": "yellow", "tollgate": "white", "ferry": "white", "train": "white", "collision": "yellow", "repair": "green", "refuel": "green", "teleport": "green", "speeding": "yellow"}
+            function GenTimelineItem(e, idx, title, content){
+                $("#delivery-detail-timeline").append(`
+                <li id="delivery-detail-timeline-${idx}" class="timeline-item timeline-${ECOLOR[e.type]} mb-5">
+                    <h5 class="fw-bold">${title}</h5>
+                    <p class="text-muted mb-2 fw-bold">${e.real_time}</p>
+                    <p>${content}</p>
+                </li>`);
+            }
+
+            rrevents = d.events;
+            for(i=0;i<rrevents.length;i++){
+                e = rrevents[i];
+                meta = e.meta;
+                if(e.type == "started"){
+                    GenTimelineItem(e, i, `Job Started`, `From ${source_company}, ${source_city}`);
+                } else if(e.type == "delivered"){
+                    GenTimelineItem(e, i, `Job Delivered`, `To ${destination_company}, ${destination_city}<br>Earned ${punit}${TSeparator(meta.revenue)} & ${TSeparator(meta.earned_xp)} XP`);
+                } else if(e.type == "cancelled"){
+                    GenTimelineItem(e, i, `Job Cancelled`, `Penalty: ${punit}${TSeparator(meta.penalty)}`);
+                } else if(e.type == "fine"){
+                    if(meta.offence == "crash"){
+                        GenTimelineItem(e, i, `Crash`, `Fined: ${punit}${TSeparator(meta.amount)}`);
+                    } else if(meta.offence == "speeding"){
+                        speed = TSeparator(parseInt(meta.speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
+                        speed_limit = TSeparator(parseInt(meta.speed_limit * distance_ratio)) + distance_unit_txt + "/h";
+                        GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Fined: ${punit}${TSeparator(meta.amount)}`);
+                    } else if(meta.offence == "wrong_way"){
+                        GenTimelineItem(e, i, `Wrong Way`, `Fined: ${punit}${TSeparator(meta.amount)}`);
+                    }
+                } else if(e.type == "tollgate"){
+                    GenTimelineItem(e, i, `Tollgate`, `Paid ${punit}${TSeparator(meta.cost)}`);
+                } else if(e.type == "ferry"){
+                    GenTimelineItem(e, i, `Ferry`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
+                } else if(e.type == "train"){
+                    GenTimelineItem(e, i, `Train`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
+                } else if(e.type == "collision"){
+                    damage = meta.wear_engine + meta.wear_chassis + meta.wear_transmission + meta.wear_cabin + meta.wear_wheels;
+                    GenTimelineItem(e, i, `Collision`, `Truck Damage: ${(damage*100).toFixed(2)}%`);
+                } else if(e.type == "repair"){
+                    GenTimelineItem(e, i, `Repair`, `Truck repaired.`);
+                } else if(e.type == "refuel"){
+                    fuel = TSeparator(parseInt(meta.amount * fuel_ratio)) + fuel_unit_txt;
+                    GenTimelineItem(e, i, `Refuel`, `Refueled ${fuel} fuel.`);
+                } else if(e.type == "teleport"){
+                    GenTimelineItem(e, i, `Teleport`, `Teleported to another location.`);
+                } else if(e.type == "speeding"){
+                    speed = TSeparator(parseInt(meta.max_speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
+                    speed_limit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
+                    GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Duration: ${meta.end-meta.start} seconds<br><i>Not fined</i>`);
+                }
+            }
+            new SimpleBar($("#delivery-detail-timeline-div")[0]);
+            document.getElementById('delivery-detail-timeline-0').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+                inline: 'center'
+            });
+            $("html, body").animate({
+                scrollTop: 0
+            }, "fast");
+            
+            dt = getDateTime(data.response.timestamp * 1000);
+            
+            telemetry = data.response.telemetry.split(";");
+            basic = telemetry[0].split(",");
+            tver = 1;
+            if (basic[0].startsWith("v2")) tver = 2;
+            else if (basic[0].startsWith("v3")) tver = 3;
+            else if (basic[0].startsWith("v4")) tver = 4;
+            else if (basic[0].startsWith("v5")) tver = 5;
+            else if (basic[0].startsWith("v")) {
+                $("#dmap").prepend(`
+                <div style="position:absolute;z-index:10;padding:10px;">
+                    <h5>Delivery Route <span style="color:red">Not Available</span></h5>
+                    <p style="font-size:12px">Potential reasons: Navio Live not enabled, offline when driving</p>
+                </div>`);
+                return;
+            }
+            basic[0] = basic[0].slice(2);
+            game = basic[0];
+            mods = basic[1];
+            route = telemetry.slice(1);
+            dpoints = [];
+            lastx = 0;
+            lastz = 0;
+            if (tver <= 4) {
+                for (i = 0; i < route.length; i++) {
+                    if (tver == 4) {
+                        if (route[i].split(",") == 1 && route[i].startsWith("idle")) {
+                            idlecnt = parseInt(route[i].split("e")[1]);
+                            for (var j = 0; j < idlecnt; j++) {
+                                dpoints.push([lastx, lastz]);
+                            }
+                            continue;
+                        }
+                    }
+                    p = route[i].split(",");
+                    if (p.length < 2) continue;
+                    if (tver == 1) dpoints.push([p[0], p[2]]); // x, z
+                    else if (tver == 2) dpoints.push([b62decode(p[0]), b62decode(p[1])]);
+                    else if (tver >= 3) {
+                        relx = b62decode(p[0]);
+                        relz = b62decode(p[1]);
+                        dpoints.push([lastx + relx, lastz + relz]);
+                        lastx = lastx + relx;
+                        lastz = lastz + relz;
+                    }
+                }
+            } else if (tver == 5) {
+                nroute = "";
+                for (i = 0; i < route.length; i++) {
+                    nroute += route[i] + ";";
+                }
+                route = nroute;
+                for (var i = 0, j = 0; i < route.length; i++) {
+                    x = route[i];
+                    if (x == "^") {
+                        for (j = i + 1; j < route.length; j++) {
+                            if (route[j] == "^") {
+                                c = parseInt(route.substr(i + 1, j - i - 1));
+                                for (k = 0; k < c; k++) {
+                                    dpoints.push([lastx, lastz]);
+                                }
+                                break;
+                            }
+                        }
+                        i = j;
+                    } else if (x == ";") {
+                        cx = 0;
+                        cz = 0;
+                        for (j = i + 1; j < route.length; j++) {
+                            if (route[j] == ",") {
+                                cx = route.substr(i + 1, j - i -1);
+                                break;
+                            }
+                        }
+                        i = j;
+                        for (j = i + 1; j < route.length; j++) {
+                            if (route[j] == ";") {
+                                cz = route.substr(i + 1, j - i - 1);
+                                break;
+                            }
+                        }
+                        i = j;
+                        if (cx == 0 && cz == 0){continue;}
+                        relx = b62decode(cx);
+                        relz = b62decode(cz);
+                        dpoints.push([lastx + relx, lastz + relz]);
+                        lastx = lastx + relx;
+                        lastz = lastz + relz;
+                    } else {
+                        st = "ZYXWVUTSRQPONMLKJIHGFEDCBA0abcdefghijklmnopqrstuvwxyz";
+                        if (i + 1 >= route.length) break;
+                        z = route[i + 1];
+                        relx = st.indexOf(x) - 26;
+                        relz = st.indexOf(z) - 26;
+                        dpoints.push([lastx + relx, lastz + relz]);
+                        lastx = lastx + relx;
+                        lastz = lastz + relz;
+                        i += 1;
+                    }
+                }
+            }
+            minx = 100000000000000;
+            for (i = 0; i < dpoints.length; i++) {
+                if (dpoints[i][0] < minx) minx = dpoints[i][0];
+            }
+            $("#dmap").children().remove();
+            window.dn = {};
+            window.mapcenter["dmap"] = undefined;
+            if (game == 1 && (mods == "promod" || JSON.stringify(data.response).toLowerCase().indexOf("promod") != -1)) {
+                LoadETS2PMap("dmap");
+            } else if (game == 1) { // ets2
+                LoadETS2Map("dmap");
+            } else if (game == 2) { // ats
+                LoadATSMap("dmap");
+            } else {
+                $("#dmap").prepend(`
+                <div style="position:absolute;z-index:10;padding:10px;">
+                    <h5>Delivery Route <span style="color:red">Not Available</span></h5>
+                    <p style="font-size:12px">Potential reasons: Navio Live not enabled, offline when driving</p>
+                </div>`);
+                return;
+            }
+            $("#dmap").prepend(`
+            <div style="position:absolute;z-index:10;padding:10px;">
+                <h5>Delivery Route</h5>
+                <div id="delivery-route-control">
+                    <a class="clickable" onclick="rrspeed-=2"><i class="fa-solid fa-minus"></i></a>
+                    <a class="clickable" onclick="rri-=100"><i class="fa-solid fa-backward"></i></a>&nbsp;&nbsp;
+                    <a class="clickable" onclick="ToggleRouteReplay()" id="delivery-detail-route-replay-toggle"><i class="fa-solid fa-play"></i></a>&nbsp;&nbsp;
+                    <a class="clickable" onclick="rri+=100"><i class="fa-solid fa-forward"></i></a>
+                    <a class="clickable" onclick="rrspeed+=2"><i class="fa-solid fa-plus"></i></a>
+                </div>
+            </div>`);
+            deliveryRoute = dpoints;
+            $("#rp_tot").html(deliveryRoute.length);
+            dpoints150 = dpoints.filter(function (el, i) {
+                return i % 300 == 0;
+            });
+            dpoints30 = dpoints.filter(function (el, i) {
+                return i % 100 == 0;
+            });
+            dpoints20 = dpoints.filter(function (el, i) {
+                return i % 50 == 0;
+            });
+            dpoints10 = dpoints.filter(function (el, i) {
+                return i % 10 == 0;
+            });
+            dpoints = dpoints.filter(function (el, i) {
+                return i % 5 == 0;
+            });
+            window.dn = {};
+            if (dmapint != -1) clearInterval(dmapint);
+            dmapint = setInterval(UpdateDeliveryRoutePoints, 500);
         },
         error: function (data) {
-            ShowTab("#overview-tab", "#button-overview-tab");
-            $("#DeliveryInfoBtn" + logid).removeAttr("disabled");
-            $("#DeliveryInfoBtn" + logid).html("Details");
+            ShowTab("#delivery-tab", "#button-delivery-tab");
             AjaxError(data);
         }
     });
 }
 
-function ExportDeliveryLog() {
-    var start_time = -1, end_time = -1;
-    if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
-        start_time = +new Date($("#export_start_date").val()) / 1000;
-        end_time = +new Date($("#export_end_date")) / 1000 + 86400;
+function MoreDeliveryDetail(){
+    function GenTableRow(key, val){
+        return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
+    d = currentDeliveryLog;
+    info = "<table>";
+    distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
+    distance_org = d.distance;
+    
+    start_time = +new Date(d.start_time);
+    stop_time = +new Date(d.stop_time);
+    duration = "N/A";
+    if (start_time > 86400 * 1000) duration = String((stop_time - start_time) / 1000).toHHMMSS(); // in case start time is 19700101 and timezone
+    if(d.detail.type == "job.delivered"){
+        t = d.detail.data.object;
+        auto_park = t.events[t.events.length-1].meta.auto_park;
+        auto_load = t.events[t.events.length-1].meta.auto_load;
+        extra = "";
+        if(auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
+        if(auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
+        info += GenTableRow("Log ID", d.logid + "&nbsp;&nbsp;" + extra);
+    } else { 
+        info += GenTableRow("Log ID", d.logid);
+    }
+    info += GenTableRow("Navio ID", d.detail.data.object.id);
+    info += GenTableRow("Time Submitted", getDateTime(d.timestamp * 1000));
+    info += GenTableRow("Time Spent", duration);
+    isdelivered = false;
+    if(d.detail.type == "job.delivered"){
+        isdelivered = true;
+        info += GenTableRow("Status", "<span style='color:lightgreen'>Delivered</span>");
+    } else if(d.detail.type == "job.cancelled"){
+        info += GenTableRow("Status", "<span style='color:red'>Cancelled</span>");
+    }
+    if(d.telemetry != ""){
+        info += GenTableRow("Delivery Route", "<span style='color:lightgreen'>Available</span>");
+    } else {
+        info += GenTableRow("Delivery Route", "<span style='color:red'>Unavailable</span>");
+    }
+    info += GenTableRow("Division", `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
 
-    LockBtn("#exportDLogBtn");
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/export",
-        type: "GET",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            start_time: start_time,
-            end_time: end_time
-        },
-        success: function (data) {
-            UnlockBtn("#exportDLogBtn");
-            FileOutput("export.csv", data);
-            if (data.error) return AjaxError(data);
-        },
-        error: function (data) {
-            UnlockBtn("#exportDLogBtn");
-            AjaxError(data);
+    info += GenTableRow("&nbsp;","&nbsp;");
+    info += GenTableRow("Driver", GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
+    
+    d = d.detail.data.object;
+
+    source_company = "Unknown company";
+    source_city = "Unknown city";
+    destination_company = "Unknown company";
+    destination_city = "Unknown city";
+    source_company_id = "";
+    destination_company_id = "";
+    if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
+    if (d.source_city != null) source_city = d.source_city.name;
+    if (d.destination_company != null) destination_company = d.destination_company.name, destination_company_id = d.destination_company.unique_id;
+    if (d.destination_city != null) destination_city = d.destination_city.name;
+    info += GenTableRow("Source Company", source_company);
+    info += GenTableRow("Source City", source_city);
+    info += GenTableRow("Destination Company", destination_company);
+    info += GenTableRow("Destination City", destination_city);
+    info += GenTableRow("Logged Distance", distance);
+    if(isdelivered){
+        distance2 = d.events[d.events.length-1].meta.distance;
+        distance2_org = d.events[d.events.length-1].meta.distance
+        distance2 = TSeparator(parseInt(distance2 * distance_ratio)) + distance_unit_txt;
+        info += GenTableRow("Reported Distance", distance2);
+        revenue = TSeparator(d.events[d.events.length-1].meta.revenue);
+    } else {
+        penalty = TSeparator(d.events[d.events.length-1].meta.penalty);
+    }
+    distance3 = d.planned_distance;
+    distance3 = TSeparator(parseInt(distance3 * distance_ratio)) + distance_unit_txt;
+    info += GenTableRow("Planned Distance", distance3);
+    
+    info += GenTableRow("&nbsp;","&nbsp;");
+    cargo = d.cargo.name;
+    cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
+    info += GenTableRow("Cargo", cargo);
+    info += GenTableRow("Cargo Mass", cargo_mass);
+    truck = d.truck.brand.name + " " + d.truck.name;
+    truck_brand_id = d.truck.brand.unique_id;
+    license_plate = d.truck.license_plate;
+    trailer = "";
+    trs = "";
+    if (d.trailers.length > 1) trs = "s";
+    for (var i = 0; i < d.trailers.length; i++) trailer += d.trailers[i].license_plate + " | ";
+    trailer = trailer.slice(0,-3);
+    info += GenTableRow("Truck", truck);
+    info += GenTableRow("Truck Plate", license_plate);
+    info += GenTableRow("Trailer Plate", trailer);
+
+    info += GenTableRow("&nbsp;","&nbsp;");
+    fuel_used_org = d.fuel_used;
+    fuel_used = TSeparator(parseInt(d.fuel_used * fuel_ratio)) + fuel_unit_txt;
+    info += GenTableRow("Fuel", fuel_used);
+    if(isdelivered){
+        avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance2_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
+    } else {
+        avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
+    }
+    info += GenTableRow("Avg. Fuel", avg_fuel);
+    info += GenTableRow("AdBlue", d.adblue_used);
+    top_speed = parseInt(d.truck.top_speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
+    average_speed = parseInt(d.truck.average_speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
+    info += GenTableRow("Max. Speed", top_speed);
+    info += GenTableRow("Avg. Speed", average_speed);
+
+    info += GenTableRow("&nbsp;","&nbsp;");
+    punit = "€";
+    if (!d.game.short_name.startsWith("e")) punit = "$";
+    offence = 0;
+    for (var i = 0; i < d.events.length; i++) {
+        if (d.events[i].type == "fine") {
+            offence += parseInt(d.events[i].meta.amount);
         }
-    })
+    }
+    offence = -offence;
+    offence = TSeparator(offence);
+    if(isdelivered){
+        info += GenTableRow("Revenue", `${punit}${revenue}`);
+    } else {
+        info += GenTableRow("Penalty", `${punit}${penalty}`);
+    }
+    info += GenTableRow("Offence", `${punit}${offence}`);
+    
+    info += GenTableRow("&nbsp;","&nbsp;");
+    if(d.is_special == true){
+        info += GenTableRow("Is Special Transport?", "<span style='color:lightgreen'>Yes</span>");
+    } else {
+        info += GenTableRow("Is Special Transport?", "No");
+    }
+    if(d.is_late == true){
+        info += GenTableRow("Is Late?", "<span style='color:red'>Yes</span>");
+    } else {
+        info += GenTableRow("Is Late?", "<span style='color:lightgreen'>No</span>");
+    }
+    if(d.has_police_enabled == true){
+        info += GenTableRow("Has Polic Enabled?", "<span style='color:lightgreen'>Yes</span>");
+    } else {
+        info += GenTableRow("Has Polic Enabled?", "<span style='color:red'>No</span>");
+    }
+    
+    MARKET = {"cargo_market": "Cargo Market", "freight_market": "Freight Market", "quick_job": "Quick Job", "external_contracts": "External Contracts"};
+    mkt = "Unknown";
+    if(Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
+    info += GenTableRow("Market", mkt);
+    mode = "Single Player";
+    if(d.multiplayer != null){
+        mode = "Multiplayer";
+        if(d.multiplayer.type == "truckersmp"){
+            mode = "TruckersMP";
+        } else if(d.multiplayer.type == "scs_convoy"){
+            mode = "SCS Convoy";
+        }
+    }
+    info += GenTableRow("Mode", mode);
+
+    info += "</table>";
+
+    modalid = ShowModal(`Delivery Log`, info);
+    InitModal("delivery_log_detail", modalid);
 }
 function LoadXOfTheMonth(){
     if($("#dotmdiv").is(":visible") || $("#sotmdiv").is(":visible")) return;
@@ -3108,13 +3285,15 @@ announcement_placeholder_row = `<div class="row">
 </div>
 </div>`;
 
-function LoadAnnouncement(){
+function LoadAnnouncement(noplaceholder = false){
     InitPaginate("#announcements", "LoadAnnouncement()");
     $("#announcement-tab .page-item").addClass("disabled");
 
-    $("#announcements").children().remove();
-    for(i = 0 ; i < 5 ; i++){
-        $("#announcements").append(announcement_placeholder_row);
+    if(noplaceholder){
+        $("#announcements").children().remove();
+        for(i = 0 ; i < 5 ; i++){
+            $("#announcements").append(announcement_placeholder_row);
+        }
     }
 
     page = parseInt($("#announcements_page_input").val());
@@ -3251,7 +3430,7 @@ function PostAnnouncement(){
             UnlockBtn("#button-announcement-new-post");
             if (data.error) AjaxError(data);
             toastNotification("success", "Success", "Announcement posted!", 5000, false);
-            LoadAnnouncement();
+            LoadAnnouncement(noplaceholder = false);
         },
         error: function (data) {
             UnlockBtn("#button-announcement-new-post");
@@ -3290,7 +3469,7 @@ function EditAnnouncement(announcementid){
         success: function (data) {
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
             if (data.error) AjaxError(data);
-            LoadAnnouncement();
+            LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", "Edit saved!", 5000, false);
         },
         error: function (data) {
@@ -3300,13 +3479,11 @@ function EditAnnouncement(announcementid){
     });
 }
 
-deleteAnnouncementModal = null;
 function DeleteAnnouncementShow(announcementid){
     if(shiftdown) return DeleteAnnouncement(announcementid);
     content = $("#announcement-display-"+announcementid+"-title").html();
     modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
-    deleteAnnouncementModal = new bootstrap.Modal('#modal-' + modalid);
-    deleteAnnouncementModal.show();
+    InitModal("delete_announcement", modalid);
 }
 
 function DeleteAnnouncement(announcementid){
@@ -3321,12 +3498,9 @@ function DeleteAnnouncement(announcementid){
         success: function (data) {
             UnlockBtn("#button-announcement-delete-"+announcementid);
             if (data.error) AjaxError(data);
-            LoadAnnouncement();
+            LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", "Announcement deleted!", 5000, false);
-            if(deleteAnnouncementModal != null){
-                deleteAnnouncementModal.hide();
-                setTimeout(function(){deleteAnnouncementModal.dispose();deleteAnnouncementModal = null;}, 1000);
-            }
+            if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
         },
         error: function (data) {
             UnlockBtn("#button-announcement-delete-"+announcementid);
@@ -3841,7 +4015,7 @@ function LoadDivisionInfo() {
                     dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
                     $("#table_division_delivery_data").append(`
             <tr class="text-sm" style="color:${color}">
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
+              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
               <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
               <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
@@ -3886,13 +4060,13 @@ function LoadPendingDivisionValidation() {
                     delivery = d[i];
                     $("#table_division_validation_data").append(`
             <tr class="text-sm">
-            <td class="py-5 px-6 font-medium"><a onclick="deliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
+            <td class="py-5 px-6 font-medium"><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
               <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.user.userid})'>${delivery.user.name}</a></td>
               <td class="py-5 px-6 font-medium">${DIVISION[delivery.divisionid]}</td>
               <td class="py-5 px-6 font-medium">
               <button type="button" style="display:inline;padding:5px" id="DeliveryInfoBtn${delivery.logid}" 
               class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="deliveryDetail('${delivery.logid}')">Details</button></td>
+              onclick="ShowDeliveryDetail('${delivery.logid}')">Details</button></td>
             </tr>`);
                 }
             }
@@ -3902,9 +4076,9 @@ function LoadPendingDivisionValidation() {
         }
     })
 }
+
 function GetDivisionInfo(logid) {
-    GeneralLoad();
-    LockBtn("#divisioninfobtn");
+    LockBtn("#button-delivery-detail-division", "Checking...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division?logid=" + logid,
@@ -3914,122 +4088,84 @@ function GetDivisionInfo(logid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            UnlockBtn("#divisioninfobtn");
+            UnlockBtn("#button-delivery-detail-division");
             if (data.error) return AjaxError(data);
 
-            info = `<div style="text-align:left">`;
+            divisionopt = "";
+            divisions = JSON.parse(localStorage.getItem("division"));
+            for(var i = 0 ; i < divisions.length ; i++) {
+                divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division-${divisions[i].id}">${divisions[i].name}</option>`;
+            }
+            if(divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
+            
+            info = ``;
             if (data.response.status == "-1") {
-                divisionopt = "";
-                divisions = JSON.parse(localStorage.getItem("division"));
-                for(var i = 0 ; i < divisions.length ; i++) {
-                    divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
-                }
-                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
-                <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
-                <select id="divisionSelect"
-                  class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                  name="field-name">
-                  ${divisionopt}
+                <select class="form-select bg-dark text-white" id="select-division">
+                    <option selected>Select Division</option>
+                    ${divisionopt}
                 </select>`;
-                info += `<button type="button" style="float:right" id="divisionRequestBtn"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="SubmitDivisionValidationRequest(${logid})">Request Division Validation</button>`;
-                info += "</div>";
-                Swal.fire({
-                    title: `Division Delivery #` + logid,
-                    html: info,
-                    icon: 'info',
-                    showConfirmButton: false,
-                    confirmButtonText: 'Close'
-                });
+                info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">Request Validation</button>`;
+                $("#delivery-detail-division").html(info);
             } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
-                divisionopt = "";
-                divisions = JSON.parse(localStorage.getItem("division"));
-                for(var i = 0 ; i < divisions.length ; i++) {
-                    divisionopt += `<option value="${divisions[i].name.toLowerCase()}" id="division${divisions[i].id}">${divisions[i].name}</option>`;
-                }
-                if(divisionopt == "") return toastNotification("error", "Error", "No division found.", 5000, false);
                 info += `
                 <p>This delivery is pending division validation.</p>
-                <p>The division is selected by driver and changeable.</p>
-                <p>A short reason should be provided if you'd reject it.</p>
-                <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Division: </h3>
-                <select id="divisionSelect"
-                  class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                  name="field-name">
-                  ${divisionopt}
-                </select>
-                <h3 class="text-xl font-bold" style="text-align:left;margin:5px">Reason: </h3>
-                <textarea id="divisionReason"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                rows="5" placeholder=""></textarea>
+                <label for="select-division" class="form-label">Division</label>
+                <div class="mb-3">
+                    <select class="form-select bg-dark text-white" id="select-division">
+                        ${divisionopt}
+                    </select>
+                </div>
+                <label for="validate-division-message" class="form-label">Message</label>
+                <div class="input-group mb-3" style="height:100px;">
+                    <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="(Optional, a reason should be provided here if you need to reject the request)" style="height:100%"></textarea>
+                </div>
                 `;
-                info += `<button type="button" style="float:right;background-color:green;margin:5px" id="divisionAcceptBtn"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="updateDivision(${logid}, 1)">Accept</button>`;
-                info += `<button type="button" style="float:right;background-color:red;margin:5px" id="divisionRejectBtn"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="updateDivision(${logid}, 2)">Deny</button>`;
-                info += "</div>";
-                Swal.fire({
-                    title: `Division Delivery #` + logid,
-                    html: info,
-                    icon: 'info',
-                    showConfirmButton: false,
-                    confirmButtonText: 'Close'
-                });
-                $("#division" + data.response.divisionid).prop("selected", true);
+                modalid = ShowModal(`Division Validation`, info, `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="button-division-danger" type="button" class="btn btn-danger" style="width:100px;" onclick="UpdateDivision(${logid}, 2);">Reject</button>
+                <button id="button-division-accept" type="button" class="btn btn-success" style="width:100px;" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
+                InitModal("division_detail", modalid, top = true);
+                $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
                 DIVISION = {};
                 divisions = JSON.parse(localStorage.getItem("division"));
                 for(var i = 0 ; i < divisions.length ; i++) {
                     DIVISION[divisions[i].id] = divisions[i].name;
                 }
-                if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
+
                 if (data.response.update_message == undefined) {
-                    info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
-                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
+                    $("#delivery-detail-division").html(DIVISION[data.response.divisionid]);
                 } else {
-                    info += "<p><b>Division</b>: " + DIVISION[data.response.divisionid] + "</p><br>";
-                    info += "<p>Validation requested at " + getDateTime(data.response.request_timestamp * 1000) + "</p>";
-                    if (data.response.status == "0") info += "<p>- Pending Validation</p>";
-                    else if (data.response.status == "1")
-                        info += "<p>Validated at " + getDateTime(parseInt(data.response.update_timestamp) * 1000) +
-                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
-                    else if (data.response.status == "2")
-                        info += "<p>Denied at " + getDateTime(data.response.update_timestamp * 1000) +
-                        " by <a onclick='LoadUserProfile(" + data.response.update_staff.userid + ");'>" + data.response.update_staff.name + "</a></p>";
-                    if (data.response.update_message != "")
-                        info += "<p> - For reason " + data.response.update_message + "</p>";
+                    info += DIVISION[data.response.divisionid] + " ";
+                    if (data.response.status == "0") info += "| Pending Validation";
+                    else if (data.response.status == "1") info += SVG_VERIFIED;
+                    else if (data.response.status == "2"){
+                        staff = data.response.update_staff;
+                        staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
+                        info += `| Rejected By ` + staff;
+                    }
                 }
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
-                    info += `<button type="button" style="float:right;background-color:grey;margin:5px" id="divisionAcceptBtn"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="updateDivision(${logid}, 0)">Revalidate</button>`;
+                    modalid = ShowModal(`Division Validation`, info, `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button id="button-division-revalidate" type="button" class="btn btn-primary" style="width:100px;" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
+                    InitModal("division_detail", modalid, top = true);
+                } else {
+                    $("#delivery-detail-division").html(info);
                 }
-                info += "</div>";
-                Swal.fire({
-                    title: `Division Delivery #` + logid,
-                    html: info,
-                    icon: 'info',
-                    confirmButtonText: 'Close'
-                });
             }
         },
         error: function (data) {
-            if (data.error) return AjaxError(data);
-            AjaxError(data);
+            UnlockBtn("#button-delivery-detail-division");
+            errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+            $("#delivery-detail-division").html(`<span style="color:red">${errmsg}</span>`);
         }
     });
 }
 
 function SubmitDivisionValidationRequest(logid) {
-    GeneralLoad();
-    LockBtn("#divisionRequestBtn");
-
-    division = $("#divisionSelect").val();
+    division = $("#select-division").val();
     divisionid = "-1";
     divisions = JSON.parse(localStorage.getItem("division"));
     for(var i = 0 ; i < divisions.length ; i++) {
@@ -4039,6 +4175,8 @@ function SubmitDivisionValidationRequest(logid) {
         }
     }
     if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+
+    LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -4052,39 +4190,44 @@ function SubmitDivisionValidationRequest(logid) {
             divisionid: divisionid
         },
         success: async function (data) {
-            UnlockBtn("#divisionRequestBtn");
+            UnlockBtn("#button-request-division-validation");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", data.response, 5000, false);
+            toastNotification("success", "Success", "Request submitted!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#divisionRequestBtn");
+            UnlockBtn("#button-request-division-validation");
             AjaxError(data);
         }
     });
 }
 
-function updateDivision(logid, status) {
-    GeneralLoad();
-    if (status <= 1) {
-        LockBtn("#divisionAcceptBtn");
-        $("#divisionRejectBtn").attr("disabled", "disabled");
-    } else if (status == 2) {
-        LockBtn("#divisionRejectBtn");
-        $("#divisionRejectBtn").attr("disabled", "disabled");
+function UpdateDivision(logid, status) {
+    divisionid = "-1";
+    if(status >= 1){
+        division = $("#select-division").val();
+        divisions = JSON.parse(localStorage.getItem("division"));
+        for(var i = 0 ; i < divisions.length ; i++) {
+            if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
+                divisionid = divisions[i].id;
+                break;
+            }
+        }
+        if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     }
 
-    division = $("#divisionSelect").val();
-    divisionid = "-1";
-    divisions = JSON.parse(localStorage.getItem("division"));
-    for(var i = 0 ; i < divisions.length ; i++) {
-        if(divisions[i].name.toLowerCase() == division.toLowerCase()) {
-            divisionid = divisions[i].id;
-            break;
-        }
+    if (status == 1) {
+        LockBtn("#button-division-accept", "Accepting...");
+        $("#button-division-reject").attr("disabled", "disabled");
+    } else if (status == 2) {
+        LockBtn("#button-division-reject", "Rejecting...");
+        $("#button-division-accept").attr("disabled", "disabled");
+    } else if(status == 0){
+        LockBtn("#button-division-revalidate", "Requesting...");
     }
-    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
-    reason = $("#divisionReason").val();
-    if (reason == undefined || reason == null) reason = "";
+
+    message = $("#validate-division-message").val();
+    if (message == undefined || message == null) message = "";
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
         type: "PATCH",
@@ -4096,18 +4239,38 @@ function updateDivision(logid, status) {
             logid: logid,
             divisionid: divisionid,
             status: status,
-            message: reason
+            message: message
         },
         success: function (data) {
-            UnlockBtn("#divisionAcceptBtn");
-            UnlockBtn("#divisionRejectBtn");
+            if (status == 1) {
+                UnlockBtn("#button-division-accept");
+                $("#button-division-reject").removeAttr("disabled");
+            } else if (status == 2) {
+                UnlockBtn("#button-division-reject");
+                $("#button-division-accept").removeAttr("disabled");
+            } else if(status == 0){
+                UnlockBtn("#button-division-revalidate");
+            }
             if (data.error) return AjaxError(data);
             GetDivisionInfo(logid);
-            toastNotification("success", "Success", data.response, 5000, false);
+            if (status == 1) {
+                toastNotification("success", "Success", "Division delivery accepted!", 5000, false);
+            } else if (status == 2) {
+                toastNotification("success", "Success", "Division delivery rejected!", 5000, false);
+            } else if(status == 0){
+                toastNotification("success", "Success", "Division delivery validation status updated to pending!", 5000, false);
+            }
         },
         error: function (data) {
-            UnlockBtn("#divisionAcceptBtn");
-            UnlockBtn("#divisionRejectBtn");
+            if (status == 1) {
+                UnlockBtn("#button-division-accept");
+                $("#button-division-reject").removeAttr("disabled");
+            } else if (status == 2) {
+                UnlockBtn("#button-division-reject");
+                $("#button-division-accept").removeAttr("disabled");
+            } else if(status == 0){
+                UnlockBtn("#button-division-revalidate");
+            }
             AjaxError(data);
         }
     });
@@ -4912,7 +5075,10 @@ perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
+Chart.defaults.color = "white";
 shiftdown = false;
+modals = {};
+modalName2ID = {};
 
 function Logout(){
     token = localStorage.getItem("token")
@@ -5018,21 +5184,21 @@ function InitInputHandler(){
 function InitDistanceUnit() {
     distance_unit = localStorage.getItem("distance_unit");
     if (distance_unit == "imperial") {
-        $(".distance_unit").html("Mi");
-        distance_unit_txt = "Mi";
-        fuel_unit_txt = "Gal";
-        weight_unit_txt = "Lb";
+        $(".distance_unit").html("mi");
+        distance_unit_txt = "mi";
+        fuel_unit_txt = "gal";
+        weight_unit_txt = "lb";
         distance_ratio = 0.621371;
         fuel_ratio = 0.2641720524;
         weight_ratio = 2.2046226218488;
         $("#imperialbtn").css("background-color", "none");
         $("#metricbtn").css("background-color", "#293039");
     } else {
-        $(".distance_unit").html("Km");
+        $(".distance_unit").html("km");
         distance_unit = "metric";
-        distance_unit_txt = "Km";
-        fuel_unit_txt = "L";
-        weight_unit_txt = "Lb";
+        distance_unit_txt = "km";
+        fuel_unit_txt = "l";
+        weight_unit_txt = "kg";
         distance_ratio = 1;
         fuel_ratio = 1;
         weight_ratio = 1;
@@ -5059,7 +5225,7 @@ function InitDarkMode(){
         $("body").css("background-color", "#2F3136");
         $("body").css("color", "white");
         $("head").append(`<style id='convertbg'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
+            h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
             .text-gray-500,.text-gray-600 {color: #ddd;}
             .bg-white {background-color: rgba(255, 255, 255, 0.1);}
             .swal2-popup {background-color: rgb(41 48 57)}
@@ -5069,10 +5235,6 @@ function InitDarkMode(){
             .flexdatalist-results {background-color:#57595D};
             a {color: #ccc}</style>`);
         $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
-        Chart.defaults.color = "white";
-        $("body").html($("body").html().replaceAll("text-green", "text-temp"));
-        $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
-        $("body").html($("body").html().replaceAll("text-temp", "text-green"));
     } else {
         $("head").append(`<style>.rounded-full {background-color: #ddd}</style>`);
     }
@@ -5095,9 +5257,6 @@ function ToggleDarkMode() {
             a: {color: #444}</style>`);
         Chart.defaults.color = "white";
         $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
-        $("body").html($("body").html().replaceAll("text-green", "text-temp"));
-        $("body").html($("body").html().replaceAll("#382CDD", "skyblue").replaceAll("green", "lightgreen"));
-        $("body").html($("body").html().replaceAll("text-temp", "text-green"));
     } else {
         $("body").css("background-color", "white");
         $("body").css("color", "");
@@ -5223,6 +5382,9 @@ async function ShowTab(tabname, btnname) {
     $("#map,#dmap,#pmap,#amap").children().remove();
     $(".tabs").hide();
     $(tabname).show();
+    if(tabname == "#user-delivery-tab"){
+        $("#delivery-tab").show();
+    }
     loaded = $(tabname).hasClass("loaded");
     $(tabname).addClass("loaded");
     $(".nav-link").removeClass("active");
@@ -5330,9 +5492,20 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
+        $("#delivery-log-userid").val("");
+        $("#company-statistics").show();
+        $("#user-statistics").hide();
+        if(!loaded){
+            LoadDriverLeaderStatistics();
+            LoadStats(true);
+        }
         LoadDeliveryList();
-        LoadDriverLeaderStatistics();
-        LoadStats(true);
+    }
+    if (tabname == "#user-delivery-tab") {
+        window.history.pushState("", "", '/member/'+userid+'/delivery');
+        $("#company-statistics").hide();
+        $("#user-statistics").show();
+        LoadDeliveryList();
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
@@ -5479,55 +5652,6 @@ function LoadCache(){
     }
 }
 
-function AnnouncementEventButtonValueUpdate() {
-    setInterval(function () {
-        title = $("#anntitle").val();
-        content = $("#anncontent").val();
-        annid = $("#annid").val();
-        if (!$("#newAnnBtn").prop("disabled")) {
-            if (isNumber(annid)) {
-                if (title != "" || content != "") {
-                    $("#newAnnBtn").html("Update Announcement");
-                    $("#newAnnBtn").css("background-color", "lightgreen");
-                } else {
-                    $("#newAnnBtn").html("Delete Announcement");
-                    $("#newAnnBtn").css("background-color", "red");
-                }
-            } else {
-                $("#newAnnBtn").html("Create Announcement");
-                $("#newAnnBtn").css("background-color", "blue");
-            }
-        } else {
-            $("#newAnnBtn").html("Working...");
-        }
-    }, 100);
-    setInterval(function () {
-        title = $("#eventtitle").val();
-        from = $("#eventfrom").val();
-        to = $("#eventto").val();
-        distance = $("#eventdistance").val();
-        meetup_timestamp = $("#eventmeetup_timestamp").val();
-        departure_timestamp = $("#eventdeparture_timestamp").val();
-        eventid = $("#eventid").val();
-        if (!$("#newEventBtn").prop("disabled")) {
-            if (isNumber(eventid)) {
-                if (title != "" || from != "" || to != "" || distance != "" || meetup_timestamp != "" || departure_timestamp != "") {
-                    $("#newEventBtn").html("Update Event");
-                    $("#newEventBtn").css("background-color", "lightgreen");
-                } else {
-                    $("#newEventBtn").html("Delete Event");
-                    $("#newEventBtn").css("background-color", "red");
-                }
-            } else {
-                $("#newEventBtn").html("Create Event");
-                $("#newEventBtn").css("background-color", "blue");
-            }
-        } else {
-            $("#newEventBtn").html("Working...");
-        }
-    }, 100);
-}
-
 userPerm = [];
 userPermLoaded = false;
 function GetUserPermission(){
@@ -5557,13 +5681,11 @@ function ShowStaffTabs() {
             $("#sidebar-staff a").show();
             $(".admin-only").show();
             $("#button-config-tab").show();
-            AnnouncementEventButtonValueUpdate();
         } else {
             $(".admin-only").hide();
             if (userPerm.includes("event")) {
                 $("#button-staff-event-tab").show();
                 $("#button-staff-announcement-tab").show();
-                AnnouncementEventButtonValueUpdate();
             }
             if (userPerm.includes("hr") || userPerm.includes("division")) {
                 $("#button-staff-member-tab").show();
@@ -5730,19 +5852,28 @@ function PathDetect() {
             logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
             $("#button-delivery-tab").addClass("bg-indigo-500");
-            deliveryDetail(logid);
+            ShowDeliveryDetail(logid);
             return;
         }
         if (p.split("/").length >= 3) {
             $(".tabbtns").removeClass("bg-indigo-500");
             $("#button-delivery-tab").addClass("bg-indigo-500");
-            deliveryDetail(p.split("/")[2]);
+            ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
     } else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
     else if (p == "/staff/division") ShowTab("#staff-division-tab", "#button-staff-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
+        if(p.endsWith("/delivery")){
+            if (p.split("/").length >= 3){
+                $('#delivery-log-userid').val(parseInt(p.split("/")[2]));
+                ShowTab("#user-delivery-tab", "#button-user-delivery-tab")
+            } else {
+                ShowTab("#delivery-tab", "#button-delivery-tab");
+            }
+            return;
+        }
         if(getUrlParameter("userid")){
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);
@@ -5783,7 +5914,6 @@ $(document).ready(async function () {
     PathDetect();
     LoadCache();
     LoadDivisionList();
-    InitDarkMode();
     InitPhoneView();
     InitDistanceUnit();
     InitSearchByName();

@@ -211,13 +211,11 @@ function EditAnnouncement(announcementid){
     });
 }
 
-deleteAnnouncementModal = null;
 function DeleteAnnouncementShow(announcementid){
     if(shiftdown) return DeleteAnnouncement(announcementid);
     content = $("#announcement-display-"+announcementid+"-title").html();
     modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
-    deleteAnnouncementModal = new bootstrap.Modal('#modal-' + modalid);
-    deleteAnnouncementModal.show();
+    InitModal("delete_announcement", modalid);
 }
 
 function DeleteAnnouncement(announcementid){
@@ -234,10 +232,7 @@ function DeleteAnnouncement(announcementid){
             if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", "Announcement deleted!", 5000, false);
-            if(deleteAnnouncementModal != null){
-                deleteAnnouncementModal.hide();
-                setTimeout(function(){deleteAnnouncementModal.dispose();deleteAnnouncementModal = null;}, 1000);
-            }
+            if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
         },
         error: function (data) {
             UnlockBtn("#button-announcement-delete-"+announcementid);

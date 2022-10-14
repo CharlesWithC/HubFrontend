@@ -57,6 +57,9 @@ if not genonly:
             cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
             f = f.replace(cur, hsh + ".js")
     open(f"src/yAFgHRTt.php","w").write(f)
-    os.remove("src/js/bundles/" + cur)
+    try:
+        os.remove("src/js/bundles/" + cur)
+    except:
+        pass
 
 open(f"src/js/bundles/{hsh}.js","w",encoding="utf-8").write(bundle)
