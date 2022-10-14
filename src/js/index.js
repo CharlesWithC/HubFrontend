@@ -230,55 +230,17 @@ function InitSearchByName(){
             if (data.error) return;
             l = data.response.list;
             for (var i = 0; i < l.length; i++) {
-                $("#all_member_datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
+                $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
             }
             $(".search-name").flexdatalist({
                 selectionRequired: true,
-                minLength: 1,
-                limitOfValues: 1
-           });
+                minLength: 1
+            });
+            $(".search-name-mul").flexdatalist({
+                selectionRequired: 1,
+                minLength: 1
+            });
         }
-    });
-
-    lastnamesearch = 0;
-    lnsto = 0;
-
-    function SearchName(eid) {
-        if ($("#" + eid + "_datalist").length == 0) {
-            $("#" + eid).attr("list", eid + "_datalist");
-            $("#" + eid).after("<datalist id='" + eid + "_datalist'></datalist>");
-        }
-        datalist = "#" + eid + "_datalist";
-        content = $("#" + eid).val();
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + content,
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                d = data.response.list;
-                $(datalist).children().remove();
-                if (d.length == 0) {
-                    $(datalist).append("<option value='No Data'>");
-                    return;
-                }
-                for (var i = 0; i < d.length; i++) {
-                    $(datalist).append("<option value='" + d[i].name + "' id='" + eid + "_datalist_" + d[i].userid + "'>");
-                }
-            }
-        });
-    }
-    $(".search-name-old").on('input', function () {
-        if (+new Date() - lastnamesearch < 1000) return;
-        lastnamesearch = +new Date();
-        eid = $(this).attr("id");
-        SearchName(eid);
-        clearTimeout(lnsto);
-        lnsto = setTimeout(function () {
-            SearchName(eid)
-        }, 1000);
     });
 }
 
@@ -479,12 +441,12 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
-        LoadEventInfo();
+        if(!loaded) LoadEvent();
     }
     if (tabname == "#staff-event-tab") {
         window.history.pushState("", "", '/staff/event');
         setTimeout(function(){HandleAttendeeInput();},2000);
-        LoadEventInfo();
+        LoadEvent();
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
@@ -625,7 +587,7 @@ function GetUserPermission(){
 }
 
 function ShowStaffTabs() {
-    t = userPerm;
+    t = JSON.parse(JSON.stringify(userPerm));
     t.pop("user");
     t.pop("driver");
     if (t.length > 0) {

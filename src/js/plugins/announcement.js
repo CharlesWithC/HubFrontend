@@ -21,7 +21,7 @@ function LoadAnnouncement(noplaceholder = false){
     InitPaginate("#announcements", "LoadAnnouncement()");
     $("#announcement-tab .page-item").addClass("disabled");
 
-    if(noplaceholder){
+    if(!noplaceholder){
         $("#announcements").children().remove();
         for(i = 0 ; i < 5 ; i++){
             $("#announcements").append(announcement_placeholder_row);
@@ -30,6 +30,9 @@ function LoadAnnouncement(noplaceholder = false){
 
     page = parseInt($("#announcements_page_input").val());
 
+    if(userPerm.includes("announcement") || userPerm.includes("admin")){
+        $("#announcement-new").show();
+    }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/announcement?page=" + page,
         type: "GET",

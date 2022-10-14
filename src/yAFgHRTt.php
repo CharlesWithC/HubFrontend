@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/919309b716cb3ed6.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/c6f3ff6ccf846a12.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -250,7 +250,8 @@
         h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
         a:hover {color: white;}
         th > .fc-scrollgrid-sync-inner {background-color: #444}
-        .flexdatalist-results {background-color:#57595D};
+        .flexdatalist-results {background-color:#57595D;}
+        .flexdatalist-multiple li.value {background-color:#2F3136;}
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -320,7 +321,7 @@
                     </li>
                     <li class="nav-item">
                         <a id="button-event-tab" onclick="ShowTab('#event-tab', '#button-event-tab')" class="nav-link text-white clickable" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
+                            <span class="rect-20"><i class="fa-regular fa-calendar-days"></i></span>
                             Events
                         </a>
                     </li>
@@ -363,12 +364,6 @@
                 </div>
                 <div id="sidebar-staff" style="margin:5px 0;display:none">
                     <li><strong style="color:darkgrey">Staff</strong></li>
-                    <li class="nav-item">
-                        <a id="button-staff-event-tab" onclick="ShowTab('#staff-event-tab', '#button-staff-event-tab')" class="nav-link text-white clickable" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
-                            Events
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a id="button-staff-application-tab" onclick="ShowTab('#staff-application-tab', '#button-staff-application-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
@@ -473,7 +468,7 @@
                 <h1><strong>Multiple Factor Authentication</strong></h1>
                 <label for="mfa-otp" class="form-label">One Time Pass</label>
                 <div class="input-group mb-3">
-                    <input type="number" class="form-control bg-dark text-white" id="mfa-otp" placeholder="000 000">
+                    <input type="text" class="form-control bg-dark text-white" id="mfa-otp" placeholder="000 000">
                 </div>
                 <button id="button-mfa-verify" type="button" class="btn btn-primary w-100" onclick="MFAVerify();">Verify</button>
             </div>
@@ -688,7 +683,7 @@
                         <label for="announcement-new-discord" class="form-label">Discord Integration</label>
                         <div class="input-group mb-2">
                             <span class="input-group-text" id="announcement-new-discord-channel-label">Channel ID</span>
-                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-channel" placeholder="(Optional) Discord channel to forward the announcement" aria-describedby="announcement-new-discord-channel-label">
+                            <input type="number" class="form-control bg-dark text-white" id="announcement-new-discord-channel" placeholder="(Optional) Discord channel to forward the announcement" aria-describedby="announcement-new-discord-channel-label">
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="announcement-new-discord-message-label">Message</span>
@@ -699,20 +694,6 @@
                 </div>
             </div>
             <div id="announcements">
-                <div class="row">
-                    <div class="announcement shadow p-3 m-3 bg-dark rounded col">
-                        <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-8"></span></strong></h5>
-                        <h6 style="font-size:15px"><span class="placeholder col-8"></span> <span class="placeholder col-6"></span></h6>
-                        <p><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
-                        <p><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span></p>
-                    </div>
-                    <div class="announcement shadow p-3 m-3 bg-dark rounded col">
-                        <h5><strong><span class="placeholder col-2"></span> <span class="placeholder col-7"></span></strong></h5>
-                        <h6 style="font-size:15px"><span class="placeholder col-3"></span> <span class="placeholder col-4"></span></h6>
-                        <p><span class="placeholder col-3"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></p>
-                        <p><span class="placeholder col-5"></span>&nbsp;&nbsp;<span class="placeholder col-4"></span></p>
-                    </div>
-                </div>
             </div>
         </section>
         <section id="downloads-tab" class="tabs">
@@ -787,7 +768,7 @@
             <div class="row">
                 <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> Deliveries</strong></h5>
-                    <div id="delivery-log-export-show" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();">Export</a>&nbsp;&nbsp;&nbsp;
+                    <div id="delivery-log-button-right-wrapper" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();">Export</a>&nbsp;&nbsp;&nbsp;
                     <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'>Options</a></div>
                     <div id="table_delivery_log">
                         <table class="w-100">
@@ -979,6 +960,164 @@
                 </div>
             </div>
         </section>
+        <section id="event-tab" class="tabs">
+            <div id="event-new" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="event-new-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#event-new-collapse" aria-expanded="false" aria-controls="event-new-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Event</strong>
+                    </button>
+                </h5>
+                <div id="event-new-collapse" class="collapse row" aria-labelledby="event-new-heading" data-bs-parent="#event-new">
+                    <div class="col">
+                        <label for="event-new-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-title" placeholder="Event title">
+                        </div>
+                        <label for="event-new-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="event-new-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="event-new-truckersmp-link" class="form-label">TruckersMP Link</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
+                        </div>
+                        <label for="event-new-location" class="form-label">Location</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-new-departure-label">Departure</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-departure" placeholder="Where the event starts" aria-describedby="event-new-departure-label">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-new-destination-label">Destination</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-destination" placeholder="Where the event ends" aria-describedby="event-new-destination-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-new-distance-label">Distance</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-distance" placeholder="How long the event is" aria-describedby="event-new-distance-label">
+                        </div>
+                        <label for="event-new-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-new-meetup-time-label">Meetup</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-new-meetup-time" placeholder="" aria-describedby="event-new-meetup-time-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-new-departure-time-label">Departure</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-new-departure-time" placeholder="" aria-describedby="event-new-departure-time-label">
+                        </div>
+                        <label for="event-new-visibility" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="event-new-visibility" id="event-visibility-public" checked>
+                                    <label class="form-check-label" for="event-visibility-public">
+                                        Public
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="event-new-visibility" id="event-visibility-private">
+                                <label class="form-check-label" for="event-visibility-private">
+                                    Private
+                                </label>
+                            </div>
+                        </div>
+                        <button id="button-event-new-create" type="button" class="btn btn-primary" style="float:right;width:100px;" onclick="CreateEvent();">Create</button>
+                    </div>
+                </div>
+            </div>
+            <div class="shadow p-3 m-3 bg-dark rounded">
+                <h5><strong><span class="rect-20"><i class="fa-regular fa-calendar"></i></span> Events Calendar</strong></h5>
+                <div id="events-calendar"></div>
+            </div>
+            <div class="shadow p-3 m-3 bg-dark rounded">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-table-list"></i></span> Events List</strong></h5>
+                <div id="table_event_list">
+                    <table class="w-100">
+                        <thead id="table_event_list_head">
+                            <tr>
+                                <th scope="col" style="width:100px">ID</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Departure</th>
+                                <th scope="col">Destination</th>
+                                <th scope="col" style="width:120px">Distance</th>
+                                <th scope="col" style="width:180px">Meetup Time</th>
+                                <th scope="col" style="width:180px">Departure Time</th>
+                                <th scope="col">Voters</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_event_list_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="event-edit" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="event-edit-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#event-edit-collapse" aria-expanded="false" aria-controls="event-edit-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> Edit Event #<span id="event-edit-id-span"></span></strong>
+                    </button>
+                </h5>
+                <div id="event-edit-collapse" class="collapsed row" aria-labelledby="event-edit-heading" data-bs-parent="#event-edit">
+                    <input type="text" class="form-control bg-dark text-white" id="event-edit-id" placeholder="Event id" style="display:none">
+                    <div class="col">
+                        <label for="event-edit-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-title" placeholder="Event title">
+                        </div>
+                        <label for="event-edit-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="event-edit-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="event-edit-truckersmp-link" class="form-label">TruckersMP Link</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
+                        </div>
+                        <label for="event-edit-location" class="form-label">Location</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-edit-departure-label">Departure</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-departure" placeholder="Where the event starts" aria-describedby="event-edit-departure-label">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-edit-destination-label">Destination</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-destination" placeholder="Where the event ends" aria-describedby="event-edit-destination-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-edit-distance-label">Distance</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-distance" placeholder="How long the event is" aria-describedby="event-edit-distance-label">
+                        </div>
+                        <label for="event-edit-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-edit-meetup-time-label">Meetup</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-meetup-time" placeholder="" aria-describedby="event-edit-meetup-time-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-edit-departure-time-label">Departure</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-departure-time" placeholder="" aria-describedby="event-edit-departure-time-label">
+                        </div>
+                        <label for="event-edit-visibility" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-public" checked>
+                                    <label class="form-check-label" for="event-edit-visibility-public">
+                                        Public
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-private">
+                                <label class="form-check-label" for="event-edit-visibility-private">
+                                    Private
+                                </label>
+                            </div>
+                        </div>
+                        <button id="button-event-edit" type="button" class="btn btn-primary m-2" style="float:right;width:100px;" onclick="EditEvent();">Edit</button>
+                        <button type="button" class="btn btn-secondary m-2" style="float:right;width:100px;" onclick="$('#event-edit').hide();">Close</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <datalist id="all-member-datalist" style="display:none">
+            
+        </datalist>
         <section id="footer">
             <hr style="border:1px solid #777;margin-bottom:8px">
             <div style="width:49.5%;text-align:left;display:inline-block">

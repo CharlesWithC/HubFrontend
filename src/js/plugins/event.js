@@ -1,287 +1,19 @@
-function HandleAttendeeInput(){
-    $('#attendeeId').keydown(function (e) {
-        var keyCode = e.keyCode || e.which;
-        if (keyCode == 13) {
-            val = $("#attendeeId").val();
-            if (val == "") return;
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=highest_role&order=desc&name=" + val,
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                },
-                success: function (data) {
-                    d = data.response.list;
-                    if (d.length == 0) {
-                        return toastNotification("error", "Error", "No member with name " + val + " found.", 5000, false);
-                    }
-                    userid = d[0].userid;
-                    username = d[0].name;
-                    if ($(`#attendeeid-${userid}`).length > 0) {
-                        return toastNotification("error", "Error", "Member already added.", 5000, false);
-                    }
-                    $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
-                        <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
-                    $("#attendeeId").val("");
-                },
-                error: function (data) {
-                    return toastNotification("error", "Error", "Failed to get User ID", 5000, false);
-                }
-            })
-        } else if (keyCode == 8) {
-            e.preventDefault();
-            val = $("#attendeeId").val();
-            if (val != "") {
-                $("#attendeeId").val(val.substring(0, val.length - 1));
-                return;
-            }
-            ch = $("#attendeeIdWrap").children();
-            ch[ch.length - 2].remove();
-        }
-    });
-}
-
-function FetchEvent(showdetail = -1) {
-    eventid = $("#eventid").val();
-    if (!isNumber(eventid))
-        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
-
-    GeneralLoad();
-    LockBtn("#fetchEventBtn");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#fetchEventBtn");
-            if (data.error) return AjaxError(data);
-
-            event = data.response;
-            allevents[event.eventid] = event;
-            $("#eventtitle").val(event.title);
-            $("#eventtruckersmp_link").val(event.truckersmp_link);
-            $("#eventfrom").val(event.departure);
-            $("#eventto").val(event.destination);
-            $("#eventdistance").val(event.distance);
-            offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
-            $("#eventmeetup_timestamp").val(new Date(event.meetup_timestamp * 1000 - offset).toISOString().substring(0, 16));
-            $("#eventdeparture_timestamp").val(new Date(event.departure_timestamp * 1000 - offset).toISOString().substring(0, 16));
-            description = event.description;
-            if (event.is_private) $("#eventpvt-1").prop("checked", true);
-            else $("#eventpvt-0").prop("checked", true);
-            $("#eventimgs").val(description);
-
-            if (showdetail != -1) eventDetail(showdetail);
-        },
-        error: function (data) {
-            UnlockBtn("#fetchEventBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function FetchEventAttendee() {
-    eventid = $("#aeventid").val();
-    if (!isNumber(eventid)) {
-        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
-    }
-
-    GeneralLoad();
-    LockBtn("#fetchEventAttendeeBtn");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#fetchEventAttendeeBtn");
-            if (data.error) return AjaxError(data);
-
-            event = data.response;
-            $(".attendee").remove();
-            for (let i = 0; i < event.attendees.length; i++) {
-                userid = event.attendees[i].userid;
-                username = event.attendees[i].name;
-                if (userid == "") continue;
-                $("#attendeeId").before(`<span class='tag attendee' id='attendeeid-${userid}'>${username} (${userid})
-                <a style='cursor:pointer' onclick='$("#attendeeid-${userid}").remove()'><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"> <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/> </svg> </a></span>`);
-            }
-        },
-        error: function (data) {
-            UnlockBtn("#fetchEventAttendeeBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function UpdateEventAttendees() {
-    eventid = $("#aeventid").val();
-    if (!isNumber(eventid)) {
-        return toastNotification("error", "Error", "Error", "Event ID must be in integar!", 5000, false);
-    }
-    attendeeid = "";
-    $(".attendee").each(function (index, value) {
-        attendeeid += $(value).prop('id').replaceAll("attendeeid-", "") + ",";
-    })
-    attendeeid = attendeeid.substring(0, attendeeid.length - 1);
-    points = $("#attendeePoints").val();
-    if (!isNumber(points)) {
-        return toastNotification("error", "Error", "Error", "Points must be in integar!", 5000, false);
-    }
-
-    GeneralLoad();
-    LockBtn("#attendeeBtn");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid=" + eventid,
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            "attendees": attendeeid,
-            "points": points
-        },
-        success: function (data) {
-            UnlockBtn("#attendeeBtn");
-            if (data.error) return AjaxError(data);
-            
-            Swal.fire({
-                title: 'Event Attendees Updated!',
-                html: "<p style='text-align:left'>" + data.response.message.replaceAll("\n", "<br>") + "</p>",
-                icon: 'success',
-                confirmButtonText: 'OK'
-            })
-            LoadEventInfo();
-        },
-        error: function (data) {
-            $("#attendeeBtn").html("Update");
-            $("#attendeeBtn").removeAttr("disabled");
-            AjaxError(data);
-        }
-    })
-}
-
-function EventOp() {
-    title = $("#eventtitle").val();
-    truckersmp_link = $("#eventtruckersmp_link").val();
-    from = $("#eventfrom").val();
-    to = $("#eventto").val();
-    distance = $("#eventdistance").val();
-    meetup_timestamp = +new Date($("#eventmeetup_timestamp").val());
-    departure_timestamp = +new Date($("#eventdeparture_timestamp").val());
-    meetup_timestamp /= 1000;
-    departure_timestamp /= 1000;
-    eventid = $("#eventid").val();
-    pvt = $("#eventpvt-1").prop("checked");
-    img = $("#eventimgs").val().replaceAll("\n", ",");
-
-    GeneralLoad();
-    LockBtn("#newEventBtn");
-
-    op = "create";
-    if (isNumber(eventid)) {
-        if (title != "" || from != "" || to != "" || distance != "") {
-            op = "update";
-        } else {
-            op = "delete";
-        }
-    }
-
-    if (op == "update") {
-        eventid = parseInt(eventid);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
-            type: "PATCH",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            data: {
-                "title": title,
-                "truckersmp_link": truckersmp_link,
-                "departure": from,
-                "destination": to,
-                "distance": distance,
-                "meetup_timestamp": meetup_timestamp,
-                "departure_timestamp": departure_timestamp,
-                "description": img,
-                "is_private": pvt
-            },
-            success: function (data) {
-                UnlockBtn("#newEventBtn");
-                if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newEventBtn");
-                AjaxError(data);
-            }
-        });
-    } else if (op == "create") {
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event",
-            type: "POST",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            data: {
-                "title": title,
-                "truckersmp_link": truckersmp_link,
-                "departure": from,
-                "destination": to,
-                "distance": distance,
-                "meetup_timestamp": meetup_timestamp,
-                "departure_timestamp": departure_timestamp,
-                "description": img,
-                "is_private": pvt
-            },
-            success: function (data) {
-                UnlockBtn("#newEventBtn");
-                if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newEventBtn");
-                AjaxError(data);
-            }
-        });
-    } else if (op == "delete") {
-        annid = parseInt(annid);
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                UnlockBtn("#newEventBtn");
-                if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#newEventBtn");
-                AjaxError(data);
-            }
-        });
-    }
-}
-
 allevents = {};
 
-function LoadEventInfo() {
-    if (eventsCalendar == undefined) {
+event_placerholder_row = `
+<tr>
+    <td style="width:100px"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 580px - 40%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 580px - 25%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 580px - 25%);"><span class="placeholder w-100"></span></td>
+    <td style="width:120px;"><span class="placeholder w-100"></span></td>
+    <td style="width:180px;"><span class="placeholder w-100"></span></td>
+    <td style="width:180px;"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 580px - 10%);"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+async function LoadEvent(noplaceholder = false) {
+    if (eventsCalendar == undefined || force) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/event/all",
             type: "GET",
@@ -290,40 +22,34 @@ function LoadEventInfo() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: async function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+                if (data.error) return AjaxError(data.response);
                 d = data.response.list;
                 var eventlist = [];
                 offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
                 for (var i = 0; i < d.length; i++) {
                     eventlist.push({
                         "title": d[i].title,
-                        "url": "/event?eventid=" + d[i].eventid,
+                        "url": "/event/" + d[i].eventid,
                         "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().substring(0, 10)
                     })
                 }
 
-                setTimeout(async function () {
-                    while ($("#loading").width() != 0) await sleep(50);
-                    var eventsCalendarEl = document.getElementById('eventsCalendar');
-                    var eventsCalendar = new FullCalendar.Calendar(eventsCalendarEl, {
-                        initialView: 'dayGridMonth',
-                        headerToolbar: {
-                            left: 'prev,next today',
-                            center: 'title'
-                        },
-                        eventClick: function (info) {
-                            info.jsEvent.preventDefault();
-                            eventid = parseInt(info.event.url.split("=")[1]);
-                            eventDetail(eventid);
-                        },
-                        events: eventlist,
-                        height: 'auto'
-                    });
-                    eventsCalendar.render();
-                    setInterval(function () {
-                        $(".fc-daygrid-event").removeClass("fc-daygrid-event");
-                    }, 500);
-                }, 50);
+                var eventsCalendarEl = document.getElementById('events-calendar');
+                var eventsCalendar = new FullCalendar.Calendar(eventsCalendarEl, {
+                    initialView: 'dayGridMonth',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title'
+                    },
+                    eventClick: function (info) {
+                        info.jsEvent.preventDefault();
+                        eventid = info.event.url.split("/")[2];
+                        ShowEventDetail(eventid);
+                    },
+                    events: eventlist,
+                    height: 'auto'
+                });
+                eventsCalendar.render();
             },
             error: function (data) {
                 AjaxError(data);
@@ -331,9 +57,18 @@ function LoadEventInfo() {
         })
     }
 
-    InitPaginate("#table_event_list", "LoadEventInfo();");
+    InitPaginate("#table_event_list", "LoadEvent();");
     page = parseInt($("#table_event_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+    if(!noplaceholder){
+        $("#table_event_list_data").empty();
+        for(var i = 0 ; i < 10 ; i++){
+            $("#table_event_list_data").append(event_placerholder_row);
+        }
+    }
+    if(userPerm.includes("event") || userPerm.includes("admin")){
+        $("#event-new").show();
+    }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event?page=" + page,
         type: "GET",
@@ -341,12 +76,20 @@ function LoadEventInfo() {
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        success: function (data) {
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+        success: async function (data) {
+            if (data.error) return AjaxError(data);
             
             eventList = data.response.list;
             total_pages = data.response.total_pages;
             data = [];
+
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+            if(userPerm.includes("event") || userPerm.includes("admin")){
+                $("#event-new").show();
+            }
 
             for (i = 0; i < eventList.length; i++) {
                 event = eventList[i];
@@ -355,7 +98,7 @@ function LoadEventInfo() {
                 departure_timestamp = event.departure_timestamp * 1000;
                 now = +new Date();
                 style = "";
-                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) style = "color:blue";
+                if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) style = "color:lightblue";
                 if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) style = "color:lightgreen"
                 if (now > departure_timestamp + 1000 * 60 * 30) style = "color:grey";
                 mt = getDateTime(meetup_timestamp);
@@ -363,34 +106,14 @@ function LoadEventInfo() {
                 votecnt = event.votes.length;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
+                
+                extra = "";
+                if(userPerm.includes("event") || userPerm.includes("admin")){ extra = `<a id="button-event-edit-show-${event.eventid}" class="clickable" onclick="EditEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-event-delete-show-${event.eventid}" class="clickable" onclick="DeleteEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                data.push([`<tr_style>${style}</tr_style>`, `${event.eventid} ${pvt}`, `${event.title}`, `${event.departure}`, 
-                    `${event.destination}`, `${event.distance}`, `${mt}`, `${dt}`, `${votecnt}`, `<button type="button" style="display:inline;padding:5px"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="eventDetail('${event.eventid}')">Details</button>`]);
+                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${event.eventid} ${pvt}</a>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",",",<br>")}`, `${dt.replaceAll(",",",<br>")}`, `${votecnt}`, extra]);
             }
 
-            PushTable("#table_event_list", data, total_pages, "LoadEventInfo();");
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
-}
-
-function eventvote(eventid) {
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/vote?eventid=" + eventid,
-        type: "PUT",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            $("#eventid").val(eventid);
-            FetchEvent(eventid, showdetail = eventid);
-            toastNotification("success", "Success", data.response, 5000, false);
+            PushTable("#table_event_list", data, total_pages, "LoadEvent();");
         },
         error: function (data) {
             AjaxError(data);
@@ -398,28 +121,34 @@ function eventvote(eventid) {
     });
 }
 
-async function eventDetail(eventid) {
-    keys = Object.keys(allevents);
-    if (keys.indexOf(String(eventid)) == -1) {
-        $("#eventid").val(eventid);
-        GeneralLoad();
-        FetchEvent();
-        while ($.active > 0) {
-            await sleep(50);
-        }
-        keys = Object.keys(allevents);
-        if (keys.indexOf(String(eventid)) == -1) {
-            return toastNotification("error", "Error", "Event not found.", 5000, false);
-        }
+async function ShowEventDetail(eventid, reload = false) {
+    if (Object.keys(allevents).indexOf(String(eventid)) == -1 || reload) {
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                if (data.error) return AjaxError(data);
+                allevents[eventid] = data.response;
+                ShowEventDetail(eventid);
+            },
+            error: function (data) {
+                return AjaxError(data);
+            }
+        });
+        return;
     }
     event = allevents[eventid];
-    voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Vote)</a>`;
+    voteop = `<a style="cursor:pointer;color:grey" onclick="VoteEvent(${eventid}, 'Voted')">(Vote)</a>`;
     vote = "";
     userid = localStorage.getItem("userid");
     for (i = 0; i < event.votes.length; i++) {
         vote += `<a style="cursor:pointer" onclick="LoadUserProfile(${event.votes[i].userid})">${event.votes[i].name}</a>, `;
         if (event.votes[i].userid == String(userid)) {
-            voteop = `<a style="cursor:pointer;color:grey" onclick="eventvote(${eventid})">(Unvote)</a>`;
+            voteop = `<a style="cursor:pointer;color:grey" onclick="VoteEvent(${eventid}, 'Unvoted')">(Unvote)</a>`;
         }
     }
     vote = vote.substr(0, vote.length - 2);
@@ -429,21 +158,272 @@ async function eventDetail(eventid) {
         attendee += `<a style="cursor:pointer" onclick="LoadUserProfile(${event.attendees[i].userid})">${event.attendees[i].name}</a>, `;
     }
     attendee = attendee.substr(0, attendee.length - 2);
-    info = `<div style="text-align:left">`;
-    info += "<p><b>Event ID</b>: " + event.eventid + "</p>";
-    info += "<p><b>From</b>: " + event.departure + "</p>";
-    info += "<p><b>To</b>: " + event.destination + "</p>";
-    info += "<p><b>Distance</b>: " + event.distance + "</p>";
-    info += "<p><b>Meetup Time</b>: " + getDateTime(event.meetup_timestamp * 1000) + "</p>";
-    info += "<p><b>Departure Time</b>: " + getDateTime(event.departure_timestamp * 1000) + "</p>";
-    info += "<p><b>Voted (" + votecnt + ")</b>: " + voteop + " " + vote + "</p>";
-    info += "<p><b>Attendees</b>: " + attendee + "</p>";
-    info += "<p>" + parseMarkdown(event.description) + "</p>";
-    info += "</div>";
-    Swal.fire({
-        title: `<a href='${event.truckersmp_link}' target='_blank'>${event.title}</a>`,
-        html: info,
-        icon: 'info',
-        confirmButtonText: 'Close'
+    attendeeop = "";
+    if(userPerm.includes("event") || userPerm.includes("admin")){
+        attendeeop = `<a style="cursor:pointer;color:grey" onclick="EditAttendeeShow(${event.eventid})">Edit</a>`;
+    }
+
+    distance = "&nbsp;";
+    if(event.distance != "") distance = event.distance;
+    info = `
+    <div class="row w-100">
+        <div class="col-5 m-auto" style="text-align:center">
+            <p style="font-size:25px;"><b>${event.departure}</b></p>
+        </div>
+        <div class="col-2 m-auto" style="text-align:center">
+            <p style="font-size:15px;margin-bottom:0;position:relative;width:130%;left:-15%">${distance}</p>
+            <hr style="margin:5px">
+            <p>&nbsp;</p>
+        </div>
+        <div class="col-5 m-auto" style="text-align:center">
+            <p style="font-size:25px;"><b>${event.destination}</b></p>
+        </div>
+    </div>`;
+    function GenTableRow(key, val){
+        return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
+    }
+    info += "<table><tbody>";
+    info += GenTableRow("Meetup", getDateTime(event.meetup_timestamp * 1000));
+    info += GenTableRow("Departure", getDateTime(event.departure_timestamp * 1000));
+    if(userid != null && userid != -1){
+        info += GenTableRow("Points", parseInt(event.points));
+        info += GenTableRow(`Voters ${voteop}`, vote);
+        info += GenTableRow(`Attendees ${attendeeop}`, attendee);
+    }
+
+    info += "</tbody></table>"
+    info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + parseMarkdown(event.description).replaceAll("<img","<img style='width:100%' ") + "</p></div>";
+    modalid = ShowModal("Event #" + event.eventid, info);
+    InitModal("event_detail", modalid);
+}
+
+function VoteEvent(eventid, resp) {
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/event/vote?eventid=" + eventid,
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            ShowEventDetail(eventid, reload = true)
+            toastNotification("success", "Success", resp, 5000, false);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
     });
+}
+
+function CreateEvent(){
+    title = $("#event-new-title").val();
+    description = $("#event-new-description").val();
+    truckersmp_link = $("#event-new-truckersmp-link").val();
+    departure = $("#event-new-departure").val();
+    destination = $("#event-new-destination").val();
+    distance = $("#event-new-distance").val();
+    meetup_timestamp = +new Date($("#event-new-meetup-time").val())/1000;
+    departure_timestamp = +new Date($("#event-new-departure-time").val())/1000;
+    is_private = $("#event-visibility-private").is(":checked");
+
+    LockBtn("#button-event-new-create", "Creating...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/event",
+        type: "POST",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            "title": title,
+            "description": description,
+            "truckersmp_link": truckersmp_link,
+            "departure": departure,
+            "destination": destination,
+            "distance": distance,
+            "meetup_timestamp": meetup_timestamp,
+            "departure_timestamp": departure_timestamp,
+            "is_private": is_private
+        },
+        success: function (data) {
+            UnlockBtn("#button-event-new-create");
+            if (data.error) return AjaxError(data);
+            LoadEvent(force = true);
+            toastNotification("success", "Success", "Event created!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-event-new-create");
+            AjaxError(data);
+        }
+    });
+}
+
+function EditEventShow(eventid){
+    e = allevents[eventid];
+    title = e.title;
+    description = e.description;
+    truckersmp_link = e.truckersmp_link;
+    departure = e.departure;
+    destination = e.destination;
+    distance = e.distance;
+    meetup_timestamp = e.meetup_timestamp;
+    departure_timestamp = e.departure_timestamp;
+    is_private = e.is_private;
+    $("#event-edit-id-span").html(eventid);
+    $("#event-edit-id").val(eventid);
+    $("#event-edit-title").val(title);
+    $("#event-edit-description").val(description);
+    $("#event-edit-truckersmp-link").val(truckersmp_link);
+    $("#event-edit-departure").val(departure);
+    $("#event-edit-destination").val(destination);
+    $("#event-edit-distance").val(distance);
+    $("#event-edit-meetup-time").val(new Date(parseInt(meetup_timestamp)*1000).toISOString().slice(0,-1));
+    $("#event-edit-departure-time").val(new Date(parseInt(departure_timestamp)*1000).toISOString().slice(0,-1));
+    if(is_private) $("#event-edit-visibility-private").prop("checked", true);
+    else $("#event-edit-visibility-public").prop("checked", true);
+    $("#event-edit").show();
+}
+
+function EditEvent(){
+    LockBtn("#button-event-edit", "Editing...");
+    eventid = $("#event-edit-id").val();
+    title = $("#event-edit-title").val();
+    description = $("#event-edit-description").val();
+    truckersmp_link = $("#event-edit-truckersmp-link").val();
+    departure = $("#event-edit-departure").val();
+    destination = $("#event-edit-destination").val();
+    distance = $("#event-edit-distance").val();
+    meetup_timestamp = +new Date($("#event-edit-meetup-time").val())/1000;
+    departure_timestamp = +new Date($("#event-edit-departure-time").val())/1000;
+    is_private = $("#event-edit-visibility-private").is(":checked");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/event?eventid="+eventid,
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        data: {
+            "title": title,
+            "description": description,
+            "truckersmp_link": truckersmp_link,
+            "departure": departure,
+            "destination": destination,
+            "distance": distance,
+            "meetup_timestamp": meetup_timestamp,
+            "departure_timestamp": departure_timestamp,
+            "is_private": is_private
+        },
+        success: function (data) {
+            UnlockBtn("#button-event-edit");
+            if (data.error) return AjaxError(data);
+            LoadEvent(force = true);
+            toastNotification("success", "Success", "Event created!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-event-edit");
+            AjaxError(data);
+        }
+    });
+}
+
+function DeleteEventShow(eventid){
+    if(shiftdown) return DeleteEvent(eventid);
+    title = allevents[eventid].title;
+    modalid = ShowModal("Delete Event", `<p>Are you sure you want to delete this event?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-event-delete-${eventid}" type="button" class="btn btn-danger" onclick="DeleteEvent(${eventid});">Delete</button>`);
+    InitModal("delete_event", modalid);
+}
+
+function DeleteEvent(eventid){
+    LockBtn("#button-event-delete-"+eventid, "Deleting...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            UnlockBtn("#button-event-delete-"+eventid);
+            if (data.error) AjaxError(data);
+            LoadEvent(noplaceholder = true);
+            toastNotification("success", "Success", "Event deleted!", 5000, false);
+            if(Object.keys(modals).includes("delete_event")) DestroyModal("delete_event");
+        },
+        error: function (data) {
+            UnlockBtn("#button-event-delete-"+eventid);
+            AjaxError(data);
+        }
+    });
+}
+
+function EditAttendeeShow(eventid){
+    modalid = ShowModal("Edit Event Point & Attendee", `
+    <p>#${eventid} | ${allevents[eventid].title}</p>
+    <label for="event-edit-point" class="form-label">Event Point</label>
+    <div class="input-group mb-3">
+        <input type="number" class="form-control bg-dark text-white" id="event-edit-point" placeholder="3000">
+    </div>
+    <label for="event-edit-attendee" class="form-label">Attendees</label>
+    <div class="input-group mb-3">
+        <input type='text' id="event-edit-attendee" placeholder='Select members from list' class="form-control bg-dark text-white flexdatalist" list="all-member-datalist" data-min-length='1' multiple='' data-selection-required='1'></input>
+    </div>
+    <p id="event-edit-message"></p>`, 
+    `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button id="button-event-edit-attendee" type="button" class="btn btn-primary" onclick="EditEventAttendee(${eventid});">Edit</button>`);
+    InitModal("edit_event_attendee", modalid, top=true);
+    $('#event-edit-attendee').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1
+    });
+    attendees = allevents[eventid].attendees;
+    attendeestxt = "";
+    for(var i = 0 ; i < attendees.length ; i++){
+        attendeestxt += `${attendees[i].name} (${attendees[i].userid}),`;
+    }
+    attendeestxt = attendeestxt.slice(0,-1);
+    $("#event-edit-point").val(allevents[eventid].points);
+    $("#event-edit-attendee").val(attendeestxt);
+}
+
+function EditEventAttendee(eventid) {
+    points = $("#event-edit-point").val();
+    if(!isNumber(points)){
+        return toastNotification("error", "Error", "Invalid event point!", 5000);
+    }
+    attendeestxt = $("#event-edit-attendee").val();
+    attendeest = attendeestxt.split(",");
+    attendees = [];
+    for(var i = 0 ; i < attendeest.length ; i++){
+        s = attendeest[i];
+        attendees.push(s.substr(s.lastIndexOf("(")+1,s.lastIndexOf(")")-s.lastIndexOf("(")-1));
+    }
+    attendees = attendees.join(",");
+
+    LockBtn("#button-event-edit-attendee", "Editing...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid=" + eventid,
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "attendees": attendees,
+            "points": points
+        },
+        success: function (data) {
+            UnlockBtn("#button-event-edit-attendee");
+            if (data.error) return AjaxError(data);
+            LoadEvent(noplaceholder = true);
+            $("#event-edit-message").html("<br>" + data.response.message.replaceAll("\n","<br>"));
+            toastNotification("success", "Sucess", "Event point & attendee updated!", 5000);
+        },
+        error: function (data) {
+            UnlockBtn("#button-event-edit-attendee");
+            AjaxError(data);
+        }
+    })
 }
