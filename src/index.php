@@ -732,6 +732,16 @@ if (str_starts_with($path, '/banner')) {
                             </div>
                         </div>
                     </div>
+                    <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6" id="profile-banner-promotion">
+                        <h2><b>Profile Banner (Free)</b>
+                        <div class="p-4 overflow-x-auto" style="display: block;">
+                            <p>Profile banner has been out for a while, but it was only available to VTCs having purchased it.</p>
+                            <p>However, we are now providing a chance to get yours <b>FOR FREE</b> even if your VTC didn't buy it.</p>
+                            <p><a href="https://discord.gg/XzZPtqttb4">Click to join our Discord (https://discord.gg/XzZPtqttb4)</a> to get it now!</p>
+                            <p style="font-size:12px">*Read detailed terms in #free-banner channel in Discord.</p>
+                            <img id="profile-banner-promotion-banner" onload="$('#profile-banner-promotion').hide();" onerror="$(this).attr('src','/banner/0');"style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;">
+                        </div>
+                    </div>
                     <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
                         <h2><b><?php echo $st->statistics; ?></b>
                             <div style="margin-left:auto;width:fit-content">

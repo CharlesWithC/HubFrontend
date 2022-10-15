@@ -396,6 +396,7 @@ function PushTable(table, data, total_pages, reload_function = "") {
         $(table + "_head").hide();
         $(table + "_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
         $(table + "_page_input").val("1");
+        UpdatePaginate(table, 1, reload_function);
         return;
     } else {
         $(table + "_head").show();
@@ -1468,7 +1469,7 @@ function MoreDeliveryDetail(){
     InitModal("delivery_log_detail", modalid);
 }
 function LoadXOfTheMonth(){
-    if($("#dotmdiv").is(":visible") || $("#sotmdiv").is(":visible")) return;
+    if($("#member-tab-left").is(":visible")) return;
     if(perms.driver_of_the_month != undefined){
         dotm_role = perms.driver_of_the_month[0];
         
@@ -1482,12 +1483,15 @@ function LoadXOfTheMonth(){
             success: function (data) {
                 d = data.response.list;
                 user = d[0];
+                userid = user.userid;
+                name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                distance = TSeparator(parseInt(user.distance * distance_ratio));
-                $("#dotm").html(GetAvatarImg(src, user.userid, user.name));
-                $("#x_of_the_month").show();
-                $("#dotmdiv").show();
+                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#driver-of-the-month").show();
+
+                $("#member-tab-left").show();
+                $("#member-tab-right").addClass("col-8");
             }
         })
     }
@@ -1504,15 +1508,272 @@ function LoadXOfTheMonth(){
             success: function (data) {
                 d = data.response.list;
                 user = d[0];
+                userid = user.userid;
+                name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                distance = TSeparator(parseInt(user.distance * distance_ratio));
-                $("#sotm").html(GetAvatarImg(src, user.userid, user.name));
-                $("#x_of_the_month").show();
-                $("#sotmdiv").show();
+                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${vtcprefix}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#staff-of-the-month").show();
+
+                $("#member-tab-left").show();
+                $("#member-tab-right").addClass("col-8");
             }
         })
     }
+}
+
+member_list_placeholder_row = `
+<tr>
+    <td style="width:40px;"></td>
+    <td style="width:calc(100% - 40px - 60%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 40px - 40%);"><span class="placeholder w-100"></span></td>
+</tr>`;
+function LoadMemberList(noplaceholder = false) {
+    LockBtn("#button-member-list-search", btntxt = "...");
+
+    InitPaginate("#table_member_list", "LoadMemberList();");
+    page = parseInt($("#table_member_list_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    search_name = $("#input-member-search").val();
+
+    if(!noplaceholder){
+        $("#table_member_list_data").empty();
+        for(var i = 0 ; i < 10 ; i++){
+            $("#table_member_list_data").append(member_list_placeholder_row);
+        }
+    }
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: async function (data) {
+            UnlockBtn("#button-member-list-search");
+            if (data.error) return AjaxError(data);
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+
+            memberList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < memberList.length; i++) {
+                user = memberList[i];
+                userid = user.userid;
+                name = user.name;
+                discordid = user.discordid;
+                avatar = user.avatar;
+                highestrole = user.roles[0];
+                highestroleid = roles[0];
+                highestrole = rolelist[highestrole];
+                if (highestrole == undefined) highestrole = "/";
+                if (avatar != null) {
+                    if (avatar.startsWith("a_"))
+                        src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+                    else
+                        src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+                } else {
+                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                }
+                userop = ``;
+                if(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin")){
+                    userop = `<div class="dropdown">
+                    <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Manage
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark member-manage-dropdown">
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${name}')" style="color:red">Dismiss</a></li>
+                    </ul>
+                </div>`;
+                } else if(userPerm.includes(`division`)){
+                    userop = `<div class="dropdown">
+                    <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Manage
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
+                    </ul>
+                </div>`;
+                }
+                data.push([`<img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+            }
+
+            PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
+        },
+        error: function (data) {
+            UnlockBtn("#button-member-list-search");
+            AjaxError(data);
+        }
+    })
+}
+
+function EditRolesShow(uid){
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user?userid=" + uid,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            d = data.response;
+            roles = d.roles;
+
+            roled = `
+            <div>
+                <label class="form-label">Roles</label>
+                <br>
+            </div>`;
+            
+            roleids = Object.keys(rolelist);
+            if(!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin"))&&userPerm.includes("division")){
+                division_roles = [];
+                divisions_ids = Object.keys(divisions);
+                for(var i = 0 ; i < divisions_ids.length ; i++){
+                    division_roles.push(divisions[divisions_ids[i]].role_id);
+                }
+            }
+            for (var i = 0; i < roleids.length; i++) {
+                if(i>0&&i%2==0) roled += "<br>";
+                checked = "";
+                if(roles.includes(roleids[i])) checked = "checked";
+                disabled = "";
+                if (roleids[i] <= highestroleid) disabled = "disabled";
+                if(!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin"))&&userPerm.includes("division")){
+                    if(!division_roles.includes(roleids[i])) disabled="disabled";
+                }
+                roled += `
+                <div class="form-check mb-2" style="width:49.5%;display:inline-block">
+                    <input class="form-check-input" type="checkbox" value="" id="edit-roles-${roleids[i]}" name="edit-roles" ${checked} ${disabled}>
+                    <label class="form-check-label" for="edit-roles-${roleids[i]}">
+                        ${rolelist[roleids[i]]}
+                    </label>
+                </div>`;
+            }
+            
+            modalid = ShowModal(`${d.name} (${d.userid})`, roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-roles" type="button" class="btn btn-primary" onclick="EditRoles(${d.userid});">Update</button>`);
+            InitModal("edit_roles", modalid);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+}
+
+function EditRoles(uid) {
+    LockBtn("#button-edit-roles", "Updating...");
+
+    d = $('input[name="edit-roles"]:checked');
+    roles = [];
+    for (var i = 0; i < d.length; i++) {
+        roles.push(d[i].id.replaceAll("edit-roles-", ""));
+    }
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member/roles",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "userid": uid,
+            "roles": roles.join(",")
+        },
+        success: function (data) {
+            UnlockBtn("#button-edit-roles");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success!", "Member roles updated!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-edit-roles");
+            AjaxError(data);
+        }
+    });
+}
+
+function EditPointsShow(uid, name){
+    div = `
+    <label class="form-label">Points</label>
+    <div class="input-group mb-2">
+        <span class="input-group-text" id="edit-points-distance-label">Distance</span>
+        <input type="number" class="form-control bg-dark text-white" id="edit-points-distance" placeholder="0" aria-describedby="edit-points-distance-label">
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="edit-points-myth-label">Myth</span>
+        <input type="number" class="form-control bg-dark text-white" id="edit-points-myth" placeholder="0" aria-describedby="edit-points-myth-label">
+    </div>`;
+    modalid = ShowModal(`${name} (${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${uid});">Update</button>`);
+    InitModal("edit_points", modalid);
+}
+
+function EditPoints(uid) {
+    LockBtn("#button-edit-points");
+
+    distance = $("#edit-points-distance").val();
+    mythpoint = $("#edit-points-myth").val();
+    if (!isNumber(distance)) distance = 0;
+    if (!isNumber(mythpoint)) mythpoint = 0;
+    
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member/point",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "userid": uid,
+            "distance": distance,
+            "mythpoint": mythpoint,
+        },
+        success: function (data) {
+            UnlockBtn("#button-edit-points");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success!", "Member points updated!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-edit-points");
+            AjaxError(data);
+        }
+    });
+}
+
+function DismissMemberShow(uid, name){
+    modalid = ShowModal(`Dismiss Member`, `<p>Are you sure you want to dismiss this member?</p><p><i>${name} (User ID: ${uid})</i></p><br><p>Dismissing ${name} will erase all their delivery log (marking them as by unknown user) and remove them from Navio company. This cannot be undone.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">Dismiss</button>`);
+    InitModal("dismiss_member", modalid);
+}
+
+function DismissMember(uid){
+    LockBtn("#dismiss-member", "Dismissing...");
+    
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member/dismiss?userid=" + uid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#dismiss-member");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "Member dismissed!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#dismiss-member");
+            AjaxError(data);
+        }
+    });
 }
 
 function GetDiscordRankRole() {
@@ -1536,212 +1797,6 @@ function GetDiscordRankRole() {
             AjaxError(data);
         }
     })
-}
-
-function LoadMemberList() {
-    GeneralLoad();
-    LockBtn("#loadMemberListBtn", btntxt = "...");
-    InitPaginate("#table_member_list", "LoadMemberList();");
-
-    page = parseInt($("#table_member_list_page_input").val())
-    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + $("#searchname").val(),
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#loadMemberListBtn");
-            if (data.error) return AjaxError(data);
-
-            memberList = data.response.list;
-            total_pages = data.response.total_pages;
-            data = [];
-
-            for (i = 0; i < memberList.length; i++) {
-                user = memberList[i];
-                highestrole = user.roles[0];
-                highestrole = rolelist[highestrole];
-                if (highestrole == undefined) highestrole = "/";
-                discordid = user.discordid;
-                avatar = GetAvatarSrc(discordid, user.avatar);
-                totalpnt = parseInt(user.totalpnt);
-                
-                data.push([`${user.userid}`, `${GetAvatarImg(avatar, user.userid, user.name)}`, `${highestrole}`]);
-            }
-
-            PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
-        },
-        error: function (data) {
-            UnlockBtn("#loadMemberListBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-useridToUpdateRole = -1;
-
-function GetMemberRoles() {
-    GeneralLoad();
-    LockBtn("#fetchRolesBtn");
-
-    s = $("#memberroleid").val();
-    useridToUpdateRole = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
-    $("#rolelist").children().children().prop("checked", false);
-    
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(useridToUpdateRole),
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#fetchRolesBtn");
-            if (data.error) return AjaxError(data);
-            d = data.response;
-            roles = d.roles;
-            $("#memberrolename").html(d.name + " (" + useridToUpdateRole + ")");
-            for (var i = 0; i < roles.length; i++)
-                $("#role" + roles[i]).prop("checked", true);
-            toastNotification("success", "Success!", "Existing roles are fetched!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#fetchRolesBtn");
-            AjaxError(data);
-        }
-    });
-}
-
-function UpdateMemberRoles() {
-    GeneralLoad();
-    LockBtn("#updateMemberRolesBtn");
-
-    d = $('input[name="assignrole"]:checked');
-    roles = [];
-    for (var i = 0; i < d.length; i++) {
-        roles.push(d[i].id.replaceAll("role", ""));
-    }
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/roles",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            "userid": useridToUpdateRole,
-            "roles": roles.join(",")
-        },
-        success: function (data) {
-            UnlockBtn("#updateMemberRolesBtn");
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Member roles updated!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#updateMemberRolesBtn");
-            AjaxError(data);
-        }
-    });
-}
-
-function UpdateMemberPoints() {
-    s = $("#memberpntid").val();
-    userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
-    if (!isNumber(userid)) {
-        toastNotification("error", "Error", "Invalid User ID", 5000, false);
-        return;
-    }
-
-    GeneralLoad();
-    LockBtn("#updateMemberPointsBtn");
-
-    distance = $("#memberpntdistance").val();
-    mythpoint = $("#memberpntmyth").val();
-    if (!isNumber(distance)) distance = 0;
-    if (!isNumber(mythpoint)) mythpoint = 0;
-    
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/point",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            "userid": userid,
-            "distance": distance,
-            "mythpoint": mythpoint,
-        },
-        success: function (data) {
-            UnlockBtn("#updateMemberPointsBtn");
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Member points updated!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#updateMemberPointsBtn");
-            AjaxError(data);
-        }
-    });
-}
-
-useridToDismiss = 0;
-
-function DismissUser() {
-    s = $("#dismissUserID").val();
-    userid = s.substr(s.indexOf("(")+1,s.indexOf(")")-s.indexOf("(")-1);
-    GeneralLoad();
-
-    if ($("#dismissbtn").html() != "Confirm?" || useridToDismiss != userid) {
-        LockBtn("#dismissbtn");
-        
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                UnlockBtn("#dismissbtn");
-                if (data.error) return AjaxError(data);
-
-                d = data.response;
-                roles = d.roles;
-                $("#dismissbtn").html("Confirm?");
-                useridToDismiss = userid;
-            },
-            error: function (data) {
-                UnlockBtn("#dismissbtn");
-                AjaxError(data);
-            }
-        });
-        return;
-    } else {
-        LockBtn("#dismissbtn");
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/dismiss?userid=" + String(userid),
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                UnlockBtn("#dismissbtn");
-                $("#dismissUserID").val("");
-                if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "Member dismissed", 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#dismissbtn");
-                AjaxError(data);
-            }
-        });
-    }
 }
 
 function UserResign() {
@@ -5322,8 +5377,15 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
-        LoadXOfTheMonth();
-        LoadMemberList();
+        if(!loaded){
+            $("#input-member-search").on("keydown", function(e){
+                if(e.which == 13){
+                    LoadMemberList(noplaceholder = true);
+                }
+            });
+            LoadXOfTheMonth();
+            LoadMemberList();
+        }
     }
     if (tabname == "#staff-member-tab") {
         window.history.pushState("", "", '/staff/member');
@@ -5416,13 +5478,7 @@ function UpdateRolesOnDisplay(){
         roleids[i] = parseInt(roleids[i]);
     }
     userPerm = GetUserPermission();
-    ShowStaffTabs();
-    for (var i = 0; i < roleids.length; i++) {
-        if (roleids[i] <= highestrole)
-            $("#rolelist").append(`<li><input disabled type="checkbox" id="role${roleids[i]}" name="assignrole" value="role${roleids[i]}"> <label for="role${roleids[i]}">${rolelist[roleids[i]]}</label></li>`);
-        else
-            $("#rolelist").append(`<li><input type="checkbox" id="role${roleids[i]}" name="assignrole" value="role${roleids[i]}"><label for="role${roleids[i]}">${rolelist[roleids[i]]}</label></li>`);
-    }                
+    ShowStaffTabs();  
 }
 
 function LoadCache(){
@@ -5542,19 +5598,12 @@ function ShowStaffTabs() {
             $("#button-config-tab").show();
         } else {
             $(".admin-only").hide();
-            if (userPerm.includes("event")) {
-                $("#button-staff-event-tab").show();
-                $("#button-staff-announcement-tab").show();
-            }
             if (userPerm.includes("hr") || userPerm.includes("division")) {
                 $("#button-staff-member-tab").show();
                 $("#button-staff-application-tab").show();
             }
             if (userPerm.includes("hr")) {
                 $("#button-staff-user").show();
-            }
-            if (userPerm.includes("division")) {
-                $("#button-staff-division-tab").show();
             }
             if (userPerm.includes("audit")) {
                 $("#button-audit-tab").show();
@@ -5667,6 +5716,7 @@ function ValidateToken() {
                 return a - b
             });
             highestrole = roles[0];
+            highestroleid = roles[0];
             name = data.response.name;
             avatar = data.response.avatar;
             discordid = data.response.discordid;
@@ -5759,7 +5809,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -5767,6 +5817,7 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
+    setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();

@@ -716,7 +716,7 @@ function LoadLeaderboard() {
             for (i = 0; i < leaderboard.length; i++){
                 user = leaderboard[i];
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio)); 
-                data.push([`#${user.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.total_no_limit))} (#${user.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.total}`]);
+                data.push([`#${user.points.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${user.points.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.points.total}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -1815,8 +1815,8 @@ function LoadUserProfile(userid) {
                                     info += `<p>Event: ${d.points.event}</p>`;
                                     info += `<p>Division: ${d.points.division}</p>`;
                                     info += `<p>Myth: ${d.points.myth}</p>`;
-                                    info += `<p><b>Total: ${d.total_no_limit}</b></p>`;
-                                    info += `<p><b>Rank: #${d.rank_no_limit} (${point2rank(d.total_no_limit)})</b></p>`;
+                                    info += `<p><b>Total: ${d.points.total_no_limit}</b></p>`;
+                                    info += `<p><b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b></p>`;
                                     if (String(userid) == localStorage.getItem("userid")) {
                                         info += `
                                     <button type="button" style="font-size:16px;padding:10px;padding-top:5px;padding-bottom:5px"
@@ -2222,7 +2222,7 @@ function LoadStats(basic = false) {
                     name = user.user.name;
                     discordid = user.user.discordid;
                     avatar = user.user.avatar;
-                    totalpnt = TSeparator(parseInt(user.total));
+                    totalpnt = TSeparator(parseInt(user.points.total));
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -5253,8 +5253,8 @@ async function ShowTab(tabname, btnname) {
             success: function (data) {
                 if (data.error == false) {
                     d = data.response.list[0];
-                    rank = point2rank(d.total_no_limit);
-                    $("#ranktotpoints").html(TSeparator(d.total_no_limit) + " - " + rank);
+                    rank = point2rank(d.points.total_no_limit);
+                    $("#ranktotpoints").html(TSeparator(d.points.total_no_limit) + " - " + rank);
                     if ($("#role").html() == "Driver")
                         $("#role").html(rank);
                 }
@@ -5543,6 +5543,7 @@ function ValidateToken() {
 
             // Check if is member
             userid = data.response.userid;
+            $("#profile-banner-promotion-banner").attr("src", "/banner/" + userid);
             if (data.response.userid != -1) {
                 $("#button-member-tab").show();
             }

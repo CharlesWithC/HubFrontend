@@ -379,8 +379,15 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
-        LoadXOfTheMonth();
-        LoadMemberList();
+        if(!loaded){
+            $("#input-member-search").on("keydown", function(e){
+                if(e.which == 13){
+                    LoadMemberList(noplaceholder = true);
+                }
+            });
+            LoadXOfTheMonth();
+            LoadMemberList();
+        }
     }
     if (tabname == "#staff-member-tab") {
         window.history.pushState("", "", '/staff/member');
@@ -473,13 +480,7 @@ function UpdateRolesOnDisplay(){
         roleids[i] = parseInt(roleids[i]);
     }
     userPerm = GetUserPermission();
-    ShowStaffTabs();
-    for (var i = 0; i < roleids.length; i++) {
-        if (roleids[i] <= highestrole)
-            $("#rolelist").append(`<li><input disabled type="checkbox" id="role${roleids[i]}" name="assignrole" value="role${roleids[i]}"> <label for="role${roleids[i]}">${rolelist[roleids[i]]}</label></li>`);
-        else
-            $("#rolelist").append(`<li><input type="checkbox" id="role${roleids[i]}" name="assignrole" value="role${roleids[i]}"><label for="role${roleids[i]}">${rolelist[roleids[i]]}</label></li>`);
-    }                
+    ShowStaffTabs();  
 }
 
 function LoadCache(){
@@ -599,19 +600,12 @@ function ShowStaffTabs() {
             $("#button-config-tab").show();
         } else {
             $(".admin-only").hide();
-            if (userPerm.includes("event")) {
-                $("#button-staff-event-tab").show();
-                $("#button-staff-announcement-tab").show();
-            }
             if (userPerm.includes("hr") || userPerm.includes("division")) {
                 $("#button-staff-member-tab").show();
                 $("#button-staff-application-tab").show();
             }
             if (userPerm.includes("hr")) {
                 $("#button-staff-user").show();
-            }
-            if (userPerm.includes("division")) {
-                $("#button-staff-division-tab").show();
             }
             if (userPerm.includes("audit")) {
                 $("#button-audit-tab").show();
@@ -724,6 +718,7 @@ function ValidateToken() {
                 return a - b
             });
             highestrole = roles[0];
+            highestroleid = roles[0];
             name = data.response.name;
             avatar = data.response.avatar;
             discordid = data.response.discordid;
@@ -816,7 +811,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -824,6 +819,7 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
+    setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();

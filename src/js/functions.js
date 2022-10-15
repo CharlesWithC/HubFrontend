@@ -396,6 +396,7 @@ function PushTable(table, data, total_pages, reload_function = "") {
         $(table + "_head").hide();
         $(table + "_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
         $(table + "_page_input").val("1");
+        UpdatePaginate(table, 1, reload_function);
         return;
     } else {
         $(table + "_head").show();

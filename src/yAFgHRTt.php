@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/c6f3ff6ccf846a12.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/45ec2c2d0a2d538e.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -374,12 +374,6 @@
                         <a id="button-staff-user-tab" onclick="ShowTab('#staff-user-tab', '#button-staff-user-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
                             Users
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a id="button-staff-member-tab" onclick="ShowTab('#staff-member-tab', '#button-staff-member-tab')" class="nav-link text-white clickable" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
-                            Members
                         </a>
                     </li>
                     <li class="nav-item">
@@ -1111,6 +1105,42 @@
                         </div>
                         <button id="button-event-edit" type="button" class="btn btn-primary m-2" style="float:right;width:100px;" onclick="EditEvent();">Edit</button>
                         <button type="button" class="btn btn-secondary m-2" style="float:right;width:100px;" onclick="$('#event-edit').hide();">Close</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="member-tab" class="tabs">
+            <div class="row">
+                <div class="col-4" id="member-tab-left" style="display:none">
+                    <div class="shadow p-3 m-3 bg-dark rounded col card" style="driver-of-the-month">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Month</strong></h5>
+                        <p class="card-text" style="font-size:25px;text-align:center"><span id="driver-of-the-month-info"><span class="placeholder" style="width:60%"></span></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col card" style="staff-of-the-month">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-shield-halved"></i></span> Staff of the Month</strong></h5>
+                        <p class="card-text" style="font-size:25px;text-align:center"><span id="staff-of-the-month-info"><span class="placeholder" style="width:60%"></span></span></p>
+                    </div>
+                </div>
+                <div id="member-tab-right">
+                    <div class="shadow p-3 m-3 bg-dark rounded">
+                        <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> Members</strong></h5>
+                        <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
+                            <input id="input-member-search" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
+                            <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <div id="table_member_list">
+                            <table class="w-100">
+                                <thead id="table_member_list_head">
+                                    <tr>
+                                        <th style="width:40px"></th>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_member_list_data">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
