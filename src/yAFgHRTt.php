@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/45ec2c2d0a2d538e.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/a8e640816b471c97.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -250,7 +250,7 @@
         h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
         a:hover {color: white;}
         th > .fc-scrollgrid-sync-inner {background-color: #444}
-        .flexdatalist-results {background-color:#57595D;}
+        .flexdatalist-results {background-color:#2F3136;}
         .flexdatalist-multiple li.value {background-color:#2F3136;}
     </style>
     <?php 
@@ -848,7 +848,7 @@
                             <span class="input-group-text">rows</span>
                         </div>
                     </div>
-                    <button id="button-delivery-log-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadDeliveryList();">Update</button>
+                    <button id="button-delivery-log-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadDeliveryList(noplaceholder=true);">Update</button>
                 </div>
             </div>
         </section>
@@ -1125,7 +1125,7 @@
                     <div class="shadow p-3 m-3 bg-dark rounded">
                         <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> Members</strong></h5>
                         <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
-                            <input id="input-member-search" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
+                            <input id="input-member-search" type="text" class="form-control bg-dark" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
                             <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </div>
                         <div id="table_member_list">
@@ -1142,6 +1142,115 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+        <section id="leaderboard-tab" class="tabs">
+            <div class="row">
+                <div id="leaderboard" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> Leaderboard</strong></h5>
+                    <div id="leaderboard-button-right-wrapper" style="float:right;">
+                        <a id="leaderboard-options-show" class="clickable" onclick='$("#leaderboard-options-show").hide();$("#leaderboard-options").show();'>Options</a>
+                    </div>
+                    <div id="table_leaderboard">
+                        <table class="w-100">
+                            <thead id="table_leaderboard_head">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Distance (<span class="distance_unit"></span>)</th>
+                                    <th scope="col">Event</th>
+                                    <th scope="col">Division</th>
+                                    <th scope="col">Myth</th>
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_leaderboard_data">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="leaderboard-options" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
+                    <h5 style="display:inline-block"><strong>Options</strong></h5>
+                    <div id="leaderboard-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#leaderboard-options-show").show();$("#leaderboard-options").hide();'>Hide</a></div>
+                    <div>
+                        <div>
+                            <label class="form-label">Members</label>
+                            <div class="input-group mb-2">
+                                <input id="input-leaderboard-search" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Users" aria-describedby="button-leaderboard-search" placeholder='Select members from list' list="all-member-datalist" data-min-length='1' data-limit-of-values='10' multiple='' data-selection-required='1'>
+                            </div>
+                        </div>
+                        <label class="form-label">Game</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-ets2" checked>
+                            <label class="form-check-label" for="leaderboard-ets2">
+                                ETS2
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-ats" checked>
+                            <label class="form-check-label" for="leaderboard-ats">
+                                ATS
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Points</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-distance" checked>
+                            <label class="form-check-label" for="leaderboard-distance">
+                                Distance
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-event" checked>
+                            <label class="form-check-label" for="leaderboard-event">
+                                Event
+                            </label>
+                        </div>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-division" checked>
+                            <label class="form-check-label" for="leaderboard-division">
+                                Division
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-myth" checked>
+                            <label class="form-check-label" for="leaderboard-myth">
+                                Myth
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Max. Speed</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="leaderboard-speed-limit" placeholder="0">
+                            <span class="input-group-text"><span class="distance_unit text-black"></span>/h</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Date Range</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">From</span>
+                            <input type="date" class="form-control bg-dark text-white" id="leaderboard-start-time">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">To</span>
+                            <input type="date" class="form-control bg-dark text-white" id="leaderboard-end-time">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Page Size</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="leaderboard-page-size" placeholder="20">
+                            <span class="input-group-text">rows</span>
+                        </div>
+                    </div>
+                    <button id="button-leaderboard-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadLeaderboard(noplaceholder=true);">Update</button>
                 </div>
             </div>
         </section>

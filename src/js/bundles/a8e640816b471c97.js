@@ -580,11 +580,8 @@ dmapint = -1;
 window.mapcenter = {}
 window.autofocus = {}
 
-levent = 1;
-ldivision = 1;
-
-function LoadDriverLeaderStatistics() {   
-    function AjaxLDLS(start, end, dottag){
+function LoadDriverLeaderStatistics() {
+    function AjaxLDLS(start, end, dottag) {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
             type: "GET",
@@ -602,13 +599,13 @@ function LoadDriverLeaderStatistics() {
                 $("#dot" + dottag + "distance").html(`(${distance}${distance_unit_txt})`);
             }
         });
-    } 
+    }
     driver_of_the_tag = ["d", "w"];
-    for(var i = 0 ; i < driver_of_the_tag.length ; i++){
+    for (var i = 0; i < driver_of_the_tag.length; i++) {
         dott = driver_of_the_tag[i];
         var start = new Date();
-        if(dott == "d") start = new Date();
-        else if(dott == "w") start = GetMonday(new Date()); 
+        if (dott == "d") start = new Date();
+        else if (dott == "w") start = GetMonday(new Date());
         start.setHours(0, 0, 0, 0);
         start = +start + start.getTimezoneOffset() * 60000;
         start /= 1000;
@@ -619,64 +616,97 @@ function LoadDriverLeaderStatistics() {
     }
 }
 
-function LoadLeaderboard() {
-    GeneralLoad();
-    LockBtn("#LoadLeaderboardBtn", btntxt = "...");
-    InitPaginate("#table_leaderboard", "LoadLeaderboard();");
+leaderboard_placeholder_row = `
+<tr>
+    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+</tr>`;
 
+function LoadLeaderboard(noplaceholder = false) {
+    LockBtn("#button-leaderboard-options-update", btntxt = "...");
+
+    if(!noplaceholder){
+        $("#table_leaderboard_data").children().remove();
+        for (i = 0; i < 10; i++) {
+            $("#table_leaderboard_data").append(leaderboard_placeholder_row);
+        }
+    }
+
+    InitPaginate("#table_leaderboard", "LoadLeaderboard();");
     page = parseInt($("#table_leaderboard_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
-    var start_time = -1, end_time = -1;
-    if ($("#lbstart").val() != "" && $("#lbend").val() != "") {
-        start_time = +new Date($("#lbstart").val()) / 1000;
-        end_time = +new Date($("#lbend").val()) / 1000 + 86400;
+    var start_time = -1,
+        end_time = -1;
+    if ($("#leaderboard-start-time").val() != "" && $("#leaderboard-end-time").val() != "") {
+        start_time = +new Date($("#leaderboard-start-time").val()) / 1000;
+        end_time = +new Date($("#leaderboard-end-time").val()) / 1000 + 86400;
     }
 
-    speedlimit = parseInt($("#lbspeedlimit").val());
+    speedlimit = parseInt($("#leaderboard-speed-limit").val());
     if (!isNumber(speedlimit)) speedlimit = 0; // make sure speedlimit is valid
     speedlimit /= distance_ratio; // convert to km/h
 
     game = 0;
+    dets2 = $("#leaderboard-ets2").is(":checked");
+    dats = $("#leaderboard-ats").is(":checked");
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
     else if (!dets2 && !dats) game = -1;
-    $(".dgame").css("background-color", "");
-    if (game == 0) $(".dgame").css("background-color", "skyblue");
-    else $(".dgame" + game).css("background-color", "skyblue");
-    if (!dets2 && !dats) start_time = 1, end_time = 2; // no game selected, set time to none
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
 
-    if (levent) $("#levent").css("background-color", "skyblue");
-    else $("#levent").css("background-color", "");
-    if (ldivision) $("#ldivision").css("background-color", "skyblue");
-    else $("#ldivision").css("background-color", "");
-    limittype = "distance,myth,"
-    if(levent == 1) limittype += "event,";
-    if(ldivision == 1) limittype += "division,";
+    ldistance = $("#leaderboard-distance").is(":checked");
+    levent = $("#leaderboard-event").is(":checked");
+    ldivision = $("#leaderboard-division").is(":checked");
+    lmyth = $("#leaderboard-myth").is(":checked");
+    limittype = ""
+    if (ldistance == 1) limittype += "distance,";
+    if (levent == 1) limittype += "event,";
+    if (ldivision == 1) limittype += "division,";
+    if (lmyth == 1) limittype += "myth,";
+    limittype = limittype.slice(0, -1);
+
+    userstxt = $("#input-leaderboard-search").val();
+    userst = userstxt.split(",");
+    users = [];
+    for (var i = 0; i < userst.length; i++) {
+        s = userst[i];
+        users.push(s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1));
+    }
+    users = users.join(",");
+
+    page_size = parseInt($("#leaderboard-page-size").val());
+    if (!isNumber(page_size)) page_size = 10;
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype,
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#LoadLeaderboardBtn");
+            UnlockBtn("#button-leaderboard-options-update");
             if (data.error) return AjaxError(data);
 
             leaderboard = data.response.list;
             total_pages = data.response.total_pages;
             data = [];
-            for (i = 0; i < leaderboard.length; i++){
+            for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
-                distance = TSeparator(parseInt(user.points.distance * distance_ratio)); 
-                data.push([`#${user.points.rank} ${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${user.points.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.points.total}`]);
+                distance = TSeparator(parseInt(user.points.distance * distance_ratio));
+                data.push([`${user.points.rank}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${user.points.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.points.total}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
         error: function (data) {
-            UnlockBtn("#LoadLeaderboardBtn");
+            UnlockBtn("#button-leaderboard-options-update");
             AjaxError(data);
         }
     })
@@ -693,20 +723,22 @@ dlog_placeholder_row = `
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
 </tr>`;
 
-function LoadDeliveryList() {
-    GeneralLoad();
+function LoadDeliveryList(noplaceholder = false) {
     LockBtn("#button-delivery-log-options-update", btntxt = "...");
-    InitPaginate("#table_delivery_log", "LoadDeliveryList();");
 
-    $("#table_delivery_log_data").children().remove();
-    for(i = 0 ; i < 10 ; i++){
-        $("#table_delivery_log_data").append(dlog_placeholder_row);
+    if(!noplaceholder){
+        $("#table_delivery_log_data").children().remove();
+        for (i = 0; i < 10; i++) {
+            $("#table_delivery_log_data").append(dlog_placeholder_row);
+        }
     }
 
+    InitPaginate("#table_delivery_log", "LoadDeliveryList();");
     page = parseInt($("#table_delivery_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-    
-    var start_time = -1, end_time = -1;
+
+    var start_time = -1,
+        end_time = -1;
     if ($("#delivery-log-start-time").val() != "" && $("#delivery-log-end-time").val() != "") {
         start_time = +new Date($("#delivery-log-start-time").val()) / 1000;
         end_time = +new Date($("#delivery-log-end-time").val()) / 1000 + 86400;
@@ -722,20 +754,19 @@ function LoadDeliveryList() {
     if (dets2 && !dats) game = 1;
     else if (!dets2 && dats) game = 2;
     else if (!dets2 && !dats) game = -1;
+    if (!dets2 && !dats) start_time = 1, end_time = 2;
 
     status = 0;
     delivered = $("#delivery-log-delivered").is(":checked");
     cancelled = $("#delivery-log-cancelled").is(":checked");
-    if(delivered && !cancelled) status = 1;
-    else if(!delivered && cancelled) status = 2;
-
-    if (!dets2 && !dats) start_time = 1, end_time = 2;
+    if (delivered && !cancelled) status = 1;
+    else if (!delivered && cancelled) status = 2;
 
     page_size = parseInt($("#delivery-log-page-size").val());
     if (!isNumber(page_size)) page_size = 10;
 
     uid = parseInt($("#delivery-log-userid").val());
-    if(!isNumber(uid) || uid < 0){
+    if (!isNumber(uid) || uid < 0) {
         uid = "";
     } else {
         uid = "&userid=" + uid;
@@ -768,9 +799,9 @@ function LoadDeliveryList() {
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
                 if (delivery.division_validated == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                
+
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
-                if($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
+                if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
                 data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
             }
 
@@ -783,7 +814,7 @@ function LoadDeliveryList() {
     })
 }
 
-function ShowDeliveryLogExport(){
+function ShowDeliveryLogExport() {
     modalid = ShowModal("Export Delivery Log", `
         <p>A csv table will be downloaded containing delivery logs of the selected date range.</p>
         <p><i>Rate limit: 3 downloads / hour</i></p>
@@ -799,8 +830,9 @@ function ShowDeliveryLogExport(){
     InitModal("delivery_log_export", modalid);
 }
 
-function DeliveryLogExport(){
-    var start_time = -1, end_time = -1;
+function DeliveryLogExport() {
+    var start_time = -1,
+        end_time = -1;
     if ($("#delivery-log-export-start-time").val() != "" && $("#delivery-log-export-end-time").val() != "") {
         start_time = +new Date($("#delivery-log-export-start-time").val()) / 1000;
         end_time = +new Date($("#delivery-log-export-end-time").val()) / 1000 + 86400;
@@ -899,7 +931,7 @@ async function DeliveryRoutePlay() {
             // distance of (x,z) and (ex,ez) <= 50, use euclid distance
             if (Math.sqrt(Math.pow(x - ex, 2) + Math.pow(z - ez, 2)) <= 50) {
                 lastevent = i + 1;
-                if(document.getElementById('delivery-detail-timeline-' + i) != null){
+                if (document.getElementById('delivery-detail-timeline-' + i) != null) {
                     document.getElementById('delivery-detail-timeline-' + i).scrollIntoView({
                         behavior: 'smooth',
                         block: 'center',
@@ -918,7 +950,7 @@ async function DeliveryRoutePlay() {
             rri -= 1;
         }
     }
-    
+
     $("#delivery-route-control").remove();
     $("#delivery-detail-progress").css("width", "100%");
     $("#delivery-detail-progress").attr("aria-valuenow", "100");
@@ -1017,6 +1049,7 @@ function UpdateDeliveryRoutePoints() {
 }
 
 currentDeliveryLog = {};
+
 function ShowDeliveryDetail(logid) {
     $(".tabs").hide();
     $("#delivery-detail-tab").html(deliveryDetailTabPlaceholder);
@@ -1034,11 +1067,11 @@ function ShowDeliveryDetail(logid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error){
+            if (data.error) {
                 ShowTab("#delivery-tab", "#button-delivery-tab");
                 return AjaxError(data);
             }
-            
+
             window.history.pushState("", "", '/delivery/' + logid);
 
             d = data.response;
@@ -1077,13 +1110,27 @@ function ShowDeliveryDetail(logid) {
             $("#delivery-detail-destination-city").html(destination_city);
             $("#delivery-detail-cargo").html(`${cargo} (${cargo_mass})`);
             $("#delivery-detail-distance").html(`${distance}<br>${duration}`);
-            
+
             punit = "€";
             if (!d.game.short_name.startsWith("e")) punit = "$";
 
             $("#delivery-detail-timeline").children().remove();
-            ECOLOR = {"started": "green", "delivered": "green", "cancelled": "red", "fine": "yellow", "tollgate": "white", "ferry": "white", "train": "white", "collision": "yellow", "repair": "green", "refuel": "green", "teleport": "green", "speeding": "yellow"}
-            function GenTimelineItem(e, idx, title, content){
+            ECOLOR = {
+                "started": "green",
+                "delivered": "green",
+                "cancelled": "red",
+                "fine": "yellow",
+                "tollgate": "white",
+                "ferry": "white",
+                "train": "white",
+                "collision": "yellow",
+                "repair": "green",
+                "refuel": "green",
+                "teleport": "green",
+                "speeding": "yellow"
+            }
+
+            function GenTimelineItem(e, idx, title, content) {
                 $("#delivery-detail-timeline").append(`
                 <li id="delivery-detail-timeline-${idx}" class="timeline-item timeline-${ECOLOR[e.type]} mb-5">
                     <h5 class="fw-bold">${title}</h5>
@@ -1093,42 +1140,42 @@ function ShowDeliveryDetail(logid) {
             }
 
             rrevents = d.events;
-            for(i=0;i<rrevents.length;i++){
+            for (i = 0; i < rrevents.length; i++) {
                 e = rrevents[i];
                 meta = e.meta;
-                if(e.type == "started"){
+                if (e.type == "started") {
                     GenTimelineItem(e, i, `Job Started`, `From ${source_company}, ${source_city}`);
-                } else if(e.type == "delivered"){
+                } else if (e.type == "delivered") {
                     GenTimelineItem(e, i, `Job Delivered`, `To ${destination_company}, ${destination_city}<br>Earned ${punit}${TSeparator(meta.revenue)} & ${TSeparator(meta.earned_xp)} XP`);
-                } else if(e.type == "cancelled"){
+                } else if (e.type == "cancelled") {
                     GenTimelineItem(e, i, `Job Cancelled`, `Penalty: ${punit}${TSeparator(meta.penalty)}`);
-                } else if(e.type == "fine"){
-                    if(meta.offence == "crash"){
+                } else if (e.type == "fine") {
+                    if (meta.offence == "crash") {
                         GenTimelineItem(e, i, `Crash`, `Fined: ${punit}${TSeparator(meta.amount)}`);
-                    } else if(meta.offence == "speeding"){
+                    } else if (meta.offence == "speeding") {
                         speed = TSeparator(parseInt(meta.speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                         speed_limit = TSeparator(parseInt(meta.speed_limit * distance_ratio)) + distance_unit_txt + "/h";
                         GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Fined: ${punit}${TSeparator(meta.amount)}`);
-                    } else if(meta.offence == "wrong_way"){
+                    } else if (meta.offence == "wrong_way") {
                         GenTimelineItem(e, i, `Wrong Way`, `Fined: ${punit}${TSeparator(meta.amount)}`);
                     }
-                } else if(e.type == "tollgate"){
+                } else if (e.type == "tollgate") {
                     GenTimelineItem(e, i, `Tollgate`, `Paid ${punit}${TSeparator(meta.cost)}`);
-                } else if(e.type == "ferry"){
+                } else if (e.type == "ferry") {
                     GenTimelineItem(e, i, `Ferry`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
-                } else if(e.type == "train"){
+                } else if (e.type == "train") {
                     GenTimelineItem(e, i, `Train`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
-                } else if(e.type == "collision"){
+                } else if (e.type == "collision") {
                     damage = meta.wear_engine + meta.wear_chassis + meta.wear_transmission + meta.wear_cabin + meta.wear_wheels;
                     GenTimelineItem(e, i, `Collision`, `Truck Damage: ${(damage*100).toFixed(2)}%`);
-                } else if(e.type == "repair"){
+                } else if (e.type == "repair") {
                     GenTimelineItem(e, i, `Repair`, `Truck repaired.`);
-                } else if(e.type == "refuel"){
+                } else if (e.type == "refuel") {
                     fuel = TSeparator(parseInt(meta.amount * fuel_ratio)) + fuel_unit_txt;
                     GenTimelineItem(e, i, `Refuel`, `Refueled ${fuel} fuel.`);
-                } else if(e.type == "teleport"){
+                } else if (e.type == "teleport") {
                     GenTimelineItem(e, i, `Teleport`, `Teleported to another location.`);
-                } else if(e.type == "speeding"){
+                } else if (e.type == "speeding") {
                     speed = TSeparator(parseInt(meta.max_speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                     speed_limit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                     GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Duration: ${meta.end-meta.start} seconds<br><i>Not fined</i>`);
@@ -1143,9 +1190,9 @@ function ShowDeliveryDetail(logid) {
             $("html, body").animate({
                 scrollTop: 0
             }, "fast");
-            
+
             dt = getDateTime(data.response.timestamp * 1000);
-            
+
             telemetry = data.response.telemetry.split(";");
             basic = telemetry[0].split(",");
             tver = 1;
@@ -1215,7 +1262,7 @@ function ShowDeliveryDetail(logid) {
                         cz = 0;
                         for (j = i + 1; j < route.length; j++) {
                             if (route[j] == ",") {
-                                cx = route.substr(i + 1, j - i -1);
+                                cx = route.substr(i + 1, j - i - 1);
                                 break;
                             }
                         }
@@ -1227,7 +1274,9 @@ function ShowDeliveryDetail(logid) {
                             }
                         }
                         i = j;
-                        if (cx == 0 && cz == 0){continue;}
+                        if (cx == 0 && cz == 0) {
+                            continue;
+                        }
                         relx = b62decode(cx);
                         relz = b62decode(cz);
                         dpoints.push([lastx + relx, lastz + relz]);
@@ -1306,50 +1355,50 @@ function ShowDeliveryDetail(logid) {
     });
 }
 
-function MoreDeliveryDetail(){
-    function GenTableRow(key, val){
+function MoreDeliveryDetail() {
+    function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     d = currentDeliveryLog;
     info = "<table>";
     distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
     distance_org = d.distance;
-    
+
     start_time = +new Date(d.start_time);
     stop_time = +new Date(d.stop_time);
     duration = "N/A";
     if (start_time > 86400 * 1000) duration = String((stop_time - start_time) / 1000).toHHMMSS(); // in case start time is 19700101 and timezone
-    if(d.detail.type == "job.delivered"){
+    if (d.detail.type == "job.delivered") {
         t = d.detail.data.object;
-        auto_park = t.events[t.events.length-1].meta.auto_park;
-        auto_load = t.events[t.events.length-1].meta.auto_load;
+        auto_park = t.events[t.events.length - 1].meta.auto_park;
+        auto_load = t.events[t.events.length - 1].meta.auto_load;
         extra = "";
-        if(auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
-        if(auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
+        if (auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
+        if (auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
         info += GenTableRow("Log ID", d.logid + "&nbsp;&nbsp;" + extra);
-    } else { 
+    } else {
         info += GenTableRow("Log ID", d.logid);
     }
     info += GenTableRow("Navio ID", d.detail.data.object.id);
     info += GenTableRow("Time Submitted", getDateTime(d.timestamp * 1000));
     info += GenTableRow("Time Spent", duration);
     isdelivered = false;
-    if(d.detail.type == "job.delivered"){
+    if (d.detail.type == "job.delivered") {
         isdelivered = true;
         info += GenTableRow("Status", "<span style='color:lightgreen'>Delivered</span>");
-    } else if(d.detail.type == "job.cancelled"){
+    } else if (d.detail.type == "job.cancelled") {
         info += GenTableRow("Status", "<span style='color:red'>Cancelled</span>");
     }
-    if(d.telemetry != ""){
+    if (d.telemetry != "") {
         info += GenTableRow("Delivery Route", "<span style='color:lightgreen'>Available</span>");
     } else {
         info += GenTableRow("Delivery Route", "<span style='color:red'>Unavailable</span>");
     }
     info += GenTableRow("Division", `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
 
-    info += GenTableRow("&nbsp;","&nbsp;");
+    info += GenTableRow("&nbsp;", "&nbsp;");
     info += GenTableRow("Driver", GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
-    
+
     d = d.detail.data.object;
 
     source_company = "Unknown company";
@@ -1367,20 +1416,20 @@ function MoreDeliveryDetail(){
     info += GenTableRow("Destination Company", destination_company);
     info += GenTableRow("Destination City", destination_city);
     info += GenTableRow("Logged Distance", distance);
-    if(isdelivered){
-        distance2 = d.events[d.events.length-1].meta.distance;
-        distance2_org = d.events[d.events.length-1].meta.distance
+    if (isdelivered) {
+        distance2 = d.events[d.events.length - 1].meta.distance;
+        distance2_org = d.events[d.events.length - 1].meta.distance
         distance2 = TSeparator(parseInt(distance2 * distance_ratio)) + distance_unit_txt;
         info += GenTableRow("Reported Distance", distance2);
-        revenue = TSeparator(d.events[d.events.length-1].meta.revenue);
+        revenue = TSeparator(d.events[d.events.length - 1].meta.revenue);
     } else {
-        penalty = TSeparator(d.events[d.events.length-1].meta.penalty);
+        penalty = TSeparator(d.events[d.events.length - 1].meta.penalty);
     }
     distance3 = d.planned_distance;
     distance3 = TSeparator(parseInt(distance3 * distance_ratio)) + distance_unit_txt;
     info += GenTableRow("Planned Distance", distance3);
-    
-    info += GenTableRow("&nbsp;","&nbsp;");
+
+    info += GenTableRow("&nbsp;", "&nbsp;");
     cargo = d.cargo.name;
     cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
     info += GenTableRow("Cargo", cargo);
@@ -1392,16 +1441,16 @@ function MoreDeliveryDetail(){
     trs = "";
     if (d.trailers.length > 1) trs = "s";
     for (var i = 0; i < d.trailers.length; i++) trailer += d.trailers[i].license_plate + " | ";
-    trailer = trailer.slice(0,-3);
+    trailer = trailer.slice(0, -3);
     info += GenTableRow("Truck", truck);
     info += GenTableRow("Truck Plate", license_plate);
     info += GenTableRow("Trailer Plate", trailer);
 
-    info += GenTableRow("&nbsp;","&nbsp;");
+    info += GenTableRow("&nbsp;", "&nbsp;");
     fuel_used_org = d.fuel_used;
     fuel_used = TSeparator(parseInt(d.fuel_used * fuel_ratio)) + fuel_unit_txt;
     info += GenTableRow("Fuel", fuel_used);
-    if(isdelivered){
+    if (isdelivered) {
         avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance2_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
     } else {
         avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
@@ -1413,7 +1462,7 @@ function MoreDeliveryDetail(){
     info += GenTableRow("Max. Speed", top_speed);
     info += GenTableRow("Avg. Speed", average_speed);
 
-    info += GenTableRow("&nbsp;","&nbsp;");
+    info += GenTableRow("&nbsp;", "&nbsp;");
     punit = "€";
     if (!d.game.short_name.startsWith("e")) punit = "$";
     offence = 0;
@@ -1424,40 +1473,45 @@ function MoreDeliveryDetail(){
     }
     offence = -offence;
     offence = TSeparator(offence);
-    if(isdelivered){
+    if (isdelivered) {
         info += GenTableRow("Revenue", `${punit}${revenue}`);
     } else {
         info += GenTableRow("Penalty", `${punit}${penalty}`);
     }
     info += GenTableRow("Offence", `${punit}${offence}`);
-    
-    info += GenTableRow("&nbsp;","&nbsp;");
-    if(d.is_special == true){
+
+    info += GenTableRow("&nbsp;", "&nbsp;");
+    if (d.is_special == true) {
         info += GenTableRow("Is Special Transport?", "<span style='color:lightgreen'>Yes</span>");
     } else {
         info += GenTableRow("Is Special Transport?", "No");
     }
-    if(d.is_late == true){
+    if (d.is_late == true) {
         info += GenTableRow("Is Late?", "<span style='color:red'>Yes</span>");
     } else {
         info += GenTableRow("Is Late?", "<span style='color:lightgreen'>No</span>");
     }
-    if(d.has_police_enabled == true){
+    if (d.has_police_enabled == true) {
         info += GenTableRow("Has Polic Enabled?", "<span style='color:lightgreen'>Yes</span>");
     } else {
         info += GenTableRow("Has Polic Enabled?", "<span style='color:red'>No</span>");
     }
-    
-    MARKET = {"cargo_market": "Cargo Market", "freight_market": "Freight Market", "quick_job": "Quick Job", "external_contracts": "External Contracts"};
+
+    MARKET = {
+        "cargo_market": "Cargo Market",
+        "freight_market": "Freight Market",
+        "quick_job": "Quick Job",
+        "external_contracts": "External Contracts"
+    };
     mkt = "Unknown";
-    if(Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
+    if (Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
     info += GenTableRow("Market", mkt);
     mode = "Single Player";
-    if(d.multiplayer != null){
+    if (d.multiplayer != null) {
         mode = "Multiplayer";
-        if(d.multiplayer.type == "truckersmp"){
+        if (d.multiplayer.type == "truckersmp") {
             mode = "TruckersMP";
-        } else if(d.multiplayer.type == "scs_convoy"){
+        } else if (d.multiplayer.type == "scs_convoy") {
             mode = "SCS Convoy";
         }
     }
@@ -1750,12 +1804,13 @@ function EditPoints(uid) {
 }
 
 function DismissMemberShow(uid, name){
-    modalid = ShowModal(`Dismiss Member`, `<p>Are you sure you want to dismiss this member?</p><p><i>${name} (User ID: ${uid})</i></p><br><p>Dismissing ${name} will erase all their delivery log (marking them as by unknown user) and remove them from Navio company. This cannot be undone.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">Dismiss</button>`);
+    if(uid == localStorage.getItem("userid")) return toastNotification("error", "Error", "You cannot dismiss yourself!", 5000);
+    modalid = ShowModal(`Dismiss Member`, `<p>Are you sure you want to dismiss this member?</p><p><i>${name} (User ID: ${uid})</i></p><br><p>Dismissing ${name} will erase all their delivery log (marking them as by unknown user) and remove them from Navio company. This <b>cannot</b> be undone.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">Dismiss</button>`);
     InitModal("dismiss_member", modalid);
 }
 
 function DismissMember(uid){
-    LockBtn("#dismiss-member", "Dismissing...");
+    LockBtn("#button-dismiss-member", "Dismissing...");
     
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/dismiss?userid=" + uid,
@@ -1765,12 +1820,12 @@ function DismissMember(uid){
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn("#dismiss-member");
+            UnlockBtn("#button-dismiss-member");
             if (data.error) return AjaxError(data);
             toastNotification("success", "Success", "Member dismissed!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#dismiss-member");
+            UnlockBtn("#button-dismiss-member");
             AjaxError(data);
         }
     });
@@ -5809,7 +5864,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -5817,6 +5872,11 @@ $(document).ready(async function () {
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
+    $('#input-leaderboard-search').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 10
+    });
     setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
