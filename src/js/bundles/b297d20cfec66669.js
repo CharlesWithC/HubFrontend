@@ -576,6 +576,14 @@ function DestroyModal(name, immediately = false){
         }
     }
 }
+
+function GenCard(title, content){
+    return `
+    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+        <h5 class="card-title"><strong>${title}</strong></h5>
+        <p class="card-text">${content}</p>
+    </div>`;
+}
 dmapint = -1;
 window.mapcenter = {}
 window.autofocus = {}
@@ -682,7 +690,7 @@ function LoadLeaderboard(noplaceholder = false) {
     users = users.join(",");
 
     page_size = parseInt($("#leaderboard-page-size").val());
-    if (!isNumber(page_size)) page_size = 10;
+    if (!isNumber(page_size)) page_size = 20;
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
@@ -1831,9 +1839,54 @@ function DismissMember(uid){
     });
 }
 
+function LoadRanking(){
+    $("#ranking-tab").children().remove();
+    for(var i = 0 ; i < 3 ; i++){
+        t = `<div class="row">`;
+        for(var j = 0 ; j < 3 ; j++){
+            t += GenCard(`<span class="placeholder" style="width:150px"></span>`, `<span class="placeholder" style="width:100px"></span>`);
+        }
+        t += `</div>`;
+        $("#ranking-tab").append(t);
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + localStorage.getItem("userid"),
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            if (data.error) AjaxError(data);
+            d = data.response.list[0];
+            rank = point2rank(d.points.total_no_limit);
+            $("#ranking-tab").children().remove();
+            t = `<div class="row">`;
+            t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
+            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();">Get Discord Role</button>`);
+            k = Object.keys(RANKING);
+            for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
+                t += GenCard(RANKING[k[i]], `${TSeparator(k[i])} Points`);
+            }
+            t += `</div>`;
+            if(t.length>2){
+                for(var i = 2, j = 2; i < k.length ; i = j){
+                    t += `<div class="row">`;
+                    for(j = i ; j < Math.min(k.length, i + 3) ; j++){
+                        t += GenCard(RANKING[k[j]], `${TSeparator(k[j])} Points`);
+                    }
+                    t += `</div>`;
+                }
+            }
+            $("#ranking-tab").append(t);
+        }, error: function(data){
+            AjaxError(data);
+        }
+    });
+}
+
 function GetDiscordRankRole() {
-    GeneralLoad();
-    LockBtn(".requestRoleBtn");
+    LockBtn(".button-rankings-role", "Getting...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/roles/rank",
@@ -1843,12 +1896,12 @@ function GetDiscordRankRole() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn(".requestRoleBtn");
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            else return toastNotification("success", "Success", "You have got your new role!", 5000, false);
+            UnlockBtn(".button-rankings-role");
+            if (data.error) return AjaxError(data);
+            else return toastNotification("success", "Success", "Discord role assigned!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn(".requestRoleBtn");
+            UnlockBtn(".button-rankings-role");
             AjaxError(data);
         }
     })
@@ -2115,6 +2168,7 @@ function EnableMFA(){
         }
     });
 }
+
 sc = undefined;
 chartscale = 3;
 addup = 1;
@@ -5442,10 +5496,6 @@ async function ShowTab(tabname, btnname) {
             LoadMemberList();
         }
     }
-    if (tabname == "#staff-member-tab") {
-        window.history.pushState("", "", '/staff/member');
-        LoadMemberList();
-    }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
         $("#delivery-log-userid").val("");
@@ -5473,27 +5523,11 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
-        LoadLeaderboard();
+        if(!loaded) LoadLeaderboard();
     }
     if (tabname == "#ranking-tab") {
         window.history.pushState("", "", '/ranking');
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + userid,
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                if (data.error == false) {
-                    d = data.response.list[0];
-                    rank = point2rank(d.points.total_no_limit);
-                    $("#ranktotpoints").html(TSeparator(d.points.total_no_limit) + " - " + rank);
-                    if ($("#sidebar-role").html() == "Driver")
-                        $("#sidebar-role").html(rank);
-                }
-            }
-        });
+        if(!loaded) LoadRanking();
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
@@ -5843,8 +5877,6 @@ function PathDetect() {
         }
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
-    } else if (p == "/staff/member") {
-        ShowTab("#staff-member-tab", "#button-staff-member-tab");
     } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");

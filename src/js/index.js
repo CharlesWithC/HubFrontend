@@ -389,10 +389,6 @@ async function ShowTab(tabname, btnname) {
             LoadMemberList();
         }
     }
-    if (tabname == "#staff-member-tab") {
-        window.history.pushState("", "", '/staff/member');
-        LoadMemberList();
-    }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
         $("#delivery-log-userid").val("");
@@ -420,27 +416,11 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
-        LoadLeaderboard();
+        if(!loaded) LoadLeaderboard();
     }
     if (tabname == "#ranking-tab") {
         window.history.pushState("", "", '/ranking');
-        $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + userid,
-            type: "GET",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
-            success: function (data) {
-                if (data.error == false) {
-                    d = data.response.list[0];
-                    rank = point2rank(d.points.total_no_limit);
-                    $("#ranktotpoints").html(TSeparator(d.points.total_no_limit) + " - " + rank);
-                    if ($("#sidebar-role").html() == "Driver")
-                        $("#sidebar-role").html(rank);
-                }
-            }
-        });
+        if(!loaded) LoadRanking();
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
@@ -790,8 +770,6 @@ function PathDetect() {
         }
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
-    } else if (p == "/staff/member") {
-        ShowTab("#staff-member-tab", "#button-staff-member-tab");
     } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");

@@ -307,9 +307,54 @@ function DismissMember(uid){
     });
 }
 
+function LoadRanking(){
+    $("#ranking-tab").children().remove();
+    for(var i = 0 ; i < 3 ; i++){
+        t = `<div class="row">`;
+        for(var j = 0 ; j < 3 ; j++){
+            t += GenCard(`<span class="placeholder" style="width:150px"></span>`, `<span class="placeholder" style="width:100px"></span>`);
+        }
+        t += `</div>`;
+        $("#ranking-tab").append(t);
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + localStorage.getItem("userid"),
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function (data) {
+            if (data.error) AjaxError(data);
+            d = data.response.list[0];
+            rank = point2rank(d.points.total_no_limit);
+            $("#ranking-tab").children().remove();
+            t = `<div class="row">`;
+            t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
+            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();">Get Discord Role</button>`);
+            k = Object.keys(RANKING);
+            for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
+                t += GenCard(RANKING[k[i]], `${TSeparator(k[i])} Points`);
+            }
+            t += `</div>`;
+            if(t.length>2){
+                for(var i = 2, j = 2; i < k.length ; i = j){
+                    t += `<div class="row">`;
+                    for(j = i ; j < Math.min(k.length, i + 3) ; j++){
+                        t += GenCard(RANKING[k[j]], `${TSeparator(k[j])} Points`);
+                    }
+                    t += `</div>`;
+                }
+            }
+            $("#ranking-tab").append(t);
+        }, error: function(data){
+            AjaxError(data);
+        }
+    });
+}
+
 function GetDiscordRankRole() {
-    GeneralLoad();
-    LockBtn(".requestRoleBtn");
+    LockBtn(".button-rankings-role", "Getting...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/member/roles/rank",
@@ -319,12 +364,12 @@ function GetDiscordRankRole() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            UnlockBtn(".requestRoleBtn");
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            else return toastNotification("success", "Success", "You have got your new role!", 5000, false);
+            UnlockBtn(".button-rankings-role");
+            if (data.error) return AjaxError(data);
+            else return toastNotification("success", "Success", "Discord role assigned!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn(".requestRoleBtn");
+            UnlockBtn(".button-rankings-role");
             AjaxError(data);
         }
     })

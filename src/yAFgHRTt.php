@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/a8e640816b471c97.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/b297d20cfec66669.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -1253,6 +1253,9 @@
                     <button id="button-leaderboard-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadLeaderboard(noplaceholder=true);">Update</button>
                 </div>
             </div>
+        </section>
+        <section id="ranking-tab" class="tabs">
+            
         </section>
         <datalist id="all-member-datalist" style="display:none">
             

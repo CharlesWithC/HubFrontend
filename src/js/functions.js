@@ -576,3 +576,11 @@ function DestroyModal(name, immediately = false){
         }
     }
 }
+
+function GenCard(title, content){
+    return `
+    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+        <h5 class="card-title"><strong>${title}</strong></h5>
+        <p class="card-text">${content}</p>
+    </div>`;
+}
