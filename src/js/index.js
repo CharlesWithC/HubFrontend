@@ -105,9 +105,9 @@ function InitInputHandler(){
     $('#memberroleid').keydown(function (e) {
         if (e.which == 13) GetMemberRoles();
     });
-    $('#appselect').on('change', function () {
+    $('#application-type').on('change', function () {
         var value = $(this).val();
-        $(".apptabs").hide();
+        $(".application-tab").hide();
         $("#Application" + value).show();
         $("#submitAppBttn").show();
     });
@@ -361,34 +361,6 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/downloads');
         if(!loaded) LoadDownloads();
     }
-    if (tabname == "#submit-application-tab") {
-        window.history.pushState("", "", '/application/submit');
-        $("#driverappsel").attr("selected", "selected");
-    }
-    if (tabname == "#my-application-tab") {
-        window.history.pushState("", "", '/application/my');
-        LoadUserApplicationList();
-    }
-    if (tabname == "#button-staff-application") {
-        window.history.pushState("", "", '/application/all');
-        LoadAllApplicationList();
-    }
-    if (tabname == "#staff-user-tab") {
-        window.history.pushState("", "", '/staff/user');
-        LoadUserList();
-    }
-    if (tabname == "#member-tab") {
-        window.history.pushState("", "", '/member');
-        if(!loaded){
-            $("#input-member-search").on("keydown", function(e){
-                if(e.which == 13){
-                    LoadMemberList(noplaceholder = true);
-                }
-            });
-            LoadXOfTheMonth();
-            LoadMemberList();
-        }
-    }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
         $("#delivery-log-userid").val("");
@@ -414,14 +386,6 @@ async function ShowTab(tabname, btnname) {
         }
         $("#delivery-tab").addClass("last-load-user");
     }
-    if (tabname == "#leaderboard-tab") {
-        window.history.pushState("", "", '/leaderboard');
-        if(!loaded) LoadLeaderboard();
-    }
-    if (tabname == "#ranking-tab") {
-        window.history.pushState("", "", '/ranking');
-        if(!loaded) LoadRanking();
-    }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
         if(!loaded) LoadDivisionInfo();
@@ -430,10 +394,40 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/event');
         if(!loaded) LoadEvent();
     }
-    if (tabname == "#staff-event-tab") {
-        window.history.pushState("", "", '/staff/event');
-        setTimeout(function(){HandleAttendeeInput();},2000);
-        LoadEvent();
+    if (tabname == "#member-tab") {
+        window.history.pushState("", "", '/member');
+        if(!loaded){
+            $("#input-member-search").on("keydown", function(e){
+                if(e.which == 13){
+                    LoadMemberList(noplaceholder = true);
+                }
+            });
+            LoadXOfTheMonth();
+            LoadMemberList();
+        }
+    }
+    if (tabname == "#leaderboard-tab") {
+        window.history.pushState("", "", '/leaderboard');
+        if(!loaded) LoadLeaderboard();
+    }
+    if (tabname == "#ranking-tab") {
+        window.history.pushState("", "", '/ranking');
+        if(!loaded) LoadRanking();
+    }
+    if (tabname == "#submit-application-tab") {
+        window.history.pushState("", "", '/application/submit');
+    }
+    if (tabname == "#my-application-tab") {
+        window.history.pushState("", "", '/application/my');
+        if(!loaded) LoadUserApplicationList();
+    }
+    if (tabname == "#all-application-tab") {
+        window.history.pushState("", "", '/application/all');
+        if(!loaded) LoadAllApplicationList();
+    }
+    if (tabname == "#staff-user-tab") {
+        window.history.pushState("", "", '/staff/user');
+        LoadUserList();
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
@@ -476,7 +470,6 @@ function LoadCache(){
             $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
         }
         positionstxt = positionstxt.slice(0, -1);
-        $("#staffposedit").val(positionstxt);
     } else {
         positions = [];
     }
@@ -572,22 +565,23 @@ function ShowStaffTabs() {
     t.pop("user");
     t.pop("driver");
     if (t.length > 0) {
-        $("#sidebar-staff").show();
-        $("#sidebar-staff a").hide();
         if (userPerm.includes("admin")) {
-            $("#sidebar-staff a").show();
-            $(".admin-only").show();
+            $("#sidebar-staff").show();
+            $("#button-all-application-tab").show();
+            $("#button-staff-user").show();
+            $("#button-audit-tab").show();
             $("#button-config-tab").show();
         } else {
-            $(".admin-only").hide();
             if (userPerm.includes("hr") || userPerm.includes("division")) {
-                $("#button-staff-member-tab").show();
-                $("#button-staff-application-tab").show();
+                $("#sidebar-staff").show();
+                $("#button-all-application-tab").show();
             }
             if (userPerm.includes("hr")) {
+                $("#sidebar-staff").show();
                 $("#button-staff-user").show();
             }
             if (userPerm.includes("audit")) {
+                $("#sidebar-staff").show();
                 $("#button-audit-tab").show();
             }
         }
@@ -773,7 +767,7 @@ function PathDetect() {
     } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
-    else if (p == "/application/all") ShowTab("#button-staff-application", "#button-staff-application-tab");
+    else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
     else if (p == "/staff/user") ShowTab("#staff-user-tab", "#button-staff-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
@@ -789,7 +783,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -802,6 +796,7 @@ $(document).ready(async function () {
         minLength: 1,
         limitOfValues: 10
     });
+    $("#application-type-default").prop("selected", true);
     setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
@@ -827,7 +822,5 @@ $(document).ready(async function () {
         positionstxt += positions[i] + "\n";
         $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
     }
-    positionstxt = positionstxt.slice(0, -1);
-    $("#staffposedit").val(positionstxt);
     ValidateToken();
 });

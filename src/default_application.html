@@ -1,191 +1,127 @@
-<h1 class="mb-2 text-2xl font-bold font-heading text-left">1. Choose Application</h1>
-
-<div class="mb-6">
-    <div class="container px-4 mx-auto">
-        <label class="block text-sm font-medium mb-2 text-left" for="">Are you applying for driver or staff?
-            Or just requesting a LOA?<br>Please select an application:</label>
-        <div class="relative" style="width:200px">
-            <select id="appselect"
-                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name">
-                <option value="1" id="driverappsel">Driver</option>
-                <option value="2">Staff</option>
-                <option value="3">LOA</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                    </path>
-                </svg>
-            </div>
-        </div>
-    </div>
+<label for="application-type" class="form-label">Application Type</label>
+<div class="mb-3">
+    <select class="form-select bg-dark text-white" id="application-type">
+        <option id="application-type-default" selected>Select one from the list</option>
+        <option value="1">Driver</option>
+        <option value="2">Staff</option>
+        <option value="3">LOA</option>
+    </select>
 </div>
 
-<h1 class="mb-2 text-2xl font-bold font-heading text-left">2. Fill Application</h1>
-
-<div class="container px-4 mx-auto apptabs" id="Application1">
-    <div class="mb-6" style="width:350px">
-        <label id="application1Question1" class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
-        <input id="application1Answer1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            type="date" name="" placeholder="MM/DD/YYYY">
+<div id="Application1" style="display:none" class="application-tab">
+    <label id="application1Question1" for="application1Answer1" class="form-label">What is your birthdate?</label>
+    <div class="input-group mb-3">
+        <input type="date" class="form-control bg-dark text-white" id="application1Answer1" placeholder="">
     </div>
 
-    <div class="mb-6">
-        <label id="application1Question2" class="block text-sm font-medium mb-2" for="">How did you find us?</label>
-        <textarea id="application1Answer2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded application1Input2"
-            name="field-name" rows="5" placeholder="Enter a short answer"></textarea>
+    <label id="application1Question2" for="application1Answer2" class="form-label">How did you find us?</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application1Answer2" placeholder="Enter a short answer"  rows="2"></textarea>
     </div>
 
-
-    <div class="mb-6">
-        <div class="mb-1">
-            <label id="application1Question3" class="block text-sm font-medium mb-2" for="" style="text-align: left;">Are you
-                currenty in
-                another VTC?</label>
-            <label>
-                <input type="radio" name="application1Answer3" value="Yes" id="in-another-vtc">
-                <span class="ml-2">Yes</span>
-            </label><br>
-            <label>
-                <input type="radio" name="application1Answer3" value="No" checked>
-                <span class="ml-2">No</span>
+    <label id="application1Question3" for="application1Answer3" class="form-label" style="width:100%">Are you currently in another VTC?</label>
+    <div class="mb-3">
+        <div class="form-check" style="display:inline-block;width:50px">
+            <input class="form-check-input" type="radio" name="application1Answer3" id="application1Answer3-1" value="Yes">
+                <label class="form-check-label" for="application1Answer3-1">
+                    Yes
+                </label>
+            </div>
+        <div class="form-check" style="display:inline-block">
+            <input class="form-check-input" type="radio" name="application1Answer3" id="application1Answer3-2" value="No" checked>
+            <label class="form-check-label" for="application1Answer3-2">
+                No
             </label>
         </div>
     </div>
 
-    <div class="mb-6">
-        <label id="application1Question4" class="block text-sm font-medium mb-2" for="">What are your interests?</label>
-        <textarea id="application1Answer4" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5" placeholder="Tell us a little bit about yourself."></textarea>
+    <label id="application1Question4" for="application1Answer4" class="form-label">What are your interests?</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application1Answer4" placeholder="Tell us a little bit about yourself."  rows="5"></textarea>
     </div>
 
-    <div class="mb-6">
-        <label id="application1Question5" class="block text-sm font-medium mb-2" for="">Why do you want to be a part our
-            VTC?</label>
-        <textarea id="application1Answer5" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5"
-            placeholder="Why would you like to join us? This doesn\'t need to be complicated."></textarea>
+    <label id="application1Question5" for="application1Answer5" class="form-label">Why do you want to be a part of our VTC?</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application1Answer5" placeholder="Why would you like to join us? This doesn't need to be complicated."  rows="5"></textarea>
     </div>
 
-    <div class="mb-6">
-        <label>
-            <input type="checkbox" name="application1Answer6" value="Yes">
-            <span class="ml-2" id="application1Question6">By joining the VTC, you agree to follow both discord
-                and VTC rules at
-                all
-                times? Do you agree to our terms?</span>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" value="Yes" id="application1Question6" checked>
+        <label class="form-check-label" for="application1Question6">
+            By joining the VTC, you agree to follow both discord and VTC rules at all times? Do you agree to our terms?
         </label>
     </div>
 </div>
 
-<div class="container px-4 mx-auto apptabs" id="Application2" style="display:none">
-    <div class="mb-6" style="width:350px">
-        <label id="application2Question1" class="block text-sm font-medium mb-2" for="">What is your birthdate?</label>
-        <input id="application2Answer1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            type="date" name="" placeholder="MM/DD/YYYY">
+<div id="Application2" style="display:none" class="application-tab">
+    <label id="application2Question1" for="application1Answer1" class="form-label">What is your birthdate?</label>
+    <div class="input-group mb-3">
+        <input type="date" class="form-control bg-dark text-white" id="application2Answer1" placeholder="">
     </div>
 
-    <div class="mb-6">
-        <label id="application2Question2" class="block text-sm font-medium mb-2" for="">What country do you live in? Also
-            include your Time
-            Zone </label>
-        <textarea id="application2Answer2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5" placeholder="US, Canada, UK, etc"></textarea>
+    <label id="application2Question2" for="application2Answer2" class="form-label">What country do you live in? Also include your Time Zone</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application2Answer2" placeholder="US, Canada, UK, etc"  rows="2"></textarea>
     </div>
 
-
-    <div class="mb-6">
-        <label id="application2Question3" class="block text-sm font-medium mb-2" for="" style="text-align: left;">Which
-            position are you
-            applying for?</label>
-        <div class="relative" style="width:500px">
-            <select id="application2Answer3"
-                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name">
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                    </path>
-                </svg>
-            </div>
-        </div>
+    <label id="application2Question3" for="application2Answer3" class="form-label">Which position are your applying for?</label>
+    <div class="mb-3">
+        <select class="form-select bg-dark text-white" id="application2Answer3">
+        </select>
     </div>
 
-    <div class="mb-6">
-        <label id="application2Question4" class="block text-sm font-medium mb-2" for="">Please provide a summary about
-            yourself. </label>
-        <textarea id="application2Answer4" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5"
-            placeholder="You may include hobbies, work positions, or any unique facts about yourself!"></textarea>
+    <label id="application2Question4" for="application2Answer4" class="form-label">Please provide a summary about yourself.</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application2Answer4" placeholder="You may include hobbies, work positions, or any unique facts about yourself!" rows="5"></textarea>
     </div>
 
-    <div class="mb-6">
-        <label id="application2Question5" class="block text-sm font-medium mb-2" for="">Why are you interested in joining the
-            position you
-            are applying for? What do you want to achieve?</label>
-        <textarea id="application2Answer5" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5"
-            placeholder="Explain why does that position interest you and what do you want to achieve."></textarea>
+    <label id="application2Question5" for="application2Answer5" class="form-label">Why are you interested in joining the position you are applying for? What do you want to achieve?</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application2Answer5" placeholder="Explain why does that position interest you and what do you want to achieve." rows="5"></textarea>
     </div>
 
-    <div class="mb-6">
-        <label id="application2Question6" class="block text-sm font-medium mb-2" for="">Do you have a lot of time to dedicate
-            to this
-            position?</label>
-        <textarea id="application2Answer6" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5" placeholder="Explain your time availability."></textarea>
+    <label id="application2Question6" for="application2Answer6" class="form-label">Do you have a lot of time to dedicate to this position?</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application2Answer6" placeholder="Explain your time availability." rows="2"></textarea>
     </div>
 
-    <div class="mb-6">
-        <label>
-            <input id="application2Answer7" type="checkbox" name="application2Answer7" value="Yes">
-            <span id="application2Question7" class="ml-2">By joining the VTC, you agree to our rules and terms
-                of service. As a
-                Internal or External Staff, you also agree to work without financial compensation.
-                Do you agree to
-                these terms?</span>
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" value="Yes" id="application2Answer7" checked>
+        <label class="form-check-label" for="application2Question7">
+            By joining the VTC, you agree to our rules and terms of service. As a Internal or External Staff, you also agree to work without financial compensation. Do you agree to these terms?
         </label>
     </div>
 </div>
 
-<div class="container px-4 mx-auto apptabs" id="Application3" style="display:none">
-    <div class="mb-6" style="width:350px">
-        <label id="application3Question1" class="block text-sm font-medium mb-2" for="">Start Date</label>
-        <input id="application3Answer1" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            type="date" name="" placeholder="MM/DD/YYYY">
+<div id="Application3" style="display:none" class="application-tab">
+    <label id="application3Question1" for="application3Answer1" class="form-label">Start Date</label>
+    <div class="input-group mb-3">
+        <input type="date" class="form-control bg-dark text-white" id="application3Answer1" placeholder="">
     </div>
 
-    <div class="mb-6" style="width:350px">
-        <label id="application3Question2" class="block text-sm font-medium mb-2" for="">End Date</label>
-        <input id="application3Answer2" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            type="date" name="" placeholder="MM/DD/YYYY">
+    <label id="application3Question2" for="application3Answer2" class="form-label">End Date</label>
+    <div class="input-group mb-3">
+        <input type="date" class="form-control bg-dark text-white" id="application3Answer2" placeholder="">
     </div>
 
-    <div class="mb-6">
-        <label id="application3Question3" class="block text-sm font-medium mb-2" for="">Reason for LOA </label>
-        <textarea id="application3Answer3" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-            name="field-name" rows="5" placeholder="Your answer"></textarea>
+    <label id="application3Question3" for="application3Answer3" class="form-label">Reason for LOA</label>
+    <div class="input-group mb-3">
+        <textarea type="text" class="form-control bg-dark text-white" id="application3Answer3" placeholder="" rows="5"></textarea>
     </div>
 
-    <div class="mb-6">
-        <label id="application3Question4" class="block text-sm font-medium mb-2" for="" style="text-align: left;">Will you
-            leave your
-            position or leave the VTC?</label>
-        <div class="relative" style="width:500px">
-            <select id="application3Answer4"
-                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name">
-                <option value="No">No</option>
-                <option value="Yes">Yes</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                    </path>
-                </svg>
+    <label id="application1Question3" for="application3Question4" class="form-label" style="width:100%">Will you leave your position or leave the VTC?</label>
+    <div class="mb-3">
+        <div class="form-check" style="display:inline-block;width:50px">
+            <input class="form-check-input" type="radio" name="application3Answer4" id="application3Answer4-1" value="Yes">
+                <label class="form-check-label" for="application3Answer4-1">
+                    Yes
+                </label>
             </div>
+        <div class="form-check" style="display:inline-block">
+            <input class="form-check-input" type="radio" name="application3Answer4" id="application3Answer4-2" value="No" checked>
+            <label class="form-check-label" for="application3Answer4-2">
+                No
+            </label>
         </div>
     </div>
 </div>

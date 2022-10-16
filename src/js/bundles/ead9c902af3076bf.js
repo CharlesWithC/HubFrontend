@@ -639,9 +639,12 @@ leaderboard_placeholder_row = `
 function LoadLeaderboard(noplaceholder = false) {
     LockBtn("#button-leaderboard-options-update", btntxt = "...");
 
+    page_size = parseInt($("#leaderboard-page-size").val());
+    if (!isNumber(page_size)) page_size = 20;
+
     if(!noplaceholder){
         $("#table_leaderboard_data").children().remove();
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < page_size; i++) {
             $("#table_leaderboard_data").append(leaderboard_placeholder_row);
         }
     }
@@ -689,9 +692,6 @@ function LoadLeaderboard(noplaceholder = false) {
     }
     users = users.join(",");
 
-    page_size = parseInt($("#leaderboard-page-size").val());
-    if (!isNumber(page_size)) page_size = 20;
-
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
         type: "GET",
@@ -734,9 +734,12 @@ dlog_placeholder_row = `
 function LoadDeliveryList(noplaceholder = false) {
     LockBtn("#button-delivery-log-options-update", btntxt = "...");
 
+    page_size = parseInt($("#delivery-log-page-size").val());
+    if (!isNumber(page_size)) page_size = 10;
+    
     if(!noplaceholder){
         $("#table_delivery_log_data").children().remove();
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < page_size; i++) {
             $("#table_delivery_log_data").append(dlog_placeholder_row);
         }
     }
@@ -769,9 +772,6 @@ function LoadDeliveryList(noplaceholder = false) {
     cancelled = $("#delivery-log-cancelled").is(":checked");
     if (delivered && !cancelled) status = 1;
     else if (!delivered && cancelled) status = 2;
-
-    page_size = parseInt($("#delivery-log-page-size").val());
-    if (!isNumber(page_size)) page_size = 10;
 
     uid = parseInt($("#delivery-log-userid").val());
     if (!isNumber(uid) || uid < 0) {
@@ -810,7 +810,7 @@ function LoadDeliveryList(noplaceholder = false) {
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
             }
 
             PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
@@ -3669,11 +3669,299 @@ function PreserveApplicationQuestion(){
     }
 }
 
-function SubmitApp() {
-    GeneralLoad();
-    LockBtn("#submitAppBttn");
+my_application_placeholder_row = `
+<tr>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+</tr>`;
 
-    apptype = parseInt($("#appselect").find(":selected").attr("value"));
+function LoadUserApplicationList(noplaceholder = false) {
+    InitPaginate("#table_my_application", "LoadUserApplicationList();");
+
+    if(!noplaceholder){
+        $("#table_my_application_data").children().remove();
+        for(var i = 0 ; i < 15 ; i ++){
+            $("#table_my_application_data").append(my_application_placeholder_row);
+        }
+    }
+
+    page = parseInt($("#table_my_application_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&page_size=15&application_type=0",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            STATUS = ["Pending", "Accepted", "Declined"];
+
+            applicationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < applicationList.length; i++) {
+                application = applicationList[i];
+                apptype = applicationTypes[application.application_type];
+                if(apptype == undefined) apptype = "Unknown";
+                submit_time = getDateTime(application.submit_timestamp * 1000);
+                update_time = getDateTime(application.update_timestamp * 1000);
+                if (application.update_timestamp == 0)  closedat = "/";
+                status = STATUS[application.status];
+                staff = application.last_update_staff;
+
+                color = "lightblue";
+                if (application.status == 1) color = "lightgreen";
+                if (application.status == 2) color = "red";
+
+                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})">View Details</a>`]);
+            }
+
+            PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+all_application_placeholder_row = `
+<tr>
+    <td style="width:5%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:15%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+async function LoadAllApplicationList(noplaceholder = false) {
+    InitPaginate("#table_all_application", "LoadAllApplicationList();");
+
+    if(!noplaceholder){
+        $("#table_all_application_data").children().remove();
+        for(var i = 0 ; i < 15 ; i ++){
+            $("#table_all_application_data").append(all_application_placeholder_row);
+        }
+    }
+
+    page = parseInt($('#table_all_application_page_input').val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&page_size=15&application_type=0&all_user=1",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            STATUS = ["Pending", "Accepted", "Declined"];
+
+            applicationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < applicationList.length; i++) {
+                application = applicationList[i];
+                apptype = applicationTypes[application.application_type];
+                if(apptype == undefined) apptype = "Unknown";
+                submit_time = getDateTime(application.submit_timestamp * 1000);
+                update_time = getDateTime(application.update_timestamp * 1000);
+                if (application.update_timestamp == 0)  closedat = "/";
+                status = STATUS[application.status];
+                creator = application.creator;
+                staff = application.last_update_staff;
+
+                color = "lightblue";
+                if (application.status == 1) color = "lightgreen";
+                if (application.status == 2) color = "red";
+
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)">View Details</a>`]);
+            }
+
+            PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+
+    while(1){
+        if(userPermLoaded) break;
+        await sleep(100);
+    }
+    if(userPerm.includes("hrm") || userPerm.includes("admin")){
+        $("#all-application-right-wrapper").show();
+    }
+}
+
+function GetApplicationDetail(applicationid, staffmode = false) {
+    LockBtn("#button-my-application-" + applicationid, "Loading...");
+    LockBtn("#button-all-application-" + applicationid, "Loading...");
+    
+    function GenTableRow(key, val) {
+        return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
+    }
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/application?applicationid=" + applicationid,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error){
+                UnlockBtn("#button-my-application-" + applicationid);
+                UnlockBtn("#button-all-application-" + applicationid);
+                return AjaxError(data);
+            }
+
+            d = data.response.detail;
+            discordid = data.response.creator.discordid;
+            keys = Object.keys(d);
+            if (keys.length == 0)
+                return toastNotification("error", "Error", "Application has no data", 5000, false);
+                
+            apptype = applicationTypes[data.response.application_type];
+            ret = "";
+            for (i = 0; i < keys.length; i++){
+                ret += `<p class="mb-1"><b>${keys[i]}</b></p><p>${d[keys[i]]}</p>`;
+            }
+
+            $.ajax({
+                url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                success: function (data) {
+                    info = "";
+                    if (!data.error) {
+                        d = data.response;
+                        info += GenTableRow("Name", d.name);
+                        info += GenTableRow("Email", d.email);
+                        info += GenTableRow("Discord", discordid);
+                        info += GenTableRow("TruckersMP", `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+                        info += GenTableRow("Steam", `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+                    }
+                    bottom = "";
+                    if (!staffmode) {
+                        bottom = `
+                            <label for="application-new-message" class="form-label">Message</label>
+                            <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="Content of message to add to this application" style="height:160px"></textarea>
+                            </div>`;
+                        modalid = ShowModal("Application #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-application-new-message" type="button" class="btn btn-primary" onclick="AddMessageToApplication(${applicationid});">Update</button>`);
+                        InitModal("my_application_detail", modalid);
+                    } else {
+                        bottom = `
+                            <label for="application-new-message" class="form-label">Message</label>
+                            <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="Content of message to add to this application" style="height:160px"></textarea>
+                            </div>
+
+                            <label for="application-new-status" class="form-label">Status</label>
+                            <div class="mb-3">
+                                <select class="form-select bg-dark text-white" id="application-new-status">
+                                    <option selected>Select one from the list</option>
+                                    <option value="0">Pending</option>
+                                    <option value="1">Accepted</option>
+                                    <option value="2">Declined</option>
+                                </select>
+                            </div>`;
+                        modalid = ShowModal("Application #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-application-update-status" type="button" class="btn btn-primary" onclick="UpdateApplicationStatus(${applicationid});">Update</button>`);
+                        InitModal("all_application_detail", modalid);
+                    }
+                    UnlockBtn("#button-all-application-" + applicationid);
+                    UnlockBtn("#button-my-application-" + applicationid);
+                }
+            });
+        },
+        error: function (data) {
+            UnlockBtn("#button-my-application-" + applicationid);
+            UnlockBtn("#button-all-application-" + applicationid);
+            AjaxError(data);
+        }
+    })
+}
+
+function AddMessageToApplication(applicationid) {
+    message = $("#application-new-message").val();
+    LockBtn("#button-application-new-message", "Updating...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/application",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "applicationid": applicationid,
+            "message": message
+        },
+        success: function (data) {
+            UnlockBtn("#button-application-new-message");
+            if (data.error) return AjaxError(data);
+            GetApplicationDetail(applicationid);
+            toastNotification("success", "Success!", "Message added!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-application-new-message");
+            AjaxError(data);
+        }
+    });
+}
+
+function UpdateApplicationStatus(applicationid) {
+    appstatus = parseInt($("#application-new-status").find(":selected").val());
+    if(!isNumber(appstatus)) return toastNotification("error", "Error", "Invalid application status!")
+    message = $("#application-new-message").val();
+
+    LockBtn("#button-application-update-status", "Updating...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/application/status",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "applicationid": applicationid,
+            "status": appstatus,
+            "message": message
+        },
+        success: function (data) {
+            UnlockBtn("#button-application-update-status");
+            if (data.error) return AjaxError(data);
+            LoadAllApplicationList();
+            toastNotification("success", "Success", "Application status updated!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-application-update-status");
+            AjaxError(data);
+        }
+    })
+}
+
+function SubmitApplication() {
+    LockBtn("#button-submit-application", "Submitting...");
+
+    apptype = parseInt($("#application-type").find(":selected").attr("value"));
     data = {};
     for(var i = 1 ; i <= 100 ; i++){
         if($("#application" + apptype + "Question" + i).length != 0){
@@ -3712,303 +4000,35 @@ function SubmitApp() {
             "data": data
         },
         success: function (data) {
-            UnlockBtn("#submitAppBttn");
+            UnlockBtn("#button-submit-application");
             if(data.error) return AjaxError(data);
             toastNotification("success", "Success", "Application submitted!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#submitAppBttn");
-            AjaxError(data);
-        }
-    });
-}
-function LoadUserApplicationList() {
-    GeneralLoad();
-    InitPaginate("#table_my_application", "LoadUserApplicationList();");
-
-    page = parseInt($("#table_my_application_page_input").val());
-    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return AjaxError(data);
-
-            STATUS = ["Pending", "Accepted", "Declined"];
-
-            applicationList = data.response.list;
-            total_pages = data.response.total_pages;
-            data = [];
-
-            for (i = 0; i < applicationList.length; i++) {
-                application = applicationList[i];
-                apptype = applicationTypes[application.application_type];
-                creation = getDateTime(application.submit_timestamp * 1000);
-                closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0)  closedat = "/";
-                status = STATUS[application.status];
-
-                color = "blue";
-                if (application.status == 1) color = "lightgreen";
-                if (application.status == 2) color = "red";
-
-                data.push([`${application.applicationid}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="GetApplicationDetail(${application.applicationid})">Details</button>`]);
-            }
-
-            PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
-}
-
-function AddMessageToApplication() {
-    appid = $("#appmsgid").val();
-    if (!isNumber(appid)) {
-        toastNotification("error", "Error", "Please enter a valid application ID.", 5000, false);
-        return;
-    }
-    message = $("#appmsgcontent").val();
-    LockBtn("#addAppMessageBtn");
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            "applicationid": appid,
-            "message": message
-        },
-        success: function (data) {
-            UnlockBtn("#addAppMessageBtn");
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Message added!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#addAppMessageBtn");
+            UnlockBtn("#button-submit-application");
             AjaxError(data);
         }
     });
 }
 
-function LoadAllApplicationList() {
-    GeneralLoad();
-    InitPaginate("#table_all_application", "LoadAllApplicationList();");
-
-    page = parseInt($('#table_all_application_page_input').val());
-    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&application_type=0&all_user=1",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return AjaxError(data);
-
-            STATUS = ["Pending", "Accepted", "Declined"];
-
-            applicationList = data.response.list;
-            total_pages = data.response.total_pages;
-            data = [];
-
-            for (i = 0; i < applicationList.length; i++) {
-                application = applicationList[i];
-                apptype = applicationTypes[application.application_type];
-                username = application.creator.name;
-                creation = getDateTime(application.submit_timestamp * 1000);
-                closedat = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0) 
-                    closedat = "/";
-                status = STATUS[application.status];
-
-                color = "blue";
-                if (application.status == 1) color = "lightgreen";
-                if (application.status == 2) color = "red";
-
-                data.push([`${application.applicationid}`, `${username}`, `${apptype}`, `${creation}`, `<span style="color:${color}">${status}</span>`, `${closedat}`, `<button type="button" style="display:inline;padding:5px" id="MyAppBtn${application.applicationid}" 
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="GetApplicationDetail(${application.applicationid}, true)">Details</button>`]);
-            }
-
-            PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
+function UpdateStaffPositionsShow(){
+    content = `
+    <div>
+        <label class="form-label">Positions</label>
+        <div class="input-group mb-2">
+            <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Positions" placeholder='Enter a position' multiple=''>
+        </div>
+    </div>`;
+    modalid = ShowModal("Update Staff Positions", content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">Update</button>`);
+    InitModal("update_staff_positions", modalid);
+    $('#application-staff-positions').flexdatalist({});
+    $("#application-staff-positions").val(positions.join(","));
 }
 
-function GetApplicationDetail(applicationid, staffmode = false) {
-    GeneralLoad();
-    LockBtn("#AllAppBtn" + applicationid, "Loading...");
-    LockBtn("#MyAppBtn" + applicationid, "Loading...");
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application?applicationid=" + applicationid,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#AllAppBtn" + applicationid);
-            UnlockBtn("#MyAppBtn" + applicationid);
-            if (data.error) return AjaxError(data);
+function UpdateStaffPositions() {
+    LockBtn("#button-update-staff-positions", "Updating...");
+    positionstxt = $("#application-staff-positions").val();
 
-            d = data.response.detail;
-            discordid = data.response.creator.discordid;
-            keys = Object.keys(d);
-            if (keys.length == 0)
-                return toastNotification("error", "Error", "Application has no data", 5000, false);
-                
-            apptype = applicationTypes[data.response.application_type];
-            ret = "";
-            for (i = 0; i < keys.length; i++)
-                ret += "<p style='text-align:left'><b>" + keys[i] + ":</b><br> " + d[keys[i]] + "</p><br>";
-
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                },
-                success: function (data) {
-                    info = "";
-                    if (!data.error) {
-                        d = data.response;
-                        info += "<p style='text-align:left'><b>Name:</b> " + d.name + "</p>";
-                        info += "<p style='text-align:left'><b>Email:</b> " + d.email + "</p>";
-                        info += "<p style='text-align:left'><b>Discord ID:</b> " + discordid + "</p>";
-                        info +=
-                            "<p style='text-align:left'><b>TruckersMP ID:</b> <a href='https://truckersmp.com/user/" +
-                            d.truckersmpid + "'>" + d.truckersmpid + "</a></p>";
-                        info +=
-                            "<p style='text-align:left'><b>Steam ID:</b> <a href='https://steamcommunity.com/profiles/" +
-                            d.steamid + "'>" + d.steamid + "</a></p><br>";
-                    }
-                    info += ret.replaceAll("\n", "<br>");
-                    if (!staffmode) {
-                        info += `
-                            <hr>
-                            <h3 class="text-xl font-bold" style="text-align:left;margin:5px">New message</h3>
-                            <div class="mb-6" style="display:none">
-                                <label class="block text-sm font-medium mb-2" for="">Application ID</label>
-                                <input id="appmsgid" style="width:200px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                                rows="5" placeholder="Integar ID" value="${applicationid}"></input>
-                            </div>
-                                <textarea id="appmsgcontent"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                                rows="5" placeholder=""></textarea>
-                    
-                            <button type="button" id="addAppMessageBtn" style="float:right"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="AddMessageToApplication()">Add</button>`;
-                    } else {
-                        info += `
-                            <hr>
-                            <h3 class="text-xl font-bold" style="text-align:left;margin:5px">New message</h3>
-                            <div class="mb-6" style="display:none">
-                                <label class="block text-sm font-medium mb-2" for="">Application ID</label>
-                                <input id="appstatusid" style="width:200px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                                rows="5" placeholder="" value="${applicationid}"></input></div>
-                    
-                            <div class="mb-6">
-                                <textarea id="appmessage"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                                rows="5" placeholder=""></textarea></div>
-                    
-                            <div class="mb-6 relative" style="width:200px">
-                            <h3 class="text-xl font-bold" style="text-align:left;margin:5px">New Status</h3>
-                                <select id="appstatussel"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="0">Pending</option>
-                                <option value="1">Accepted</option>
-                                <option value="2">Declined</option>
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                                </svg>
-                                </div>
-                            </div>
-                    
-                            <button type="button" style="float:right"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="UpdateApplicationStatus()" id="updateAppStatusBtn">Update</button>
-                            </div>
-                        </div>`;
-                    }
-                    Swal.fire({
-                        title: apptype + ' Application #' + applicationid,
-                        html: info,
-                        icon: 'info',
-                        showConfirmButton: false,
-                        confirmButtonText: 'Close'
-                    })
-                }
-            });
-        },
-        error: function (data) {
-            UnlockBtn("#AllAppBtn" + applicationid);
-            UnlockBtn("#MyAppBtn" + applicationid);
-            AjaxError(data);
-        }
-    })
-}
-
-function UpdateApplicationStatus() {
-    GeneralLoad();
-    LockBtn("#updateAppStatusBtn");
-
-    appid = $("#appstatusid").val();
-    appstatus = parseInt($("#appstatussel").find(":selected").val());
-    message = $("#appmessage").val();
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/status",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            "applicationid": appid,
-            "status": appstatus,
-            "message": message
-        },
-        success: function (data) {
-            UnlockBtn("#updateAppStatusBtn");
-            if (data.error) return AjaxError(data);
-            LoadAllApplicationList();
-            toastNotification("success", "Success", "Application status updated.", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#updateAppStatusBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function UpdateApplicationPositions() {
-    GeneralLoad();
-    LockBtn("#updateStaffPositionBtn");
-    positions = $("#staffposedit").val().replaceAll("\n", ",");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/application/positions",
         type: "PATCH",
@@ -4017,15 +4037,17 @@ function UpdateApplicationPositions() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "positions": positions
+            "positions": positionstxt
         },
         success: function (data) {
-            UnlockBtn("#updateStaffPositionBtn");
+            UnlockBtn("#button-update-staff-positions");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "", 5000, false);
+            positions = positionstxt.split(",");
+            localStorage.setItem("positions", JSON.stringify(positions));
+            toastNotification("success", "Success!", "Staff positions updated!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#updateStaffPositionBtn");
+            UnlockBtn("#button-update-staff-positions");
             AjaxError(data);
         }
     })
@@ -4167,8 +4189,8 @@ function GetDivisionInfo(logid) {
                 `;
                 modalid = ShowModal(`Division Validation`, info, `
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="button-division-danger" type="button" class="btn btn-danger" style="width:100px;" onclick="UpdateDivision(${logid}, 2);">Reject</button>
-                <button id="button-division-accept" type="button" class="btn btn-success" style="width:100px;" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
+                <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">Reject</button>
+                <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
                 InitModal("division_detail", modalid, top = true);
                 $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
@@ -4187,7 +4209,7 @@ function GetDivisionInfo(logid) {
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
                     modalid = ShowModal(`Division Validation`, info, `
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="button-division-revalidate" type="button" class="btn btn-primary" style="width:100px;" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
+                    <button id="button-division-revalidate" type="button" class="btn btn-primary" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
                     InitModal("division_detail", modalid, top = true);
                 } else {
                     $("#delivery-detail-division").html(info);
@@ -4258,9 +4280,10 @@ function LoadPendingDivisionValidation() {
                     user = delivery.user;
                     $("#table_division_pending_data").append(`
                         <tr>
-                        <td><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
+                        <td>${delivery.logid}</td>
                         <td>${divisions[delivery.divisionid].name}</td>
                         <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
+                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">View Details</a></td>
                     </tr>`);
                 }
             }
@@ -5212,9 +5235,9 @@ function InitInputHandler(){
     $('#memberroleid').keydown(function (e) {
         if (e.which == 13) GetMemberRoles();
     });
-    $('#appselect').on('change', function () {
+    $('#application-type').on('change', function () {
         var value = $(this).val();
-        $(".apptabs").hide();
+        $(".application-tab").hide();
         $("#Application" + value).show();
         $("#submitAppBttn").show();
     });
@@ -5468,34 +5491,6 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/downloads');
         if(!loaded) LoadDownloads();
     }
-    if (tabname == "#submit-application-tab") {
-        window.history.pushState("", "", '/application/submit');
-        $("#driverappsel").attr("selected", "selected");
-    }
-    if (tabname == "#my-application-tab") {
-        window.history.pushState("", "", '/application/my');
-        LoadUserApplicationList();
-    }
-    if (tabname == "#button-staff-application") {
-        window.history.pushState("", "", '/application/all');
-        LoadAllApplicationList();
-    }
-    if (tabname == "#staff-user-tab") {
-        window.history.pushState("", "", '/staff/user');
-        LoadUserList();
-    }
-    if (tabname == "#member-tab") {
-        window.history.pushState("", "", '/member');
-        if(!loaded){
-            $("#input-member-search").on("keydown", function(e){
-                if(e.which == 13){
-                    LoadMemberList(noplaceholder = true);
-                }
-            });
-            LoadXOfTheMonth();
-            LoadMemberList();
-        }
-    }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
         $("#delivery-log-userid").val("");
@@ -5521,14 +5516,6 @@ async function ShowTab(tabname, btnname) {
         }
         $("#delivery-tab").addClass("last-load-user");
     }
-    if (tabname == "#leaderboard-tab") {
-        window.history.pushState("", "", '/leaderboard');
-        if(!loaded) LoadLeaderboard();
-    }
-    if (tabname == "#ranking-tab") {
-        window.history.pushState("", "", '/ranking');
-        if(!loaded) LoadRanking();
-    }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
         if(!loaded) LoadDivisionInfo();
@@ -5537,10 +5524,40 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/event');
         if(!loaded) LoadEvent();
     }
-    if (tabname == "#staff-event-tab") {
-        window.history.pushState("", "", '/staff/event');
-        setTimeout(function(){HandleAttendeeInput();},2000);
-        LoadEvent();
+    if (tabname == "#member-tab") {
+        window.history.pushState("", "", '/member');
+        if(!loaded){
+            $("#input-member-search").on("keydown", function(e){
+                if(e.which == 13){
+                    LoadMemberList(noplaceholder = true);
+                }
+            });
+            LoadXOfTheMonth();
+            LoadMemberList();
+        }
+    }
+    if (tabname == "#leaderboard-tab") {
+        window.history.pushState("", "", '/leaderboard');
+        if(!loaded) LoadLeaderboard();
+    }
+    if (tabname == "#ranking-tab") {
+        window.history.pushState("", "", '/ranking');
+        if(!loaded) LoadRanking();
+    }
+    if (tabname == "#submit-application-tab") {
+        window.history.pushState("", "", '/application/submit');
+    }
+    if (tabname == "#my-application-tab") {
+        window.history.pushState("", "", '/application/my');
+        if(!loaded) LoadUserApplicationList();
+    }
+    if (tabname == "#all-application-tab") {
+        window.history.pushState("", "", '/application/all');
+        if(!loaded) LoadAllApplicationList();
+    }
+    if (tabname == "#staff-user-tab") {
+        window.history.pushState("", "", '/staff/user');
+        LoadUserList();
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
@@ -5583,7 +5600,6 @@ function LoadCache(){
             $("#sa-select").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
         }
         positionstxt = positionstxt.slice(0, -1);
-        $("#staffposedit").val(positionstxt);
     } else {
         positions = [];
     }
@@ -5679,22 +5695,23 @@ function ShowStaffTabs() {
     t.pop("user");
     t.pop("driver");
     if (t.length > 0) {
-        $("#sidebar-staff").show();
-        $("#sidebar-staff a").hide();
         if (userPerm.includes("admin")) {
-            $("#sidebar-staff a").show();
-            $(".admin-only").show();
+            $("#sidebar-staff").show();
+            $("#button-all-application-tab").show();
+            $("#button-staff-user").show();
+            $("#button-audit-tab").show();
             $("#button-config-tab").show();
         } else {
-            $(".admin-only").hide();
             if (userPerm.includes("hr") || userPerm.includes("division")) {
-                $("#button-staff-member-tab").show();
-                $("#button-staff-application-tab").show();
+                $("#sidebar-staff").show();
+                $("#button-all-application-tab").show();
             }
             if (userPerm.includes("hr")) {
+                $("#sidebar-staff").show();
                 $("#button-staff-user").show();
             }
             if (userPerm.includes("audit")) {
+                $("#sidebar-staff").show();
                 $("#button-audit-tab").show();
             }
         }
@@ -5880,7 +5897,7 @@ function PathDetect() {
     } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
-    else if (p == "/application/all") ShowTab("#button-staff-application", "#button-staff-application-tab");
+    else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
     else if (p == "/staff/user") ShowTab("#staff-user-tab", "#button-staff-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
@@ -5896,7 +5913,7 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
@@ -5909,6 +5926,7 @@ $(document).ready(async function () {
         minLength: 1,
         limitOfValues: 10
     });
+    $("#application-type-default").prop("selected", true);
     setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
@@ -5934,8 +5952,6 @@ $(document).ready(async function () {
         positionstxt += positions[i] + "\n";
         $("#application2Answer3").append("<option value='" + positions[i].replaceAll("'", "\\'") + "'>" + positions[i] + "</option>");
     }
-    positionstxt = positionstxt.slice(0, -1);
-    $("#staffposedit").val(positionstxt);
     ValidateToken();
 });
 // Burger menus

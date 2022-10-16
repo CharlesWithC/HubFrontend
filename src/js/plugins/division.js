@@ -135,8 +135,8 @@ function GetDivisionInfo(logid) {
                 `;
                 modalid = ShowModal(`Division Validation`, info, `
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="button-division-danger" type="button" class="btn btn-danger" style="width:100px;" onclick="UpdateDivision(${logid}, 2);">Reject</button>
-                <button id="button-division-accept" type="button" class="btn btn-success" style="width:100px;" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
+                <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">Reject</button>
+                <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
                 InitModal("division_detail", modalid, top = true);
                 $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
@@ -155,7 +155,7 @@ function GetDivisionInfo(logid) {
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
                     modalid = ShowModal(`Division Validation`, info, `
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="button-division-revalidate" type="button" class="btn btn-primary" style="width:100px;" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
+                    <button id="button-division-revalidate" type="button" class="btn btn-primary" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
                     InitModal("division_detail", modalid, top = true);
                 } else {
                     $("#delivery-detail-division").html(info);
@@ -226,9 +226,10 @@ function LoadPendingDivisionValidation() {
                     user = delivery.user;
                     $("#table_division_pending_data").append(`
                         <tr>
-                        <td><a onclick="ShowDeliveryDetail(${delivery.logid})" style="cursor:pointer">${delivery.logid}</a></td>
+                        <td>${delivery.logid}</td>
                         <td>${divisions[delivery.divisionid].name}</td>
                         <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
+                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">View Details</a></td>
                     </tr>`);
                 }
             }

@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/b297d20cfec66669.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/ead9c902af3076bf.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -154,6 +154,13 @@
 
         a {
             text-decoration: none;
+            color: #fff;
+        }
+
+        table a {
+            color: #ccc;
+        }
+        table a:hover {
             color: #fff;
         }
 
@@ -247,11 +254,15 @@
             }
         }
 
+        select {
+            max-width: 250px;
+        }
+
         h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
-        a:hover {color: white;}
         th > .fc-scrollgrid-sync-inner {background-color: #444}
         .flexdatalist-results {background-color:#2F3136;}
         .flexdatalist-multiple li.value {background-color:#2F3136;}
+        button {min-width: 100px};
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -350,26 +361,26 @@
                 <div id="sidebar-application" style="margin:5px 0;display:none;">
                     <li><strong style="color:darkgrey">Applications</strong></li>
                     <li class="nav-item">
+                        <a id="button-submit-application-tab" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
+                            New Application
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a id="button-my-application-tab" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white clickable" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
+                            <span class="rect-20"><i class="fa-solid fa-envelope-circle-check"></i></span>
                             My Applications
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a id="button-submit-application-tab" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white clickable" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
-                            Submit Application
+                        <a id="button-all-application-tab" onclick="ShowTab('#all-application-tab', '#button-all-application-tab')" class="nav-link text-white clickable" aria-current="page" style="display:none">
+                            <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
+                            All Applications
                         </a>
                     </li>
                 </div>
                 <div id="sidebar-staff" style="margin:5px 0;display:none">
                     <li><strong style="color:darkgrey">Staff</strong></li>
-                    <li class="nav-item">
-                        <a id="button-staff-application-tab" onclick="ShowTab('#staff-application-tab', '#button-staff-application-tab')" class="nav-link text-white clickable" aria-current="page">
-                            <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
-                            Applications
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a id="button-staff-user-tab" onclick="ShowTab('#staff-user-tab', '#button-staff-user-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
@@ -683,7 +694,7 @@
                             <span class="input-group-text" id="announcement-new-discord-message-label">Message</span>
                             <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-message" placeholder="(Optional) Discord message content" aria-describedby="announcement-new-discord-message-label">
                         </div>
-                        <button id="button-announcement-new-post" type="button" class="btn btn-primary" style="float:right;width:100px;" onclick="PostAnnouncement();">Post</button>
+                        <button id="button-announcement-new-post" type="button" class="btn btn-primary" style="float:right;" onclick="PostAnnouncement();">Post</button>
                     </div>
                 </div>
             </div>
@@ -699,7 +710,7 @@
                 </div>
                 <div id="downloads-edit-div" class="shadow p-3 m-3 bg-dark rounded col" style="display:none">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span> Edit</strong></h5>
-                    <div id="downloads-edit-hide-button-wrapper" style="float:right;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").show();'>Hide</a></div>
+                    <div id="downloads-edit-hide-button-wrapper" style="float:right;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").show();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
                     <textarea class="form-control bg-dark text-white" id="downloads-edit-content" style="height:calc(100% - 100px)"></textarea>
                     <br>
                     <button id="button-downloads-edit-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateDownloads();">Save</button>
@@ -762,8 +773,8 @@
             <div class="row">
                 <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> Deliveries</strong></h5>
-                    <div id="delivery-log-button-right-wrapper" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();">Export</a>&nbsp;&nbsp;&nbsp;
-                    <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'>Options</a></div>
+                    <div id="delivery-log-button-right-wrapper" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();"><span class="rect-20"><i class="fa-solid fa-file-export"></i></span></a>
+                    <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
                     <div id="table_delivery_log">
                         <table class="w-100">
                             <thead id="table_delivery_log_head">
@@ -784,7 +795,7 @@
                 </div>
                 <div id="delivery-log-options" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
                     <h5 style="display:inline-block"><strong>Options</strong></h5>
-                    <div id="delivery-log-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-options-show").show();$("#delivery-log-options").hide();'>Hide</a></div>
+                    <div id="delivery-log-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-options-show").show();$("#delivery-log-options").hide();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
                     <div>
                         <label class="form-label">Game</label>
                         <br>
@@ -1014,7 +1025,7 @@
                                 </label>
                             </div>
                         </div>
-                        <button id="button-event-new-create" type="button" class="btn btn-primary" style="float:right;width:100px;" onclick="CreateEvent();">Create</button>
+                        <button id="button-event-new-create" type="button" class="btn btn-primary" style="float:right;" onclick="CreateEvent();">Create</button>
                     </div>
                 </div>
             </div>
@@ -1103,8 +1114,8 @@
                                 </label>
                             </div>
                         </div>
-                        <button id="button-event-edit" type="button" class="btn btn-primary m-2" style="float:right;width:100px;" onclick="EditEvent();">Edit</button>
-                        <button type="button" class="btn btn-secondary m-2" style="float:right;width:100px;" onclick="$('#event-edit').hide();">Close</button>
+                        <button id="button-event-edit" type="button" class="btn btn-primary m-2" style="float:right;" onclick="EditEvent();">Edit</button>
+                        <button type="button" class="btn btn-secondary m-2" style="float:right;" onclick="$('#event-edit').hide();">Close</button>
                     </div>
                 </div>
             </div>
@@ -1126,9 +1137,9 @@
                         <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> Members</strong></h5>
                         <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
                             <input id="input-member-search" type="text" class="form-control bg-dark" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
-                            <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" style="min-width:0" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </div>
-                        <div id="table_member_list">
+                        <div id="table_member_list" class="mt-3">
                             <table class="w-100">
                                 <thead id="table_member_list_head">
                                     <tr>
@@ -1150,7 +1161,7 @@
                 <div id="leaderboard" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> Leaderboard</strong></h5>
                     <div id="leaderboard-button-right-wrapper" style="float:right;">
-                        <a id="leaderboard-options-show" class="clickable" onclick='$("#leaderboard-options-show").hide();$("#leaderboard-options").show();'>Options</a>
+                        <a id="leaderboard-options-show" class="clickable" onclick='$("#leaderboard-options-show").hide();$("#leaderboard-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a>
                     </div>
                     <div id="table_leaderboard">
                         <table class="w-100">
@@ -1173,12 +1184,12 @@
                 </div>
                 <div id="leaderboard-options" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
                     <h5 style="display:inline-block"><strong>Options</strong></h5>
-                    <div id="leaderboard-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#leaderboard-options-show").show();$("#leaderboard-options").hide();'>Hide</a></div>
+                    <div id="leaderboard-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#leaderboard-options-show").show();$("#leaderboard-options").hide();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
                     <div>
                         <div>
                             <label class="form-label">Members</label>
                             <div class="input-group mb-2">
-                                <input id="input-leaderboard-search" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Users" aria-describedby="button-leaderboard-search" placeholder='Select members from list' list="all-member-datalist" data-min-length='1' data-limit-of-values='10' multiple='' data-selection-required='1'>
+                                <input id="input-leaderboard-search" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Users" placeholder='Select members from list' list="all-member-datalist" data-min-length='1' data-limit-of-values='10' multiple='' data-selection-required='1'>
                             </div>
                         </div>
                         <label class="form-label">Game</label>
@@ -1256,6 +1267,58 @@
         </section>
         <section id="ranking-tab" class="tabs">
             
+        </section>
+        <section id="submit-application-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span> New Application</strong></h5>
+                <?php echo $application_html; ?>
+                <button id="button-submit-application" type="button" class="btn btn-primary" style="float:right" onclick="SubmitApplication();">Submit</button>
+            </div>
+        </section>
+        <section id="my-application-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-envelope-circle-check"></i></span> My Applications</strong></h5>
+                <div id="table_my_application">
+                    <table class="w-100">
+                        <thead id="table_my_application_head">
+                            <tr>
+                                <th scope="col" style="min-width:80px">ID</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Submit</th>
+                                <th scope="col">Reply</th>
+                                <th scope="col">Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_my_application_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <section id="all-application-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span> All Applications</strong></h5>
+                <div id="all-application-right-wrapper" style="float:right;">
+                    <a class="clickable" onclick='UpdateStaffPositionsShow();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
+                <div id="table_all_application">
+                    <table class="w-100">
+                        <thead id="table_all_application_head">
+                            <tr>
+                                <th scope="col" style="min-width:80px">ID</th>
+                                <th scope="col">Creator</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Submit</th>
+                                <th scope="col">Reply</th>
+                                <th scope="col">Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_all_application_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </section>
         <datalist id="all-member-datalist" style="display:none">
             

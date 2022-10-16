@@ -53,9 +53,12 @@ leaderboard_placeholder_row = `
 function LoadLeaderboard(noplaceholder = false) {
     LockBtn("#button-leaderboard-options-update", btntxt = "...");
 
+    page_size = parseInt($("#leaderboard-page-size").val());
+    if (!isNumber(page_size)) page_size = 20;
+
     if(!noplaceholder){
         $("#table_leaderboard_data").children().remove();
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < page_size; i++) {
             $("#table_leaderboard_data").append(leaderboard_placeholder_row);
         }
     }
@@ -103,9 +106,6 @@ function LoadLeaderboard(noplaceholder = false) {
     }
     users = users.join(",");
 
-    page_size = parseInt($("#leaderboard-page-size").val());
-    if (!isNumber(page_size)) page_size = 20;
-
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
         type: "GET",
@@ -148,9 +148,12 @@ dlog_placeholder_row = `
 function LoadDeliveryList(noplaceholder = false) {
     LockBtn("#button-delivery-log-options-update", btntxt = "...");
 
+    page_size = parseInt($("#delivery-log-page-size").val());
+    if (!isNumber(page_size)) page_size = 10;
+    
     if(!noplaceholder){
         $("#table_delivery_log_data").children().remove();
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < page_size; i++) {
             $("#table_delivery_log_data").append(dlog_placeholder_row);
         }
     }
@@ -183,9 +186,6 @@ function LoadDeliveryList(noplaceholder = false) {
     cancelled = $("#delivery-log-cancelled").is(":checked");
     if (delivered && !cancelled) status = 1;
     else if (!delivered && cancelled) status = 2;
-
-    page_size = parseInt($("#delivery-log-page-size").val());
-    if (!isNumber(page_size)) page_size = 10;
 
     uid = parseInt($("#delivery-log-userid").val());
     if (!isNumber(uid) || uid < 0) {
@@ -224,7 +224,7 @@ function LoadDeliveryList(noplaceholder = false) {
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
-                data.push([`<tr_style>color:${color}</tr_style>`, `<a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a>`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
             }
 
             PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
