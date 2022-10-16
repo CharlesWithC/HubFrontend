@@ -347,6 +347,7 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/captcha');
     }
     if (tabname == "#mfa-tab"){
+        $("#mfa-otp").val("");
         pmfa = localStorage.getItem("pending-mfa");
         if(reloadAPIMFA) pmfa = +new Date();
         if(pmfa == null || (+new Date() - parseInt(pmfa)) > 600000){
@@ -427,7 +428,7 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/application/all');
         if(!loaded) LoadAllApplicationList();
     }
-    if (tabname == "#staff-user-tab") {
+    if (tabname == "#manage-user-tab") {
         window.history.pushState("", "", '/manage/user');
         if(!loaded) LoadUserList();
     }
@@ -570,7 +571,7 @@ function ShowStaffTabs() {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();
             $("#button-all-application-tab").show();
-            $("#button-staff-user").show();
+            $("#button-manage-user").show();
             $("#button-audit-tab").show();
             $("#button-config-tab").show();
         } else {
@@ -580,7 +581,7 @@ function ShowStaffTabs() {
             }
             if (userPerm.includes("hr")) {
                 $("#sidebar-staff").show();
-                $("#button-staff-user").show();
+                $("#button-manage-user").show();
             }
             if (userPerm.includes("audit")) {
                 $("#sidebar-staff").show();
@@ -773,7 +774,7 @@ function PathDetect() {
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/manage/user") ShowTab("#staff-user-tab", "#button-staff-user");
+    else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
     else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
     else if (p.startsWith("/images")) {
@@ -787,8 +788,10 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard", "#table_my_application"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
+    $("input").val("");
+    $("textarea").val("");
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
     $(".pageinput").val("1");
@@ -807,7 +810,6 @@ $(document).ready(async function () {
     });
     $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
     $("#application-type-default").prop("selected", true);
-    setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();

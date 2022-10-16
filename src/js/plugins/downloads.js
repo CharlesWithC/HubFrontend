@@ -46,7 +46,7 @@ function UpdateDownloads() {
             $("#downloads-unsaved").hide();
             if (data.error) return AjaxError(data);
             $("#downloads-content").html(parseMarkdown($("#downloads-edit-content").val()));
-            toastNotification("success", "Success", data.response, 5000, false);
+            toastNotification("success", "Success", "Downloads saved!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-downloads-edit-save");

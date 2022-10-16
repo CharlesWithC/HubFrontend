@@ -117,7 +117,7 @@ function LoadMemberList(noplaceholder = false) {
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Manage
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark member-manage-dropdown">
+                    <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
@@ -298,6 +298,7 @@ function DismissMember(uid){
         success: function (data) {
             UnlockBtn("#button-dismiss-member");
             if (data.error) return AjaxError(data);
+            LoadMemberList(noplaceholder=true);
             toastNotification("success", "Success", "Member dismissed!", 5000, false);
         },
         error: function (data) {

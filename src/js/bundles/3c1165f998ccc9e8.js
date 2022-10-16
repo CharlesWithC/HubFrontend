@@ -1893,7 +1893,7 @@ function LoadMemberList(noplaceholder = false) {
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Manage
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-dark member-manage-dropdown">
+                    <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
@@ -2074,6 +2074,7 @@ function DismissMember(uid){
         success: function (data) {
             UnlockBtn("#button-dismiss-member");
             if (data.error) return AjaxError(data);
+            LoadMemberList(noplaceholder=true);
             toastNotification("success", "Success", "Member dismissed!", 5000, false);
         },
         error: function (data) {
@@ -2867,293 +2868,6 @@ function DisableApplicationToken() {
     });
 }
 
-bannedUserList = {};
-
-function LoadUserList() {
-    GeneralLoad();
-    InitPaginate("#table_pending_user_list", "LoadUserList();");
-    page = parseInt($("#table_pending_user_list_page_input").val())
-    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return AjaxError(data);
-
-            userList = data.response.list;
-            total_pages = data.response.total_pages;
-            data = [];
-
-            for (i = 0; i < userList.length; i++) {
-                user = userList[i];
-                bantxt = "Ban";
-                bantxt2 = "";
-                color = "";
-                accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:grey">Accept as member</td>`;
-                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
-                else accept = `<td class="py-5 px-6 font-medium"><a style="cursor:pointer;color:lightgreen" id="UserAddBtn${user.discordid}" onclick="AddUser('${user.discordid}')">Accept as member</td>`;
-
-                data.push([`<span style='color:${color}'>${user.discordid}</span>`, `<span style='color:${color}'>${user.name} ${bantxt2}</span>`, `<a style="cursor:pointer;color:red" onclick="banGo('${user.discordid}')">${bantxt}</a>`, `<button type="button" style="display:inline;padding:5px" id="UserInfoBtn${user.discordid}" 
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="GetUserDetail('${user.discordid}')">Details</button>`]);
-            }
-
-            PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
-}
-
-function banGo(discordid) {
-    $("#bandiscordid").val(discordid);
-    document.getElementById("BanUserDiv").scrollIntoView();
-}
-
-function AddUser(discordid = -1) {
-    if (discordid == "-1") {
-        discordid = $("#adddiscordid").val();
-        if (!isNumber(discordid)) {
-            return toastNotification("error", "Error", "Please enter a valid discord id.", 5000, false);
-        }
-    } else {
-        if ($("#UserAddBtn" + discordid).html() != "Confirm?") {
-            $("#UserAddBtn" + discordid).html("Confirm?");
-            $("#UserAddBtn" + discordid).css("color", "orange");
-            return;
-        }
-    }
-    GeneralLoad();
-    LockBtn("#addUserBtn");
-    LockBtn("#UserAddBtn" + discordid);
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member",
-        type: "PUT",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: discordid
-        },
-        success: function (data) {
-            UnlockBtn("#addUserBtn");
-            UnlockBtn("#UserAddBtn" + discordid);
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "User added successfully. User ID: " + data.response.userid, 5000, false);
-            LoadUserList();
-        },
-        error: function (data) {
-            UnlockBtn("#addUserBtn");
-            UnlockBtn("#UserAddBtn" + discordid);
-            AjaxError(data);
-        }
-    })
-}
-
-function UpdateUserDiscordAccount() {
-    GeneralLoad();
-    LockBtn("#updateDiscordBtn");
-
-    old_discord_id = $("#upd_old_id").val();
-    new_discord_id = $("#upd_new_id").val();
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/discord",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            old_discord_id: old_discord_id,
-            new_discord_id: new_discord_id
-        },
-        success: function (data) {
-            UnlockBtn("#updateDiscordBtn");
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "User Discord Account Updated!", 5000, false);
-            LoadUserList();
-        },
-        error: function (data) {
-            UnlockBtn("#updateDiscordBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function DeleteUserAccount() {
-    GeneralLoad();
-    LockBtn("#deleteUserBtn");
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
-        type: "DELETE",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: $("#del_discord_id").val()
-        },
-        success: function (data) {
-            UnlockBtn("#deleteUserBtn");
-            if (data.error) return AjaxError(data);
-            LoadUserList();
-            toastNotification("success", "Success", "User deleted!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#deleteUserBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function UnbindUserAccountConnections() {
-    GeneralLoad();
-    LockBtn("#unbindConnectionsBtn");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/connections",
-        type: "DELETE",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: $("#unbind_discord_id").val()
-        },
-        success: function (data) {
-            UnlockBtn("#unbindConnectionsBtn");
-            if (data.error) return AjaxError(data);
-            LoadUserList();
-            toastNotification("success", "Success", "User account connections unbound!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#unbindConnectionsBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function GetUserDetail(discordid) {
-    GeneralLoad();
-    LockBtn("#UserInfoBtn" + discordid, "Loading...");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#UserInfoBtn" + discordid);
-            if (data.error) return AjaxError(data);
-            
-            d = data.response;
-            info = "";
-            info += "<p style='text-align:left'><b>Name:</b> " + d.name + "</p>";
-            info += "<p style='text-align:left'><b>Email:</b> " + d.email + "</p>";
-            info += "<p style='text-align:left'><b>Discord ID:</b> " + discordid + "</p>";
-            info += "<p style='text-align:left'><b>TruckersMP ID:</b> <a href='https://truckersmp.com/user/" +
-                d.truckersmpid + "'>" + d.truckersmpid + "</a></p>";
-            info += "<p style='text-align:left'><b>Steam ID:</b> <a href='https://steamcommunity.com/profiles/" +
-                d.steamid + "'>" + d.steamid + "</a></p><br>";
-
-            swalicon = "info";
-            bantxt = "";
-            if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
-                info += "<p style='text-align:left'><b>Ban Reason:</b> " + bannedUserList[discordid] + "</p>";
-                swalicon = "error";
-                bantxt = " (Banned)";
-            }
-                
-            Swal.fire({
-                title: d.name + bantxt,
-                html: info,
-                icon: swalicon,
-                confirmButtonText: 'Close'
-            })
-        },
-        error: function (data) {
-            UnlockBtn("#UserInfoBtn" + discordid);
-            AjaxError(data);
-        }
-    });
-}
-
-function BanUser() {
-    discordid = $("#bandiscordid").val();
-    if (!isNumber(discordid)) 
-        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
-
-    GeneralLoad();
-    LockBtn("#banUserBtn");
-
-    expire = -1;
-    if ($("#banexpire").val() != "")
-        expire = +new Date($("#banexpire").val()) / 1000;
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/ban",
-        type: "PUT",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: discordid,
-            expire: expire,
-            reason: $("#banreason").val()
-        },
-        success: function (data) {
-            UnlockBtn("#banUserBtn");
-            if (data.error) return AjaxError(data);
-            LoadUserList();
-            toastNotification("success", "Success", "User banned successfully.", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#banUserBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-function UnbanUser() {
-    discordid = $("#bandiscordid").val();
-    if (!isNumber(discordid))
-        return toastNotification("error", "Error", "Invalid discord id.", 5000, false);
-    
-    GeneralLoad();
-    LockBtn("#unbanUserBtn");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/unban",
-        type: "PUT",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: $("#bandiscordid").val()
-        },
-        success: function (data) {
-            UnlockBtn("#unbanUserBtn");
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "User unbanned successfully.", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#unbanUserBtn");
-            AjaxError(data);
-        }
-    })
-}
-
 function UpdatePassword() {
     GeneralLoad();
     LockBtn("#resetPasswordBtn");
@@ -3280,6 +2994,336 @@ function revokeAllToken(){
             toastNotification("success", "Success", data.response, 5000, false);
         },
         error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+bannedUserList = {};
+
+user_placeholder_row = `
+<tr>
+    <td style="width:40%;"><span class="placeholder w-100"></span></td>
+    <td style="width:40%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+function LoadUserList(noplaceholder = false) {
+    InitPaginate("#table_pending_user_list", "LoadUserList();");
+    page = parseInt($("#table_pending_user_list_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    if(!noplaceholder){
+        $("#table_pending_user_list_data").children().remove();
+        for (i = 0; i < 15; i++) {
+            $("#table_pending_user_list_data").append(user_placeholder_row);
+        }
+    }
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            userList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < userList.length; i++) {
+                user = userList[i];
+                bantxt = "Ban";
+                bantxt2 = "";
+                color = "";
+                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
+
+                userop = "";
+                if(userPerm.includes("hrm") || userPerm.includes("admin")){
+                    userop = `<div class="dropdown">
+                        <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="UnbindConnectionsShow('${user.discordid}', '${user.name}')">Unbind Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${user.name}')">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${user.name}')">Delete</a></li>
+                        </ul>
+                    </div>`;
+                } else if(userPerm.includes("hr")){
+                    userop = `<div class="dropdown">
+                        <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Manage
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item clickable" style="color:red">${bantxt}</a></li>
+                        </ul>
+                    </div>`;
+                }
+
+                data.push([`<span style='color:${color}'>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)} ${bantxt2}</span>`, `<span style='color:${color}'>${user.discordid}</span>`, userop]);
+            }
+
+            PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+function ShowUserDetail(discordid) {
+    function GenTableRow(key, val) {
+        return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            
+            d = data.response;
+            info = "";
+            info += GenTableRow("Name", d.name);
+            info += GenTableRow("Email", d.email);
+            info += GenTableRow("Discord", discordid);
+            info += GenTableRow("TruckersMP", `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+            info += GenTableRow("Steam", `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+            if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
+                info += GenTableRow("Ban Reason", bannedUserList[discordid]);
+            }
+                
+            modalid = ShowModal(d.name, `<table>${info}</table>`);
+            InitModal("user_detail", modalid);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+}
+
+function AcceptAsMemberShow(discordid, name){
+    modalid = ShowModal(`Accept As Member`, `<p>Are you sure you want to accept this user as member?</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be automatically added to Navio company and receive a Direct Message in Discord from Drivers Hub Bot regarding that they have been accepted.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">Accept</button>`);
+    InitModal("accept_as_member", modalid);
+}
+
+function AcceptAsMember(discordid) {
+    LockBtn("#button-accept-as-member", "Accepting...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            UnlockBtn("#button-accept-as-member");
+            if (data.error) return AjaxError(data);
+            LoadUserList(noplaceholder=true);
+            toastNotification("success", "Success", "User accepted as member. User ID: " + data.response.userid, 5000, false);
+            DestroyModal("accept_as_member");
+        },
+        error: function (data) {
+            UnlockBtn("#button-accept-as-member");
+            AjaxError(data);
+        }
+    })
+}
+
+function UpdateDiscordShow(discordid, name){
+    modalid = ShowModal(`Update Discord ID`, `<p>You are updating Discord ID for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">New Discord ID</label>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="997847494933368923">
+    </div><br><p>A new account in Drivers Hub will be created with new Discord account and data will be migrated automatically. The old account will be deleted. The user will have to login with new Discord account.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${discordid}');">Update</button>`);
+    InitModal("update_discord", modalid);
+}
+
+function UpdateDiscord(old_discord_id) {
+    LockBtn("#button-update-discord", "Updating...");
+
+    new_discord_id = $("#new-discord-id").val();
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/discord",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            old_discord_id: old_discord_id,
+            new_discord_id: new_discord_id
+        },
+        success: function (data) {
+            UnlockBtn("#button-update-discord");
+            if (data.error) return AjaxError(data);
+            LoadUserList(noplaceholder=true);
+            toastNotification("success", "Success", "User's Discord ID has been updated!", 5000, false);
+            DestroyModal("update_discord");
+        },
+        error: function (data) {
+            UnlockBtn("#button-update-discord");
+            AjaxError(data);
+        }
+    })
+}
+
+function UnbindConnectionsShow(discordid, name){
+    modalid = ShowModal(`Upbind Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-unbind-connections" type="button" class="btn btn-primary" onclick="UnbindConnections('${discordid}');">Unbind</button>`);
+    InitModal("unbind_connections", modalid);
+}
+
+function UnbindConnections(discordid) {
+    LockBtn("#button-unbind-connections");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/connections",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            UnlockBtn("#button-unbind-connections");
+            if (data.error) return AjaxError(data);
+            LoadUserList(noplaceholder=true);
+            toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
+            DestroyModal("unbind_connections");
+        },
+        error: function (data) {
+            UnlockBtn("#button-unbind-connections");
+            AjaxError(data);
+        }
+    })
+}
+
+function BanShow(discordid, name){
+    modalid = ShowModal(`Ban User`, `<p>Are you sure you want to ban this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will not be allowed to login. Their existing data will not be affected.</p><br><label for="new-discord-id" class="form-label">Ban Until</label>
+    <div class="input-group mb-3">
+        <input type="date" class="form-control bg-dark text-white" id="ban-until">
+    </div>
+    <label for="ban-reason" class="form-label">Reason</label>
+    <div class="input-group mb-3" style="height:calc(100% - 160px)">
+        <textarea type="text" class="form-control bg-dark text-white" id="ban-reason" placeholder="Reason for the ban" rows="3"></textarea>
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${discordid}');">Ban</button>`);
+    InitModal("ban_user", modalid);
+}
+
+function BanUser(discordid) {
+    LockBtn("#button-ban-user", "Banning...");
+
+    expire = -1;
+    if ($("#ban-until").val() != "")
+        expire = +new Date($("#ban-until").val()) / 1000;
+    reason = $("#ban-reason").val();
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/ban",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid,
+            expire: expire,
+            reason: reason
+        },
+        success: function (data) {
+            UnlockBtn("#button-ban-user");
+            if (data.error) return AjaxError(data);
+            LoadUserList(noplaceholder=true);
+            toastNotification("success", "Success", "User banned!", 5000, false);
+            DestroyModal("ban_user");
+        },
+        error: function (data) {
+            UnlockBtn("#button-ban-user");
+            AjaxError(data);
+        }
+    })
+}
+
+function UnbanShow(discordid, name){
+    modalid = ShowModal(`Unban User`, `<p>Are you sure you want to unban this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">Unban</button>`);
+    InitModal("unban_user", modalid);
+}
+
+function UnbanUser(discordid) {
+    LockBtn("#button-unban-user", "Unbanning...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/unban",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            UnlockBtn("#button-unban-user");
+            if (data.error) return AjaxError(data);
+            LoadUserList(noplaceholder=true);
+            toastNotification("success", "Success", "User unbanned!", 5000, false);
+            DestroyModal("unban_user");
+        },
+        error: function (data) {
+            UnlockBtn("#button-unban-user");
+            AjaxError(data);
+        }
+    })
+}
+
+function DeleteUserShow(discordid, name){
+    modalid = ShowModal(`Delete User`, `<p>Are you sure you want to delete this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br>The account will be deleted and their connection with TruckersMP and Steam will be deleted. They will have to login with Discord to register again.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">Delete</button>`);
+    InitModal("delete_user", modalid);
+}
+
+function DeleteUser(discordid) {
+    LockBtn("#button-delete-user", "Deleting...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            UnlockBtn("#button-delete-user");
+            if (data.error) return AjaxError(data);
+            LoadUserList(noplaceholder=true);
+            toastNotification("success", "Success", "User deleted!", 5000, false);
+            DestroyModal("delete_user");
+        },
+        error: function (data) {
+            UnlockBtn("#button-delete-user");
             AjaxError(data);
         }
     })
@@ -4284,7 +4328,7 @@ function UpdateDownloads() {
             $("#downloads-unsaved").hide();
             if (data.error) return AjaxError(data);
             $("#downloads-content").html(parseMarkdown($("#downloads-edit-content").val()));
-            toastNotification("success", "Success", data.response, 5000, false);
+            toastNotification("success", "Success", "Downloads saved!", 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-downloads-edit-save");
@@ -5354,6 +5398,7 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/captcha');
     }
     if (tabname == "#mfa-tab"){
+        $("#mfa-otp").val("");
         pmfa = localStorage.getItem("pending-mfa");
         if(reloadAPIMFA) pmfa = +new Date();
         if(pmfa == null || (+new Date() - parseInt(pmfa)) > 600000){
@@ -5434,7 +5479,7 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/application/all');
         if(!loaded) LoadAllApplicationList();
     }
-    if (tabname == "#staff-user-tab") {
+    if (tabname == "#manage-user-tab") {
         window.history.pushState("", "", '/manage/user');
         if(!loaded) LoadUserList();
     }
@@ -5577,7 +5622,7 @@ function ShowStaffTabs() {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();
             $("#button-all-application-tab").show();
-            $("#button-staff-user").show();
+            $("#button-manage-user").show();
             $("#button-audit-tab").show();
             $("#button-config-tab").show();
         } else {
@@ -5587,7 +5632,7 @@ function ShowStaffTabs() {
             }
             if (userPerm.includes("hr")) {
                 $("#sidebar-staff").show();
-                $("#button-staff-user").show();
+                $("#button-manage-user").show();
             }
             if (userPerm.includes("audit")) {
                 $("#sidebar-staff").show();
@@ -5780,7 +5825,7 @@ function PathDetect() {
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/manage/user") ShowTab("#staff-user-tab", "#button-staff-user");
+    else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
     else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
     else if (p.startsWith("/images")) {
@@ -5794,8 +5839,10 @@ function PathDetect() {
 
 window.onpopstate = function (event){PathDetect();};
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_member_list", "#table_leaderboard", "#table_my_application"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
+    $("input").val("");
+    $("textarea").val("");
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
     $("body").keyup(function(e){if(e.which==16) shiftdown=false;});
     $(".pageinput").val("1");
@@ -5814,7 +5861,6 @@ $(document).ready(async function () {
     });
     $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
     $("#application-type-default").prop("selected", true);
-    setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
     PathDetect();
     LoadCache();

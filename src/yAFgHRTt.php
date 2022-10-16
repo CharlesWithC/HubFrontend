@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/b728802c4e7c70e5.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/3c1165f998ccc9e8.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -266,6 +266,7 @@
         .flexdatalist-results {background-color:#2F3136;}
         .flexdatalist-multiple li.value {background-color:#2F3136;}
         button {min-width: 100px};
+        .btn-close {min-width: 0};
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -385,9 +386,9 @@
                 <div id="sidebar-staff" style="margin:5px 0;display:none">
                     <li><strong style="color:darkgrey">Staff</strong></li>
                     <li class="nav-item">
-                        <a id="button-staff-user-tab" onclick="ShowTab('#staff-user-tab', '#button-staff-user-tab')" class="nav-link text-white clickable" aria-current="page">
+                        <a id="button-manage-user-tab" onclick="ShowTab('#manage-user-tab', '#button-manage-user-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
-                            Users
+                            Pending Users
                         </a>
                     </li>
                     <li class="nav-item">
@@ -406,7 +407,7 @@
                 <div><br></div>
             </ul>
         </div>
-        <div class="dropdown text-bg-dark" style="position:fixed;bottom:0;width:220px;height:80px;z-index:100;">
+        <div class="dropdown text-white bg-dark" style="position:fixed;bottom:0;width:220px;height:80px;z-index:100;">
             <hr style="margin:10px 0;">
             <a id="button-user-profile" class="text-white text-decoration-none clickable"
                     data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
@@ -1139,7 +1140,7 @@
                     <div class="shadow p-3 m-3 bg-dark rounded">
                         <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> Members</strong></h5>
                         <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
-                            <input id="input-member-search" type="text" class="form-control bg-dark" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
+                            <input id="input-member-search" type="text" class="form-control bg-dark text-white" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
                             <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" style="min-width:0" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
                         </div>
                         <div id="table_member_list" class="mt-3">
@@ -1294,6 +1295,23 @@
                             </tr>
                         </thead>
                         <tbody id="table_my_application_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <section id="manage-user-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user-clock"></i></span> Pending Users</strong></h5>
+                <div id="table_pending_user_list">
+                    <table class="w-100" style="line-height:30px">
+                        <thead id="table_pending_user_list_head">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Discord</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_pending_user_list_data">
                         </tbody>
                     </table>
                 </div>
