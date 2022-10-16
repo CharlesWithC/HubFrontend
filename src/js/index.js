@@ -796,6 +796,12 @@ $(document).ready(async function () {
         minLength: 1,
         limitOfValues: 10
     });
+    $('#input-audit-log-staff').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 1
+    });
+    $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
     $("#application-type-default").prop("selected", true);
     setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);

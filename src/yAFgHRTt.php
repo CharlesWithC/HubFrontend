@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/ead9c902af3076bf.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2190f48e16631743.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -154,6 +154,9 @@
 
         a {
             text-decoration: none;
+            color: #fff;
+        }
+        a:hover {
             color: #fff;
         }
 
@@ -1315,6 +1318,31 @@
                             </tr>
                         </thead>
                         <tbody id="table_all_application_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        <section id="audit-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-terminal"></i></span> Audit Log</strong></h5>
+                <div id="audit-log-right-wrapper" style="float:right;">
+                    <div class="input-group mb-3" style="width:300px;position:relative;top:-5px;">
+                        <input id="input-audit-log-staff" type="text" class="form-control bg-dark text-white flexdatalist" placeholder="Select staff from list" aria-label="Username" aria-describedby="button-audit-log-staff-search" list="all-member-datalist" data-min-length='1' data-selection-required='1'>
+                        <input type="text" class="form-control bg-dark text-white" id="input-audit-log-operation" placeholder="Operation">
+                        <button class="btn btn-outline-secondary" type="button" id="button-audit-log-staff-search" style="min-width:0" onclick="LoadAuditLog(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+                <div id="table_audit_log">
+                    <table class="w-100">
+                        <thead id="table_audit_log_head">
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_audit_log_data">
                         </tbody>
                     </table>
                 </div>

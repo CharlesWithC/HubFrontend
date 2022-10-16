@@ -2549,20 +2549,44 @@ function LoadStats(basic = false) {
         });
     }
 }
-function LoadAuditLog() {
-    GeneralLoad();
+audit_log_placeholder_row = `
+<tr>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:60%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+function LoadAuditLog(noplaceholder = false) {
+    if(!noplaceholder){
+        $("#table_audit_log_data").children().remove();
+        for (i = 0; i < 30; i++) {
+            $("#table_audit_log_data").append(audit_log_placeholder_row);
+        }
+    }
+
+    staff_userid = -1;
+    if($("#input-audit-log-staff").val()!=""){
+        s = $("#input-audit-log-staff").val();
+        staff_userid = s.substr(s.lastIndexOf("(")+1,s.lastIndexOf(")")-s.lastIndexOf("(")-1);
+    }
+
+    operation = $("#input-audit-log-operation").val();
+
     InitPaginate("#table_audit_log", "LoadAuditLog();")
     page = parseInt($("#table_audit_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     
+    LockBtn("#button-audit-log-staff-search", "...");
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/audit?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
+            UnlockBtn("#button-audit-log-staff-search");
             if (data.error) return AjaxError(data);
 
             auditLog = data.response.list;
@@ -2574,12 +2598,13 @@ function LoadAuditLog() {
                 dt = getDateTime(audit.timestamp * 1000);
                 op = parseMarkdown(audit.operation).replace("\n", "<br>");
 
-                data.push([`${audit.user.name}`, `${op}`, `${dt}`]);
+                data.push([`${audit.user.name}`, `${dt}`, `${op}`]);
             }
 
             PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
         },
         error: function (data) {
+            UnlockBtn("#button-audit-log-staff-search");
             AjaxError(data);
         }
     })
@@ -5926,6 +5951,12 @@ $(document).ready(async function () {
         minLength: 1,
         limitOfValues: 10
     });
+    $('#input-audit-log-staff').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 1
+    });
+    $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
     $("#application-type-default").prop("selected", true);
     setInterval(function(){$(".member-manage-dropdown").css("left","50px")},100);
     setTimeout(function(){for(i=0;i<simplebarINIT.length;i++)new SimpleBar($(simplebarINIT[i])[0]);},500);
