@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2190f48e16631743.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/b728802c4e7c70e5.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -1345,6 +1345,26 @@
                         <tbody id="table_audit_log_data">
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+        <section id="config-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-server"></i></span> API Config</strong></h5>
+                <p>Only JSON config editor is available at the moment. Simple editor will be added in the future.</p>
+                <p>You have to reload API to make the changes take effect. (MFA has to be enabled)</p>
+                <p>A backup is saved before reloading API, it can be retrieved by "Revert".</p>
+                <br>
+                <label for="json-config" class="form-label">JSON Config</label>
+                <div class="input-group mb-3" style="height:500px">
+                    <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
+                </div>
+                <br>
+                <div style="float:right">
+                    <button id="button-revert-config" type="button" class="btn btn-secondary" onclick="RevertConfig();">Revert</button>
+                    <button id="button-reset-config" type="button" class="btn btn-secondary" onclick="ResetConfig();">Reset</button>
+                    <button id="button-save-config" type="button" class="btn btn-primary" onclick="UpdateConfig();">Save</button>
+                    <button id="button-reload-api-show" type="button" class="btn btn-danger" onclick="ReloadAPIShow();">Reload API</button>
                 </div>
             </div>
         </section>

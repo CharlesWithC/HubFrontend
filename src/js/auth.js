@@ -115,6 +115,9 @@ function ShowCaptcha() {
 function MFAVerify(){
     LockBtn("#button-mfa-verify", "Verifying...");
     otp = $("#mfa-otp").val();
+    if(reloadAPIMFA){
+        return ReloadServer(otp);
+    }
     token = localStorage.getItem("tip");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/auth/mfa",

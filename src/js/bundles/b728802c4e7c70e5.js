@@ -78,7 +78,7 @@ function GetAvatar(userid, name, discordid, avatarid) {
 
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
-    return toastNotification("success", "Banner URL copied to clipboard!")
+    return toastNotification("success", "Banner URL copied to clipboard!", 5000)
 }
 
 function FileOutput(filename, text) {
@@ -130,7 +130,7 @@ function getUrlParameter(sParam) {
     return false;
 };
 
-function toastNotification(type, title, text, time = 5) {
+function toastNotification(type, title, text, time = 5000) {
     new Noty({
         type: type,
         layout: 'topRight',
@@ -583,6 +583,250 @@ function GenCard(title, content){
         <h5 class="card-title"><strong>${title}</strong></h5>
         <p class="card-text">${content}</p>
     </div>`;
+}
+audit_log_placeholder_row = `
+<tr>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:60%;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+function LoadAuditLog(noplaceholder = false) {
+    if(!noplaceholder){
+        $("#table_audit_log_data").children().remove();
+        for (i = 0; i < 30; i++) {
+            $("#table_audit_log_data").append(audit_log_placeholder_row);
+        }
+    }
+
+    staff_userid = -1;
+    if($("#input-audit-log-staff").val()!=""){
+        s = $("#input-audit-log-staff").val();
+        staff_userid = s.substr(s.lastIndexOf("(")+1,s.lastIndexOf(")")-s.lastIndexOf("(")-1);
+    }
+
+    operation = $("#input-audit-log-operation").val();
+
+    InitPaginate("#table_audit_log", "LoadAuditLog();")
+    page = parseInt($("#table_audit_log_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+    
+    LockBtn("#button-audit-log-staff-search", "...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-audit-log-staff-search");
+            if (data.error) return AjaxError(data);
+
+            auditLog = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < auditLog.length; i++) {
+                audit = auditLog[i];
+                dt = getDateTime(audit.timestamp * 1000);
+                op = parseMarkdown(audit.operation).replace("\n", "<br>");
+
+                data.push([`${audit.user.name}`, `${dt}`, `${op}`]);
+            }
+
+            PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
+        },
+        error: function (data) {
+            UnlockBtn("#button-audit-log-staff-search");
+            AjaxError(data);
+        }
+    })
+}
+
+configData = {};
+backupConfig = {};
+
+function LoadConfiguration() {
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/config",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            configData = data.response.config;
+            backupConfig = data.response.backup;
+
+            $("#json-config").val(JSON.stringify(configData, null, 4,
+                (_, value) =>
+                typeof value === 'number' && value > 1e10 ?
+                BigInt(value) :
+                value));
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+
+    // webdomain = apidomain.replaceAll("https://", "https://web.");
+    // $.ajax({
+    //     url: webdomain + "/" + vtcprefix + "/config?domain=" + window.location.hostname,
+    //     type: "GET",
+    //     dataType: "json",
+    //     success: function (data) {
+    //         if (data.error) return AjaxError(data);
+    //         webConfigData = data.response.config;
+    //         webConfigKeys = Object.keys(webConfigData);
+    //         for (var i = 0; i < webConfigKeys.length; i++) {
+    //             key = webConfigKeys[i];
+    //             $("#webconfig_" + key).val(webConfigData[key]);
+    //         }
+    //     },
+    //     error: function (data) {
+    //         AjaxError(data);
+    //     }
+    // });
+}
+
+function RevertConfig(){
+    $("#json-config").val(JSON.stringify(backupConfig, null, 4,
+        (_, value) =>
+        typeof value === 'number' && value > 1e10 ?
+        BigInt(value) :
+        value));
+    toastNotification("success", "Success", "Config reverted to after last reload.", 5000);
+}
+
+function ResetConfig(){
+    $("#json-config").val(JSON.stringify(configData, null, 4,
+        (_, value) =>
+        typeof value === 'number' && value > 1e10 ?
+        BigInt(value) :
+        value));
+    toastNotification("success", "Success", "Config reset to before editing.", 5000);
+}
+
+function UpdateConfig(){
+    config = $("#json-config").val();
+    try {
+        config = JSON.parse(config);
+    } catch {
+        return toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+    }
+    if (config["navio_api_token"] == "") delete config["navio_api_token"];
+    if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
+    if (config["discord_bot_token"] == "") delete config["discord_bot_token"];
+    LockBtn("#button-save-config", "Saving...");
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/config",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            config: JSON.stringify(config,
+                (_, value) =>
+                typeof value === 'number' && value > 1e10 ?
+                BigInt(value) :
+                value)
+        },
+        success: function (data) {
+            UnlockBtn("#button-save-config");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "Config updated! Reload API to make it take effect!", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-save-config");
+            AjaxError(data);
+        }
+    })
+}
+
+reloadAPIMFA = false;
+function ReloadAPIShow(){
+    if(!mfaenabled) return toastNotification("error", "Error", "MFA must be enabled to reload API!", 5000);
+    reloadAPIMFA = true;
+    LockBtn("#button-reload-api-show", `Reloading...`);
+    setTimeout(function(){UnlockBtn("#button-reload-api-show");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+    setTimeout(function(){$("#mfa-otp").on("input", function(){
+        if($("#mfa-otp").val().length == 6){
+            MFAVerify();
+        }
+    });},50);
+}
+
+function ReloadServer(otp) {
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/reload",
+        type: "POST",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            otp: otp
+        },
+        success: function (data) {
+            reloadAPIMFA = false;
+            ShowTab("#config-tab", "#button-config-tab");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "API reloading...", 5000, false);
+        },
+        error: function (data) {
+            reloadAPIMFA = false;
+            ShowTab("#config-tab", "#button-config-tab");
+            AjaxError(data);
+        }
+    })
+}
+
+function UpdateWebConfig() {
+    if($("#webconfig_apptoken").val().length != 36){
+        return toastNotification("error", "Error", "Invalid application token!");
+    }
+    $("#updateWebConfigBtn").html("Working...");
+    $("#updateWebConfigBtn").attr("disabled", "disabled");
+    webdomain = apidomain.replaceAll("https://", "https://web.");
+    $.ajax({
+        url: webdomain + "/" + vtcprefix + "/config",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Application " + $("#webconfig_apptoken").val()
+        },
+        data: {
+            domain: window.location.hostname,
+            apidomain: apidomain.replaceAll("https://", ""),
+            vtc_name: $("#webconfig_vtc_name").val(),
+            vtc_color: $("#webconfig_vtc_color").val(),
+            slogan: $("#webconfig_slogan").val(),
+            company_distance_unit: $("#webconfig_company_distance_unit").val(),
+            navio_company_id: $("#webconfig_navio_company_id").val(),
+            logo_url: $("#webconfig_logo_url").val(),
+            banner_url: $("#webconfig_banner_url").val(),
+            bg_url: $("#webconfig_bg_url").val(),
+            teamupdate_url: $("#webconfig_teamupdate_url").val(),
+            custom_application: $("#webconfig_custom_application").val(),
+            style: $("#webconfig_custom_style").val()
+        },
+        success: function (data) {
+            $("#updateWebConfigBtn").html("Update");
+            $("#updateWebConfigBtn").removeAttr("disabled");
+            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+            toastNotification("success", "Success", data.response, 5000, false);
+        },
+        error: function (data) {
+            $("#updateWebConfigBtn").html("Update");
+            $("#updateWebConfigBtn").removeAttr("disabled");
+            AjaxError(data);
+        }
+    })
 }
 dmapint = -1;
 window.mapcenter = {}
@@ -2549,67 +2793,6 @@ function LoadStats(basic = false) {
         });
     }
 }
-audit_log_placeholder_row = `
-<tr>
-    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-    <td style="width:60%;"><span class="placeholder w-100"></span></td>
-</tr>`;
-
-function LoadAuditLog(noplaceholder = false) {
-    if(!noplaceholder){
-        $("#table_audit_log_data").children().remove();
-        for (i = 0; i < 30; i++) {
-            $("#table_audit_log_data").append(audit_log_placeholder_row);
-        }
-    }
-
-    staff_userid = -1;
-    if($("#input-audit-log-staff").val()!=""){
-        s = $("#input-audit-log-staff").val();
-        staff_userid = s.substr(s.lastIndexOf("(")+1,s.lastIndexOf(")")-s.lastIndexOf("(")-1);
-    }
-
-    operation = $("#input-audit-log-operation").val();
-
-    InitPaginate("#table_audit_log", "LoadAuditLog();")
-    page = parseInt($("#table_audit_log_page_input").val());
-    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-    
-    LockBtn("#button-audit-log-staff-search", "...");
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#button-audit-log-staff-search");
-            if (data.error) return AjaxError(data);
-
-            auditLog = data.response.list;
-            total_pages = data.response.total_pages;
-            data = [];
-
-            for (i = 0; i < auditLog.length; i++) {
-                audit = auditLog[i];
-                dt = getDateTime(audit.timestamp * 1000);
-                op = parseMarkdown(audit.operation).replace("\n", "<br>");
-
-                data.push([`${audit.user.name}`, `${dt}`, `${op}`]);
-            }
-
-            PushTable("#table_audit_log", data, total_pages, "LoadAuditLog();");
-        },
-        error: function (data) {
-            UnlockBtn("#button-audit-log-staff-search");
-            AjaxError(data);
-        }
-    })
-}
-
 function UpdateBio() {
     GeneralLoad();
     LockBtn("#updateBioBtn");
@@ -2966,340 +3149,6 @@ function UnbanUser() {
         },
         error: function (data) {
             UnlockBtn("#unbanUserBtn");
-            AjaxError(data);
-        }
-    })
-}
-
-configData = {};
-
-function loadConfig() {
-    newConfigData = JSON.parse($("#config").val());
-    keys = Object.keys(newConfigData);
-    for (i = 0; i < keys.length; i++) {
-        $("#config_" + keys[i]).val(newConfigData[keys[i]]);
-        if (keys[i] == "truckersmp_bind" || keys[i] == "in_guild_check") $("#config_" + keys[i]).val(String(newConfigData[keys[i]]));
-        else if (keys[i] == "welcome_role_change") $("#config_welcome_role_change_txt").val(newConfigData[keys[i]].join(", "));
-        else if (keys[i] == "delivery_post_gifs") $("#config_delivery_post_gifs_txt").val(newConfigData[keys[i]].join("\n"));
-        else if (keys[i] == "ranks") {
-            d = newConfigData[keys[i]];
-            txt = "";
-            for (j = 0; j < d.length; j++) {
-                txt += d[j].distance + ", " + d[j].name + ", " + d[j].discord_role_id + "\n";
-            }
-            $("#config_ranks_txt").val(txt);
-        } else if (keys[i] == "application_types") {
-            d = newConfigData[keys[i]];
-            txt = "";
-            for (j = 0; j < d.length; j++) {
-                txt += d[j].id + ", " + d[j].name + ", " + d[j].discord_role_id + ", " + d[j].staff_role_id.join('|') + ", " + d[j].message + ", " + d[j].webhook + ", " + d[j].note + "\n";
-            }
-            $("#config_application_types_txt").val(txt);
-        } else if (keys[i] == "divisions") {
-            d = newConfigData[keys[i]];
-            txt = "";
-            for (j = 0; j < d.length; j++) {
-                txt += d[j].id + ", " + d[j].name + ", " + d[j].point + ", " + d[j].role_id + "\n";
-            }
-            $("#config_divisions_txt").val(txt);
-        } else if (keys[i] == "perms") {
-            d = Object.keys(newConfigData[keys[i]]);
-            txt = "";
-            for (j = 0; j < d.length; j++) {
-                txt += d[j] + ": " + newConfigData[keys[i]][d[j]].join(", ") + "\n";
-            }
-            $("#config_perms_txt").val(txt);
-        } else if (keys[i] == "roles") {
-            d = Object.keys(newConfigData[keys[i]]);
-            txt = "";
-            for (j = 0; j < d.length; j++) {
-                txt += d[j] + ", " + newConfigData[keys[i]][d[j]] + "\n";
-            }
-            $("#config_roles_txt").val(txt);
-        }
-    }
-    configData = newConfigData;
-}
-
-function loadAdmin() {
-    webdomain = apidomain.replaceAll("https://", "https://web.");
-    $.ajax({
-        url: webdomain + "/" + vtcprefix + "/config?domain=" + window.location.hostname,
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            if (data.error) toastNotification("error", "Error", data.descriptor, 5000, false);
-            webConfigData = data.response.config;
-            webConfigKeys = Object.keys(webConfigData);
-            for (var i = 0; i < webConfigKeys.length; i++) {
-                key = webConfigKeys[i];
-                $("#webconfig_" + key).val(webConfigData[key]);
-            }
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    });
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/config",
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000,
-                false);
-
-            configData = data.response.config;
-
-            $("#config").val(JSON.stringify(configData, null, 4,
-                (_, value) =>
-                typeof value === 'number' && value > 1e10 ?
-                BigInt(value) :
-                value));
-
-            loadConfig();
-
-            $(".configFormData").on('input', function () {
-                inputid = $(this).attr('id');
-                configitem = inputid.replaceAll("config_", "");
-                val = $(this).val();
-                configData[configitem] = val;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_distance_unit").on('input', function () {
-                configitem = "distance_unit";
-                configData[configitem] = $("#config_distance_unit").val();
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_truckersmp_bind").on('input', function () {
-                configitem = "truckersmp_bind";
-                if ($("#config_truckersmp_bind").val() == "true") configData[configitem] = true;
-                else configData[configitem] = false;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_in_guild_check").on('input', function () {
-                configitem = "in_guild_check";
-                if ($("#config_in_guild_check").val() == "true") configData[configitem] = true;
-                else configData[configitem] = false;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_welcome_role_change_txt").on('input', function () {
-                txt = $("#config_welcome_role_change_txt").val();
-                configData["welcome_role_change"] = txt.split(", ");
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_delivery_post_gifs_txt").on('input', function () {
-                txt = $("#config_delivery_post_gifs_txt").val();
-                configData["welcome_role_change"] = txt.split("\n");
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_ranks_txt").on('input', function () {
-                d = [];
-                v = $("#config_ranks_txt").val().split("\n");
-                for (j = 0; j < v.length; j++) {
-                    t = v[j].split(",");
-                    if (t.length != 3) continue;
-                    d.push({
-                        "distance": t[0].replaceAll(" ", ""),
-                        "name": t[1],
-                        "discord_role_id": t[2].replaceAll(" ", "")
-                    });
-                }
-                configData["ranks"] = d;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_application_types_txt").on('input', function () {
-                d = [];
-                v = $("#config_application_types_txt").val().split("\n");
-                for (j = 0; j < v.length; j++) {
-                    t = v[j].split(",");
-                    if (t.length != 7) continue;
-                    d.push({
-                        "id": t[0].replaceAll(" ", ""),
-                        "name": t[1],
-                        "discord_role_id": t[2].replaceAll(" ", ""),
-                        "staff_role_id": t[3].replaceAll(" ", "").split("|"),
-                        "message": t[4],
-                        "webhook": t[5],
-                        "note": t[6]
-                    });
-                }
-                configData["application_types"] = d;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_divisions_txt").on('input', function () {
-                d = [];
-                v = $("#config_divisions_txt").val().split("\n");
-                for (j = 0; j < v.length; j++) {
-                    t = v[j].split(",");
-                    if (t.length != 4) continue;
-                    d.push({
-                        "id": t[0].replaceAll(" ", ""),
-                        "name": t[1],
-                        "point": t[2].replaceAll(" ", ""),
-                        "role_id": t[3].replaceAll(" ", "")
-                    });
-                }
-                configData["divisions"] = d;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_perms_txt").on('input', function () {
-                d = {};
-                v = $("#config_perms_txt").val().split("\n");
-                for (j = 0; j < v.length; j++) {
-                    t = v[j].split(":");
-                    if (t.length != 2) continue;
-                    perm_name = t[0].replaceAll(" ", "");
-                    perm_role_t = t[1].replaceAll(" ", "").split(",");
-                    perm_role = [];
-                    for (k = 0; k < perm_role_t.length; k++) {
-                        if (perm_role_t[k] == "") continue;
-                        perm_role.push(parseInt(perm_role_t[k]));
-                    }
-                    d[perm_name] = perm_role;
-                }
-                configData["perms"] = d;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config_roles_txt").on('input', function () {
-                d = {};
-                v = $("#config_roles_txt").val().split("\n");
-                for (j = 0; j < v.length; j++) {
-                    t = v[j].split(",");
-                    if (t.length != 2) continue;
-                    d[t[0]] = t[1];
-                }
-                configData["roles"] = d;
-                $("#config").val(JSON.stringify(configData, null, 4));
-            });
-
-            $("#config").on('input', function () {
-                loadConfig();
-            });
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    });
-}
-
-function UpdateWebConfig() {
-    if($("#webconfig_apptoken").val().length != 36){
-        return toastNotification("error", "Error", "Invalid application token!");
-    }
-    $("#updateWebConfigBtn").html("Working...");
-    $("#updateWebConfigBtn").attr("disabled", "disabled");
-    webdomain = apidomain.replaceAll("https://", "https://web.");
-    $.ajax({
-        url: webdomain + "/" + vtcprefix + "/config",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Application " + $("#webconfig_apptoken").val()
-        },
-        data: {
-            domain: window.location.hostname,
-            apidomain: apidomain.replaceAll("https://", ""),
-            vtc_name: $("#webconfig_vtc_name").val(),
-            vtc_color: $("#webconfig_vtc_color").val(),
-            slogan: $("#webconfig_slogan").val(),
-            company_distance_unit: $("#webconfig_company_distance_unit").val(),
-            navio_company_id: $("#webconfig_navio_company_id").val(),
-            logo_url: $("#webconfig_logo_url").val(),
-            banner_url: $("#webconfig_banner_url").val(),
-            bg_url: $("#webconfig_bg_url").val(),
-            teamupdate_url: $("#webconfig_teamupdate_url").val(),
-            custom_application: $("#webconfig_custom_application").val(),
-            style: $("#webconfig_custom_style").val()
-        },
-        success: function (data) {
-            $("#updateWebConfigBtn").html("Update");
-            $("#updateWebConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            toastNotification("success", "Success", data.response, 5000, false);
-        },
-        error: function (data) {
-            $("#updateWebConfigBtn").html("Update");
-            $("#updateWebConfigBtn").removeAttr("disabled");
-            AjaxError(data);
-        }
-    })
-}
-
-function UpdateConfig() {
-    config = $("#config").val();
-    try {
-        config = JSON.parse(config);
-    } catch {
-        toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
-        return;
-    }
-    if (config["navio_token"] == "") delete config["navio_token"];
-    if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
-    if (config["bot_token"] == "") delete config["bot_token"];
-    $("#updateConfigBtn").html("Working...");
-    $("#updateConfigBtn").attr("disabled", "disabled");
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/config",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            config: JSON.stringify(config,
-                (_, value) =>
-                typeof value === 'number' && value > 1e10 ?
-                BigInt(value) :
-                value)
-        },
-        success: function (data) {
-            $("#updateConfigBtn").html("Update");
-            $("#updateConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            toastNotification("success", "Success", data.response, 5000, false);
-        },
-        error: function (data) {
-            $("#updateConfigBtn").html("Update");
-            $("#updateConfigBtn").removeAttr("disabled");
-            AjaxError(data);
-        }
-    })
-}
-
-function ReloadServer() {
-    otp = $("#input-reload-otp").val();
-    if(!isNumber(otp) || otp.length != 6){
-        return toastNotification("error", "Error", "Invalid OTP.", 5000, false);
-    }
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/reload",
-        type: "POST",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            otp: otp
-        },
-        success: function (data) {
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            toastNotification("success", "Success", data.response, 5000, false);
-        },
-        error: function (data) {
             AjaxError(data);
         }
     })
@@ -4989,6 +4838,9 @@ function ShowCaptcha() {
 function MFAVerify(){
     LockBtn("#button-mfa-verify", "Verifying...");
     otp = $("#mfa-otp").val();
+    if(reloadAPIMFA){
+        return ReloadServer(otp);
+    }
     token = localStorage.getItem("tip");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/auth/mfa",
@@ -5169,6 +5021,7 @@ applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
 shiftdown = false;
+mfaenabled = false;
 modals = {};
 modalName2ID = {};
 
@@ -5502,6 +5355,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#mfa-tab"){
         pmfa = localStorage.getItem("pending-mfa");
+        if(reloadAPIMFA) pmfa = +new Date();
         if(pmfa == null || (+new Date() - parseInt(pmfa)) > 600000){
             ShowTab("#overview-tab", "#button-overview-tab");
             return;
@@ -5581,16 +5435,16 @@ async function ShowTab(tabname, btnname) {
         if(!loaded) LoadAllApplicationList();
     }
     if (tabname == "#staff-user-tab") {
-        window.history.pushState("", "", '/staff/user');
-        LoadUserList();
+        window.history.pushState("", "", '/manage/user');
+        if(!loaded) LoadUserList();
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
-        LoadAuditLog();
+        if(!loaded) LoadAuditLog();
     }
     if (tabname == "#config-tab") {
         window.history.pushState("", "", '/admin');
-        loadAdmin();
+        if(!loaded) LoadConfiguration();
     }
 }
 
@@ -5860,6 +5714,8 @@ function ValidateToken() {
             else
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
             
+            mfaenabled = data.response.mfa;
+
             UpdateRolesOnDisplay();
 
             if(!userPerm.includes("driver") && !userPerm.includes("admin")){
@@ -5924,7 +5780,7 @@ function PathDetect() {
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/staff/user") ShowTab("#staff-user-tab", "#button-staff-user");
+    else if (p == "/manage/user") ShowTab("#staff-user-tab", "#button-staff-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
     else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
     else if (p.startsWith("/images")) {

@@ -14,6 +14,7 @@ applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
 isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
 shiftdown = false;
+mfaenabled = false;
 modals = {};
 modalName2ID = {};
 
@@ -347,6 +348,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#mfa-tab"){
         pmfa = localStorage.getItem("pending-mfa");
+        if(reloadAPIMFA) pmfa = +new Date();
         if(pmfa == null || (+new Date() - parseInt(pmfa)) > 600000){
             ShowTab("#overview-tab", "#button-overview-tab");
             return;
@@ -426,16 +428,16 @@ async function ShowTab(tabname, btnname) {
         if(!loaded) LoadAllApplicationList();
     }
     if (tabname == "#staff-user-tab") {
-        window.history.pushState("", "", '/staff/user');
-        LoadUserList();
+        window.history.pushState("", "", '/manage/user');
+        if(!loaded) LoadUserList();
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
-        LoadAuditLog();
+        if(!loaded) LoadAuditLog();
     }
     if (tabname == "#config-tab") {
         window.history.pushState("", "", '/admin');
-        loadAdmin();
+        if(!loaded) LoadConfiguration();
     }
 }
 
@@ -705,6 +707,8 @@ function ValidateToken() {
             else
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
             
+            mfaenabled = data.response.mfa;
+
             UpdateRolesOnDisplay();
 
             if(!userPerm.includes("driver") && !userPerm.includes("admin")){
@@ -769,7 +773,7 @@ function PathDetect() {
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/staff/user") ShowTab("#staff-user-tab", "#button-staff-user");
+    else if (p == "/manage/user") ShowTab("#staff-user-tab", "#button-staff-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
     else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
     else if (p.startsWith("/images")) {
