@@ -112,7 +112,22 @@ function LoadMemberList(noplaceholder = false) {
                     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                 }
                 userop = ``;
-                if(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin")){
+                if(userPerm.includes("hrm") || userPerm.includes("admin")){
+                    userop = `<div class="dropdown">
+                    <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Manage
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
+                    </ul>
+                </div>`;
+                } else if(userPerm.includes("hr")){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Manage
@@ -134,7 +149,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -332,7 +347,7 @@ function LoadRanking(){
             $("#ranking-tab").children().remove();
             t = `<div class="row">`;
             t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
-            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();">Get Discord Role</button>`);
+            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
             k = Object.keys(RANKING);
             for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
                 t += GenCard(RANKING[k[i]], `${TSeparator(k[i])} Points`);
@@ -358,7 +373,7 @@ user_statistics_placeholder = `<div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
     <div style="padding:20px 0 0 20px;float:left" id="profile-info">
     </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;border:solid ${vtccolor} 5px;">
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${vtccolor} 5px;">
     </div>
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
@@ -501,9 +516,6 @@ function LoadUserProfile(userid) {
                                     info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
                                     info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
                                     info += `</p>`;
-                                    if (String(userid) == localStorage.getItem("userid")) {
-                                        info += `<button type="button" class="btn btn-sm btn-primary button-rankings-role" style="float:right" onclick="GetDiscordRankRole()">Get Discord Role</button>`;
-                                    }
                                     $("#profile-text-statistics").html(info);
                                 }
                             }

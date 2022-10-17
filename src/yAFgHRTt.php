@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/87c898ea2a65a738.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/23f1ac2f0e385304.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -144,7 +144,7 @@
             padding-right: 10px;
         }
         
-        .col {
+        .col,.col-4,.col-8 {
             overflow: hidden;
         }
 
@@ -429,8 +429,8 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item clickable" onclick="Logout()">Sign out</a></li>
             </ul>
-            <a id="button-user-delivery-tab" class="clickable" onclick="LoadUserProfile(localStorage.getItem('userid'));" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
-            <a class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
+            <a id="button-user-delivery-tab" onclick="LoadUserProfile(localStorage.getItem('userid'));" class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
+            <a id="button-user-settings-tab" onclick="ShowTab('#user-settings-tab');" class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
         </div>
     </div>
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
@@ -776,7 +776,7 @@
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <div style="padding:20px 0 0 20px;float:left" id="profile-info">
                         </div>
-                        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius:100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
+                        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius:100%;width:150px;height:150px;border:solid <?php echo $vtccolor ?> 5px;">
                         </div>
                         <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
                     </div>
@@ -1421,6 +1421,11 @@
                     <button id="button-save-config" type="button" class="btn btn-primary" onclick="UpdateConfig();">Save</button>
                     <button id="button-reload-api-show" type="button" class="btn btn-danger" onclick="ReloadAPIShow();">Reload API</button>
                 </div>
+            </div>
+        </section>
+        <section id="user-settings-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-gear"></i></span> Settings</strong></h5>
             </div>
         </section>
         <datalist id="all-member-datalist" style="display:none">

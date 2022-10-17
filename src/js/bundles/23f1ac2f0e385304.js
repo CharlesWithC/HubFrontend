@@ -63,7 +63,7 @@ function GetAvatarSrc(discordid, avatarid) {
 
 function GetAvatarImg(src, userid, name) {
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
         <b>${name}</b>
     </a>`;
 }
@@ -71,7 +71,7 @@ function GetAvatarImg(src, userid, name) {
 function GetAvatar(userid, name, discordid, avatarid) {
     src = GetAvatarSrc(discordid, avatarid);
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
         ${name}
     </a>`;
 }
@@ -237,7 +237,7 @@ function parseMarkdown(markdownText) {
     return htmlText.trim()
 }
 
-RANKING = localStorage.getItem("rankname");
+RANKING = localStorage.getItem("driver-ranks");
 if (RANKING == null) {
     RANKING = [];
     $.ajax({
@@ -250,7 +250,7 @@ if (RANKING == null) {
             for (i = 0; i < d.length; i++) {
                 RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
             }
-            localStorage.setItem("rankname", JSON.stringify(RANKING));
+            localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
         }
     });
 } else {
@@ -1888,7 +1888,22 @@ function LoadMemberList(noplaceholder = false) {
                     avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
                 }
                 userop = ``;
-                if(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin")){
+                if(userPerm.includes("hrm") || userPerm.includes("admin")){
+                    userop = `<div class="dropdown">
+                    <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Manage
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
+                    </ul>
+                </div>`;
+                } else if(userPerm.includes("hr")){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Manage
@@ -1910,7 +1925,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -2108,7 +2123,7 @@ function LoadRanking(){
             $("#ranking-tab").children().remove();
             t = `<div class="row">`;
             t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
-            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();">Get Discord Role</button>`);
+            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
             k = Object.keys(RANKING);
             for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
                 t += GenCard(RANKING[k[i]], `${TSeparator(k[i])} Points`);
@@ -2134,7 +2149,7 @@ user_statistics_placeholder = `<div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
     <div style="padding:20px 0 0 20px;float:left" id="profile-info">
     </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;border:solid ${vtccolor} 5px;">
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${vtccolor} 5px;">
     </div>
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
@@ -2277,9 +2292,6 @@ function LoadUserProfile(userid) {
                                     info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
                                     info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
                                     info += `</p>`;
-                                    if (String(userid) == localStorage.getItem("userid")) {
-                                        info += `<button type="button" class="btn btn-sm btn-primary button-rankings-role" style="float:right" onclick="GetDiscordRankRole()">Get Discord Role</button>`;
-                                    }
                                     $("#profile-text-statistics").html(info);
                                 }
                             }
@@ -2749,7 +2761,7 @@ function LoadStats(basic = false) {
                     }
                     $("#table_mini_leaderboard_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
             <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${totalpnt}</td>
             </tr>`);
@@ -2785,7 +2797,7 @@ function LoadStats(basic = false) {
                     }
                     $("#table_new_driver_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${joindt}</td>
             </tr>`);
@@ -3057,7 +3069,9 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.discordid}', '${user.name}')">Delete Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${user.name}')">${bantxt}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${user.name}')">Delete</a></li>
                         </ul>
@@ -3192,9 +3206,55 @@ function UpdateDiscord(old_discord_id) {
     })
 }
 
+function DisableUserMFAShow(discordid, name){
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data)
+            mfa = data.response.mfa;
+            if(!mfa){
+                return toastNotification("error", "Error", "User hasn't enabled MFA!", 5000);
+            }
+            modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be able to login or enter sudo mode without MFA. This can put their account at risk. Do not disable MFA for a user who didn't request it.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">Disable</button>`);
+            InitModal("disable_mfa", modalid);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+function StaffDisableMFA(discordid) {
+    LockBtn("#button-staff-disable-mfa", "Disabling...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/auth/mfa?discordid="+discordid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-staff-disable-mfa");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "User's MFA disabled!", 5000, false);
+            DestroyModal("disable_mfa");
+        },
+        error: function (data) {
+            UnlockBtn("#button-staff-disable-mfa");
+            AjaxError(data);
+        }
+    })
+}
+
 function DeleteConnectionsShow(discordid, name){
-    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
-    InitModal("unbind_connections", modalid);
+    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to delete account connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
+    InitModal("account_connections", modalid);
 }
 
 function DeleteConnections(discordid) {
@@ -3215,7 +3275,7 @@ function DeleteConnections(discordid) {
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
             toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
-            DestroyModal("unbind_connections");
+            DestroyModal("account_connections");
         },
         error: function (data) {
             UnlockBtn("#button-delete-connections");
@@ -5062,11 +5122,13 @@ token = localStorage.getItem("token");
 isAdmin = false;
 highestrole = 99999;
 roles = JSON.parse(localStorage.getItem("roles"));
-rolelist = JSON.parse(localStorage.getItem("rolelist"));
+rolelist = JSON.parse(localStorage.getItem("role-list"));
 perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 divisions = JSON.parse(localStorage.getItem("divisions"));
-applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+applicationTypes = JSON.parse(localStorage.getItem("application-types"));
+userPerm = JSON.parse(localStorage.getItem("user-perm"));
+if(userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
 shiftdown = false;
@@ -5497,7 +5559,7 @@ function UpdateRolesOnDisplay(){
         rolestxt.push(rolelist[roles[i]]);
     }
     hrole = rolestxt[0];
-    localStorage.setItem("highestrole", hrole);
+    localStorage.setItem("highest-role", hrole);
 
     if (hrole == undefined || hrole == "undefined") hrole = "Loner";
     $("#sidebar-role").html(hrole);
@@ -5510,10 +5572,10 @@ function UpdateRolesOnDisplay(){
 }
 
 function LoadCache(){
-    rolelist = JSON.parse(localStorage.getItem("rolelist"));
+    rolelist = JSON.parse(localStorage.getItem("role-list"));
     perms = JSON.parse(localStorage.getItem("perms"));
     positions = JSON.parse(localStorage.getItem("positions"));
-    applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+    applicationTypes = JSON.parse(localStorage.getItem("application-types"));
     
     if (positions != undefined && positions != null) {
         positionstxt = "";
@@ -5526,7 +5588,7 @@ function LoadCache(){
         positions = [];
     }
 
-    cacheExpire = parseInt(localStorage.getItem("cacheExpire"));
+    cacheExpire = parseInt(localStorage.getItem("cache-expire"));
     if(!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined))
         cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
@@ -5550,7 +5612,7 @@ function LoadCache(){
                 for(var i = 0 ; i < roles.length ; i++){
                     rolelist[roles[i].id] = roles[i].name;
                 }
-                localStorage.setItem("rolelist", JSON.stringify(rolelist));
+                localStorage.setItem("role-list", JSON.stringify(rolelist));
             }
         });
         $.ajax({
@@ -5562,7 +5624,7 @@ function LoadCache(){
                 applicationTypes = {};
                 for(var i = 0 ; i < d.length ; i++)
                     applicationTypes[parseInt(d[i].applicationid)] = d[i].name;
-                localStorage.setItem("applicationTypes", JSON.stringify(applicationTypes));
+                localStorage.setItem("application-types", JSON.stringify(applicationTypes));
             }
         });
         $.ajax({
@@ -5590,11 +5652,10 @@ function LoadCache(){
                 localStorage.setItem("divisions", JSON.stringify(divisions));
             }
         });
-        localStorage.setItem("cacheExpire", +new Date() + 86400000);
+        localStorage.setItem("cache-expire", +new Date() + 86400000);
     }
 }
 
-userPerm = [];
 userPermLoaded = false;
 function GetUserPermission(){
     if(roles == undefined || perms.admin == undefined) return;
@@ -5609,11 +5670,13 @@ function GetUserPermission(){
     }
     userPerm.push("user");
     userPermLoaded = true;
+    localStorage.setItem("user-perm", JSON.stringify(userPerm));
     return userPerm;
 }
 
 function ShowStaffTabs() {
     t = JSON.parse(JSON.stringify(userPerm));
+    if(t == null) return;
     t.pop("user");
     t.pop("driver");
     if (t.length > 0) {
@@ -5655,6 +5718,31 @@ function MemberMode(){
     $(".member-only-tab").show();
 }
 
+function PreValidateToken(){
+    userid = localStorage.getItem("userid");
+    name = localStorage.getItem("name");
+    discordid = localStorage.getItem("discordid");
+    avatar = localStorage.getItem("avatar");
+    highestrole = localStorage.getItem("highest-role");
+    
+    if(userid == null || name == null){
+        $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
+        $("#sidebar-userid").html(`<span class="placeholder col-2"></span>`);
+        $("#sidebar-role").html(`<span class="placeholder col-6"></span>`);
+        return;
+    }
+    $("#sidebar-username").html(name);
+    $("#sidebar-userid").html("#" + userid);
+    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
+    if (avatar.startsWith("a_"))
+        $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
+    else
+        $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
+    $("#sidebar-role").html(highestrole);
+
+    ShowStaffTabs();
+}
+
 function ValidateToken() {
     token = localStorage.getItem("token");
     userid = localStorage.getItem("userid");
@@ -5676,9 +5764,6 @@ function ValidateToken() {
     }
 
     $("#sidebar-application").show();
-    $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
-    $("#sidebar-userid").html(`<span class="placeholder col-2"></span>`);
-    $("#sidebar-role").html(`<span class="placeholder col-6"></span>`);
     $("#button-user-profile").attr("onclick",``);
     $("#button-user-profile").attr("data-bs-toggle", "dropdown");
 
@@ -5830,6 +5915,7 @@ window.onpopstate = function (event){PathDetect();};
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
+    PreValidateToken();
     $("input").val("");
     $("textarea").val("");
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
@@ -5862,10 +5948,10 @@ $(document).ready(async function () {
     InitResizeHandler();
     PreserveApplicationQuestion();
     while(1){
-        rolelist = JSON.parse(localStorage.getItem("rolelist"));
+        rolelist = JSON.parse(localStorage.getItem("role-list"));
         perms = JSON.parse(localStorage.getItem("perms"));
         positions = JSON.parse(localStorage.getItem("positions"));
-        applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+        applicationTypes = JSON.parse(localStorage.getItem("application-types"));
         if(rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }

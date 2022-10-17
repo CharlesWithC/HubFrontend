@@ -261,7 +261,9 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.discordid}', '${user.name}')">Delete Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${user.name}')">${bantxt}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${user.name}')">Delete</a></li>
                         </ul>
@@ -396,9 +398,55 @@ function UpdateDiscord(old_discord_id) {
     })
 }
 
+function DisableUserMFAShow(discordid, name){
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data)
+            mfa = data.response.mfa;
+            if(!mfa){
+                return toastNotification("error", "Error", "User hasn't enabled MFA!", 5000);
+            }
+            modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be able to login or enter sudo mode without MFA. This can put their account at risk. Do not disable MFA for a user who didn't request it.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">Disable</button>`);
+            InitModal("disable_mfa", modalid);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+function StaffDisableMFA(discordid) {
+    LockBtn("#button-staff-disable-mfa", "Disabling...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/auth/mfa?discordid="+discordid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-staff-disable-mfa");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "User's MFA disabled!", 5000, false);
+            DestroyModal("disable_mfa");
+        },
+        error: function (data) {
+            UnlockBtn("#button-staff-disable-mfa");
+            AjaxError(data);
+        }
+    })
+}
+
 function DeleteConnectionsShow(discordid, name){
-    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
-    InitModal("unbind_connections", modalid);
+    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to delete account connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
+    InitModal("account_connections", modalid);
 }
 
 function DeleteConnections(discordid) {
@@ -419,7 +467,7 @@ function DeleteConnections(discordid) {
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
             toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
-            DestroyModal("unbind_connections");
+            DestroyModal("account_connections");
         },
         error: function (data) {
             UnlockBtn("#button-delete-connections");

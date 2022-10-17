@@ -6,11 +6,13 @@ token = localStorage.getItem("token");
 isAdmin = false;
 highestrole = 99999;
 roles = JSON.parse(localStorage.getItem("roles"));
-rolelist = JSON.parse(localStorage.getItem("rolelist"));
+rolelist = JSON.parse(localStorage.getItem("role-list"));
 perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 divisions = JSON.parse(localStorage.getItem("divisions"));
-applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+applicationTypes = JSON.parse(localStorage.getItem("application-types"));
+userPerm = JSON.parse(localStorage.getItem("user-perm"));
+if(userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
 shiftdown = false;
@@ -441,7 +443,7 @@ function UpdateRolesOnDisplay(){
         rolestxt.push(rolelist[roles[i]]);
     }
     hrole = rolestxt[0];
-    localStorage.setItem("highestrole", hrole);
+    localStorage.setItem("highest-role", hrole);
 
     if (hrole == undefined || hrole == "undefined") hrole = "Loner";
     $("#sidebar-role").html(hrole);
@@ -454,10 +456,10 @@ function UpdateRolesOnDisplay(){
 }
 
 function LoadCache(){
-    rolelist = JSON.parse(localStorage.getItem("rolelist"));
+    rolelist = JSON.parse(localStorage.getItem("role-list"));
     perms = JSON.parse(localStorage.getItem("perms"));
     positions = JSON.parse(localStorage.getItem("positions"));
-    applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+    applicationTypes = JSON.parse(localStorage.getItem("application-types"));
     
     if (positions != undefined && positions != null) {
         positionstxt = "";
@@ -470,7 +472,7 @@ function LoadCache(){
         positions = [];
     }
 
-    cacheExpire = parseInt(localStorage.getItem("cacheExpire"));
+    cacheExpire = parseInt(localStorage.getItem("cache-expire"));
     if(!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined))
         cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
@@ -494,7 +496,7 @@ function LoadCache(){
                 for(var i = 0 ; i < roles.length ; i++){
                     rolelist[roles[i].id] = roles[i].name;
                 }
-                localStorage.setItem("rolelist", JSON.stringify(rolelist));
+                localStorage.setItem("role-list", JSON.stringify(rolelist));
             }
         });
         $.ajax({
@@ -506,7 +508,7 @@ function LoadCache(){
                 applicationTypes = {};
                 for(var i = 0 ; i < d.length ; i++)
                     applicationTypes[parseInt(d[i].applicationid)] = d[i].name;
-                localStorage.setItem("applicationTypes", JSON.stringify(applicationTypes));
+                localStorage.setItem("application-types", JSON.stringify(applicationTypes));
             }
         });
         $.ajax({
@@ -534,11 +536,10 @@ function LoadCache(){
                 localStorage.setItem("divisions", JSON.stringify(divisions));
             }
         });
-        localStorage.setItem("cacheExpire", +new Date() + 86400000);
+        localStorage.setItem("cache-expire", +new Date() + 86400000);
     }
 }
 
-userPerm = [];
 userPermLoaded = false;
 function GetUserPermission(){
     if(roles == undefined || perms.admin == undefined) return;
@@ -553,11 +554,13 @@ function GetUserPermission(){
     }
     userPerm.push("user");
     userPermLoaded = true;
+    localStorage.setItem("user-perm", JSON.stringify(userPerm));
     return userPerm;
 }
 
 function ShowStaffTabs() {
     t = JSON.parse(JSON.stringify(userPerm));
+    if(t == null) return;
     t.pop("user");
     t.pop("driver");
     if (t.length > 0) {
@@ -599,6 +602,31 @@ function MemberMode(){
     $(".member-only-tab").show();
 }
 
+function PreValidateToken(){
+    userid = localStorage.getItem("userid");
+    name = localStorage.getItem("name");
+    discordid = localStorage.getItem("discordid");
+    avatar = localStorage.getItem("avatar");
+    highestrole = localStorage.getItem("highest-role");
+    
+    if(userid == null || name == null){
+        $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
+        $("#sidebar-userid").html(`<span class="placeholder col-2"></span>`);
+        $("#sidebar-role").html(`<span class="placeholder col-6"></span>`);
+        return;
+    }
+    $("#sidebar-username").html(name);
+    $("#sidebar-userid").html("#" + userid);
+    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
+    if (avatar.startsWith("a_"))
+        $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
+    else
+        $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
+    $("#sidebar-role").html(highestrole);
+
+    ShowStaffTabs();
+}
+
 function ValidateToken() {
     token = localStorage.getItem("token");
     userid = localStorage.getItem("userid");
@@ -620,9 +648,6 @@ function ValidateToken() {
     }
 
     $("#sidebar-application").show();
-    $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
-    $("#sidebar-userid").html(`<span class="placeholder col-2"></span>`);
-    $("#sidebar-role").html(`<span class="placeholder col-6"></span>`);
     $("#button-user-profile").attr("onclick",``);
     $("#button-user-profile").attr("data-bs-toggle", "dropdown");
 
@@ -774,6 +799,7 @@ window.onpopstate = function (event){PathDetect();};
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver","#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
+    PreValidateToken();
     $("input").val("");
     $("textarea").val("");
     $("body").keydown(function(e){if(e.which==16) shiftdown=true;});
@@ -806,10 +832,10 @@ $(document).ready(async function () {
     InitResizeHandler();
     PreserveApplicationQuestion();
     while(1){
-        rolelist = JSON.parse(localStorage.getItem("rolelist"));
+        rolelist = JSON.parse(localStorage.getItem("role-list"));
         perms = JSON.parse(localStorage.getItem("perms"));
         positions = JSON.parse(localStorage.getItem("positions"));
-        applicationTypes = JSON.parse(localStorage.getItem("applicationTypes"));
+        applicationTypes = JSON.parse(localStorage.getItem("application-types"));
         if(rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }

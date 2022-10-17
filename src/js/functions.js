@@ -63,7 +63,7 @@ function GetAvatarSrc(discordid, avatarid) {
 
 function GetAvatarImg(src, userid, name) {
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
         <b>${name}</b>
     </a>`;
 }
@@ -71,7 +71,7 @@ function GetAvatarImg(src, userid, name) {
 function GetAvatar(userid, name, discordid, avatarid) {
     src = GetAvatarSrc(discordid, avatarid);
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
         ${name}
     </a>`;
 }
@@ -237,7 +237,7 @@ function parseMarkdown(markdownText) {
     return htmlText.trim()
 }
 
-RANKING = localStorage.getItem("rankname");
+RANKING = localStorage.getItem("driver-ranks");
 if (RANKING == null) {
     RANKING = [];
     $.ajax({
@@ -250,7 +250,7 @@ if (RANKING == null) {
             for (i = 0; i < d.length; i++) {
                 RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
             }
-            localStorage.setItem("rankname", JSON.stringify(RANKING));
+            localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
         }
     });
 } else {

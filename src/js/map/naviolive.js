@@ -89,6 +89,7 @@ socket.addEventListener("message", ({
         if (data.type == 1) {
             drivername = membersteam[data.driver];
             if (drivername == "undefined" || drivername == undefined) drivername = "Unknown Driver";
+            $("#delivery-tab").removeClass("loaded");
             toastNotification("success", "Job Delivery", "<b>" + drivername + "</b><br><b>Distance:</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>Revenue:</b> €" + TSeparator(data.revenue), 10000, false);
         }
     }
