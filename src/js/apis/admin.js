@@ -162,20 +162,15 @@ function UpdateConfig(){
     })
 }
 
-reloadAPIMFA = false;
 function ReloadAPIShow(){
     if(!mfaenabled) return toastNotification("error", "Error", "MFA must be enabled to reload API!", 5000);
-    reloadAPIMFA = true;
+    mfafunc = ReloadServer;
     LockBtn("#button-reload-api-show", `Reloading...`);
     setTimeout(function(){UnlockBtn("#button-reload-api-show");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
-    setTimeout(function(){$("#mfa-otp").on("input", function(){
-        if($("#mfa-otp").val().length == 6){
-            MFAVerify();
-        }
-    });},50);
 }
 
-function ReloadServer(otp) {
+function ReloadServer() {
+    otp = $("#mfa-otp").val();
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
         type: "POST",

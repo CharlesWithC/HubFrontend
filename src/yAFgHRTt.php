@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/23f1ac2f0e385304.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/aab015cf58534cc2.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -692,7 +692,7 @@
                         <label for="announcement-new-discord" class="form-label">Discord Integration</label>
                         <div class="input-group mb-2">
                             <span class="input-group-text" id="announcement-new-discord-channel-label">Channel ID</span>
-                            <input type="number" class="form-control bg-dark text-white" id="announcement-new-discord-channel" placeholder="(Optional) Discord channel to forward the announcement" aria-describedby="announcement-new-discord-channel-label">
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-channel" placeholder="(Optional) Discord channel to forward the announcement" aria-describedby="announcement-new-discord-channel-label">
                         </div>
                         <div class="input-group mb-3">
                             <span class="input-group-text" id="announcement-new-discord-message-label">Message</span>
@@ -1425,7 +1425,85 @@
         </section>
         <section id="user-settings-tab" class="tabs">
             <div class="shadow p-3 m-3 bg-dark rounded col">
-                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-gear"></i></span> Settings</strong></h5>
+                <h5 style="display:inline-block"><strong><span clas="rect-20"><i class="fa-solid fa-gear"></i></span> Settings</strong></h5>
+                <ul class="nav nav-tabs" role="tablist" style="float:right">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white active" id="settings-general-tab" data-bs-toggle="tab" data-bs-target="#settings-general" type="button" role="tab" aria-controls="settings-general" aria-selected="true">General</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white" id="settings-security-tab" data-bs-toggle="tab" data-bs-target="#settings-security" type="button" role="tab" aria-controls="settings-security" aria-selected="false">Security</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white" id="settings-sessions-tab" data-bs-toggle="tab" data-bs-target="#settings-sessions" type="button" role="tab" aria-controls="settings-sessions" aria-selected="false">Sessions</button>
+                    </li>
+                </ul>
+                <div class="tab-content mt-3" id="settings-subtab">
+                    <div class="tab-pane fade show active" id="settings-general" role="tabpanel" aria-labelledby="settings-general-tab" tabindex="0">
+                        <label for="settings-distance-unit" class="form-label" style="width:100%">Distance Unit</label>
+                        <div class="btn-group mb-3" id="settings-distance-unit-group">
+                            <a id="settings-distance-unit-metric" onclick='localStorage.setItem("distance-unit","metric");window.location.reload();' style="cursor:pointer" class="btn btn-primary active" aria-current="page">Metric</a>
+                            <a id="settings-distance-unit-imperial" onclick='localStorage.setItem("distance-unit","imperial");window.location.reload();' style="cursor:pointer" class="btn btn-primary">Imperial</a>
+                        </div>
+                        <label for="settings-distance-unit" class="form-label" style="width:100%">Theme</label>
+                        <div class="btn-group mb-3" id="settings-theme">
+                            <a id="settings-theme-dark" onclick='ToggleDarkMode("dark");' style="cursor:pointer" class="btn btn-primary active disabled" aria-current="page">Dark</a>
+                            <a id="settings-theme-light" onclick='ToggleDarkMode("light");' style="cursor:pointer" class="btn btn-primary disabled">Light</a>
+                        </div>
+                        <hr>
+                        <label for="settings-bio" class="form-label">About Me</label>
+                        <div class="input-group mb-3" style="height:200px">
+                            <textarea type="text" class="form-control bg-dark text-white" id="settings-bio" placeholder="About Me, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                        <button id="button-settings-bio-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateBio();">Save</button>
+                    </div>
+                    <div class="tab-pane fade" id="settings-security" role="tabpanel" aria-labelledby="settings-security-tab" tabindex="0">
+                        <label for="settings-password" class="form-label">Password Login</label>
+                        <p>You will be able to login with Discord email and Drivers Hub password.</p>
+                        <div class="input-group mb-3" style="width:200px">
+                            <input type="password" class="form-control bg-dark text-white" id="settings-password" placeholder="New Password">
+                        </div>
+                        <div style="display:block">
+                            <button id="button-settings-password-disable" type="button" class="btn btn-danger" style="display:inline-block" onclick="DisablePassword(firstop=true);">Disable</button>
+                            <button id="button-settings-password-update" type="button" class="btn btn-primary" style="display:inline-block" onclick="UpdatePassword(firstop=true);">Update</button>
+                        </div>
+                        <hr>
+                        <label for="settings-application-token" class="form-label">Application Token</label>
+                        <p>Application token has limited access to your account but they never expire. Make sure you trust the application before entering this token somewhere.</p>
+                        <p id="settings-application-token-p" style="font-size:15px">For security purposes, tokens can only be viewed once, when created. If you forgot or lost access to your token, please regenerate a new one.</p>
+                        <p id="settings-application-token" style="display:none"></p>
+                        <div style="display:block">
+                            <button id="button-application-token-copy" type="button" class="btn btn-secondary" style="display:none;display:none" onclick="">Copy</button>
+                            <button id="button-settings-disable-application-token" type="button" class="btn btn-danger" style="display:inline-block" onclick="DisableApplicationToken(firstop=true);">Disable</button>
+                            <button id="button-settings-reset-application-token" type="button" class="btn btn-primary" style="display:inline-block" onclick="ResetApplicationToken(firstop=true);">Reset Token</button>
+                        </div>
+                        <hr>
+                        <label for="settings-mfa" class="form-label">Multiple Factor Authentication</label>
+                        <p>MFA adds an extra layer of protection on login and sensitive operations by implementing TOTP.</p>
+                        <button id="button-settings-mfa-disable" type="button" class="btn btn-danger" onclick="DisableMFAShow();" style="display:none">Disable</button>
+                        <button id="button-settings-mfa-enable" type="button" class="btn btn-primary" onclick="EnableMFAShow();" style="display:none">Enable</button>
+                        <div class="member-only-tab">
+                            <hr>
+                            <label for="settings-mfa" class="form-label">Leave Company</label>
+                            <p>Your delivery log will be erased and you will be removed from Navio company. This cannot be undone.</p>
+                            <button id="button-settings-resign" type="button" class="btn btn-danger" onclick="UserResignShow();">Resign</button>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="settings-sessions" role="tabpanel" aria-labelledby="settings-sessions-tab" tabindex="0">
+                        <div id="table_session">
+                            <table class="w-100">
+                                <thead id="table_session_head">
+                                    <tr class="text-xs text-gray-500 text-left">
+                                        <th>IP</th>
+                                        <th>Login Time</th>
+                                        <th>Expire Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_session_data">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
         <datalist id="all-member-datalist" style="display:none">

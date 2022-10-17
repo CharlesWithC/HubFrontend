@@ -75,11 +75,6 @@ var CaptchaCallback = function(hcaptcha_response){
                     localStorage.setItem("tip", token);
                     localStorage.setItem("pending-mfa", +new Date());
                     ShowTab("#mfa-tab");
-                    setTimeout(function(){$("#mfa-otp").on("input", function(){
-                        if($("#mfa-otp").val().length == 6){
-                            MFAVerify();
-                        }
-                    });},50);
                 } else {
                     localStorage.setItem("token", token);
                     ValidateToken();
@@ -112,12 +107,19 @@ function ShowCaptcha() {
     setTimeout(function(){UnlockBtn("#button-signin");setTimeout(function(){ShowTab("#captcha-tab");},500);},1000);
 }
 
+mfato = -1;
 function MFAVerify(){
-    LockBtn("#button-mfa-verify", "Verifying...");
     otp = $("#mfa-otp").val();
-    if(reloadAPIMFA){
-        return ReloadServer(otp);
-    }
+    if(!isNumber(otp) || otp.length != 6)
+        return toastNotification("error", "Error", "Invalid OTP!", 5000);
+    LockBtn("#button-mfa-verify", "Verifying...");
+    mfato = setTimeout(function(){
+        // remove otp cache after 75 seconds (2.5 rounds)
+        if(!$("#mfa-tab").is(":visible")){
+            $("#mfa-otp").val("");
+        }
+    }, 75000);
+    if(mfafunc != null) return mfafunc();
     token = localStorage.getItem("tip");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/auth/mfa",

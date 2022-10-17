@@ -1,6 +1,5 @@
 function UpdateBio() {
-    GeneralLoad();
-    LockBtn("#updateBioBtn");
+    LockBtn("#button-settings-bio-save", "Saving...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/bio",
@@ -10,73 +9,270 @@ function UpdateBio() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "bio": $("#biocontent").val()
+            "bio": $("#settings-bio").val()
         },
         success: function (data) {
-            UnlockBtn("#updateBioBtn");
+            UnlockBtn("#button-settings-bio-save");
             if (data.error) return AjaxError(data);
-            LoadUserProfile(localStorage.getItem("userid"));
-            toastNotification("success", "Success!", "About Me updated!", 5000, false);
+            toastNotification("success", "Success!", "About Me saved!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#updateBioBtn");
+            UnlockBtn("#button-settings-bio-save");
             AjaxError(data);
         }
     });
 }
 
-function RenewApplicationToken() {
-    GeneralLoad();
-    LockBtn("#genAppTokenBtn");
+function ResetApplicationToken(firstop = false) {
+    LockBtn("#button-settings-reset-application-token", "Resetting...");
 
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/application",
-        type: "PATCH",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#genAppTokenBtn");
-            if (data.error) return AjaxError(data);
-            $("#userAppToken").html(data.response.token);
-            toastNotification("success", "Success", "Application Token generated!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#genAppTokenBtn");
-            AjaxError(data);
+    if(mfaenabled){
+        otp = $("#mfa-otp").val();
+
+        if(otp.length != 6){
+            mfafunc = ResetApplicationToken;
+            setTimeout(function(){UnlockBtn("#button-settings-reset-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            return;
         }
-    });
+
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/token/application",
+            type: "PATCH",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                otp: otp,
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-reset-application-token");
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+                if (data.error) return AjaxError(data);
+                $("#settings-application-token").html(data.response.token);
+                $("#settings-application-token-p").hide();
+                $("#settings-application-token").show();
+                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
+                $("#button-application-token-copy").show();
+                toastNotification("success", "Success", "Application Token reset!", 5000, false);
+            },
+            error: function (data) {
+                if(firstop && data.status == 400){
+                    // failed due to auto try, then do mfa
+                    mfafunc = ResetApplicationToken;
+                    setTimeout(function(){UnlockBtn("#button-settings-reset-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    return;
+                }
+                UnlockBtn("#button-settings-reset-application-token");
+                AjaxError(data);
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+            }
+        });
+    }
+    else{
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/token/application",
+            type: "PATCH",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-reset-application-token");
+                if (data.error) return AjaxError(data);
+                $("#settings-application-token").html(data.response.token);
+                $("#settings-application-token-p").hide();
+                $("#settings-application-token").show();
+                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
+                toastNotification("success", "Success", "Application Token reset!", 5000, false);
+            },
+            error: function (data) {
+                UnlockBtn("#button-settings-reset-application-token");
+                AjaxError(data);
+            }
+        });
+    }
 }
 
-function DisableApplicationToken() {
-    GeneralLoad();
-    LockBtn("#disableAppTokenBtn");
+function DisableApplicationToken(firstop = false) {
+    LockBtn("#button-settings-disable-application-token", "Disabling...");
 
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/application",
-        type: "DELETE",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            UnlockBtn("#disableAppTokenBtn");
-            if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Application Token Disabled!", 5000, false);
-        },
-        error: function (data) {
-            UnlockBtn("#disableAppTokenBtn");
-            AjaxError(data);
+    if(mfaenabled){
+        otp = $("#mfa-otp").val();
+
+        if(otp.length != 6){
+            mfafunc = DisableApplicationToken;
+            setTimeout(function(){UnlockBtn("#button-settings-disable-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            return;
         }
-    });
+
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/token/application",
+            type: "DELETE",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                otp: otp
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-disable-application-token");
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+                if (data.error) return AjaxError(data);
+                $("#settings-application-token").html("Disabled");
+                toastNotification("success", "Success", "Application Token disabled!", 5000, false);
+            },
+            error: function (data) {
+                if(firstop && data.status == 400){
+                    // failed due to auto try, then do mfa
+                    mfafunc = DisableApplicationToken;
+                    setTimeout(function(){UnlockBtn("#button-settings-disable-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    return;
+                }
+                UnlockBtn("#button-settings-disable-application-token");
+                AjaxError(data);
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+            }
+        });
+    } else {
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/token/application",
+            type: "DELETE",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-disable-application-token");
+                if (data.error) return AjaxError(data);
+                $("#settings-application-token").html("Disabled");
+                toastNotification("success", "Success", "Application Token disabled!", 5000, false);
+            },
+            error: function (data) {
+                UnlockBtn("#button-settings-disable-application-token");
+                AjaxError(data);
+            }
+        });
+    }
 }
 
-function UpdatePassword() {
-    GeneralLoad();
-    LockBtn("#resetPasswordBtn");
+function UpdatePassword(firstop = false) {
+    LockBtn("#button-settings-password-update", "Updating...");
 
-    if($("#passwordUpd").val() == ""){
+    if(mfaenabled){
+        otp = $("#mfa-otp").val();
+
+        if(otp.length != 6){
+            mfafunc = UpdatePassword;
+            setTimeout(function(){UnlockBtn("#button-settings-password-update");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            return;
+        }
+        
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/user/password",
+            type: "PATCH",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                "password": $("#settings-password").val(),
+                otp: otp
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-password-update");
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+                if (data.error) return AjaxError(data);
+                $("#settings-password").val("");
+                toastNotification("success", "Success", "Password updated!", 5000, false);
+            },
+            error: function (data) {
+                if(firstop && data.status == 400){
+                    // failed due to auto try, then do mfa
+                    mfafunc = UpdatePassword;
+                    setTimeout(function(){UnlockBtn("#button-settings-password-update");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    return;
+                }
+                UnlockBtn("#button-settings-password-update");
+                AjaxError(data);
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+            }
+        });
+    } else {
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/user/password",
+            type: "PATCH",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                "password": $("#settings-password").val()
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-password-update");
+                if (data.error) return AjaxError(data);
+                $("#settings-password").val("");
+                toastNotification("success", "Success", "Password updated!", 5000, false);
+            },
+            error: function (data) {
+                UnlockBtn("#button-settings-password-update");
+                AjaxError(data);
+            }
+        });
+    }
+}
+
+function DisablePassword(firstop = false) {
+    LockBtn("#button-settings-password-disable", "Disabling...");
+
+    if(mfaenabled){
+        otp = $("#mfa-otp").val();
+
+        if(otp.length != 6){
+            mfafunc = DisablePassword;
+            setTimeout(function(){UnlockBtn("#button-settings-password-disable");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            return;
+        }
+        
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/user/password",
+            type: "DELETE",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                otp: otp
+            },
+            success: function (data) {
+                UnlockBtn("#button-settings-password-disable");
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+                if (data.error) return AjaxError(data);
+                toastNotification("success", "Success", "Password disabled!", 5000, false);
+            },
+            error: function (data) {
+                if(firstop && data.status == 400){
+                    // failed due to auto try, then do mfa
+                    mfafunc = DisablePassword;
+                    setTimeout(function(){UnlockBtn("#button-settings-password-disable");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    return;
+                }
+                UnlockBtn("#button-settings-password-disable");
+                AjaxError(data);
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+            }
+        });
+    } else {
         $.ajax({
             url: apidomain + "/" + vtcprefix + "/user/password",
             type: "DELETE",
@@ -85,41 +281,162 @@ function UpdatePassword() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                UnlockBtn("#resetPasswordBtn");
+                UnlockBtn("#button-settings-password-disable");
                 if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "Password login disabled", 5000, false);
+                toastNotification("success", "Success", "Password disabled!", 5000, false);
             },
             error: function (data) {
-                UnlockBtn("#resetPasswordBtn");
+                UnlockBtn("#button-settings-password-disable");
                 AjaxError(data);
             }
         });
+    }
+}
+
+function DisableMFAShow(){
+    modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA?</p><p>You will be able to login or enter sudo mode without MFA. This can put your account at risk.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">Disable</button>`);
+    InitModal("disable_mfa", modalid);
+}
+
+function DisableMFA(){
+    otp = $("#mfa-otp").val();
+    
+    if(otp.length != 6){
+        mfafunc = DisableMFA;
+        LockBtn("#button-staff-disable-mfa", "Disabling...");
+        setTimeout(function(){UnlockBtn("#button-staff-disable-mfa");DestroyModal("disable_mfa");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
         return;
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/password",
-        type: "PATCH",
+        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        type: "DELETE",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "password": $("#passwordUpd").val()
+            otp: otp
         },
         success: function (data) {
-            UnlockBtn("#resetPasswordBtn");
+            ShowTab("#user-settings-tab", "from-mfa");
+            mfafunc = null;
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", data.response, 5000, false);
+            $("#button-settings-mfa-disable").hide();
+            $("#button-settings-mfa-enable").show();
+            mfaenabled = false;
+            toastNotification("success", "Success", "MFA disabled!", 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#resetPasswordBtn");
             AjaxError(data);
+            ShowTab("#user-settings-tab", "from-mfa");
+            mfafunc = null;
         }
-    })
+    });
 }
 
-function LoadUserSessions() {
+mfasecret = "";
+function EnableMFAShow(){
+    mfasecret = RandomB32String(16);
+    modalid = ShowModal(`Enable MFA`, `<p>Please download a MFA application that supports TOTP like Authy, Google Authenticator. Type in the secret in the app and enter the generated TOTP in the input box.</p><p>Secret: <b>${mfasecret}</b></p>
+    <label for="mfa-enable-otp" class="form-label">OTP</label>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control bg-dark text-white" id="mfa-enable-otp" placeholder="000 000">
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">Enable</button>`);
+    InitModal("enable_mfa", modalid);
+}
+
+function EnableMFA(){
+    otp = $("#mfa-enable-otp").val();
+    if(!isNumber(otp) || otp.length != 6)
+        return toastNotification("error", "Error", "Invalid OTP!", 5000);
+        
+    LockBtn("#button-enable-mfa", "Enabling...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            secret: mfasecret,
+            otp: otp
+        },
+        success: function (data) {
+            UnlockBtn("#button-enable-mfa");
+            if (data.error) AjaxError(data);
+            $("#button-settings-mfa-disable").show();
+            $("#button-settings-mfa-enable").hide();
+            mfaenabled = true;
+            DestroyModal("enable_mfa");
+            toastNotification("success", "Success", "MFA Enabled.", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-enable-mfa");
+            AjaxError(data);
+        }
+    });
+}
+
+function UserResignShow(){
+    modalid = ShowModal(`Leave Company`, `<p>Are you sure you want to leave the company?</p><p>Your delivery log will be erased and you will be removed from Navio company. This <b>cannot</b> be undone.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">Resign</button>`);
+    InitModal("user_resign", modalid);
+}
+
+function UserResign() {
+    LockBtn("#button-user-resign", "Resigning...");
+
+    otp = $("#mfa-otp").val();
+    if(mfaenabled){
+        if(otp.length != 6){
+            mfafunc = UserResign;
+            setTimeout(function(){UnlockBtn("#button-user-resign");DestroyModal("user_resign");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            return;
+        }
+    }
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/member/resign",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            otp: otp
+        },
+        success: function (data) {
+            ShowTab("#user-settings-tab", "from-mfa");
+            mfafunc = null;
+            if (data.error) return AjaxError(data);
+            modalid = ShowModal(`You have left the company`, `<p>You have successfully resigned from the company. We are sad to see you leave. We wish you the best in your future career!</p>`);
+        },
+        error: function (data) {
+            AjaxError(data);
+            ShowTab("#user-settings-tab", "from-mfa");
+            mfafunc = null;
+        }
+    });
+}
+
+user_session_placeholder_row = `
+<tr>
+    <td style="width:40%;"><span class="placeholder w-100"></span></td>
+    <td style="width:25%;"><span class="placeholder w-100"></span></td>
+    <td style="width:25%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+</tr>`
+
+function LoadUserSessions(noplaceholder = false) {
+    if(!noplaceholder){
+        $("#table_session_data").empty();
+        for(var i = 0 ; i < 10 ; i ++){
+            $("#table_session_data").append(user_session_placeholder_row);
+        }    
+    }
+
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/token/all",
         type: "GET",
@@ -132,31 +449,27 @@ function LoadUserSessions() {
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
-                    opbtn = `<button type="button" style="display:inline;padding:5px" id="revokeTokenBtn-${sessions[i].hash}"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
+                    opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
                 else opbtn = `(Current)`;
 
-                $("#table_session_data").append(`<tr class="text-sm">
-                    <td class="py-5 px-6 font-medium">${sessions[i].ip}</td>
-                    <td class="py-5 px-6 font-medium">${getDateTime(sessions[i].timestamp * 1000)}</td>
-                    <td class="py-5 px-6 font-medium">${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
-                    <td class="py-5 px-6 font-medium">${opbtn}</td>
+                $("#table_session_data").append(`<tr>
+                    <td>${sessions[i].ip}</td>
+                    <td>${getDateTime(sessions[i].timestamp * 1000)}</td>
+                    <td>${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
+                    <td>${opbtn}</td>
                 </tr>`);
             }
-        },
-        error: function (data) {
-            $("#userSessions").hide();
         }
     })
 }
 
 function RevokeToken(hsh) {
-    if ($("#revokeTokenBtn-" + hsh).html() == "Revoke") {
-        $("#revokeTokenBtn-" + hsh).html("Confirm?");
-        $("#revokeTokenBtn-" + hsh).attr("background-color", "red");
+    if ($("#button-revoke-token-" + hsh).html() == "Revoke") {
+        $("#button-revoke-token-" + hsh).html("Confirm?");
         return;
     }
+
+    LockBtn("#button-revoke-token-" + hsh, "Revoking...")
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/token/hash",
@@ -170,32 +483,8 @@ function RevokeToken(hsh) {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            LoadUserSessions();
-            toastNotification("success", "Success", data.response, 5000, false);
-        },
-        error: function (data) {
-            AjaxError(data);
-        }
-    })
-}
-
-function revokeAllToken(){
-    if ($("#revokeAllBtn").html() == "Revoke All") {
-        $("#revokeAllBtn").html("Confirm?");
-        $("#revokeAllBtn").attr("background-color", "red");
-        return;
-    }
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/all",
-        type: "DELETE",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            if (data.error) return AjaxError(data);
-            setTimeout(function(){ShowTab("#signin-tab", "#button-signin-tab");},1000);
-            toastNotification("success", "Success", data.response, 5000, false);
+            LoadUserSessions(noplaceholder = true);
+            toastNotification("success", "Success", "Token revoked!", 5000, false);
         },
         error: function (data) {
             AjaxError(data);

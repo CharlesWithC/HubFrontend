@@ -51,6 +51,16 @@ function RandomString(length) {
     return result;
 }
 
+function RandomB32String(length) {
+    var result = '';
+    var characters = 'ABCDEFGHIJLKMNOPQRSTUVWXYZ234567';
+    var charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
 function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
         if (avatarid.startsWith("a_"))
@@ -79,6 +89,12 @@ function GetAvatar(userid, name, discordid, avatarid) {
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
     return toastNotification("success", "Banner URL copied to clipboard!", 5000)
+}
+
+function CopyButton(element, text){
+    navigator.clipboard.writeText(text);
+    $(element).html("Copied!");
+    setTimeout(function(){$(element).html("Copy");},1000);
 }
 
 function FileOutput(filename, text) {
