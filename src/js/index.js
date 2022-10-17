@@ -15,6 +15,7 @@ isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
 shiftdown = false;
 mfaenabled = false;
+profile_userid = -1;
 modals = {};
 modalName2ID = {};
 
@@ -91,21 +92,6 @@ function InitPhoneView(){
 }
 
 function InitInputHandler(){
-    $('#searchname').keydown(function (e) {
-        if (e.which == 13) LoadMemberList();
-    });
-    $('#dend,#dspeedlimit').keydown(function (e) {
-        if (e.which == 13) LoadDeliveryList();
-    });
-    $('#udend,#udspeedlimit').keydown(function (e) {
-        if (e.which == 13) LoadUserDeliveryList();
-    });
-    $('#lbend,#lbspeedlimit').keydown(function (e) {
-        if (e.which == 13) LoadLeaderboard();
-    });
-    $('#memberroleid').keydown(function (e) {
-        if (e.which == 13) GetMemberRoles();
-    });
     $('#application-type').on('change', function () {
         var value = $(this).val();
         $(".application-tab").hide();
@@ -116,6 +102,30 @@ function InitInputHandler(){
         var value = $(this).val();
         $(".divisiontabs").hide();
         $("#division-tab" + value).show();
+    });
+    $("#input-member-search").on("keydown", function(e){
+        if(e.which == 13){
+            LoadMemberList(noplaceholder = true);
+        }
+    });
+    $("#input-user-search").on("keydown", function(e){
+        if(e.which == 13){
+            LoadUserList(noplaceholder = true);
+        }
+    });
+    $("#signin-email").keypress(function (e) {
+        if (e.which == 13) {
+            if ($("#signin-password").val() == "") {
+                $("#signin-password").focus();
+            } else {
+                ShowCaptcha();
+            }
+        }
+    });
+    $("#signin-password").keypress(function (e) {
+        if (e.which == 13) {
+            ShowCaptcha();
+        }
     });
 }
 
@@ -321,22 +331,6 @@ async function ShowTab(tabname, btnname) {
         }
         $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
         window.history.pushState("", "", '/login');
-        $("#signin-email").keypress(function (e) {
-            var key = e.which;
-            if (key == 13) {
-                if ($("#signin-password").val() == "") {
-                    $("#signin-password").focus();
-                } else {
-                    ShowCaptcha();
-                }
-            }
-        });
-        $("#signin-password").keypress(function (e) {
-            var key = e.which;
-            if (key == 13) {
-                ShowCaptcha();
-            }
-        });
     }
     if (tabname == "#captcha-tab"){
         if(!requireCaptcha){
@@ -380,14 +374,18 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").addClass("last-load-company");
     }
     if (tabname == "#user-delivery-tab") {
-        window.history.pushState("", "", '/member/'+userid+'/delivery');
+        userid = btnname;
+        profile_userid = userid;
+        window.history.pushState("", "", '/member/'+userid);
         $("#company-statistics").hide();
         $("#user-statistics").show();
         $("#delivery-tab").removeClass("last-load-company");
-        if(!$("#delivery-tab").hasClass("last-load-user")){
+        if(!$("#delivery-tab").hasClass("last-load-user") || $("#delivery-tab").attr("last-load-userid") != userid){
             LoadDeliveryList();
+            LoadChart(userid);
         }
         $("#delivery-tab").addClass("last-load-user");
+        $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
@@ -400,11 +398,6 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
         if(!loaded){
-            $("#input-member-search").on("keydown", function(e){
-                if(e.which == 13){
-                    LoadMemberList(noplaceholder = true);
-                }
-            });
             LoadXOfTheMonth();
             LoadMemberList();
         }
@@ -753,15 +746,6 @@ function PathDetect() {
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
-        if(p.endsWith("/delivery")){
-            if (p.split("/").length >= 3){
-                $('#delivery-log-userid').val(parseInt(p.split("/")[2]));
-                ShowTab("#user-delivery-tab", "#button-user-delivery-tab")
-            } else {
-                ShowTab("#delivery-tab", "#button-delivery-tab");
-            }
-            return;
-        }
         if(getUrlParameter("userid")){
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);

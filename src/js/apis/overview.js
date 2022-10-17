@@ -4,9 +4,10 @@ addup = 1;
 
 async function LoadChart(userid = -1) {
     if (userid != -1) {
-        $(".ucs").css("background-color", "");
-        $("#ucs" + chartscale).css("background-color", "skyblue");
-        $("#uaddup" + addup).css("background-color", "skyblue");
+        $("#user-chart-scale-group").children().removeClass("active");
+        $("#user-chart-scale-"+chartscale).addClass("active");
+        if(!addup) $("#user-chart-sum").removeClass("active");
+        else $("#user-chart-sum").addClass("active");
     } else {
         $("#overview-chart-scale-group").children().removeClass("active");
         $("#overview-chart-scale-"+chartscale).addClass("active");
@@ -14,7 +15,7 @@ async function LoadChart(userid = -1) {
         else $("#overview-chart-sum").addClass("active");
     }
     pref = "s";
-    if (userid != -1) pref = "userS";
+    if (userid != -1) pref = "user-s";
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
@@ -24,7 +25,7 @@ async function LoadChart(userid = -1) {
         },
         success: function (data) {
             d = data.response;
-            const ctx = document.getElementById(pref + 'tatisticsChart').getContext('2d');
+            const ctx = document.getElementById(pref + 'tatistics-chart').getContext('2d');
             labels = [];
             distance = [];
             fuel = [];
@@ -129,7 +130,7 @@ async function LoadChart(userid = -1) {
             };
             if (sc != undefined) {
                 sc.destroy();
-                $(pref + 'tatisticsChart').remove();
+                $(pref + 'tatistics-chart').remove();
             }
             sc = new Chart(ctx, config);
         }

@@ -86,7 +86,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/3c1165f998ccc9e8.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/87c898ea2a65a738.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -429,7 +429,7 @@
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item clickable" onclick="Logout()">Sign out</a></li>
             </ul>
-            <a id="button-user-delivery-tab" class="clickable" onclick="$('#delivery-log-userid').val(localStorage.getItem('userid'));ShowTab('#user-delivery-tab', '#button-user-delivery-tab')" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
+            <a id="button-user-delivery-tab" class="clickable" onclick="LoadUserProfile(localStorage.getItem('userid'));" class="text-white text-decoration-none" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
             <a class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
         </div>
     </div>
@@ -532,7 +532,7 @@
                             </div>
                             </h2>
                             <div class="p-4 overflow-x-auto" style="display: block;">
-                                <canvas id="statisticsChart" width="100%" height="300px"></canvas>
+                                <canvas id="statistics-chart" width="100%" height="300px"></canvas>
                             </div>
                         </div>
                     </div>
@@ -772,7 +772,40 @@
                 </div>
             </div>
             <div id="user-statistics" style="display:none">
-
+                <div class="row">
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <div style="padding:20px 0 0 20px;float:left" id="profile-info">
+                        </div>
+                        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius:100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
+                        </div>
+                        <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+                        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> Account</strong></h5>
+                        <div id="user-account-info"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> Statistics</strong></h5>
+                        <div style="float:right">
+                            <div class="btn-group" id="user-chart-scale-group">
+                                <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
+                                <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
+                                <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
+                            </div>
+                            <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">Sum</a>
+                        </div>
+                        </h2>
+                        <div class="p-4 overflow-x-auto" style="display: block;">
+                            <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
+                        </div>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+                        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> Statistics</strong></h5>
+                        <div id="profile-text-statistics"></div>
+                    </div>
+                </div>
             </div>
             <div class="row">
                 <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
@@ -1303,6 +1336,10 @@
         <section id="manage-user-tab" class="tabs">
             <div class="shadow p-3 m-3 bg-dark rounded col">
                 <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user-clock"></i></span> Pending Users</strong></h5>
+                <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
+                    <input id="input-user-search" type="text" class="form-control bg-dark text-white" placeholder="Username" aria-label="Username" aria-describedby="button-user-list-search" >
+                    <button class="btn btn-outline-secondary" type="button" id="button-user-list-search" style="min-width:0" onclick="LoadUserList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
                 <div id="table_pending_user_list">
                     <table class="w-100" style="line-height:30px">
                         <thead id="table_pending_user_list_head">

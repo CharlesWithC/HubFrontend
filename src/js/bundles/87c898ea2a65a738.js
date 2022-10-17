@@ -2130,6 +2130,174 @@ function LoadRanking(){
     });
 }
 
+user_statistics_placeholder = `<div class="row">
+<div class="shadow p-3 m-3 bg-dark rounded col">
+    <div style="padding:20px 0 0 20px;float:left" id="profile-info">
+    </div>
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;border:solid ${vtccolor} 5px;">
+    </div>
+    <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+</div>
+<div class="shadow p-3 m-3 bg-dark rounded col-4">
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> Account</strong></h5>
+    <div id="user-account-info"></div>
+</div>
+</div>
+<div class="row">
+<div class="shadow p-3 m-3 bg-dark rounded col">
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> Statistics</strong></h5>
+    <div style="float:right">
+        <div class="btn-group" id="user-chart-scale-group">
+            <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
+            <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
+            <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
+        </div>
+        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">Sum</a>
+    </div>
+    </h2>
+    <div class="p-4 overflow-x-auto" style="display: block;">
+        <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
+    </div>
+</div>
+<div class="shadow p-3 m-3 bg-dark rounded col-4">
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> Statistics</strong></h5>
+    <div id="profile-text-statistics"></div>
+</div>
+</div>`;
+function LoadUserProfile(userid) {
+    if (userid < 0) return;
+    profile_userid = userid;
+
+    $("#user-statistics").html(user_statistics_placeholder);
+    $('#delivery-log-userid').val(userid);
+    $("#profile-banner").attr("src", "/banner/" + userid);
+    ShowTab("#user-delivery-tab", userid);
+
+    function GenTableRow(key, val) {
+        return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
+    }
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: async function (data) {
+            if (data.error) {
+                ShowTab("#overview-tab", "#button-overview-tab");
+                return AjaxError(data);
+            }
+
+            d = data.response;
+
+            account_info = "<table>";
+            account_info += GenTableRow("ID", d.userid);
+            if (d.email != undefined && d.email != "") {
+                account_info += GenTableRow("Email", d.email);
+            } 
+            account_info += GenTableRow("Discord", d.discordid);
+            account_info += GenTableRow("TruckersMP", d.truckersmpid);
+            account_info += GenTableRow("Steam", d.steamid);
+            account_info += GenTableRow("Joined At", getDateTime(d.join_timestamp * 1000));
+            
+            roles = d.roles;
+            rtxt = "";
+            for (var i = 0; i < roles.length; i++) {
+                color = "#888888";
+                if (perms["admin"].includes(parseInt(roles[i])) || perms["driver"].includes(parseInt(roles[i]))) color = vtccolor;
+                if(rolelist[roles[i]] == "Dragon") rtxt += `<span class='badge' style='background-color:#FFE500;color:#000'>` + rolelist[roles[i]] + "</span> ";
+                else if (rolelist[roles[i]] != undefined) rtxt += `<span class='badge' style='background-color:${color};'>` + rolelist[roles[i]] + "</span> ";
+                else rtxt += `<span class='badge' style='background-color:${color};'>Role #` + roles[i] + "</span> ";
+            }
+            rtxt = rtxt.substring(0, rtxt.length - 2);
+            
+            if(d.roles.length == 1) account_info += GenTableRow("Role", rtxt);
+            else account_info += GenTableRow("Roles", rtxt);
+
+            account_info += "</table>";
+
+            $("#user-account-info").html(account_info);
+
+            profile_info = "";
+            profile_info += "<h1 style='font-size:40px'><b>" + d.name + "</b></h1>";
+            profile_info += "" + parseMarkdown(d.bio);
+            $("#profile-info").html(profile_info);
+            
+            avatar = GetAvatarSrc(d.discordid, d.avatar);
+            $("#profile-avatar").attr("src", avatar);
+
+            $("#profile-text-statistics").html("Loading...");
+            $.ajax({
+                url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?userid=" + String(userid),
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                success: async function (data) {
+                    if (!data.error) {
+                        d = data.response;
+                        info = "";
+                        info += `<b>Jobs</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
+                        info += `<b>Including cancelled jobs</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
+
+                        dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
+                        dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
+                        dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
+                        info += `<b>Distance</b>: ${dtot} (${dets2} + ${dats})<br>`;
+
+                        dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
+                        dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
+                        dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
+                        info += `<b>Fuel</b>: ${dtot} (${dets2} + ${dats})<br>`;
+
+                        info += "<b>Profit</b>: €" + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
+                        info += "<b>Including cancellation penalty</b>: -€" + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
+
+                        $("#profile-text-statistics").html(info);
+
+                        $.ajax({
+                            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + String(userid),
+                            type: "GET",
+                            dataType: "json",
+                            headers: {
+                                "Authorization": "Bearer " + localStorage.getItem("token")
+                            },
+                            success: async function (data) {
+                                if (!data.error) {
+                                    info += "<hr>";
+                                    d = data.response.list[0];
+                                    info += "<b>Points</b><br>";
+                                    info += `<b>Distance</b>: ${d.points.distance}<br>`;
+                                    info += `<b>Event</b>: ${d.points.event}<br>`;
+                                    info += `<b>Division</b>: ${d.points.division}<br>`;
+                                    info += `<b>Myth</b>: ${d.points.myth}<br>`;
+                                    info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
+                                    info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                    info += `</p>`;
+                                    if (String(userid) == localStorage.getItem("userid")) {
+                                        info += `<button type="button" class="btn btn-sm btn-primary button-rankings-role" style="float:right" onclick="GetDiscordRankRole()">Get Discord Role</button>`;
+                                    }
+                                    $("#profile-text-statistics").html(info);
+                                }
+                            }
+                        });
+                    }
+                },
+                error: function (data) {
+                    AjaxError(data, no_notification = true);
+                }
+            });
+        },
+        error: function (data) {
+            ShowTab("#overview-tab", "#button-overview-tab");
+            AjaxError(data);
+        }
+    });
+}
+
 function GetDiscordRankRole() {
     LockBtn(".button-rankings-role", "Getting...");
 
@@ -2184,175 +2352,6 @@ function UserResign() {
         },
         error: function (data) {
             UnlockBtn("#resignBtn");
-            AjaxError(data);
-        }
-    });
-}
-
-useridCurrentProfile = -1;
-
-function LoadUserProfile(userid) {
-    if (userid < 0) return;
-
-    $("#overview-chart-scale-1").attr("onclick", `chartscale=1;LoadChart(${userid});`);
-    $("#overview-chart-scale-2").attr("onclick", `chartscale=2;LoadChart(${userid});`);
-    $("#overview-chart-scale-3").attr("onclick", `chartscale=3;LoadChart(${userid});`);
-    $("#overview-chart-sum").attr("onclick", `addup=1-addup;LoadChart(${userid});`);
-    LoadChart(userid);
-
-    $("#udpages").val("1");
-    useridCurrentProfile = userid;
-
-    LoadUserDeliveryList(userid);
-
-    if (userid == parseInt(localStorage.getItem("userid"))) { // current user
-        LoadUserSessions();
-        $("#userSessions").show();
-    } else {
-        $("#userSessions").hide();
-    }
-
-    if (curtab != "#ProfileTab") {
-        ShowTab("#ProfileTab", userid);
-        return;
-    }
-
-    $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
-        type: "GET",
-        dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: async function (data) {
-            window.history.pushState("", "", '/member/' + userid);
-            if (data.error) {
-                ShowTab("#overview-tab", "#button-overview-tab");
-                return AjaxError(data);
-            }
-
-            d = data.response;
-            $("#account_id").html(d.userid + " (" + getDateTime(d.join_timestamp * 1000) + ")");
-            if (d.email != undefined) {
-                $("#account_email").html(d.email);
-                $(".email_private").show();
-            } else $(".email_private").hide();
-            $("#account_discordid").html(d.discordid);
-            $("#account_steamid").html(d.steamid);
-            $("#account_truckersmpid").html(d.truckersmpid);
-            info = "";
-            info += "<h1 style='font-size:40px'><b>" + d.name + "</b></h1>";
-            info += "" + parseMarkdown(d.bio);
-            $("#userProfileDetail").html(info);
-            
-            avatar = GetAvatarSrc(d.discordid, d.avatar);
-            $("#UserProfileAvatar").attr("src", avatar);
-            
-            roles = d.roles;
-            rtxt = "";
-            for (var i = 0; i < roles.length; i++) {
-                if (roles[i] == 0) color = "rgba(127,127,127,0.4)";
-                else if (roles[i] < 10) color = vtccolor;
-                else if (roles[i] <= 98) color = "#ff0000";
-                else if (roles[i] == 99) color = "#4e6f7b";
-                else if (roles[i] == 100) color = vtccolor;
-                else if (roles[i] > 100) color = "grey";
-                if (roles[i] == 223 || roles[i] == 224) color = "#ffff77;color:black;";
-                if (roles[i] == 1000) color = "#9146ff";
-                if (rolelist[roles[i]] != undefined) rtxt += `<span class='tag' title="${rolelist[roles[i]]}" style='max-width:fit-content;margin-bottom:15px;display:inline;background-color:${color};white-space:nowrap;'>` + rolelist[roles[i]] + "</span> ";
-                else rtxt += "Unknown Role (ID " + roles[i] + "), ";
-            }
-            rtxt = rtxt.substring(0, rtxt.length - 2);
-            $("#profileRoles").html(rtxt);
-
-            if (d.userid == localStorage.getItem("userid")) {
-                $("#UpdateAM").show();
-                $(".account_private").show();
-                $("#Security").show();
-                $("#biocontent").val(d.bio);
-                if(d.mfa == false){
-                    $("#button-enable-mfa-modal").show();
-                    $("#p-mfa-enabled").hide();
-                } else {
-                    $("#button-enable-mfa-modal").hide();
-                    $("#p-mfa-enabled").show();
-                }
-            } else {
-                $("#UpdateAM").hide();
-                $(".account_private").hide();
-                $("#Security").hide();
-            }
-
-            $("#user_statistics").html("Loading...");
-            $.ajax({
-                url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?userid=" + String(userid),
-                type: "GET",
-                dataType: "json",
-                headers: {
-                    "Authorization": "Bearer " + localStorage.getItem("token")
-                },
-                success: async function (data) {
-                    if (!data.error) {
-                        d = data.response;
-                        info = "";
-                        info += `<p><b>Jobs</b>: ${TSeparator(d.job.all.sum.tot)}</p><p> ${TSeparator(d.job.all.ets2.tot)} in ETS2 + ${TSeparator(d.job.all.ats.tot)} in ATS</p>`;
-                        info += ` <p> ${TSeparator(d.job.delivered.sum.tot)} Delivered + ${TSeparator(d.job.cancelled.sum.tot)} Cancelled</p><br>`;
-
-                        dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
-                        dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
-                        dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
-                        info += `<p><b>Distance</b>: ${dtot}</p><p> ${dets2} in ETS2 + ${dats} in ATS</p><br>`;
-
-                        dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
-                        dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
-                        dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
-                        info += `<p><b>Fuel</b>: ${dtot}</p><p> ${dets2} in ETS2 + ${dats} in ATS</p><br>`;
-
-                        info += "<p><b>Profit</b>: €" + TSeparator(d.profit.all.tot.euro) + " (ETS2) + $" + TSeparator(d.profit.all.tot.dollar) + " (ATS)</p>";
-                        info += "<p><b>Including cancellation penalty</b>: -€" + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "</p><br>";
-
-                        $("#user_statistics").html(info);
-
-                        $.ajax({
-                            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + String(userid),
-                            type: "GET",
-                            dataType: "json",
-                            headers: {
-                                "Authorization": "Bearer " + localStorage.getItem("token")
-                            },
-                            success: async function (data) {
-                                if (!data.error) {
-                                    info += "<hr><br>";
-                                    d = data.response.list[0];
-                                    info += "<p><b>Points</b></p>";
-                                    info += `<p>Distance: ${d.points.distance}</p>`;
-                                    info += `<p>Event: ${d.points.event}</p>`;
-                                    info += `<p>Division: ${d.points.division}</p>`;
-                                    info += `<p>Myth: ${d.points.myth}</p>`;
-                                    info += `<p><b>Total: ${d.points.total_no_limit}</b></p>`;
-                                    info += `<p><b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b></p>`;
-                                    if (String(userid) == localStorage.getItem("userid")) {
-                                        info += `
-                                    <button type="button" style="font-size:16px;padding:10px;padding-top:5px;padding-bottom:5px"
-                                        class="requestRoleBtn w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                        onclick="GetDiscordRankRole()">Request Discord Role</button>`;
-                                    }
-                                    $("#user_statistics").html(info);
-                                }
-                            },
-                            error: async function (data) {
-                                $("#user_statistics").html(info);
-                            }
-                        });
-                    }
-                },
-                error: function (data) {
-                    AjaxError(data, no_notification = true);
-                }
-            });
-        },
-        error: function (data) {
-            ShowTab("#overview-tab", "#button-overview-tab");
             AjaxError(data);
         }
     });
@@ -2420,9 +2419,10 @@ addup = 1;
 
 async function LoadChart(userid = -1) {
     if (userid != -1) {
-        $(".ucs").css("background-color", "");
-        $("#ucs" + chartscale).css("background-color", "skyblue");
-        $("#uaddup" + addup).css("background-color", "skyblue");
+        $("#user-chart-scale-group").children().removeClass("active");
+        $("#user-chart-scale-"+chartscale).addClass("active");
+        if(!addup) $("#user-chart-sum").removeClass("active");
+        else $("#user-chart-sum").addClass("active");
     } else {
         $("#overview-chart-scale-group").children().removeClass("active");
         $("#overview-chart-scale-"+chartscale).addClass("active");
@@ -2430,7 +2430,7 @@ async function LoadChart(userid = -1) {
         else $("#overview-chart-sum").addClass("active");
     }
     pref = "s";
-    if (userid != -1) pref = "userS";
+    if (userid != -1) pref = "user-s";
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
@@ -2440,7 +2440,7 @@ async function LoadChart(userid = -1) {
         },
         success: function (data) {
             d = data.response;
-            const ctx = document.getElementById(pref + 'tatisticsChart').getContext('2d');
+            const ctx = document.getElementById(pref + 'tatistics-chart').getContext('2d');
             labels = [];
             distance = [];
             fuel = [];
@@ -2545,7 +2545,7 @@ async function LoadChart(userid = -1) {
             };
             if (sc != undefined) {
                 sc.destroy();
-                $(pref + 'tatisticsChart').remove();
+                $(pref + 'tatistics-chart').remove();
             }
             sc = new Chart(ctx, config);
         }
@@ -3020,14 +3020,18 @@ function LoadUserList(noplaceholder = false) {
         }
     }
 
+    name = $("#input-user-search").val();
+    LockBtn("#button-user-list-search", "...");
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15",
+        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15&name=" + name,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
+            UnlockBtn("#button-user-list-search");
             if (data.error) return AjaxError(data);
 
             userList = data.response.list;
@@ -3053,7 +3057,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="UnbindConnectionsShow('${user.discordid}', '${user.name}')">Unbind Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.discordid}', '${user.name}')">Delete Connections</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${user.name}')">${bantxt}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${user.name}')">Delete</a></li>
                         </ul>
@@ -3079,6 +3083,7 @@ function LoadUserList(noplaceholder = false) {
             PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
         },
         error: function (data) {
+            UnlockBtn("#button-user-list-search");
             AjaxError(data);
         }
     })
@@ -3187,13 +3192,13 @@ function UpdateDiscord(old_discord_id) {
     })
 }
 
-function UnbindConnectionsShow(discordid, name){
-    modalid = ShowModal(`Upbind Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-unbind-connections" type="button" class="btn btn-primary" onclick="UnbindConnections('${discordid}');">Unbind</button>`);
+function DeleteConnectionsShow(discordid, name){
+    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
     InitModal("unbind_connections", modalid);
 }
 
-function UnbindConnections(discordid) {
-    LockBtn("#button-unbind-connections");
+function DeleteConnections(discordid) {
+    LockBtn("#button-delete-connections", "Deleting...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/connections",
@@ -3206,14 +3211,14 @@ function UnbindConnections(discordid) {
             discordid: discordid
         },
         success: function (data) {
-            UnlockBtn("#button-unbind-connections");
+            UnlockBtn("#button-delete-connections");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
             toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
             DestroyModal("unbind_connections");
         },
         error: function (data) {
-            UnlockBtn("#button-unbind-connections");
+            UnlockBtn("#button-delete-connections");
             AjaxError(data);
         }
     })
@@ -5066,6 +5071,7 @@ isdark = parseInt(localStorage.getItem("darkmode"));
 Chart.defaults.color = "white";
 shiftdown = false;
 mfaenabled = false;
+profile_userid = -1;
 modals = {};
 modalName2ID = {};
 
@@ -5142,21 +5148,6 @@ function InitPhoneView(){
 }
 
 function InitInputHandler(){
-    $('#searchname').keydown(function (e) {
-        if (e.which == 13) LoadMemberList();
-    });
-    $('#dend,#dspeedlimit').keydown(function (e) {
-        if (e.which == 13) LoadDeliveryList();
-    });
-    $('#udend,#udspeedlimit').keydown(function (e) {
-        if (e.which == 13) LoadUserDeliveryList();
-    });
-    $('#lbend,#lbspeedlimit').keydown(function (e) {
-        if (e.which == 13) LoadLeaderboard();
-    });
-    $('#memberroleid').keydown(function (e) {
-        if (e.which == 13) GetMemberRoles();
-    });
     $('#application-type').on('change', function () {
         var value = $(this).val();
         $(".application-tab").hide();
@@ -5167,6 +5158,30 @@ function InitInputHandler(){
         var value = $(this).val();
         $(".divisiontabs").hide();
         $("#division-tab" + value).show();
+    });
+    $("#input-member-search").on("keydown", function(e){
+        if(e.which == 13){
+            LoadMemberList(noplaceholder = true);
+        }
+    });
+    $("#input-user-search").on("keydown", function(e){
+        if(e.which == 13){
+            LoadUserList(noplaceholder = true);
+        }
+    });
+    $("#signin-email").keypress(function (e) {
+        if (e.which == 13) {
+            if ($("#signin-password").val() == "") {
+                $("#signin-password").focus();
+            } else {
+                ShowCaptcha();
+            }
+        }
+    });
+    $("#signin-password").keypress(function (e) {
+        if (e.which == 13) {
+            ShowCaptcha();
+        }
     });
 }
 
@@ -5372,22 +5387,6 @@ async function ShowTab(tabname, btnname) {
         }
         $("#button-user-profile").attr("onclick",`ShowTab("#signin-tab", "#button-signin-tab");`);
         window.history.pushState("", "", '/login');
-        $("#signin-email").keypress(function (e) {
-            var key = e.which;
-            if (key == 13) {
-                if ($("#signin-password").val() == "") {
-                    $("#signin-password").focus();
-                } else {
-                    ShowCaptcha();
-                }
-            }
-        });
-        $("#signin-password").keypress(function (e) {
-            var key = e.which;
-            if (key == 13) {
-                ShowCaptcha();
-            }
-        });
     }
     if (tabname == "#captcha-tab"){
         if(!requireCaptcha){
@@ -5431,14 +5430,18 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").addClass("last-load-company");
     }
     if (tabname == "#user-delivery-tab") {
-        window.history.pushState("", "", '/member/'+userid+'/delivery');
+        userid = btnname;
+        profile_userid = userid;
+        window.history.pushState("", "", '/member/'+userid);
         $("#company-statistics").hide();
         $("#user-statistics").show();
         $("#delivery-tab").removeClass("last-load-company");
-        if(!$("#delivery-tab").hasClass("last-load-user")){
+        if(!$("#delivery-tab").hasClass("last-load-user") || $("#delivery-tab").attr("last-load-userid") != userid){
             LoadDeliveryList();
+            LoadChart(userid);
         }
         $("#delivery-tab").addClass("last-load-user");
+        $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
@@ -5451,11 +5454,6 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
         if(!loaded){
-            $("#input-member-search").on("keydown", function(e){
-                if(e.which == 13){
-                    LoadMemberList(noplaceholder = true);
-                }
-            });
             LoadXOfTheMonth();
             LoadMemberList();
         }
@@ -5804,15 +5802,6 @@ function PathDetect() {
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
-        if(p.endsWith("/delivery")){
-            if (p.split("/").length >= 3){
-                $('#delivery-log-userid').val(parseInt(p.split("/")[2]));
-                ShowTab("#user-delivery-tab", "#button-user-delivery-tab")
-            } else {
-                ShowTab("#delivery-tab", "#button-delivery-tab");
-            }
-            return;
-        }
         if(getUrlParameter("userid")){
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);

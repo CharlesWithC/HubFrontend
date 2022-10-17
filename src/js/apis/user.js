@@ -224,14 +224,18 @@ function LoadUserList(noplaceholder = false) {
         }
     }
 
+    name = $("#input-user-search").val();
+    LockBtn("#button-user-list-search", "...");
+
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15",
+        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15&name=" + name,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
+            UnlockBtn("#button-user-list-search");
             if (data.error) return AjaxError(data);
 
             userList = data.response.list;
@@ -257,7 +261,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="UnbindConnectionsShow('${user.discordid}', '${user.name}')">Unbind Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.discordid}', '${user.name}')">Delete Connections</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${user.name}')">${bantxt}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${user.name}')">Delete</a></li>
                         </ul>
@@ -283,6 +287,7 @@ function LoadUserList(noplaceholder = false) {
             PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
         },
         error: function (data) {
+            UnlockBtn("#button-user-list-search");
             AjaxError(data);
         }
     })
@@ -391,13 +396,13 @@ function UpdateDiscord(old_discord_id) {
     })
 }
 
-function UnbindConnectionsShow(discordid, name){
-    modalid = ShowModal(`Upbind Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-unbind-connections" type="button" class="btn btn-primary" onclick="UnbindConnections('${discordid}');">Unbind</button>`);
+function DeleteConnectionsShow(discordid, name){
+    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to unbind connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
     InitModal("unbind_connections", modalid);
 }
 
-function UnbindConnections(discordid) {
-    LockBtn("#button-unbind-connections");
+function DeleteConnections(discordid) {
+    LockBtn("#button-delete-connections", "Deleting...");
 
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/user/connections",
@@ -410,14 +415,14 @@ function UnbindConnections(discordid) {
             discordid: discordid
         },
         success: function (data) {
-            UnlockBtn("#button-unbind-connections");
+            UnlockBtn("#button-delete-connections");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
             toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
             DestroyModal("unbind_connections");
         },
         error: function (data) {
-            UnlockBtn("#button-unbind-connections");
+            UnlockBtn("#button-delete-connections");
             AjaxError(data);
         }
     })
