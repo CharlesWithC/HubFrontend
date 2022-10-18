@@ -42,6 +42,11 @@ function Logout() {
             $("#sidebar-application").hide();
             $("#sidebar-staff").hide();
             NonMemberMode();
+            localStorage.removeItem("roles");
+            localStorage.removeItem("name");
+            localStorage.removeItem("highest-role");
+            localStorage.removeItem("discordid");
+            localStorage.removeItem("userid");
             ShowTab("#signin-tab", "#button-signin-tab");
         }
     });
@@ -328,7 +333,7 @@ async function ShowTab(tabname, btnname) {
         LoadUserProfile(userid);
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/yAFgHRTt');
+        window.history.pushState("", "", '/');
         if (!loaded) LoadStats();
     }
     if (tabname == "#signin-tab") {
@@ -448,7 +453,7 @@ async function ShowTab(tabname, btnname) {
         LoadUserSessions();
         $("#settings-subtab").children().removeClass("active");
         $("#settings-subtab").children().removeClass("show");
-        if(btnname != "from-mfa"){
+        if (btnname != "from-mfa") {
             $("#settings-general-tab").click();
         } else {
             $("#settings-security-tab").click();
@@ -666,6 +671,11 @@ function ValidateToken() {
         $("#button-user-settings-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         NonMemberMode();
         userPermLoaded = true;
+        localStorage.removeItem("roles");
+        localStorage.removeItem("name");
+        localStorage.removeItem("highest-role");
+        localStorage.removeItem("discordid");
+        localStorage.removeItem("userid");
         return;
     }
 
@@ -752,11 +762,14 @@ function ValidateToken() {
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
 
             mfaenabled = data.response.mfa;
-            if(mfaenabled){
+            if (mfaenabled) {
                 $("#button-settings-mfa-disable").show();
             } else {
                 $("#button-settings-mfa-enable").show();
             }
+
+            $("#settings-user-truckersmpid").val(data.response.truckersmpid);
+            $("#settings-user-steamid").val(data.response.steamid);
 
             UpdateRolesOnDisplay();
 
@@ -777,7 +790,7 @@ function ValidateToken() {
 
 function PathDetect() {
     p = window.location.pathname;
-    if (p == "/overview") window.history.pushState("", "", '/yAFgHRTt');
+    if (p == "/overview") window.history.pushState("", "", '/');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
     else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
@@ -817,13 +830,17 @@ function PathDetect() {
     else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
     else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
-    else if(p=="/settings") ShowTab("#user-settings-tab");
+    else if (p == "/settings") ShowTab("#user-settings-tab");
     else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
+    } else if (p.startsWith("/steamcallback")) {
+        SteamValidate();
+    } else if (p.startsWith("/auth")) {
+        AuthValidate();
     } else {
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/yAFgHRTt');
+        window.history.pushState("", "", '/');
     }
 }
 
@@ -842,12 +859,14 @@ $(document).ready(async function () {
     $("body").keyup(function (e) {
         if (e.which == 16) shiftdown = false;
     });
-    setTimeout(function(){$("#mfa-otp").on("input", function(){
-        if($("#mfa-otp").val().length == 6){
-            $("#mfa-otp").attr("disabled");
-            MFAVerify();
-        }
-    });},50);
+    setTimeout(function () {
+        $("#mfa-otp").on("input", function () {
+            if ($("#mfa-otp").val().length == 6) {
+                $("#mfa-otp").attr("disabled");
+                MFAVerify();
+            }
+        });
+    }, 50);
     $(".pageinput").val("1");
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border

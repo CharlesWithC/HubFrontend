@@ -1,44 +1,44 @@
-<?php
-$domain = $_SERVER['HTTP_HOST'];
-require_once('config/'.$domain.'.php');
-
-$language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-$language = substr($language, 0, 2);
-if(file_exists('languages/'.$language.'.json')){
-    $st = json_decode(file_get_contents('languages/'.$language.'.json'));
-} else {
-    $st = json_decode(file_get_contents('languages/en.json'));
-}
-
-$path = $_SERVER['REQUEST_URI'];
-if (str_starts_with($path, '/images')) {
-    $t = explode("/", $path);
-    header('Location: https://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
-    exit;
-}
-if (str_starts_with($path, '/js')) {
-    $t = explode("/", $path);
-    $beta_prefix = "";
-    if(stristr($path, 'beta')){
-        $beta_prefix = "beta";
-    }
-    header('Location: https://drivershub-cdn.charlws.com/js/'.$beta_prefix.'/'.$t[2]);
-    exit;
-}
-if (str_starts_with($path, '/banner')) {
-    $t = explode("/", $path);
-    header('Location: https://'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
-    exit;
-}
-?>
-    
 <!DOCTYPE html>
 
 <html lang="en">
 
 <head>
+    <?php
+    $domain = $_SERVER['HTTP_HOST'];
+    require_once('config/'.$domain.'.php');
+
+    $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    $language = substr($language, 0, 2);
+    if(file_exists('languages/'.$language.'.json')){
+        $st = json_decode(file_get_contents('languages/'.$language.'.json'));
+    } else {
+        $st = json_decode(file_get_contents('languages/en.json'));
+    }
+
+    $path = $_SERVER['REQUEST_URI'];
+    if (str_starts_with($path, '/images')) {
+        $t = explode("/", $path);
+        header('Location: //drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
+        exit();
+    }
+    if (str_starts_with($path, '/js')) {
+        $t = explode("/", $path);
+        $beta_prefix = "";
+        if(stristr($path, 'beta')){
+            $beta_prefix = "beta";
+        }
+        header('Location: //drivershub-cdn.charlws.com/js/'.$beta_prefix.'/'.$t[2]);
+        exit();
+    }
+    if (str_starts_with($path, '/banner')) {
+        $t = explode("/", $path);
+        header('Location: //'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
+        exit();
+    }
+    ?>
+
     <title><?php echo $vtcname ?></title>
-    <link rel="icon" href="/images/logo.png" type="image/x-icon" />
+    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $vtcname ?> Drivers Hub | <?php echo $slogan ?>">
@@ -51,10 +51,8 @@ if (str_starts_with($path, '/banner')) {
     <meta content="/images/bg.jpg" name="twitter:card">
 
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/unisans/css/unisans.min.css">
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/index.css">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/css/tailwind.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
 
@@ -67,19 +65,28 @@ if (str_starts_with($path, '/banner')) {
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css" />
     <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
 
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.css"/>
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.css" />
     <script src="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/noty/noty.css" />
+    <script src="https://drivershub-cdn.charlws.com/assets/noty/noty.min.js"></script>
+    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/noty/themes/mint.css" />
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
+	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/v1.final.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/ea0072b91fc2f2b4.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -102,11 +109,164 @@ if (str_starts_with($path, '/banner')) {
     }
     ?>
     <style>
-        .bg-indigo-500 {background-color: <?php echo $vtccolor ?>;}
-        .bg-indigo-500:hover {background-color: <?php echo $vtccolordark ?>;}
-        .rect-20 {width:20px;height:20px;margin-right:6px;}
-        .rect-32 {width:32px;height:32px;margin-right:5px;}
-        .flexdatalist-alias {width:200px;display:inline-block;}
+        .bg-indigo-500 {
+            background-color: <?php echo $vtccolor ?>;
+        }
+
+        .bg-indigo-500:hover {
+            background-color: <?php echo $vtccolordark ?>;
+        }
+
+        .rect-20 {
+            width: 20px;
+            height: 20px;
+            margin-right: 6px;
+            display:inline-block;
+        }
+
+        .rect-32 {
+            width: 32px;
+            height: 32px;
+            margin-right: 5px;
+            display:inline-block;
+        }
+
+        .flexdatalist-alias {
+            width: 200px;
+            display: inline-block;
+        }
+
+        .sidebar a:hover {
+            background-color:rgb(66,74,82);
+        }
+
+        td {
+            padding-right: 10px;
+        }
+        
+        .col,.col-4,.col-8 {
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: #fff;
+        }
+        a:hover {
+            color: #fff;
+        }
+
+        table a {
+            color: #ccc;
+        }
+        table a:hover {
+            color: #fff;
+        }
+
+        .form-label {
+            font-weight: bold;
+        }
+
+        .member-only-tab {
+            display: none;
+        }
+
+        .clickable {
+            cursor: pointer;
+        }
+        
+        .dot {
+            height: 15px;
+            width: 15px;
+            background-color: skyblue;
+            border: blue solid 2px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-small {
+            height: 10px;
+            width: 10px;
+            background-color: skyblue;
+            border: blue solid 1px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .dot-area {
+            height: 50px;
+            width: 50px;
+            background-color: red;
+            opacity: 50%;
+            border-radius: 50%;
+            display: inline-block;
+
+        }
+
+        .timeline {
+            border-left: 1px solid #888;
+            position: relative;
+            list-style: none;
+        }
+
+        .timeline .timeline-item {
+            position: relative;
+        }
+
+        .timeline .timeline-item:after {
+            position: absolute;
+            display: block;
+            top: 0;
+        }
+
+        .timeline .timeline-item:after {
+            top: 6px;
+            left: -38px;
+            border-radius: 20%;
+            height: 11px;
+            width: 11px;
+            content: "";
+        }
+
+        .timeline .timeline-white:after {
+            background-color: hsl(0, 0%, 90%);
+        }
+
+        .timeline .timeline-green:after {
+            background-color: hsl(126, 92%, 61%);
+        }
+
+        .timeline .timeline-red:after {
+            background-color: hsl(0, 86%, 60%);
+        }
+
+        .timeline .timeline-yellow:after {
+            background-color: hsl(64, 97%, 65%);
+        }
+        
+        .blink {
+            animation: blinker 1s linear 1;
+        }
+        @keyframes blinker {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        select {
+            max-width: 250px;
+        }
+
+        h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
+        th > .fc-scrollgrid-sync-inner {background-color: #444}
+        .flexdatalist-results {background-color:#2F3136;}
+        .flexdatalist-multiple li.value {background-color:#2F3136;}
+        button {min-width: 100px};
+        .btn-close {min-width: 0};
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -116,709 +276,373 @@ if (str_starts_with($path, '/banner')) {
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag() {dataLayer.push(arguments);}
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
         gtag('js', new Date());
         gtag('config', 'G-7EDVTC3J2E');
     </script>
 </head>
 
-<body class="antialiased bg-body text-body font-body" style="overflow-x:hidden">
-    <style>
-        .tabbtns {
-            transition: background-color 300ms linear;
-        }
-
-        .fc-daygrid-block-event {
-            border-radius: 5px;
-            margin-bottom: 3px;
-            border-color: solid blue 3px;
-        }
-    </style>
-    <div>
-        <nav class="lg:hidden py-6 px-6" style="background-color:#2F3136;z-index:10000;">
-            <div class="flex items-center justify-between">
-                <a class="text-2xl text-white font-semibold" style="cursor: pointer"><img
-                        src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
-                        width="200"></a>
-                <button class="navbar-burger flex items-center rounded focus:outline-none">
-                    <svg class="text-white bg-indigo-500 hover:bg-indigo-600 block h-8 w-8 p-2 rounded"
-                        viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-                        <title>Mobile menu</title>
-                        <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"></path>
-                    </svg></button>
-            </div>
-        </nav>
-        <div class="hidden lg:block navbar-menu relative z-50">
-            <nav 
-                class="fixed top-0 left-0 bottom-0 flex flex-col w-3/4 lg:w-80 sm:max-w-xs pt-6 pb-8">
-                <div id="sidebar" style="height:100%">
-                <div class="flex w-full items-center px-6 pb-6 mb-6 lg:border-b border-gray-700">
-                    <a class="text-xl text-white font-semibold" style="cursor: pointer"
-                        onclick="ShowTab('#overview-tab', '#button-overview-tab')"><img
-                            src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt=""
-                            width="100%"></a>
-                </div>
-                <div class="px-4 pb-6">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $vtcname ?></h3>
-                    <ul class="text-sm font-medium">
-                        <li>
-                            <a id="button-overview-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns bg-indigo-500"
-                                style="cursor: pointer" onclick="ShowTab('#overview-tab', '#button-overview-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
-                                <span><?php echo $st->overview; ?></span>
-                            </a>
-                        </li>
-
-                        <?php
-                            if(in_array("announcement", $enabled_plugins)){
-                            echo '
-                            <li>
-                            <a id="button-announcement-tab" class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#announcement-tab\', \'#button-announcement-tab\')">
-                                <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
-                                <span>'.$st->announcements.'</span>
-                            </a>
-                            </li>';}?>
-
-                        <?php
-                            if(in_array("downloads", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-downloads-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#downloads-tab\', \'#button-downloads-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-download"></i></span>
-                                <span>'.$st->downloads.'</span>
-                            </a>
-                        </li>';}?>
-                    </ul>
-                </div>
-
-                <div class="px-4 pb-6">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->game ?></h3>
-                    <ul class="text-sm font-medium">
-
-                        <?php
-                            if(in_array("livemap", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-map-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#map-tab\', \'#button-map-tab\')">
-                                <span class="rect-20"><i class="fa-regular fa-map"></i></span>
-                                <span>'.$st->map.'</span>
-                            </a>
-                        </li>';}?>
-
-                        <li>
-                            <a id="button-delivery-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#delivery-tab', '#button-delivery-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-truck"></i></span>
-                                <span><?php echo $st->deliveries ?></span>
-                            </a>
-                        </li>
-
-                        <?php
-                            if(in_array("division", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-division-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#division-tab\', \'#button-division-tab\')">
-                                <span class="rect-"20""><i class="fa-solid fa-warehouse"></i></span>
-                                <span>'.$st->divisions.'</span>
-                            </a>
-                        </li>';}?>
-
-                        <?php
-                            if(in_array("event", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-event-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#event-tab\', \'#button-event-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
-                                <span>'.$st->events.'</span>
-                            </a>
-                        </li>';}?>
-                    </ul>
-                </div>
-
-                <div class="px-4 pb-6 member-only-tab" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->drivers; ?>
-                    </h3>
-                    <ul class="text-sm font-medium">
-                        <li>
-                            <a id="button-member-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#member-tab', '#button-member-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
-                                <span><?php echo $st->members; ?></span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a id="button-leaderboard-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#leaderboard-tab', '#button-leaderboard-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span>
-                                <span><?php echo $st->leaderboard; ?></span>
-                            </a>
-                        </li>
-
-                        <?php
-                            if(in_array("ranking", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-ranking-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#ranking-tab\', \'#button-ranking-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
-                                <span>'.$st->rankings.'</span>
-                            </a>
-                        </li>';}?>
-                    </ul>
-                </div>
-
-                <?php
-                            if(in_array("application", $enabled_plugins)){
-                            echo '
-                <div class="px-4 pb-6" id="sidebar-application">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold">'.$st->applications.'</h3>
-                    <ul class="text-sm font-medium">
-                        <li>
-                            <a id="button-my-application-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#my-application-tab\', \'#button-my-application-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
-                                <span id="MyAppSpan">'.$st->my_applications.'</span>
-                            </a>
-                        </li>
-
-                        </li>
-                        <li>
-                            <a id="button-submit-application-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#submit-application-tab\', \'#button-submit-application-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
-                                <span>'.$st->submit_application.'</span>
-                            </a>
-                    </ul>
-                </div>';}?>
-                <div class="px-4 pb-6" id="sidebar-staff" style="display:none">
-                    <h3 class="mb-2 text-xs uppercase text-gray-500 font-medium font-bold"><?php echo $st->staff; ?>
-                    </h3>
-                    <ul class="mb-8 text-sm font-medium">
-                        <?php
-                            if(in_array("announcement", $enabled_plugins)){
-                            echo '
-                            <li>
-                            <a id="button-staff-announcement-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 rounded hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#staff-announcement-tab\', \'#button-staff-announcement-tab\')">
-                                <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
-                                <span>'.$st->announcements.'</span>
-                            </a>
-                            </li>';}?>
-
-                        <?php
-                            if(in_array("event", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-staff-event-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#staff-event-tab\', \'#button-staff-event-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-calendar-days"></i></span>
-                                <span>'.$st->events.'</span>
-                            </a>
-                        </li>';}?>
-
-                        <?php
-                            if(in_array("division", $enabled_plugins)){
-                            echo '
-                            <li>
-                            <a id="button-staff-division-tab" class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#staff-division-tab\', \'#button-staff-division-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
-                                <span>'.$st->divisions.'</span>
-                            </a>
-                            </li>';}?>
-
-                        <li>
-                            <a id="button-staff-member-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#staff-member-tab', '#button-staff-member-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
-                                <span><?php echo $st->members; ?></span>
-                            </a>
-                        </li>
-
-                        <li>
-                            <a id="button-staff-user"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#staff-user-tab', '#button-staff-user')">
-                                <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
-                                <span><?php echo $st->users; ?></span>
-                            </a>
-                        </li>
-
-                        <?php
-                            if(in_array("application", $enabled_plugins)){
-                            echo '
-                        <li>
-                            <a id="button-staff-application-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab(\'#button-staff-application\', \'#button-staff-application-tab\')">
-                                <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
-                                <span>'.$st->applications.'</span>
-                            </a>
-                        </li>';}?>
-                        <li>
-                            <a id="button-audit-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#audit-tab', '#button-audit-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-terminal"></i></span>
-                                <span><?php echo $st->audit_log ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a id="button-config-tab"
-                                class="flex items-center pl-3 py-3 pr-4 text-gray-50 hover:bg-gray-900 tabbtns"
-                                style="cursor: pointer" onclick="ShowTab('#config-tab', '#button-config-tab')">
-                                <span class="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span>
-                                <span><?php echo $st->administrator ?></span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                </div>
-            </nav>
+<body style="width:100%;overflow-x:hidden;background-color:#2F3136;color:white;">
+    <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
+        <div style="height:60px">
+            <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
         </div>
-
-        <div>
-        <section class="py-5 px-6 bg-white shadow mx-auto lg:ml-80">
-            <nav class="relative">
-                <div class="flex items-center" id="header">
-                    <div class="lg:block" style="margin-left:auto;margin-right:0">
-                        <div class="flex">
-                            <div style="margin-top:4px">
-                                <button type="button" style="display:inline;padding:5px" id="metricbtn"
-                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-500 rounded transition duration-200"
-                                    onclick="localStorage.setItem('distance_unit', 'metric');window.location.reload();"><?php echo $st->metric; ?></button>
-                                <button type="button" style="display:inline;padding:4px" id="imperialbtn"
-                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-500 rounded transition duration-200"
-                                    onclick="localStorage.setItem('distance_unit', 'imperial');window.location.reload();"><?php echo $st->imperial; ?></button>
-                            </div>
-                            &nbsp;
-                            &nbsp;
-                            <a id="darkmode" style="cursor:pointer;margin-top:11px" onclick="ToggleDarkMode()">
-                                <span class="rect-32" id="darkmode-svg"><i class="fa-solid fa-moon"></i></span>
-                            </a>
-                            <a id="logout" style="cursor: pointer;margin-top:11px" onclick="Logout()">
-                                <span class="rect-32"><i class="fa-solid fa-right-from-bracket"></i></span>
-                            </a>
-                            <button id="ProfileTabBtn" class="flex" onclick="ShowTab('#ProfileTab', '#ProfileTabBtn')">
-                                <div class="mr-3">
-                                    <p id="name" class="text-sm" style="text-align:right"></p>
-                                    <p id="role" class="text-sm text-gray-500" style="text-align:right"></p>
-                                </div>
-                                <div class="mr-2"><img id="avatar"
-                                        class="w-10 h-10 rounded-full object-cover object-right" width="40"
-                                        src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif"
-                                        alt="" /></div>
-                            </button>
-                        </div>
-                    </div>
+        <hr>
+        <div id="sidebar" style="height:calc(100% - 150px);">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <div style="margin:5px 0;">
+                    <li><strong style="color:darkgrey">Information</strong></li>
+                    <li class="nav-item">
+                        <a id="button-overview-tab" onclick="ShowTab('#overview-tab', '#button-overview-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
+                            Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-announcement-tab" onclick="ShowTab('#announcement-tab', '#button-announcement-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
+                            Announcements
+                        </a>
+                    </li>
+                    <li class="nav-item member-only-tab">
+                        <a id="button-downloads-tab" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-download"></i></span>
+                            Downloads
+                        </a>
+                    </li>
                 </div>
-            </nav>
-        </section>
-        <div id="loading" class="lg:ml-80"></div>
+                <div style="margin:5px 0;">
+                    <li><strong style="color:darkgrey">Game</strong></li>
+                    <li class="nav-item">
+                        <a id="button-map-tab" onclick="ShowTab('#map-tab', '#button-map-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-regular fa-map"></i></span>
+                            Live Map
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-delivery-tab" onclick="ShowTab('#delivery-tab', '#button-delivery-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-truck"></i></span>
+                            Deliveries
+                        </a>
+                    </li>
+                    <li class="nav-item member-only-tab">
+                        <a id="button-division-tab" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
+                            Divisions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-event-tab" onclick="ShowTab('#event-tab', '#button-event-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-regular fa-calendar-days"></i></span>
+                            Events
+                        </a>
+                    </li>
+                </div>
+                <div class="member-only-tab" style="margin:5px 0;">
+                    <li><strong style="color:darkgrey">Drivers</strong></li>
+                    <li class="nav-item">
+                        <a id="button-member-tab" onclick="ShowTab('#member-tab', '#button-member-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
+                            Members
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-leaderboard-tab" onclick="ShowTab('#leaderboard-tab', '#button-leaderboard-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span>
+                            Leaderboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-ranking-tab" onclick="ShowTab('#ranking-tab', '#button-ranking-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
+                            Rankings
+                        </a>
+                    </li>
+                </div>
+                <div id="sidebar-application" style="margin:5px 0;display:none;">
+                    <li><strong style="color:darkgrey">Applications</strong></li>
+                    <li class="nav-item">
+                        <a id="button-submit-application-tab" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
+                            New Application
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-my-application-tab" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-envelope-circle-check"></i></span>
+                            My Applications
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-all-application-tab" onclick="ShowTab('#all-application-tab', '#button-all-application-tab')" class="nav-link text-white clickable" aria-current="page" style="display:none">
+                            <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
+                            All Applications
+                        </a>
+                    </li>
+                </div>
+                <div id="sidebar-staff" style="margin:5px 0;display:none">
+                    <li><strong style="color:darkgrey">Staff</strong></li>
+                    <li class="nav-item">
+                        <a id="button-manage-user-tab" onclick="ShowTab('#manage-user-tab', '#button-manage-user-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
+                            Pending Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-audit-tab" onclick="ShowTab('#audit-tab', '#button-audit-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-terminal"></i></span>
+                            Audit Log
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="button-config-tab" onclick="ShowTab('#config-tab', '#button-config-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span>
+                            Configuration
+                        </a>
+                    </li>
+                </div>
+                <div><br></div>
+            </ul>
+        </div>
+        <div class="dropdown text-white bg-dark" style="position:fixed;bottom:0;width:220px;height:80px;z-index:100;">
+            <hr style="margin:10px 0;">
+            <a id="button-user-profile" class="text-white text-decoration-none clickable"
+                    data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
+                <img id="sidebar-avatar" src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif" alt="" class="rounded-circle me-2"
+                    width="30" height="30">
+                <span style="display:inline-block;position:relative;top:10px;line-height:14px;">
+                    <strong id="sidebar-username" style="max-width:100px;width:100px;overflow:hidden;display:inline-block;"><span class="placeholder col-8"></span></strong>
+                    <br>
+                    <span style="font-size:12px;color:#ccc;max-width:100px;width:100px;overflow:hidden;max-height:14px;display:inline-block;"><span id="sidebar-userid" style="color:#ccc;"><span class="placeholder col-2"></span></span> | <span id="sidebar-role" style="color:#ccc;"><span class="placeholder col-6"></span></span></span>
+                </span>
+            </a>
+            <ul id="user-profile-dropdown" class="dropdown-menu dropdown-menu-dark text-small shadow" style="padding-top:0">
+                <img id="sidebar-banner" src="" alt="" style="border-radius:5px 5px 0 0" onerror="$(this).hide();"
+                        width="566px" height="100px">
+                <div style="padding:var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);margin-top:10px;">
+                    <strong>About Me</strong>
+                    <p style="margin-bottom:0" id="sidebar-bio"><span class="placeholder col-8"></span>&nbsp;&nbsp;<span class="placeholder col-2"></span><br><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></span>
+                </div>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item clickable" onclick="Logout()">Sign out</a></li>
+            </ul>
+            <a id="button-user-delivery-tab" onclick="LoadUserProfile(localStorage.getItem('userid'));" class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
+            <a id="button-user-settings-tab" onclick="ShowTab('#user-settings-tab');" class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-gear"></i></a>
+        </div>
     </div>
-    
-    <section id="ProfileTab" class="py-8 tabs mx-auto lg:ml-80" style="display:none;margin-top:-40px">
-        <div class="px-4 mx-auto">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
-                <div class="md:w-2/3 px-4 mb-4 md:mb-0">
-                    <div class="px-6 pt-4 bg-white shadow rounded">
-                        <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6 shadow rounded mb-6">
-                            <div class="py-8 px-6 pt-4"
-                                style="padding-top:0;margin-right:20px;width: calc(100% - 220px);float:left"
-                                id="userProfileDetail">
-                            </div>
-                            <div class="py-8 px-6 pt-4 mb-6" style="width:170px;padding:10px;float:right">
-                                <img id="UserProfileAvatar"
-                                    onerror="$(this).attr('src','/images/logo.png');"
-                                    style="border-radius: 100%;width:150px;border:solid <?php echo $vtccolor ?> 5px;">
-                            </div>
-                            <a style="cursor:pointer"><img id="UserBanner" onerror="$(this).hide();"
-                                    style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+    <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
+        <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
+        <strong style="position:fixed;right:20px;top:20px;"><?php echo $slogan ?></strong>
+    </div>
+    <div class="container" style="margin:20px;margin-left:280px;margin-top:80px;width:calc(100% - 300px);">
+        <section id="signin-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:800px">
+                <h1><strong>Welcome back</strong></h1>
+                <div class="row">
+                    <div class="col-8">
+                        <label for="signin-email" class="form-label">Email</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="signin-email" placeholder="somebody@charlws.com">
                         </div>
-                    </div>
-                    <br>
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                        <h2><b>Statistics</b>
-                            <div style="margin-left:auto;width:fit-content">
-                                <a id="aucs1" onclick='chartscale=1;LoadChart()' style='cursor:pointer'><span id="ucs1"
-                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
-                                <a id="aucs2" onclick='chartscale=2;LoadChart()' style='cursor:pointer'><span id="ucs2"
-                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span></a>
-                                <a id="aucs3" onclick='chartscale=3;LoadChart()' style='cursor:pointer'><span id="ucs3"
-                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
-                                |
-                                <a id="aaddup1" onclick='addup=1-addup;LoadChart()' style='cursor:pointer'><span
-                                        id="uaddup1"
-                                        class="ucs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
-                            </div>
-                        </h2>
-                        <div class="p-4 overflow-x-auto" style="display: block;">
-                            <canvas id="userStatisticsChart" width="100%" height="300px"></canvas>
+                        <label for="signin-password" class="form-label">Password</label>
+                        <div class="input-group mb-3">
+                            <input type="password" class="form-control bg-dark text-white" id="signin-password" placeholder="12345678">
                         </div>
+                        <button id="button-signin" type="button" class="btn btn-primary w-100" onclick="ShowCaptcha();"><span class="rect-20"><i class="fa-solid fa-right-to-bracket"></i></span> Log in</button>
                     </div>
-                    <br>
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                        <div class="flex px-6 pb-4 border-b">
-                            <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
-                            <div style="margin-left:auto">
-                                <a onclick='dets2=1-dets2;LoadUserDeliveryList();' style='cursor:pointer'><span
-                                        class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                                <a onclick='dats=1-dats;LoadUserDeliveryList();' style='cursor:pointer'><span
-                                        class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
-                                <input id="udspeedlimit"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="number" name="" style="width:150px;display:inline" placeholder="Speed Limit">
-                                <span class="distance_unit">km</span>/h
-
-                                <input id="udstart"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="date" name="" style="width:150px;display:inline" placeholder="">
-                                <p style="display:inline">~</p>
-                                <input id="udend"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="date" name="" style="width:150px;display:inline" placeholder="">
-                                <button type="button" style="display:inline"
-                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                    onclick="LoadUserDeliveryList()"
-                                    id="loadUserDeliveryBtn"><?php echo $st->go; ?></button>
-                            </div>
-                        </div>
-                        <div class="p-4 overflow-x-auto" style="display: block;" id="table_deliverylog_user">
-                            <table class="table-auto w-full">
-                                <thead id="table_deliverylog_user_head">
-                                    <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->from; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->to; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driven_distance; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->new_profit; ?></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table_deliverylog_user_data">
-                                    <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="userSessions" style="display:none">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h2><b><?php echo $st->sessions; ?></b></h2>
-                        &nbsp;&nbsp;&nbsp;
-                        <button type="button" style="display:inline;padding:2px;font-size:12px" id="revokeAllBtn"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="revokeAllToken()">Revoke All Sessions</button>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;" id="table_session">
-                        <table class="table-auto w-full">
-                            <thead id="table_session_head">
-                                <tr class="text-xs text-gray-500 text-left">
-                                    <th class="py-5 px-6 pb-3 font-medium">IP</th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->login_time; ?></th>
-                                    <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->expire_time; ?></th>
-                                </tr>
-                            </thead>
-                            <tbody id="table_session_data">
-                                <tr class="text-sm">
-                                    <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="col-4 py-3" style="border-left:solid 1px grey">
+                        <p class="mb-0">Alternatively, sign in with:</p>
+                        <button id="signin-discord" type="button" class="btn btn-secondary w-100 m-1" onclick="DiscordSignIn();"><span class="rect-20"><i class="fa-brands fa-discord"></i></span> Discord</button>
+                        <button id="signin-steam" type="button" class="btn btn-secondary w-100 m-1" onclick="SteamSignIn();"><span class="rect-20"><i class="fa-brands fa-steam"></i></span> Steam</button>
+                        <p style="font-size:12px">*If you are not yet registered, you are required to sign up with Discord.</p>
                     </div>
                 </div>
             </div>
-            <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0">
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Account">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->account; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <p><span id="profileRoles"></span></p><br>
-                        <p><b>ID</b>: <span id="account_id"></span></p>
-                        <p class="email_private"><b><?php echo $st->email; ?></b>: <span id="account_email"></span></p>
-                        <p><b><?php echo $st->discord_id; ?></b>: <span id="account_discordid"></span></p>
-                        <p><b><?php echo $st->steam_id; ?></b>: <span id="account_steamid"></span> <a
-                                class="account_private" href="/auth?steamupdate=1" style='cursor:pointer'>Update</a></p>
-                        <p><b><?php echo $st->truckersmp_id; ?></b>: <span id="account_truckersmpid"></span> <a
-                                class="account_private" href="/auth?truckersmpupdate=1"
-                                style='cursor:pointer'>Update</a></p>
-                    </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Statistics">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->statistics; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <p id="user_statistics"></p>
-                    </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="UpdateAM" style="display:none">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->update_about_me; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <div class="mb-6">
-                            <textarea id="biocontent" style="height:300px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea>
-                        </div>
-
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateBio()" id="updateBioBtn"><?php echo $st->update; ?></button>
-                    </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded" id="Security" style="display:none">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->security; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3>Multiple Factor Authentication</h3>
-                        <p id="p-mfa-enabled" style="display:none">You have already enabled MFA. Currently disabling it is not supported by frontend.</p>
-                        <button type="button" id="button-enable-mfa-modal" style="display:none"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="EnableMFAModal()">Enable</button>
-                    </div>
-                    <br><hr>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3><?php echo $st->password_login ?></h3>
-                        <?php echo $st->password_login_note ?>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdatePassword()" id="resetPasswordBtn"><?php echo $st->update ?></button>
-                    </div>
-                    <br><hr>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3><?php echo $st->external_application_authorization; ?></h3>
-                        <label class="block text-sm font-medium mb-2"
-                            for=""><b><?php echo $st->application_token; ?></b>: <span id="userAppToken"></span></label>
-                        <label class="block text-sm font-medium mb-2"
-                            for=""><i><?php echo $st->application_token_note; ?></i></label>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="RenewApplicationToken()" id="genAppTokenBtn"><?php echo $st->reset_token; ?></button>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="DisableApplicationToken()" id="disableAppTokenBtn">Disable</button>
-                    </div>
-                    <br>
-                    <hr>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <h3><?php echo $st->leave_company; ?></h3>
-                        <label class="block text-sm font-medium mb-2" for=""
-                            style="color:red"><?php echo $st->resign_note; ?></label>
-                        <button type="button"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UserResign()" id="resignBtn"><?php echo $st->resign; ?></button>
-                    </div>
-                </div>
+        </section>
+        <section id="captcha-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 300px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
+                <h1><strong>Security Challenge</strong></h1>
+                <label class="form-label">Wait, are you a robot?</label>
+                <div class="h-captcha" data-sitekey="1788882d-3695-4807-abac-7d7166ec6325" data-theme="dark" data-callback="CaptchaCallback"></div>
             </div>
-        </div>
-        </div>
-        </div>
-    </section>
-
-    <section id="overview-tab" class="py-8 tabs mx-auto lg:ml-80" style="display:none">
-        <div class="px-4 mx-auto">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
-                <div class="md:w-2/3 px-4 mb-4 md:mb-0" id="hometableftcontainer">
-                    <!-- <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" id="overview-tabLeft">
-                    </div> -->
-                    <div id="statsTimeRange" style="width:100%;display:none">
-                        <div style="margin-left:20px;margin-bottom:-10px">
-                            <input id="stats_start"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" style="width:150px;display:inline" placeholder="">
-                            <p style="display:inline">~</p>
-                            <input id="stats_end"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="date" name="" style="width:150px;display:inline" placeholder="">
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="refreshStats()" id="refreshStatsBtn">Go</button>
+        </section>
+        <section id="mfa-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
+                <h1><strong>Multiple Factor Authentication</strong></h1>
+                <label for="mfa-otp" class="form-label">One Time Pass</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control bg-dark text-white" id="mfa-otp" placeholder="000 000">
+                </div>
+                <button id="button-mfa-verify" type="button" class="btn btn-primary w-100" onclick="MFAVerify();">Verify</button>
+            </div>
+        </section>
+        <section id="auth-message-tab" class="tabs">
+            <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
+                <h1><strong><span id="auth-message-title"></strong></h1>
+                <p><span id="auth-message-content"></p>
+            </div>
+        </section>
+        <section id="overview-tab" class="tabs">
+            <div class="row">
+                <div class="col-8" id="overview-left-col">
+                    <div class="row">
+                        <div class="shadow p-3 m-3 bg-dark rounded col card">
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> Online</strong></h5>
+                            <p class="card-text"><span id="overview-stats-live"><span class="placeholder col-4"></span></span></p>
+                            <p class="card-text"><span class="rect-20"><i class="fa-regular fa-clock"></i></span><span id="overview-stats-live-datetime"><span class="placeholder col-6"></span></span></p>
+                        </div>
+                        <div class="shadow p-3 m-3 bg-dark rounded col card">
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-id-card"></i></span> Drivers</strong></h5>
+                            <p class="card-text"><span id="overview-stats-driver-tot"><span class="placeholder col-7"></span></span></p>
+                            <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-driver-new"><span class="placeholder col-4"></span></span></p>
+                        </div>
+                        <div class="shadow p-3 m-3 bg-dark rounded col card">
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered</strong></h5>
+                            <p class="card-text"><span id="overview-stats-delivery-tot"><span class="placeholder col-5"></span></span></p>
+                            <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-delivery-new"><span class="placeholder col-4"></span></span></p>
                         </div>
                     </div>
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" style="width:100%;">
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->live; ?></h3><span
-                                        onclick="$('#statsTimeRange').fadeIn();"
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->now; ?></span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="overview-stats-live">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-regular fa-clock"></i></span><span><span id="overview-stats-live-datetime"></span></span></span>
-                            </div>
+                    <div class="row">
+                        <div class="shadow p-3 m-3 bg-dark rounded col card">
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-road"></i></span> Distance</strong></h5>
+                            <p class="card-text"><span id="overview-stats-distance-tot"><span class="placeholder col-5"></span></span></p>
+                            <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-distance-new"><span class="placeholder col-4"></span></span></p>
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-id-card"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->drivers; ?></h3><span
-                                        onclick="$('#statsTimeRange').fadeIn();"
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="overview-stats-driver-tot">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="overview-stats-driver-new"></span></span></span>
-                            </div>
+                        <div class="shadow p-3 m-3 bg-dark rounded col card">
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                            <p class="card-text"><span id="overview-stats-profit-tot"><span class="placeholder col-5"></span></span></p>
+                            <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-profit-new"><span class="placeholder col-4"></span></span></p>
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
-                                        onclick="$('#statsTimeRange').fadeIn();"
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="overview-stats-delivery-tot">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="overview-stats-delivery-new"></span></span></span>
-                            </div>
+                        <div class="shadow p-3 m-3 bg-dark rounded col card">
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-gas-pump"></i></span> Fuel</strong></h5>
+                            <p class="card-text"><span id="overview-stats-fuel-tot"><span class="placeholder col-5"></span></span></p>
+                            <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-fuel-new"><span class="placeholder col-4"></span></span></p>
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-road"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->distance; ?></h3><span
-                                        onclick="$('#statsTimeRange').fadeIn();"
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
+                    </div>
+                    <div class="row">
+                        <div class="shadow p-3 m-3 bg-dark rounded col">
+                            <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> Statistics</strong></h5>
+                            <div style="float:right">
+                                <div class="btn-group" id="overview-chart-scale-group">
+                                    <a id="overview-chart-scale-1" onclick='chartscale=1;LoadChart()' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
+                                    <a id="overview-chart-scale-2" onclick='chartscale=2;LoadChart()' style="cursor:pointer" class="btn btn-primary">7d</a>
+                                    <a id="overview-chart-scale-3" onclick='chartscale=3;LoadChart()' style="cursor:pointer" class="btn btn-primary active">30d</a>
                                 </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="alldistance">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newdistance"></span></span></span>
+                                <a id="overview-chart-sum" onclick='addup=1-addup;LoadChart()' style="cursor:pointer" class="btn btn-primary active">Sum</a>
                             </div>
-                        </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
-                                        onclick="$('#statsTimeRange').fadeIn();"
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="allprofit">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newprofit"></span></span></span>
-                            </div>
-                        </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard mb-6">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-gas-pump"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->fuel; ?></h3><span
-                                        onclick="$('#statsTimeRange').fadeIn();"
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->all; ?></span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="allfuel">-</h2>
-                                <span class="text-xs text-green-500"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span><span id="newfuel"></span></span></span>
+                            </h2>
+                            <div class="p-4 overflow-x-auto" style="display: block;">
+                                <canvas id="statistics-chart" width="100%" height="300px"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6" id="profile-banner-promotion">
-                        <h2><b>Profile Banner (Free)</b>
-                        <div class="p-4 overflow-x-auto" style="display: block;">
-                            <p>Profile banner has been out for a while, but it was only available to VTCs having purchased it.</p>
-                            <p>However, we are now providing a chance to get yours <b>FOR FREE</b> even if your VTC didn't buy it.</p>
-                            <p><a href="https://discord.gg/XzZPtqttb4">Click to join our Discord (https://discord.gg/XzZPtqttb4)</a> to get it now!</p>
-                            <p style="font-size:12px">*Read detailed terms in #free-banner channel in Discord.</p>
-                            <img id="profile-banner-promotion-banner" onload="$('#profile-banner-promotion').hide();" onerror="$(this).attr('src','/banner/0');"style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;">
-                        </div>
-                    </div>
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
-                        <h2><b><?php echo $st->statistics; ?></b>
-                            <div style="margin-left:auto;width:fit-content">
-                                <a onclick='chartscale=1;LoadChart()' style='cursor:pointer'><span id="cs1"
-                                        class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span></a>
-                                <a onclick='chartscale=2;LoadChart()' style='cursor:pointer'><span id="cs2"
-                                        class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span></a>
-                                <a onclick='chartscale=3;LoadChart()' style='cursor:pointer'><span id="cs3"
-                                        class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">30d</span></a>
-                                |
-                                <a onclick='addup=1-addup;LoadChart()' style='cursor:pointer'><span id="addup1"
-                                        class="cs inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->sum; ?></span></a>
+                    <div class="row">
+                        <div class="shadow p-3 m-3 bg-dark rounded col">
+                            <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> Online Drivers</strong></h5>
+                            <div id="table_online_driver">
+                                <table>
+                                    <thead id="table_online_driver_head">
+                                        <tr>
+                                            <th scope="col" style="width:20%">Name</th>
+                                            <th scope="col" style="width:20%">Truck</th>
+                                            <th scope="col" style="width:40%">Cargo</th>
+                                            <th scope="col" style="width:10%">Speed</th>
+                                            <th scope="col" style="width:10%">Destination</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table_online_driver_data">
+                                        <tr>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:40%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:40%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:20%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:40%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                            <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </h2>
-                        <div class="p-4 overflow-x-auto" style="display: block;">
-                            <canvas id="statisticsChart" width="100%" height="300px"></canvas>
-                        </div>
-                    </div>
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
-                        <h2><b>Online Drivers</b></h2>
-                        <div class="p-4 overflow-x-auto" style="display: block;" id="table_online_driver">
-                            <table class="table-auto w-full" style="margin-top:20px">
-                                <thead id="table_online_driver_head" style="display:none">
-                                    <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->truck; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->speed; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->destination; ?></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table_online_driver_data">
-                                    <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0" id="overview-tabRight">
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded mb-6">
-                        <h2><b>Leaderboard</b></h2>
-                        <div class="p-4 overflow-x-auto" style="display: block;" id="table_mini_leaderboard">
-                            <table class="table-auto w-full" style="margin-top:20px">
+                <div class="col-4" id="overview-right-col">
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <h5><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> Leaderboard</strong></h5>
+                        <div id="table_mini_leaderboard">
+                            <table>
                                 <thead id="table_mini_leaderboard_head">
-                                    <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->points; ?></th>
+                                    <tr>
+                                        <th scope="col" style="width:40px"></th>
+                                        <th scope="col" style="width:60%">Driver</th>
+                                        <th scope="col" style="width:40%">Points</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_mini_leaderboard_data">
-                                    <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded  mb-6">
-                        <canvas id="deliveryStatsChart" width="100%" height="100%"></canvas>
-                    </div>
-
-                    <div class="py-8 px-6 pt-4 bg-white shadow rounded  mb-6">
-                        <h2><b><?php echo $st->new_members; ?></b></h2>
-                        <div class="p-4 overflow-x-auto" style="display: block;" id="table_new_driver">
-                            <table class="table-auto w-full" style="margin-top:20px">
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <h5><strong><span class="rect-20"><i class="fa-solid fa-user-plus"></i></span> New Members</strong></h5>
+                        <div id="table_new_driver">
+                            <table>
                                 <thead id="table_new_driver_head">
-                                    <tr class="text-xs text-gray-500 text-left">
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
-                                        <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->join_date; ?></th>
+                                    <tr>
+                                        <th scope="col" style="width:40px"></th>
+                                        <th scope="col" style="width:60%">Name</th>
+                                        <th scope="col" style="width:40%">Date</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_new_driver_data">
-                                    <tr class="text-sm">
-                                        <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -826,1711 +650,897 @@ if (str_starts_with($path, '/banner')) {
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <?php
-        if(in_array("livemap", $enabled_plugins)){
-        echo '
-    <section id="map-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
-                <h2 style="position:relative;display:inline;top:30px;left:10px;z-index:1000;color:white">Euro Truck
-                    Simulator 2
-                </h2>
-                <div id="map"
-                    style="height: 80vh;width: 100%;margin:auto;display:block;background-color: #484E66;border-radius:15px">
-                </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
-                <h2 style="position:relative;display:inline;top:30px;left:10px;z-index:1000;color:white">ProMods Europe
-                </h2>
-                <div id="pmap"
-                    style="height: 80vh;width: 100%;margin:auto;display:block;background-color: #484E66;border-radius:15px">
-                </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
-                <h2 style="position:relative;display:inline;top:30px;left:10px;z-index:1000;color:white">American Truck
-                    Simulator</h2>
-                <div id="amap"
-                    style="height: 80vh;width: 100%;margin:auto;display:block;background-color: #484E66;border-radius:15px">
-                </div>
-            </div>
-        </div>
-    </section>';}?>
-
-
-    <?php
-        if(in_array("announcement", $enabled_plugins)){
-        echo '
-    <section id="announcement-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4">
-                <div id="anns">
-
-                </div>
-            </div>
-        </div>
-    </section>';}?>
-
-    <?php
-        if(in_array("downloads", $enabled_plugins)){
-        echo '
-    <section id="downloads-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">'.$st->downloads.'</h3>
-                    <a style="cursor:pointer;display:none;" onclick="toggleUpdateDownloads()" class="admin-only">
-                        <span style="position:relative;top:3px;left:3px"><i class="fa-solid fa-pen-to-square"></i></span></a>
-                </div>
-                <div class="container px-4">
-                    <div style="margin:20px" id="downloads">
+        </section>
+        <section id="announcement-tab" class="tabs">
+            <div id="announcement-new" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="announcement-new-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#announcement-new-collapse" aria-expanded="false" aria-controls="announcement-new-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Announcement</strong>
+                    </button>
+                </h5>
+                <div id="announcement-new-collapse" class="collapse row" aria-labelledby="announcement-new-heading" data-bs-parent="#announcement-new">
+                    <div class="col">
+                        <label for="announcement-new-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-title" placeholder="A short and nice title">
+                        </div>
+                        <label for="announcement-new-content" class="form-label">Content</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="announcement-new-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%"></textarea>
+                        </div>
                     </div>
-                    <div style="margin:20px;height:65vh;display:none" id="downloadsedit">
-                        <label class="block text-sm font-medium mb-2" for="">'.$st->markdown_auto_update.':</label>
-
-                        <textarea id="downloadscontent" style="width:100%;height:60vh"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></textarea>
-                        <button type="button" id="saveDownloadsBtn"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateDownloads()"><?php echo $st->update; ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>';}?>
-
-    <?php
-  if(in_array("announcement", $enabled_plugins)){
-    echo '
-  <section id="staff-announcement-tab" class="py-8 tabs" style="display:none">
-    <div style="padding:50px;padding-top:0;">
-      <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="newann">
-        <div class="flex px-6 pb-4 border-b">
-          <h3 class="text-xl font-bold">'.$st->manage_announcements.'</h3>
-        </div>
-        <div class="container px-4">
-          <div style="margin:20px">
-            '.$st->manage_announcements_note.'
-            <br>
-            <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">'.$st->announcement_id.'</label>
-              <input id="annid" class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                type="text" name="" style="width:200px;display:inline" placeholder="For updating / deleting">
-              <button type="button" style="display:inline"
-                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                onclick="FetchAnnouncement()" id="fetchAnnouncementBtn">'.$st->fetch_data.'</button>
-            </div>
-
-            <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">'.$st->title.'</label>
-              <input id="anntitle"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                name="" placeholder=""></div>
-
-            <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">'.$st->content.'</label>
-              <textarea id="anncontent"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name" rows="5" placeholder=""></textarea></div>
-
-            <div class="relative" style="width:200px">
-              <label class="block text-sm font-medium mb-2 text-left" for="">'.$st->announcement_type.':</label>
-              <select id="annselect"
-                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                name="field-name">
-                <option value="0">'.$st->information.'</option>
-                <option value="1">'.$st->event.'</option>
-                <option value="2">'.$st->warning.'</option>
-                <option value="3">'.$st->critical.'</option>
-                <option value="4">'.$st->resolved.'</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"></path>
-                </svg>
-              </div>
-            </div>
-
-            <div class="mb-6">
-              <div class="mb-1">
-                <label class="block text-sm font-medium mb-2" for="" style="text-align: left;">Visibility:</label>
-                <label>
-                  <input type="radio" name="announcement-visibility" value="yes" checked id="annpvt-0">
-                  <span class="annpvt-0">'.$st->public.'</span>
-                </label>
-              </div>
-              <div>
-                <label>
-                  <input type="radio" name="announcement-visibility" value="yes" id="annpvt-1">
-                  <span class="annpvt-1">'.$st->private.'</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">'.$st->discord_channel_id.'</label>
-              <input id="annchan"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                name="" placeholder="Leave empty if you don\'t want this announcement to be forwarded to Discord">
-            </div>
-
-            <div class="mb-6">
-              <label class="block text-sm font-medium mb-2" for="">'.$st->discord_message_content.'</label>
-              <input id="annmsg"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" type="text"
-                name="" placeholder="Leave empty if you don\'t want this announcement to be forwarded to Discord">
-            </div>
-
-            <button type="button"
-              class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-              onclick="AnnouncementOp()" id="newAnnBtn">'.$st->create_announcement.'</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>';
-  }
-  ?>
-
-    <section id="member-tab" class="py-8 tabs" style="display:none">
-        <div class="px-4 mx-auto mx-auto lg:ml-80" id="x_of_the_month" style="display:none">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
-                <div class="px-4 mb-4 md:mb-0" style="width:100%">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                        <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0" id="sotmdiv">
-                            <div class="p-6 rounded bg-white" style="text-align:center">
-                                <h2 class="mb-2 text-3xl font-bold" id="sotm" style="font-size:22px">-</h2>
-                                <div class="mb-2">
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->staff_of_the_month;?></h3>
+                    <div class="col">
+                        <label for="announcement-new-type" class="form-label">Type</label>
+                        <div class="mb-3">
+                            <select class="form-select bg-dark text-white" id="announcement-new-type">
+                                <option selected>Select one from the list</option>
+                                <option value="0">Information</option>
+                                <option value="1">Event</option>
+                                <option value="2">Warning</option>
+                                <option value="3">Critical</option>
+                                <option value="4">Resolved</option>
+                            </select>
+                        </div>
+                        <label for="announcement-new-visibility" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="announcement-new-visibility" id="announcement-visibility-public" checked>
+                                    <label class="form-check-label" for="announcement-visibility-public">
+                                        Public
+                                    </label>
                                 </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="announcement-new-visibility" id="announcement-visibility-private">
+                                <label class="form-check-label" for="announcement-visibility-private">
+                                    Private
+                                </label>
                             </div>
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4" style="width:50%;padding-top:0" id="dotmdiv">
-                            <div class="p-6 rounded bg-white" style="text-align:center">
-                                <h2 class="mb-2 text-3xl font-bold" id="dotm" style="font-size:22px;">-</h2>
-                                <div class="mb-2">
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_month;?></h3>
-                                </div>
-                            </div>
+                        <label for="announcement-new-discord" class="form-label">Discord Integration</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="announcement-new-discord-channel-label">Channel ID</span>
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-channel" placeholder="(Optional) Discord channel to forward the announcement" aria-describedby="announcement-new-discord-channel-label">
                         </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="announcement-new-discord-message-label">Message</span>
+                            <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-message" placeholder="(Optional) Discord message content" aria-describedby="announcement-new-discord-message-label">
+                        </div>
+                        <button id="button-announcement-new-post" type="button" class="btn btn-primary" style="float:right;" onclick="PostAnnouncement();">Post</button>
                     </div>
                 </div>
             </div>
-        </div>
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->members; ?></h3>
-                    <div style="margin-left:auto">
-                        <input id="searchname"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="text" name="" style="width:200px;display:inline" placeholder="Search By Name">
-                        <button type="button" style="display:inline"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="LoadMemberList()" id="loadMemberListBtn"><?php echo $st->go; ?></button>
-                    </div>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_member_list">
-                    <table class="table-auto w-full">
-                        <thead id="table_member_list_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->highest_role; ?></th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_member_list_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div id="announcements">
             </div>
-        </div>
-    </section>
-
-    <section id="staff-member-tab" class="py-8 tabs" style="display:none">
-        <div class="lg:ml-80 px-4 mx-auto flex flex-wrap -mx-4 -mb-4 md:mb-0 py-8 px-6">
-            <div class="px-4 mb-4 md:mb-0" style="width:49.5%;display:inline-block">
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->assign_roles; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;padding:20px">
-                        <div class="mb-6">
-                            <?php echo $st->assign_roles_note; ?>
-                            <br>
-                            <label class="block text-sm font-medium mb-2" for=""><?php echo $st->member; ?></label>
-                            <input id="memberroleid" style="width:200px;display:inline" placeholder='Select one from list'
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name" list="all_member_datalist" 
-                                name="field-name" rows="5" placeholder=""></input>
-                            <button type="button" id="fetchRolesBtn"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="GetMemberRoles()"><?php echo $st->fetch_existing_roles; ?></button>
-                        </div>
-                        <div class="mb-6" id="rolelist">
-
-                        </div>
-
-                        <button type="button" id="updateMemberRolesBtn"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateMemberRoles()"><?php echo $st->update; ?></button>
-                    </div>
+        </section>
+        <section id="downloads-tab" class="tabs">
+            <div class="row">
+                <div id="downloads-display" class="shadow p-3 m-3 bg-dark rounded col">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-download"></i></span> Downloads<span id="downloads-unsaved" style="display:none">*</span></strong></h5>
+                    <div id="downloads-edit-button-wrapper" style="float:right;display:none;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").hide();'>Edit</a></div>
+                    <p id="downloads-content"><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span><br><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-3"></span><br><span class="placeholder col-2"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
                 </div>
-            </div>
-            <div class="px-4 mb-4 md:mb-0" style="width:49.5%;display:inline-block">
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->update_member_points; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for=""
-                                style="display:inline"><?php echo $st->member; ?></label>
-                            <input id="memberpntid" style="width:200px;display:inline" placeholder='Select one from list'
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name" list="all_member_datalist"
-                                name="field-name" rows="5" placeholder=""></input>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for=""
-                                style="display:inline"><?php echo $st->distance; ?>
-                                (km)</label>
-                            <input id="memberpntdistance" style="width:200px;display:inline"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></input>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for=""
-                                style="display:inline"><?php echo $st->myth_points; ?></label>
-                            <input id="memberpntmyth" style="width:200px;display:inline"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></input>
-                        </div>
-
-                        <button type="button" id="updateMemberPointsBtn"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateMemberPoints()"><?php echo $st->update; ?></button>
-                    </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 pt-4 bg-white shadow rounded">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold"><?php echo $st->dismiss; ?></h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <div class="mb-6">
-                            <p style="color:red"><?php echo $st->dismiss_note; ?></p>
-                            <br>
-                            <label class="block text-sm font-medium mb-2" for=""
-                                style="display:inline"><?php echo $st->member; ?></label>
-                            <input id="dismissUserID" style="width:200px;display:inline" placeholder='Select one from list'
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded search-name" list="all_member_datalist"
-                                name="field-name" rows="5" placeholder=""></input>
-                        </div>
-
-                        <button type="button" id="dismissbtn"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="DismissUser()"><?php echo $st->dismiss; ?></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="leaderboard-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->leaderboard; ?></h3>
-                    <div style="margin-left:auto">
-                        <a onclick='dets2=1-dets2;LoadLeaderboard();' style='cursor:pointer'><span
-                                class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                        <a onclick='dats=1-dats;LoadLeaderboard();' style='cursor:pointer'><span
-                                class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
-                        <a onclick='levent=1-levent;LoadLeaderboard();' style='cursor:pointer'><span id="levent"
-                                class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->event; ?></span></a>
-                        <a onclick='ldivision=1-ldivision;LoadLeaderboard();' style='cursor:pointer'><span
-                                id="ldivision"
-                                class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full"><?php echo $st->division; ?></span></a>
-
-                        <input id="lbspeedlimit"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="number" name="" style="width:150px;display:inline"
-                            placeholder="<?php echo $st->speed_limit; ?>"> <span class="distance_unit">km</span>/h
-
-                        <input id="lbstart"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:150px;display:inline" placeholder="">
-                        <p style="display:inline">~</p>
-                        <input id="lbend"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:150px;display:inline" placeholder="">
-                        <button type="button" style="display:inline"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="LoadLeaderboard()" id="LoadLeaderboardBtn"><?php echo $st->go; ?></button>
-                    </div>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_leaderboard">
-                    <table class="table-auto w-full">
-                        <thead id="table_leaderboard_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->rank; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->distance; ?> (<span
-                                        class="distance_unit">km</span>)
-                                </th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->event_points; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->division_points; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->myth_points; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->total_points; ?></th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_leaderboard_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <?php
-        if(in_array("ranking", $enabled_plugins)){
-        echo '
-    <section id="ranking-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" style="padding-bottom:80px">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">'.$st->rankings.'</h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <p style="display:inline" style="font-size:20px">'.$st->your_points.': <span id="ranktotpoints">'.$st->fetching_data.'</span>
-                    </p>
-                    <button type="button" style="display:inline"
-                        class="requestRoleBtn w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="GetDiscordRankRole()">'.$st->request_discord_role.'</button>
+                <div id="downloads-edit-div" class="shadow p-3 m-3 bg-dark rounded col" style="display:none">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span> Edit</strong></h5>
+                    <div id="downloads-edit-hide-button-wrapper" style="float:right;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").show();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
+                    <textarea class="form-control bg-dark text-white" id="downloads-edit-content" style="height:calc(100% - 100px)"></textarea>
                     <br>
-                    <div id="ranktable">
-
+                    <button id="button-downloads-edit-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateDownloads();">Save</button>
+                </div>
+            </div>
+        </section>
+        <section id="map-tab" class="tabs">
+            <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
+                <h5 style="position:absolute;z-index:10;padding:10px;">Euro Truck Simulator 2</h5>
+                <div id="map">
+                </div>
+            </div>
+            <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
+                <h5 style="position:absolute;z-index:10;padding:10px;">ProMods Europe</h5>
+                <div id="pmap">
+                </div>
+            </div>
+            <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
+                <h5 style="position:absolute;z-index:10;padding:10px;">American Truck Simulator</h5>
+                <div id="amap">
+                </div>
+            </div>
+        </section>
+        <section id="delivery-tab" class="tabs">
+            <div id="company-statistics">
+                <div class="row">
+                    <h3><strong>Daily Statistics</strong></h3>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Day</strong></h5>
+                        <p class="card-text"><span id="dotd"><span class="placeholder" style="width:60%"></span></span> <span id="dotddistance" style="font-size:14px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
+                        <p class="card-text"><span id="dalljob"><span class="placeholder" style="width:40%"></span></span> / <span id="dtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                        <p class="card-text"><span id="dprofit"><span class="placeholder" style="width:50%"></span></span></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <h3><strong>Weekly Statistics</strong></h3>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Week</strong></h5>
+                        <p class="card-text"><span id="dotw"><span class="placeholder" style="width:60%"></span></span> <span id="dotwdistance" style="font-size:14px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> Delivered / Distance</strong></h5>
+                        <p class="card-text"><span id="walljob"><span class="placeholder" style="width:40%"></span></span> / <span id="wtotdistance"><span class="placeholder" style="width:40%"></span></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span> Profit</strong></h5>
+                        <p class="card-text"><span id="wprofit"><span class="placeholder" style="width:50%"></span></span></p>
                     </div>
                 </div>
             </div>
-    </section>';}?>
-
-    <section id="delivery-tab" class="py-8 tabs" style="display:none">
-        <div class="px-4 mx-auto mx-auto lg:ml-80">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
-                <div class="px-4 mb-4 md:mb-0" style="width:100%">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                        <div style="width:100%">
-                            <h3 class="text-xl font-bold"><?php echo $st->today_statistics; ?></h3>
+            <div id="user-statistics" style="display:none">
+                <div class="row">
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <div style="padding:20px 0 0 20px;float:left" id="profile-info">
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-crown"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_day; ?></h3>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="dotd"></span> <span id="dotddistance" style="font-size:14px"></span></h2>
+                        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius:100%;width:150px;height:150px;border:solid <?php echo $vtccolor ?> 5px;">
+                        </div>
+                        <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+                        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> Account</strong></h5>
+                        <div id="user-account-info"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> Statistics</strong></h5>
+                        <div style="float:right">
+                            <div class="btn-group" id="user-chart-scale-group">
+                                <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
+                                <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
+                                <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
                             </div>
+                            <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">Sum</a>
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="dalljob"></span> / <span id="dtotdistance"></span></h2>
-                            </div>
+                        </h2>
+                        <div class="p-4 overflow-x-auto" style="display: block;">
+                            <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
                         </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">24h</span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="dprofit" style="font-size:22px">-</h2>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+                        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> Statistics</strong></h5>
+                        <div id="profile-text-statistics"></div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="px-4 mx-auto mx-auto lg:ml-80">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
-                <div class="px-4 mb-4 md:mb-0" style="width:100%">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6">
-                        <div style="width:100%">
-                            <h3 class="text-xl font-bold">This week's statistics</h3>
-                        </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-crown"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->driver_of_the_week; ?></h3>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="dotw"></span> <span id="dotwdistance" style="font-size:14px"></span></h2>
-                            </div>
-                        </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->delivered; ?></h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" style="font-size:22px"><span id="walljob"></span> / <span id="wtotdistance"></span></h2>
-                            </div>
-                        </div>
-                        <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0">
-                            <div class="p-6 rounded bg-white">
-                                <div class="flex mb-2"><span class="rect-20"><i class="fa-solid fa-money-check-dollar"></i></span>
-                                    <h3 class="text-sm text-gray-600"><?php echo $st->profit; ?></h3><span
-                                        class="inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">7d</span>
-                                </div>
-                                <h2 class="mb-2 text-3xl font-bold" id="wprofit" style="font-size:22px">-</h2>
-                            </div>
-                        </div>
-                        <br>
-                        <p style="font-size:12px;width:100%;text-align:right"><i>* Time in UTC / Week start from
-                                Monday</i></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px"><?php echo $st->delivery_log; ?></h3>
-                    <div style="margin-left:auto">
-                        <a onclick='dets2=1-dets2;LoadDeliveryList();' style='cursor:pointer'><span
-                                class="dgame dgame1 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ETS2</span></a>
-                        <a onclick='dats=1-dats;LoadDeliveryList();' style='cursor:pointer'><span
-                                class="dgame dgame2 inline-block ml-auto px-2 py-1 text-xs text-gray-500 rounded-full">ATS</span></a>
-                        <input id="dspeedlimit"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="number" name="" style="width:150px;display:inline" placeholder="Speed Limit"> <span
-                            class="distance_unit">km</span>/h
-
-                        <input id="dstart"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:150px;display:inline" placeholder="">
-                        <p style="display:inline">~</p>
-                        <input id="dend"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="date" name="" style="width:150px;display:inline" placeholder="">
-                        <button type="button" style="display:inline"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="LoadDeliveryList()" id="loadDeliveryBtn">Go</button>
-                    </div>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_deliverylog">
-                    <table class="table-auto w-full">
-                        <thead id="table_deliverylog_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driver; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->from; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->to; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->driven_distance; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->cargo; ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->net_profit; ?></th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_deliverylog_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data; ?></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-        </div>
-        <br>
-        <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded member-only-tab" style="display:none">
-            <div class="flex px-6 pb-4 border-b">
-                <h3 class="text-xl font-bold"><?php echo $st->export_delivery_log; ?></h3>
-            </div>
-            <div class="p-4 overflow-x-auto" style="display: block;">
-                <?php echo $st->export_delivery_log_note ?>
-
-                <br>
-
-                <div class="mb-6">
-                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->start_date; ?></label>
-                    <input id="export_start_date"
-                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                        type="date" name="" style="width:200px;display:inline">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium mb-2" for=""><?php echo $st->end_date; ?></label>
-                    <input id="export_end_date"
-                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                        type="date" name="" style="width:200px;display:inline">
-                </div>
-                <button type="button"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="ExportDeliveryLog()" id="exportDLogBtn"><?php echo $st->export; ?></button>
-            </div>
-        </div>
-        </div>
-    </section>
-
-    <section id="DeliveryDetailTab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4" style="padding-bottom:80px">
-                <div style="display:block;height:50vh">
-                    <div style="float:left;width:58%">
-                        <div id="dmap" style="height: 50vh;width:100%;background-color: #484E66;border-radius:15px">
-                        </div>
-                    </div>
-                    <div style="display:inline;float:right;width:38%">
-                        <div class="md:w-1/2 lg:w-1/4" style="padding-top:0">
-                            <div class="rounded bg-white">
-                                <div class="mb-2" style="padding:20px" id="dlogbasic">
-                                    <h2><?php echo $st->delivery; ?> #<span id="dlogid">0</span></h2>
-                                    <p><?php echo $st->by; ?> <i><span id="dlogdriver"></span></i></p>
-                                    <p><?php echo $st->at; ?> <b><span id="dlogtime"></span></b></p>
-                                    <p><?php echo $st->logged; ?> <b><span id="dlogdistance"></span></b><span
-                                            class="distance_unit">km</span></p>
-                                </div>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="md:w-1/2 lg:w-1/4" style="padding-top:0">
-                            <div class="rounded bg-white">
-                                <div class="mb-2">
-                                    <div style="padding:20px;" id="routereplayload">
-                                        <p><?php echo $st->route_replay_loading; ?></p>
-                                    </div>
-                                    <div style="padding:20px;display:none" id="routereplaydiv">
-                                        <h3><?php echo $st->route_replay; ?>: <span id="rp_pct">0</span>% (<span
-                                                id="rp_cur">0</span> /
-                                            <span id="rp_tot"></span>)
-                                        </h3>
-                                        <p>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rri-=100">-100</button>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rri-=50">-50</button>
-                                            <button type="button" style="display:inline;padding:5px" id="rrplay"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rrplayswitch()"><?php echo $st->play; ?></button>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rri+=50">+50</button>
-                                            <button type="button" style="display:inline;padding:5px"
-                                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                onclick="rri+=100">+100</button>
-
-                                            <p><?php echo $st->speed; ?>:
-                                                <button type="button" style="display:inline;padding:5px"
-                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                    onclick="rrspeed-=5">-5</button>
-                                                <button type="button" style="display:inline;padding:5px"
-                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                    onclick="rrspeed-=1">-1</button>
-                                                <button type="button" style="display:inline;padding:5px" id="rp_speed"
-                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200">20</button>
-                                                <button type="button" style="display:inline;padding:5px"
-                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                    onclick="rrspeed+=1">+1</button>
-                                                <button type="button" style="display:inline;padding:5px"
-                                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                                    onclick="rrspeed+=5">+5</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <br>
-                <div style="margin-bottom:100px">
-                    <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0;float:left">
-                        <div class="p-6 rounded bg-white">
-                            <h2 style="font-size:20px" id="ddcol1t"><?php echo $st->from; ?></h2>
-                            <div class="mb-2 ddcol" id="ddcol1">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0;float:left">
-                        <div class="p-6 rounded bg-white">
-                            <h2 style="font-size:20px" id="ddcol2t"><?php echo $st->to; ?></h2>
-                            <div class="mb-2 ddcol" id="ddcol2">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="md:w-1/2 lg:w-1/4 p-4 statscard" style="padding-top:0;float:left">
-                        <div class="p-6 rounded bg-white">
-                            <h2 style="font-size:20px" id="ddcol3t"><?php echo $st->vehicle; ?></h2>
-                            <div class="mb-2 ddcol" id="ddcol3">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <?php
-        if(in_array("division", $enabled_plugins)){
-        echo '
-    <section id="division-tab" class="py-8 tabs" style="display:none">
-        <div class="px-4 mx-auto mx-auto lg:ml-80">
-            <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 pb-6 px-6">
-                <div class="px-4 mb-4 md:mb-0" style="width:100%">
-                    <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0 px-6" id="divisionList">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">'.$st->recent_division_deliveries.'</h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_division_deliverylog">
-                    <table class="table-auto w-full">
-                        <thead id="table_division_deliverylog_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->driver.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->from.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->to.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->driven_distance.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->cargo.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->net_profit.'</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_division_deliverylog_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section id="staff-division-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold" style="margin-top:8px">'.$st->pending_division_validation_deliveries.'</h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_division_validation">
-                    <table class="table-auto w-full">
-                        <thead id="table_division_validation_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium" style="width:100px">'.$st->delivery_id.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->driver.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->division.'</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_division_validation_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-    </section>';}?>
-
-    <?php
-        if(in_array("event", $enabled_plugins)){
-        echo '
-        <section id="event-tab" class="py-8 tabs" style="display:none">
-            <div style="padding:50px;padding-top:0;">
-                <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">'.$st->events_calendar.'</h3>
-                    </div>
-                    <br>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <div id="eventsCalendar"></div>
-                    </div>
-                </div>
-                <br>
-                <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">'.$st->events_list.'</h3>
-                    </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;" id="table_event_list">
-                        <table class="table-auto w-full">
-                            <thead id="table_event_list_head">
-                                <tr class="text-xs text-gray-500 text-left">
-                                    <th class="py-5 px-6 pb-3 font-medium" style="width:100px">ID</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->title.'</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->from.'</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->to.'</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->distance.'</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->meetup_time.'</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->departure_time.'</th>
-                                    <th class="py-5 px-6 pb-3 font-medium">'.$st->voted.'</th>
+            <div class="row">
+                <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> Deliveries</strong></h5>
+                    <div id="delivery-log-button-right-wrapper" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();"><span class="rect-20"><i class="fa-solid fa-file-export"></i></span></a>
+                    <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
+                    <div id="table_delivery_log">
+                        <table class="w-100">
+                            <thead id="table_delivery_log_head">
+                                <tr>
+                                    <th scope="col" style="min-width:80px">ID</th>
+                                    <th scope="col">Driver</th>
+                                    <th scope="col">Source</th>
+                                    <th scope="col">Destination</th>
+                                    <th scope="col">Distance</th>
+                                    <th scope="col">Cargo</th>
+                                    <th scope="col">Net Profit</th>
                                 </tr>
                             </thead>
-                            <tbody id="table_event_list_data">
-                                <tr class="text-sm">
-                                    <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
+                            <tbody id="table_delivery_log_data">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="delivery-log-options" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
+                    <h5 style="display:inline-block"><strong>Options</strong></h5>
+                    <div id="delivery-log-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#delivery-log-options-show").show();$("#delivery-log-options").hide();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
+                    <div>
+                        <label class="form-label">Game</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-ets2" checked>
+                            <label class="form-check-label" for="delivery-log-ets2">
+                                ETS2
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-ats" checked>
+                            <label class="form-check-label" for="delivery-log-ats">
+                                ATS
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Status</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-delivered" checked>
+                            <label class="form-check-label" for="delivery-log-delivered">
+                                Delivered
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="delivery-log-cancelled">
+                            <label class="form-check-label" for="delivery-log-cancelled">
+                                Cancelled
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Max. Speed</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-speed-limit" placeholder="0">
+                            <span class="input-group-text"><span class="distance_unit text-black"></span>/h</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Date Range</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">From</span>
+                            <input type="date" class="form-control bg-dark text-white" id="delivery-log-start-time">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">To</span>
+                            <input type="date" class="form-control bg-dark text-white" id="delivery-log-end-time">
+                        </div>
+                    </div>
+                    <div style="display:none">
+                        <label class="form-label">User ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-userid" placeholder="0">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Page Size</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-page-size" placeholder="10">
+                            <span class="input-group-text">rows</span>
+                        </div>
+                    </div>
+                    <button id="button-delivery-log-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadDeliveryList(noplaceholder=true);">Update</button>
+                </div>
+            </div>
+        </section>
+        <section id="delivery-detail-tab" class="tabs">
+            <div class="m-3">
+                <h3 style="display:inline-block"><strong><span id="delivery-detail-title"><span class="placeholder" style="width:150px"></span></span></strong></h3>
+                <h3 style="float:right"><span id="delivery-detail-user"><span class="placeholder" style="width:100px"></span></span></h3>
+            </div>
+            <div class="row m-3">
+                <div class="shadow p-3 bg-dark rounded col-3" style="text-align:center">
+                    <p style="font-size:25px;margin-bottom:0;"><b><span id="delivery-detail-source-company"><span class="placeholder col-8"></span></span></b></p>
+                    <p><span id="delivery-detail-source-city" style="font-size:15px;color:#aaa"><span class="placeholder col-4"></span></span></p>
+                </div>
+                <div class="col-6 m-auto" style="text-align:center">
+                    <p style="font-size:15px;margin-bottom:0;"><span id="delivery-detail-cargo"><span class="placeholder col-6"></span></span></p>
+                    <div class="progress" style="height:5px;margin:5px;">
+                        <div id="delivery-detail-progress" class="progress-bar progress-bar-striped" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p style="font-size:15px;margin-bottom:0;"><span id="delivery-detail-distance"><span class="placeholder col-8"></span></span></p>
+                </div>
+                <div class="shadow p-3 bg-dark rounded col-3" style="text-align:center">
+                    <p style="font-size:25px;margin-bottom:0;"><b><span id="delivery-detail-destination-company"><span class="placeholder col-8"></span></span></b></p>
+                    <p><span id="delivery-detail-destination-city" style="font-size:15px;color:#aaa"><span class="placeholder col-4"></span></span></p>
+                </div>
+            </div>
+            <div class="row m-3" style="height:500px">
+                <div id="dmap" class="col-8 h-100" style="background-color:#484E66;padding:0;border-radius:5px">
+                </div>
+                <div class="col-4" style="padding-right:0;">
+                    <div id="delivery-detail-timeline-div" class="shadow p-5 bg-dark rounded" style="height:500px;overflow:auto;">
+                        <ul class="timeline" id="delivery-detail-timeline">
+                            <li class="timeline-item timeline-white mb-5">
+                                <h5 class="fw-bold"><span class="placeholder" style="width:100px"></span></h5>
+                                <p class="text-muted mb-2 fw-bold"><span class="placeholder" style="width:40px"></span></p>
+                                <p><span class="placeholder" style="width:120px"></span></p>
+                            </li>
+                            <li class="timeline-item timeline-white mb-5">
+                                <h5 class="fw-bold"><span class="placeholder" style="width:100px"></span></h5>
+                                <p class="text-muted mb-2 fw-bold"><span class="placeholder" style="width:40px"></span></p>
+                                <p><span class="placeholder" style="width:120px"></span></p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="division-tab" class="tabs">
+            <div class="row mb-3">
+                <div class="col-4" id="division-summary-list">
+                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col card">
+                        <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                    </div>
+                </div>
+                <div class="shadow p-3 bg-dark rounded col-8">
+                    <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> Recent Division Deliveries</strong></h5>
+                    <div id="table_division_delivery" style="height:fit-content">
+                        <table class="w-100">
+                            <thead id="table_division_delivery_head">
+                                <tr>
+                                    <th scope="col" style="min-width:80px">ID</th>
+                                    <th scope="col">Driver</th>
+                                    <th scope="col">Source</th>
+                                    <th scope="col">Destination</th>
+                                    <th scope="col">Distance</th>
+                                    <th scope="col">Cargo</th>
+                                    <th scope="col">Net Profit</th>
                                 </tr>
+                            </thead>
+                            <tbody id="table_division_delivery_data">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="shadow p-3 bg-dark rounded w-100" id="division-pending-list" style="display:none">
+                    <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> Pending Division Validation Requests</strong></h5>
+                    <div id="table_division_pending">
+                        <table class="w-100">
+                            <thead id="table_division_pending_head">
+                                <tr>
+                                    <th scope="col">Log ID</th>
+                                    <th scope="col">Division</th>
+                                    <th scope="col">Driver</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_division_pending_data">
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </section>
-
-        <section id="staff-event-tab" class="py-8 tabs" style="display:none">
-            <div style="padding:50px;padding-top:0;">
-                <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                    <div class="container px-4">
-                        <div class="flex px-6 pb-4 border-b">
-                            <h3 class="text-xl font-bold">'.$st->manage_events.'</h3>
+        <section id="event-tab" class="tabs">
+            <div id="event-new" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="event-new-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#event-new-collapse" aria-expanded="false" aria-controls="event-new-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Event</strong>
+                    </button>
+                </h5>
+                <div id="event-new-collapse" class="collapse row" aria-labelledby="event-new-heading" data-bs-parent="#event-new">
+                    <div class="col">
+                        <label for="event-new-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-title" placeholder="Event title">
                         </div>
-                        <div style="margin:20px">
-                            '.$st->manage_events_note.'
-                            <br>
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->event_id.'</label>
-                                <input id="eventid" style="width:200px;display:inline"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="'.$st->for_updating_or_deleting.'">
-                                <button type="button" style="display:inline"
-                                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                    onclick="FetchEvent()" id="fetchEventBtn">'.$st->fetch_data.'</button>
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->title.'</label>
-                                <input id="eventtitle"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->truckersmp_link.'</label>
-                                <input id="eventtruckersmp_link"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6" style="display:inline-block;width:33%">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->from.'</label>
-                                <input id="eventfrom"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6" style="display:inline-block;width:33%">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->to.'</label>
-                                <input id="eventto"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6" style="display:inline-block;width:33%">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->distance.'</label>
-                                <input id="eventdistance"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="text" name="" placeholder="">
-                            </div>
-
-                            <br>
-                            <div class="mb-6" style="display:inline-block;width:49%">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->meetup_local_time.' (AM / PM)</label>
-                                <input id="eventmeetup_timestamp"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="datetime-local" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6" style="display:inline-block;width:49%">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->departure_local_time.' (AM / PM)</label>
-                                <input id="eventdeparture_timestamp"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    type="datetime-local" name="" placeholder="">
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-medium mb-2" for="">'.$st->image_links.'</label>
-                                <textarea id="eventimgs"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                    name="field-name" rows="5" placeholder=""></textarea>
-                            </div>
-
-                            <div class="mb-6">
-                                <div class="mb-1">
-                                    <label class="block text-sm font-medium mb-2" for=""
-                                        style="text-align: left;">'.$st->visibility.':</label>
-                                    <label>
-                                        <input type="radio" name="event-visibility" value="yes" checked id="eventpvt-0">
-                                        <span class="eventpvt-0">'.$st->public.'</span>
+                        <label for="event-new-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="event-new-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="event-new-truckersmp-link" class="form-label">TruckersMP Link</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
+                        </div>
+                        <label for="event-new-location" class="form-label">Location</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-new-departure-label">Departure</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-departure" placeholder="Where the event starts" aria-describedby="event-new-departure-label">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-new-destination-label">Destination</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-destination" placeholder="Where the event ends" aria-describedby="event-new-destination-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-new-distance-label">Distance</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-new-distance" placeholder="How long the event is" aria-describedby="event-new-distance-label">
+                        </div>
+                        <label for="event-new-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-new-meetup-time-label">Meetup</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-new-meetup-time" placeholder="" aria-describedby="event-new-meetup-time-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-new-departure-time-label">Departure</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-new-departure-time" placeholder="" aria-describedby="event-new-departure-time-label">
+                        </div>
+                        <label for="event-new-visibility" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="event-new-visibility" id="event-visibility-public" checked>
+                                    <label class="form-check-label" for="event-visibility-public">
+                                        Public
                                     </label>
                                 </div>
-                                <div>
-                                    <label>
-                                        <input type="radio" name="event-visibility" value="yes" id="eventpvt-1">
-                                        <span class="eventpvt-1">'.$st->private.'</span>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="event-new-visibility" id="event-visibility-private">
+                                <label class="form-check-label" for="event-visibility-private">
+                                    Private
+                                </label>
+                            </div>
+                        </div>
+                        <button id="button-event-new-create" type="button" class="btn btn-primary" style="float:right;" onclick="CreateEvent();">Create</button>
+                    </div>
+                </div>
+            </div>
+            <div class="shadow p-3 m-3 bg-dark rounded">
+                <h5><strong><span class="rect-20"><i class="fa-regular fa-calendar"></i></span> Events Calendar</strong></h5>
+                <div id="events-calendar"></div>
+            </div>
+            <div class="shadow p-3 m-3 bg-dark rounded">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-table-list"></i></span> Events List</strong></h5>
+                <div id="table_event_list">
+                    <table class="w-100">
+                        <thead id="table_event_list_head">
+                            <tr>
+                                <th scope="col" style="width:100px">ID</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Departure</th>
+                                <th scope="col">Destination</th>
+                                <th scope="col" style="width:120px">Distance</th>
+                                <th scope="col" style="width:180px">Meetup Time</th>
+                                <th scope="col" style="width:180px">Departure Time</th>
+                                <th scope="col">Voters</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_event_list_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="event-edit" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="event-edit-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#event-edit-collapse" aria-expanded="false" aria-controls="event-edit-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> Edit Event #<span id="event-edit-id-span"></span></strong>
+                    </button>
+                </h5>
+                <div id="event-edit-collapse" class="collapsed row" aria-labelledby="event-edit-heading" data-bs-parent="#event-edit">
+                    <input type="text" class="form-control bg-dark text-white" id="event-edit-id" placeholder="Event id" style="display:none">
+                    <div class="col">
+                        <label for="event-edit-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-title" placeholder="Event title">
+                        </div>
+                        <label for="event-edit-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="event-edit-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="event-edit-truckersmp-link" class="form-label">TruckersMP Link</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
+                        </div>
+                        <label for="event-edit-location" class="form-label">Location</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-edit-departure-label">Departure</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-departure" placeholder="Where the event starts" aria-describedby="event-edit-departure-label">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-edit-destination-label">Destination</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-destination" placeholder="Where the event ends" aria-describedby="event-edit-destination-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-edit-distance-label">Distance</span>
+                            <input type="text" class="form-control bg-dark text-white" id="event-edit-distance" placeholder="How long the event is" aria-describedby="event-edit-distance-label">
+                        </div>
+                        <label for="event-edit-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text" id="event-edit-meetup-time-label">Meetup</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-meetup-time" placeholder="" aria-describedby="event-edit-meetup-time-label">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="event-edit-departure-time-label">Departure</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-departure-time" placeholder="" aria-describedby="event-edit-departure-time-label">
+                        </div>
+                        <label for="event-edit-visibility" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-public" checked>
+                                    <label class="form-check-label" for="event-edit-visibility-public">
+                                        Public
                                     </label>
                                 </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-private">
+                                <label class="form-check-label" for="event-edit-visibility-private">
+                                    Private
+                                </label>
                             </div>
-
-                            <button type="button"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="EventOp()" id="newEventBtn">'.$st->create_event.'</button>
+                        </div>
+                        <button id="button-event-edit" type="button" class="btn btn-primary m-2" style="float:right;" onclick="EditEvent();">Edit</button>
+                        <button type="button" class="btn btn-secondary m-2" style="float:right;" onclick="$('#event-edit').hide();">Close</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="member-tab" class="tabs">
+            <div class="row">
+                <div class="col-4" id="member-tab-left" style="display:none">
+                    <div class="shadow p-3 m-3 bg-dark rounded col card" style="driver-of-the-month">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Month</strong></h5>
+                        <p class="card-text" style="font-size:25px;text-align:center"><span id="driver-of-the-month-info"><span class="placeholder" style="width:60%"></span></span></p>
+                    </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col card" style="staff-of-the-month">
+                        <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-shield-halved"></i></span> Staff of the Month</strong></h5>
+                        <p class="card-text" style="font-size:25px;text-align:center"><span id="staff-of-the-month-info"><span class="placeholder" style="width:60%"></span></span></p>
+                    </div>
+                </div>
+                <div id="member-tab-right">
+                    <div class="shadow p-3 m-3 bg-dark rounded">
+                        <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> Members</strong></h5>
+                        <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
+                            <input id="input-member-search" type="text" class="form-control bg-dark text-white" placeholder="Username" aria-label="Username" aria-describedby="button-member-list-search" >
+                            <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" style="min-width:0" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <div id="table_member_list" class="mt-3">
+                            <table class="w-100">
+                                <thead id="table_member_list_head">
+                                    <tr>
+                                        <th style="width:40px"></th>
+                                        <th>Name</th>
+                                        <th>Role</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_member_list_data">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
             </div>
-            <div style="padding:50px;padding-top:0;">
-                <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="eventattendee">
-                    <div class="flex px-6 pb-4 border-b">
-                        <h3 class="text-xl font-bold">'.$st->update_event_attendees.'</h3>
+        </section>
+        <section id="leaderboard-tab" class="tabs">
+            <div class="row">
+                <div id="leaderboard" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
+                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> Leaderboard</strong></h5>
+                    <div id="leaderboard-button-right-wrapper" style="float:right;">
+                        <a id="leaderboard-options-show" class="clickable" onclick='$("#leaderboard-options-show").hide();$("#leaderboard-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a>
                     </div>
-                    <div class="p-4 overflow-x-auto" style="display: block;">
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">'.$st->event_id.'</label>
-                            <input id="aeventid" style="width:200px;display:inline"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="text" name="" placeholder="">
-                            <button type="button" style="display:inline"
-                                class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                                onclick="FetchEventAttendee()" id="fetchEventAttendeeBtn">'.$st->fetch_existing_attendees.'</button>
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">'.$st->event_points.'</label>
-                            <input id="attendeePoints" style="width:200px;display:inline"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="text" name="" placeholder="">
-                        </div>
-                        <!-- <div class="mb-6">
-                <label class="block text-sm font-medium mb-2" for="">'.$st->user_id.' ('.$st->separate_with_comma.')</label>
-                <input id="attendeeId"
-                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded" name="field-name"
-                rows="5" placeholder=""></input>
-            </div> -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">'.$st->members.' ('.$st->hit_enter_to.')</label>
-                            <div class="inputWrapper" id="attendeeIdWrap" style="background-color:rgba(255,255,255,0.2)">
-                                <input id="attendeeId" class="inputDefault inputInner search-name-old" name="field-name" rows="5"
-                                    placeholder=""></input>
+                    <div id="table_leaderboard">
+                        <table class="w-100">
+                            <thead id="table_leaderboard_head">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Distance (<span class="distance_unit"></span>)</th>
+                                    <th scope="col">Event</th>
+                                    <th scope="col">Division</th>
+                                    <th scope="col">Myth</th>
+                                    <th scope="col">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_leaderboard_data">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="leaderboard-options" class="shadow p-3 m-3 bg-dark rounded col-4" style="display:none;height:fit-content;">
+                    <h5 style="display:inline-block"><strong>Options</strong></h5>
+                    <div id="leaderboard-options-hide" style="float:right;"><a style="cursor:pointer" onclick='$("#leaderboard-options-show").show();$("#leaderboard-options").hide();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
+                    <div>
+                        <div>
+                            <label class="form-label">Members</label>
+                            <div class="input-group mb-2">
+                                <input id="input-leaderboard-search" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Users" placeholder='Select members from list' list="all-member-datalist" data-min-length='1' data-limit-of-values='10' multiple='' data-selection-required='1'>
                             </div>
                         </div>
-
-                        <button type="button" id="attendeeBtn"
-                            class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                            onclick="UpdateEventAttendees()">'.$st->update.'</button>
+                        <label class="form-label">Game</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-ets2" checked>
+                            <label class="form-check-label" for="leaderboard-ets2">
+                                ETS2
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-ats" checked>
+                            <label class="form-check-label" for="leaderboard-ats">
+                                ATS
+                            </label>
+                        </div>
                     </div>
+                    <div>
+                        <label class="form-label">Points</label>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-distance" checked>
+                            <label class="form-check-label" for="leaderboard-distance">
+                                Distance
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-event" checked>
+                            <label class="form-check-label" for="leaderboard-event">
+                                Event
+                            </label>
+                        </div>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-division" checked>
+                            <label class="form-check-label" for="leaderboard-division">
+                                Division
+                            </label>
+                        </div>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-myth" checked>
+                            <label class="form-check-label" for="leaderboard-myth">
+                                Myth
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Max. Speed</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="leaderboard-speed-limit" placeholder="0">
+                            <span class="input-group-text"><span class="distance_unit text-black"></span>/h</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Date Range</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">From</span>
+                            <input type="date" class="form-control bg-dark text-white" id="leaderboard-start-time">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">To</span>
+                            <input type="date" class="form-control bg-dark text-white" id="leaderboard-end-time">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Page Size</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="leaderboard-page-size" placeholder="20">
+                            <span class="input-group-text">rows</span>
+                        </div>
+                    </div>
+                    <button id="button-leaderboard-options-update" type="button" class="btn btn-primary" style="float:right" onclick="LoadLeaderboard(noplaceholder=true);">Update</button>
                 </div>
-        </section>';}?>
-
-    <?php
-        if(in_array("application", $enabled_plugins)){
-        echo '
-    <section id="my-application-tab" class="py-8 tabs" style="display:none">
-        <div style="padding:50px; padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">'.$st->my_applications.'</h3>
-                </div>
-
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_my_application">
-                    <table class="table-auto w-full">
-                        <thead id="table_my_application_head" style="display:none">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->type.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->submitted_at.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->status.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->last_staff_reply.'</th>
+            </div>
+        </section>
+        <section id="ranking-tab" class="tabs">
+            
+        </section>
+        <section id="submit-application-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span> New Application</strong></h5>
+                <?php echo $application_html; ?>
+                <button id="button-submit-application" type="button" class="btn btn-primary" style="float:right" onclick="SubmitApplication();">Submit</button>
+            </div>
+        </section>
+        <section id="my-application-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-envelope-circle-check"></i></span> My Applications</strong></h5>
+                <div id="table_my_application">
+                    <table class="w-100">
+                        <thead id="table_my_application_head">
+                            <tr>
+                                <th scope="col" style="min-width:80px">ID</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Submit</th>
+                                <th scope="col">Reply</th>
+                                <th scope="col">Staff</th>
                             </tr>
                         </thead>
                         <tbody id="table_my_application_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section id="submit-application-tab" class="py-8 tabs" style="display: none;">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">'.$st->submit_application.'</h3>
+        </section>
+        <section id="manage-user-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user-clock"></i></span> Pending Users</strong></h5>
+                <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
+                    <input id="input-user-search" type="text" class="form-control bg-dark text-white" placeholder="Username" aria-label="Username" aria-describedby="button-user-list-search" >
+                    <button class="btn btn-outline-secondary" type="button" id="button-user-list-search" style="min-width:0" onclick="LoadUserList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
-
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                '.$application_html.'
-                <button type="button"
-                    class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                    onclick="SubmitApp()" id="submitAppBttn">'.$st->submit.'</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="button-staff-application" class="py-8 tabs" style="display: none;">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">'.$st->applications.'</h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_all_application">
-                    <table class="table-auto w-full">
-                        <thead id="table_all_application_head" style="display:none">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium">ID</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->applicant.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->type.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->submitted_at.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->status.'</th>
-                                <th class="py-5 px-6 pb-3 font-medium">'.$st->last_staff_reply.'</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table_all_application_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium">'.$st->no_data.'</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">'.$st->update_staff_positions.'</h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">'.$st->staff_positions.'</label>
-                        <textarea id="staffposedit"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></textarea>
-                    </div>
-
-                    <button type="button" id="updateStaffPositionBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UpdateApplicationPositions()" id="updateAppStatusBtn">'.$st->update.'</button>
-                </div>
-            </div>
-        </div>
-    </section>';}?>
-
-    <section id="staff-user-tab" class="py-8 tabs" style="display: none;">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->pending_users ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_pending_user_list">
-                    <table class="table-auto w-full">
+                <div id="table_pending_user_list">
+                    <table class="w-100" style="line-height:30px">
                         <thead id="table_pending_user_list_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->discord_id ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->name ?></th>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Discord</th>
                             </tr>
                         </thead>
                         <tbody id="table_pending_user_list_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data ?></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded" id="BanUserDiv">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->ban_or_unban_user ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="bandiscordid" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->ban_expire_date ?></label>
-                        <input id="banexpire" type="date" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->reason ?></label>
-                        <textarea id="banreason"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder="<?php echo $st->reason_note ?>"></textarea>
-                    </div>
-
-                    <button type="button" id="banUserBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="BanUser()"><?php echo $st->ban ?></button>
-                    <button type="button" style="background-color:lightgreen" id="unbanUserBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UnbanUser()"><?php echo $st->unban ?></button>
+        </section>
+        <section id="all-application-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span> All Applications</strong></h5>
+                <div id="all-application-right-wrapper" style="float:right;">
+                    <a class="clickable" onclick='UpdateStaffPositionsShow();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
+                <div id="table_all_application">
+                    <table class="w-100">
+                        <thead id="table_all_application_head">
+                            <tr>
+                                <th scope="col" style="min-width:80px">ID</th>
+                                <th scope="col">Creator</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Submit</th>
+                                <th scope="col">Reply</th>
+                                <th scope="col">Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_all_application_data">
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->add_user ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <?php echo $st->add_user_note ?>
-                        <br>
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="adddiscordid" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
+        </section>
+        <section id="audit-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-terminal"></i></span> Audit Log</strong></h5>
+                <div id="audit-log-right-wrapper" style="float:right;">
+                    <div class="input-group mb-3" style="width:300px;position:relative;top:-5px;">
+                        <input id="input-audit-log-staff" type="text" class="form-control bg-dark text-white flexdatalist" placeholder="Select staff from list" aria-label="Username" aria-describedby="button-audit-log-staff-search" list="all-member-datalist" data-min-length='1' data-selection-required='1'>
+                        <input type="text" class="form-control bg-dark text-white" id="input-audit-log-operation" placeholder="Operation">
+                        <button class="btn btn-outline-secondary" type="button" id="button-audit-log-staff-search" style="min-width:0" onclick="LoadAuditLog(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
                     </div>
-
-                    <button type="button" id="addUserBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="AddUser()"><?php echo $st->add ?></button>
                 </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->update_user_discord_account ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->old_discord_id ?></label>
-                        <input id="upd_old_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->new_discord_id ?></label>
-                        <input id="upd_new_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" id="updateDiscordBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UpdateUserDiscordAccount()"><?php echo $st->update ?></button>
-                </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->unbind_connections ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="unbind_discord_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" id="unbindConnectionsBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UnbindUserAccountConnections()"><?php echo $st->unbind ?></button>
-                </div>
-            </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded admin-only">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->delete_user ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;">
-                    <?php echo $st->delete_user_note ?>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><?php echo $st->discord_id ?></label>
-                        <input id="del_discord_id" style="width:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="field-name" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" id="deleteUserBtn"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="DeleteUserAccount()"><?php echo $st->delete ?></button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="audit-tab" class="py-8 tabs" style="display: none;">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold"><?php echo $st->audit_log ?></h3>
-                </div>
-                <div class="p-4 overflow-x-auto" style="display: block;" id="table_audit_log">
-                    <table class="table-auto w-full">
+                <div id="table_audit_log">
+                    <table class="w-100">
                         <thead id="table_audit_log_head">
-                            <tr class="text-xs text-gray-500 text-left">
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->user ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->log ?></th>
-                                <th class="py-5 px-6 pb-3 font-medium"><?php echo $st->time ?></th>
+                            <tr>
+                                <th scope="col">User</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Operation</th>
                             </tr>
                         </thead>
                         <tbody id="table_audit_log_data">
-                            <tr class="text-sm">
-                                <td class="py-5 px-6 font-medium"><?php echo $st->no_data ?></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <section id="config-tab" class="py-8 tabs" style="display: none;">
-        <div style="padding:50px;padding-top:0;">
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Web Config</h3>
+        </section>
+        <section id="config-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-server"></i></span> API Config</strong></h5>
+                <p>Only JSON config editor is available at the moment. Simple editor will be added in the future.</p>
+                <p>You have to reload API to make the changes take effect. (MFA has to be enabled)</p>
+                <p>A backup is saved before reloading API, it can be retrieved by "Revert".</p>
+                <br>
+                <label for="json-config" class="form-label">JSON Config</label>
+                <div class="input-group mb-3" style="height:500px">
+                    <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
                 </div>
-                <div class="mb-6" style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Webpage will update instantly, images might not
-                        update instantly due to browser / CDN cache.</label>
-                    <label class="block text-sm font-medium mb-2" for="" style="color:red">Web server and API server are
-                        physically isolated so you must provide your application token to update config for
-                        authorization. For safety purpose you are recommended to reset application token after this is
-                        done.</label>
-                    <br>
-                    <div>
-                        <h3 class="text-l font-bold">Company</h3>
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Name</label>
-                            <input id="webconfig_vtc_name"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                name="text" rows="5" placeholder=""></input>
-                        </div>
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
-                            <input id="webconfig_vtc_color"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                        <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver
-                                Ranking)</label>
-                            <select id="webconfig_company_distance_unit"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="metric">Metric</option>
-                                <option value="imperial">Imperial</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                    viewbox="0 0 20 20">
-                                    <path
-                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                    </path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Navio Company ID</label>
-                            <input id="webconfig_navio_company_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Slogan</label>
-                            <input id="webconfig_slogan"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                name="text" rows="5" placeholder=""></input>
-                        </div>
-                    </div>
-
-                    <hr><br>
-
-                    <div>
-                        <h3 class="text-l font-bold">Assets (Input only if you want to update them)</h3>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Logo Download Link (File size must
-                                <= 1 MB)</label> <input id="webconfig_logo_url"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                    type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Banner Download Link (File size
-                                must <= 1 MB)</label> <input id="webconfig_banner_url"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                    type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Background Download Link (File size
-                                must <= 4 MB)</label> <input id="webconfig_bg_url"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                    type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Team Update Banner Download Link (File
-                                size
-                                must
-                                <= 1 MB)</label> <input id="webconfig_teamupdate_url"
-                                    class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                                    type="text" name="" placeholder="">
-                        </div>
-                    </div>
-
-                    <hr><br>
-                    <h3 class="text-l font-bold">Advanced Customization</h3>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><b>Custom Style (CSS)</b></label>
-
-                        <textarea id="webconfig_custom_style" style="width:100%;height:200px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                            name="field-name" rows="5" placeholder=""></textarea>
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for=""><b>Custom Application</b></label>
-                        <label class="block text-sm font-medium mb-2" for="">1. Info</label>
-                        <label class="block text-sm font-medium mb-2" for="">1.1. script, style tag are filtered
-                            out.</label>
-                        <label class="block text-sm font-medium mb-2" for="">1.2. To go back to default application,
-                            leave the field empty.</label>
-                        <label class="block text-sm font-medium mb-2" for="">1.3. If you haven't set up custom
-                            application before, the text below is default application.</label>
-                        <label class="block text-sm font-medium mb-2" for="">2. Basic Usage</label>
-                        <label class="block text-sm font-medium mb-2" for="">2.1. You are free to code your own HTML
-                            application.</label>
-                        <label class="block text-sm font-medium mb-2" for="">2.2. Text input (e.g. date / text),
-                            textarea, select, radio, checkbox are supported.</label>
-                        <label class="block text-sm font-medium mb-2" for="">2.3. For text input, textarea, select,
-                            assign them ID like "applicationNAnswerA" (N is application type, A is the ID of
-                            question)</label>
-                        <label class="block text-sm font-medium mb-2" for="">2.4. For radio, checkbox, assign them NAME
-                            like "applicationNAnswerA" (e.g. application1Answer3)</label>
-                        <label class="block text-sm font-medium mb-2" for="">2.5. You should add a "question" before the
-                            answer box, assign it ID like "applicationNQuestionA" (A should be the same as the
-                            answer's)</label>
-                        <label class="block text-sm font-medium mb-2" for="">2.6. A maximum of 100 questions & answers
-                            is supported.</label>
-                        <label class="block text-sm font-medium mb-2" for="">3. Advanced Usage</label>
-                        <label class="block text-sm font-medium mb-2" for="">3.1. You can create your own application
-                            type, just add more "option" to #appselect (value is application ID). You also need to add
-                            "div" with ID "ApplicationA" (A is ID) to make them display when user select an
-                            application.</label>
-                        <label class="block text-sm font-medium mb-2" for="">3.2. For staff application, a select with
-                            ID "application2Answer3" is reserved to display open staff positions, updated in Staff -
-                            Application.</label>
-                        <label class="block text-sm font-medium mb-2" for="">3.3. For divisions, you can add divisions
-                            by adding "option" to "application4Answer1". And like application type, add "div" with ID
-                            "DivisionA" (A is ID) to make them display when user select a division.</label>
-
-                        <textarea id="webconfig_custom_application" style="width:100%;height:300px"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded webConfigFormData"
-                            name="field-name" rows="5" placeholder=""></textarea>
-                    </div>
-
-                    <hr><br>
-
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">Application Token (For
-                            authorization)</label>
-                        <input id="webconfig_apptoken" type="password"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            name="text" rows="5" placeholder=""></input>
-                    </div>
-
-                    <button type="button" style="float:right"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UpdateWebConfig()" id="updateWebConfigBtn">Update</button>
+                <br>
+                <div style="float:right">
+                    <button id="button-revert-config" type="button" class="btn btn-secondary" onclick="RevertConfig();">Revert</button>
+                    <button id="button-reset-config" type="button" class="btn btn-secondary" onclick="ResetConfig();">Reset</button>
+                    <button id="button-save-config" type="button" class="btn btn-primary" onclick="UpdateConfig();">Save</button>
+                    <button id="button-reload-api-show" type="button" class="btn btn-danger" onclick="ReloadAPIShow();">Reload API</button>
                 </div>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">API Config</h3>
-                </div>
-                <div class="mb-6" style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">Program will not reload automatically. You need to manually reload it.</label>
-                    <label class="block text-sm font-medium mb-2" for="" style="color:red">Warning: Misconfiguration
-                        may lead to API service failing to start or not working properly!</label>
-                    <br>
-                    <!-- <div>
-                        <h3 class="text-l font-bold">Company</h3>
-
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Name</label>
-                            <input id="config_vtc_name"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                name="text" rows="5" placeholder=""></input>
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">HEX Color</label>
-                            <input id="config_hex_color"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Distance Unit (Driver
-                                Ranking)</label>
-                            <select id="config_distance_unit"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="metric">Metric</option>
-                                <option value="imperial">Imperial</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                    viewbox="0 0 20 20">
-                                    <path
-                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                    </path>
-                                </svg>
+        </section>
+        <section id="user-settings-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5 style="display:inline-block"><strong><span clas="rect-20"><i class="fa-solid fa-gear"></i></span> Settings</strong></h5>
+                <ul class="nav nav-tabs" role="tablist" style="float:right">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white active" id="settings-general-tab" data-bs-toggle="tab" data-bs-target="#settings-general" type="button" role="tab" aria-controls="settings-general" aria-selected="true">General</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white" id="settings-security-tab" data-bs-toggle="tab" data-bs-target="#settings-security" type="button" role="tab" aria-controls="settings-security" aria-selected="false">Security</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white" id="settings-sessions-tab" data-bs-toggle="tab" data-bs-target="#settings-sessions" type="button" role="tab" aria-controls="settings-sessions" aria-selected="false">Sessions</button>
+                    </li>
+                </ul>
+                <div class="tab-content mt-3" id="settings-subtab">
+                    <div class="tab-pane fade show active" id="settings-general" role="tabpanel" aria-labelledby="settings-general-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col">
+                                <label for="settings-distance-unit" class="form-label" style="width:100%">Distance Unit</label>
+                                <div class="btn-group mb-3" id="settings-distance-unit-group">
+                                    <a id="settings-distance-unit-metric" onclick='localStorage.setItem("distance-unit","metric");window.location.reload();' style="cursor:pointer" class="btn btn-primary active" aria-current="page">Metric</a>
+                                    <a id="settings-distance-unit-imperial" onclick='localStorage.setItem("distance-unit","imperial");window.location.reload();' style="cursor:pointer" class="btn btn-primary">Imperial</a>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label for="settings-distance-unit" class="form-label" style="width:100%">Theme</label>
+                                <div class="btn-group mb-3" id="settings-theme">
+                                    <a id="settings-theme-dark" onclick='ToggleDarkMode("dark");' style="cursor:pointer" class="btn btn-primary active disabled" aria-current="page">Dark</a>
+                                    <a id="settings-theme-light" onclick='ToggleDarkMode("light");' style="cursor:pointer" class="btn btn-primary disabled">Light</a>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Require TruckersMP
-                                Account</label>
-                            <select id="config_truckersmp_bind"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                    viewbox="0 0 20 20">
-                                    <path
-                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                    </path>
-                                </svg>
+                        <hr>
+                        <label class="form-label" style="width:100%">Account Connections</label>
+                        <div class="row">
+                            <div class="col">
+                                <label for="settings-user-truckersmpid" class="form-label">TruckersMP</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="settings-user-truckersmpid" placeholder="/">
+                                </div>
+                                <button id="button-settings-update-truckersmpid" type="button" class="btn btn-primary" style="float:right" onclick="UpdateTruckersMPID();">Update</button>
+                            </div>
+                            <div class="col">
+                                <label for="settings-user-steamid" class="form-label">Steam</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark disabled" id="settings-user-steamid" placeholder="/" disabled style="color:#aaa">
+                                </div>
+                                <button id="button-settings-update-steamid" type="button" class="btn btn-primary" style="float:right" onclick="UpdateSteamID();">Update</button>
                             </div>
                         </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Logo Link</label>
-                            <input id="config_vtc_logo_link"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
+                        <hr>
+                        <label for="settings-bio" class="form-label">About Me</label>
+                        <div class="input-group mb-3" style="height:200px">
+                            <textarea type="text" class="form-control bg-dark text-white" id="settings-bio" placeholder="About Me, MarkDown supported" style="height:100%"></textarea>
                         </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Team Update Banner Link</label>
-                            <input id="config_team_update_image_link"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
+                        <button id="button-settings-bio-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateBio();">Save</button>
+                    </div>
+                    <div class="tab-pane fade" id="settings-security" role="tabpanel" aria-labelledby="settings-security-tab" tabindex="0">
+                        <label for="settings-password" class="form-label">Password Login</label>
+                        <p>You will be able to login with Discord email and Drivers Hub password.</p>
+                        <div class="input-group mb-3" style="width:200px">
+                            <input type="password" class="form-control bg-dark text-white" id="settings-password" placeholder="New Password">
+                        </div>
+                        <div style="display:block">
+                            <button id="button-settings-password-disable" type="button" class="btn btn-danger" style="display:inline-block" onclick="DisablePassword(firstop=true);">Disable</button>
+                            <button id="button-settings-password-update" type="button" class="btn btn-primary" style="display:inline-block" onclick="UpdatePassword(firstop=true);">Update</button>
+                        </div>
+                        <hr>
+                        <label for="settings-application-token" class="form-label">Application Token</label>
+                        <p>Application token has limited access to your account but they never expire. Make sure you trust the application before entering this token somewhere.</p>
+                        <p id="settings-application-token-p" style="font-size:15px">For security purposes, tokens can only be viewed once, when created. If you forgot or lost access to your token, please regenerate a new one.</p>
+                        <p id="settings-application-token" style="display:none"></p>
+                        <div style="display:block">
+                            <button id="button-application-token-copy" type="button" class="btn btn-secondary" style="display:none;display:none" onclick="">Copy</button>
+                            <button id="button-settings-disable-application-token" type="button" class="btn btn-danger" style="display:inline-block" onclick="DisableApplicationToken(firstop=true);">Disable</button>
+                            <button id="button-settings-reset-application-token" type="button" class="btn btn-primary" style="display:inline-block" onclick="ResetApplicationToken(firstop=true);">Reset Token</button>
+                        </div>
+                        <hr>
+                        <label for="settings-mfa" class="form-label">Multiple Factor Authentication</label>
+                        <p>MFA adds an extra layer of protection on login and sensitive operations by implementing TOTP.</p>
+                        <button id="button-settings-mfa-disable" type="button" class="btn btn-danger" onclick="DisableMFAShow();" style="display:none">Disable</button>
+                        <button id="button-settings-mfa-enable" type="button" class="btn btn-primary" onclick="EnableMFAShow();" style="display:none">Enable</button>
+                        <div class="member-only-tab">
+                            <hr>
+                            <label for="settings-mfa" class="form-label">Leave Company</label>
+                            <p>Your delivery log will be erased and you will be removed from Navio company. This cannot be undone.</p>
+                            <button id="button-settings-resign" type="button" class="btn btn-danger" onclick="UserResignShow();">Resign</button>
                         </div>
                     </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Discord Server</h3>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Server ID</label>
-                            <input id="config_guild_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="relative" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2 text-left" for="">Check if user is in
-                                server?</label>
-                            <select id="config_in_guild_check"
-                                class="appearance-none block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name">
-                                <option value="true">Yes</option>
-                                <option value="false">No</option>
-                            </select>
-                            <div
-                                class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                    viewbox="0 0 20 20">
-                                    <path
-                                        d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z">
-                                    </path>
-                                </svg>
-                            </div>
+                    <div class="tab-pane fade" id="settings-sessions" role="tabpanel" aria-labelledby="settings-sessions-tab" tabindex="0">
+                        <div id="table_session">
+                            <table class="w-100">
+                                <thead id="table_session_head">
+                                    <tr class="text-xs text-gray-500 text-left">
+                                        <th>IP</th>
+                                        <th>Login Time</th>
+                                        <th>Expire Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_session_data">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Navio</h3>
-
-                        <div class="mb-6" style="display:inline-block;width:73.5%">
-                            <label class="block text-sm font-medium mb-2" for="">API Token (Leave empty to keep
-                                unchanged)</label>
-                            <input id="config_navio_api_token"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                name="text" rows="5" placeholder=""></input>
-                        </div>
-
-                        <div class="relative" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Company ID</label>
-                            <input id="config_navio_company_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                name="text" rows="5" placeholder=""></input>
-                        </div>
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Delivery</h3>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Delivery Log Channel ID</label>
-                            <input id="config_delivery_log_channel_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Delivery Embed GIF (Separate with
-                                line-break)</label>
-                            <textarea id="config_delivery_post_gifs_txt" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea>
-                        </div>
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Discord Application</h3>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Client ID</label>
-                            <input id="config_discord_client_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6" style="display:inline-block;width:49%">
-                            <label class="block text-sm font-medium mb-2" for="">Client Secret (Leave empty to keep
-                                unchanged)</label>
-                            <input id="config_discord_client_secret"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">OAuth2 URL (Generated URL)</label>
-                            <input id="config_discord_oauth2_url"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Callback URL (Redirect URL)</label>
-                            <input id="config_discord_callback_url"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Bot Token (Leave empty to keep
-                                unchanged)</label>
-                            <input id="config_discord_bot_token"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">New Member</h3>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Team Update Webhook</label>
-                            <input id="config_webhook_teamupdate"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Team Update Message (Variable:
-                                {mention})</label>
-                            <input id="config_webhook_teamupdate_message"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Welcome Channel ID</label>
-                            <input id="config_welcome_channel_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder="">
-                        </div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Welcome Message (Variable:
-                                {mention})</label>
-                            <textarea id="config_welcome_message" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Welcome Message Image Link</label>
-                            <input id="config_welcome_image_link"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Discord Role Update (Separate with
-                                ',' | Prepend '+' to add role or '-' to remove role')</label>
-                            <input id="config_welcome_role_change_txt"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                type="text" name="" placeholder=""></div>
-
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Ranking</h3>
-
-                        <div class="mb-6" style="display:inline-block;width:24.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Rank Up Channel ID</label>
-                            <input id="config_rank_up_channel_id"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6" style="display:inline-block;width:74.5%">
-                            <label class="block text-sm font-medium mb-2" for="">Rank Up Message</label>
-                            <input id="config_rank_up_message"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Ranks (Separate ranks with
-                                line-break / For each rank, separate distance, name, discord_role_id with
-                                ',')</label>
-                            <textarea id="config_ranks_txt" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Application</h3>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Webhook</label>
-                            <input id="config_webhook_application"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Types (Separate types with
-                                line-break / For each type, separate id, name, discord_role_id, staff_role_id (separate
-                                with '|'), message, webhook, note with ',' /
-                                ID 1~4 are reserved and name change will not take effect)</label>
-                            <textarea id="config_application_types_txt" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Division</h3>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Webhook</label>
-                            <input id="config_webhook_division"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Webhook Message (You can add
-                                role-pings here)</label>
-                            <textarea id="config_webhook_division_message" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Division (Separate divisions with
-                                line-break / For each division, separate id, name, point, role_id with ',')</label>
-                            <textarea id="config_divisions_txt" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-                    </div>
-                    <hr><br>
-                    <div>
-                        <h3 class="text-l font-bold">Permissions & Roles</h3>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Permissions (Separate permissions
-                                with line-break / For each permission, separate permission name and role ids with
-                                ':', separate role ids with ',')</label>
-                            <textarea id="config_perms_txt" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Roles (Separate roles with
-                                line-break / For each role, separate id, name with ',')</label>
-                            <textarea id="config_roles_txt" style="width:100%;height:100px"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                                name="field-name" rows="5" placeholder=""></textarea></div>
-                    </div>
-                    <hr><br> 
-                    <div>
-                        <h3 class="text-l font-bold">Audit Log</h3>
-
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium mb-2" for="">Webhook</label>
-                            <input id="config_webhook_audit"
-                                class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded configFormData"
-                                type="text" name="" placeholder=""></div>
-                    </div>
-                    <hr><br> -->
-                    <h3 class="text-l font-bold">JSON Config Editor</h3>
-                    <label class="block text-sm font-medium mb-2" for="">For advanced user who knows JSON format
-                        well</label>
-                    <textarea id="config" style="width:100%;height:400px"
-                        class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                        name="field-name" rows="5" placeholder=""></textarea>
-                    <br>
-                    <button type="button" style="float:right"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="UpdateConfig()" id="updateConfigBtn">Update</button>
                 </div>
             </div>
-            <br>
-            <div class="py-8 px-6 mx-auto lg:ml-80 pt-4 bg-white shadow rounded">
-                <div class="flex px-6 pb-4 border-b">
-                    <h3 class="text-xl font-bold">Reload</h3>
-                </div>
-                <div style="padding:20px">
-                    <label class="block text-sm font-medium mb-2" for="">You have to reload API when you want to update config.</label>
-                    <label class="block text-sm font-medium mb-2" for="">MFA must be enabled and you have to enter OTP before reload.</label>
-                    <label class="block text-sm font-medium mb-2" for="">The process may take up to 5 minutes and
-                        API will be inaccessible during reload. Deliveries are not logged when API is
-                        offline.</label>
-                    <br>
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium mb-2" for="">MFA OTP</label>
-                        <input id="input-reload-otp"
-                            class="block w-full px-4 py-3 mb-2 text-sm placeholder-gray-500 bg-white border rounded"
-                            type="text" name="" style="width:200px;display:inline" placeholder="000 000">
-                    </div>
-                    <button type="button"
-                        class="w-full md:w-auto px-6 py-3 font-medium text-white bg-indigo-500 hover:bg-indigo-600 rounded transition duration-200"
-                        onclick="ReloadServer()" id="reloadBtn">Reload</button>
-                </div>
-            </div>
-        </div>
-    </section>
-    <datalist id="all_member_datalist" style="display:none">
-        
-    </datalist>
-    <section id="footer">
-        <div class="px-6 mx-auto lg:ml-80 pb-4">
+        </section>
+        <datalist id="all-member-datalist" style="display:none">
+            
+        </datalist>
+        <section id="footer">
             <hr style="border:1px solid #777;margin-bottom:8px">
             <div style="width:49.5%;text-align:left;display:inline-block">
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>
@@ -2542,8 +1552,8 @@ if (str_starts_with($path, '/banner')) {
                 &nbsp;&nbsp;
                 <a href="https://wiki.charlws.com/" target="_blank">Wiki</a>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 </body>
 
 </html>

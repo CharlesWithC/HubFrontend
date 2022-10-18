@@ -13,8 +13,12 @@ $(document).ready(function () {
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
 
+function ParseAjaxError(data){
+    return JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+}
+
 function AjaxError(data, no_notification = false) {
-    errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+    errmsg = ParseAjaxError(data);
     if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
     console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
 }
