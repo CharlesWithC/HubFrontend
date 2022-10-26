@@ -79,6 +79,7 @@ function AuthValidate() {
                 localStorage.setItem("token", newtoken);
                 ValidateToken();
                 $(".tabs").removeClass("loaded");
+                $("#auth-message-content").html("Welcome back!");
                 toastNotification("success", "Success", "Welcome back!", 5000);
                 setTimeout(function () {
                     ShowTab("#overview-tab");
@@ -118,6 +119,7 @@ function OAuthMFA() {
             localStorage.removeItem("tipt");
             ValidateToken();
             $(".tabs").removeClass("loaded");
+            $("#auth-message-content").html("Welcome back!");
             toastNotification("success", "Success", "Welcome back!", 5000);
             setTimeout(function () {
                 ShowTab("#overview-tab");

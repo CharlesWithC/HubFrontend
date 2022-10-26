@@ -193,7 +193,8 @@ function EditRolesShow(uid){
                 checked = "";
                 if(roles.includes(roleids[i])) checked = "checked";
                 disabled = "";
-                if (roleids[i] <= highestroleid) disabled = "disabled";
+                if (parseInt(roleids[i]) <= parseInt(highestroleid))
+                    disabled = "disabled";
                 if(!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin"))&&userPerm.includes("division")){
                     if(!division_roles.includes(roleids[i])) disabled="disabled";
                 }
@@ -334,7 +335,7 @@ function LoadRanking(){
         $("#ranking-tab").append(t);
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + localStorage.getItem("userid"),
+        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + localStorage.getItem("userid"),
         type: "GET",
         dataType: "json",
         headers: {
@@ -461,7 +462,7 @@ function LoadUserProfile(userid) {
 
             profile_info = "";
             profile_info += "<h1 style='font-size:40px'><b>" + d.name + "</b></h1>";
-            profile_info += "" + parseMarkdown(d.bio);
+            profile_info += "" + marked.parse(d.bio);
             $("#profile-info").html(profile_info);
             
             avatar = GetAvatarSrc(d.discordid, d.avatar);
@@ -498,7 +499,7 @@ function LoadUserProfile(userid) {
                         $("#profile-text-statistics").html(info);
 
                         $.ajax({
-                            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,event,division,myth&userids=" + String(userid),
+                            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                             type: "GET",
                             dataType: "json",
                             headers: {
@@ -510,6 +511,7 @@ function LoadUserProfile(userid) {
                                     d = data.response.list[0];
                                     info += "<b>Points</b><br>";
                                     info += `<b>Distance</b>: ${d.points.distance}<br>`;
+                                    info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
                                     info += `<b>Event</b>: ${d.points.event}<br>`;
                                     info += `<b>Division</b>: ${d.points.division}<br>`;
                                     info += `<b>Myth</b>: ${d.points.myth}<br>`;

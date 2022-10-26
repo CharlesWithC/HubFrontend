@@ -64,6 +64,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
@@ -86,7 +87,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/ea0072b91fc2f2b4.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/cb8697ec67c3ef4a.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -143,10 +144,6 @@
         td {
             padding-right: 10px;
         }
-        
-        .col,.col-4,.col-8 {
-            overflow: hidden;
-        }
 
         .tabs {
             display: none;
@@ -171,7 +168,7 @@
             font-weight: bold;
         }
 
-        .member-only-tab {
+        .member-only {
             display: none;
         }
 
@@ -265,8 +262,6 @@
         th > .fc-scrollgrid-sync-inner {background-color: #444}
         .flexdatalist-results {background-color:#2F3136;}
         .flexdatalist-multiple li.value {background-color:#2F3136;}
-        button {min-width: 100px};
-        .btn-close {min-width: 0};
     </style>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
@@ -287,7 +282,7 @@
 
 <body style="width:100%;overflow-x:hidden;background-color:#2F3136;color:white;">
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
-        <div style="height:60px">
+        <div style="height:60px;overflow:hidden">
             <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
         </div>
         <hr>
@@ -307,7 +302,7 @@
                             Announcements
                         </a>
                     </li>
-                    <li class="nav-item member-only-tab">
+                    <li class="nav-item member-only">
                         <a id="button-downloads-tab" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-download"></i></span>
                             Downloads
@@ -328,7 +323,13 @@
                             Deliveries
                         </a>
                     </li>
-                    <li class="nav-item member-only-tab">
+                    <li class="nav-item member-only">
+                        <a id="button-challenge-tab" onclick="ShowTab('#challenge-tab', '#button-challenge-tab')" class="nav-link text-white clickable" aria-current="page">
+                            <span class="rect-20"><i class="fa-solid fa-fire-flame-curved"></i></span>
+                            Challenges
+                        </a>
+                    </li>
+                    <li class="nav-item member-only">
                         <a id="button-division-tab" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                             Divisions
@@ -341,7 +342,7 @@
                         </a>
                     </li>
                 </div>
-                <div class="member-only-tab" style="margin:5px 0;">
+                <div class="member-only" style="margin:5px 0;">
                     <li><strong style="color:darkgrey">Drivers</strong></li>
                     <li class="nav-item">
                         <a id="button-member-tab" onclick="ShowTab('#member-tab', '#button-member-tab')" class="nav-link text-white clickable" aria-current="page">
@@ -427,6 +428,7 @@
                     <p style="margin-bottom:0" id="sidebar-bio"><span class="placeholder col-8"></span>&nbsp;&nbsp;<span class="placeholder col-2"></span><br><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-6"></span></span>
                 </div>
                 <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item clickable" onclick="LoadUserProfile(localStorage.getItem('userid'))">Profile</a></li>
                 <li><a class="dropdown-item clickable" onclick="Logout()">Sign out</a></li>
             </ul>
             <a id="button-user-delivery-tab" onclick="LoadUserProfile(localStorage.getItem('userid'));" class="text-white text-decoration-none clickable" style="padding:10px 5px;border-radius:5px;"><i class="fa-solid fa-truck"></i></a>
@@ -482,7 +484,7 @@
                 <button id="button-mfa-verify" type="button" class="btn btn-primary w-100" onclick="MFAVerify();">Verify</button>
             </div>
         </section>
-        <section id="auth-message-tab" class="tabs">
+        <section id="auth-message-tab" class="tabs" style="height:80vh">
             <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
             <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
                 <h1><strong><span id="auth-message-title"></strong></h1>
@@ -817,7 +819,7 @@
             <div class="row">
                 <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> Deliveries</strong></h5>
-                    <div id="delivery-log-button-right-wrapper" style="float:right;"><a class="member-only-tab clickable" onclick="ShowDeliveryLogExport();"><span class="rect-20"><i class="fa-solid fa-file-export"></i></span></a>
+                    <div id="delivery-log-button-right-wrapper" style="float:right;"><a id="button-delivery-export" class="member-only clickable" onclick="ShowDeliveryLogExport();"><span class="rect-20"><i class="fa-solid fa-file-export"></i></span></a>
                     <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
                     <div id="table_delivery_log">
                         <table class="w-100">
@@ -877,6 +879,18 @@
                         <div class="input-group mb-2">
                             <input type="text" class="form-control bg-dark text-white" id="delivery-log-speed-limit" placeholder="0">
                             <span class="input-group-text"><span class="distance_unit text-black"></span>/h</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Division ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-division-id" placeholder="">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Challenge ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-challenge-id" placeholder="">
                         </div>
                     </div>
                     <div>
@@ -950,27 +964,445 @@
                 </div>
             </div>
         </section>
+        <section id="challenge-tab" class="tabs">
+            <div id="challenge-new" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="challenge-new-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#challenge-new-collapse" aria-expanded="false" aria-controls="challenge-new-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Challenge</strong>
+                    </button>
+                </h5>
+                <div id="challenge-new-collapse" class="collapse" aria-labelledby="challenge-new-heading" data-bs-parent="#challenge-new-job-requirements">
+                    <div class="row">
+                        <div class="col">
+                            <label for="challenge-new-title" class="form-label">Title</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control bg-dark text-white" id="challenge-new-title" placeholder="Challenge title">
+                            </div>
+                            <label for="challenge-new-description" class="form-label">Description</label>
+                            <div class="input-group mb-3" style="height:calc(100% - 265px)">
+                                <textarea type="text" class="form-control bg-dark text-white" id="challenge-new-description" placeholder="Challenge description, including what drivers need to do to complete the challenge, MarkDown supported" style="height:100%"></textarea>
+                            </div>
+                            <label for="challenge-new-time" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">Start</span>
+                                <input type="datetime-local" class="form-control bg-dark text-white" id="challenge-new-start-time" placeholder="">
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text">End</span>
+                                <input type="datetime-local" class="form-control bg-dark text-white" id="challenge-new-end-time" placeholder="">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <label for="challenge-new-type" class="form-label" style="width:100%">Challenge Type</label>
+                            <div class="mb-3">
+                                <div class="form-check" style="display:inline-block;width:30%">
+                                    <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-1" checked value="1">
+                                        <label class="form-check-label" for="challenge-new-type-1">
+                                            Personal
+                                        </label>
+                                    </div>
+                                <div class="form-check" style="display:inline-block">
+                                    <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-2" value="2">
+                                    <label class="form-check-label" for="challenge-new-type-2">
+                                        Company
+                                    </label>
+                                </div>
+                            </div>
+                            <label for="challenge-new-delivery-count" class="form-label">Delivery Count</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white" id="challenge-new-delivery-count" placeholder="Number of deliveries required to complete the challenge">
+                            </div>
+                            <div>
+                                <label class="form-label">Required Roles (any of them, up to 20 roles)</label>
+                                <div class="input-group mb-2">
+                                    <input id="challenge-new-required-roles" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Roles" placeholder='Select roles from list' list="all-role-datalist" data-min-length='1' data-limit-of-values='20' multiple='' data-selection-required='1'>
+                                </div>
+                            </div>
+                            <label for="challenge-new-required-distance" class="form-label">Required Distance</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control bg-dark text-white" id="challenge-new-required-distance" placeholder="Distance required to join the challenge">
+                            </div>
+                            <label for="challenge-new-reward-points" class="form-label">Reward Points</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control bg-dark text-white" id="challenge-new-reward-points" placeholder="Points rewarded when challenge is completed">
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            <label class="form-label" style="width:100%">Job Requirements</label>
+                            <p>*All fields are optional. Only input those required for the challenge.</p>
+                        </div>
+                        <div class="col">
+                            <label for="challenge-new-public-details" class="form-label" style="width:100%">Visibility</label>
+                            <div class="mb-3">
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-new-public-details" id="challenge-new-public-details-1" value="1">
+                                        <label class="form-check-label" for="challenge-new-public-details-1">
+                                            Public (Members)
+                                        </label>
+                                    </div>
+                                <div class="form-check" style="display:inline-block">
+                                    <input class="form-check-input" type="radio" name="challenge-new-public-details" id="challenge-new-public-details-0" checked value="0">
+                                    <label class="form-check-label" for="challenge-new-public-details-0">
+                                        Private (Staff-only)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <h5>Route</h5>
+                            <label for="challenge-new-source-city-id" class="form-label">Source City ID</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="Unique ID of source city">
+                            </div>
+                            <label for="challenge-new-source-company-id" class="form-label">Source Company ID</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="Unique ID of source company">
+                            </div>
+                            <label for="challenge-new-destination-city-id" class="form-label">Destination City ID</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="Unique ID of destination city">
+                            </div>
+                            <label for="challenge-new-destination-company-id" class="form-label">Destination Company ID</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="Unique ID of destination company">
+                            </div>
+                            <label for="challenge-new-minimum-distance" class="form-label">Minimum Distance</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-minimum-distance" placeholder="">
+                                <span class="input-group-text">km</span>
+                            </div>
+                            <hr>
+                            <h5>Cargo</h5>
+                            <label for="challenge-new-cargo-id" class="form-label">Cargo ID</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-cargo-id" placeholder="Unique ID of cargo">
+                            </div>
+                            <label for="challenge-new-cargo-mass" class="form-label">Minimum Cargo Mass</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-cargo-mass" placeholder="">
+                                <span class="input-group-text">kg</span>
+                            </div>
+                            <label for="challenge-new-cargo-damage" class="form-label">Maximum Cargo Damage</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-cargo-damage" placeholder="">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <h5>Delivery</h5>
+                            <label for="challenge-new-maximum-speed" class="form-label">Maximum Speed</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-maximum-speed" placeholder="">
+                                <span class="input-group-text">km/h</span>
+                            </div>
+                            <label for="challenge-new-maximum-fuel" class="form-label">Maximum Fuel</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-maximum-fuel" placeholder="">
+                                <span class="input-group-text">l</span>
+                            </div>
+                            <label for="challenge-new-minimum-profit" class="form-label">Minimum Profit</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-minimum-profit" placeholder="">
+                                <span class="input-group-text">€/$</span>
+                            </div>
+                            <label for="challenge-new-maximum-profit" class="form-label">Maximum Profit</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-maximum-profit" placeholder="">
+                                <span class="input-group-text">€/$</span>
+                            </div>
+                            <label for="challenge-new-maximum-offence" class="form-label">Maximum Offence</label>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-maximum-offence" placeholder="">
+                                <span class="input-group-text">€/$</span>
+                            </div>
+                            <hr>
+                            <h5>Misc</h5>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="challenge-new-allow-overspeed" class="form-label">Allow Overspeed</label>
+                                    <div class="mb-3">
+                                        <select class="form-select bg-dark text-white" id="challenge-new-allow-overspeed">
+                                            <option value="1" selected>Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <label for="challenge-new-allow-auto" class="form-label">Allow Automations</label>
+                                    <div class="mb-3">
+                                        <select class="form-select bg-dark text-white" id="challenge-new-allow-auto">
+                                            <option value="none">None</option>
+                                            <option value="auto-park">Auto Park</option>
+                                            <option value="auto-load">Auto Load</option>
+                                            <option value="both" selected>Auto Park & Auto Load</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <label for="challenge-new-must-not-be-late" class="form-label">Must not be late</label>
+                                    <div class="mb-3">
+                                        <select class="form-select bg-dark text-white" id="challenge-new-must-not-be-late">
+                                            <option value="1">Yes</option>
+                                            <option value="0" selected>No</option>
+                                        </select>
+                                    </div>
+                                    <label for="challenge-new-must-be-special" class="form-label">Must be special transport</label>
+                                    <div class="mb-3">
+                                        <select class="form-select bg-dark text-white" id="challenge-new-must-be-special">
+                                            <option value="1">Yes</option>
+                                            <option value="0" selected>No</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button id="button-challenge-new-create" type="button" class="btn btn-primary" style="float:right;" onclick="CreateChallenge();">Create</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="shadow p-3 m-3 bg-dark rounded">
+                <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-fire-flame-curved"></i></span> Challenges</strong></h5>
+                <a id="button-challenge-edit-delivery" style="float:right;display:none;" class="clickable" onclick='EditChallengeDeliveryShow();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a>
+                <div id="table_challenge_list">
+                    <table class="w-100">
+                        <thead id="table_challenge_list_head">
+                            <tr>
+                                <th scope="col">Title</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Reward</th>
+                                <th scope="col" style="width:30%">Progress</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_challenge_list_data">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="challenge-edit" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+            <h5 id="challenge-edit-heading">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#challenge-edit-collapse" aria-expanded="true" aria-controls="challenge-edit-collapse">
+                    <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> Edit Challenge #<span id="challenge-edit-id-span"></span></strong>
+                </button>
+            </h5>
+            <div id="challenge-edit-collapse" class="collapsed" aria-labelledby="challenge-edit-heading" data-bs-parent="#challenge-edit-job-requirements">
+                <div class="row">
+                    <div class="col">
+                        <label for="challenge-edit-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="challenge-edit-title" placeholder="Challenge title">
+                        </div>
+                        <label for="challenge-edit-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 265px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="challenge-edit-description" placeholder="Challenge description, including what drivers need to do to complete the challenge, MarkDown supported" style="height:100%"></textarea>
+                        </div>
+                        <label for="challenge-edit-time" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Start</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="challenge-edit-start-time" placeholder="">
+                        </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">End</span>
+                            <input type="datetime-local" class="form-control bg-dark text-white" id="challenge-edit-end-time" placeholder="">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="challenge-edit-type" class="form-label" style="width:100%">Challenge Type</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:30%">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1">
+                                    <label class="form-check-label" for="challenge-edit-type-1">
+                                        Personal
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-2" value="2">
+                                <label class="form-check-label" for="challenge-edit-type-2">
+                                    Company
+                                </label>
+                            </div>
+                        </div>
+                        <label for="challenge-edit-delivery-count" class="form-label">Delivery Count</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="challenge-edit-delivery-count" placeholder="Number of deliveries required to complete the challenge">
+                        </div>
+                        <div>
+                            <label class="form-label">Required Roles (any of them, up to 20 roles)</label>
+                            <div class="input-group mb-2">
+                                <input id="challenge-edit-required-roles" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Roles" placeholder='Select roles from list' list="all-role-datalist" data-min-length='1' data-limit-of-values='20' multiple='' data-selection-required='1'>
+                            </div>
+                        </div>
+                        <label for="challenge-edit-required-distance" class="form-label">Required Distance</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="challenge-edit-required-distance" placeholder="Distance required to join the challenge">
+                        </div>
+                        <label for="challenge-edit-reward-points" class="form-label">Reward Points</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="challenge-edit-reward-points" placeholder="Points rewarded when challenge is completed">
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label" style="width:100%">Job Requirements</label>
+                        <p>*All fields are optional. Only input those required for the challenge.</p>
+                    </div>
+                    <div class="col">
+                        <label for="challenge-edit-public-details" class="form-label" style="width:100%">Visibility</label>
+                        <div class="mb-3">
+                            <div class="form-check" style="display:inline-block;width:40%">
+                                <input class="form-check-input" type="radio" name="challenge-edit-public-details" id="challenge-edit-public-details-1" value="1">
+                                    <label class="form-check-label" for="challenge-edit-public-details-1">
+                                        Public (Members)
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block">
+                                <input class="form-check-input" type="radio" name="challenge-edit-public-details" id="challenge-edit-public-details-0" checked value="0">
+                                <label class="form-check-label" for="challenge-edit-public-details-0">
+                                    Private (Staff-only)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <h5>Route</h5>
+                        <label for="challenge-edit-source-city-id" class="form-label">Source City ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="Unique ID of source city">
+                        </div>
+                        <label for="challenge-edit-source-company-id" class="form-label">Source Company ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="Unique ID of source company">
+                        </div>
+                        <label for="challenge-edit-destination-city-id" class="form-label">Destination City ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="Unique ID of destination city">
+                        </div>
+                        <label for="challenge-edit-destination-company-id" class="form-label">Destination Company ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="Unique ID of destination company">
+                        </div>
+                        <label for="challenge-edit-minimum-distance" class="form-label">Minimum Distance</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-minimum-distance" placeholder="">
+                            <span class="input-group-text">km</span>
+                        </div>
+                        <hr>
+                        <h5>Cargo</h5>
+                        <label for="challenge-edit-cargo-id" class="form-label">Cargo ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-cargo-id" placeholder="Unique ID of cargo">
+                        </div>
+                        <label for="challenge-edit-cargo-mass" class="form-label">Minimum Cargo Mass</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-cargo-mass" placeholder="">
+                            <span class="input-group-text">kg</span>
+                        </div>
+                        <label for="challenge-edit-cargo-damage" class="form-label">Maximum Cargo Damage</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-cargo-damage" placeholder="">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h5>Delivery</h5>
+                        <label for="challenge-edit-maximum-speed" class="form-label">Maximum Speed</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-maximum-speed" placeholder="">
+                            <span class="input-group-text">km/h</span>
+                        </div>
+                        <label for="challenge-edit-maximum-fuel" class="form-label">Maximum Fuel</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-maximum-fuel" placeholder="">
+                            <span class="input-group-text">l</span>
+                        </div>
+                        <label for="challenge-edit-minimum-profit" class="form-label">Minimum Profit</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-minimum-profit" placeholder="">
+                            <span class="input-group-text">€/$</span>
+                        </div>
+                        <label for="challenge-edit-maximum-profit" class="form-label">Maximum Profit</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-maximum-profit" placeholder="">
+                            <span class="input-group-text">€/$</span>
+                        </div>
+                        <label for="challenge-edit-maximum-offence" class="form-label">Maximum Offence</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-maximum-offence" placeholder="">
+                            <span class="input-group-text">€/$</span>
+                        </div>
+                        <hr>
+                        <h5>Misc</h5>
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label for="challenge-edit-allow-overspeed" class="form-label">Allow Overspeed</label>
+                                <div class="mb-3">
+                                    <select class="form-select bg-dark text-white" id="challenge-edit-allow-overspeed">
+                                        <option value="1" selected>Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
+                                <label for="challenge-edit-allow-auto" class="form-label">Allow Automations</label>
+                                <div class="mb-3">
+                                    <select class="form-select bg-dark text-white" id="challenge-edit-allow-auto">
+                                        <option value="none">None</option>
+                                        <option value="auto-park">Auto Park</option>
+                                        <option value="auto-load">Auto Load</option>
+                                        <option value="both" selected>Auto Park & Auto Load</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label for="challenge-edit-must-not-be-late" class="form-label">Must not be late</label>
+                                <div class="mb-3">
+                                    <select class="form-select bg-dark text-white" id="challenge-edit-must-not-be-late">
+                                        <option value="1">Yes</option>
+                                        <option value="0" selected>No</option>
+                                    </select>
+                                </div>
+                                <label for="challenge-edit-must-be-special" class="form-label">Must be special transport</label>
+                                <div class="mb-3">
+                                    <select class="form-select bg-dark text-white" id="challenge-edit-must-be-special">
+                                        <option value="1">Yes</option>
+                                        <option value="0" selected>No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="button-challenge-edit" type="button" class="btn btn-primary" style="float:right;" onclick="">Edit</button>
+                        <button type="button" class="btn btn-secondary mx-2" style="float:right;" onclick="$('#challenge-edit').hide();">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </section>
         <section id="division-tab" class="tabs">
             <div class="row mb-3">
                 <div class="col-4" id="division-summary-list">
                     <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
                         <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
-                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
-                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span><span class="placeholder" style="width:120px"></span></p>
                     </div>
                     <div class="shadow p-3 m-3 bg-dark rounded col card">
                         <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
-                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
-                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span><span class="placeholder" style="width:120px"></span></p>
                     </div>
                     <div class="shadow p-3 m-3 bg-dark rounded col card">
                         <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
-                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ><span class="placeholder" style="width:100px"></span></p>
-                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ><span class="placeholder" style="width:120px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span><span class="placeholder" style="width:100px"></span></p>
+                        <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span><span class="placeholder" style="width:120px"></span></p>
                     </div>
                 </div>
                 <div class="shadow p-3 bg-dark rounded col-8">
-                    <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> Recent Division Deliveries</strong></h5>
+                    <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> Division Deliveries</strong></h5>
                     <div id="table_division_delivery" style="height:fit-content">
                         <table class="w-100">
                             <thead id="table_division_delivery_head">
@@ -1045,7 +1477,7 @@
                             <span class="input-group-text" id="event-new-distance-label">Distance</span>
                             <input type="text" class="form-control bg-dark text-white" id="event-new-distance" placeholder="How long the event is" aria-describedby="event-new-distance-label">
                         </div>
-                        <label for="event-new-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                        <label for="event-new-time" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
                         <div class="input-group mb-2">
                             <span class="input-group-text" id="event-new-meetup-time-label">Meetup</span>
                             <input type="datetime-local" class="form-control bg-dark text-white" id="event-new-meetup-time" placeholder="" aria-describedby="event-new-meetup-time-label">
@@ -1083,7 +1515,6 @@
                     <table class="w-100">
                         <thead id="table_event_list_head">
                             <tr>
-                                <th scope="col" style="width:100px">ID</th>
                                 <th scope="col">Title</th>
                                 <th scope="col">Departure</th>
                                 <th scope="col">Destination</th>
@@ -1100,7 +1531,7 @@
             </div>
             <div id="event-edit" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
                 <h5 id="event-edit-heading">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#event-edit-collapse" aria-expanded="false" aria-controls="event-edit-collapse">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#event-edit-collapse" aria-expanded="true" aria-controls="event-edit-collapse">
                         <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> Edit Event #<span id="event-edit-id-span"></span></strong>
                     </button>
                 </h5>
@@ -1215,6 +1646,7 @@
                                     <th scope="col">Name</th>
                                     <th scope="col">Rank</th>
                                     <th scope="col">Distance (<span class="distance_unit"></span>)</th>
+                                    <th scope="col">Challenge</th>
                                     <th scope="col">Event</th>
                                     <th scope="col">Division</th>
                                     <th scope="col">Myth</th>
@@ -1261,18 +1693,25 @@
                             </label>
                         </div>
                         <div class="form-check mb-2" style="width: 100px;display:inline-block">
+                            <input class="form-check-input" type="checkbox" value="" id="leaderboard-challenge" checked>
+                            <label class="form-check-label" for="leaderboard-challenge">
+                                Challenge
+                            </label>
+                        </div>
+                        <br>
+                        <div class="form-check mb-2" style="width: 100px;display:inline-block">
                             <input class="form-check-input" type="checkbox" value="" id="leaderboard-event" checked>
                             <label class="form-check-label" for="leaderboard-event">
                                 Event
                             </label>
                         </div>
-                        <br>
                         <div class="form-check mb-2" style="width: 100px;display:inline-block">
                             <input class="form-check-input" type="checkbox" value="" id="leaderboard-division" checked>
                             <label class="form-check-label" for="leaderboard-division">
                                 Division
                             </label>
                         </div>
+                        <br>
                         <div class="form-check mb-2" style="width: 100px;display:inline-block">
                             <input class="form-check-input" type="checkbox" value="" id="leaderboard-myth" checked>
                             <label class="form-check-label" for="leaderboard-myth">
@@ -1399,8 +1838,8 @@
                     <table class="w-100">
                         <thead id="table_audit_log_head">
                             <tr>
-                                <th scope="col">User</th>
-                                <th scope="col">Time</th>
+                                <th scope="col" style="min-width:180px">User</th>
+                                <th scope="col" style="width:180px">Time</th>
                                 <th scope="col">Operation</th>
                             </tr>
                         </thead>
@@ -1512,12 +1951,17 @@
                         <p>MFA adds an extra layer of protection on login and sensitive operations by implementing TOTP.</p>
                         <button id="button-settings-mfa-disable" type="button" class="btn btn-danger" onclick="DisableMFAShow();" style="display:none">Disable</button>
                         <button id="button-settings-mfa-enable" type="button" class="btn btn-primary" onclick="EnableMFAShow();" style="display:none">Enable</button>
-                        <div class="member-only-tab">
+                        <div class="member-only">
                             <hr>
                             <label for="settings-mfa" class="form-label">Leave Company</label>
                             <p>Your delivery log will be erased and you will be removed from Navio company. This cannot be undone.</p>
                             <button id="button-settings-resign" type="button" class="btn btn-danger" onclick="UserResignShow();">Resign</button>
                         </div>
+                        <hr>
+                        <label for="settings-mfa" class="form-label">Delete Account</label>
+                        <p>Your account will be deleted from our system, including basic info such as username and email, and account connections of Steam and TruckersMP.</p>
+                        <p class="member-only">Your can only do this after you leave the company.</p>
+                        <button id="button-settings-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccountShow();">Delete</button>
                     </div>
                     <div class="tab-pane fade" id="settings-sessions" role="tabpanel" aria-labelledby="settings-sessions-tab" tabindex="0">
                         <div id="table_session">
@@ -1538,6 +1982,9 @@
             </div>
         </section>
         <datalist id="all-member-datalist" style="display:none">
+            
+        </datalist>
+        <datalist id="all-role-datalist" style="display:none">
             
         </datalist>
         <section id="footer">

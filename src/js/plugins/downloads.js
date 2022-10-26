@@ -8,7 +8,7 @@ async function LoadDownloads() {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            $("#downloads-content").html(parseMarkdown(data.response));
+            $("#downloads-content").html(marked.parse(data.response));
             $("#downloads-edit-content").val(data.response);
         },
         error: function (data) {
@@ -23,7 +23,7 @@ async function LoadDownloads() {
     if(userPerm.includes("downloads") || userPerm.includes("admin")){
         $("#downloads-edit-button-wrapper").show();
         $("#downloads-edit-content").on("input", function(){
-            $("#downloads-content").html(parseMarkdown($("#downloads-edit-content").val()));
+            $("#downloads-content").html(marked.parse($("#downloads-edit-content").val()));
             $("#downloads-unsaved").show();
         });
     }
@@ -45,7 +45,7 @@ function UpdateDownloads() {
             UnlockBtn("#button-downloads-edit-save");
             $("#downloads-unsaved").hide();
             if (data.error) return AjaxError(data);
-            $("#downloads-content").html(parseMarkdown($("#downloads-edit-content").val()));
+            $("#downloads-content").html(marked.parse($("#downloads-edit-content").val()));
             toastNotification("success", "Success", "Downloads saved!", 5000, false);
         },
         error: function (data) {

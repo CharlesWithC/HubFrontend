@@ -11,14 +11,58 @@ division_pending_row = `<tr>
 <td style="width:50%;"><span class="placeholder w-100"></span></td>
 </tr>`;
 
+function LoadDivisionDeliveryList(){
+    $("#table_division_delivery_data").empty();
+    for(var i=0;i<10;i++){
+        $("#table_division_delivery_data").append(dlog_placeholder_row);
+    }
+    InitPaginate("#table_division_delivery", "LoadDivisionDeliveryList();");
+    page = parseInt($("#table_division_delivery_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&page_size=10&division=only",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            deliverylist = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < deliverylist.length; i++) {
+                delivery = deliverylist[i];
+                user = delivery.user;
+                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
+                cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
+                unittxt = "€";
+                if (delivery.unit == 2) unittxt = "$";
+                profit = TSeparator(delivery.profit);
+                color = "";
+                if (delivery.profit < 0) color = "grey";
+                dextra = "";
+                if (delivery.division != "") dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+
+                dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
+
+                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
+            }
+
+            PushTable("#table_division_delivery", data, total_pages, "LoadDivisionDeliveryList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
 async function LoadDivisionInfo() {
     $("#division-summary-list").children().remove();
     for(var i=0;i<3;i++){
         $("#division-summary-list").append(division_placeholder_row);
-    }
-    $("#table_division_delivery_data").empty();
-    for(var i=0;i<10;i++){
-        $("#table_division_delivery_data").append(dlog_placeholder_row);
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -30,10 +74,9 @@ async function LoadDivisionInfo() {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            d = data.response;
+            info = data.response;
 
             $("#division-summary-list").children().remove();
-            info = d.statistics;
             for (var i = 0; i < info.length; i++) {
                 divisionid = info[i].divisionid;
                 divisionname = info[i].name;
@@ -46,40 +89,12 @@ async function LoadDivisionInfo() {
                     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ${totalpnt} Points</p>
                 </div>`);
             }
-
-            $("#table_division_delivery_data").empty();
-            if (d.recent_deliveries.length == 0) {
-                $("#table_division_delivery_head").hide();
-                $("#table_division_delivery_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
-            } else {
-                $("#table_division_delivery_head").show();
-                for (i = 0; i < d.recent_deliveries.length; i++) {
-                    delivery = d.recent_deliveries[i];
-                    user = delivery.user;
-                    distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                    cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
-                    unittxt = "€";
-                    if (delivery.unit == 2) unittxt = "$";
-                    profit = TSeparator(delivery.profit);
-                    
-                    dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                    $("#table_division_delivery_data").append(`
-            <tr>
-              <td><a style='cursor:pointer' onclick="ShowDeliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
-              <td>${delivery.source_company}, ${delivery.source_city}</td>
-              <td>${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td>${distance}${distance_unit_txt}</td>
-              <td>${delivery.cargo} (${cargo_mass})</td>
-              <td>${unittxt}${profit}</td>
-            </tr>`);
-                }
-            }
         },
         error: function (data) {
             AjaxError(data);
         }
     });
+    LoadDivisionDeliveryList();
     while(1){
         if(userPermLoaded) break;
         await sleep(100);
@@ -177,15 +192,14 @@ function SubmitDivisionValidationRequest(logid) {
     LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division",
+        url: apidomain + "/" + vtcprefix + "/division?divisionid="+divisionid,
         type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            logid: logid,
-            divisionid: divisionid
+            logid: logid
         },
         success: async function (data) {
             UnlockBtn("#button-request-division-validation");
@@ -215,7 +229,7 @@ function LoadPendingDivisionValidation() {
             if (data.error) return AjaxError(data);
 
             $("#table_division_pending_data").empty();
-            d = data.response;
+            d = data.response.list;
             if (d.length == 0) {
                 $("#table_division_pending_head").hide();
                 $("#table_division_pending_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
@@ -261,7 +275,7 @@ function UpdateDivision(logid, status) {
     if (message == undefined || message == null) message = "";
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division",
+        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -269,7 +283,6 @@ function UpdateDivision(logid, status) {
         },
         data: {
             logid: logid,
-            divisionid: divisionid,
             status: status,
             message: message
         },

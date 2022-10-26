@@ -111,7 +111,7 @@ function LoadAnnouncement(noplaceholder = false){
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
-                    <p id="announcement-display-${announcement.announcementid}-content">${parseMarkdown(announcement.content.replaceAll("\n", "<br>"))}</p>
+                    <p id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</p>
                     ${announcement_control_bottom}
                 </div>`;
             }

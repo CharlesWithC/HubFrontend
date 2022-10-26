@@ -14,6 +14,7 @@ applicationTypes = JSON.parse(localStorage.getItem("application-types"));
 userPerm = JSON.parse(localStorage.getItem("user-perm"));
 if (userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
+user_distance = null;
 Chart.defaults.color = "white";
 shiftdown = false;
 mfaenabled = false;
@@ -23,33 +24,32 @@ modals = {};
 modalName2ID = {};
 
 function Logout() {
-    token = localStorage.getItem("token")
+    token = localStorage.getItem("token");
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/token",
         type: "DELETE",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + token
-        },
-        success: function (data) {
-            localStorage.removeItem("token");
-            $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
-            $("#button-user-profile").attr("data-bs-toggle", "");
-            $("#sidebar-username").html("Guest");
-            $("#sidebar-userid").html("Login First");
-            $("#sidebar-role").html("Loner");
-            $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif");
-            $("#sidebar-application").hide();
-            $("#sidebar-staff").hide();
-            NonMemberMode();
-            localStorage.removeItem("roles");
-            localStorage.removeItem("name");
-            localStorage.removeItem("highest-role");
-            localStorage.removeItem("discordid");
-            localStorage.removeItem("userid");
-            ShowTab("#signin-tab", "#button-signin-tab");
         }
     });
+
+    localStorage.removeItem("token");
+    $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
+    $("#button-user-profile").attr("data-bs-toggle", "");
+    $("#sidebar-username").html("Guest");
+    $("#sidebar-userid").html("Login First");
+    $("#sidebar-role").html("Loner");
+    $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif");
+    $("#sidebar-application").hide();
+    $("#sidebar-staff").hide();
+    NonMemberMode();
+    localStorage.removeItem("roles");
+    localStorage.removeItem("name");
+    localStorage.removeItem("highest-role");
+    localStorage.removeItem("discordid");
+    localStorage.removeItem("userid");
+    ShowTab("#signin-tab", "#button-signin-tab");
 }
 
 function InitRankingDisplay() {
@@ -173,8 +173,8 @@ function InitLeaderboardTimeRange() {
     offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
     firstDay = new Date(+firstDay - offset);
     date = new Date(+date - offset);
-    $("#lbstart").val(firstDay.toISOString().substring(0, 10));
-    $("#lbend").val(date.toISOString().substring(0, 10));
+    $("#lbstart").val(firstDay.toISOString().slice(0,-1).substring(0, 10));
+    $("#lbend").val(date.toISOString().slice(0,-1).substring(0, 10));
 }
 
 function InitDarkMode() {
@@ -377,6 +377,7 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/delivery');
         $("#delivery-log-userid").val("");
         $("#company-statistics").show();
+        $("#button-delivery-export").show();
         $("#user-statistics").hide();
         if (!loaded) {
             LoadDriverLeaderStatistics();
@@ -393,6 +394,7 @@ async function ShowTab(tabname, btnname) {
         profile_userid = userid;
         window.history.pushState("", "", '/member/' + userid);
         $("#company-statistics").hide();
+        $("#button-delivery-export").hide();
         $("#user-statistics").show();
         $("#delivery-tab").removeClass("last-load-company");
         if (!$("#delivery-tab").hasClass("last-load-user") || $("#delivery-tab").attr("last-load-userid") != userid) {
@@ -401,6 +403,10 @@ async function ShowTab(tabname, btnname) {
         }
         $("#delivery-tab").addClass("last-load-user");
         $("#delivery-tab").attr("last-load-userid", userid);
+    }
+    if (tabname == "#challenge-tab") {
+        window.history.pushState("", "", '/challenge');
+        if (!loaded) LoadChallenge();
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
@@ -484,6 +490,7 @@ function LoadCache() {
     perms = JSON.parse(localStorage.getItem("perms"));
     positions = JSON.parse(localStorage.getItem("positions"));
     applicationTypes = JSON.parse(localStorage.getItem("application-types"));
+    divisions = JSON.parse(localStorage.getItem("divisions"));
 
     if (positions != undefined && positions != null) {
         positionstxt = "";
@@ -497,7 +504,7 @@ function LoadCache() {
     }
 
     cacheExpire = parseInt(localStorage.getItem("cache-expire"));
-    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined))
+    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined))
         cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
@@ -558,6 +565,9 @@ function LoadCache() {
                     divisions[d[i].id] = d[i];
                 }
                 localStorage.setItem("divisions", JSON.stringify(divisions));
+            }, error: function(data){
+                divisions = {}; // no division plugin
+                localStorage.setItem("divisions", JSON.stringify(divisions));
             }
         });
         localStorage.setItem("cache-expire", +new Date() + 86400000);
@@ -617,14 +627,16 @@ function NonMemberMode() {
     $("#overview-right-col").hide();
     $("#overview-left-col").removeClass("col-8");
     $("#overview-left-col").addClass("col");
-    $(".member-only-tab").hide();
+    $(".member-only").hide();
+    $(".non-member-only").show();
 }
 
 function MemberMode() {
     $("#overview-right-col").show();
     $("#overview-left-col").addClass("col-8");
     $("#overview-left-col").removeClass("col");
-    $(".member-only-tab").show();
+    $(".member-only").show();
+    $(".non-member-only").hide();
 }
 
 function PreValidateToken() {
@@ -722,7 +734,7 @@ function ValidateToken() {
 
             // User Information
             localStorage.setItem("roles", JSON.stringify(data.response.roles));
-            localStorage.setItem("name", data.response.name);
+            localStorage.setItem("name", data.response.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
             localStorage.setItem("avatar", data.response.avatar);
             localStorage.setItem("discordid", data.response.discordid);
             localStorage.setItem("userid", data.response.userid);
@@ -748,7 +760,7 @@ function ValidateToken() {
             });
             highestrole = roles[0];
             highestroleid = roles[0];
-            name = data.response.name;
+            name = data.response.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             avatar = data.response.avatar;
             discordid = data.response.discordid;
             $("#sidebar-username").html(name);
@@ -777,6 +789,20 @@ function ValidateToken() {
                 $("#sidebar-userid").html("##");
                 NonMemberMode();
             }
+
+            $.ajax({
+                url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                success: async function (data) {
+                    if (!data.error) {
+                        user_distance = data.response.list[0].points.distance;
+                    }
+                }
+            });
         },
         error: function (data) {
             // Invalid token, log out
@@ -811,7 +837,8 @@ function PathDetect() {
             $("#button-delivery-tab").addClass("bg-indigo-500");
             ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
-    } else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
+    } else if (p == "/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
+    else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
     else if (p.startsWith("/member")) {
@@ -851,7 +878,7 @@ window.onpopstate = function (event) {
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
 $(document).ready(async function () {
     PreValidateToken();
-    $("input").val("");
+    $("#mfa-otp").val("");
     $("textarea").val("");
     $("body").keydown(function (e) {
         if (e.which == 16) shiftdown = true;
@@ -903,6 +930,10 @@ $(document).ready(async function () {
         applicationTypes = JSON.parse(localStorage.getItem("application-types"));
         if (rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
+    }
+    roleids = Object.keys(rolelist);
+    for(var i = 0 ; i < roleids.length ; i++){
+        $("#all-role-datalist").append(`<option value="${rolelist[roleids[i]]} (${roleids[i]})">${rolelist[roleids[i]]} (${roleids[i]})</option>`);;
     }
     positionstxt = "";
     for (var i = 0; i < positions.length; i++) {

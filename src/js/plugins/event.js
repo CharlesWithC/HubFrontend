@@ -2,14 +2,13 @@ allevents = {};
 
 event_placerholder_row = `
 <tr>
-    <td style="width:100px"><span class="placeholder w-100"></span></td>
-    <td style="width:calc(100% - 580px - 40%);"><span class="placeholder w-100"></span></td>
-    <td style="width:calc(100% - 580px - 25%);"><span class="placeholder w-100"></span></td>
-    <td style="width:calc(100% - 580px - 25%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 480px - 40%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 480px - 25%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 480px - 25%);"><span class="placeholder w-100"></span></td>
     <td style="width:120px;"><span class="placeholder w-100"></span></td>
     <td style="width:180px;"><span class="placeholder w-100"></span></td>
     <td style="width:180px;"><span class="placeholder w-100"></span></td>
-    <td style="width:calc(100% - 580px - 10%);"><span class="placeholder w-100"></span></td>
+    <td style="width:calc(100% - 480px - 10%);"><span class="placeholder w-100"></span></td>
 </tr>`;
 
 async function LoadEvent(noplaceholder = false) {
@@ -30,7 +29,7 @@ async function LoadEvent(noplaceholder = false) {
                     eventlist.push({
                         "title": d[i].title,
                         "url": "/event/" + d[i].eventid,
-                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().substring(0, 10)
+                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().slice(0,-1).substring(0, 10)
                     })
                 }
 
@@ -65,9 +64,6 @@ async function LoadEvent(noplaceholder = false) {
         for(var i = 0 ; i < 10 ; i++){
             $("#table_event_list_data").append(event_placerholder_row);
         }
-    }
-    if(userPerm.includes("event") || userPerm.includes("admin")){
-        $("#event-new").show();
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/event?page=" + page,
@@ -110,7 +106,7 @@ async function LoadEvent(noplaceholder = false) {
                 extra = "";
                 if(userPerm.includes("event") || userPerm.includes("admin")){ extra = `<a id="button-event-edit-show-${event.eventid}" class="clickable" onclick="EditEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-event-delete-show-${event.eventid}" class="clickable" onclick="DeleteEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${event.eventid} ${pvt}</a>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",",",<br>")}`, `${dt.replaceAll(",",",<br>")}`, `${votecnt}`, extra]);
+                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${pvt} ${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",",",<br>")}`, `${dt.replaceAll(",",",<br>")}`, `${votecnt}`, extra]);
             }
 
             PushTable("#table_event_list", data, total_pages, "LoadEvent();");
@@ -119,6 +115,13 @@ async function LoadEvent(noplaceholder = false) {
             AjaxError(data);
         }
     });
+    while(1){
+        if(userPermLoaded) break;
+        await sleep(100);
+    }
+    if(userPerm.includes("event") || userPerm.includes("admin")){
+        $("#event-new").show();
+    }
 }
 
 async function ShowEventDetail(eventid, reload = false) {
@@ -183,6 +186,9 @@ async function ShowEventDetail(eventid, reload = false) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info += "<table><tbody>";
+    if(event.link != ""){
+        info += GenTableRow("Link", `<a href="${event.link}" target="_blank">${event.link}</a>`);
+    }
     info += GenTableRow("Meetup", getDateTime(event.meetup_timestamp * 1000));
     info += GenTableRow("Departure", getDateTime(event.departure_timestamp * 1000));
     if(userid != null && userid != -1){
@@ -192,8 +198,8 @@ async function ShowEventDetail(eventid, reload = false) {
     }
 
     info += "</tbody></table>"
-    info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + parseMarkdown(event.description).replaceAll("<img","<img style='width:100%' ") + "</p></div>";
-    modalid = ShowModal("Event #" + event.eventid, info);
+    info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + marked.parse(event.description).replaceAll("<img","<img style='width:100%' ") + "</p></div>";
+    modalid = ShowModal(event.title, info);
     InitModal("event_detail", modalid);
 }
 
@@ -238,7 +244,7 @@ function CreateEvent(){
         data: {
             "title": title,
             "description": description,
-            "truckersmp_link": truckersmp_link,
+            "link": truckersmp_link,
             "departure": departure,
             "destination": destination,
             "distance": distance,
@@ -263,7 +269,7 @@ function EditEventShow(eventid){
     e = allevents[eventid];
     title = e.title;
     description = e.description;
-    truckersmp_link = e.truckersmp_link;
+    truckersmp_link = e.link;
     departure = e.departure;
     destination = e.destination;
     distance = e.distance;
@@ -278,8 +284,8 @@ function EditEventShow(eventid){
     $("#event-edit-departure").val(departure);
     $("#event-edit-destination").val(destination);
     $("#event-edit-distance").val(distance);
-    $("#event-edit-meetup-time").val(new Date(parseInt(meetup_timestamp)*1000).toISOString().slice(0,-1));
-    $("#event-edit-departure-time").val(new Date(parseInt(departure_timestamp)*1000).toISOString().slice(0,-1));
+    $("#event-edit-meetup-time").val(new Date(parseInt(meetup_timestamp)*1000).toISOString().slice(0,-1).slice(0,-1));
+    $("#event-edit-departure-time").val(new Date(parseInt(departure_timestamp)*1000).toISOString().slice(0,-1).slice(0,-1));
     if(is_private) $("#event-edit-visibility-private").prop("checked", true);
     else $("#event-edit-visibility-public").prop("checked", true);
     $("#event-edit").show();
@@ -307,7 +313,7 @@ function EditEvent(){
         data: {
             "title": title,
             "description": description,
-            "truckersmp_link": truckersmp_link,
+            "link": truckersmp_link,
             "departure": departure,
             "destination": destination,
             "distance": distance,

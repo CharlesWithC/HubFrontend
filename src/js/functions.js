@@ -92,7 +92,7 @@ function GetAvatar(userid, name, discordid, avatarid) {
 
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
-    return toastNotification("success", "Banner URL copied to clipboard!", 5000)
+    return toastNotification("success", "Success", "Banner URL copied to clipboard!", 5000)
 }
 
 function CopyButton(element, text){

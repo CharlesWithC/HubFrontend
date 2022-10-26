@@ -852,14 +852,11 @@ function DeleteUser(discordid) {
     LockBtn("#button-delete-user", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
+        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: discordid
         },
         success: function (data) {
             UnlockBtn("#button-delete-user");
@@ -870,6 +867,35 @@ function DeleteUser(discordid) {
         },
         error: function (data) {
             UnlockBtn("#button-delete-user");
+            AjaxError(data);
+        }
+    })
+}
+
+function DeleteAccountShow(){
+    modalid = ShowModal(`Delete Account`, `<p>Are you sure you want to delete your account?</p><p>The account will be deleted from our system, including basic info such as username and email, and account connections of Steam and TruckersMP. You will have to login with Discord to register again.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">Delete</button>`);
+    InitModal("delete_account", modalid);
+}
+
+function DeleteAccount(discordid) {
+    LockBtn("#button-delete-account", "Deleting...");
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-delete-account");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "Account deleted. Goodbye!", 5000, false);
+            Logout();
+            DestroyModal("delete_account");
+        },
+        error: function (data) {
+            UnlockBtn("#button-delete-account");
             AjaxError(data);
         }
     })

@@ -45,7 +45,7 @@ function LoadAuditLog(noplaceholder = false) {
             for (i = 0; i < auditLog.length; i++) {
                 audit = auditLog[i];
                 dt = getDateTime(audit.timestamp * 1000);
-                op = parseMarkdown(audit.operation).replace("\n", "<br>");
+                op = marked.parse(audit.operation).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1);
 
                 data.push([`${audit.user.name}`, `${dt}`, `${op}`]);
             }

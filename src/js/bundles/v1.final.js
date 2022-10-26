@@ -3786,6 +3786,50 @@ function LoadDivisionList(){
     }
 }
 
+function LoadDivisionDeliveryList(){
+    InitPaginate("#table_division_delivery", "LoadDivisionDeliveryList();");
+    page = parseInt($("#table_division_delivery_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&page_size=10&division=only",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            deliverylist = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < deliverylist.length; i++) {
+                delivery = deliverylist[i];
+                user = delivery.user;
+                distance = TSeparator(parseInt(delivery.distance * distance_ratio));
+                cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
+                unittxt = "€";
+                if (delivery.unit == 2) unittxt = "$";
+                profit = TSeparator(delivery.profit);
+                color = "";
+                if (delivery.profit < 0) color = "grey";
+                dextra = "";
+                if (delivery.division != "") dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+
+                dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
+
+                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
+            }
+
+            PushTable("#table_division_delivery", data, total_pages, "LoadDivisionDeliveryList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
 function LoadDivisionInfo() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -3820,40 +3864,12 @@ function LoadDivisionInfo() {
                     }
                 }
             }
-
-            $("#table_division_delivery_data").empty();
-            if (d.recent.length == 0) {
-                $("#table_division_delivery_head").hide();
-                $("#table_division_delivery_data").append(TableNoData(8));
-            } else {
-                $("#table_division_delivery_head").show();
-                for (i = 0; i < d.recent.length; i++) {
-                    delivery = d.recent[i];
-                    distance = TSeparator(parseInt(delivery.distance * distance_ratio));
-                    cargo_mass = parseInt(delivery.cargo_mass / 1000) + "t";
-                    unittxt = "€";
-                    if (delivery.unit == 2) unittxt = "$";
-                    profit = TSeparator(delivery.profit);
-                    color = "";
-                    if (delivery.profit < 0) color = "grey";
-                    dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
-                    $("#table_division_delivery_data").append(`
-            <tr class="text-sm" style="color:${color}">
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick="deliveryDetail('${delivery.logid}')">${delivery.logid} ${dextra}</a></td>
-              <td class="py-5 px-6 font-medium"><a style='cursor:pointer' onclick='LoadUserProfile(${delivery.userid})'>${delivery.name}</a></td>
-              <td class="py-5 px-6 font-medium">${delivery.source_company}, ${delivery.source_city}</td>
-              <td class="py-5 px-6 font-medium">${delivery.destination_company}, ${delivery.destination_city}</td>
-              <td class="py-5 px-6 font-medium">${distance}${distance_unit_txt}</td>
-              <td class="py-5 px-6 font-medium">${delivery.cargo} (${cargo_mass})</td>
-              <td class="py-5 px-6 font-medium">${unittxt}${profit}</td>
-            </tr>`);
-                }
-            }
         },
         error: function (data) {
             AjaxError(data);
         }
     })
+    LoadDivisionDeliveryList();
 }
 
 function LoadPendingDivisionValidation() {
@@ -3874,7 +3890,7 @@ function LoadPendingDivisionValidation() {
             }
             if(Object.keys(DIVISION).length == 0) return toastNotification("error", "Error", "No division found.", 5000, false);
             $("#table_division_validation_data").empty();
-            d = data.response;
+            d = data.response.list;
             if (d.length == 0) {
                 $("#table_division_validation_head").hide();
                 $("#table_division_validation_data").append(TableNoData(3));

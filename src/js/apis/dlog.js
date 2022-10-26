@@ -41,9 +41,10 @@ function LoadDriverLeaderStatistics() {
 leaderboard_placeholder_row = `
 <tr>
     <td style="width:5%;"><span class="placeholder w-100"></span></td>
-    <td style="width:20%;"><span class="placeholder w-100"></span></td>
-    <td style="width:20%;"><span class="placeholder w-100"></span></td>
     <td style="width:15%;"><span class="placeholder w-100"></span></td>
+    <td style="width:20%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
+    <td style="width:10%;"><span class="placeholder w-100"></span></td>
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
@@ -56,7 +57,7 @@ function LoadLeaderboard(noplaceholder = false) {
     page_size = parseInt($("#leaderboard-page-size").val());
     if (!isNumber(page_size)) page_size = 20;
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_leaderboard_data").children().remove();
         for (i = 0; i < page_size; i++) {
             $("#table_leaderboard_data").append(leaderboard_placeholder_row);
@@ -87,11 +88,13 @@ function LoadLeaderboard(noplaceholder = false) {
     if (!dets2 && !dats) start_time = 1, end_time = 2;
 
     ldistance = $("#leaderboard-distance").is(":checked");
+    lchallenge = $("#leaderboard-challenge").is(":checked");
     levent = $("#leaderboard-event").is(":checked");
     ldivision = $("#leaderboard-division").is(":checked");
     lmyth = $("#leaderboard-myth").is(":checked");
     limittype = ""
     if (ldistance == 1) limittype += "distance,";
+    if (lchallenge == 1) limittype += "challenge,";
     if (levent == 1) limittype += "event,";
     if (ldivision == 1) limittype += "division,";
     if (lmyth == 1) limittype += "myth,";
@@ -123,7 +126,7 @@ function LoadLeaderboard(noplaceholder = false) {
             for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio));
-                data.push([`${user.points.rank}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${user.points.rank_no_limit})`, `${distance}`, `${user.points.event}`, `${user.points.division}`, `${user.points.myth}`, `${user.points.total}`]);
+                data.push([`${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -150,8 +153,8 @@ function LoadDeliveryList(noplaceholder = false) {
 
     page_size = parseInt($("#delivery-log-page-size").val());
     if (!isNumber(page_size)) page_size = 10;
-    
-    if(!noplaceholder){
+
+    if (!noplaceholder) {
         $("#table_delivery_log_data").children().remove();
         for (i = 0; i < page_size; i++) {
             $("#table_delivery_log_data").append(dlog_placeholder_row);
@@ -187,6 +190,12 @@ function LoadDeliveryList(noplaceholder = false) {
     if (delivered && !cancelled) status = 1;
     else if (!delivered && cancelled) status = 2;
 
+    division = parseInt($("#delivery-log-division-id").val());
+    if (!isNumber(division)) division = "include";
+
+    challenge = parseInt($("#delivery-log-challenge-id").val());
+    if (!isNumber(challenge)) challenge = "include";
+
     uid = parseInt($("#delivery-log-userid").val());
     if (!isNumber(uid) || uid < 0) {
         uid = "";
@@ -195,7 +204,7 @@ function LoadDeliveryList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&status=" + status + uid,
+        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -220,7 +229,7 @@ function LoadDeliveryList(noplaceholder = false) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.division_validated == true) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division != "") dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
@@ -833,10 +842,10 @@ function MoreDeliveryDetail() {
     if (d.source_city != null) source_city = d.source_city.name;
     if (d.destination_company != null) destination_company = d.destination_company.name, destination_company_id = d.destination_company.unique_id;
     if (d.destination_city != null) destination_city = d.destination_city.name;
-    info += GenTableRow("Source Company", source_company);
-    info += GenTableRow("Source City", source_city);
-    info += GenTableRow("Destination Company", destination_company);
-    info += GenTableRow("Destination City", destination_city);
+    info += GenTableRow("Source Company", `${source_company} <span style="color:grey">(${source_company_id})</span>`);
+    info += GenTableRow("Source City", `${source_city} <span style="color:grey">(${d.source_city.unique_id})</span>`);
+    info += GenTableRow("Destination Company", `${destination_company} <span style="color:grey">(${destination_company_id})</span>`);
+    info += GenTableRow("Destination City", `${destination_city} <span style="color:grey">(${d.destination_city.unique_id})</span>`);
     info += GenTableRow("Logged Distance", distance);
     if (isdelivered) {
         distance2 = d.events[d.events.length - 1].meta.distance;
@@ -854,7 +863,11 @@ function MoreDeliveryDetail() {
     info += GenTableRow("&nbsp;", "&nbsp;");
     cargo = d.cargo.name;
     cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
-    info += GenTableRow("Cargo", cargo);
+    info += GenTableRow("Cargo", `${cargo} <span style="color:grey">(${d.cargo.unique_id})</span>`);
+    damage_color = "lightgreen";
+    if (d.cargo.damage >= 0.03) damage_color = "yellow";
+    if (d.cargo.damage >= 0.1) damage_color = "red";
+    info += GenTableRow("Cargo Damage", `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
     info += GenTableRow("Cargo Mass", cargo_mass);
     truck = d.truck.brand.name + " " + d.truck.name;
     truck_brand_id = d.truck.brand.unique_id;
@@ -914,9 +927,9 @@ function MoreDeliveryDetail() {
         info += GenTableRow("Is Late?", "<span style='color:lightgreen'>No</span>");
     }
     if (d.has_police_enabled == true) {
-        info += GenTableRow("Has Polic Enabled?", "<span style='color:lightgreen'>Yes</span>");
+        info += GenTableRow("Has Police Enabled?", "<span style='color:lightgreen'>Yes</span>");
     } else {
-        info += GenTableRow("Has Polic Enabled?", "<span style='color:red'>No</span>");
+        info += GenTableRow("Has Police Enabled?", "<span style='color:red'>No</span>");
     }
 
     MARKET = {
