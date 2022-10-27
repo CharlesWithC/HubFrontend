@@ -404,6 +404,26 @@ user_statistics_placeholder = `<div class="row">
     <div id="profile-text-statistics"></div>
 </div>
 </div>`;
+
+function getActitivyUrl(name){
+    if(name == "Viewing Configuration") return "/config";
+    else if(name == "Viewing Audit Log") return "/audit";
+    else if(name.startsWith("Viewing Delivery Log #")) return "/delivery/"+name.split("#")[1];
+    else if(name == "Viewing Delivery Logs") return "/delivery";
+    else if(name == "Viewing Drivers Hub Index") return "/";
+    else if(name == "Viewing Leaderboard") return "/leaderboard";
+    else if(name == "Viewing Members") return "/member";
+    else if(name.includes("User ID")) return "/member/"+name.split(": ")[1].split(")")[0];
+    else if(name == "Viewing Pending Users") return "/manage/user";
+    else if(name == "Viewing Announcements") return "/announcement";
+    else if(name == "Viewing Applications") return "/application/my";
+    else if(name == "Viewing Challenges") return "/challenge";
+    else if(name == "Viewing Divisions") return "/division";
+    else if(name == "Viewing Downloads") return "/downloads";
+    else if(name == "Viewing Events") return "/event";
+    else return "/";
+}
+
 function LoadUserProfile(userid) {
     if (userid < 0) return;
     profile_userid = userid;
@@ -411,7 +431,6 @@ function LoadUserProfile(userid) {
     $("#user-statistics").html(user_statistics_placeholder);
     $('#delivery-log-userid').val(userid);
     $("#profile-banner").attr("src", "/banner/" + userid);
-    ShowTab("#user-delivery-tab", userid);
 
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
@@ -429,6 +448,8 @@ function LoadUserProfile(userid) {
                 ShowTab("#overview-tab", "#button-overview-tab");
                 return AjaxError(data);
             }
+
+            ShowTab("#user-delivery-tab", userid);
 
             d = data.response;
 
@@ -455,6 +476,13 @@ function LoadUserProfile(userid) {
             
             if(d.roles.length == 1) account_info += GenTableRow("Role", rtxt);
             else account_info += GenTableRow("Roles", rtxt);
+            
+            account_info += GenTableRow("&nbsp;", "&nbsp;");
+            activity_url = getActitivyUrl(d.activity.name);
+            if(d.activity.name.includes("User ID")) d.activity.name = d.activity.name.split("(User ID")[0];
+            if(d.activity.name == "Offline") account_info += GenTableRow("Status", "Offline - Last seen " + timeAgo(new Date(d.activity.last_seen*1000)));
+            else if(d.activity.name == "Online") account_info += GenTableRow("Status", "Online");
+            else account_info += GenTableRow("Activity", `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
 
             account_info += "</table>";
 

@@ -13,7 +13,7 @@ $(document).ready(function () {
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
 
-function ParseAjaxError(data){
+function ParseAjaxError(data) {
     return JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
 }
 
@@ -95,10 +95,12 @@ function CopyBannerURL(userid) {
     return toastNotification("success", "Success", "Banner URL copied to clipboard!", 5000)
 }
 
-function CopyButton(element, text){
+function CopyButton(element, text) {
     navigator.clipboard.writeText(text);
     $(element).html("Copied!");
-    setTimeout(function(){$(element).html("Copy");},1000);
+    setTimeout(function () {
+        $(element).html("Copy");
+    }, 1000);
 }
 
 function FileOutput(filename, text) {
@@ -122,7 +124,7 @@ function isString(obj) {
 window.btnvals = {};
 
 function LockBtn(btnid, btntxt = "Working...") {
-    if($(btnid).attr("disabled") == "disabled") return;
+    if ($(btnid).attr("disabled") == "disabled") return;
     $(btnid).attr("disabled", "disabled");
     btnvals[btnid] = $(btnid).html();
     $(btnid).html(btntxt);
@@ -542,7 +544,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`){
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`) {
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -564,43 +566,114 @@ function ShowModal(title, content, footer = `<button type="button" class="btn bt
     return modalid;
 }
 
-function InitModal(name, modalid, top = false){
+function InitModal(name, modalid, top = false) {
     DestroyModal(name, immediately = true);
     modalName2ID[name] = modalid;
     modals[name] = new bootstrap.Modal('#modal-' + modalid);
     modals[name].show();
-    $("#modal-"+modalid).on('hidden.bs.modal', function(){
-        modals[name].dispose();$("#modal-"+modalid).remove();delete modals[name];
+    $("#modal-" + modalid).on('hidden.bs.modal', function () {
+        modals[name].dispose();
+        $("#modal-" + modalid).remove();
+        delete modals[name];
     })
-    if(top){
-        $("#modal-"+modalid).css("z-index", "1060");
-        $($("#modal-"+modalid).nextAll(".modal-backdrop")[0]).css("z-index", "1059");
+    if (top) {
+        $("#modal-" + modalid).css("z-index", "1060");
+        $($("#modal-" + modalid).nextAll(".modal-backdrop")[0]).css("z-index", "1059");
     }
 }
 
-function DestroyModal(name, immediately = false){
-    if(Object.keys(modals).includes(name)){
-        if(!immediately){
+function DestroyModal(name, immediately = false) {
+    if (Object.keys(modals).includes(name)) {
+        if (!immediately) {
             modals[name].hide();
-            setTimeout(function(){
+            setTimeout(function () {
                 modals[name].dispose();
-                $("#modal-"+modalName2ID[name]).remove();
+                $("#modal-" + modalName2ID[name]).remove();
                 delete modals[name];
                 delete modalName2ID[name];
             }, 1000);
         } else {
             modals[name].dispose();
-            $("#modal-"+modalName2ID[name]).remove();
+            $("#modal-" + modalName2ID[name]).remove();
             delete modals[name];
             delete modalName2ID[name];
         }
     }
 }
 
-function GenCard(title, content){
+function GenCard(title, content) {
     return `
     <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
         <h5 class="card-title"><strong>${title}</strong></h5>
         <p class="card-text">${content}</p>
     </div>`;
+}
+
+const MONTH_NAMES = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
+    const day = date.getDate();
+    const month = MONTH_NAMES[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    let minutes = date.getMinutes();
+
+    if (minutes < 10) {
+        // Adding leading zero to minutes
+        minutes = `0${ minutes }`;
+    }
+
+    if (prefomattedDate) {
+        // Today at 10:20
+        // Yesterday at 10:20
+        return `${ prefomattedDate } at ${ hours }:${ minutes }`;
+    }
+
+    if (hideYear) {
+        // January 10. at 10:20
+        return `${ month } ${ OrdinalSuffix(day) } at ${ hours }:${ minutes }`;
+    }
+
+    // January 10. 2017. at 10:20
+    return `${ month } ${ OrdinalSuffix(day) } ${ year } at ${ hours }:${ minutes }`;
+}
+
+
+// --- Main function
+function timeAgo(dateParam) {
+    if (!dateParam) {
+        return null;
+    }
+
+    const date = typeof dateParam === 'object' ? dateParam : new Date(dateParam);
+    const DAY_IN_MS = 86400000; // 24 * 60 * 60 * 1000
+    const today = new Date();
+    const yesterday = new Date(today - DAY_IN_MS);
+    const seconds = Math.round((today - date) / 1000);
+    const minutes = Math.round(seconds / 60);
+    const isToday = today.toDateString() === date.toDateString();
+    const isYesterday = yesterday.toDateString() === date.toDateString();
+    const isThisYear = today.getFullYear() === date.getFullYear();
+
+
+    if (seconds < 5) {
+        return 'now';
+    } else if (seconds < 60) {
+        return `${ seconds } seconds ago`;
+    } else if (seconds < 90) {
+        return 'about a minute ago';
+    } else if (minutes < 60) {
+        return `${ minutes } minutes ago`;
+    } else if (isToday) {
+        return getFormattedDate(date, 'Today'); // Today at 10:20
+    } else if (isYesterday) {
+        return getFormattedDate(date, 'Yesterday'); // Yesterday at 10:20
+    } else if (isThisYear) {
+        return getFormattedDate(date, false, true); // 10. January at 10:20
+    }
+
+    return getFormattedDate(date); // 10. January 2017. at 10:20
 }

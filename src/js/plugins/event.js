@@ -424,7 +424,7 @@ function EditEventAttendee(eventid) {
             UnlockBtn("#button-event-edit-attendee");
             if (data.error) return AjaxError(data);
             LoadEvent(noplaceholder = true);
-            $("#event-edit-message").html("<br>" + data.response.message.replaceAll("\n","<br>"));
+            $("#event-edit-message").html("<br>" + marked.parse(data.response.message).replaceAll("\n","<br>"));
             toastNotification("success", "Sucess", "Event point & attendee updated!", 5000);
         },
         error: function (data) {

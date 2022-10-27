@@ -173,8 +173,8 @@ function InitLeaderboardTimeRange() {
     offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
     firstDay = new Date(+firstDay - offset);
     date = new Date(+date - offset);
-    $("#lbstart").val(firstDay.toISOString().slice(0,-1).substring(0, 10));
-    $("#lbend").val(date.toISOString().slice(0,-1).substring(0, 10));
+    $("#lbstart").val(firstDay.toISOString().slice(0, -1).substring(0, 10));
+    $("#lbend").val(date.toISOString().slice(0, -1).substring(0, 10));
 }
 
 function InitDarkMode() {
@@ -332,9 +332,13 @@ async function ShowTab(tabname, btnname) {
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
     }
+    if (tabname == "#notification-tab") {
+        window.history.pushState("", "", '/notification');
+        LoadNotificationList(noplaceholder = loaded);
+    }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
-        if (!loaded) LoadStats();
+        LoadStats(noplaceholder = loaded);
     }
     if (tabname == "#signin-tab") {
         if (localStorage.getItem("token") != null && localStorage.getItem("token").length == 36) {
@@ -367,11 +371,11 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
-        if (!loaded) LoadAnnouncement();
+        LoadAnnouncement(noplaceholder = loaded);
     }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
-        if (!loaded) LoadDownloads();
+        LoadDownloads(noplaceholder = loaded);
     }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
@@ -386,6 +390,8 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").removeClass("last-load-user");
         if (!$("#delivery-tab").hasClass("last-load-company")) {
             LoadDeliveryList();
+        } else {
+            LoadDeliveryList(noplaceholder = loaded);
         }
         $("#delivery-tab").addClass("last-load-company");
     }
@@ -400,32 +406,34 @@ async function ShowTab(tabname, btnname) {
         if (!$("#delivery-tab").hasClass("last-load-user") || $("#delivery-tab").attr("last-load-userid") != userid) {
             LoadDeliveryList();
             LoadChart(userid);
+        } else {
+            LoadDeliveryList(noplaceholder = loaded);
         }
         $("#delivery-tab").addClass("last-load-user");
         $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#challenge-tab") {
         window.history.pushState("", "", '/challenge');
-        if (!loaded) LoadChallenge();
+        LoadChallenge(noplaceholder = loaded);
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
-        if (!loaded) LoadDivisionInfo();
+        LoadDivisionInfo(noplaceholder = loaded);
     }
     if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
-        if (!loaded) LoadEvent();
+        LoadEvent(noplaceholder = loaded);
     }
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
         if (!loaded) {
             LoadXOfTheMonth();
-            LoadMemberList();
         }
+        LoadMemberList(noplaceholder = loaded);
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
-        if (!loaded) LoadLeaderboard();
+        LoadLeaderboard(noplaceholder = loaded);
     }
     if (tabname == "#ranking-tab") {
         window.history.pushState("", "", '/ranking');
@@ -436,23 +444,23 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#my-application-tab") {
         window.history.pushState("", "", '/application/my');
-        if (!loaded) LoadUserApplicationList();
+        LoadUserApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#all-application-tab") {
         window.history.pushState("", "", '/application/all');
-        if (!loaded) LoadAllApplicationList();
+        LoadAllApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#manage-user-tab") {
         window.history.pushState("", "", '/manage/user');
-        if (!loaded) LoadUserList();
+        LoadUserList(noplaceholder = loaded);
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
-        if (!loaded) LoadAuditLog();
+        LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
         window.history.pushState("", "", '/admin');
-        if (!loaded) LoadConfiguration();
+        LoadConfiguration();
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -565,7 +573,8 @@ function LoadCache() {
                     divisions[d[i].id] = d[i];
                 }
                 localStorage.setItem("divisions", JSON.stringify(divisions));
-            }, error: function(data){
+            },
+            error: function (data) {
                 divisions = {}; // no division plugin
                 localStorage.setItem("divisions", JSON.stringify(divisions));
             }
@@ -784,6 +793,10 @@ function ValidateToken() {
             $("#settings-user-steamid").val(data.response.steamid);
 
             UpdateRolesOnDisplay();
+            LoadNotification();
+            setInterval(function () {
+                LoadNotification();
+            }, 30000);
 
             if (!userPerm.includes("driver") && !userPerm.includes("admin")) {
                 $("#sidebar-userid").html("##");
@@ -814,10 +827,12 @@ function ValidateToken() {
     });
 }
 
-function PathDetect() {
+async function PathDetect() {
+    await sleep(100);
     p = window.location.pathname;
     if (p == "/overview") window.history.pushState("", "", '/');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/notification") ShowTab("#notification-tab");
     else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
     else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
@@ -875,7 +890,7 @@ window.onpopstate = function (event) {
     PathDetect();
 };
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 $(document).ready(async function () {
     PreValidateToken();
     $("#mfa-otp").val("");
@@ -932,7 +947,7 @@ $(document).ready(async function () {
         await sleep(100);
     }
     roleids = Object.keys(rolelist);
-    for(var i = 0 ; i < roleids.length ; i++){
+    for (var i = 0; i < roleids.length; i++) {
         $("#all-role-datalist").append(`<option value="${rolelist[roleids[i]]} (${roleids[i]})">${rolelist[roleids[i]]} (${roleids[i]})</option>`);;
     }
     positionstxt = "";

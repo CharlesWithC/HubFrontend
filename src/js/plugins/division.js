@@ -11,10 +11,12 @@ division_pending_row = `<tr>
 <td style="width:50%;"><span class="placeholder w-100"></span></td>
 </tr>`;
 
-function LoadDivisionDeliveryList(){
-    $("#table_division_delivery_data").empty();
-    for(var i=0;i<10;i++){
-        $("#table_division_delivery_data").append(dlog_placeholder_row);
+function LoadDivisionDeliveryList(noplaceholder = false) {
+    if(!noplaceholder){
+        $("#table_division_delivery_data").empty();
+        for (var i = 0; i < 10; i++) {
+            $("#table_division_delivery_data").append(dlog_placeholder_row);
+        }
     }
     InitPaginate("#table_division_delivery", "LoadDivisionDeliveryList();");
     page = parseInt($("#table_division_delivery_page_input").val());
@@ -59,10 +61,12 @@ function LoadDivisionDeliveryList(){
     })
 }
 
-async function LoadDivisionInfo() {
-    $("#division-summary-list").children().remove();
-    for(var i=0;i<3;i++){
-        $("#division-summary-list").append(division_placeholder_row);
+async function LoadDivisionInfo(noplaceholder = false) {
+    if (!noplaceholder) {
+        $("#division-summary-list").children().remove();
+        for (var i = 0; i < 3; i++) {
+            $("#division-summary-list").append(division_placeholder_row);
+        }
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -94,12 +98,12 @@ async function LoadDivisionInfo() {
             AjaxError(data);
         }
     });
-    LoadDivisionDeliveryList();
-    while(1){
-        if(userPermLoaded) break;
+    LoadDivisionDeliveryList(noplaceholder = noplaceholder);
+    while (1) {
+        if (userPermLoaded) break;
         await sleep(100);
     }
-    if(userPerm.includes("division") || userPerm.includes("admin")){
+    if (userPerm.includes("division") || userPerm.includes("admin")) {
         $("#division-pending-list").show();
         LoadPendingDivisionValidation();
     }
@@ -120,11 +124,11 @@ function GetDivisionInfo(logid) {
             if (data.error) return AjaxError(data);
 
             divisionopt = "";
-            for(var i = 0 ; i < Object.keys(divisions).length ; i++) {
+            for (var i = 0; i < Object.keys(divisions).length; i++) {
                 divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
             }
-            if(divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
-            
+            if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
+
             info = ``;
             if (data.response.status == "-1") {
                 info += `
@@ -161,7 +165,7 @@ function GetDivisionInfo(logid) {
                     info += divisions[data.response.divisionid].name + " ";
                     if (data.response.status == "0") info += "| Pending Validation";
                     else if (data.response.status == "1") info += SVG_VERIFIED;
-                    else if (data.response.status == "2"){
+                    else if (data.response.status == "2") {
                         staff = data.response.update_staff;
                         staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
                         info += `| Rejected By ` + staff;
@@ -187,12 +191,12 @@ function GetDivisionInfo(logid) {
 
 function SubmitDivisionValidationRequest(logid) {
     divisionid = $("#select-division").find(":selected").val();
-    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+    if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?divisionid="+divisionid,
+        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
         type: "POST",
         dataType: "json",
         headers: {
@@ -215,7 +219,7 @@ function SubmitDivisionValidationRequest(logid) {
 
 function LoadPendingDivisionValidation() {
     $("#table_division_pending_data").empty();
-    for(var i = 0 ; i < 5 ; i++){
+    for (var i = 0; i < 5; i++) {
         $("#table_division_pending_data").append(division_pending_row);
     }
     $.ajax({
@@ -256,9 +260,9 @@ function LoadPendingDivisionValidation() {
 
 function UpdateDivision(logid, status) {
     divisionid = "-1";
-    if(status >= 1){
+    if (status >= 1) {
         divisionid = $("#select-division").find(":selected").val();
-        if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+        if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     }
 
     if (status == 1) {
@@ -267,7 +271,7 @@ function UpdateDivision(logid, status) {
     } else if (status == 2) {
         LockBtn("#button-division-reject", "Rejecting...");
         $("#button-division-accept").attr("disabled", "disabled");
-    } else if(status == 0){
+    } else if (status == 0) {
         LockBtn("#button-division-revalidate", "Requesting...");
     }
 
@@ -293,7 +297,7 @@ function UpdateDivision(logid, status) {
             } else if (status == 2) {
                 UnlockBtn("#button-division-reject");
                 $("#button-division-accept").removeAttr("disabled");
-            } else if(status == 0){
+            } else if (status == 0) {
                 UnlockBtn("#button-division-revalidate");
             }
             if (data.error) return AjaxError(data);
@@ -302,7 +306,7 @@ function UpdateDivision(logid, status) {
                 toastNotification("success", "Success", "Division delivery accepted!", 5000, false);
             } else if (status == 2) {
                 toastNotification("success", "Success", "Division delivery rejected!", 5000, false);
-            } else if(status == 0){
+            } else if (status == 0) {
                 toastNotification("success", "Success", "Division delivery validation status updated to pending!", 5000, false);
             }
         },
@@ -313,7 +317,7 @@ function UpdateDivision(logid, status) {
             } else if (status == 2) {
                 UnlockBtn("#button-division-reject");
                 $("#button-division-accept").removeAttr("disabled");
-            } else if(status == 0){
+            } else if (status == 0) {
                 UnlockBtn("#button-division-revalidate");
             }
             AjaxError(data);

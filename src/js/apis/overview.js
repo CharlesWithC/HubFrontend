@@ -209,8 +209,18 @@ function refreshStats(){
     });
 }
 
-function LoadStats(basic = false) {
+function LoadStats(basic = false, noplaceholder = false) {
     if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
+    if(curtab == "#overview-tab"){
+        $.ajax({
+            url: apidomain + "/" + vtcprefix,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+    }
     LoadChart();
 
     stats_start_time = parseInt(+ new Date() / 1000 - 86400);

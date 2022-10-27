@@ -900,3 +900,111 @@ function DeleteAccount(discordid) {
         }
     })
 }
+
+function LoadNotification(){
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/list",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            d = data.response.list;
+            $("#notification-dropdown").children().remove();
+            for(i = 0 ; i < d.length ; i++){
+                style="";
+                if(d[i].read) style="color:grey"
+                $("#notification-dropdown").append(`
+                <div>
+                    <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}</p>
+                    <p class="text-muted" style="margin-bottom:5px">${timeAgo(new Date(d[i].timestamp*1000))}</p>
+                </div>`);
+            }
+        }
+    });
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/list?status=0",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            cnt = data.response.total_items;
+            if(cnt > 0 && cnt <= 99){
+                $("#notification-pop").show();
+                $("#unread-notification").html(cnt);
+            } else if (cnt >= 100){
+                $("#notification-pop").show();
+                $("#unread-notification").html("99+");
+            }
+        }
+    });
+}
+
+notification_placerholder_row = `
+<tr>
+    <td style="width:calc(100% - 180px);"><span class="placeholder w-100"></span></td>
+    <td style="width:180px;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+function LoadNotificationList(noplaceholder = false){
+    InitPaginate("#table_notification_list", "LoadNotificationList();");
+    page = parseInt($("#table_notification_list_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+    if(!noplaceholder){
+        $("#table_notification_list_data").empty();
+        for(var i = 0 ; i < 10 ; i++){
+            $("#table_notification_list_data").append(notification_placerholder_row);
+        }
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/list?page_size=30&page=" + page,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: async function (data) {
+            if (data.error) return AjaxError(data);
+            
+            notificationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < notificationList.length; i++) {
+                notification = notificationList[i];
+
+                data.push([`${marked.parse(notification.content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}`, timeAgo(new Date(notification.timestamp * 1000))]);
+            }
+
+            PushTable("#table_notification_list", data, total_pages, "LoadNotificationList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+}
+
+function NotificationsMarkAllAsRead(){
+    if($("#unread-notification").html()=="") return;
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/status?notificationids=all",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "read": "true"
+        },
+        success: function (data) {
+            $("#notification-pop").hide();
+            $("#unread-notification").html("");
+        }
+    });
+}

@@ -13,7 +13,7 @@ $(document).ready(function () {
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
 
-function ParseAjaxError(data){
+function ParseAjaxError(data) {
     return JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
 }
 
@@ -95,10 +95,12 @@ function CopyBannerURL(userid) {
     return toastNotification("success", "Success", "Banner URL copied to clipboard!", 5000)
 }
 
-function CopyButton(element, text){
+function CopyButton(element, text) {
     navigator.clipboard.writeText(text);
     $(element).html("Copied!");
-    setTimeout(function(){$(element).html("Copy");},1000);
+    setTimeout(function () {
+        $(element).html("Copy");
+    }, 1000);
 }
 
 function FileOutput(filename, text) {
@@ -122,7 +124,7 @@ function isString(obj) {
 window.btnvals = {};
 
 function LockBtn(btnid, btntxt = "Working...") {
-    if($(btnid).attr("disabled") == "disabled") return;
+    if ($(btnid).attr("disabled") == "disabled") return;
     $(btnid).attr("disabled", "disabled");
     btnvals[btnid] = $(btnid).html();
     $(btnid).html(btntxt);
@@ -542,7 +544,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`){
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`) {
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -564,45 +566,116 @@ function ShowModal(title, content, footer = `<button type="button" class="btn bt
     return modalid;
 }
 
-function InitModal(name, modalid, top = false){
+function InitModal(name, modalid, top = false) {
     DestroyModal(name, immediately = true);
     modalName2ID[name] = modalid;
     modals[name] = new bootstrap.Modal('#modal-' + modalid);
     modals[name].show();
-    $("#modal-"+modalid).on('hidden.bs.modal', function(){
-        modals[name].dispose();$("#modal-"+modalid).remove();delete modals[name];
+    $("#modal-" + modalid).on('hidden.bs.modal', function () {
+        modals[name].dispose();
+        $("#modal-" + modalid).remove();
+        delete modals[name];
     })
-    if(top){
-        $("#modal-"+modalid).css("z-index", "1060");
-        $($("#modal-"+modalid).nextAll(".modal-backdrop")[0]).css("z-index", "1059");
+    if (top) {
+        $("#modal-" + modalid).css("z-index", "1060");
+        $($("#modal-" + modalid).nextAll(".modal-backdrop")[0]).css("z-index", "1059");
     }
 }
 
-function DestroyModal(name, immediately = false){
-    if(Object.keys(modals).includes(name)){
-        if(!immediately){
+function DestroyModal(name, immediately = false) {
+    if (Object.keys(modals).includes(name)) {
+        if (!immediately) {
             modals[name].hide();
-            setTimeout(function(){
+            setTimeout(function () {
                 modals[name].dispose();
-                $("#modal-"+modalName2ID[name]).remove();
+                $("#modal-" + modalName2ID[name]).remove();
                 delete modals[name];
                 delete modalName2ID[name];
             }, 1000);
         } else {
             modals[name].dispose();
-            $("#modal-"+modalName2ID[name]).remove();
+            $("#modal-" + modalName2ID[name]).remove();
             delete modals[name];
             delete modalName2ID[name];
         }
     }
 }
 
-function GenCard(title, content){
+function GenCard(title, content) {
     return `
     <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
         <h5 class="card-title"><strong>${title}</strong></h5>
         <p class="card-text">${content}</p>
     </div>`;
+}
+
+const MONTH_NAMES = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
+    const day = date.getDate();
+    const month = MONTH_NAMES[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    let minutes = date.getMinutes();
+
+    if (minutes < 10) {
+        // Adding leading zero to minutes
+        minutes = `0${ minutes }`;
+    }
+
+    if (prefomattedDate) {
+        // Today at 10:20
+        // Yesterday at 10:20
+        return `${ prefomattedDate } at ${ hours }:${ minutes }`;
+    }
+
+    if (hideYear) {
+        // January 10. at 10:20
+        return `${ month } ${ OrdinalSuffix(day) } at ${ hours }:${ minutes }`;
+    }
+
+    // January 10. 2017. at 10:20
+    return `${ month } ${ OrdinalSuffix(day) } ${ year } at ${ hours }:${ minutes }`;
+}
+
+
+// --- Main function
+function timeAgo(dateParam) {
+    if (!dateParam) {
+        return null;
+    }
+
+    const date = typeof dateParam === 'object' ? dateParam : new Date(dateParam);
+    const DAY_IN_MS = 86400000; // 24 * 60 * 60 * 1000
+    const today = new Date();
+    const yesterday = new Date(today - DAY_IN_MS);
+    const seconds = Math.round((today - date) / 1000);
+    const minutes = Math.round(seconds / 60);
+    const isToday = today.toDateString() === date.toDateString();
+    const isYesterday = yesterday.toDateString() === date.toDateString();
+    const isThisYear = today.getFullYear() === date.getFullYear();
+
+
+    if (seconds < 5) {
+        return 'now';
+    } else if (seconds < 60) {
+        return `${ seconds } seconds ago`;
+    } else if (seconds < 90) {
+        return 'about a minute ago';
+    } else if (minutes < 60) {
+        return `${ minutes } minutes ago`;
+    } else if (isToday) {
+        return getFormattedDate(date, 'Today'); // Today at 10:20
+    } else if (isYesterday) {
+        return getFormattedDate(date, 'Yesterday'); // Yesterday at 10:20
+    } else if (isThisYear) {
+        return getFormattedDate(date, false, true); // 10. January at 10:20
+    }
+
+    return getFormattedDate(date); // 10. January 2017. at 10:20
 }
 audit_log_placeholder_row = `
 <tr>
@@ -2208,6 +2281,26 @@ user_statistics_placeholder = `<div class="row">
     <div id="profile-text-statistics"></div>
 </div>
 </div>`;
+
+function getActitivyUrl(name){
+    if(name == "Viewing Configuration") return "/config";
+    else if(name == "Viewing Audit Log") return "/audit";
+    else if(name.startsWith("Viewing Delivery Log #")) return "/delivery/"+name.split("#")[1];
+    else if(name == "Viewing Delivery Logs") return "/delivery";
+    else if(name == "Viewing Drivers Hub Index") return "/";
+    else if(name == "Viewing Leaderboard") return "/leaderboard";
+    else if(name == "Viewing Members") return "/member";
+    else if(name.includes("User ID")) return "/member/"+name.split(": ")[1].split(")")[0];
+    else if(name == "Viewing Pending Users") return "/manage/user";
+    else if(name == "Viewing Announcements") return "/announcement";
+    else if(name == "Viewing Applications") return "/application/my";
+    else if(name == "Viewing Challenges") return "/challenge";
+    else if(name == "Viewing Divisions") return "/division";
+    else if(name == "Viewing Downloads") return "/downloads";
+    else if(name == "Viewing Events") return "/event";
+    else return "/";
+}
+
 function LoadUserProfile(userid) {
     if (userid < 0) return;
     profile_userid = userid;
@@ -2215,7 +2308,6 @@ function LoadUserProfile(userid) {
     $("#user-statistics").html(user_statistics_placeholder);
     $('#delivery-log-userid').val(userid);
     $("#profile-banner").attr("src", "/banner/" + userid);
-    ShowTab("#user-delivery-tab", userid);
 
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
@@ -2233,6 +2325,8 @@ function LoadUserProfile(userid) {
                 ShowTab("#overview-tab", "#button-overview-tab");
                 return AjaxError(data);
             }
+
+            ShowTab("#user-delivery-tab", userid);
 
             d = data.response;
 
@@ -2259,6 +2353,13 @@ function LoadUserProfile(userid) {
             
             if(d.roles.length == 1) account_info += GenTableRow("Role", rtxt);
             else account_info += GenTableRow("Roles", rtxt);
+            
+            account_info += GenTableRow("&nbsp;", "&nbsp;");
+            activity_url = getActitivyUrl(d.activity.name);
+            if(d.activity.name.includes("User ID")) d.activity.name = d.activity.name.split("(User ID")[0];
+            if(d.activity.name == "Offline") account_info += GenTableRow("Status", "Offline - Last seen " + timeAgo(new Date(d.activity.last_seen*1000)));
+            else if(d.activity.name == "Online") account_info += GenTableRow("Status", "Online");
+            else account_info += GenTableRow("Activity", `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
 
             account_info += "</table>";
 
@@ -2572,8 +2673,18 @@ function refreshStats(){
     });
 }
 
-function LoadStats(basic = false) {
+function LoadStats(basic = false, noplaceholder = false) {
     if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
+    if(curtab == "#overview-tab"){
+        $.ajax({
+            url: apidomain + "/" + vtcprefix,
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+    }
     LoadChart();
 
     stats_start_time = parseInt(+ new Date() / 1000 - 86400);
@@ -3644,6 +3755,114 @@ function DeleteAccount(discordid) {
         }
     })
 }
+
+function LoadNotification(){
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/list",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            d = data.response.list;
+            $("#notification-dropdown").children().remove();
+            for(i = 0 ; i < d.length ; i++){
+                style="";
+                if(d[i].read) style="color:grey"
+                $("#notification-dropdown").append(`
+                <div>
+                    <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}</p>
+                    <p class="text-muted" style="margin-bottom:5px">${timeAgo(new Date(d[i].timestamp*1000))}</p>
+                </div>`);
+            }
+        }
+    });
+
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/list?status=0",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            cnt = data.response.total_items;
+            if(cnt > 0 && cnt <= 99){
+                $("#notification-pop").show();
+                $("#unread-notification").html(cnt);
+            } else if (cnt >= 100){
+                $("#notification-pop").show();
+                $("#unread-notification").html("99+");
+            }
+        }
+    });
+}
+
+notification_placerholder_row = `
+<tr>
+    <td style="width:calc(100% - 180px);"><span class="placeholder w-100"></span></td>
+    <td style="width:180px;"><span class="placeholder w-100"></span></td>
+</tr>`;
+
+function LoadNotificationList(noplaceholder = false){
+    InitPaginate("#table_notification_list", "LoadNotificationList();");
+    page = parseInt($("#table_notification_list_page_input").val());
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+    if(!noplaceholder){
+        $("#table_notification_list_data").empty();
+        for(var i = 0 ; i < 10 ; i++){
+            $("#table_notification_list_data").append(notification_placerholder_row);
+        }
+    }
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/list?page_size=30&page=" + page,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: async function (data) {
+            if (data.error) return AjaxError(data);
+            
+            notificationList = data.response.list;
+            total_pages = data.response.total_pages;
+            data = [];
+
+            for (i = 0; i < notificationList.length; i++) {
+                notification = notificationList[i];
+
+                data.push([`${marked.parse(notification.content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}`, timeAgo(new Date(notification.timestamp * 1000))]);
+            }
+
+            PushTable("#table_notification_list", data, total_pages, "LoadNotificationList();");
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+}
+
+function NotificationsMarkAllAsRead(){
+    if($("#unread-notification").html()=="") return;
+    $.ajax({
+        url: apidomain + "/" + vtcprefix + "/user/notification/status?notificationids=all",
+        type: "PUT",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "read": "true"
+        },
+        success: function (data) {
+            $("#notification-pop").hide();
+            $("#unread-notification").html("");
+        }
+    });
+}
 annInit = 0;
 
 ANNOUNCEMENT_ICON = [`<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-triangle-exclamation" style="color:yellow"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-xmark"style="color:red"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-check"style="color:green"></i></span>`];
@@ -4341,7 +4560,7 @@ async function LoadChallenge(noplaceholder = false) {
                 CHALLENGE_TYPE = ["", "Personal", "Company"];
                 challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
                 
-                pct = parseInt(challenge.current_delivery_count / challenge.delivery_count * 100);
+                pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
 
                 progress = `<div class="progress">
                     <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${challenge.current_delivery_count} / ${challenge.delivery_count}</div>
@@ -4387,10 +4606,12 @@ function ShowChallengeDetail(challengeid){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info = "<table><tbody>";
-    info += GenTableRow("Challenge Type", challenge.challenge_type);
+    CHALLENGE_TYPE = ["", "Personal", "Company"];
+    challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
+    info += GenTableRow("Challenge Type", challenge_type);
     info += GenTableRow("Reward Points", challenge.reward_points);
     info += GenTableRow("Start Time", getDateTime(challenge.start_time * 1000));
-    info += GenTableRow("End Time", getDateTime(challenge.start_time * 1000));
+    info += GenTableRow("End Time", getDateTime(challenge.end_time * 1000));
     status = "";
     status_type = "";
     if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
@@ -4407,7 +4628,7 @@ function ShowChallengeDetail(challengeid){
     info += GenTableRow("&nbsp;", "&nbsp;");
     info += GenTableRow("Deliveries", challenge.delivery_count);
     info += GenTableRow("Current Deliveries", challenge.current_delivery_count);
-    pct = parseInt(challenge.current_delivery_count / challenge.delivery_count * 100);
+    pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
     progress = `<div class="progress">
         <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${pct}%</div>
     </div>`;
@@ -4421,7 +4642,7 @@ function ShowChallengeDetail(challengeid){
     }
     rolestxt = rolestxt.slice(0,-1);
     info += GenTableRow("Required Roles", rolestxt);
-    info += GenTableRow("Required Distance Driven", challenge.required_distance);
+    info += GenTableRow("Required Distance Driven", TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
     if(!roleok) extra_status = "Not Qualified";
     if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = "Not Qualified";
     if(extra_status != "") badge_status = `<span class="badge text-bg-secondary">${extra_status}</span>`;
@@ -4754,10 +4975,12 @@ division_pending_row = `<tr>
 <td style="width:50%;"><span class="placeholder w-100"></span></td>
 </tr>`;
 
-function LoadDivisionDeliveryList(){
-    $("#table_division_delivery_data").empty();
-    for(var i=0;i<10;i++){
-        $("#table_division_delivery_data").append(dlog_placeholder_row);
+function LoadDivisionDeliveryList(noplaceholder = false) {
+    if(!noplaceholder){
+        $("#table_division_delivery_data").empty();
+        for (var i = 0; i < 10; i++) {
+            $("#table_division_delivery_data").append(dlog_placeholder_row);
+        }
     }
     InitPaginate("#table_division_delivery", "LoadDivisionDeliveryList();");
     page = parseInt($("#table_division_delivery_page_input").val());
@@ -4802,10 +5025,12 @@ function LoadDivisionDeliveryList(){
     })
 }
 
-async function LoadDivisionInfo() {
-    $("#division-summary-list").children().remove();
-    for(var i=0;i<3;i++){
-        $("#division-summary-list").append(division_placeholder_row);
+async function LoadDivisionInfo(noplaceholder = false) {
+    if (!noplaceholder) {
+        $("#division-summary-list").children().remove();
+        for (var i = 0; i < 3; i++) {
+            $("#division-summary-list").append(division_placeholder_row);
+        }
     }
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/division",
@@ -4837,12 +5062,12 @@ async function LoadDivisionInfo() {
             AjaxError(data);
         }
     });
-    LoadDivisionDeliveryList();
-    while(1){
-        if(userPermLoaded) break;
+    LoadDivisionDeliveryList(noplaceholder = noplaceholder);
+    while (1) {
+        if (userPermLoaded) break;
         await sleep(100);
     }
-    if(userPerm.includes("division") || userPerm.includes("admin")){
+    if (userPerm.includes("division") || userPerm.includes("admin")) {
         $("#division-pending-list").show();
         LoadPendingDivisionValidation();
     }
@@ -4863,11 +5088,11 @@ function GetDivisionInfo(logid) {
             if (data.error) return AjaxError(data);
 
             divisionopt = "";
-            for(var i = 0 ; i < Object.keys(divisions).length ; i++) {
+            for (var i = 0; i < Object.keys(divisions).length; i++) {
                 divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
             }
-            if(divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
-            
+            if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
+
             info = ``;
             if (data.response.status == "-1") {
                 info += `
@@ -4904,7 +5129,7 @@ function GetDivisionInfo(logid) {
                     info += divisions[data.response.divisionid].name + " ";
                     if (data.response.status == "0") info += "| Pending Validation";
                     else if (data.response.status == "1") info += SVG_VERIFIED;
-                    else if (data.response.status == "2"){
+                    else if (data.response.status == "2") {
                         staff = data.response.update_staff;
                         staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
                         info += `| Rejected By ` + staff;
@@ -4930,12 +5155,12 @@ function GetDivisionInfo(logid) {
 
 function SubmitDivisionValidationRequest(logid) {
     divisionid = $("#select-division").find(":selected").val();
-    if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+    if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
 
     LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?divisionid="+divisionid,
+        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
         type: "POST",
         dataType: "json",
         headers: {
@@ -4958,7 +5183,7 @@ function SubmitDivisionValidationRequest(logid) {
 
 function LoadPendingDivisionValidation() {
     $("#table_division_pending_data").empty();
-    for(var i = 0 ; i < 5 ; i++){
+    for (var i = 0; i < 5; i++) {
         $("#table_division_pending_data").append(division_pending_row);
     }
     $.ajax({
@@ -4999,9 +5224,9 @@ function LoadPendingDivisionValidation() {
 
 function UpdateDivision(logid, status) {
     divisionid = "-1";
-    if(status >= 1){
+    if (status >= 1) {
         divisionid = $("#select-division").find(":selected").val();
-        if(divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+        if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
     }
 
     if (status == 1) {
@@ -5010,7 +5235,7 @@ function UpdateDivision(logid, status) {
     } else if (status == 2) {
         LockBtn("#button-division-reject", "Rejecting...");
         $("#button-division-accept").attr("disabled", "disabled");
-    } else if(status == 0){
+    } else if (status == 0) {
         LockBtn("#button-division-revalidate", "Requesting...");
     }
 
@@ -5036,7 +5261,7 @@ function UpdateDivision(logid, status) {
             } else if (status == 2) {
                 UnlockBtn("#button-division-reject");
                 $("#button-division-accept").removeAttr("disabled");
-            } else if(status == 0){
+            } else if (status == 0) {
                 UnlockBtn("#button-division-revalidate");
             }
             if (data.error) return AjaxError(data);
@@ -5045,7 +5270,7 @@ function UpdateDivision(logid, status) {
                 toastNotification("success", "Success", "Division delivery accepted!", 5000, false);
             } else if (status == 2) {
                 toastNotification("success", "Success", "Division delivery rejected!", 5000, false);
-            } else if(status == 0){
+            } else if (status == 0) {
                 toastNotification("success", "Success", "Division delivery validation status updated to pending!", 5000, false);
             }
         },
@@ -5056,14 +5281,13 @@ function UpdateDivision(logid, status) {
             } else if (status == 2) {
                 UnlockBtn("#button-division-reject");
                 $("#button-division-accept").removeAttr("disabled");
-            } else if(status == 0){
+            } else if (status == 0) {
                 UnlockBtn("#button-division-revalidate");
             }
             AjaxError(data);
         }
     });
 }
-
 async function LoadDownloads() {
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/downloads",
@@ -5546,7 +5770,7 @@ function EditEventAttendee(eventid) {
             UnlockBtn("#button-event-edit-attendee");
             if (data.error) return AjaxError(data);
             LoadEvent(noplaceholder = true);
-            $("#event-edit-message").html("<br>" + data.response.message.replaceAll("\n","<br>"));
+            $("#event-edit-message").html("<br>" + marked.parse(data.response.message).replaceAll("\n","<br>"));
             toastNotification("success", "Sucess", "Event point & attendee updated!", 5000);
         },
         error: function (data) {
@@ -5999,8 +6223,8 @@ function InitLeaderboardTimeRange() {
     offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
     firstDay = new Date(+firstDay - offset);
     date = new Date(+date - offset);
-    $("#lbstart").val(firstDay.toISOString().slice(0,-1).substring(0, 10));
-    $("#lbend").val(date.toISOString().slice(0,-1).substring(0, 10));
+    $("#lbstart").val(firstDay.toISOString().slice(0, -1).substring(0, 10));
+    $("#lbend").val(date.toISOString().slice(0, -1).substring(0, 10));
 }
 
 function InitDarkMode() {
@@ -6158,9 +6382,13 @@ async function ShowTab(tabname, btnname) {
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
     }
+    if (tabname == "#notification-tab") {
+        window.history.pushState("", "", '/notification');
+        LoadNotificationList(noplaceholder = loaded);
+    }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
-        if (!loaded) LoadStats();
+        LoadStats(noplaceholder = loaded);
     }
     if (tabname == "#signin-tab") {
         if (localStorage.getItem("token") != null && localStorage.getItem("token").length == 36) {
@@ -6193,11 +6421,11 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
-        if (!loaded) LoadAnnouncement();
+        LoadAnnouncement(noplaceholder = loaded);
     }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
-        if (!loaded) LoadDownloads();
+        LoadDownloads(noplaceholder = loaded);
     }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
@@ -6212,6 +6440,8 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").removeClass("last-load-user");
         if (!$("#delivery-tab").hasClass("last-load-company")) {
             LoadDeliveryList();
+        } else {
+            LoadDeliveryList(noplaceholder = loaded);
         }
         $("#delivery-tab").addClass("last-load-company");
     }
@@ -6226,32 +6456,34 @@ async function ShowTab(tabname, btnname) {
         if (!$("#delivery-tab").hasClass("last-load-user") || $("#delivery-tab").attr("last-load-userid") != userid) {
             LoadDeliveryList();
             LoadChart(userid);
+        } else {
+            LoadDeliveryList(noplaceholder = loaded);
         }
         $("#delivery-tab").addClass("last-load-user");
         $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#challenge-tab") {
         window.history.pushState("", "", '/challenge');
-        if (!loaded) LoadChallenge();
+        LoadChallenge(noplaceholder = loaded);
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
-        if (!loaded) LoadDivisionInfo();
+        LoadDivisionInfo(noplaceholder = loaded);
     }
     if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
-        if (!loaded) LoadEvent();
+        LoadEvent(noplaceholder = loaded);
     }
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
         if (!loaded) {
             LoadXOfTheMonth();
-            LoadMemberList();
         }
+        LoadMemberList(noplaceholder = loaded);
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
-        if (!loaded) LoadLeaderboard();
+        LoadLeaderboard(noplaceholder = loaded);
     }
     if (tabname == "#ranking-tab") {
         window.history.pushState("", "", '/ranking');
@@ -6262,23 +6494,23 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#my-application-tab") {
         window.history.pushState("", "", '/application/my');
-        if (!loaded) LoadUserApplicationList();
+        LoadUserApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#all-application-tab") {
         window.history.pushState("", "", '/application/all');
-        if (!loaded) LoadAllApplicationList();
+        LoadAllApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#manage-user-tab") {
         window.history.pushState("", "", '/manage/user');
-        if (!loaded) LoadUserList();
+        LoadUserList(noplaceholder = loaded);
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
-        if (!loaded) LoadAuditLog();
+        LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
         window.history.pushState("", "", '/admin');
-        if (!loaded) LoadConfiguration();
+        LoadConfiguration();
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -6391,7 +6623,8 @@ function LoadCache() {
                     divisions[d[i].id] = d[i];
                 }
                 localStorage.setItem("divisions", JSON.stringify(divisions));
-            }, error: function(data){
+            },
+            error: function (data) {
                 divisions = {}; // no division plugin
                 localStorage.setItem("divisions", JSON.stringify(divisions));
             }
@@ -6610,6 +6843,10 @@ function ValidateToken() {
             $("#settings-user-steamid").val(data.response.steamid);
 
             UpdateRolesOnDisplay();
+            LoadNotification();
+            setInterval(function () {
+                LoadNotification();
+            }, 30000);
 
             if (!userPerm.includes("driver") && !userPerm.includes("admin")) {
                 $("#sidebar-userid").html("##");
@@ -6640,10 +6877,12 @@ function ValidateToken() {
     });
 }
 
-function PathDetect() {
+async function PathDetect() {
+    await sleep(100);
     p = window.location.pathname;
     if (p == "/overview") window.history.pushState("", "", '/');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/notification") ShowTab("#notification-tab");
     else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
     else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
     else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
@@ -6701,7 +6940,7 @@ window.onpopstate = function (event) {
     PathDetect();
 };
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application"];
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 $(document).ready(async function () {
     PreValidateToken();
     $("#mfa-otp").val("");
@@ -6758,7 +6997,7 @@ $(document).ready(async function () {
         await sleep(100);
     }
     roleids = Object.keys(rolelist);
-    for(var i = 0 ; i < roleids.length ; i++){
+    for (var i = 0; i < roleids.length; i++) {
         $("#all-role-datalist").append(`<option value="${rolelist[roleids[i]]} (${roleids[i]})">${rolelist[roleids[i]]} (${roleids[i]})</option>`);;
     }
     positionstxt = "";

@@ -87,7 +87,7 @@
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
     <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/cb8697ec67c3ef4a.js"></script>';
+        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2e38346f10efd7b4.js"></script>';
     ?>
     <?php
     $application_html = "";
@@ -437,7 +437,26 @@
     </div>
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
         <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
-        <strong style="position:fixed;right:20px;top:20px;"><?php echo $slogan ?></strong>
+        <div>
+            <strong style="position:fixed;right:50px;top:20px;"><?php echo $slogan ?></strong>
+            <div class="dropdown" style="display:inline;">
+                <div style="position:fixed;right:20px;top:20px;" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside"><a class="mx-2 clickable position-relative" onclick="NotificationsMarkAllAsRead()">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-pop" style="display:none">
+                        <span id="unread-notification"></span>
+                    </span>
+                </a></div>
+                <div class="dropdown-menu dropdown-menu-end p-4 bg-dark text-white" style="border:solid 1px grey;width:500px;">
+                    <h5 class="fw-bold mb-2" style="display:inline">Notifications</h5>
+                    <div style="float:right;"><a class="clickable" onclick="ShowTab('#notification-tab');"><span class="rect-20"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span></a></div>
+                    <br>
+                    <div style="margin-top:5px;max-height:300px" id="notification-dropdown-wrapper">
+                        <div id="notification-dropdown">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="container" style="margin:20px;margin-left:280px;margin-top:80px;width:calc(100% - 300px);">
         <section id="signin-tab" class="tabs" style="height:80vh">
@@ -1057,19 +1076,19 @@
                             <h5>Route</h5>
                             <label for="challenge-new-source-city-id" class="form-label">Source City ID</label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="Unique ID of source city">
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="Unique ID of source city" multiple=''>
                             </div>
                             <label for="challenge-new-source-company-id" class="form-label">Source Company ID</label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="Unique ID of source company">
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="Unique ID of source company" multiple=''>
                             </div>
                             <label for="challenge-new-destination-city-id" class="form-label">Destination City ID</label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="Unique ID of destination city">
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="Unique ID of destination city" multiple=''>
                             </div>
                             <label for="challenge-new-destination-company-id" class="form-label">Destination Company ID</label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="Unique ID of destination company">
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="Unique ID of destination company" multiple=''>
                             </div>
                             <label for="challenge-new-minimum-distance" class="form-label">Minimum Distance</label>
                             <div class="input-group mb-2">
@@ -1080,7 +1099,7 @@
                             <h5>Cargo</h5>
                             <label for="challenge-new-cargo-id" class="form-label">Cargo ID</label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white challenge-new-job-requirements" id="challenge-new-cargo-id" placeholder="Unique ID of cargo">
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-cargo-id" placeholder="Unique ID of cargo" multiple=''>
                             </div>
                             <label for="challenge-new-cargo-mass" class="form-label">Minimum Cargo Mass</label>
                             <div class="input-group mb-2">
@@ -1274,19 +1293,19 @@
                         <h5>Route</h5>
                         <label for="challenge-edit-source-city-id" class="form-label">Source City ID</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="Unique ID of source city">
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="Unique ID of source city" multiple=''>
                         </div>
                         <label for="challenge-edit-source-company-id" class="form-label">Source Company ID</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="Unique ID of source company">
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="Unique ID of source company" multiple=''>
                         </div>
                         <label for="challenge-edit-destination-city-id" class="form-label">Destination City ID</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="Unique ID of destination city">
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="Unique ID of destination city" multiple=''>
                         </div>
                         <label for="challenge-edit-destination-company-id" class="form-label">Destination Company ID</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="Unique ID of destination company">
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="Unique ID of destination company" multiple=''>
                         </div>
                         <label for="challenge-edit-minimum-distance" class="form-label">Minimum Distance</label>
                         <div class="input-group mb-2">
@@ -1297,7 +1316,7 @@
                         <h5>Cargo</h5>
                         <label for="challenge-edit-cargo-id" class="form-label">Cargo ID</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-cargo-id" placeholder="Unique ID of cargo">
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-cargo-id" placeholder="Unique ID of cargo" multiple=''>
                         </div>
                         <label for="challenge-edit-cargo-mass" class="form-label">Minimum Cargo Mass</label>
                         <div class="input-group mb-2">
@@ -1978,6 +1997,23 @@
                             </table>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+        <section id="notification-tab" class="tabs">
+            <div class="shadow p-3 m-3 bg-dark rounded col">
+                <h5><strong><span class="rect-20"><i class="fa-solid fa-bell"></i></span> Notifications</strong></h5>
+                <div id="table_notification_list">
+                    <table class="w-100">
+                        <thead id="table_notification_list_head">
+                            <tr>
+                                <th scope="col">Content</th>
+                                <th scope="col" style="width:180px">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_notification_list_data">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>

@@ -53,7 +53,7 @@ async function LoadChallenge(noplaceholder = false) {
                 CHALLENGE_TYPE = ["", "Personal", "Company"];
                 challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
                 
-                pct = parseInt(challenge.current_delivery_count / challenge.delivery_count * 100);
+                pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
 
                 progress = `<div class="progress">
                     <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${challenge.current_delivery_count} / ${challenge.delivery_count}</div>
@@ -99,10 +99,12 @@ function ShowChallengeDetail(challengeid){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info = "<table><tbody>";
-    info += GenTableRow("Challenge Type", challenge.challenge_type);
+    CHALLENGE_TYPE = ["", "Personal", "Company"];
+    challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
+    info += GenTableRow("Challenge Type", challenge_type);
     info += GenTableRow("Reward Points", challenge.reward_points);
     info += GenTableRow("Start Time", getDateTime(challenge.start_time * 1000));
-    info += GenTableRow("End Time", getDateTime(challenge.start_time * 1000));
+    info += GenTableRow("End Time", getDateTime(challenge.end_time * 1000));
     status = "";
     status_type = "";
     if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
@@ -119,7 +121,7 @@ function ShowChallengeDetail(challengeid){
     info += GenTableRow("&nbsp;", "&nbsp;");
     info += GenTableRow("Deliveries", challenge.delivery_count);
     info += GenTableRow("Current Deliveries", challenge.current_delivery_count);
-    pct = parseInt(challenge.current_delivery_count / challenge.delivery_count * 100);
+    pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
     progress = `<div class="progress">
         <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${pct}%</div>
     </div>`;
@@ -133,7 +135,7 @@ function ShowChallengeDetail(challengeid){
     }
     rolestxt = rolestxt.slice(0,-1);
     info += GenTableRow("Required Roles", rolestxt);
-    info += GenTableRow("Required Distance Driven", challenge.required_distance);
+    info += GenTableRow("Required Distance Driven", TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
     if(!roleok) extra_status = "Not Qualified";
     if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = "Not Qualified";
     if(extra_status != "") badge_status = `<span class="badge text-bg-secondary">${extra_status}</span>`;
