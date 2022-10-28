@@ -142,6 +142,19 @@ function ShowChallengeDetail(challengeid){
     else badge_status = `<span class="badge text-bg-success">Qualified</span>`;
     info += GenTableRow("Qualification", badge_status);
     info += GenTableRow("&nbsp;", "&nbsp;");
+    
+    completed_users = "";
+    for (i = 0; i < challenge.completed.length; i++) {
+        pointstxt = "";
+        if(challenge.challenge_type == 2)pointstxt = ` (${challenge.completed[i].points} Points)`;
+        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${challenge.completed[i].userid})">${challenge.completed[i].name}${pointstxt}</a>, `;
+    }
+    completed_users = completed_users.substr(0, completed_users.length - 2);
+
+    if(challenge.completed.length != 0){
+        info += GenTableRow("Completed Members", completed_users);
+        info += GenTableRow("&nbsp;", "&nbsp;");
+    }
 
     info += "</tbody></table>" + marked.parse(challenge.description);
     modalid = ShowModal(challenge.title, info);

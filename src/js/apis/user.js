@@ -536,7 +536,7 @@ function LoadUserList(noplaceholder = false) {
                 bantxt = "Ban";
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
+                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -820,8 +820,8 @@ function UnbanUser(discordid) {
     LockBtn("#button-unban-user", "Unbanning...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/unban",
-        type: "PUT",
+        url: apidomain + "/" + vtcprefix + "/user/ban",
+        type: "DELETE",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

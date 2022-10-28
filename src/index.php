@@ -51,9 +51,6 @@
     <meta content="/images/bg.jpg" name="twitter:card">
 
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/unisans/css/unisans.min.css">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.5.0/ol-debug.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
 
     <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -86,9 +83,8 @@
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <?php
-        echo '<script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2e38346f10efd7b4.js"></script>';
-    ?>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0c31f4bcec92931c.js"></script>
+
     <?php
     $application_html = "";
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/application.html')){
@@ -110,14 +106,6 @@
     }
     ?>
     <style>
-        .bg-indigo-500 {
-            background-color: <?php echo $vtccolor ?>;
-        }
-
-        .bg-indigo-500:hover {
-            background-color: <?php echo $vtccolordark ?>;
-        }
-
         .rect-20 {
             width: 20px;
             height: 20px;
@@ -153,6 +141,7 @@
             text-decoration: none;
             color: #fff;
         }
+        
         a:hover {
             color: #fff;
         }
@@ -438,7 +427,7 @@
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
         <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
         <div>
-            <strong style="position:fixed;right:50px;top:20px;"><?php echo $slogan ?></strong>
+            <strong style="position:fixed;right:50px;top:20px;"><?php echo $slogan ?> <span style="color:red">BETA</span></strong>
             <div class="dropdown" style="display:inline;">
                 <div style="position:fixed;right:20px;top:20px;" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside"><a class="mx-2 clickable position-relative" onclick="NotificationsMarkAllAsRead()">
                     <i class="fa-solid fa-bell"></i>

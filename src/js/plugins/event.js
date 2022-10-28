@@ -66,7 +66,7 @@ async function LoadEvent(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/event/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {

@@ -34,7 +34,7 @@ function LoadAnnouncement(noplaceholder = false){
         $("#announcement-new").show();
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/announcement/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {

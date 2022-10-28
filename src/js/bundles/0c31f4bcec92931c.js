@@ -3391,7 +3391,7 @@ function LoadUserList(noplaceholder = false) {
                 bantxt = "Ban";
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.ban_reason;
+                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -3675,8 +3675,8 @@ function UnbanUser(discordid) {
     LockBtn("#button-unban-user", "Unbanning...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/unban",
-        type: "PUT",
+        url: apidomain + "/" + vtcprefix + "/user/ban",
+        type: "DELETE",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -3899,7 +3899,7 @@ function LoadAnnouncement(noplaceholder = false){
         $("#announcement-new").show();
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/announcement/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4649,6 +4649,19 @@ function ShowChallengeDetail(challengeid){
     else badge_status = `<span class="badge text-bg-success">Qualified</span>`;
     info += GenTableRow("Qualification", badge_status);
     info += GenTableRow("&nbsp;", "&nbsp;");
+    
+    completed_users = "";
+    for (i = 0; i < challenge.completed.length; i++) {
+        pointstxt = "";
+        if(challenge.challenge_type == 2)pointstxt = ` (${challenge.completed[i].points} Points)`;
+        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${challenge.completed[i].userid})">${challenge.completed[i].name}${pointstxt}</a>, `;
+    }
+    completed_users = completed_users.substr(0, completed_users.length - 2);
+
+    if(challenge.completed.length != 0){
+        info += GenTableRow("Completed Members", completed_users);
+        info += GenTableRow("&nbsp;", "&nbsp;");
+    }
 
     info += "</tbody></table>" + marked.parse(challenge.description);
     modalid = ShowModal(challenge.title, info);
@@ -5412,7 +5425,7 @@ async function LoadEvent(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?page=" + page,
+        url: apidomain + "/" + vtcprefix + "/event/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
