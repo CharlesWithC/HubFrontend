@@ -86,7 +86,7 @@
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/f49c343f3dab3f4a.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/9e458bb77251e553.js"></script>
 
     <?php
     $application_html = "";
@@ -1067,12 +1067,18 @@
                         <div class="col">
                             <label for="challenge-new-type" class="form-label" style="width:100%">Challenge Type</label>
                             <div class="mb-3">
-                                <div class="form-check" style="display:inline-block;width:30%">
+                                <div class="form-check" style="display:inline-block;width:40%">
                                     <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-1" checked value="1">
                                         <label class="form-check-label" for="challenge-new-type-1">
-                                            Personal
+                                            Personal (One-time)
                                         </label>
                                     </div>
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-2" value="2">
+                                    <label class="form-check-label" for="challenge-new-type-3">
+                                        Personal (Recurring)
+                                    </label>
+                                </div>
                                 <div class="form-check" style="display:inline-block">
                                     <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-2" value="2">
                                     <label class="form-check-label" for="challenge-new-type-2">
@@ -1284,10 +1290,16 @@
                     <div class="col">
                         <label for="challenge-edit-type" class="form-label" style="width:100%">Challenge Type</label>
                         <div class="mb-3">
-                            <div class="form-check" style="display:inline-block;width:30%">
+                            <div class="form-check" style="display:inline-block;width:40%">
                                 <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1">
                                     <label class="form-check-label" for="challenge-edit-type-1">
-                                        Personal
+                                        Personal (One-time)
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block;width:40%">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1">
+                                    <label class="form-check-label" for="challenge-edit-type-3">
+                                        Personal (Recurring)
                                     </label>
                                 </div>
                             <div class="form-check" style="display:inline-block">
