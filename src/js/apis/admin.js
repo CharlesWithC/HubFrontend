@@ -173,7 +173,7 @@ function ReloadServer() {
     otp = $("#mfa-otp").val();
     $.ajax({
         url: apidomain + "/" + vtcprefix + "/reload",
-        type: "POST",
+        type: "PUT",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

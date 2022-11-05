@@ -9,6 +9,9 @@
 999.Restyle frontend (tailwind -> bootstrap)  
 1000.Improve assign role  
 
+**v2.2.1**  
+1.Updated to be compatible with API v1.19.2  
+
 **v2.1.1**  
 1.Added emoji remover for username  
 2.Updated to be compatible with API v1.17.1  

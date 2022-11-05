@@ -80,10 +80,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
+    <script src="https://js.sentry-cdn.com/74f4194340d9481491344b82f1623100.min.js" crossorigin="anonymous"></script>
+
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0c31f4bcec92931c.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/f49c343f3dab3f4a.js"></script>
 
     <?php
     $application_html = "";
@@ -106,6 +108,9 @@
     }
     ?>
     <style>
+        a {
+            word-break:break-all
+        }
         .rect-20 {
             width: 20px;
             height: 20px;
@@ -427,7 +432,7 @@
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
         <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
         <div>
-            <strong style="position:fixed;right:50px;top:20px;"><?php echo $slogan ?> <span style="color:red">BETA</span></strong>
+            <strong style="position:fixed;right:50px;top:20px;"><?php echo $slogan ?></strong>
             <div class="dropdown" style="display:inline;">
                 <div style="position:fixed;right:20px;top:20px;" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside"><a class="mx-2 clickable position-relative" onclick="NotificationsMarkAllAsRead()">
                     <i class="fa-solid fa-bell"></i>
@@ -675,8 +680,8 @@
                             <input type="text" class="form-control bg-dark text-white" id="announcement-new-title" placeholder="A short and nice title">
                         </div>
                         <label for="announcement-new-content" class="form-label">Content</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="announcement-new-content" placeholder="Content of the announcement, MarkDown supported" style="height:100%"></textarea>
+                        <div class="input-group mb-3" style="height:calc(100% - 133px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="announcement-new-content" placeholder="Content of the announcement, MarkDown supported"></textarea>
                         </div>
                     </div>
                     <div class="col">
@@ -715,28 +720,86 @@
                             <span class="input-group-text" id="announcement-new-discord-message-label">Message</span>
                             <input type="text" class="form-control bg-dark text-white" id="announcement-new-discord-message" placeholder="(Optional) Discord message content" aria-describedby="announcement-new-discord-message-label">
                         </div>
-                        <button id="button-announcement-new-post" type="button" class="btn btn-primary" style="float:right;" onclick="PostAnnouncement();">Post</button>
                     </div>
+                    <button id="button-announcement-new-post" type="button" class="btn btn-primary w-100" onclick="PostAnnouncement();">Post</button>
                 </div>
             </div>
             <div id="announcements">
             </div>
         </section>
         <section id="downloads-tab" class="tabs">
-            <div class="row">
-                <div id="downloads-display" class="shadow p-3 m-3 bg-dark rounded col">
-                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-download"></i></span> Downloads<span id="downloads-unsaved" style="display:none">*</span></strong></h5>
-                    <div id="downloads-edit-button-wrapper" style="float:right;display:none;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").hide();'>Edit</a></div>
-                    <p id="downloads-content"><span class="placeholder col-4"></span>&nbsp;&nbsp;<span class="placeholder col-5"></span><br><span class="placeholder col-6"></span>&nbsp;&nbsp;<span class="placeholder col-3"></span><br><span class="placeholder col-2"></span>&nbsp;&nbsp;<span class="placeholder col-7"></span></p>
-                </div>
-                <div id="downloads-edit-div" class="shadow p-3 m-3 bg-dark rounded col" style="display:none">
-                    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span> Edit</strong></h5>
-                    <div id="downloads-edit-hide-button-wrapper" style="float:right;"><a style="cursor:pointer" onclick='$("#downloads-edit-div").toggle();$("#downloads-edit-button-wrapper").show();'><span class="rect-20"><i class="fa-solid fa-eye-slash"></i></span></a></div>
-                    <textarea class="form-control bg-dark text-white" id="downloads-edit-content" style="height:calc(100% - 100px)"></textarea>
-                    <br>
-                    <button id="button-downloads-edit-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateDownloads();">Save</button>
+            <div id="downloads-new" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+                <h5 id="downloads-new-heading">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#downloads-new-collapse" aria-expanded="false" aria-controls="downloads-new-collapse">
+                        <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> New Downloadable Item</strong>
+                    </button>
+                </h5>
+                <div id="downloads-new-collapse" class="collapse row" aria-labelledby="downloads-new-heading" data-bs-parent="#downloads-new">
+                    <div class="col">
+                        <label for="downloads-new-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="downloads-new-title" placeholder="A short and nice title">
+                        </div>
+                        <label for="downloads-new-link" class="form-label">Link</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="downloads-new-link" placeholder="A valid URL (Only one)">
+                        </div>
+                        <label for="downloads-new-orderid" class="form-label">Order ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="downloads-new-orderid" placeholder="The order / position of this item (could be duplicate)">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="downloads-new-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 40px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="downloads-new-description" placeholder="Description of the downloads, MarkDown supported"></textarea>
+                        </div>
+                    </div>
+                    <button id="button-downloads-new-create" type="button" class="btn btn-primary mt-3 w-100" onclick="CreateDownloads();">Create</button>
                 </div>
             </div>
+            <div id="downloads">
+            </div>
+            <div id="downloads-edit" class="shadow p-3 m-3 bg-dark rounded row" style="display:none">
+            <h5 id="downloads-edit-heading">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#downloads-edit-collapse" aria-expanded="false" aria-controls="downloads-edit-collapse">
+                    <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> Edit Downloadable Item #<span id="downloads-edit-id-span"></span></strong>
+                </button>
+            </h5>
+            <div id="downloads-edit-collapse" class="collapsed" aria-labelledby="downloads-edit-heading" data-bs-parent="#downloads-edit">
+                <input type="text" class="form-control bg-dark text-white" id="downloads-edit-id" placeholder="Downloads id" style="display:none">
+                <div class="row">
+                    <div class="col">
+                        <label for="downloads-edit-title" class="form-label">Title</label>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control bg-dark text-white" id="downloads-edit-title" placeholder="A short and nice title">
+                        </div>
+                        <label for="downloads-edit-link" class="form-label">Link</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="downloads-edit-link" placeholder="A valid URL (Only one)">
+                        </div>
+                        <label for="downloads-edit-orderid" class="form-label">Order ID</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control bg-dark text-white" id="downloads-edit-orderid" placeholder="The order / position of this item (could be duplicate)">
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="downloads-edit-description" class="form-label">Description</label>
+                        <div class="input-group mb-3" style="height:calc(100% - 40px)">
+                            <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-description" placeholder="Description of the downloads, MarkDown supported"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col p-3">
+                        <button id="button-downloads-edit" type="button" class="btn btn-primary w-100" onclick="EditDownloads();">Edit</button>
+                    </div>
+                    <div class="col p-3">
+                        <button type="button" class="btn btn-secondary w-100" onclick="$('#downloads-edit').hide();">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         </section>
         <section id="map-tab" class="tabs">
             <div class="shadow m-3 mb-5 rounded" style="background-color:#484E66;">
@@ -1166,8 +1229,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <button id="button-challenge-new-create" type="button" class="btn btn-primary" style="float:right;" onclick="CreateChallenge();">Create</button>
                         </div>
+                        <button id="button-challenge-new-create" type="button" class="btn btn-primary w-100" onclick="CreateChallenge();">Create</button>
                     </div>
                 </div>
             </div>
@@ -1509,8 +1572,8 @@
                                 </label>
                             </div>
                         </div>
-                        <button id="button-event-new-create" type="button" class="btn btn-primary" style="float:right;" onclick="CreateEvent();">Create</button>
                     </div>
+                    <button id="button-event-new-create" type="button" class="btn btn-primary w-100" onclick="CreateEvent();">Create</button>
                 </div>
             </div>
             <div class="shadow p-3 m-3 bg-dark rounded">
@@ -1543,62 +1606,70 @@
                         <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> Edit Event #<span id="event-edit-id-span"></span></strong>
                     </button>
                 </h5>
-                <div id="event-edit-collapse" class="collapsed row" aria-labelledby="event-edit-heading" data-bs-parent="#event-edit">
+                <div id="event-edit-collapse" class="collapsed" aria-labelledby="event-edit-heading" data-bs-parent="#event-edit">
                     <input type="text" class="form-control bg-dark text-white" id="event-edit-id" placeholder="Event id" style="display:none">
-                    <div class="col">
-                        <label for="event-edit-title" class="form-label">Title</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control bg-dark text-white" id="event-edit-title" placeholder="Event title">
-                        </div>
-                        <label for="event-edit-description" class="form-label">Description</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="event-edit-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <label for="event-edit-truckersmp-link" class="form-label">TruckersMP Link</label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control bg-dark text-white" id="event-edit-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
-                        </div>
-                        <label for="event-edit-location" class="form-label">Location</label>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text" id="event-edit-departure-label">Departure</span>
-                            <input type="text" class="form-control bg-dark text-white" id="event-edit-departure" placeholder="Where the event starts" aria-describedby="event-edit-departure-label">
-                        </div>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text" id="event-edit-destination-label">Destination</span>
-                            <input type="text" class="form-control bg-dark text-white" id="event-edit-destination" placeholder="Where the event ends" aria-describedby="event-edit-destination-label">
-                        </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" id="event-edit-distance-label">Distance</span>
-                            <input type="text" class="form-control bg-dark text-white" id="event-edit-distance" placeholder="How long the event is" aria-describedby="event-edit-distance-label">
-                        </div>
-                        <label for="event-edit-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text" id="event-edit-meetup-time-label">Meetup</span>
-                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-meetup-time" placeholder="" aria-describedby="event-edit-meetup-time-label">
-                        </div>
-                        <div class="input-group mb-3">
-                            <span class="input-group-text" id="event-edit-departure-time-label">Departure</span>
-                            <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-departure-time" placeholder="" aria-describedby="event-edit-departure-time-label">
-                        </div>
-                        <label for="event-edit-visibility" class="form-label" style="width:100%">Visibility</label>
-                        <div class="mb-3">
-                            <div class="form-check" style="display:inline-block;width:30%">
-                                <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-public" checked>
-                                    <label class="form-check-label" for="event-edit-visibility-public">
-                                        Public
-                                    </label>
-                                </div>
-                            <div class="form-check" style="display:inline-block">
-                                <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-private">
-                                <label class="form-check-label" for="event-edit-visibility-private">
-                                    Private
-                                </label>
+                    <div class="row">
+                        <div class="col">
+                            <label for="event-edit-title" class="form-label">Title</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control bg-dark text-white" id="event-edit-title" placeholder="Event title">
+                            </div>
+                            <label for="event-edit-description" class="form-label">Description</label>
+                            <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                                <textarea type="text" class="form-control bg-dark text-white" id="event-edit-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
                             </div>
                         </div>
-                        <button id="button-event-edit" type="button" class="btn btn-primary m-2" style="float:right;" onclick="EditEvent();">Edit</button>
-                        <button type="button" class="btn btn-secondary m-2" style="float:right;" onclick="$('#event-edit').hide();">Close</button>
+                        <div class="col">
+                            <label for="event-edit-truckersmp-link" class="form-label">TruckersMP Link</label>
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control bg-dark text-white" id="event-edit-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
+                            </div>
+                            <label for="event-edit-location" class="form-label">Location</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" id="event-edit-departure-label">Departure</span>
+                                <input type="text" class="form-control bg-dark text-white" id="event-edit-departure" placeholder="Where the event starts" aria-describedby="event-edit-departure-label">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" id="event-edit-destination-label">Destination</span>
+                                <input type="text" class="form-control bg-dark text-white" id="event-edit-destination" placeholder="Where the event ends" aria-describedby="event-edit-destination-label">
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="event-edit-distance-label">Distance</span>
+                                <input type="text" class="form-control bg-dark text-white" id="event-edit-distance" placeholder="How long the event is" aria-describedby="event-edit-distance-label">
+                            </div>
+                            <label for="event-edit-location" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text" id="event-edit-meetup-time-label">Meetup</span>
+                                <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-meetup-time" placeholder="" aria-describedby="event-edit-meetup-time-label">
+                            </div>
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="event-edit-departure-time-label">Departure</span>
+                                <input type="datetime-local" class="form-control bg-dark text-white" id="event-edit-departure-time" placeholder="" aria-describedby="event-edit-departure-time-label">
+                            </div>
+                            <label for="event-edit-visibility" class="form-label" style="width:100%">Visibility</label>
+                            <div class="mb-3">
+                                <div class="form-check" style="display:inline-block;width:30%">
+                                    <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-public" checked>
+                                        <label class="form-check-label" for="event-edit-visibility-public">
+                                            Public
+                                        </label>
+                                    </div>
+                                <div class="form-check" style="display:inline-block">
+                                    <input class="form-check-input" type="radio" name="event-edit-visibility" id="event-edit-visibility-private">
+                                    <label class="form-check-label" for="event-edit-visibility-private">
+                                        Private
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col p-3">
+                            <button id="button-event-edit" type="button" class="btn btn-primary w-100" onclick="EditEvent();">Edit</button>
+                        </div>
+                        <div class="col p-3">
+                            <button type="button" class="btn btn-secondary w-100" onclick="$('#event-edit').hide();">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>

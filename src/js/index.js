@@ -867,7 +867,7 @@ async function PathDetect() {
     } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
-    else if (p == "/application/all") ShowTab("#button-all-application-tab", "#button-all-application-tab");
+    else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
     else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");

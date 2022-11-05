@@ -229,7 +229,7 @@ function LoadDeliveryList(noplaceholder = false) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.division != "") dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division.divisionid != undefined) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
@@ -867,8 +867,8 @@ function MoreDeliveryDetail() {
     damage_color = "lightgreen";
     if (d.cargo.damage >= 0.03) damage_color = "yellow";
     if (d.cargo.damage >= 0.1) damage_color = "red";
-    info += GenTableRow("Cargo Damage", `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
     info += GenTableRow("Cargo Mass", cargo_mass);
+    info += GenTableRow("Cargo Damage", `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
     truck = d.truck.brand.name + " " + d.truck.name;
     truck_brand_id = d.truck.brand.unique_id;
     license_plate = d.truck.license_plate;
@@ -926,10 +926,10 @@ function MoreDeliveryDetail() {
     } else {
         info += GenTableRow("Is Late?", "<span style='color:lightgreen'>No</span>");
     }
-    if (d.has_police_enabled == true) {
-        info += GenTableRow("Has Police Enabled?", "<span style='color:lightgreen'>Yes</span>");
+    if (d.game.had_police_enabled == true) {
+        info += GenTableRow("Had Police Enabled?", "<span style='color:lightgreen'>Yes</span>");
     } else {
-        info += GenTableRow("Has Police Enabled?", "<span style='color:red'>No</span>");
+        info += GenTableRow("Had Police Enabled?", "<span style='color:red'>No</span>");
     }
 
     MARKET = {
