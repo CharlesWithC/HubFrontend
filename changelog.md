@@ -9,6 +9,9 @@
 999.Restyle frontend (tailwind -> bootstrap)  
 1000.Improve assign role  
 
+**v2.2.2**  
+1.Added support to hide non-enabled plugins  
+
 **v2.2.1**  
 1.Updated to be compatible with API v1.19.2  
 

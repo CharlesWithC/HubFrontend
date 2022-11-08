@@ -86,7 +86,7 @@
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/f49c343f3dab3f4a.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/9e458bb77251e553.js"></script>
 
     <?php
     $application_html = "";
@@ -258,6 +258,20 @@
         .flexdatalist-results {background-color:#2F3136;}
         .flexdatalist-multiple li.value {background-color:#2F3136;}
     </style>
+    <script>
+        $(document).ready(function(){
+            <?php
+                if(!in_array("announcement", $enabled_plugins)){echo '$(".announcement-plugin").remove();';}
+                if(!in_array("challenge", $enabled_plugins)){echo '$(".challenge-plugin").remove();';}
+                if(!in_array("downloads", $enabled_plugins)){echo '$(".downloads-plugin").remove();';}
+                if(!in_array("division", $enabled_plugins)){echo '$(".division-plugin").remove();';}
+                if(!in_array("application", $enabled_plugins)){echo '$(".application-plugin").remove();';}
+                if(!in_array("event", $enabled_plugins)){echo '$(".event-plugin").remove();';}
+                if(!in_array("ranking", $enabled_plugins)){echo '$(".ranking-plugin").remove();';}
+                if(!in_array("livemap", $enabled_plugins)){echo '$(".livemap-plugin").remove();';}
+            ?>
+        });
+    </script>
     <?php 
     if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
         echo "<style>".file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')."</style>";
@@ -291,13 +305,13 @@
                             Overview
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item announcement-plugin">
                         <a id="button-announcement-tab" onclick="ShowTab('#announcement-tab', '#button-announcement-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
                             Announcements
                         </a>
                     </li>
-                    <li class="nav-item member-only">
+                    <li class="nav-item member-only downloads-plugin">
                         <a id="button-downloads-tab" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-download"></i></span>
                             Downloads
@@ -306,7 +320,7 @@
                 </div>
                 <div style="margin:5px 0;">
                     <li><strong style="color:darkgrey">Game</strong></li>
-                    <li class="nav-item">
+                    <li class="nav-item livemap-plugin">
                         <a id="button-map-tab" onclick="ShowTab('#map-tab', '#button-map-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-map"></i></span>
                             Live Map
@@ -318,19 +332,19 @@
                             Deliveries
                         </a>
                     </li>
-                    <li class="nav-item member-only">
+                    <li class="nav-item member-only challenge-plugin">
                         <a id="button-challenge-tab" onclick="ShowTab('#challenge-tab', '#button-challenge-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-fire-flame-curved"></i></span>
                             Challenges
                         </a>
                     </li>
-                    <li class="nav-item member-only">
+                    <li class="nav-item member-only division-plugin">
                         <a id="button-division-tab" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
                             Divisions
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item event-plugin">
                         <a id="button-event-tab" onclick="ShowTab('#event-tab', '#button-event-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-calendar-days"></i></span>
                             Events
@@ -351,14 +365,14 @@
                             Leaderboard
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item ranking-plugin">
                         <a id="button-ranking-tab" onclick="ShowTab('#ranking-tab', '#button-ranking-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
                             Rankings
                         </a>
                     </li>
                 </div>
-                <div id="sidebar-application" style="margin:5px 0;display:none;">
+                <div id="sidebar-application" class="application-plugin" style="margin:5px 0;display:none;">
                     <li><strong style="color:darkgrey">Applications</strong></li>
                     <li class="nav-item">
                         <a id="button-submit-application-tab" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white clickable" aria-current="page">
@@ -1067,12 +1081,18 @@
                         <div class="col">
                             <label for="challenge-new-type" class="form-label" style="width:100%">Challenge Type</label>
                             <div class="mb-3">
-                                <div class="form-check" style="display:inline-block;width:30%">
+                                <div class="form-check" style="display:inline-block;width:40%">
                                     <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-1" checked value="1">
                                         <label class="form-check-label" for="challenge-new-type-1">
-                                            Personal
+                                            Personal (One-time)
                                         </label>
                                     </div>
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-3" value="3">
+                                    <label class="form-check-label" for="challenge-new-type-3">
+                                        Personal (Recurring)
+                                    </label>
+                                </div>
                                 <div class="form-check" style="display:inline-block">
                                     <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-2" value="2">
                                     <label class="form-check-label" for="challenge-new-type-2">
@@ -1284,10 +1304,16 @@
                     <div class="col">
                         <label for="challenge-edit-type" class="form-label" style="width:100%">Challenge Type</label>
                         <div class="mb-3">
-                            <div class="form-check" style="display:inline-block;width:30%">
+                            <div class="form-check" style="display:inline-block;width:40%">
                                 <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1">
                                     <label class="form-check-label" for="challenge-edit-type-1">
-                                        Personal
+                                        Personal (One-time)
+                                    </label>
+                                </div>
+                            <div class="form-check" style="display:inline-block;width:40%">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-3" checked value="3">
+                                    <label class="form-check-label" for="challenge-edit-type-3">
+                                        Personal (Recurring)
                                     </label>
                                 </div>
                             <div class="form-check" style="display:inline-block">
