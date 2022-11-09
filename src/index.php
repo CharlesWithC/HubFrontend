@@ -5,7 +5,7 @@
 <head>
     <?php
     $domain = $_SERVER['HTTP_HOST'];
-    require_once('config/'.$domain.'.php');
+    require_once('/var/hub/config/'.$domain.'.php');
 
     $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
     $language = substr($language, 0, 2);

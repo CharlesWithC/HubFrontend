@@ -1,0 +1,10 @@
+{
+    "abbr": "exp",
+    "name": "Example",
+    "domain": "hub.charlws.com",
+    "api_path": "https://drivershub.charlws.com",
+    "distance_unit": "metric",
+    "navio_company_id": "0",
+    "slogan": "This is a slogan",
+    "plugins": ["announcement", "application", "division", "downloads", "event", "livemap", "ranking"]
+}
