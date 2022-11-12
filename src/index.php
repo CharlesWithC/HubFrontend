@@ -37,7 +37,7 @@
     }
     if (str_starts_with($path, '/banner')) {
         $t = explode("/", $path);
-        header('Location: //'.$config["api_host"].'/'.$config["abbr"].'/member/banner?userid='.$t[2]);
+        header('Location: '.$config["api_host"].'/'.$config["abbr"].'/member/banner?userid='.$t[2]);
         exit();
     }
     ?>
@@ -102,7 +102,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/542a8e9d562a2168.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/4243f3a8dd962069.js"></script>
 
     <?php
     $application_html = "";

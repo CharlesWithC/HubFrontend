@@ -662,11 +662,11 @@ function timeAgo(dateParam) {
     if (seconds < 5) {
         return 'now';
     } else if (seconds < 60) {
-        return `${ seconds } seconds ago`;
+        return `${ seconds } sec ago`;
     } else if (seconds < 90) {
-        return 'about a minute ago';
+        return 'about a min ago';
     } else if (minutes < 60) {
-        return `${ minutes } minutes ago`;
+        return `${ minutes } min ago`;
     } else if (isToday) {
         return getFormattedDate(date, 'Today'); // Today at 10:20
     } else if (isYesterday) {
