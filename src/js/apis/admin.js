@@ -254,7 +254,7 @@ function UpdateWebConfig() {
                     "Authorization": "TemporaryIdentityProof " + tipt
                 },
                 data: {
-                    config: JSON.stringify({"name": $("#web-name").val(), "distance_unit": parseInt($("#web-distance-unit").find(":selected").attr("value")), "navio_company_id": $("#web-navio-company-id").val(), "slogan": $("#web-slogan").val(), "color": $("#web-color").val()}),
+                    config: JSON.stringify({"name": $("#web-name").val(), "distance_unit": $("#web-distance-unit").find(":selected").attr("value"), "navio_company_id": $("#web-navio-company-id").val(), "slogan": $("#web-slogan").val(), "color": $("#web-color").val()}),
                     logo_url: $("#web-logo-download-link").val(),
                     banner_url: $("#web-banner-download-link").val(),
                     application: custom_application,
