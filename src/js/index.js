@@ -7,6 +7,7 @@ isAdmin = false;
 highestrole = 99999;
 roles = JSON.parse(localStorage.getItem("roles"));
 rolelist = JSON.parse(localStorage.getItem("role-list"));
+rolecolor = JSON.parse(localStorage.getItem("role-color"));
 perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 divisions = JSON.parse(localStorage.getItem("divisions"));
@@ -532,10 +533,13 @@ function LoadCache() {
             success: function (data) {
                 roles = data.response;
                 rolelist = {};
+                rolecolor = {};
                 for (var i = 0; i < roles.length; i++) {
                     rolelist[roles[i].id] = roles[i].name;
+                    rolecolor[roles[i].id] = roles[i].color;
                 }
                 localStorage.setItem("role-list", JSON.stringify(rolelist));
+                localStorage.setItem("role-color", JSON.stringify(rolecolor));
             }
         });
         $.ajax({
@@ -587,6 +591,7 @@ userPermLoaded = false;
 
 function GetUserPermission() {
     if (roles == undefined || perms.admin == undefined) return;
+    userPerm = [];
     for (i = 0; i < roles.length; i++) {
         for (j = 0; j < Object.keys(perms).length; j++) {
             for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
@@ -742,13 +747,14 @@ function ValidateToken() {
             </svg>&nbsp;&nbsp;<span id="topbar-message" style="color:${color}"></span><span style="color:orange"></p>`);
 
             // User Information
-            localStorage.setItem("roles", JSON.stringify(data.response.roles));
-            localStorage.setItem("name", data.response.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
-            localStorage.setItem("avatar", data.response.avatar);
-            localStorage.setItem("discordid", data.response.discordid);
-            localStorage.setItem("userid", data.response.userid);
+            user = data.response.user;
+            localStorage.setItem("roles", JSON.stringify(user.roles));
+            localStorage.setItem("name", user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
+            localStorage.setItem("avatar", user.avatar);
+            localStorage.setItem("discordid", user.discordid);
+            localStorage.setItem("userid", user.userid);
 
-            userid = data.response.userid;
+            userid = user.userid;
 
             if (userid != -1 && userid != null) {
                 // Logged in, and is member, show membersOnlyTabs
@@ -760,37 +766,37 @@ function ValidateToken() {
             }
 
             // Check if is member
-            userid = data.response.userid;
-            if (data.response.userid != -1) {
+            userid = user.userid;
+            if (user.userid != -1) {
                 $("#button-member-tab").show();
             }
-            roles = data.response.roles.sort(function (a, b) {
+            roles = user.roles.sort(function (a, b) {
                 return a - b
             });
             highestrole = roles[0];
             highestroleid = roles[0];
-            name = data.response.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
-            avatar = data.response.avatar;
-            discordid = data.response.discordid;
+            name = user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            avatar = user.avatar;
+            discordid = user.discordid;
             $("#sidebar-username").html(name);
             $("#sidebar-userid").html("#" + userid);
-            $("#sidebar-bio").html(data.response.bio);
-            $("#settings-bio").val(data.response.bio);
+            $("#sidebar-bio").html(user.bio);
+            simplemde["#settings-bio"].value(user.bio);
             $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
 
-            mfaenabled = data.response.mfa;
+            mfaenabled = user.mfa;
             if (mfaenabled) {
                 $("#button-settings-mfa-disable").show();
             } else {
                 $("#button-settings-mfa-enable").show();
             }
 
-            $("#settings-user-truckersmpid").val(data.response.truckersmpid);
-            $("#settings-user-steamid").val(data.response.steamid);
+            $("#settings-user-truckersmpid").val(user.truckersmpid);
+            $("#settings-user-steamid").val(user.steamid);
 
             UpdateRolesOnDisplay();
             LoadNotification();
@@ -811,8 +817,10 @@ function ValidateToken() {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    if (!data.error) {
+                    if (!data.error && data.response.list.length == 1) {
                         user_distance = data.response.list[0].points.distance;
+                    } else {
+                        user_distance = 0;
                     }
                 }
             });
@@ -891,6 +899,7 @@ window.onpopstate = function (event) {
 };
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
+simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
 $(document).ready(async function () {
     PreValidateToken();
     $("#mfa-otp").val("");
@@ -928,6 +937,9 @@ $(document).ready(async function () {
     setTimeout(function () {
         for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
     }, 500);
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();
     PathDetect();
     LoadCache();
     InitPhoneView();
@@ -940,10 +952,11 @@ $(document).ready(async function () {
     PreserveApplicationQuestion();
     while (1) {
         rolelist = JSON.parse(localStorage.getItem("role-list"));
+        rolecolor = JSON.parse(localStorage.getItem("role-color"));
         perms = JSON.parse(localStorage.getItem("perms"));
         positions = JSON.parse(localStorage.getItem("positions"));
         applicationTypes = JSON.parse(localStorage.getItem("application-types"));
-        if (rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
     roleids = Object.keys(rolelist);

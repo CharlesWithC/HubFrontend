@@ -135,7 +135,7 @@ async function ShowEventDetail(eventid, reload = false) {
             },
             success: function (data) {
                 if (data.error) return AjaxError(data);
-                allevents[eventid] = data.response;
+                allevents[eventid] = data.response.event;
                 ShowEventDetail(eventid);
             },
             error: function (data) {
@@ -224,7 +224,7 @@ function VoteEvent(eventid, resp) {
 
 function CreateEvent(){
     title = $("#event-new-title").val();
-    description = $("#event-new-description").val();
+    description = simplemde["#event-new-description"].value();
     truckersmp_link = $("#event-new-truckersmp-link").val();
     departure = $("#event-new-departure").val();
     destination = $("#event-new-destination").val();
@@ -295,7 +295,7 @@ function EditEvent(){
     LockBtn("#button-event-edit", "Editing...");
     eventid = $("#event-edit-id").val();
     title = $("#event-edit-title").val();
-    description = $("#event-edit-description").val();
+    description = simplemde["#event-edit-description"].value();
     truckersmp_link = $("#event-edit-truckersmp-link").val();
     departure = $("#event-edit-departure").val();
     destination = $("#event-edit-destination").val();

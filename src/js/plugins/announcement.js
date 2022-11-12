@@ -131,7 +131,7 @@ function EditAnnouncementToggle(announcementid){
 
 function PostAnnouncement(){
     title = $("#announcement-new-title").val();
-    content = $("#announcement-new-content").val();
+    content = simplemde["#announcement-new-content"].value();
     anntype = $("#announcement-new-type").find(":selected").val();
     if(!isNumber(anntype)){
         return toastNotification("warning", "Warning", "Please select an announcement type!", 3000);

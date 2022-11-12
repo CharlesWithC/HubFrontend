@@ -8,7 +8,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.0.0)");
+    console.log("Drivers Hub: Frontend (v2.3.1)");
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
     console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
 });
@@ -676,6 +676,45 @@ function timeAgo(dateParam) {
     }
 
     return getFormattedDate(date); // 10. January 2017. at 10:20
+}
+
+function foregroundColorOf(color) {
+    // Variables for red, green, blue values
+    var r, g, b, hsp;
+
+    // Check the format of the color, HEX or RGB?
+    if (color.match(/^rgb/)) {
+
+        // If RGB --> store the red, green, blue values in separate variables
+        color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/);
+
+        r = color[1];
+        g = color[2];
+        b = color[3];
+    } else {
+
+        // If hex --> Convert it to RGB: http://gist.github.com/983661
+        color = +("0x" + color.slice(1).replace(
+            color.length < 5 && /./g, '$&$&'));
+
+        r = color >> 16;
+        g = color >> 8 & 255;
+        b = color & 255;
+    }
+
+    // HSP (Highly Sensitive Poo) equation from http://alienryderflex.com/hsp.html
+    hsp = Math.sqrt(
+        0.299 * (r * r) +
+        0.587 * (g * g) +
+        0.114 * (b * b)
+    );
+
+    // Using the HSP value, determine whether the color is light or dark
+    if (hsp > 127.5) {
+        return 'black';
+    } else {
+        return 'white';
+    }
 }
 audit_log_placeholder_row = `
 <tr>
@@ -1423,7 +1462,7 @@ function ShowDeliveryDetail(logid) {
 
             window.history.pushState("", "", '/delivery/' + logid);
 
-            d = data.response;
+            d = data.response.dlog;
             currentDeliveryLog = d;
             user = d.user;
             distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
@@ -1542,7 +1581,7 @@ function ShowDeliveryDetail(logid) {
 
             dt = getDateTime(data.response.timestamp * 1000);
 
-            telemetry = data.response.telemetry.split(";");
+            telemetry = data.response.dlog.telemetry.split(";");
             basic = telemetry[0].split(",");
             tver = 1;
             if (basic[0].startsWith("v2")) tver = 2;
@@ -2048,7 +2087,7 @@ function EditRolesShow(uid){
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            d = data.response;
+            d = data.response.user;
             roles = d.roles;
 
             roled = `
@@ -2328,7 +2367,7 @@ function LoadUserProfile(userid) {
 
             ShowTab("#user-delivery-tab", userid);
 
-            d = data.response;
+            d = data.response.user;
 
             account_info = "<table>";
             account_info += GenTableRow("ID", d.userid);
@@ -2343,11 +2382,10 @@ function LoadUserProfile(userid) {
             roles = d.roles;
             rtxt = "";
             for (var i = 0; i < roles.length; i++) {
-                color = "#888888";
-                if (perms["admin"].includes(parseInt(roles[i])) || perms["driver"].includes(parseInt(roles[i]))) color = vtccolor;
-                if(rolelist[roles[i]] == "Dragon") rtxt += `<span class='badge' style='background-color:#FFE500;color:#000'>` + rolelist[roles[i]] + "</span> ";
-                else if (rolelist[roles[i]] != undefined) rtxt += `<span class='badge' style='background-color:${color};'>` + rolelist[roles[i]] + "</span> ";
-                else rtxt += `<span class='badge' style='background-color:${color};'>Role #` + roles[i] + "</span> ";
+                color = vtccolor;
+                if(rolecolor[roles[i]] != undefined) color = rolecolor[roles[i]];
+                fcolor = foregroundColorOf(color);
+                rtxt += `<span class='badge' style='background-color:${color};color:${fcolor}'>` + rolelist[roles[i]] + "</span> ";
             }
             rtxt = rtxt.substring(0, rtxt.length - 2);
             
@@ -2851,6 +2889,41 @@ function LoadStats(basic = false, noplaceholder = false) {
                 }
             }
         });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=last_seen&order=desc",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+                users = data.response.list;
+                $("#table_recent_visitors_data").empty();
+                for (var i = 0; i < Math.min(users.length, 5); i++) {
+                    user = users[i];
+                    userid = user.userid;
+                    name = user.name;
+                    discordid = user.discordid;
+                    avatar = user.avatar;
+                    last_seen = timeAgo(new Date(user.activity.last_seen * 1000));
+                    if (avatar != null) {
+                        if (avatar.startsWith("a_"))
+                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+                        else
+                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+                    } else {
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    }
+                    $("#table_recent_visitors_data").append(`<tr>
+              <td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+              <td>${last_seen}</td>
+            </tr>`);
+                }
+            }
+        });
     }
 }
 function UpdateBio() {
@@ -2864,7 +2937,7 @@ function UpdateBio() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "bio": $("#settings-bio").val()
+            "bio": simplemde["#settings-bio"].value()
         },
         success: function (data) {
             UnlockBtn("#button-settings-bio-save");
@@ -3453,7 +3526,7 @@ function ShowUserDetail(discordid) {
         success: function (data) {
             if (data.error) return AjaxError(data);
             
-            d = data.response;
+            d = data.response.user;
             info = "";
             info += GenTableRow("Name", d.name);
             info += GenTableRow("Email", d.email);
@@ -3552,7 +3625,7 @@ function DisableUserMFAShow(discordid, name){
         },
         success: function (data) {
             if (data.error) return AjaxError(data)
-            mfa = data.response.mfa;
+            mfa = data.response.user.mfa;
             if(!mfa){
                 return toastNotification("error", "Error", "User hasn't enabled MFA!", 5000);
             }
@@ -3996,7 +4069,7 @@ function EditAnnouncementToggle(announcementid){
 
 function PostAnnouncement(){
     title = $("#announcement-new-title").val();
-    content = $("#announcement-new-content").val();
+    content = simplemde["#announcement-new-content"].value();
     anntype = $("#announcement-new-type").find(":selected").val();
     if(!isNumber(anntype)){
         return toastNotification("warning", "Warning", "Please select an announcement type!", 3000);
@@ -4280,8 +4353,8 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                 return AjaxError(data);
             }
 
-            d = data.response.detail;
-            discordid = data.response.creator.discordid;
+            d = data.response.application.detail;
+            discordid = data.response.application.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastNotification("error", "Error", "Application has no data", 5000, false);
@@ -4302,7 +4375,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                 success: function (data) {
                     info = "";
                     if (!data.error) {
-                        d = data.response;
+                        d = data.response.user;
                         info += GenTableRow("Name", d.name);
                         info += GenTableRow("Email", d.email);
                         info += GenTableRow("Discord", discordid);
@@ -4668,7 +4741,7 @@ function ShowChallengeDetail(challengeid){
 
 function CreateChallenge() {
     title = $("#challenge-new-title").val();
-    description = $("#challenge-new-description").val();
+    description = simplemde["#challenge-new-description"].value();
     start_time = +new Date($("#challenge-new-start-time").val())/1000;
     end_time = +new Date($("#challenge-new-end-time").val())/1000;    
     challenge_type = $("input[name=challenge-new-type]:checked").val();
@@ -4754,7 +4827,7 @@ function EditChallengeShow(challengeid){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            d = data.response;
+            d = data.response.challenge;
             $("#challenge-edit").show();
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);
@@ -4773,7 +4846,7 @@ function EditChallengeShow(challengeid){
             $("#challenge-edit-required-roles").val(rolestxt);
             $("#challenge-edit-required-distance").val(d.required_distance);
             $("#challenge-edit-reward-points").val(d.reward_points);
-            $("#challenge-edit-public-details-"+d.public_details).prop("checked", true);
+            $("#challenge-edit-public-details-"+JSON.stringify(d.public_details)).prop("checked", true);
             jobreqd = d.job_requirements;
             jobreqs = $(".challenge-edit-job-requirements");
             for (var i = 0; i < jobreqs.length; i++) {
@@ -4803,7 +4876,7 @@ function EditChallengeShow(challengeid){
 function EditChallenge(challengeid) {
     LockBtn("#button-challenge-edit", "Editing...");
     title = $("#challenge-edit-title").val();
-    description = $("#challenge-edit-description").val();
+    description = simplemde["#challenge-edit-description"].value();
     start_time = +new Date($("#challenge-edit-start-time").val())/1000;
     end_time = +new Date($("#challenge-edit-end-time").val())/1000;    
     challenge_type = $("input[name=challenge-edit-type]:checked").val();
@@ -5390,7 +5463,7 @@ function DownloadsRedirect(downloadsid){
         success: function (data) {
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
             if(data.error) return AjaxError(data);
-            window.location.href = apidomain + "/" + vtcprefix + "/downloads/" + data.response.secret;
+            window.location.href = apidomain + "/" + vtcprefix + "/downloads/" + data.response.downloads.secret;
         },
         error: function (data){
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
@@ -5401,7 +5474,7 @@ function DownloadsRedirect(downloadsid){
 
 function CreateDownloads(){
     title = $("#downloads-new-title").val();
-    description = $("#downloads-new-description").val();
+    description = simplemde["#downloads-new-description"].value();
     link = $("#downloads-new-link").val();
     orderid = $("#downloads-new-orderid").val();
 
@@ -5447,7 +5520,7 @@ function EditDownloads(){
     downloadsid = $("#downloads-edit-id").val();
 
     title = $("#downloads-edit-title").val();
-    description = $("#downloads-edit-description").val();
+    description = simplemde["#downloads-edit-description"].value();
     link = $("#downloads-edit-link").val();
     orderid = $("#downloads-edit-orderid").val();
 
@@ -5644,7 +5717,7 @@ async function ShowEventDetail(eventid, reload = false) {
             },
             success: function (data) {
                 if (data.error) return AjaxError(data);
-                allevents[eventid] = data.response;
+                allevents[eventid] = data.response.event;
                 ShowEventDetail(eventid);
             },
             error: function (data) {
@@ -5733,7 +5806,7 @@ function VoteEvent(eventid, resp) {
 
 function CreateEvent(){
     title = $("#event-new-title").val();
-    description = $("#event-new-description").val();
+    description = simplemde["#event-new-description"].value();
     truckersmp_link = $("#event-new-truckersmp-link").val();
     departure = $("#event-new-departure").val();
     destination = $("#event-new-destination").val();
@@ -5804,7 +5877,7 @@ function EditEvent(){
     LockBtn("#button-event-edit", "Editing...");
     eventid = $("#event-edit-id").val();
     title = $("#event-edit-title").val();
-    description = $("#event-edit-description").val();
+    description = simplemde["#event-edit-description"].value();
     truckersmp_link = $("#event-edit-truckersmp-link").val();
     departure = $("#event-edit-departure").val();
     destination = $("#event-edit-destination").val();
@@ -6220,6 +6293,7 @@ isAdmin = false;
 highestrole = 99999;
 roles = JSON.parse(localStorage.getItem("roles"));
 rolelist = JSON.parse(localStorage.getItem("role-list"));
+rolecolor = JSON.parse(localStorage.getItem("role-color"));
 perms = JSON.parse(localStorage.getItem("perms"));
 positions = JSON.parse(localStorage.getItem("positions"));
 divisions = JSON.parse(localStorage.getItem("divisions"));
@@ -6745,10 +6819,13 @@ function LoadCache() {
             success: function (data) {
                 roles = data.response;
                 rolelist = {};
+                rolecolor = {};
                 for (var i = 0; i < roles.length; i++) {
                     rolelist[roles[i].id] = roles[i].name;
+                    rolecolor[roles[i].id] = roles[i].color;
                 }
                 localStorage.setItem("role-list", JSON.stringify(rolelist));
+                localStorage.setItem("role-color", JSON.stringify(rolecolor));
             }
         });
         $.ajax({
@@ -6800,6 +6877,7 @@ userPermLoaded = false;
 
 function GetUserPermission() {
     if (roles == undefined || perms.admin == undefined) return;
+    userPerm = [];
     for (i = 0; i < roles.length; i++) {
         for (j = 0; j < Object.keys(perms).length; j++) {
             for (k = 0; k < perms[Object.keys(perms)[j]].length; k++) {
@@ -6955,13 +7033,14 @@ function ValidateToken() {
             </svg>&nbsp;&nbsp;<span id="topbar-message" style="color:${color}"></span><span style="color:orange"></p>`);
 
             // User Information
-            localStorage.setItem("roles", JSON.stringify(data.response.roles));
-            localStorage.setItem("name", data.response.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
-            localStorage.setItem("avatar", data.response.avatar);
-            localStorage.setItem("discordid", data.response.discordid);
-            localStorage.setItem("userid", data.response.userid);
+            user = data.response.user;
+            localStorage.setItem("roles", JSON.stringify(user.roles));
+            localStorage.setItem("name", user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
+            localStorage.setItem("avatar", user.avatar);
+            localStorage.setItem("discordid", user.discordid);
+            localStorage.setItem("userid", user.userid);
 
-            userid = data.response.userid;
+            userid = user.userid;
 
             if (userid != -1 && userid != null) {
                 // Logged in, and is member, show membersOnlyTabs
@@ -6973,37 +7052,37 @@ function ValidateToken() {
             }
 
             // Check if is member
-            userid = data.response.userid;
-            if (data.response.userid != -1) {
+            userid = user.userid;
+            if (user.userid != -1) {
                 $("#button-member-tab").show();
             }
-            roles = data.response.roles.sort(function (a, b) {
+            roles = user.roles.sort(function (a, b) {
                 return a - b
             });
             highestrole = roles[0];
             highestroleid = roles[0];
-            name = data.response.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
-            avatar = data.response.avatar;
-            discordid = data.response.discordid;
+            name = user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
+            avatar = user.avatar;
+            discordid = user.discordid;
             $("#sidebar-username").html(name);
             $("#sidebar-userid").html("#" + userid);
-            $("#sidebar-bio").html(data.response.bio);
-            $("#settings-bio").val(data.response.bio);
+            $("#sidebar-bio").html(user.bio);
+            simplemde["#settings-bio"].value(user.bio);
             $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
 
-            mfaenabled = data.response.mfa;
+            mfaenabled = user.mfa;
             if (mfaenabled) {
                 $("#button-settings-mfa-disable").show();
             } else {
                 $("#button-settings-mfa-enable").show();
             }
 
-            $("#settings-user-truckersmpid").val(data.response.truckersmpid);
-            $("#settings-user-steamid").val(data.response.steamid);
+            $("#settings-user-truckersmpid").val(user.truckersmpid);
+            $("#settings-user-steamid").val(user.steamid);
 
             UpdateRolesOnDisplay();
             LoadNotification();
@@ -7024,8 +7103,10 @@ function ValidateToken() {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    if (!data.error) {
+                    if (!data.error && data.response.list.length == 1) {
                         user_distance = data.response.list[0].points.distance;
+                    } else {
+                        user_distance = 0;
                     }
                 }
             });
@@ -7104,6 +7185,7 @@ window.onpopstate = function (event) {
 };
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
+simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
 $(document).ready(async function () {
     PreValidateToken();
     $("#mfa-otp").val("");
@@ -7141,6 +7223,9 @@ $(document).ready(async function () {
     setTimeout(function () {
         for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
     }, 500);
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();
     PathDetect();
     LoadCache();
     InitPhoneView();
@@ -7153,10 +7238,11 @@ $(document).ready(async function () {
     PreserveApplicationQuestion();
     while (1) {
         rolelist = JSON.parse(localStorage.getItem("role-list"));
+        rolecolor = JSON.parse(localStorage.getItem("role-color"));
         perms = JSON.parse(localStorage.getItem("perms"));
         positions = JSON.parse(localStorage.getItem("positions"));
         applicationTypes = JSON.parse(localStorage.getItem("application-types"));
-        if (rolelist != undefined && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }
     roleids = Object.keys(rolelist);

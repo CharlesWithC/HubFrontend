@@ -9,7 +9,7 @@ function UpdateBio() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: {
-            "bio": $("#settings-bio").val()
+            "bio": simplemde["#settings-bio"].value()
         },
         success: function (data) {
             UnlockBtn("#button-settings-bio-save");
@@ -598,7 +598,7 @@ function ShowUserDetail(discordid) {
         success: function (data) {
             if (data.error) return AjaxError(data);
             
-            d = data.response;
+            d = data.response.user;
             info = "";
             info += GenTableRow("Name", d.name);
             info += GenTableRow("Email", d.email);
@@ -697,7 +697,7 @@ function DisableUserMFAShow(discordid, name){
         },
         success: function (data) {
             if (data.error) return AjaxError(data)
-            mfa = data.response.mfa;
+            mfa = data.response.user.mfa;
             if(!mfa){
                 return toastNotification("error", "Error", "User hasn't enabled MFA!", 5000);
             }

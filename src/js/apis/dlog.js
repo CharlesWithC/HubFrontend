@@ -505,7 +505,7 @@ function ShowDeliveryDetail(logid) {
 
             window.history.pushState("", "", '/delivery/' + logid);
 
-            d = data.response;
+            d = data.response.dlog;
             currentDeliveryLog = d;
             user = d.user;
             distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
@@ -624,7 +624,7 @@ function ShowDeliveryDetail(logid) {
 
             dt = getDateTime(data.response.timestamp * 1000);
 
-            telemetry = data.response.telemetry.split(";");
+            telemetry = data.response.dlog.telemetry.split(";");
             basic = telemetry[0].split(",");
             tver = 1;
             if (basic[0].startsWith("v2")) tver = 2;

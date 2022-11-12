@@ -387,5 +387,40 @@ function LoadStats(basic = false, noplaceholder = false) {
                 }
             }
         });
+        $.ajax({
+            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=last_seen&order=desc",
+            type: "GET",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
+            success: function (data) {
+                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
+                users = data.response.list;
+                $("#table_recent_visitors_data").empty();
+                for (var i = 0; i < Math.min(users.length, 5); i++) {
+                    user = users[i];
+                    userid = user.userid;
+                    name = user.name;
+                    discordid = user.discordid;
+                    avatar = user.avatar;
+                    last_seen = timeAgo(new Date(user.activity.last_seen * 1000));
+                    if (avatar != null) {
+                        if (avatar.startsWith("a_"))
+                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
+                        else
+                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
+                    } else {
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    }
+                    $("#table_recent_visitors_data").append(`<tr>
+              <td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+              <td>${last_seen}</td>
+            </tr>`);
+                }
+            }
+        });
     }
 }

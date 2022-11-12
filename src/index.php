@@ -71,6 +71,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css" />
     <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.css" />
     <script src="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
 
@@ -86,7 +89,7 @@
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
     <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/9e458bb77251e553.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/bf7991b49f494575.js"></script>
 
     <?php
     $application_html = "";
@@ -678,6 +681,37 @@
                             </table>
                         </div>
                     </div>
+                    <div class="shadow p-3 m-3 bg-dark rounded col">
+                        <h5><strong><span class="rect-20"><i class="fa-solid fa-person-walking"></i></span> Recent Visitors</strong></h5>
+                        <div id="table_recent_visitors">
+                            <table>
+                                <thead id="table_recent_visitors_head">
+                                    <tr>
+                                        <th scope="col" style="width:40px"></th>
+                                        <th scope="col" style="width:60%">Name</th>
+                                        <th scope="col" style="width:40%">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_recent_visitors_data">
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:10%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:55%;"><span class="placeholder w-100"></span></td>
+                                        <td style="width:35%;"><span class="placeholder w-100"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -689,17 +723,15 @@
                     </button>
                 </h5>
                 <div id="announcement-new-collapse" class="collapse row" aria-labelledby="announcement-new-heading" data-bs-parent="#announcement-new">
-                    <div class="col">
+                    <div class="col-6">
                         <label for="announcement-new-title" class="form-label">Title</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control bg-dark text-white" id="announcement-new-title" placeholder="A short and nice title">
                         </div>
                         <label for="announcement-new-content" class="form-label">Content</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 133px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="announcement-new-content" placeholder="Content of the announcement, MarkDown supported"></textarea>
-                        </div>
+                        <textarea type="text" class="form-control bg-dark text-white" id="announcement-new-content" placeholder="Content of the announcement"></textarea>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="announcement-new-type" class="form-label">Type</label>
                         <div class="mb-3">
                             <select class="form-select bg-dark text-white" id="announcement-new-type">
@@ -750,7 +782,7 @@
                     </button>
                 </h5>
                 <div id="downloads-new-collapse" class="collapse row" aria-labelledby="downloads-new-heading" data-bs-parent="#downloads-new">
-                    <div class="col">
+                    <div class="col-6">
                         <label for="downloads-new-title" class="form-label">Title</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control bg-dark text-white" id="downloads-new-title" placeholder="A short and nice title">
@@ -764,11 +796,9 @@
                             <input type="text" class="form-control bg-dark text-white" id="downloads-new-orderid" placeholder="The order / position of this item (could be duplicate)">
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="downloads-new-description" class="form-label">Description</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 40px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="downloads-new-description" placeholder="Description of the downloads, MarkDown supported"></textarea>
-                        </div>
+                        <textarea type="text" class="form-control bg-dark text-white" id="downloads-new-description" placeholder="Description of the downloads" style="height:calc(100% - 40px)"></textarea>
                     </div>
                     <button id="button-downloads-new-create" type="button" class="btn btn-primary mt-3 w-100" onclick="CreateDownloads();">Create</button>
                 </div>
@@ -784,7 +814,7 @@
             <div id="downloads-edit-collapse" class="collapsed" aria-labelledby="downloads-edit-heading" data-bs-parent="#downloads-edit">
                 <input type="text" class="form-control bg-dark text-white" id="downloads-edit-id" placeholder="Downloads id" style="display:none">
                 <div class="row">
-                    <div class="col">
+                    <div class="col-6">
                         <label for="downloads-edit-title" class="form-label">Title</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control bg-dark text-white" id="downloads-edit-title" placeholder="A short and nice title">
@@ -798,11 +828,9 @@
                             <input type="text" class="form-control bg-dark text-white" id="downloads-edit-orderid" placeholder="The order / position of this item (could be duplicate)">
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="downloads-edit-description" class="form-label">Description</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 40px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-description" placeholder="Description of the downloads, MarkDown supported"></textarea>
-                        </div>
+                        <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-description" placeholder="Description of the downloads" style="height:calc(100% - 40px)"></textarea>
                     </div>
                 </div>
                 <div class="row">
@@ -1059,15 +1087,13 @@
                 </h5>
                 <div id="challenge-new-collapse" class="collapse" aria-labelledby="challenge-new-heading" data-bs-parent="#challenge-new-job-requirements">
                     <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                             <label for="challenge-new-title" class="form-label">Title</label>
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control bg-dark text-white" id="challenge-new-title" placeholder="Challenge title">
                             </div>
                             <label for="challenge-new-description" class="form-label">Description</label>
-                            <div class="input-group mb-3" style="height:calc(100% - 265px)">
-                                <textarea type="text" class="form-control bg-dark text-white" id="challenge-new-description" placeholder="Challenge description, including what drivers need to do to complete the challenge, MarkDown supported" style="height:100%"></textarea>
-                            </div>
+                            <textarea type="text" class="form-control bg-dark text-white" id="challenge-new-description" placeholder="Challenge description, including what drivers need to do to complete the challenge" style="height:calc(100% - 265px)"></textarea>
                             <label for="challenge-new-time" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
                             <div class="input-group mb-2">
                                 <span class="input-group-text">Start</span>
@@ -1078,7 +1104,7 @@
                                 <input type="datetime-local" class="form-control bg-dark text-white" id="challenge-new-end-time" placeholder="">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-6">
                             <label for="challenge-new-type" class="form-label" style="width:100%">Challenge Type</label>
                             <div class="mb-3">
                                 <div class="form-check" style="display:inline-block;width:40%">
@@ -1122,22 +1148,22 @@
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                             <label class="form-label" style="width:100%">Job Requirements</label>
                             <p>*All fields are optional. Only input those required for the challenge.</p>
                         </div>
-                        <div class="col">
+                        <div class="col-6">
                             <label for="challenge-new-public-details" class="form-label" style="width:100%">Visibility</label>
                             <div class="mb-3">
                                 <div class="form-check" style="display:inline-block;width:40%">
-                                    <input class="form-check-input" type="radio" name="challenge-new-public-details" id="challenge-new-public-details-1" value="1">
-                                        <label class="form-check-label" for="challenge-new-public-details-1">
+                                    <input class="form-check-input" type="radio" name="challenge-new-public-details" id="challenge-new-public-details-true" value="true">
+                                        <label class="form-check-label" for="challenge-new-public-details-true">
                                             Public (Members)
                                         </label>
                                     </div>
                                 <div class="form-check" style="display:inline-block">
-                                    <input class="form-check-input" type="radio" name="challenge-new-public-details" id="challenge-new-public-details-0" checked value="0">
-                                    <label class="form-check-label" for="challenge-new-public-details-0">
+                                    <input class="form-check-input" type="radio" name="challenge-new-public-details" id="challenge-new-public-details-false" checked value="false">
+                                    <label class="form-check-label" for="challenge-new-public-details-false">
                                         Private (Staff-only)
                                     </label>
                                 </div>
@@ -1145,7 +1171,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                             <h5>Route</h5>
                             <label for="challenge-new-source-city-id" class="form-label">Source City ID</label>
                             <div class="input-group mb-2">
@@ -1185,7 +1211,7 @@
                                 <span class="input-group-text">%</span>
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-6">
                             <h5>Delivery</h5>
                             <label for="challenge-new-maximum-speed" class="form-label">Maximum Speed</label>
                             <div class="input-group mb-2">
@@ -1215,7 +1241,7 @@
                             <hr>
                             <h5>Misc</h5>
                             <div class="row mb-3">
-                                <div class="col">
+                                <div class="col-6">
                                     <label for="challenge-new-allow-overspeed" class="form-label">Allow Overspeed</label>
                                     <div class="mb-3">
                                         <select class="form-select bg-dark text-white" id="challenge-new-allow-overspeed">
@@ -1233,7 +1259,7 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col">
+                                <div class="col-6">
                                     <label for="challenge-new-must-not-be-late" class="form-label">Must not be late</label>
                                     <div class="mb-3">
                                         <select class="form-select bg-dark text-white" id="challenge-new-must-not-be-late">
@@ -1282,15 +1308,13 @@
             </h5>
             <div id="challenge-edit-collapse" class="collapsed" aria-labelledby="challenge-edit-heading" data-bs-parent="#challenge-edit-job-requirements">
                 <div class="row">
-                    <div class="col">
+                    <div class="col-6">
                         <label for="challenge-edit-title" class="form-label">Title</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control bg-dark text-white" id="challenge-edit-title" placeholder="Challenge title">
                         </div>
                         <label for="challenge-edit-description" class="form-label">Description</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 265px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="challenge-edit-description" placeholder="Challenge description, including what drivers need to do to complete the challenge, MarkDown supported" style="height:100%"></textarea>
-                        </div>
+                        <textarea type="text" class="form-control bg-dark text-white" id="challenge-edit-description" placeholder="Challenge description, including what drivers need to do to complete the challenge" style="height:calc(100% - 265px)"></textarea>
                         <label for="challenge-edit-time" class="form-label">Time (mm/dd/yyyy hh:mm AM/PM)</label>
                         <div class="input-group mb-2">
                             <span class="input-group-text">Start</span>
@@ -1301,7 +1325,7 @@
                             <input type="datetime-local" class="form-control bg-dark text-white" id="challenge-edit-end-time" placeholder="">
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="challenge-edit-type" class="form-label" style="width:100%">Challenge Type</label>
                         <div class="mb-3">
                             <div class="form-check" style="display:inline-block;width:40%">
@@ -1345,22 +1369,22 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col">
+                    <div class="col-6">
                         <label class="form-label" style="width:100%">Job Requirements</label>
                         <p>*All fields are optional. Only input those required for the challenge.</p>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="challenge-edit-public-details" class="form-label" style="width:100%">Visibility</label>
                         <div class="mb-3">
                             <div class="form-check" style="display:inline-block;width:40%">
-                                <input class="form-check-input" type="radio" name="challenge-edit-public-details" id="challenge-edit-public-details-1" value="1">
-                                    <label class="form-check-label" for="challenge-edit-public-details-1">
+                                <input class="form-check-input" type="radio" name="challenge-edit-public-details" id="challenge-edit-public-details-true" value="true">
+                                    <label class="form-check-label" for="challenge-edit-public-details-true">
                                         Public (Members)
                                     </label>
                                 </div>
                             <div class="form-check" style="display:inline-block">
-                                <input class="form-check-input" type="radio" name="challenge-edit-public-details" id="challenge-edit-public-details-0" checked value="0">
-                                <label class="form-check-label" for="challenge-edit-public-details-0">
+                                <input class="form-check-input" type="radio" name="challenge-edit-public-details" id="challenge-edit-public-details-false" checked value="false">
+                                <label class="form-check-label" for="challenge-edit-public-details-false">
                                     Private (Staff-only)
                                 </label>
                             </div>
@@ -1368,7 +1392,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col">
+                    <div class="col-6">
                         <h5>Route</h5>
                         <label for="challenge-edit-source-city-id" class="form-label">Source City ID</label>
                         <div class="input-group mb-2">
@@ -1408,7 +1432,7 @@
                             <span class="input-group-text">%</span>
                         </div>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <h5>Delivery</h5>
                         <label for="challenge-edit-maximum-speed" class="form-label">Maximum Speed</label>
                         <div class="input-group mb-2">
@@ -1438,7 +1462,7 @@
                         <hr>
                         <h5>Misc</h5>
                         <div class="row mb-3">
-                            <div class="col">
+                            <div class="col-6">
                                 <label for="challenge-edit-allow-overspeed" class="form-label">Allow Overspeed</label>
                                 <div class="mb-3">
                                     <select class="form-select bg-dark text-white" id="challenge-edit-allow-overspeed">
@@ -1456,7 +1480,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col-6">
                                 <label for="challenge-edit-must-not-be-late" class="form-label">Must not be late</label>
                                 <div class="mb-3">
                                     <select class="form-select bg-dark text-white" id="challenge-edit-must-not-be-late">
@@ -1547,17 +1571,15 @@
                     </button>
                 </h5>
                 <div id="event-new-collapse" class="collapse row" aria-labelledby="event-new-heading" data-bs-parent="#event-new">
-                    <div class="col">
+                    <div class="col-6">
                         <label for="event-new-title" class="form-label">Title</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control bg-dark text-white" id="event-new-title" placeholder="Event title">
                         </div>
                         <label for="event-new-description" class="form-label">Description</label>
-                        <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                            <textarea type="text" class="form-control bg-dark text-white" id="event-new-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
-                        </div>
+                        <textarea type="text" class="form-control bg-dark text-white" id="event-new-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc" style="height:calc(100% - 160px)"></textarea>
                     </div>
-                    <div class="col">
+                    <div class="col-6">
                         <label for="event-new-truckersmp-link" class="form-label">TruckersMP Link</label>
                         <div class="input-group mb-3">
                             <input type="text" class="form-control bg-dark text-white" id="event-new-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
@@ -1636,17 +1658,15 @@
                 <div id="event-edit-collapse" class="collapsed" aria-labelledby="event-edit-heading" data-bs-parent="#event-edit">
                     <input type="text" class="form-control bg-dark text-white" id="event-edit-id" placeholder="Event id" style="display:none">
                     <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                             <label for="event-edit-title" class="form-label">Title</label>
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control bg-dark text-white" id="event-edit-title" placeholder="Event title">
                             </div>
                             <label for="event-edit-description" class="form-label">Description</label>
-                            <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                                <textarea type="text" class="form-control bg-dark text-white" id="event-edit-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc, MarkDown supported" style="height:100%"></textarea>
-                            </div>
+                            <textarea type="text" class="form-control bg-dark text-white" id="event-edit-description" placeholder="Event description, including things to note like Event Server and Paint Scheme etc" style="height:calc(100% - 160px)"></textarea>
                         </div>
-                        <div class="col">
+                        <div class="col-6">
                             <label for="event-edit-truckersmp-link" class="form-label">TruckersMP Link</label>
                             <div class="input-group mb-3">
                                 <input type="text" class="form-control bg-dark text-white" id="event-edit-truckersmp-link" placeholder="(Optional) Link to TruckersMP event page">
@@ -1992,14 +2012,14 @@
                 <div class="tab-content mt-3" id="settings-subtab">
                     <div class="tab-pane fade show active" id="settings-general" role="tabpanel" aria-labelledby="settings-general-tab" tabindex="0">
                         <div class="row">
-                            <div class="col">
+                            <div class="col-6">
                                 <label for="settings-distance-unit" class="form-label" style="width:100%">Distance Unit</label>
                                 <div class="btn-group mb-3" id="settings-distance-unit-group">
                                     <a id="settings-distance-unit-metric" onclick='localStorage.setItem("distance-unit","metric");window.location.reload();' style="cursor:pointer" class="btn btn-primary active" aria-current="page">Metric</a>
                                     <a id="settings-distance-unit-imperial" onclick='localStorage.setItem("distance-unit","imperial");window.location.reload();' style="cursor:pointer" class="btn btn-primary">Imperial</a>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col-6">
                                 <label for="settings-distance-unit" class="form-label" style="width:100%">Theme</label>
                                 <div class="btn-group mb-3" id="settings-theme">
                                     <a id="settings-theme-dark" onclick='ToggleDarkMode("dark");' style="cursor:pointer" class="btn btn-primary active disabled" aria-current="page">Dark</a>
@@ -2010,14 +2030,14 @@
                         <hr>
                         <label class="form-label" style="width:100%">Account Connections</label>
                         <div class="row">
-                            <div class="col">
+                            <div class="col-6">
                                 <label for="settings-user-truckersmpid" class="form-label">TruckersMP</label>
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control bg-dark text-white" id="settings-user-truckersmpid" placeholder="/">
                                 </div>
                                 <button id="button-settings-update-truckersmpid" type="button" class="btn btn-primary" style="float:right" onclick="UpdateTruckersMPID();">Update</button>
                             </div>
-                            <div class="col">
+                            <div class="col-6">
                                 <label for="settings-user-steamid" class="form-label">Steam</label>
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control bg-dark disabled" id="settings-user-steamid" placeholder="/" disabled style="color:#aaa">
@@ -2027,10 +2047,8 @@
                         </div>
                         <hr>
                         <label for="settings-bio" class="form-label">About Me</label>
-                        <div class="input-group mb-3" style="height:200px">
-                            <textarea type="text" class="form-control bg-dark text-white" id="settings-bio" placeholder="About Me, MarkDown supported" style="height:100%"></textarea>
-                        </div>
-                        <button id="button-settings-bio-save" type="button" class="btn btn-primary" style="float:right" onclick="UpdateBio();">Save</button>
+                        <textarea type="text" class="form-control bg-dark text-white" id="settings-bio" placeholder="About Me" style="height:100%"></textarea>
+                        <button id="button-settings-bio-save" type="button" class="btn btn-primary mt-2 w-100" onclick="UpdateBio();">Save</button>
                     </div>
                     <div class="tab-pane fade" id="settings-security" role="tabpanel" aria-labelledby="settings-security-tab" tabindex="0">
                         <label for="settings-password" class="form-label">Password Login</label>

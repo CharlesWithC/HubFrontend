@@ -89,7 +89,7 @@ function DownloadsRedirect(downloadsid){
         success: function (data) {
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
             if(data.error) return AjaxError(data);
-            window.location.href = apidomain + "/" + vtcprefix + "/downloads/" + data.response.secret;
+            window.location.href = apidomain + "/" + vtcprefix + "/downloads/" + data.response.downloads.secret;
         },
         error: function (data){
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
@@ -100,7 +100,7 @@ function DownloadsRedirect(downloadsid){
 
 function CreateDownloads(){
     title = $("#downloads-new-title").val();
-    description = $("#downloads-new-description").val();
+    description = simplemde["#downloads-new-description"].value();
     link = $("#downloads-new-link").val();
     orderid = $("#downloads-new-orderid").val();
 
@@ -146,7 +146,7 @@ function EditDownloads(){
     downloadsid = $("#downloads-edit-id").val();
 
     title = $("#downloads-edit-title").val();
-    description = $("#downloads-edit-description").val();
+    description = simplemde["#downloads-edit-description"].value();
     link = $("#downloads-edit-link").val();
     orderid = $("#downloads-edit-orderid").val();
 

@@ -171,7 +171,7 @@ function EditRolesShow(uid){
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            d = data.response;
+            d = data.response.user;
             roles = d.roles;
 
             roled = `
@@ -451,7 +451,7 @@ function LoadUserProfile(userid) {
 
             ShowTab("#user-delivery-tab", userid);
 
-            d = data.response;
+            d = data.response.user;
 
             account_info = "<table>";
             account_info += GenTableRow("ID", d.userid);
@@ -466,11 +466,10 @@ function LoadUserProfile(userid) {
             roles = d.roles;
             rtxt = "";
             for (var i = 0; i < roles.length; i++) {
-                color = "#888888";
-                if (perms["admin"].includes(parseInt(roles[i])) || perms["driver"].includes(parseInt(roles[i]))) color = vtccolor;
-                if(rolelist[roles[i]] == "Dragon") rtxt += `<span class='badge' style='background-color:#FFE500;color:#000'>` + rolelist[roles[i]] + "</span> ";
-                else if (rolelist[roles[i]] != undefined) rtxt += `<span class='badge' style='background-color:${color};'>` + rolelist[roles[i]] + "</span> ";
-                else rtxt += `<span class='badge' style='background-color:${color};'>Role #` + roles[i] + "</span> ";
+                color = vtccolor;
+                if(rolecolor[roles[i]] != undefined) color = rolecolor[roles[i]];
+                fcolor = foregroundColorOf(color);
+                rtxt += `<span class='badge' style='background-color:${color};color:${fcolor}'>` + rolelist[roles[i]] + "</span> ";
             }
             rtxt = rtxt.substring(0, rtxt.length - 2);
             

@@ -163,7 +163,7 @@ function ShowChallengeDetail(challengeid){
 
 function CreateChallenge() {
     title = $("#challenge-new-title").val();
-    description = $("#challenge-new-description").val();
+    description = simplemde["#challenge-new-description"].value();
     start_time = +new Date($("#challenge-new-start-time").val())/1000;
     end_time = +new Date($("#challenge-new-end-time").val())/1000;    
     challenge_type = $("input[name=challenge-new-type]:checked").val();
@@ -249,7 +249,7 @@ function EditChallengeShow(challengeid){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            d = data.response;
+            d = data.response.challenge;
             $("#challenge-edit").show();
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);
@@ -268,7 +268,7 @@ function EditChallengeShow(challengeid){
             $("#challenge-edit-required-roles").val(rolestxt);
             $("#challenge-edit-required-distance").val(d.required_distance);
             $("#challenge-edit-reward-points").val(d.reward_points);
-            $("#challenge-edit-public-details-"+d.public_details).prop("checked", true);
+            $("#challenge-edit-public-details-"+JSON.stringify(d.public_details)).prop("checked", true);
             jobreqd = d.job_requirements;
             jobreqs = $(".challenge-edit-job-requirements");
             for (var i = 0; i < jobreqs.length; i++) {
@@ -298,7 +298,7 @@ function EditChallengeShow(challengeid){
 function EditChallenge(challengeid) {
     LockBtn("#button-challenge-edit", "Editing...");
     title = $("#challenge-edit-title").val();
-    description = $("#challenge-edit-description").val();
+    description = simplemde["#challenge-edit-description"].value();
     start_time = +new Date($("#challenge-edit-start-time").val())/1000;
     end_time = +new Date($("#challenge-edit-end-time").val())/1000;    
     challenge_type = $("input[name=challenge-edit-type]:checked").val();

@@ -172,8 +172,8 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                 return AjaxError(data);
             }
 
-            d = data.response.detail;
-            discordid = data.response.creator.discordid;
+            d = data.response.application.detail;
+            discordid = data.response.application.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastNotification("error", "Error", "Application has no data", 5000, false);
@@ -194,7 +194,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                 success: function (data) {
                     info = "";
                     if (!data.error) {
-                        d = data.response;
+                        d = data.response.user;
                         info += GenTableRow("Name", d.name);
                         info += GenTableRow("Email", d.email);
                         info += GenTableRow("Discord", discordid);

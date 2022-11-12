@@ -2,12 +2,14 @@
 
 **TODO**  
 1.Update config editor  
-2.Add pending user search  
-3.Table page size selector  
-4.Separate user profile & settings into 2 pages, add hover for user pfp  
-20.Add translation for javascript  
-999.Restyle frontend (tailwind -> bootstrap)  
-1000.Improve assign role  
+2.Table page size selector  
+3.Add translation for javascript  
+
+**v2.3.1**  
+1.Updated to be compatible with API v1.19.4  
+2.Added role color  
+3.Added **Recent Visitors** table in overview  
+4.Added MarkDown Editor  
 
 **v2.2.2**  
 1.Added support to hide non-enabled plugins  
