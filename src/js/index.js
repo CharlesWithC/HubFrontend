@@ -613,8 +613,8 @@ function GetUserPermission() {
 function ShowStaffTabs() {
     t = JSON.parse(JSON.stringify(userPerm));
     if (t == null) return;
-    t.pop("user");
-    t.pop("driver");
+    if(t.indexOf('user') != -1) t.splice(t.indexOf('user'),1);
+    if(t.indexOf('driver') != -1) t.splice(t.indexOf('driver'),1);
     if (t.length > 0) {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();

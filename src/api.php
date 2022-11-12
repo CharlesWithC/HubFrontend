@@ -8,7 +8,7 @@
         header('Location: //drivershub.charlws.com/');
         exit();
     }
-    $config = json_decode(file_get_contents('/var/hub/config/'.$domain.'.json'));
+    $config = json_decode(file_get_contents('/var/hub/config/'.$domain.'.json'), true);
     ?>
     
     <title>Drivers Hub: Backend (API) Information</title>

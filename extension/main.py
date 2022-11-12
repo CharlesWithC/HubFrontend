@@ -9,8 +9,6 @@ from bs4 import BeautifulSoup
 
 app = FastAPI()
 
-frontend_version = "v2"
-
 @app.get("/")
 async def index():
     return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
@@ -29,8 +27,6 @@ async def getConfig(abbr: str, domain: str, request: Request, response: Response
     application = ""
     if os.path.exists("/var/hub/cdn/assets/" + abbr + "/application.html"):
         application = open("/var/hub/cdn/assets/" + abbr + "/application.html", "r").read()
-    else:
-        application = open(f"/var/hub/{frontend_version}/default_application.html", "r").read()
 
     style = ""
     if os.path.exists("/var/hub/cdn/assets/" + abbr + "/style.css"):

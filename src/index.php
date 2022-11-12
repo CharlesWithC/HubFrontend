@@ -50,7 +50,7 @@
 
     <meta content="<?php echo $config["name"] ?> Drivers Hub" property="og:title" />
     <meta content="<?php echo $config["slogan"] ?>" property="og:description" />
-    <meta content="<?php echo $domain ?>/" property="og:url" />
+    <meta content="https://<?php echo $domain ?>/" property="og:url" />
     <meta content="/images/logo.png?<?php echo $config["logo_key"] ?>" property="og:image" />
     <meta content="<?php echo $config["color"] ?>" data-react-helmet="true" name="theme-color" />
     <meta content="/images/bg.jpg" name="twitter:card">
@@ -102,7 +102,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0e2d033eefa4a652.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/10b05b5918947fb3.js"></script>
 
     <?php
     $application_html = "";
