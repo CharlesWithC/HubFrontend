@@ -1,9 +1,9 @@
 function DiscordSignIn(){
-    window.location.href = apidomain + "/" + vtcprefix + "/auth/discord/redirect";
+    window.location.href = api_host + "/" + dhabbr + "/auth/discord/redirect";
 }
 
 function SteamSignIn(){
-    window.location.href = apidomain + "/" + vtcprefix + "/auth/steam/redirect";
+    window.location.href = api_host + "/" + dhabbr + "/auth/steam/redirect";
 }
 
 function SteamValidate() {
@@ -15,7 +15,7 @@ function SteamValidate() {
         sParameterName,
         i;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/steam",
+        url: api_host + "/" + dhabbr + "/user/steam",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -64,7 +64,7 @@ function AuthValidate() {
 
     if (token) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token",
+            url: api_host + "/" + dhabbr + "/token",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -102,7 +102,7 @@ function OAuthMFA() {
     otp = $("#mfa-otp").val();
     
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
         dataType: "json",
         data: {
@@ -135,7 +135,7 @@ function OAuthMFA() {
 function UpdateTruckersMPID() {
     LockBtn("#button-settings-update-truckersmpid", "Updating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/truckersmp",
+        url: api_host + "/" + dhabbr + "/user/truckersmp",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -157,14 +157,14 @@ function UpdateTruckersMPID() {
 }
 
 function UpdateSteamID() {
-    window.location.href = apidomain + "/" + vtcprefix + "/auth/steam/redirect?connect_account=true";
+    window.location.href = api_host + "/" + dhabbr + "/auth/steam/redirect?connect_account=true";
 }
 
 var CaptchaCallback = function (hcaptcha_response) {
     email = $("#signin-email").val();
     password = $("#signin-password").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/password",
+        url: api_host + "/" + dhabbr + "/auth/password",
         type: "POST",
         dataType: "json",
         data: {
@@ -237,7 +237,7 @@ function MFAVerify() {
     if (mfafunc != null) return mfafunc();
     token = localStorage.getItem("tip");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
         dataType: "json",
         headers: {

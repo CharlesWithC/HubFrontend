@@ -2,7 +2,7 @@ function UpdateBio() {
     LockBtn("#button-settings-bio-save", "Saving...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/bio",
+        url: api_host + "/" + dhabbr + "/user/bio",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -36,7 +36,7 @@ function ResetApplicationToken(firstop = false) {
         }
 
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -73,7 +73,7 @@ function ResetApplicationToken(firstop = false) {
     }
     else{
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -109,7 +109,7 @@ function DisableApplicationToken(firstop = false) {
         }
 
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -141,7 +141,7 @@ function DisableApplicationToken(firstop = false) {
         });
     } else {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -174,7 +174,7 @@ function UpdatePassword(firstop = false) {
         }
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -207,7 +207,7 @@ function UpdatePassword(firstop = false) {
         });
     } else {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -243,7 +243,7 @@ function DisablePassword(firstop = false) {
         }
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -274,7 +274,7 @@ function DisablePassword(firstop = false) {
         });
     } else {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -309,7 +309,7 @@ function DisableMFA(){
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -354,7 +354,7 @@ function EnableMFA(){
     LockBtn("#button-enable-mfa", "Enabling...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -398,7 +398,7 @@ function UserResign() {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/resign",
+        url: api_host + "/" + dhabbr + "/member/resign",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -438,7 +438,7 @@ function LoadUserSessions(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/all",
+        url: api_host + "/" + dhabbr + "/token/all",
         type: "GET",
         dataType: "json",
         headers: {
@@ -472,7 +472,7 @@ function RevokeToken(hsh) {
     LockBtn("#button-revoke-token-" + hsh, "Revoking...")
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/hash",
+        url: api_host + "/" + dhabbr + "/token/hash",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -517,7 +517,7 @@ function LoadUserList(noplaceholder = false) {
     LockBtn("#button-user-list-search", "...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15&name=" + name,
+        url: api_host + "/" + dhabbr + "/user/list?page=" + page + "&page_size=15&name=" + name,
         type: "GET",
         dataType: "json",
         headers: {
@@ -589,7 +589,7 @@ function ShowUserDetail(discordid) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
+        url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -626,7 +626,7 @@ function AcceptAsMemberShow(discordid, name){
 function AcceptAsMember(discordid) {
     LockBtn("#button-accept-as-member", "Accepting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member",
+        url: api_host + "/" + dhabbr + "/member",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -663,7 +663,7 @@ function UpdateDiscord(old_discord_id) {
     new_discord_id = $("#new-discord-id").val();
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/discord",
+        url: api_host + "/" + dhabbr + "/user/discord",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -689,7 +689,7 @@ function UpdateDiscord(old_discord_id) {
 
 function DisableUserMFAShow(discordid, name){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -714,7 +714,7 @@ function StaffDisableMFA(discordid) {
     LockBtn("#button-staff-disable-mfa", "Disabling...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/auth/mfa?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -742,7 +742,7 @@ function DeleteConnections(discordid) {
     LockBtn("#button-delete-connections", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/connections",
+        url: api_host + "/" + dhabbr + "/user/connections",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -786,7 +786,7 @@ function BanUser(discordid) {
     reason = $("#ban-reason").val();
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/ban",
+        url: api_host + "/" + dhabbr + "/user/ban",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -820,7 +820,7 @@ function UnbanUser(discordid) {
     LockBtn("#button-unban-user", "Unbanning...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/ban",
+        url: api_host + "/" + dhabbr + "/user/ban",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -852,7 +852,7 @@ function DeleteUser(discordid) {
     LockBtn("#button-delete-user", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -881,7 +881,7 @@ function DeleteAccount(discordid) {
     LockBtn("#button-delete-account", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
+        url: api_host + "/" + dhabbr + "/user",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -903,7 +903,7 @@ function DeleteAccount(discordid) {
 
 function LoadNotification(){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/list",
+        url: api_host + "/" + dhabbr + "/user/notification/list",
         type: "GET",
         dataType: "json",
         headers: {
@@ -926,7 +926,7 @@ function LoadNotification(){
     });
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/list?status=0",
+        url: api_host + "/" + dhabbr + "/user/notification/list?status=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -963,7 +963,7 @@ function LoadNotificationList(noplaceholder = false){
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/list?page_size=30&page=" + page,
+        url: api_host + "/" + dhabbr + "/user/notification/list?page_size=30&page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -993,7 +993,7 @@ function LoadNotificationList(noplaceholder = false){
 function NotificationsMarkAllAsRead(){
     if($("#unread-notification").html()=="") return;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/status?notificationids=all",
+        url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
         type: "PUT",
         dataType: "json",
         headers: {

@@ -28,7 +28,7 @@ if(distance_unit == "imperial"){
 
 function UpdateSteam() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list/all",
         type: "GET",
         dataType: "json",
         headers: {

@@ -33,7 +33,7 @@ function LoadDownloads(noplaceholder = false){
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/downloads/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -80,7 +80,7 @@ function LoadDownloads(noplaceholder = false){
 
 function DownloadsRedirect(downloadsid){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -89,7 +89,7 @@ function DownloadsRedirect(downloadsid){
         success: function (data) {
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
             if(data.error) return AjaxError(data);
-            window.location.href = apidomain + "/" + vtcprefix + "/downloads/" + data.response.downloads.secret;
+            window.location.href = api_host + "/" + dhabbr + "/downloads/" + data.response.downloads.secret;
         },
         error: function (data){
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
@@ -106,7 +106,7 @@ function CreateDownloads(){
 
     LockBtn("#button-downloads-new-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads",
+        url: api_host + "/" + dhabbr + "/downloads",
         type: "POST",
         dataType: "json",
         headers: {
@@ -152,7 +152,7 @@ function EditDownloads(){
 
     LockBtn("#button-downloads-edit", "Editing...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads?downloadsid="+downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -187,7 +187,7 @@ function DeleteDownloadsShow(downloadsid){
 function DeleteDownloads(downloadsid){
     LockBtn("#button-downloads-delete-"+downloadsid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
         type: "DELETE",
         dataType: "json",
         headers: {

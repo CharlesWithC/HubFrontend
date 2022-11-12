@@ -5,7 +5,7 @@ window.autofocus = {}
 function LoadDriverLeaderStatistics() {
     function AjaxLDLS(start, end, dottag) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
             type: "GET",
             dataType: "json",
             headers: {
@@ -110,7 +110,7 @@ function LoadLeaderboard(noplaceholder = false) {
     users = users.join(",");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
+        url: api_host + "/" + dhabbr + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
         type: "GET",
         dataType: "json",
         headers: {
@@ -204,7 +204,7 @@ function LoadDeliveryList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -270,7 +270,7 @@ function DeliveryLogExport() {
     }
     LockBtn("#button-delivery-log-export", "Exporting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/export",
+        url: api_host + "/" + dhabbr + "/dlog/export",
         type: "GET",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -491,7 +491,7 @@ function ShowDeliveryDetail(logid) {
     rri = 0;
     rrspeed = 10;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog?logid=" + String(logid),
+        url: api_host + "/" + dhabbr + "/dlog?logid=" + String(logid),
         type: "GET",
         dataType: "json",
         headers: {

@@ -263,7 +263,7 @@ RANKING = localStorage.getItem("driver-ranks");
 if (RANKING == null) {
     RANKING = [];
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/ranks",
+        url: api_host + "/" + dhabbr + "/member/ranks",
         type: "GET",
         dataType: "json",
         success: function (data) {

@@ -5,20 +5,25 @@
 <head>
     <?php
     $domain = $_SERVER['HTTP_HOST'];
-    require_once('/var/hub/config/'.$domain.'.php');
 
-    $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-    $language = substr($language, 0, 2);
-    if(file_exists('languages/'.$language.'.json')){
-        $st = json_decode(file_get_contents('languages/'.$language.'.json'));
-    } else {
-        $st = json_decode(file_get_contents('languages/en.json'));
+    if(!file_exists('/var/hub/config/'.$domain.'.json')){
+        header('Location: //drivershub.charlws.com/');
+        exit();
     }
+    $config = json_decode(file_get_contents('/var/hub/config/'.$domain.'.json'), true);
+
+    // $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    // $language = substr($language, 0, 2);
+    // if(file_exists('languages/'.$language.'.json')){
+    //     $lang = json_decode(file_get_contents('languages/'.$language.'.json'));
+    // } else {
+    //     $lang = json_decode(file_get_contents('languages/en.json'));
+    // }
 
     $path = $_SERVER['REQUEST_URI'];
     if (str_starts_with($path, '/images')) {
         $t = explode("/", $path);
-        header('Location: //drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/'.$t[2]);
+        header('Location: //drivershub-cdn.charlws.com/assets/'.$config["abbr"].'/'.$t[2]);
         exit();
     }
     if (str_starts_with($path, '/js')) {
@@ -32,22 +37,22 @@
     }
     if (str_starts_with($path, '/banner')) {
         $t = explode("/", $path);
-        header('Location: //'.$api.'/'.$vtcabbr.'/member/banner?userid='.$t[2]);
+        header('Location: //'.$config["api_host"].'/'.$config["abbr"].'/member/banner?userid='.$t[2]);
         exit();
     }
     ?>
 
-    <title><?php echo $vtcname ?></title>
-    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/logo.png" type="image/x-icon" />
+    <title><?php echo $config["name"] ?></title>
+    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $config["abbr"] ?>/logo.png?<?php echo $config["logo_key"] ?>" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="<?php echo $vtcname ?> Drivers Hub | <?php echo $slogan ?>">
+    <meta name="description" content="<?php echo $config["name"] ?> Drivers Hub | <?php echo $config["slogan"] ?>">
 
-    <meta content="<?php echo $vtcname ?> Drivers Hub" property="og:title" />
-    <meta content="<?php echo $slogan ?>" property="og:description" />
+    <meta content="<?php echo $config["name"] ?> Drivers Hub" property="og:title" />
+    <meta content="<?php echo $config["slogan"] ?>" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
-    <meta content="/images/logo.png" property="og:image" />
-    <meta content="<?php echo $vtccolor ?>" data-react-helmet="true" name="theme-color" />
+    <meta content="/images/logo.png?<?php echo $config["logo_key"] ?>" property="og:image" />
+    <meta content="<?php echo $config["color"] ?>" data-react-helmet="true" name="theme-color" />
     <meta content="/images/bg.jpg" name="twitter:card">
 
     <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/unisans/css/unisans.min.css">
@@ -88,27 +93,34 @@
 
 	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
-    <script src="/config/<?php echo $domainpure ?>.js"></script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/bf7991b49f494575.js"></script>
+    <script>
+        <?php 
+            echo 'dhabbr = "'.$config["abbr"].'";';
+            echo 'dhcolor = "'.$config["color"].'";';
+            echo 'api_host = "'.$config["api_host"].'";';
+            echo 'navio_company_id = "'.$config["navio_company_id"].'";';
+            echo 'company_distance_unit = "'.$config["distance_unit"].'";';
+        ?>
+    </script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0e2d033eefa4a652.js"></script>
 
     <?php
     $application_html = "";
-    if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/application.html')){
-        $application_html = file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/application.html');
+    if(file_exists('/var/hub/cdn/assets/'.$config["abbr"].'/application.html')){
+        $application_html = file_get_contents('/var/hub/cdn/assets/'.$config["abbr"].'/application.html');
         if($application_html == "")
             $application_html = file_get_contents('default_application.html');
     } else {
         $application_html = file_get_contents('default_application.html');
     }
     ?>
-    <?php if(in_array("livemap", $enabled_plugins)){
+    <?php if(in_array("livemap", $config["plugins"])){
     echo '<script src="https://drivershub-cdn.charlws.com/js/map/ets2map.js"></script>
     <script src="https://drivershub-cdn.charlws.com/js/map/ets2map_promods.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/map/atsmap.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/map/naviolive.js"></script>';} ?>
+    <script src="https://drivershub-cdn.charlws.com/js/map/atsmap.js"></script>';} ?>
     <?php
-    if(in_array("addon", $enabled_plugins)){
-        echo '<script src="https://drivershub-cdn.charlws.com/assets/'.$vtcabbr.'/addon.js"></script>';
+    if(in_array("addon", $config["plugins"])){
+        echo '<script src="https://drivershub-cdn.charlws.com/assets/'.$config["abbr"].'/addon.js"></script>';
     }
     ?>
     <style>
@@ -264,20 +276,20 @@
     <script>
         $(document).ready(function(){
             <?php
-                if(!in_array("announcement", $enabled_plugins)){echo '$(".announcement-plugin").remove();';}
-                if(!in_array("challenge", $enabled_plugins)){echo '$(".challenge-plugin").remove();';}
-                if(!in_array("downloads", $enabled_plugins)){echo '$(".downloads-plugin").remove();';}
-                if(!in_array("division", $enabled_plugins)){echo '$(".division-plugin").remove();';}
-                if(!in_array("application", $enabled_plugins)){echo '$(".application-plugin").remove();';}
-                if(!in_array("event", $enabled_plugins)){echo '$(".event-plugin").remove();';}
-                if(!in_array("ranking", $enabled_plugins)){echo '$(".ranking-plugin").remove();';}
-                if(!in_array("livemap", $enabled_plugins)){echo '$(".livemap-plugin").remove();';}
+                if(!in_array("announcement", $config["plugins"])){echo '$(".announcement-plugin").remove();';}
+                if(!in_array("challenge", $config["plugins"])){echo '$(".challenge-plugin").remove();';}
+                if(!in_array("downloads", $config["plugins"])){echo '$(".downloads-plugin").remove();';}
+                if(!in_array("division", $config["plugins"])){echo '$(".division-plugin").remove();';}
+                if(!in_array("application", $config["plugins"])){echo '$(".application-plugin").remove();';}
+                if(!in_array("event", $config["plugins"])){echo '$(".event-plugin").remove();';}
+                if(!in_array("ranking", $config["plugins"])){echo '$(".ranking-plugin").remove();';}
+                if(!in_array("livemap", $config["plugins"])){echo '$(".livemap-plugin").remove();';}
             ?>
         });
     </script>
     <?php 
-    if(file_exists('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')){
-        echo "<style>".file_get_contents('/var/hub/cdn/assets/'.$vtcabbr.'/style.css')."</style>";
+    if(file_exists('/var/hub/cdn/assets/'.$config["abbr"].'/style.css')){
+        echo "<style>".file_get_contents('/var/hub/cdn/assets/'.$config["abbr"].'/style.css')."</style>";
     }
     ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
@@ -295,7 +307,7 @@
 <body style="width:100%;overflow-x:hidden;background-color:#2F3136;color:white;">
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
         <div style="height:60px;overflow:hidden">
-            <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $vtcabbr ?>/banner.png" alt="Banner" width="100%">
+            <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $config["abbr"] ?>/banner.png?<?php echo $config["banner_key"] ?>" alt="Banner" width="100%">
         </div>
         <hr>
         <div id="sidebar" style="height:calc(100% - 150px);">
@@ -450,7 +462,7 @@
     <div style="position:fixed;left:260px;top:0;width:calc(100% - 260px);height:60px;box-shadow:0 1px 2px 0 #111;background-color:#2F3136;z-index:98;">
         <strong id="topbar-message" style="position:fixed;left:280px;top:20px;"><span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> 0 Driver Trucking</strong>
         <div>
-            <strong style="position:fixed;right:50px;top:20px;"><?php echo $slogan ?></strong>
+            <strong style="position:fixed;right:50px;top:20px;"><?php echo $config["slogan"] ?></strong>
             <div class="dropdown" style="display:inline;">
                 <div style="position:fixed;right:20px;top:20px;" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside"><a class="mx-2 clickable position-relative" onclick="NotificationsMarkAllAsRead()">
                     <i class="fa-solid fa-bell"></i>
@@ -899,7 +911,7 @@
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <div style="padding:20px 0 0 20px;float:left" id="profile-info">
                         </div>
-                        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius:100%;width:150px;height:150px;border:solid <?php echo $vtccolor ?> 5px;">
+                        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png?<?php echo $config['logo_key'] ?>');" style="border-radius:100%;width:150px;height:150px;border:solid <?php echo $config["color"] ?> 5px;">
                         </div>
                         <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
                     </div>
@@ -1244,14 +1256,14 @@
                                 <div class="col-6">
                                     <label for="challenge-new-allow-overspeed" class="form-label">Allow Overspeed</label>
                                     <div class="mb-3">
-                                        <select class="form-select bg-dark text-white" id="challenge-new-allow-overspeed">
+                                        <select class="form-select bg-dark text-white challenge-new-job-requirements" id="challenge-new-allow-overspeed">
                                             <option value="1" selected>Yes</option>
                                             <option value="0">No</option>
                                         </select>
                                     </div>
                                     <label for="challenge-new-allow-auto" class="form-label">Allow Automations</label>
                                     <div class="mb-3">
-                                        <select class="form-select bg-dark text-white" id="challenge-new-allow-auto">
+                                        <select class="form-select bg-dark text-white challenge-new-job-requirements" id="challenge-new-allow-auto">
                                             <option value="none">None</option>
                                             <option value="auto-park">Auto Park</option>
                                             <option value="auto-load">Auto Load</option>
@@ -1262,14 +1274,14 @@
                                 <div class="col-6">
                                     <label for="challenge-new-must-not-be-late" class="form-label">Must not be late</label>
                                     <div class="mb-3">
-                                        <select class="form-select bg-dark text-white" id="challenge-new-must-not-be-late">
+                                        <select class="form-select bg-dark text-white challenge-new-job-requirements" id="challenge-new-must-not-be-late">
                                             <option value="1">Yes</option>
                                             <option value="0" selected>No</option>
                                         </select>
                                     </div>
                                     <label for="challenge-new-must-be-special" class="form-label">Must be special transport</label>
                                     <div class="mb-3">
-                                        <select class="form-select bg-dark text-white" id="challenge-new-must-be-special">
+                                        <select class="form-select bg-dark text-white challenge-new-job-requirements" id="challenge-new-must-be-special">
                                             <option value="1">Yes</option>
                                             <option value="0" selected>No</option>
                                         </select>
@@ -1329,19 +1341,19 @@
                         <label for="challenge-edit-type" class="form-label" style="width:100%">Challenge Type</label>
                         <div class="mb-3">
                             <div class="form-check" style="display:inline-block;width:40%">
-                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" value="1" disabled>
                                     <label class="form-check-label" for="challenge-edit-type-1">
                                         Personal (One-time)
                                     </label>
                                 </div>
                             <div class="form-check" style="display:inline-block;width:40%">
-                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-3" checked value="3">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-3" value="3" disabled>
                                     <label class="form-check-label" for="challenge-edit-type-3">
                                         Personal (Recurring)
                                     </label>
                                 </div>
                             <div class="form-check" style="display:inline-block">
-                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-2" value="2">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-2" value="2" disabled>
                                 <label class="form-check-label" for="challenge-edit-type-2">
                                     Company
                                 </label>
@@ -1465,14 +1477,14 @@
                             <div class="col-6">
                                 <label for="challenge-edit-allow-overspeed" class="form-label">Allow Overspeed</label>
                                 <div class="mb-3">
-                                    <select class="form-select bg-dark text-white" id="challenge-edit-allow-overspeed">
+                                    <select class="form-select bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-allow-overspeed">
                                         <option value="1" selected>Yes</option>
                                         <option value="0">No</option>
                                     </select>
                                 </div>
                                 <label for="challenge-edit-allow-auto" class="form-label">Allow Automations</label>
                                 <div class="mb-3">
-                                    <select class="form-select bg-dark text-white" id="challenge-edit-allow-auto">
+                                    <select class="form-select bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-allow-auto">
                                         <option value="none">None</option>
                                         <option value="auto-park">Auto Park</option>
                                         <option value="auto-load">Auto Load</option>
@@ -1483,14 +1495,14 @@
                             <div class="col-6">
                                 <label for="challenge-edit-must-not-be-late" class="form-label">Must not be late</label>
                                 <div class="mb-3">
-                                    <select class="form-select bg-dark text-white" id="challenge-edit-must-not-be-late">
+                                    <select class="form-select bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-must-not-be-late">
                                         <option value="1">Yes</option>
                                         <option value="0" selected>No</option>
                                     </select>
                                 </div>
                                 <label for="challenge-edit-must-be-special" class="form-label">Must be special transport</label>
                                 <div class="mb-3">
-                                    <select class="form-select bg-dark text-white" id="challenge-edit-must-be-special">
+                                    <select class="form-select bg-dark text-white challenge-edit-job-requirements" id="challenge-edit-must-be-special">
                                         <option value="1">Yes</option>
                                         <option value="0" selected>No</option>
                                     </select>
@@ -1977,21 +1989,98 @@
         </section>
         <section id="config-tab" class="tabs">
             <div class="shadow p-3 m-3 bg-dark rounded col">
-                <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-server"></i></span> API Config</strong></h5>
-                <p>Only JSON config editor is available at the moment. Simple editor will be added in the future.</p>
-                <p>You have to reload API to make the changes take effect. (MFA has to be enabled)</p>
-                <p>A backup is saved before reloading API, it can be retrieved by "Revert".</p>
-                <br>
-                <label for="json-config" class="form-label">JSON Config</label>
-                <div class="input-group mb-3" style="height:500px">
-                    <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
-                </div>
-                <br>
-                <div style="float:right">
-                    <button id="button-revert-config" type="button" class="btn btn-secondary" onclick="RevertConfig();">Revert</button>
-                    <button id="button-reset-config" type="button" class="btn btn-secondary" onclick="ResetConfig();">Reset</button>
-                    <button id="button-save-config" type="button" class="btn btn-primary" onclick="UpdateConfig();">Save</button>
-                    <button id="button-reload-api-show" type="button" class="btn btn-danger" onclick="ReloadAPIShow();">Reload API</button>
+                <h5 style="display:inline-block"><strong><span clas="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span> Configuration</strong></h5>
+                <ul class="nav nav-tabs" role="tablist" style="float:right">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white active" id="config-api-json-tab" data-bs-toggle="tab" data-bs-target="#config-api-json" type="button" role="tab" aria-controls="config-api-json" aria-selected="true">API (JSON)</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white" id="config-web-tab" data-bs-toggle="tab" data-bs-target="#config-web" type="button" role="tab" aria-controls="config-web" aria-selected="false">Web</button>
+                    </li>
+                </ul>
+                <div class="tab-content mt-3" id="config-subtab">
+                    <div class="tab-pane fade show active" id="config-api-json" role="tabpanel" aria-labelledby="config-api-json-tab" tabindex="0">
+                        <p>Only JSON config editor is available at the moment. Simple editor will be added in the future.</p>
+                        <p>You have to reload API to make the changes take effect. (MFA has to be enabled)</p>
+                        <p>A backup is saved before reloading API, it can be retrieved by "Revert".</p>
+                        <br>
+                        <label for="json-config" class="form-label">JSON Config</label>
+                        <div class="input-group mb-3" style="height:500px">
+                            <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
+                        </div>
+                        <div class="row justify-content-end">
+                            <button id="button-revert-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="RevertConfig();">Revert</button>
+                            <button id="button-reset-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="ResetConfig();">Reset</button>
+                            <button id="button-save-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateConfig();">Save</button>
+                            <button id="button-reload-api-show" type="button" class="btn btn-danger col-1 mx-2" onclick="ReloadAPIShow();">Reload</button>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="config-web" role="tabpanel" aria-labelledby="config-web-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="web-name" class="form-label">Name</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="web-name">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="web-distance-unit" class="form-label">Distance Unit</label>
+                                <div class="input-group mb-3">
+                                    <select class="form-select bg-dark text-white" id="web-distance-unit">
+                                        <option value="metric" id="web-distance-unit-metric">Metric</option>
+                                        <option value="imperial" id="web-distance-unit-imperial">Imperial</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="web-navio-company-id" class="form-label">Navio Company ID</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="web-navio-company-id">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-9">
+                                <label for="web-slogan" class="form-label">Slogan</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="web-slogan">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="web-color" class="form-label">Color</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="web-color">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="web-logo-download-link" class="form-label">Logo Download Link</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="web-logo-download-link" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label for="web-banner-download-link" class="form-label">Banner Download Link</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="web-banner-download-link" placeholder="https://...">
+                                </div>
+                            </div>
+                        </div>
+                        <label for="web-custom-application" class="form-label">Custom Application (.html)</label>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control bg-dark text-white" id="web-custom-application">
+                            <button class="btn btn-outline-secondary" type="button" onclick="custom_application='';$('#web-custom-application').val('');">Disable</button>
+                        </div>
+                        <label for="web-custom-style" class="form-label">Custom Style (.css)</label>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control bg-dark text-white" id="web-custom-style">
+                            <button class="btn btn-outline-secondary" type="button" onclick="custom_style='';$('#web-custom-style').val('');">Disable</button>
+                        </div>
+                        <div class="row justify-content-end">
+                            <button id="button-save-web-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateWebConfig();">Save</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

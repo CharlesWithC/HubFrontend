@@ -17,7 +17,7 @@ def dfs(f):
     fo = []
     for tt in t:
         p = f + "/" + tt
-        if "login" in p or "bundle" in p or "map" in p or "navio" in p or "functions.js" in p:
+        if "bundle" in p or "atsmap" in p or "ets2map" in p or "functions.js" in p:
             continue
         if p.endswith(".js"):
             fi.append(tt)

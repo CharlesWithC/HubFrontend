@@ -32,7 +32,7 @@ function LoadAnnouncement(noplaceholder = false){
         $("#announcement-new").show();
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -145,7 +145,7 @@ function PostAnnouncement(){
     }
     LockBtn("#button-announcement-new-post", "Posting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement",
+        url: api_host + "/" + dhabbr + "/announcement",
         type: "POST",
         dataType: "json",
         headers: {
@@ -185,7 +185,7 @@ function EditAnnouncement(announcementid){
     }
     LockBtn("#button-announcement-edit-"+announcementid+"-save", "Saving...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+announcementid,
+        url: api_host + "/" + dhabbr + "/announcement?announcementid="+announcementid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -222,7 +222,7 @@ function DeleteAnnouncementShow(announcementid){
 function DeleteAnnouncement(announcementid){
     LockBtn("#button-announcement-delete-"+announcementid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + announcementid,
+        url: api_host + "/" + dhabbr + "/announcement?announcementid=" + announcementid,
         type: "DELETE",
         dataType: "json",
         headers: {

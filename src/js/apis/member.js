@@ -4,7 +4,7 @@ function LoadXOfTheMonth(){
         dotm_role = perms.driver_of_the_month[0];
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + dotm_role,
+            url: api_host + "/" + dhabbr + "/member/list?page=1&page_size=1&roles=" + dotm_role,
             type: "GET",
             dataType: "json",
             headers: {
@@ -17,7 +17,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#driver-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -29,7 +29,7 @@ function LoadXOfTheMonth(){
         sotm_role = perms.staff_of_the_month[0];
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + sotm_role,
+            url: api_host + "/" + dhabbr + "/member/list?page=1&page_size=1&roles=" + sotm_role,
             type: "GET",
             dataType: "json",
             headers: {
@@ -42,7 +42,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${vtcprefix}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${dhabbr}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#staff-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -75,7 +75,7 @@ function LoadMemberList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
+        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
         type: "GET",
         dataType: "json",
         headers: {
@@ -109,7 +109,7 @@ function LoadMemberList(noplaceholder = false) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                 }
                 userop = ``;
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -149,7 +149,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -163,7 +163,7 @@ function LoadMemberList(noplaceholder = false) {
 
 function EditRolesShow(uid){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/user?userid=" + uid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -226,7 +226,7 @@ function EditRoles(uid) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/roles",
+        url: api_host + "/" + dhabbr + "/member/roles",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -272,7 +272,7 @@ function EditPoints(uid) {
     if (!isNumber(mythpoint)) mythpoint = 0;
     
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/point",
+        url: api_host + "/" + dhabbr + "/member/point",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -305,7 +305,7 @@ function DismissMember(uid){
     LockBtn("#button-dismiss-member", "Dismissing...");
     
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/dismiss?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -335,7 +335,7 @@ function LoadRanking(){
         $("#ranking-tab").append(t);
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + localStorage.getItem("userid"),
+        url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + localStorage.getItem("userid"),
         type: "GET",
         dataType: "json",
         headers: {
@@ -374,7 +374,7 @@ user_statistics_placeholder = `<div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
     <div style="padding:20px 0 0 20px;float:left" id="profile-info">
     </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${vtccolor} 5px;">
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
     </div>
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
@@ -437,7 +437,7 @@ function LoadUserProfile(userid) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
+        url: api_host + "/" + dhabbr + "/user?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -466,7 +466,7 @@ function LoadUserProfile(userid) {
             roles = d.roles;
             rtxt = "";
             for (var i = 0; i < roles.length; i++) {
-                color = vtccolor;
+                color = dhcolor;
                 if(rolecolor[roles[i]] != undefined) color = rolecolor[roles[i]];
                 fcolor = foregroundColorOf(color);
                 rtxt += `<span class='badge' style='background-color:${color};color:${fcolor}'>` + rolelist[roles[i]] + "</span> ";
@@ -497,7 +497,7 @@ function LoadUserProfile(userid) {
 
             $("#profile-text-statistics").html("Loading...");
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?userid=" + String(userid),
+                url: api_host + "/" + dhabbr + "/dlog/statistics/summary?userid=" + String(userid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -526,7 +526,7 @@ function LoadUserProfile(userid) {
                         $("#profile-text-statistics").html(info);
 
                         $.ajax({
-                            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
+                            url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                             type: "GET",
                             dataType: "json",
                             headers: {
@@ -567,7 +567,7 @@ function GetDiscordRankRole() {
     LockBtn(".button-rankings-role", "Getting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/roles/rank",
+        url: api_host + "/" + dhabbr + "/member/roles/rank",
         type: "PATCH",
         dataType: "json",
         headers: {

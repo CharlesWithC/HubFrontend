@@ -17,7 +17,7 @@ async function LoadChart(userid = -1) {
     pref = "s";
     if (userid != -1) pref = "user-s";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -147,7 +147,7 @@ function refreshStats(){
         stats_end_time = +new Date($("#stats_end").val()) / 1000 + 86400;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -213,7 +213,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
     if(curtab == "#overview-tab"){
         $.ajax({
-            url: apidomain + "/" + vtcprefix,
+            url: api_host + "/" + dhabbr,
             type: "GET",
             dataType: "json",
             headers: {
@@ -226,7 +226,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     stats_start_time = parseInt(+ new Date() / 1000 - 86400);
     stats_end_time = parseInt(+ new Date() / 1000);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -291,7 +291,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     start_time = parseInt(+ new Date() / 1000 - 86400 * 7);
     end_time = parseInt(+ new Date() / 1000);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -317,7 +317,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     if (String(localStorage.getItem("token")).length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard",
             type: "GET",
             dataType: "json",
             headers: {
@@ -340,11 +340,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                     }
                     $("#table_mini_leaderboard_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
             <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${totalpnt}</td>
             </tr>`);
@@ -352,7 +352,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=join_timestamp&order=desc",
+            url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=join_timestamp&order=desc",
             type: "GET",
             dataType: "json",
             headers: {
@@ -376,11 +376,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                     }
                     $("#table_new_driver_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${joindt}</td>
             </tr>`);
@@ -388,7 +388,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=last_seen&order=desc",
+            url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=last_seen&order=desc",
             type: "GET",
             dataType: "json",
             headers: {
@@ -411,11 +411,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                     }
                     $("#table_recent_visitors_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${last_seen}</td>
             </tr>`);

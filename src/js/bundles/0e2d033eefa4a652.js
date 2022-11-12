@@ -263,7 +263,7 @@ RANKING = localStorage.getItem("driver-ranks");
 if (RANKING == null) {
     RANKING = [];
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/ranks",
+        url: api_host + "/" + dhabbr + "/member/ranks",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -724,7 +724,7 @@ audit_log_placeholder_row = `
 </tr>`;
 
 function LoadAuditLog(noplaceholder = false) {
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_audit_log_data").children().remove();
         for (i = 0; i < 30; i++) {
             $("#table_audit_log_data").append(audit_log_placeholder_row);
@@ -732,9 +732,9 @@ function LoadAuditLog(noplaceholder = false) {
     }
 
     staff_userid = -1;
-    if($("#input-audit-log-staff").val()!=""){
+    if ($("#input-audit-log-staff").val() != "") {
         s = $("#input-audit-log-staff").val();
-        staff_userid = s.substr(s.lastIndexOf("(")+1,s.lastIndexOf(")")-s.lastIndexOf("(")-1);
+        staff_userid = s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1);
     }
 
     operation = $("#input-audit-log-operation").val();
@@ -742,11 +742,11 @@ function LoadAuditLog(noplaceholder = false) {
     InitPaginate("#table_audit_log", "LoadAuditLog();")
     page = parseInt($("#table_audit_log_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-    
+
     LockBtn("#button-audit-log-staff-search", "...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
+        url: api_host + "/" + dhabbr + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -763,7 +763,7 @@ function LoadAuditLog(noplaceholder = false) {
             for (i = 0; i < auditLog.length; i++) {
                 audit = auditLog[i];
                 dt = getDateTime(audit.timestamp * 1000);
-                op = marked.parse(audit.operation).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1);
+                op = marked.parse(audit.operation).replaceAll("\n", "<br>").replaceAll("<p>", "").replaceAll("</p>", "").slice(0, -1);
 
                 data.push([`${audit.user.name}`, `${dt}`, `${op}`]);
             }
@@ -779,10 +779,12 @@ function LoadAuditLog(noplaceholder = false) {
 
 configData = {};
 backupConfig = {};
+custom_application = undefined;
+custom_style = undefined;
 
 function LoadConfiguration() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/config",
+        url: api_host + "/" + dhabbr + "/config",
         type: "GET",
         dataType: "json",
         headers: {
@@ -805,27 +807,52 @@ function LoadConfiguration() {
         }
     });
 
-    // webdomain = apidomain.replaceAll("https://", "https://web.");
-    // $.ajax({
-    //     url: webdomain + "/" + vtcprefix + "/config?domain=" + window.location.hostname,
-    //     type: "GET",
-    //     dataType: "json",
-    //     success: function (data) {
-    //         if (data.error) return AjaxError(data);
-    //         webConfigData = data.response.config;
-    //         webConfigKeys = Object.keys(webConfigData);
-    //         for (var i = 0; i < webConfigKeys.length; i++) {
-    //             key = webConfigKeys[i];
-    //             $("#webconfig_" + key).val(webConfigData[key]);
-    //         }
-    //     },
-    //     error: function (data) {
-    //         AjaxError(data);
-    //     }
-    // });
+    web_host = api_host.replaceAll("https://", "https://web.");
+    $.ajax({
+        url: web_host + "/" + dhabbr + "/config?domain=" + window.location.hostname,
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            webConfigData = data.response.config;
+            $("#web-name").val(webConfigData.name);
+            $("#web-distance-unit-"+webConfigData.distance_unit).prop("checked", true);
+            $("#web-navio-company-id").val(webConfigData.navio_company_id);
+            $("#web-slogan").val(webConfigData.slogan);
+            $("#web-color").val(webConfigData.color);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    });
+
+    $('#web-custom-application').on('change', function () {
+        var fileReader = new FileReader();
+        fileReader.onload = function () {
+            if(!fileReader.result.startsWith("data:text/html")){
+                $('#web-custom-application').val("");
+                custom_application = undefined;
+                return toastNotification("error", "Error", "You must selected a HTML file!", 5000);
+            }
+            custom_application = atob(fileReader.result.replaceAll("data:text/html;base64,",""));
+        };
+        fileReader.readAsDataURL($('#web-custom-application').prop('files')[0]);
+    });
+    $('#web-custom-style').on('change', function () {
+        var fileReader = new FileReader();
+        fileReader.onload = function () {
+            if(!fileReader.result.startsWith("data:text/css")){
+                $('#web-custom-style').val("");
+                custom_style = undefined;
+                return toastNotification("error", "Error", "You must selected a CSS file!", 5000);
+            }
+            custom_style = atob(fileReader.result.replaceAll("data:text/css;base64,",""));
+        };
+        fileReader.readAsDataURL($('#web-custom-style').prop('files')[0]);
+    });
 }
 
-function RevertConfig(){
+function RevertConfig() {
     $("#json-config").val(JSON.stringify(backupConfig, null, 4,
         (_, value) =>
         typeof value === 'number' && value > 1e10 ?
@@ -834,7 +861,7 @@ function RevertConfig(){
     toastNotification("success", "Success", "Config reverted to after last reload.", 5000);
 }
 
-function ResetConfig(){
+function ResetConfig() {
     $("#json-config").val(JSON.stringify(configData, null, 4,
         (_, value) =>
         typeof value === 'number' && value > 1e10 ?
@@ -843,7 +870,7 @@ function ResetConfig(){
     toastNotification("success", "Success", "Config reset to before editing.", 5000);
 }
 
-function UpdateConfig(){
+function UpdateConfig() {
     config = $("#json-config").val();
     try {
         config = JSON.parse(config);
@@ -855,7 +882,7 @@ function UpdateConfig(){
     if (config["discord_bot_token"] == "") delete config["discord_bot_token"];
     LockBtn("#button-save-config", "Saving...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/config",
+        url: api_host + "/" + dhabbr + "/config",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -880,17 +907,22 @@ function UpdateConfig(){
     })
 }
 
-function ReloadAPIShow(){
-    if(!mfaenabled) return toastNotification("error", "Error", "MFA must be enabled to reload API!", 5000);
+function ReloadAPIShow() {
+    if (!mfaenabled) return toastNotification("error", "Error", "MFA must be enabled to reload API!", 5000);
     mfafunc = ReloadServer;
     LockBtn("#button-reload-api-show", `Reloading...`);
-    setTimeout(function(){UnlockBtn("#button-reload-api-show");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+    setTimeout(function () {
+        UnlockBtn("#button-reload-api-show");
+        setTimeout(function () {
+            ShowTab("#mfa-tab");
+        }, 500);
+    }, 1000);
 }
 
 function ReloadServer() {
     otp = $("#mfa-otp").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/reload",
+        url: api_host + "/" + dhabbr + "/reload",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -914,46 +946,54 @@ function ReloadServer() {
 }
 
 function UpdateWebConfig() {
-    if($("#webconfig_apptoken").val().length != 36){
-        return toastNotification("error", "Error", "Invalid application token!");
-    }
-    $("#updateWebConfigBtn").html("Working...");
-    $("#updateWebConfigBtn").attr("disabled", "disabled");
-    webdomain = apidomain.replaceAll("https://", "https://web.");
+    LockBtn("#button-save-web-config", "Saving...");
+
+    tipt = "";
+
     $.ajax({
-        url: webdomain + "/" + vtcprefix + "/config",
-        type: "PATCH",
+        url: api_host + "/" + dhabbr + "/auth/tip",
+        type: "PUT",
         dataType: "json",
         headers: {
-            "Authorization": "Application " + $("#webconfig_apptoken").val()
-        },
-        data: {
-            domain: window.location.hostname,
-            apidomain: apidomain.replaceAll("https://", ""),
-            vtc_name: $("#webconfig_vtc_name").val(),
-            vtc_color: $("#webconfig_vtc_color").val(),
-            slogan: $("#webconfig_slogan").val(),
-            company_distance_unit: $("#webconfig_company_distance_unit").val(),
-            navio_company_id: $("#webconfig_navio_company_id").val(),
-            logo_url: $("#webconfig_logo_url").val(),
-            banner_url: $("#webconfig_banner_url").val(),
-            bg_url: $("#webconfig_bg_url").val(),
-            teamupdate_url: $("#webconfig_teamupdate_url").val(),
-            custom_application: $("#webconfig_custom_application").val(),
-            style: $("#webconfig_custom_style").val()
+            "Authorization": "Bearer " + token
         },
         success: function (data) {
-            $("#updateWebConfigBtn").html("Update");
-            $("#updateWebConfigBtn").removeAttr("disabled");
-            if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-            toastNotification("success", "Success", data.response, 5000, false);
+            if (data.error) {
+                UnlockBtn("#button-save-web-config");
+                return AjaxError(data);
+            }
+            tipt = data.response.token;
+            web_host = api_host.replaceAll("https://", "https://web.");
+            $.ajax({
+                url: web_host + "/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
+                type: "PATCH",
+                dataType: "json",
+                headers: {
+                    "Authorization": "TemporaryIdentityProof " + tipt
+                },
+                data: {
+                    config: JSON.stringify({"name": $("#web-name").val(), "distance_unit": parseInt($("#web-distance-unit").find(":selected").attr("value")), "navio_company_id": $("#web-navio-company-id").val(), "slogan": $("#web-slogan").val(), "color": $("#web-color").val()}),
+                    logo_url: $("#web-logo-download-link").val(),
+                    banner_url: $("#web-banner-download-link").val(),
+                    application: custom_application,
+                    style: custom_style
+                },
+                success: function (data) {
+                    UnlockBtn("#button-save-web-config");
+                    if (data.error) return AjaxError(data);
+                    toastNotification("success", "Success", "Web config updated!", 5000, false);
+                },
+                error: function (data) {
+                    UnlockBtn("#button-save-web-config");
+                    AjaxError(data);
+                }
+            })
         },
         error: function (data) {
-            $("#updateWebConfigBtn").html("Update");
-            $("#updateWebConfigBtn").removeAttr("disabled");
-            AjaxError(data);
+            UnlockBtn("#button-save-web-config");
+            return AjaxError(data);
         }
-    })
+    });
 }
 dmapint = -1;
 window.mapcenter = {}
@@ -962,7 +1002,7 @@ window.autofocus = {}
 function LoadDriverLeaderStatistics() {
     function AjaxLDLS(start, end, dottag) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
             type: "GET",
             dataType: "json",
             headers: {
@@ -1067,7 +1107,7 @@ function LoadLeaderboard(noplaceholder = false) {
     users = users.join(",");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
+        url: api_host + "/" + dhabbr + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
         type: "GET",
         dataType: "json",
         headers: {
@@ -1161,7 +1201,7 @@ function LoadDeliveryList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -1227,7 +1267,7 @@ function DeliveryLogExport() {
     }
     LockBtn("#button-delivery-log-export", "Exporting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/export",
+        url: api_host + "/" + dhabbr + "/dlog/export",
         type: "GET",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -1448,7 +1488,7 @@ function ShowDeliveryDetail(logid) {
     rri = 0;
     rrspeed = 10;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog?logid=" + String(logid),
+        url: api_host + "/" + dhabbr + "/dlog?logid=" + String(logid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -1920,7 +1960,7 @@ function LoadXOfTheMonth(){
         dotm_role = perms.driver_of_the_month[0];
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + dotm_role,
+            url: api_host + "/" + dhabbr + "/member/list?page=1&page_size=1&roles=" + dotm_role,
             type: "GET",
             dataType: "json",
             headers: {
@@ -1933,7 +1973,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#driver-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -1945,7 +1985,7 @@ function LoadXOfTheMonth(){
         sotm_role = perms.staff_of_the_month[0];
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&page_size=1&roles=" + sotm_role,
+            url: api_host + "/" + dhabbr + "/member/list?page=1&page_size=1&roles=" + sotm_role,
             type: "GET",
             dataType: "json",
             headers: {
@@ -1958,7 +1998,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${vtcprefix}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${dhabbr}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#staff-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -1991,7 +2031,7 @@ function LoadMemberList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
+        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
         type: "GET",
         dataType: "json",
         headers: {
@@ -2025,7 +2065,7 @@ function LoadMemberList(noplaceholder = false) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                    avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                 }
                 userop = ``;
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -2065,7 +2105,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -2079,7 +2119,7 @@ function LoadMemberList(noplaceholder = false) {
 
 function EditRolesShow(uid){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/user?userid=" + uid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -2142,7 +2182,7 @@ function EditRoles(uid) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/roles",
+        url: api_host + "/" + dhabbr + "/member/roles",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -2188,7 +2228,7 @@ function EditPoints(uid) {
     if (!isNumber(mythpoint)) mythpoint = 0;
     
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/point",
+        url: api_host + "/" + dhabbr + "/member/point",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -2221,7 +2261,7 @@ function DismissMember(uid){
     LockBtn("#button-dismiss-member", "Dismissing...");
     
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/dismiss?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -2251,7 +2291,7 @@ function LoadRanking(){
         $("#ranking-tab").append(t);
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + localStorage.getItem("userid"),
+        url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + localStorage.getItem("userid"),
         type: "GET",
         dataType: "json",
         headers: {
@@ -2290,7 +2330,7 @@ user_statistics_placeholder = `<div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
     <div style="padding:20px 0 0 20px;float:left" id="profile-info">
     </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${vtccolor} 5px;">
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
     </div>
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
@@ -2353,7 +2393,7 @@ function LoadUserProfile(userid) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?userid=" + String(userid),
+        url: api_host + "/" + dhabbr + "/user?userid=" + String(userid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -2382,7 +2422,7 @@ function LoadUserProfile(userid) {
             roles = d.roles;
             rtxt = "";
             for (var i = 0; i < roles.length; i++) {
-                color = vtccolor;
+                color = dhcolor;
                 if(rolecolor[roles[i]] != undefined) color = rolecolor[roles[i]];
                 fcolor = foregroundColorOf(color);
                 rtxt += `<span class='badge' style='background-color:${color};color:${fcolor}'>` + rolelist[roles[i]] + "</span> ";
@@ -2413,7 +2453,7 @@ function LoadUserProfile(userid) {
 
             $("#profile-text-statistics").html("Loading...");
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?userid=" + String(userid),
+                url: api_host + "/" + dhabbr + "/dlog/statistics/summary?userid=" + String(userid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -2442,7 +2482,7 @@ function LoadUserProfile(userid) {
                         $("#profile-text-statistics").html(info);
 
                         $.ajax({
-                            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
+                            url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                             type: "GET",
                             dataType: "json",
                             headers: {
@@ -2483,7 +2523,7 @@ function GetDiscordRankRole() {
     LockBtn(".button-rankings-role", "Getting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/roles/rank",
+        url: api_host + "/" + dhabbr + "/member/roles/rank",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -2519,7 +2559,7 @@ async function LoadChart(userid = -1) {
     pref = "s";
     if (userid != -1) pref = "user-s";
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -2649,7 +2689,7 @@ function refreshStats(){
         stats_end_time = +new Date($("#stats_end").val()) / 1000 + 86400;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -2715,7 +2755,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
     if(curtab == "#overview-tab"){
         $.ajax({
-            url: apidomain + "/" + vtcprefix,
+            url: api_host + "/" + dhabbr,
             type: "GET",
             dataType: "json",
             headers: {
@@ -2728,7 +2768,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     stats_start_time = parseInt(+ new Date() / 1000 - 86400);
     stats_end_time = parseInt(+ new Date() / 1000);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -2793,7 +2833,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     start_time = parseInt(+ new Date() / 1000 - 86400 * 7);
     end_time = parseInt(+ new Date() / 1000);
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -2819,7 +2859,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     if (String(localStorage.getItem("token")).length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/dlog/leaderboard",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard",
             type: "GET",
             dataType: "json",
             headers: {
@@ -2842,11 +2882,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                     }
                     $("#table_mini_leaderboard_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
             <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${totalpnt}</td>
             </tr>`);
@@ -2854,7 +2894,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=join_timestamp&order=desc",
+            url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=join_timestamp&order=desc",
             type: "GET",
             dataType: "json",
             headers: {
@@ -2878,11 +2918,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                     }
                     $("#table_new_driver_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${joindt}</td>
             </tr>`);
@@ -2890,7 +2930,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/list?page=1&order_by=last_seen&order=desc",
+            url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=last_seen&order=desc",
             type: "GET",
             dataType: "json",
             headers: {
@@ -2913,11 +2953,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+vtcprefix+"/logo.png";
+                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
                     }
                     $("#table_recent_visitors_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+vtcprefix+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${last_seen}</td>
             </tr>`);
@@ -2930,7 +2970,7 @@ function UpdateBio() {
     LockBtn("#button-settings-bio-save", "Saving...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/bio",
+        url: api_host + "/" + dhabbr + "/user/bio",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -2964,7 +3004,7 @@ function ResetApplicationToken(firstop = false) {
         }
 
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -3001,7 +3041,7 @@ function ResetApplicationToken(firstop = false) {
     }
     else{
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -3037,7 +3077,7 @@ function DisableApplicationToken(firstop = false) {
         }
 
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -3069,7 +3109,7 @@ function DisableApplicationToken(firstop = false) {
         });
     } else {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token/application",
+            url: api_host + "/" + dhabbr + "/token/application",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -3102,7 +3142,7 @@ function UpdatePassword(firstop = false) {
         }
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -3135,7 +3175,7 @@ function UpdatePassword(firstop = false) {
         });
     } else {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -3171,7 +3211,7 @@ function DisablePassword(firstop = false) {
         }
         
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -3202,7 +3242,7 @@ function DisablePassword(firstop = false) {
         });
     } else {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/user/password",
+            url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
             dataType: "json",
             headers: {
@@ -3237,7 +3277,7 @@ function DisableMFA(){
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3282,7 +3322,7 @@ function EnableMFA(){
     LockBtn("#button-enable-mfa", "Enabling...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -3326,7 +3366,7 @@ function UserResign() {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/resign",
+        url: api_host + "/" + dhabbr + "/member/resign",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3366,7 +3406,7 @@ function LoadUserSessions(noplaceholder = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/all",
+        url: api_host + "/" + dhabbr + "/token/all",
         type: "GET",
         dataType: "json",
         headers: {
@@ -3400,7 +3440,7 @@ function RevokeToken(hsh) {
     LockBtn("#button-revoke-token-" + hsh, "Revoking...")
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token/hash",
+        url: api_host + "/" + dhabbr + "/token/hash",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3445,7 +3485,7 @@ function LoadUserList(noplaceholder = false) {
     LockBtn("#button-user-list-search", "...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/list?page=" + page + "&page_size=15&name=" + name,
+        url: api_host + "/" + dhabbr + "/user/list?page=" + page + "&page_size=15&name=" + name,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3517,7 +3557,7 @@ function ShowUserDetail(discordid) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
+        url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
         type: "GET",
         dataType: "json",
         headers: {
@@ -3554,7 +3594,7 @@ function AcceptAsMemberShow(discordid, name){
 function AcceptAsMember(discordid) {
     LockBtn("#button-accept-as-member", "Accepting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member",
+        url: api_host + "/" + dhabbr + "/member",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -3591,7 +3631,7 @@ function UpdateDiscord(old_discord_id) {
     new_discord_id = $("#new-discord-id").val();
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/discord",
+        url: api_host + "/" + dhabbr + "/user/discord",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -3617,7 +3657,7 @@ function UpdateDiscord(old_discord_id) {
 
 function DisableUserMFAShow(discordid, name){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3642,7 +3682,7 @@ function StaffDisableMFA(discordid) {
     LockBtn("#button-staff-disable-mfa", "Disabling...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/auth/mfa?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3670,7 +3710,7 @@ function DeleteConnections(discordid) {
     LockBtn("#button-delete-connections", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/connections",
+        url: api_host + "/" + dhabbr + "/user/connections",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3714,7 +3754,7 @@ function BanUser(discordid) {
     reason = $("#ban-reason").val();
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/ban",
+        url: api_host + "/" + dhabbr + "/user/ban",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -3748,7 +3788,7 @@ function UnbanUser(discordid) {
     LockBtn("#button-unban-user", "Unbanning...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/ban",
+        url: api_host + "/" + dhabbr + "/user/ban",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3780,7 +3820,7 @@ function DeleteUser(discordid) {
     LockBtn("#button-delete-user", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3809,7 +3849,7 @@ function DeleteAccount(discordid) {
     LockBtn("#button-delete-account", "Deleting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
+        url: api_host + "/" + dhabbr + "/user",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3831,7 +3871,7 @@ function DeleteAccount(discordid) {
 
 function LoadNotification(){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/list",
+        url: api_host + "/" + dhabbr + "/user/notification/list",
         type: "GET",
         dataType: "json",
         headers: {
@@ -3854,7 +3894,7 @@ function LoadNotification(){
     });
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/list?status=0",
+        url: api_host + "/" + dhabbr + "/user/notification/list?status=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -3891,7 +3931,7 @@ function LoadNotificationList(noplaceholder = false){
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/list?page_size=30&page=" + page,
+        url: api_host + "/" + dhabbr + "/user/notification/list?page_size=30&page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -3921,7 +3961,7 @@ function LoadNotificationList(noplaceholder = false){
 function NotificationsMarkAllAsRead(){
     if($("#unread-notification").html()=="") return;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/notification/status?notificationids=all",
+        url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
         type: "PUT",
         dataType: "json",
         headers: {
@@ -3936,6 +3976,319 @@ function NotificationsMarkAllAsRead(){
         }
     });
 }
+
+function toastNotification(type, title, text, time = 5) {
+    new Noty({
+        type: type,
+        layout: 'topRight',
+        text: text,
+        timeout: time,
+        theme: "mint"
+    }).show();
+}
+
+steamids = {};
+driverdata = {};
+ets2data = {};
+atsdata = {};
+membersteam = {};
+memberuserid = {};
+curtab = "#overview-tab";
+distance_unit = localStorage.getItem("distance_unit");
+if(distance_unit == "imperial"){
+    distance_unit_txt = "mi";
+    distance_ratio = 0.621371;
+} else {
+    distance_unit = "metric";
+    distance_ratio = 1;
+    distance_unit_txt = "km";
+}
+
+function UpdateSteam() {
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/member/list/all",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return;
+            l = data.response.list;
+            for (var i = 0; i < l.length; i++) {
+                membersteam[l[i].steamid] = l[i].name;
+                memberuserid[l[i].steamid] = l[i].userid;
+            }
+        }
+    });
+}
+UpdateSteam();
+setInterval(UpdateSteam, 600*1000);
+
+const socket = new WebSocket('wss://gateway.navio.app/');
+socket.addEventListener("open", () => {
+    socket.send(
+        JSON.stringify({
+            op: 1,
+            data: {
+                "subscribe_to_company": navio_company_id,
+                //"subscribe_to_all_drivers": true
+            },
+        }),
+    );
+});
+
+socket.addEventListener("message", ({
+    data: message
+}) => {
+    let {
+        type,
+        data
+    } = JSON.parse(message)
+
+    if (type === "AUTH_ACK") {
+        setInterval(() => {
+            socket.send(
+                JSON.stringify({
+                    op: 2,
+                }),
+            );
+        }, data.heartbeat_interval * 1000);
+    }
+
+    if (type === "TELEMETRY_UPDATE") {
+        steamids[data.driver] = +new Date();
+        driverdata[data.driver] = data;
+        if(data.game.id == "eut2") ets2data[data.driver] = data;
+        else if(data.game.id == "ats") atsdata[data.driver] = data;
+    }
+
+    if (type === "NEW_EVENT") {
+        if (data.type == 1) {
+            drivername = membersteam[data.driver];
+            if (drivername == "undefined" || drivername == undefined) drivername = "Unknown Driver";
+            $("#delivery-tab").removeClass("loaded");
+            toastNotification("success", "Job Delivery", "<b>" + drivername + "</b><br><b>Distance:</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>Revenue:</b> €" + TSeparator(data.revenue), 10000, false);
+        }
+    }
+});
+
+function CountOnlineDriver() {
+    drivers = Object.keys(steamids);
+    for (var i = 0; i < drivers.length; i++) {
+        if (+new Date() - steamids[drivers[i]] > 120000) {
+            if(driverdata[drivers[i]].game.id == "eut2") delete ets2data[drivers[i]];
+            else if(driverdata[drivers[i]].game.id == "ats") delete atsdata[drivers[i]];
+            delete steamids[drivers[i]];
+            delete driverdata[drivers[i]];
+        }
+    }
+    return Object.keys(steamids).length;
+}
+
+setInterval(function () {
+    cnt = CountOnlineDriver()
+    $("#overview-stats-live").html(cnt);
+    if(cnt <= 1) $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Driver Trucking");
+    else $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Drivers Trucking");
+    dt = new Date();
+    t = pad(dt.getHours(), 2) + ":" + pad(dt.getMinutes(), 2) + ":" + pad(dt.getSeconds(), 2);
+    $("#overview-stats-live-datetime").html(t);
+
+    $("#table_online_driver_data").empty();
+    if (cnt == 0) {
+        $("#table_online_driver_head").hide();
+        $("#table_online_driver_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
+        return;
+    }
+    $("#table_online_driver_head").show();
+
+    for (var i = 0; i < cnt; i++) {
+        steamid = Object.keys(steamids)[i];
+        drivername = membersteam[steamid];
+        nuserid = memberuserid[steamid];
+        if (drivername == "undefined" || drivername == undefined) drivername = "Unknown";
+        d = driverdata[steamid];
+        truck = d.truck.brand.name + " " + d.truck.name;
+        cargo = "<i>Free roaming</i>";
+        if (d.job != null)
+            cargo = d.job.cargo.name;
+        speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
+        distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
+        $("#table_online_driver_data").append(`
+            <tr>
+              <td><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${drivername}</a></td>
+              <td>${truck}</td>
+              <td>${cargo}</td>
+              <td>${speed}</td>
+              <td>${distance}</td>
+            </tr>`);
+    }
+}, 1000);
+
+autocenterint = {};
+function PlayerPoint(steamid, mapid){
+    if(steamid == 0 || steamid == "0") return;
+    drivername = membersteam[steamid];
+    nuserid = memberuserid[steamid];
+    if (drivername == "undefined" || drivername == undefined) drivername = "Unknown";
+    d = driverdata[steamid];
+    truck = d.truck.brand.name + " " + d.truck.name;
+    cargo = "<i>Free roaming</i>";
+    if (d.job != null)
+        cargo = d.job.cargo.name;
+    speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
+    distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
+    toastNotification("info", drivername, `<b>Truck: </b>${truck}<br><b>Cargo: </b>${cargo}<br><b>Speed: </b>${speed}<br><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>Show profile</a>`, 5000, false);
+    clearInterval(autocenterint[mapid]);
+    autocenterint[mapid] = setInterval(function(){
+        d = driverdata[steamid];
+        if(d == undefined) return;
+        window.mapcenter[mapid] = [d.truck.position.x, -d.truck.position.z];
+        $("#map > div > canvas").click(function () {
+            clearInterval(autocenterint["map"]);
+            autocenterint["map"] = -1;
+        });
+        $("#amap > div > canvas").children().click(function () {
+            clearInterval(autocenterint["amap"]);
+            autocenterint["amap"] = -1;
+        });
+        $("#pmap > div > canvas").children().click(function () {
+            clearInterval(autocenterint["pmap"]);
+            autocenterint["pmap"] = -1;
+        });
+    }, 100)
+}
+
+trucksvg = `<svg id="truck-svg" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-truck-delivery" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" color="red" fill="none" stroke-linecap="round" stroke-linejoin="round"> <path stroke="none" d="M0 0h24v24H0z" fill="none"/> <circle cx="7" cy="17" r="2" /> <circle cx="17" cy="17" r="2" /> <path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /> <line x1="3" y1="9" x2="7" y2="9" /> </svg> `;
+
+function RenderPoint(mapid, steamid, x, y, scale, nodetail = false, truckicon = false) {
+    // console.log("Render point " + x + ", " + y);
+    maph = $("#" + mapid).height();
+    //x = -maph + x;
+    drivername = membersteam[steamid];
+    t = $("#" + mapid).position().top;
+    l = $("#" + mapid).position().left;
+    if(truckicon){
+        $("#" + mapid).append(`<a class="${mapid}-player" style='cursor:pointer;position:absolute;top:${t+x-12}px;left:${l+y-12}px' onclick="PlayerPoint('${steamid}', '${mapid}')";>${trucksvg}</a>`);
+        return;
+    }
+    if(scale <= 10){
+        if(!nodetail)  $("#" + mapid).append(`<a class="${mapid}-player" style='cursor:pointer;position:absolute;top:${t+x-30}px;left:${l+y-7.5}px;text-align:center;color:skyblue' onclick="PlayerPoint('${steamid}', '${mapid}')";>${drivername}</a>`);
+        $("#" + mapid).append(`<a class="${mapid}-player dot" style='cursor:pointer;position:absolute;top:${t+x-7.5}px;left:${l+y-7.5}px' onclick="PlayerPoint('${steamid}', '${mapid}')";></a>`);
+    } else if(scale <= 25){
+        $("#" + mapid).append(`<a class="${mapid}-player dot-small" style='cursor:pointer;position:absolute;top:${t+x-5}px;left:${l+y-5}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);
+        $("#" + mapid).append(`<a class="${mapid}-player dot-area" style='cursor:pointer;position:absolute;top:${t+x-25}px;left:${l+y-25}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);
+    } else {
+        $("#" + mapid).append(`<a class="${mapid}-player dot-area" style='cursor:pointer;position:absolute;top:${t+x-25}px;left:${l+y-25}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);      
+    }
+}
+
+window.n = {};
+setInterval(function () {
+    if(curtab != "#map-tab"){$(".map-player").remove();return;}
+    if (window.n == undefined || window.n.previousExtent_ == undefined) return;
+    window.mapRange = {};
+    mapRange["top"] = window.n.previousExtent_[3];
+    mapRange["left"] = window.n.previousExtent_[0];
+    mapRange["bottom"] = window.n.previousExtent_[1];
+    mapRange["right"] = window.n.previousExtent_[2];
+    $(".map-player").remove();
+    players = Object.keys(ets2data);
+    for (var i = 0; i < players.length; i++) {
+        if (Object.keys(ets2data).indexOf(players[i]) == -1) {
+            delete ets2data[players[i]];
+            continue;
+        }
+        if (JSON.stringify(ets2data[players[i]]).toLowerCase().indexOf("promod") != -1) continue; // bypass promod on base map
+        pos = ets2data[players[i]].truck.position;
+        x = pos.x;
+        z = -pos.z;
+        mapxl = mapRange["left"];
+        mapxr = mapRange["right"];
+        mapyt = mapRange["top"];
+        mapyb = mapRange["bottom"];
+        mapw = $("#map").width();
+        maph = $("#map").height();
+        scale = (mapxr - mapxl) / $("#map").width();
+        if (x > mapxl && x < mapxr && z > mapyb && z < mapyt) {
+            rx = (x - mapxl) / (mapxr - mapxl) * mapw;
+            rz = (z - mapyt) / (mapyb - mapyt) * maph;
+            RenderPoint("map", players[i], rz, rx, scale);
+        }
+    }
+}, 500);
+
+window.an = {};
+setInterval(function () {
+    if(curtab != "#map-tab"){$(".amap-player").remove();return;}
+    if(window.an == undefined || window.an.previousExtent_ == undefined) return;
+    window.amapRange = {};
+    amapRange["top"] = window.an.previousExtent_[3];
+    amapRange["left"] = window.an.previousExtent_[0];
+    amapRange["bottom"] = window.an.previousExtent_[1];
+    amapRange["right"] = window.an.previousExtent_[2];
+    $(".amap-player").remove();
+    aplayers = Object.keys(atsdata);
+    for (var i = 0; i < aplayers.length; i++) {
+        if (Object.keys(atsdata).indexOf(players[i]) == -1) {
+            delete atsdata[players[i]];
+            continue;
+        }
+        if (JSON.stringify(atsdata[players[i]]).toLowerCase().indexOf("promod") != -1) continue; // bypass promod on base map
+        if (JSON.stringify(atsdata[players[i]]).toLowerCase().indexOf("coast to coast") != -1) continue; // bypass coast to coast on base map
+        apos = atsdata[aplayers[i]].truck.position;
+        ax = apos.x;
+        az = -apos.z;
+        amapxl = amapRange["left"];
+        amapxr = amapRange["right"];
+        amapyt = amapRange["top"];
+        amapyb = amapRange["bottom"];
+        amapw = $("#amap").width();
+        amaph = $("#amap").height();
+        ascale = (amapxr - amapxl) / $("#amap").width();
+        if (ax > amapxl && ax < amapxr && az > amapyb && az < amapyt) {
+            arx = (ax - amapxl) / (amapxr - amapxl) * amapw;
+            arz = (az - amapyt) / (amapyb - amapyt) * amaph;
+            RenderPoint("amap", aplayers[i], arz, arx, ascale);
+        }
+    }
+}, 500);
+
+window.pn = {};
+setInterval(function () {
+    if(curtab != "#map-tab"){$(".pmap-player").remove();return;}
+    if (window.pn == undefined || window.pn.previousExtent_ == undefined) return;
+    window.pmapRange = {};
+    pmapRange["top"] = window.pn.previousExtent_[3];
+    pmapRange["left"] = window.pn.previousExtent_[0];
+    pmapRange["bottom"] = window.pn.previousExtent_[1];
+    pmapRange["right"] = window.pn.previousExtent_[2];
+    $(".pmap-player").remove();
+    players = Object.keys(ets2data);
+    for (var i = 0; i < players.length; i++) {
+        if (Object.keys(ets2data).indexOf(players[i]) == -1) {
+            delete ets2data[players[i]];
+            continue;
+        }
+        if (JSON.stringify(ets2data[players[i]]).toLowerCase().indexOf("promod") == -1) continue;
+        pos = ets2data[players[i]].truck.position;
+        x = pos.x;
+        z = -pos.z;
+        mapxl = pmapRange["left"];
+        mapxr = pmapRange["right"];
+        mapyt = pmapRange["top"];
+        mapyb = pmapRange["bottom"];
+        mapw = $("#pmap").width();
+        maph = $("#pmap").height();
+        scale = (mapxr - mapxl) / $("#pmap").width();
+        if (x > mapxl && x < mapxr && z > mapyb && z < mapyt) {
+            rx = (x - mapxl) / (mapxr - mapxl) * mapw;
+            rz = (z - mapyt) / (mapyb - mapyt) * maph;
+            RenderPoint("pmap", players[i], rz, rx, scale);
+        }
+    }
+}, 500);
 ANNOUNCEMENT_ICON = [`<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-info"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-triangle-exclamation" style="color:yellow"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-xmark"style="color:red"></i></span>`, `<span class="rect-20"><i class="fa-solid fa-circle-check"style="color:green"></i></span>`];
 
 announcement_placeholder_row = `<div class="row">
@@ -3970,7 +4323,7 @@ function LoadAnnouncement(noplaceholder = false){
         $("#announcement-new").show();
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4083,7 +4436,7 @@ function PostAnnouncement(){
     }
     LockBtn("#button-announcement-new-post", "Posting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement",
+        url: api_host + "/" + dhabbr + "/announcement",
         type: "POST",
         dataType: "json",
         headers: {
@@ -4123,7 +4476,7 @@ function EditAnnouncement(announcementid){
     }
     LockBtn("#button-announcement-edit-"+announcementid+"-save", "Saving...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?announcementid="+announcementid,
+        url: api_host + "/" + dhabbr + "/announcement?announcementid="+announcementid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -4160,7 +4513,7 @@ function DeleteAnnouncementShow(announcementid){
 function DeleteAnnouncement(announcementid){
     LockBtn("#button-announcement-delete-"+announcementid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/announcement?announcementid=" + announcementid,
+        url: api_host + "/" + dhabbr + "/announcement?announcementid=" + announcementid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -4217,7 +4570,7 @@ function LoadUserApplicationList(noplaceholder = false) {
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&page_size=15&application_type=0",
+        url: api_host + "/" + dhabbr + "/application/list?page=" + page + "&page_size=15&application_type=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -4282,7 +4635,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&page_size=15&application_type=0&all_user=1",
+        url: api_host + "/" + dhabbr + "/application/list?page=" + page + "&page_size=15&application_type=0&all_user=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -4340,7 +4693,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application?applicationid=" + applicationid,
+        url: api_host + "/" + dhabbr + "/application?applicationid=" + applicationid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4366,7 +4719,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             }
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
+                url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -4427,7 +4780,7 @@ function AddMessageToApplication(applicationid) {
     message = $("#application-new-message").val();
     LockBtn("#button-application-new-message", "Updating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application",
+        url: api_host + "/" + dhabbr + "/application",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -4458,7 +4811,7 @@ function UpdateApplicationStatus(applicationid) {
     LockBtn("#button-application-update-status", "Updating...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/status",
+        url: api_host + "/" + dhabbr + "/application/status",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -4513,7 +4866,7 @@ function SubmitApplication() {
     data = JSON.stringify(data);
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application",
+        url: api_host + "/" + dhabbr + "/application",
         type: "POST",
         dataType: "json",
         headers: {
@@ -4554,7 +4907,7 @@ function UpdateStaffPositions() {
     positionstxt = $("#application-staff-positions").val();
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/positions",
+        url: api_host + "/" + dhabbr + "/application/positions",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -4598,7 +4951,7 @@ async function LoadChallenge(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/challenge/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4786,7 +5139,7 @@ function CreateChallenge() {
     
     LockBtn("#button-challenge-new-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge",
+        url: api_host + "/" + dhabbr + "/challenge",
         type: "POST",
         dataType: "json",
         headers: {
@@ -4820,7 +5173,7 @@ function CreateChallenge() {
 
 function EditChallengeShow(challengeid){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4921,7 +5274,7 @@ function EditChallenge(challengeid) {
     
     LockBtn("#button-challenge-edit-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -4962,7 +5315,7 @@ function DeleteChallengeShow(challengeid, title){
 function DeleteChallenge(challengeid){
     LockBtn("#button-challenge-delete-"+challengeid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge?challengeid=" + challengeid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -5001,7 +5354,7 @@ function AddChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge/delivery?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid,
         type: "PUT",
         dataType: "json",
         headers: {
@@ -5028,7 +5381,7 @@ function DeleteChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge/delivery?challengeid=" + challengeid+"&logid="+logid,
+        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid+"&logid="+logid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -5070,7 +5423,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
     page = parseInt($("#table_division_delivery_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&page_size=10&division=only",
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=10&division=only",
         type: "GET",
         dataType: "json",
         headers: {
@@ -5117,7 +5470,7 @@ async function LoadDivisionInfo(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division",
+        url: api_host + "/" + dhabbr + "/division",
         type: "GET",
         dataType: "json",
         headers: {
@@ -5161,7 +5514,7 @@ function GetDivisionInfo(logid) {
     LockBtn("#button-delivery-detail-division", "Checking...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?logid=" + logid,
+        url: api_host + "/" + dhabbr + "/division?logid=" + logid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -5244,7 +5597,7 @@ function SubmitDivisionValidationRequest(logid) {
     LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
         type: "POST",
         dataType: "json",
         headers: {
@@ -5271,7 +5624,7 @@ function LoadPendingDivisionValidation() {
         $("#table_division_pending_data").append(division_pending_row);
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/list/pending",
+        url: api_host + "/" + dhabbr + "/division/list/pending",
         type: "GET",
         dataType: "json",
         headers: {
@@ -5327,7 +5680,7 @@ function UpdateDivision(logid, status) {
     if (message == undefined || message == null) message = "";
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -5407,7 +5760,7 @@ function LoadDownloads(noplaceholder = false){
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/downloads/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -5454,7 +5807,7 @@ function LoadDownloads(noplaceholder = false){
 
 function DownloadsRedirect(downloadsid){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -5463,7 +5816,7 @@ function DownloadsRedirect(downloadsid){
         success: function (data) {
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
             if(data.error) return AjaxError(data);
-            window.location.href = apidomain + "/" + vtcprefix + "/downloads/" + data.response.downloads.secret;
+            window.location.href = api_host + "/" + dhabbr + "/downloads/" + data.response.downloads.secret;
         },
         error: function (data){
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
@@ -5480,7 +5833,7 @@ function CreateDownloads(){
 
     LockBtn("#button-downloads-new-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads",
+        url: api_host + "/" + dhabbr + "/downloads",
         type: "POST",
         dataType: "json",
         headers: {
@@ -5526,7 +5879,7 @@ function EditDownloads(){
 
     LockBtn("#button-downloads-edit", "Editing...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads?downloadsid="+downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -5561,7 +5914,7 @@ function DeleteDownloadsShow(downloadsid){
 function DeleteDownloads(downloadsid){
     LockBtn("#button-downloads-delete-"+downloadsid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -5596,7 +5949,7 @@ event_placerholder_row = `
 async function LoadEvent(noplaceholder = false) {
     if (eventsCalendar == undefined || force) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event/all",
+            url: api_host + "/" + dhabbr + "/event/all",
             type: "GET",
             dataType: "json",
             headers: {
@@ -5648,7 +6001,7 @@ async function LoadEvent(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/event/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -5709,7 +6062,7 @@ async function LoadEvent(noplaceholder = false) {
 async function ShowEventDetail(eventid, reload = false) {
     if (Object.keys(allevents).indexOf(String(eventid)) == -1 || reload) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+            url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
             type: "GET",
             dataType: "json",
             headers: {
@@ -5787,7 +6140,7 @@ async function ShowEventDetail(eventid, reload = false) {
 
 function VoteEvent(eventid, resp) {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/vote?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event/vote?eventid=" + eventid,
         type: "PUT",
         dataType: "json",
         headers: {
@@ -5817,7 +6170,7 @@ function CreateEvent(){
 
     LockBtn("#button-event-new-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event",
+        url: api_host + "/" + dhabbr + "/event",
         type: "POST",
         dataType: "json",
         headers: {
@@ -5886,7 +6239,7 @@ function EditEvent(){
     departure_timestamp = +new Date($("#event-edit-departure-time").val())/1000;
     is_private = $("#event-edit-visibility-private").is(":checked");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid="+eventid,
+        url: api_host + "/" + dhabbr + "/event?eventid="+eventid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -5926,7 +6279,7 @@ function DeleteEventShow(eventid){
 function DeleteEvent(eventid){
     LockBtn("#button-event-delete-"+eventid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -5992,7 +6345,7 @@ function EditEventAttendee(eventid) {
     LockBtn("#button-event-edit-attendee", "Editing...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event/attendee?eventid=" + eventid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -6016,11 +6369,11 @@ function EditEventAttendee(eventid) {
     })
 }
 function DiscordSignIn(){
-    window.location.href = apidomain + "/" + vtcprefix + "/auth/discord/redirect";
+    window.location.href = api_host + "/" + dhabbr + "/auth/discord/redirect";
 }
 
 function SteamSignIn(){
-    window.location.href = apidomain + "/" + vtcprefix + "/auth/steam/redirect";
+    window.location.href = api_host + "/" + dhabbr + "/auth/steam/redirect";
 }
 
 function SteamValidate() {
@@ -6032,7 +6385,7 @@ function SteamValidate() {
         sParameterName,
         i;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/steam",
+        url: api_host + "/" + dhabbr + "/user/steam",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -6081,7 +6434,7 @@ function AuthValidate() {
 
     if (token) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/token",
+            url: api_host + "/" + dhabbr + "/token",
             type: "PATCH",
             dataType: "json",
             headers: {
@@ -6119,7 +6472,7 @@ function OAuthMFA() {
     otp = $("#mfa-otp").val();
     
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
         dataType: "json",
         data: {
@@ -6152,7 +6505,7 @@ function OAuthMFA() {
 function UpdateTruckersMPID() {
     LockBtn("#button-settings-update-truckersmpid", "Updating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user/truckersmp",
+        url: api_host + "/" + dhabbr + "/user/truckersmp",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -6174,14 +6527,14 @@ function UpdateTruckersMPID() {
 }
 
 function UpdateSteamID() {
-    window.location.href = apidomain + "/" + vtcprefix + "/auth/steam/redirect?connect_account=true";
+    window.location.href = api_host + "/" + dhabbr + "/auth/steam/redirect?connect_account=true";
 }
 
 var CaptchaCallback = function (hcaptcha_response) {
     email = $("#signin-email").val();
     password = $("#signin-password").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/password",
+        url: api_host + "/" + dhabbr + "/auth/password",
         type: "POST",
         dataType: "json",
         data: {
@@ -6254,7 +6607,7 @@ function MFAVerify() {
     if (mfafunc != null) return mfafunc();
     token = localStorage.getItem("tip");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
         dataType: "json",
         headers: {
@@ -6313,7 +6666,7 @@ modalName2ID = {};
 function Logout() {
     token = localStorage.getItem("token");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token",
+        url: api_host + "/" + dhabbr + "/token",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -6530,7 +6883,7 @@ function ToggleDarkMode() {
 
 function InitSearchByName() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list/all",
         type: "GET",
         dataType: "json",
         headers: {
@@ -6746,8 +7099,11 @@ async function ShowTab(tabname, btnname) {
         LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
-        window.history.pushState("", "", '/admin');
+        window.history.pushState("", "", '/config');
         LoadConfiguration();
+        $("#config-subtab").children().removeClass("active");
+        $("#config-subtab").children().removeClass("show");
+        $("#config-api-json-tab").click();
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -6804,7 +7160,7 @@ function LoadCache() {
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/application/positions",
+            url: api_host + "/" + dhabbr + "/application/positions",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -6813,7 +7169,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/roles",
+            url: api_host + "/" + dhabbr + "/member/roles",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -6829,7 +7185,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/application/types",
+            url: api_host + "/" + dhabbr + "/application/types",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -6841,7 +7197,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/perms",
+            url: api_host + "/" + dhabbr + "/member/perms",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -6850,7 +7206,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/division/list",
+            url: api_host + "/" + dhabbr + "/division/list",
             type: "GET",
             dataType: "json",
             headers: {
@@ -6954,7 +7310,7 @@ function PreValidateToken() {
     }
     $("#sidebar-username").html(name);
     $("#sidebar-userid").html("#" + userid);
-    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
+    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
     if (avatar.startsWith("a_"))
         $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
     else
@@ -7006,7 +7362,7 @@ function ValidateToken() {
 
     // Validate token and get user information
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
+        url: api_host + "/" + dhabbr + "/user",
         type: "GET",
         dataType: "json",
         headers: {
@@ -7068,7 +7424,7 @@ function ValidateToken() {
             $("#sidebar-userid").html("#" + userid);
             $("#sidebar-bio").html(user.bio);
             simplemde["#settings-bio"].value(user.bio);
-            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
+            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else
@@ -7096,7 +7452,7 @@ function ValidateToken() {
             }
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
+                url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -7165,11 +7521,11 @@ async function PathDetect() {
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
     else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
-    else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
+    else if (p == "/config") ShowTab("#config-tab", "#button-config-tab");
     else if (p == "/settings") ShowTab("#user-settings-tab");
     else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
-        window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
+        window.location.href = "https://drivershub-cdn.charlws.com/assets/" + dhabbr + "/" + filename;
     } else if (p.startsWith("/steamcallback")) {
         SteamValidate();
     } else if (p.startsWith("/auth")) {

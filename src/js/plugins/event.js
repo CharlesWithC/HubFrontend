@@ -14,7 +14,7 @@ event_placerholder_row = `
 async function LoadEvent(noplaceholder = false) {
     if (eventsCalendar == undefined || force) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event/all",
+            url: api_host + "/" + dhabbr + "/event/all",
             type: "GET",
             dataType: "json",
             headers: {
@@ -66,7 +66,7 @@ async function LoadEvent(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/event/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -127,7 +127,7 @@ async function LoadEvent(noplaceholder = false) {
 async function ShowEventDetail(eventid, reload = false) {
     if (Object.keys(allevents).indexOf(String(eventid)) == -1 || reload) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+            url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
             type: "GET",
             dataType: "json",
             headers: {
@@ -205,7 +205,7 @@ async function ShowEventDetail(eventid, reload = false) {
 
 function VoteEvent(eventid, resp) {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/vote?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event/vote?eventid=" + eventid,
         type: "PUT",
         dataType: "json",
         headers: {
@@ -235,7 +235,7 @@ function CreateEvent(){
 
     LockBtn("#button-event-new-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event",
+        url: api_host + "/" + dhabbr + "/event",
         type: "POST",
         dataType: "json",
         headers: {
@@ -304,7 +304,7 @@ function EditEvent(){
     departure_timestamp = +new Date($("#event-edit-departure-time").val())/1000;
     is_private = $("#event-edit-visibility-private").is(":checked");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid="+eventid,
+        url: api_host + "/" + dhabbr + "/event?eventid="+eventid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -344,7 +344,7 @@ function DeleteEventShow(eventid){
 function DeleteEvent(eventid){
     LockBtn("#button-event-delete-"+eventid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -410,7 +410,7 @@ function EditEventAttendee(eventid) {
     LockBtn("#button-event-edit-attendee", "Editing...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/event/attendee?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event/attendee?eventid=" + eventid,
         type: "PATCH",
         dataType: "json",
         headers: {

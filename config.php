@@ -1,8 +1,8 @@
 <?php
     $vtcname = "Virtual Truck Simulator";
     $vtcabbr = "vtc";
-    $vtccolor = "#444444";
-    $vtccolordark = "#888888";
+    $dhcolor = "#444444";
+    $dhcolordark = "#888888";
     $slogan = "It's a great hub!";
 
     $domain = "https://hub.examplevtc.com";

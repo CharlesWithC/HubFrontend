@@ -22,7 +22,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
     page = parseInt($("#table_division_delivery_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/dlog/list?page=" + page + "&page_size=10&division=only",
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=10&division=only",
         type: "GET",
         dataType: "json",
         headers: {
@@ -69,7 +69,7 @@ async function LoadDivisionInfo(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division",
+        url: api_host + "/" + dhabbr + "/division",
         type: "GET",
         dataType: "json",
         headers: {
@@ -113,7 +113,7 @@ function GetDivisionInfo(logid) {
     LockBtn("#button-delivery-detail-division", "Checking...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?logid=" + logid,
+        url: api_host + "/" + dhabbr + "/division?logid=" + logid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -196,7 +196,7 @@ function SubmitDivisionValidationRequest(logid) {
     LockBtn("#button-request-division-validation", "Requesting...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
         type: "POST",
         dataType: "json",
         headers: {
@@ -223,7 +223,7 @@ function LoadPendingDivisionValidation() {
         $("#table_division_pending_data").append(division_pending_row);
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division/list/pending",
+        url: api_host + "/" + dhabbr + "/division/list/pending",
         type: "GET",
         dataType: "json",
         headers: {
@@ -279,7 +279,7 @@ function UpdateDivision(logid, status) {
     if (message == undefined || message == null) message = "";
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
         type: "PATCH",
         dataType: "json",
         headers: {

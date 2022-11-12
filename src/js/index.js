@@ -27,7 +27,7 @@ modalName2ID = {};
 function Logout() {
     token = localStorage.getItem("token");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/token",
+        url: api_host + "/" + dhabbr + "/token",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -244,7 +244,7 @@ function ToggleDarkMode() {
 
 function InitSearchByName() {
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list/all",
         type: "GET",
         dataType: "json",
         headers: {
@@ -460,8 +460,11 @@ async function ShowTab(tabname, btnname) {
         LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
-        window.history.pushState("", "", '/admin');
+        window.history.pushState("", "", '/config');
         LoadConfiguration();
+        $("#config-subtab").children().removeClass("active");
+        $("#config-subtab").children().removeClass("show");
+        $("#config-api-json-tab").click();
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -518,7 +521,7 @@ function LoadCache() {
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/application/positions",
+            url: api_host + "/" + dhabbr + "/application/positions",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -527,7 +530,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/roles",
+            url: api_host + "/" + dhabbr + "/member/roles",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -543,7 +546,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/application/types",
+            url: api_host + "/" + dhabbr + "/application/types",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -555,7 +558,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/member/perms",
+            url: api_host + "/" + dhabbr + "/member/perms",
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -564,7 +567,7 @@ function LoadCache() {
             }
         });
         $.ajax({
-            url: apidomain + "/" + vtcprefix + "/division/list",
+            url: api_host + "/" + dhabbr + "/division/list",
             type: "GET",
             dataType: "json",
             headers: {
@@ -668,7 +671,7 @@ function PreValidateToken() {
     }
     $("#sidebar-username").html(name);
     $("#sidebar-userid").html("#" + userid);
-    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
+    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
     if (avatar.startsWith("a_"))
         $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
     else
@@ -720,7 +723,7 @@ function ValidateToken() {
 
     // Validate token and get user information
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/user",
+        url: api_host + "/" + dhabbr + "/user",
         type: "GET",
         dataType: "json",
         headers: {
@@ -782,7 +785,7 @@ function ValidateToken() {
             $("#sidebar-userid").html("#" + userid);
             $("#sidebar-bio").html(user.bio);
             simplemde["#settings-bio"].value(user.bio);
-            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + vtcprefix + "/member/banner?userid=" + userid);
+            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else
@@ -810,7 +813,7 @@ function ValidateToken() {
             }
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
+                url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -879,11 +882,11 @@ async function PathDetect() {
     else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
     else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
-    else if (p == "/admin") ShowTab("#config-tab", "#button-config-tab");
+    else if (p == "/config") ShowTab("#config-tab", "#button-config-tab");
     else if (p == "/settings") ShowTab("#user-settings-tab");
     else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
-        window.location.href = "https://drivershub-cdn.charlws.com/assets/" + vtcprefix + "/" + filename;
+        window.location.href = "https://drivershub-cdn.charlws.com/assets/" + dhabbr + "/" + filename;
     } else if (p.startsWith("/steamcallback")) {
         SteamValidate();
     } else if (p.startsWith("/auth")) {

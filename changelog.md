@@ -5,6 +5,12 @@
 2.Table page size selector  
 3.Add translation for javascript  
 
+**v2.3.2**  
+1.Integrated `naviolive.js` to `bundle.js`  
+2.Updated config format  
+3.Added web config editor  
+4.Added `logo_key` and `banner_key` in config to support instant updates (no need to wait to CDN to update)  
+
 **v2.3.1**  
 1.Updated to be compatible with API v1.19.4  
 2.Added role color  

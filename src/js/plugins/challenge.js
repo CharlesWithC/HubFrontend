@@ -20,7 +20,7 @@ async function LoadChallenge(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/challenge/list?page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -208,7 +208,7 @@ function CreateChallenge() {
     
     LockBtn("#button-challenge-new-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge",
+        url: api_host + "/" + dhabbr + "/challenge",
         type: "POST",
         dataType: "json",
         headers: {
@@ -242,7 +242,7 @@ function CreateChallenge() {
 
 function EditChallengeShow(challengeid){
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -343,7 +343,7 @@ function EditChallenge(challengeid) {
     
     LockBtn("#button-challenge-edit-create", "Creating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -384,7 +384,7 @@ function DeleteChallengeShow(challengeid, title){
 function DeleteChallenge(challengeid){
     LockBtn("#button-challenge-delete-"+challengeid, "Deleting...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge?challengeid=" + challengeid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -423,7 +423,7 @@ function AddChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge/delivery?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid,
         type: "PUT",
         dataType: "json",
         headers: {
@@ -450,7 +450,7 @@ function DeleteChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/challenge/delivery?challengeid=" + challengeid+"&logid="+logid,
+        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid+"&logid="+logid,
         type: "DELETE",
         dataType: "json",
         headers: {

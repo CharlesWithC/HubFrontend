@@ -36,7 +36,7 @@ function LoadUserApplicationList(noplaceholder = false) {
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&page_size=15&application_type=0",
+        url: api_host + "/" + dhabbr + "/application/list?page=" + page + "&page_size=15&application_type=0",
         type: "GET",
         dataType: "json",
         headers: {
@@ -101,7 +101,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/list?page=" + page + "&page_size=15&application_type=0&all_user=1",
+        url: api_host + "/" + dhabbr + "/application/list?page=" + page + "&page_size=15&application_type=0&all_user=1",
         type: "GET",
         dataType: "json",
         headers: {
@@ -159,7 +159,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
     }
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application?applicationid=" + applicationid,
+        url: api_host + "/" + dhabbr + "/application?applicationid=" + applicationid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -185,7 +185,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             }
 
             $.ajax({
-                url: apidomain + "/" + vtcprefix + "/user?discordid=" + String(discordid),
+                url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
                 type: "GET",
                 dataType: "json",
                 headers: {
@@ -246,7 +246,7 @@ function AddMessageToApplication(applicationid) {
     message = $("#application-new-message").val();
     LockBtn("#button-application-new-message", "Updating...");
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application",
+        url: api_host + "/" + dhabbr + "/application",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -277,7 +277,7 @@ function UpdateApplicationStatus(applicationid) {
     LockBtn("#button-application-update-status", "Updating...");
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/status",
+        url: api_host + "/" + dhabbr + "/application/status",
         type: "PATCH",
         dataType: "json",
         headers: {
@@ -332,7 +332,7 @@ function SubmitApplication() {
     data = JSON.stringify(data);
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application",
+        url: api_host + "/" + dhabbr + "/application",
         type: "POST",
         dataType: "json",
         headers: {
@@ -373,7 +373,7 @@ function UpdateStaffPositions() {
     positionstxt = $("#application-staff-positions").val();
 
     $.ajax({
-        url: apidomain + "/" + vtcprefix + "/application/positions",
+        url: api_host + "/" + dhabbr + "/application/positions",
         type: "PATCH",
         dataType: "json",
         headers: {
