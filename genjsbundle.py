@@ -50,13 +50,13 @@ if not genonly:
     #         cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
     #         f = f.replace(cur, hsh + ".js")
     # open(f"src/index.php","w").write(f)
-    f = open(f"src/index.php","r").read()
+    f = open(f"src/index.php","r",encoding="utf-8").read()
     t = f.split("\n")
     for tt in t:
         if f'id="{eid}"' in tt:
             cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
             f = f.replace(cur, hsh + ".js")
-    open(f"src/index.php","w").write(f)
+    open(f"src/index.php","w",encoding="utf-8").write(f)
     try:
         os.remove("src/js/bundles/" + cur)
     except:

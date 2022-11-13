@@ -102,7 +102,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/4243f3a8dd962069.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/5c1c1a79bf39dbda.js"></script>
 
     <?php
     $application_html = "";
@@ -1736,11 +1736,11 @@
         <section id="member-tab" class="tabs">
             <div class="row">
                 <div class="col-4" id="member-tab-left" style="display:none">
-                    <div class="shadow p-3 m-3 bg-dark rounded col card" style="driver-of-the-month">
+                    <div class="shadow p-3 m-3 bg-dark rounded col card" id="driver-of-the-month">
                         <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-crown"></i></span> Driver of the Month</strong></h5>
                         <p class="card-text" style="font-size:25px;text-align:center"><span id="driver-of-the-month-info"><span class="placeholder" style="width:60%"></span></span></p>
                     </div>
-                    <div class="shadow p-3 m-3 bg-dark rounded col card" style="staff-of-the-month">
+                    <div class="shadow p-3 m-3 bg-dark rounded col card" id="staff-of-the-month">
                         <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-shield-halved"></i></span> Staff of the Month</strong></h5>
                         <p class="card-text" style="font-size:25px;text-align:center"><span id="staff-of-the-month-info"><span class="placeholder" style="width:60%"></span></span></p>
                     </div>
@@ -2070,12 +2070,13 @@
                         <label for="web-custom-application" class="form-label">Custom Application (.html)</label>
                         <div class="input-group mb-3">
                             <input type="file" class="form-control bg-dark text-white" id="web-custom-application">
-                            <button class="btn btn-outline-secondary" type="button" onclick="custom_application='';$('#web-custom-application').val('');">Disable</button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="custom_application='';$('#web-custom-application').val('');">Clear</button>
+                            <button class="btn btn-outline-secondary" type="button" id="button-reset-custom-application" onclick="ResetCustomApplication();">Reset</button>
                         </div>
                         <label for="web-custom-style" class="form-label">Custom Style (.css)</label>
                         <div class="input-group mb-3">
                             <input type="file" class="form-control bg-dark text-white" id="web-custom-style">
-                            <button class="btn btn-outline-secondary" type="button" onclick="custom_style='';$('#web-custom-style').val('');">Disable</button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="custom_style='';$('#web-custom-style').val('');">Clear</button>
                         </div>
                         <div class="row justify-content-end">
                             <button id="button-save-web-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateWebConfig();">Save</button>

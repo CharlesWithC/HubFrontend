@@ -945,6 +945,24 @@ function ReloadServer() {
     })
 }
 
+function ResetCustomApplication(){
+    LockBtn("#button-reset-custom-application", "...");
+    
+    $.ajax({
+        url: "/default_application.html",
+        type: "GET",
+        success: function (data) {
+            UnlockBtn("#button-reset-custom-application");
+            custom_application = data;
+            toastNotification("success", "Success", "Custom application reset to default!", 5000);
+        },
+        error: function (data) {
+            UnlockBtn("#button-reset-custom-application");
+            toastNotification("error", "Error", "Failed to reset custom application: Unable to retrieve default application!", 5000);
+        }
+    })
+}
+
 function UpdateWebConfig() {
     LockBtn("#button-save-web-config", "Saving...");
 
