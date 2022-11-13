@@ -12,13 +12,23 @@
     }
     $config = json_decode(file_get_contents('/var/hub/config/'.$domain.'.json'), true);
 
-    // $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-    // $language = substr($language, 0, 2);
-    // if(file_exists('languages/'.$language.'.json')){
-    //     $lang = json_decode(file_get_contents('languages/'.$language.'.json'));
-    // } else {
-    //     $lang = json_decode(file_get_contents('languages/en.json'));
-    // }
+    $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    $language = substr($language, 0, 2);
+    $enlang = json_decode(file_get_contents('./languages/en.json'), true);
+    $lang = json_decode(file_get_contents('./languages/en.json'), true);
+    if(file_exists('./languages/'.$language.'.json')){
+        $lang = json_decode(file_get_contents('./languages/'.$language.'.json'), true);
+    }
+
+    function mltr($key){ // multilang: translate
+        global $lang;
+        global $enlang;
+        if(array_key_exists($key, $lang)){
+            return $lang[$key];
+        } else {
+            return $enlang[$key];
+        }
+    }
 
     $path = $_SERVER['REQUEST_URI'];
     if (str_starts_with($path, '/images')) {
@@ -46,9 +56,9 @@
     <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $config["abbr"] ?>/logo.png?<?php echo $config["logo_key"] ?>" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="<?php echo $config["name"] ?> Drivers Hub | <?php echo $config["slogan"] ?>">
+    <meta name="description" content="<?php echo $config["name"] ?> <?php echo mltr("drivers_hub"); ?> | <?php echo $config["slogan"] ?>">
 
-    <meta content="<?php echo $config["name"] ?> Drivers Hub" property="og:title" />
+    <meta content="<?php echo $config["name"] ?> <?php echo mltr("drivers_hub"); ?>" property="og:title" />
     <meta content="<?php echo $config["slogan"] ?>" property="og:description" />
     <meta content="https://<?php echo $domain ?>/" property="og:url" />
     <meta content="/images/logo.png?<?php echo $config["logo_key"] ?>" property="og:image" />
@@ -313,119 +323,119 @@
         <div id="sidebar" style="height:calc(100% - 150px);">
             <ul class="nav nav-pills flex-column mb-auto">
                 <div style="margin:5px 0;">
-                    <li><strong style="color:darkgrey">Information</strong></li>
+                    <li><strong style="color:darkgrey"><?php echo mltr("information"); ?></strong></li>
                     <li class="nav-item">
                         <a id="button-overview-tab" onclick="ShowTab('#overview-tab', '#button-overview-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
-                            Overview
+                            <?php echo mltr("overview"); ?>
                         </a>
                     </li>
                     <li class="nav-item announcement-plugin">
                         <a id="button-announcement-tab" onclick="ShowTab('#announcement-tab', '#button-announcement-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-newspaper"></i></span>
-                            Announcements
+                            <?php echo mltr("announcements"); ?>
                         </a>
                     </li>
                     <li class="nav-item member-only downloads-plugin">
                         <a id="button-downloads-tab" onclick="ShowTab('#downloads-tab', '#button-downloads-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-download"></i></span>
-                            Downloads
+                            <?php echo mltr("downloads"); ?>
                         </a>
                     </li>
                 </div>
                 <div style="margin:5px 0;">
-                    <li><strong style="color:darkgrey">Game</strong></li>
+                    <li><strong style="color:darkgrey"><?php echo mltr("game"); ?></strong></li>
                     <li class="nav-item livemap-plugin">
                         <a id="button-map-tab" onclick="ShowTab('#map-tab', '#button-map-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-map"></i></span>
-                            Live Map
+                            <?php echo mltr("live_map"); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a id="button-delivery-tab" onclick="ShowTab('#delivery-tab', '#button-delivery-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-truck"></i></span>
-                            Deliveries
+                            <?php echo mltr("deliveries"); ?>
                         </a>
                     </li>
                     <li class="nav-item member-only challenge-plugin">
                         <a id="button-challenge-tab" onclick="ShowTab('#challenge-tab', '#button-challenge-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-fire-flame-curved"></i></span>
-                            Challenges
+                            <?php echo mltr("challenges"); ?>
                         </a>
                     </li>
                     <li class="nav-item member-only division-plugin">
                         <a id="button-division-tab" onclick="ShowTab('#division-tab', '#button-division-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-warehouse"></i></span>
-                            Divisions
+                            <?php echo mltr("divisions"); ?>
                         </a>
                     </li>
                     <li class="nav-item event-plugin">
                         <a id="button-event-tab" onclick="ShowTab('#event-tab', '#button-event-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-regular fa-calendar-days"></i></span>
-                            Events
+                            <?php echo mltr("events"); ?>
                         </a>
                     </li>
                 </div>
                 <div class="member-only" style="margin:5px 0;">
-                    <li><strong style="color:darkgrey">Drivers</strong></li>
+                    <li><strong style="color:darkgrey"><?php echo mltr("drivers"); ?></strong></li>
                     <li class="nav-item">
                         <a id="button-member-tab" onclick="ShowTab('#member-tab', '#button-member-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-group"></i></span>
-                            Members
+                            <?php echo mltr("members"); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a id="button-leaderboard-tab" onclick="ShowTab('#leaderboard-tab', '#button-leaderboard-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span>
-                            Leaderboard
+                            <?php echo mltr("leaderboard"); ?>
                         </a>
                     </li>
                     <li class="nav-item ranking-plugin">
                         <a id="button-ranking-tab" onclick="ShowTab('#ranking-tab', '#button-ranking-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-angles-up"></i></span>
-                            Rankings
+                            <?php echo mltr("rankings"); ?>
                         </a>
                     </li>
                 </div>
                 <div id="sidebar-application" class="application-plugin" style="margin:5px 0;display:none;">
-                    <li><strong style="color:darkgrey">Applications</strong></li>
+                    <li><strong style="color:darkgrey"><?php echo mltr("applications"); ?></strong></li>
                     <li class="nav-item">
                         <a id="button-submit-application-tab" onclick="ShowTab('#submit-application-tab', '#button-submit-application-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-envelope-open-text"></i></span>
-                            New Application
+                            <?php echo mltr("new_application"); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a id="button-my-application-tab" onclick="ShowTab('#my-application-tab', '#button-my-application-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-envelope-circle-check"></i></span>
-                            My Applications
+                            <?php echo mltr("my_applications"); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a id="button-all-application-tab" onclick="ShowTab('#all-application-tab', '#button-all-application-tab')" class="nav-link text-white clickable" aria-current="page" style="display:none">
                             <span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span>
-                            All Applications
+                            <?php echo mltr("all_applications"); ?>
                         </a>
                     </li>
                 </div>
                 <div id="sidebar-staff" style="margin:5px 0;display:none">
-                    <li><strong style="color:darkgrey">Staff</strong></li>
+                    <li><strong style="color:darkgrey"><?php echo mltr("staff"); ?></strong></li>
                     <li class="nav-item">
                         <a id="button-manage-user-tab" onclick="ShowTab('#manage-user-tab', '#button-manage-user-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-user-clock"></i></span>
-                            Pending Users
+                            <?php echo mltr("pending_users"); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a id="button-audit-tab" onclick="ShowTab('#audit-tab', '#button-audit-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-terminal"></i></span>
-                            Audit Log
+                            <?php echo mltr("audit_log"); ?>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a id="button-config-tab" onclick="ShowTab('#config-tab', '#button-config-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span>
-                            Configuration
+                            <?php echo mltr("configuration"); ?>
                         </a>
                     </li>
                 </div>
