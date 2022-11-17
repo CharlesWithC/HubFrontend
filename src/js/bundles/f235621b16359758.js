@@ -1,5 +1,8 @@
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+lang = "";
+enlang = "";
+
 $(document).ready(function () {
     drivershub = `    ____       _                         __  __      __  
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
@@ -8,10 +11,46 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.3.1)");
+    console.log("Drivers Hub: Frontend (v2.4.1)");
+    console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
+    console.log('CHub Website: https://drivershub.charlws.com/');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
-    console.log('Compatible with "Drivers Hub: Backend" (© 2022 CharlesWithC)');
+
+    $.ajax({
+        url: "/languages/en.json?v2.4.1",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            enlang = data;
+        }
+    });
+    if(language == "en"){
+        lang = enlang;
+    } else {
+        $.ajax({
+            url: "/languages/"+language+".json?v2.4.1",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                lang = data;
+            }, error: function (data){
+                lang = enlang;
+            }
+        });
+    }
 });
+
+function mltr(key){
+    if(lang[key] == undefined){
+        if(enlang[key] == undefined){
+            return "";
+        } else {
+            return enlang[key];
+        }
+    } else {
+        return lang[key];
+    }
+}
 
 function ParseAjaxError(data) {
     return JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
@@ -20,7 +59,8 @@ function ParseAjaxError(data) {
 function AjaxError(data, no_notification = false) {
     errmsg = ParseAjaxError(data);
     if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
-    console.warn(`API Request Failed: ${errmsg}\nDetails: ${data}`);
+    console.warn(`API Request Failed: ${errmsg}\nDetails:`);
+    console.warn(data);
 }
 
 function GetMonday(d) {
@@ -92,7 +132,7 @@ function GetAvatar(userid, name, discordid, avatarid) {
 
 function CopyBannerURL(userid) {
     navigator.clipboard.writeText("https://" + window.location.hostname + "/banner/" + userid);
-    return toastNotification("success", "Success", "Banner URL copied to clipboard!", 5000)
+    return toastNotification("success", "Success", mltr("banner_url_copied_to_clipboard"), 5000)
 }
 
 function CopyButton(element, text) {
@@ -123,7 +163,7 @@ function isString(obj) {
 
 window.btnvals = {};
 
-function LockBtn(btnid, btntxt = "Working...") {
+function LockBtn(btnid, btntxt = mltr("working")) {
     if ($(btnid).attr("disabled") == "disabled") return;
     $(btnid).attr("disabled", "disabled");
     btnvals[btnid] = $(btnid).html();
@@ -544,7 +584,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`) {
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("Close")}</button>`) {
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -660,17 +700,17 @@ function timeAgo(dateParam) {
 
 
     if (seconds < 5) {
-        return 'now';
+        return mltr('now');
     } else if (seconds < 60) {
-        return `${ seconds } sec ago`;
+        return `${ seconds } ${mltr('sec_ago')}`;
     } else if (seconds < 90) {
-        return 'about a min ago';
+        return mltr('about_a_min_ago');
     } else if (minutes < 60) {
-        return `${ minutes } min ago`;
+        return `${ minutes } ${mltr('min_ago')}`;
     } else if (isToday) {
-        return getFormattedDate(date, 'Today'); // Today at 10:20
+        return getFormattedDate(date, mltr('today')); // Today at 10:20
     } else if (isYesterday) {
-        return getFormattedDate(date, 'Yesterday'); // Yesterday at 10:20
+        return getFormattedDate(date, mltr('yesterday')); // Yesterday at 10:20
     } else if (isThisYear) {
         return getFormattedDate(date, false, true); // 10. January at 10:20
     }
@@ -6698,7 +6738,7 @@ function Logout() {
     $("#sidebar-username").html("Guest");
     $("#sidebar-userid").html("Login First");
     $("#sidebar-role").html("Loner");
-    $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif");
+    $("#sidebar-avatar").attr("src", "https://charlws.com/me.gif");
     $("#sidebar-application").hide();
     $("#sidebar-staff").hide();
     NonMemberMode();
@@ -7303,6 +7343,7 @@ function NonMemberMode() {
     $("#overview-left-col").addClass("col");
     $(".member-only").hide();
     $(".non-member-only").show();
+    $("#sidebar-staff").hide();
 }
 
 function MemberMode() {

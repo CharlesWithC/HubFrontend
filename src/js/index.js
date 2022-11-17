@@ -41,7 +41,7 @@ function Logout() {
     $("#sidebar-username").html("Guest");
     $("#sidebar-userid").html("Login First");
     $("#sidebar-role").html("Loner");
-    $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif");
+    $("#sidebar-avatar").attr("src", "https://charlws.com/me.gif");
     $("#sidebar-application").hide();
     $("#sidebar-staff").hide();
     NonMemberMode();
@@ -646,6 +646,7 @@ function NonMemberMode() {
     $("#overview-left-col").addClass("col");
     $(".member-only").hide();
     $(".non-member-only").show();
+    $("#sidebar-staff").hide();
 }
 
 function MemberMode() {

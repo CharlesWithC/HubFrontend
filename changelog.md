@@ -5,6 +5,9 @@
 2.Table page size selector  
 3.Add translation for javascript  
 
+**v2.4.1**  
+Added full translation table  
+
 **v2.3.2**  
 1.Integrated `naviolive.js` to `bundle.js`  
 2.Updated config format  
