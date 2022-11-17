@@ -122,6 +122,7 @@ function LoadMemberList(noplaceholder = false) {
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
@@ -207,7 +208,7 @@ function EditRolesShow(uid){
                 </div>`;
             }
             
-            modalid = ShowModal(`${d.name} (${d.userid})`, roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-roles" type="button" class="btn btn-primary" onclick="EditRoles(${d.userid});">Update</button>`);
+            modalid = ShowModal(`${d.name} (${d.userid})`, roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-edit-roles" type="button" class="btn btn-primary" onclick="EditRoles(${d.userid});">${mltr("update")}</button>`);
             InitModal("edit_roles", modalid);
         },
         error: function (data) {
@@ -217,7 +218,7 @@ function EditRolesShow(uid){
 }
 
 function EditRoles(uid) {
-    LockBtn("#button-edit-roles", "Updating...");
+    LockBtn("#button-edit-roles", mltr("updating"));
 
     d = $('input[name="edit-roles"]:checked');
     roles = [];
@@ -239,7 +240,7 @@ function EditRoles(uid) {
         success: function (data) {
             UnlockBtn("#button-edit-roles");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Member roles updated!", 5000, false);
+            toastNotification("success", "Success!", mltr("member_roles_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-edit-roles");
@@ -286,7 +287,7 @@ function EditPoints(uid) {
         success: function (data) {
             UnlockBtn("#button-edit-points");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Member points updated!", 5000, false);
+            toastNotification("success", "Success!", mltr("member_points_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-edit-points");
@@ -296,13 +297,13 @@ function EditPoints(uid) {
 }
 
 function DismissMemberShow(uid, name){
-    if(uid == localStorage.getItem("userid")) return toastNotification("error", "Error", "You cannot dismiss yourself!", 5000);
-    modalid = ShowModal(`Dismiss Member`, `<p>Are you sure you want to dismiss this member?</p><p><i>${name} (User ID: ${uid})</i></p><br><p>Dismissing ${name} will erase all their delivery log (marking them as by unknown user) and remove them from Navio company. This <b>cannot</b> be undone.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">Dismiss</button>`);
+    if(uid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
+    modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${uid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">${mltr('dismiss')}</button>`);
     InitModal("dismiss_member", modalid);
 }
 
 function DismissMember(uid){
-    LockBtn("#button-dismiss-member", "Dismissing...");
+    LockBtn("#button-dismiss-member", mltr("dismissing"));
     
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
@@ -315,7 +316,7 @@ function DismissMember(uid){
             UnlockBtn("#button-dismiss-member");
             if (data.error) return AjaxError(data);
             LoadMemberList(noplaceholder=true);
-            toastNotification("success", "Success", "Member dismissed!", 5000, false);
+            toastNotification("success", "Success", mltr("member_dismissed"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-dismiss-member");
@@ -454,14 +455,14 @@ function LoadUserProfile(userid) {
             d = data.response.user;
 
             account_info = "<table>";
-            account_info += GenTableRow("ID", d.userid);
+            account_info += GenTableRow(mltr("id"), d.userid);
             if (d.email != undefined && d.email != "") {
-                account_info += GenTableRow("Email", d.email);
+                account_info += GenTableRow(mltr("email"), d.email);
             } 
-            account_info += GenTableRow("Discord", d.discordid);
-            account_info += GenTableRow("TruckersMP", d.truckersmpid);
-            account_info += GenTableRow("Steam", d.steamid);
-            account_info += GenTableRow("Joined At", getDateTime(d.join_timestamp * 1000));
+            account_info += GenTableRow(mltr("discord"), d.discordid);
+            account_info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+            account_info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+            account_info += GenTableRow(mltr("joined_at"), getDateTime(d.join_timestamp * 1000));
             
             roles = d.roles;
             rtxt = "";
@@ -473,15 +474,20 @@ function LoadUserProfile(userid) {
             }
             rtxt = rtxt.substring(0, rtxt.length - 2);
             
-            if(d.roles.length == 1) account_info += GenTableRow("Role", rtxt);
-            else account_info += GenTableRow("Roles", rtxt);
+            if(d.roles.length == 1) account_info += GenTableRow(mltr("role"), rtxt);
+            else account_info += GenTableRow(mltr("roles"), rtxt);
             
             account_info += GenTableRow("&nbsp;", "&nbsp;");
             activity_url = getActitivyUrl(d.activity.name);
             if(d.activity.name.includes("User ID")) d.activity.name = d.activity.name.split("(User ID")[0];
-            if(d.activity.name == "Offline") account_info += GenTableRow("Status", "Offline - Last seen " + timeAgo(new Date(d.activity.last_seen*1000)));
-            else if(d.activity.name == "Online") account_info += GenTableRow("Status", "Online");
-            else account_info += GenTableRow("Activity", `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
+            if(d.activity.name == "Offline"){
+                if(d.activity.last_seen != -1)
+                    account_info += GenTableRow(mltr("status"), mltr("offline") + " - " + mltr("last_seen") + " " + timeAgo(new Date(d.activity.last_seen*1000)));
+                else
+                    account_info += GenTableRow(mltr("status"), mltr("offline"));
+            }
+            else if(d.activity.name == "Online") account_info += GenTableRow(mltr("status"), mltr("online"));
+            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
 
             account_info += "</table>";
 
@@ -536,14 +542,16 @@ function LoadUserProfile(userid) {
                                 if (!data.error) {
                                     info += "<hr>";
                                     d = data.response.list[0];
-                                    info += "<b>Points</b><br>";
-                                    info += `<b>Distance</b>: ${d.points.distance}<br>`;
-                                    info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
-                                    info += `<b>Event</b>: ${d.points.event}<br>`;
-                                    info += `<b>Division</b>: ${d.points.division}<br>`;
-                                    info += `<b>Myth</b>: ${d.points.myth}<br>`;
-                                    info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
-                                    info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                    if(d != undefined){
+                                        info += "<b>Points</b><br>";
+                                        info += `<b>Distance</b>: ${d.points.distance}<br>`;
+                                        info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
+                                        info += `<b>Event</b>: ${d.points.event}<br>`;
+                                        info += `<b>Division</b>: ${d.points.division}<br>`;
+                                        info += `<b>Myth</b>: ${d.points.myth}<br>`;
+                                        info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
+                                        info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                    }
                                     info += `</p>`;
                                     $("#profile-text-statistics").html(info);
                                 }
@@ -564,7 +572,7 @@ function LoadUserProfile(userid) {
 }
 
 function GetDiscordRankRole() {
-    LockBtn(".button-rankings-role", "Getting...");
+    LockBtn(".button-rankings-role", mltr("getting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/roles/rank",
@@ -576,7 +584,7 @@ function GetDiscordRankRole() {
         success: function (data) {
             UnlockBtn(".button-rankings-role");
             if (data.error) return AjaxError(data);
-            else return toastNotification("success", "Success", "Discord role assigned!", 5000, false);
+            else return toastNotification("success", "Success", mltr("discord_role_assigned"), 5000, false);
         },
         error: function (data) {
             UnlockBtn(".button-rankings-role");

@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/f235621b16359758.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/37ab2d7e73865e23.js"></script>
 
     <?php
     $application_html = "";
@@ -1813,7 +1813,7 @@
                         <div>
                             <label class="form-label"><?php echo mltr("members"); ?></label>
                             <div class="input-group mb-2">
-                                <input id="input-leaderboard-search" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Users" placeholder='Select members from list' list="all-member-datalist" data-min-length='1' data-limit-of-values='10' multiple='' data-selection-required='1'>
+                                <input id="input-leaderboard-search" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Users" placeholder='<?php echo mltr("select_members_from_list"); ?>' list="all-member-datalist" data-min-length='1' data-limit-of-values='10' multiple='' data-selection-required='1'>
                             </div>
                         </div>
                         <label class="form-label">Game</label>

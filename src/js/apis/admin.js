@@ -114,7 +114,7 @@ function LoadConfiguration() {
             if(!fileReader.result.startsWith("data:text/html")){
                 $('#web-custom-application').val("");
                 custom_application = undefined;
-                return toastNotification("error", "Error", "You must selected a HTML file!", 5000);
+                return toastNotification("error", "Error", mltr("you_must_selected_a_html_file"), 5000);
             }
             custom_application = atob(fileReader.result.replaceAll("data:text/html;base64,",""));
         };
@@ -126,7 +126,7 @@ function LoadConfiguration() {
             if(!fileReader.result.startsWith("data:text/css")){
                 $('#web-custom-style').val("");
                 custom_style = undefined;
-                return toastNotification("error", "Error", "You must selected a CSS file!", 5000);
+                return toastNotification("error", "Error", mltr("you_must_selected_a_css_file"), 5000);
             }
             custom_style = atob(fileReader.result.replaceAll("data:text/css;base64,",""));
         };
@@ -140,7 +140,7 @@ function RevertConfig() {
         typeof value === 'number' && value > 1e10 ?
         BigInt(value) :
         value));
-    toastNotification("success", "Success", "Config reverted to after last reload.", 5000);
+    toastNotification("success", "Success", mltr("config_reverted_to_after_last_reload"), 5000);
 }
 
 function ResetConfig() {
@@ -149,7 +149,7 @@ function ResetConfig() {
         typeof value === 'number' && value > 1e10 ?
         BigInt(value) :
         value));
-    toastNotification("success", "Success", "Config reset to before editing.", 5000);
+    toastNotification("success", "Success", mltr("config_reset_to_before_editing"), 5000);
 }
 
 function UpdateConfig() {
@@ -157,12 +157,12 @@ function UpdateConfig() {
     try {
         config = JSON.parse(config);
     } catch {
-        return toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+        return toastNotification("error", "Error", mltr("failed_to_parse_config_make_sure_its_in_correct_json_format"), 5000, false);
     }
     if (config["navio_api_token"] == "") delete config["navio_api_token"];
     if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
     if (config["discord_bot_token"] == "") delete config["discord_bot_token"];
-    LockBtn("#button-save-config", "Saving...");
+    LockBtn("#button-save-config", mltr("saving"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/config",
         type: "PATCH",
@@ -180,7 +180,7 @@ function UpdateConfig() {
         success: function (data) {
             UnlockBtn("#button-save-config");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Config updated! Reload API to make it take effect!", 5000, false);
+            toastNotification("success", "Success", mltr("config_updated_reload_api_to_make_it_take_effect"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-save-config");
@@ -190,7 +190,7 @@ function UpdateConfig() {
 }
 
 function ReloadAPIShow() {
-    if (!mfaenabled) return toastNotification("error", "Error", "MFA must be enabled to reload API!", 5000);
+    if (!mfaenabled) return toastNotification("error", "Error", mltr("mfa_must_be_enabled_to_reload_api"), 5000);
     mfafunc = ReloadServer;
     LockBtn("#button-reload-api-show", `Reloading...`);
     setTimeout(function () {
@@ -217,7 +217,7 @@ function ReloadServer() {
             reloadAPIMFA = false;
             ShowTab("#config-tab", "#button-config-tab");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "API reloading...", 5000, false);
+            toastNotification("success", "Success", mltr("api_reloading"), 5000, false);
         },
         error: function (data) {
             reloadAPIMFA = false;
@@ -236,17 +236,17 @@ function ResetCustomApplication(){
         success: function (data) {
             UnlockBtn("#button-reset-custom-application");
             custom_application = data;
-            toastNotification("success", "Success", "Custom application reset to default!", 5000);
+            toastNotification("success", "Success", mltr("custom_application_reset_to_default"), 5000);
         },
         error: function (data) {
             UnlockBtn("#button-reset-custom-application");
-            toastNotification("error", "Error", "Failed to reset custom application: Unable to retrieve default application!", 5000);
+            toastNotification("error", "Error", mltr("failed_to_reset_custom_application_unable_to_retrieve_default_application"), 5000);
         }
     })
 }
 
 function UpdateWebConfig() {
-    LockBtn("#button-save-web-config", "Saving...");
+    LockBtn("#button-save-web-config", mltr("saving"));
 
     tipt = "";
 
@@ -281,7 +281,7 @@ function UpdateWebConfig() {
                 success: function (data) {
                     UnlockBtn("#button-save-web-config");
                     if (data.error) return AjaxError(data);
-                    toastNotification("success", "Success", "Web config updated!", 5000, false);
+                    toastNotification("success", "Success", mltr("web_config_updated"), 5000, false);
                 },
                 error: function (data) {
                     UnlockBtn("#button-save-web-config");

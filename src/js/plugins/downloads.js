@@ -104,7 +104,7 @@ function CreateDownloads(){
     link = $("#downloads-new-link").val();
     orderid = $("#downloads-new-orderid").val();
 
-    LockBtn("#button-downloads-new-create", "Creating...");
+    LockBtn("#button-downloads-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads",
         type: "POST",
@@ -122,7 +122,7 @@ function CreateDownloads(){
             UnlockBtn("#button-downloads-new-create");
             if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
-            toastNotification("success", "Success", "Downloadable item added!", 5000, false);
+            toastNotification("success", "Success", mltr("downloadable_item_added"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-downloads-new-create");
@@ -150,7 +150,7 @@ function EditDownloads(){
     link = $("#downloads-edit-link").val();
     orderid = $("#downloads-edit-orderid").val();
 
-    LockBtn("#button-downloads-edit", "Editing...");
+    LockBtn("#button-downloads-edit", mltr("editing"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
         type: "PATCH",
@@ -168,7 +168,7 @@ function EditDownloads(){
             UnlockBtn("#button-downloads-edit");
             if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
-            toastNotification("success", "Success", "Downloadable item edited!", 5000, false);
+            toastNotification("success", "Success", mltr("downloadable_item_edited"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-downloads-edit");
@@ -180,12 +180,12 @@ function EditDownloads(){
 function DeleteDownloadsShow(downloadsid){
     if(shiftdown) return DeleteDownloads(downloadsid);
     title = alldownloads[downloadsid].title;
-    modalid = ShowModal("Delete Downloadable Item", `<p>Are you sure you want to delete this downloadable item?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-downloads-delete-${downloadsid}" type="button" class="btn btn-danger" onclick="DeleteDownloads(${downloadsid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_downloadable_item"), `<p>${mltr("delete_downloadable_item_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-downloads-delete-${downloadsid}" type="button" class="btn btn-danger" onclick="DeleteDownloads(${downloadsid});">${mltr("delete")}</button>`);
     InitModal("delete_downloads", modalid);
 }
 
 function DeleteDownloads(downloadsid){
-    LockBtn("#button-downloads-delete-"+downloadsid, "Deleting...");
+    LockBtn("#button-downloads-delete-"+downloadsid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
         type: "DELETE",
@@ -197,7 +197,7 @@ function DeleteDownloads(downloadsid){
             UnlockBtn("#button-downloads-delete-"+downloadsid);
             if (data.error) AjaxError(data);
             LoadDownloads(noplaceholder = true);
-            toastNotification("success", "Success", "Downloadable item deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("downloadable_item_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_downloads")) DestroyModal("delete_downloads");
         },
         error: function (data) {

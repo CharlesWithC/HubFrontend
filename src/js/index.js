@@ -38,9 +38,9 @@ function Logout() {
     localStorage.removeItem("token");
     $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
     $("#button-user-profile").attr("data-bs-toggle", "");
-    $("#sidebar-username").html("Guest");
-    $("#sidebar-userid").html("Login First");
-    $("#sidebar-role").html("Loner");
+    $("#sidebar-username").html(mltr("guest"));
+    $("#sidebar-userid").html(mltr("login_first"));
+    $("#sidebar-role").html(mltr("loner"));
     $("#sidebar-avatar").attr("src", "https://charlws.com/me.gif");
     $("#sidebar-application").hide();
     $("#sidebar-staff").hide();
@@ -487,7 +487,7 @@ function UpdateRolesOnDisplay() {
     hrole = rolestxt[0];
     localStorage.setItem("highest-role", hrole);
 
-    if (hrole == undefined || hrole == "undefined") hrole = "Loner";
+    if (hrole == undefined || hrole == "undefined") hrole = mltr("loner");
     $("#sidebar-role").html(hrole);
     roleids = Object.keys(rolelist);
     for (var i = 0; i < roleids.length; i++) {
@@ -640,7 +640,7 @@ function ShowStaffTabs() {
 }
 
 function NonMemberMode() {
-    $("#sidebar-role").html("Loner");
+    $("#sidebar-role").html(mltr("loner"));
     $("#overview-right-col").hide();
     $("#overview-left-col").removeClass("col-8");
     $("#overview-left-col").addClass("col");
@@ -693,8 +693,8 @@ function ValidateToken() {
     if (token == "guest") {
         // Guest, not logged in, update elements
         $("#sidebar-application").hide();
-        $("#sidebar-username").html("Guest");
-        $("#sidebar-userid").html("Login First");
+        $("#sidebar-username").html(mltr("guest"));
+        $("#sidebar-userid").html(mltr("login_first"));
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-profile").attr("data-bs-toggle", "");
         $("#button-user-delivery-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);

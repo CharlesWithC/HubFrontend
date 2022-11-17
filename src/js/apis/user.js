@@ -1,5 +1,5 @@
 function UpdateBio() {
-    LockBtn("#button-settings-bio-save", "Saving...");
+    LockBtn("#button-settings-bio-save", mltr("saving"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/bio",
@@ -14,7 +14,7 @@ function UpdateBio() {
         success: function (data) {
             UnlockBtn("#button-settings-bio-save");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "About Me saved!", 5000, false);
+            toastNotification("success", "Success!", mltr("about_me_saved"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-settings-bio-save");
@@ -24,7 +24,7 @@ function UpdateBio() {
 }
 
 function ResetApplicationToken(firstop = false) {
-    LockBtn("#button-settings-reset-application-token", "Resetting...");
+    LockBtn("#button-settings-reset-application-token", mltr("resetting"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -55,7 +55,7 @@ function ResetApplicationToken(firstop = false) {
                 $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
                 $("#button-application-token-copy").show();
-                toastNotification("success", "Success", "Application Token reset!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -86,7 +86,7 @@ function ResetApplicationToken(firstop = false) {
                 $("#settings-application-token-p").hide();
                 $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
-                toastNotification("success", "Success", "Application Token reset!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-reset-application-token");
@@ -97,7 +97,7 @@ function ResetApplicationToken(firstop = false) {
 }
 
 function DisableApplicationToken(firstop = false) {
-    LockBtn("#button-settings-disable-application-token", "Disabling...");
+    LockBtn("#button-settings-disable-application-token", mltr("disabling"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -124,7 +124,7 @@ function DisableApplicationToken(firstop = false) {
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html("Disabled");
-                toastNotification("success", "Success", "Application Token disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -151,7 +151,7 @@ function DisableApplicationToken(firstop = false) {
                 UnlockBtn("#button-settings-disable-application-token");
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html("Disabled");
-                toastNotification("success", "Success", "Application Token disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-disable-application-token");
@@ -162,7 +162,7 @@ function DisableApplicationToken(firstop = false) {
 }
 
 function UpdatePassword(firstop = false) {
-    LockBtn("#button-settings-password-update", "Updating...");
+    LockBtn("#button-settings-password-update", mltr("updating"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -190,7 +190,7 @@ function UpdatePassword(firstop = false) {
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
-                toastNotification("success", "Success", "Password updated!", 5000, false);
+                toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -220,7 +220,7 @@ function UpdatePassword(firstop = false) {
                 UnlockBtn("#button-settings-password-update");
                 if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
-                toastNotification("success", "Success", "Password updated!", 5000, false);
+                toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-password-update");
@@ -231,7 +231,7 @@ function UpdatePassword(firstop = false) {
 }
 
 function DisablePassword(firstop = false) {
-    LockBtn("#button-settings-password-disable", "Disabling...");
+    LockBtn("#button-settings-password-disable", mltr("disabling"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -257,7 +257,7 @@ function DisablePassword(firstop = false) {
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "Password disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -283,7 +283,7 @@ function DisablePassword(firstop = false) {
             success: function (data) {
                 UnlockBtn("#button-settings-password-disable");
                 if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "Password disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-password-disable");
@@ -294,7 +294,7 @@ function DisablePassword(firstop = false) {
 }
 
 function DisableMFAShow(){
-    modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA?</p><p>You will be able to login or enter sudo mode without MFA. This can put your account at risk.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">Disable</button>`);
+    modalid = ShowModal(mltr('disable_mfa'), mltr('disable_mfa_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">${mltr('disable')}</button>`);
     InitModal("disable_mfa", modalid);
 }
 
@@ -303,7 +303,7 @@ function DisableMFA(){
     
     if(otp.length != 6){
         mfafunc = DisableMFA;
-        LockBtn("#button-staff-disable-mfa", "Disabling...");
+        LockBtn("#button-staff-disable-mfa", mltr("disabling"));
         setTimeout(function(){UnlockBtn("#button-staff-disable-mfa");DestroyModal("disable_mfa");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
         return;
     }
@@ -325,7 +325,7 @@ function DisableMFA(){
             $("#button-settings-mfa-disable").hide();
             $("#button-settings-mfa-enable").show();
             mfaenabled = false;
-            toastNotification("success", "Success", "MFA disabled!", 5000, false);
+            toastNotification("success", "Success", mltr("mfa_disabled"), 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -338,20 +338,20 @@ function DisableMFA(){
 mfasecret = "";
 function EnableMFAShow(){
     mfasecret = RandomB32String(16);
-    modalid = ShowModal(`Enable MFA`, `<p>Please download a MFA application that supports TOTP like Authy, Google Authenticator. Type in the secret in the app and enter the generated TOTP in the input box.</p><p>Secret: <b>${mfasecret}</b></p>
+    modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
     <label for="mfa-enable-otp" class="form-label">OTP</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="mfa-enable-otp" placeholder="000 000">
-    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">Enable</button>`);
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">${mltr('enable')}</button>`);
     InitModal("enable_mfa", modalid);
 }
 
 function EnableMFA(){
     otp = $("#mfa-enable-otp").val();
     if(!isNumber(otp) || otp.length != 6)
-        return toastNotification("error", "Error", "Invalid OTP!", 5000);
+        return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
         
-    LockBtn("#button-enable-mfa", "Enabling...");
+    LockBtn("#button-enable-mfa", mltr("enabling"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa",
@@ -371,7 +371,7 @@ function EnableMFA(){
             $("#button-settings-mfa-enable").hide();
             mfaenabled = true;
             DestroyModal("enable_mfa");
-            toastNotification("success", "Success", "MFA Enabled.", 5000, false);
+            toastNotification("success", "Success", mltr("mfa_enabled"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-enable-mfa");
@@ -381,12 +381,12 @@ function EnableMFA(){
 }
 
 function UserResignShow(){
-    modalid = ShowModal(`Leave Company`, `<p>Are you sure you want to leave the company?</p><p>Your delivery log will be erased and you will be removed from Navio company. This <b>cannot</b> be undone.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">Resign</button>`);
+    modalid = ShowModal(mltr('leave_company'), mltr('leave_company_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">${mltr('resign')}</button>`);
     InitModal("user_resign", modalid);
 }
 
 function UserResign() {
-    LockBtn("#button-user-resign", "Resigning...");
+    LockBtn("#button-user-resign", mltr("resigning"));
 
     otp = $("#mfa-otp").val();
     if(mfaenabled){
@@ -411,7 +411,7 @@ function UserResign() {
             ShowTab("#user-settings-tab", "from-mfa");
             mfafunc = null;
             if (data.error) return AjaxError(data);
-            modalid = ShowModal(`You have left the company`, `<p>You have successfully resigned from the company. We are sad to see you leave. We wish you the best in your future career!</p>`);
+            modalid = ShowModal(mltr('you_have_left_the_company'), mltr('you_have_left_the_company_note'));
         },
         error: function (data) {
             AjaxError(data);
@@ -469,7 +469,7 @@ function RevokeToken(hsh) {
         return;
     }
 
-    LockBtn("#button-revoke-token-" + hsh, "Revoking...")
+    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"))
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
@@ -484,7 +484,7 @@ function RevokeToken(hsh) {
         success: function (data) {
             if (data.error) return AjaxError(data);
             LoadUserSessions(noplaceholder = true);
-            toastNotification("success", "Success", "Token revoked!", 5000, false);
+            toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -600,13 +600,13 @@ function ShowUserDetail(discordid) {
             
             d = data.response.user;
             info = "";
-            info += GenTableRow("Name", d.name);
-            info += GenTableRow("Email", d.email);
-            info += GenTableRow("Discord", discordid);
-            info += GenTableRow("TruckersMP", `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
-            info += GenTableRow("Steam", `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+            info += GenTableRow(mltr("name"), d.name);
+            info += GenTableRow(mltr("email"), d.email);
+            info += GenTableRow(mltr("discord"), discordid);
+            info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+            info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
             if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
-                info += GenTableRow("Ban Reason", bannedUserList[discordid]);
+                info += GenTableRow(mltr("ban_reason"), bannedUserList[discordid]);
             }
                 
             modalid = ShowModal(d.name, `<table>${info}</table>`);
@@ -619,12 +619,12 @@ function ShowUserDetail(discordid) {
 }
 
 function AcceptAsMemberShow(discordid, name){
-    modalid = ShowModal(`Accept As Member`, `<p>Are you sure you want to accept this user as member?</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be automatically added to Navio company and receive a Direct Message in Discord from Drivers Hub Bot regarding that they have been accepted.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">Accept</button>`);
+    modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">${mltr('accept')}</button>`);
     InitModal("accept_as_member", modalid);
 }
 
 function AcceptAsMember(discordid) {
-    LockBtn("#button-accept-as-member", "Accepting...");
+    LockBtn("#button-accept-as-member", mltr("accepting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/member",
         type: "PUT",
@@ -639,7 +639,7 @@ function AcceptAsMember(discordid) {
             UnlockBtn("#button-accept-as-member");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User accepted as member. User ID: " + data.response.userid, 5000, false);
+            toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.response.userid, 5000, false);
             DestroyModal("accept_as_member");
         },
         error: function (data) {
@@ -650,15 +650,15 @@ function AcceptAsMember(discordid) {
 }
 
 function UpdateDiscordShow(discordid, name){
-    modalid = ShowModal(`Update Discord ID`, `<p>You are updating Discord ID for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">New Discord ID</label>
+    modalid = ShowModal(mltr('update_discord_id'), `<p>${mltr('update_discord_id_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">${mltr('new_discord_id')}</label>
     <div class="input-group mb-3">
-        <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="997847494933368923">
-    </div><br><p>A new account in Drivers Hub will be created with new Discord account and data will be migrated automatically. The old account will be deleted. The user will have to login with new Discord account.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${discordid}');">Update</button>`);
+        <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="">
+    </div><br><p>${mltr('update_discord_id_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${discordid}');">${mltr('update')}</button>`);
     InitModal("update_discord", modalid);
 }
 
 function UpdateDiscord(old_discord_id) {
-    LockBtn("#button-update-discord", "Updating...");
+    LockBtn("#button-update-discord", mltr("updating"));
 
     new_discord_id = $("#new-discord-id").val();
 
@@ -677,7 +677,7 @@ function UpdateDiscord(old_discord_id) {
             UnlockBtn("#button-update-discord");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User's Discord ID has been updated!", 5000, false);
+            toastNotification("success", "Success", mltr("users_discord_id_has_been_updated"), 5000, false);
             DestroyModal("update_discord");
         },
         error: function (data) {
@@ -699,9 +699,9 @@ function DisableUserMFAShow(discordid, name){
             if (data.error) return AjaxError(data)
             mfa = data.response.user.mfa;
             if(!mfa){
-                return toastNotification("error", "Error", "User hasn't enabled MFA!", 5000);
+                return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
-            modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be able to login or enter sudo mode without MFA. This can put their account at risk. Do not disable MFA for a user who didn't request it.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">Disable</button>`);
+            modalid = ShowModal(mltr('disable_mfa'), `<p>${mltr('disable_mfa_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('disable_mfa_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">${mltr('disable')}</button>`);
             InitModal("disable_mfa", modalid);
         },
         error: function (data) {
@@ -711,7 +711,7 @@ function DisableUserMFAShow(discordid, name){
 }
 
 function StaffDisableMFA(discordid) {
-    LockBtn("#button-staff-disable-mfa", "Disabling...");
+    LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa?discordid="+discordid,
@@ -723,7 +723,7 @@ function StaffDisableMFA(discordid) {
         success: function (data) {
             UnlockBtn("#button-staff-disable-mfa");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "User's MFA disabled!", 5000, false);
+            toastNotification("success", "Success", mltr("users_mfa_disabled"), 5000, false);
             DestroyModal("disable_mfa");
         },
         error: function (data) {
@@ -734,12 +734,12 @@ function StaffDisableMFA(discordid) {
 }
 
 function DeleteConnectionsShow(discordid, name){
-    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to delete account connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
+    modalid = ShowModal(mltr('delete_connections'), `<p>${mltr('delete_connections_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_connections_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">${mltr('delete')}</button>`);
     InitModal("account_connections", modalid);
 }
 
 function DeleteConnections(discordid) {
-    LockBtn("#button-delete-connections", "Deleting...");
+    LockBtn("#button-delete-connections", mltr("deleting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/connections",
@@ -755,7 +755,7 @@ function DeleteConnections(discordid) {
             UnlockBtn("#button-delete-connections");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
+            toastNotification("success", "Success", mltr("users_account_connections_unbound"), 5000, false);
             DestroyModal("account_connections");
         },
         error: function (data) {
@@ -766,19 +766,19 @@ function DeleteConnections(discordid) {
 }
 
 function BanShow(discordid, name){
-    modalid = ShowModal(`Ban User`, `<p>Are you sure you want to ban this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will not be allowed to login. Their existing data will not be affected.</p><br><label for="new-discord-id" class="form-label">Ban Until</label>
+    modalid = ShowModal(mltr('ban_user'), `<p>${mltr('ban_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('ban_user_note_2')}</p><br><label for="new-discord-id" class="form-label">${mltr('ban_until')}</label>
     <div class="input-group mb-3">
         <input type="date" class="form-control bg-dark text-white" id="ban-until">
     </div>
-    <label for="ban-reason" class="form-label">Reason</label>
+    <label for="ban-reason" class="form-label">${mltr('reason')}</label>
     <div class="input-group mb-3" style="height:calc(100% - 160px)">
-        <textarea type="text" class="form-control bg-dark text-white" id="ban-reason" placeholder="Reason for the ban" rows="3"></textarea>
-    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${discordid}');">Ban</button>`);
+        <textarea type="text" class="form-control bg-dark text-white" id="ban-reason" placeholder="" rows="3"></textarea>
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${discordid}');">${mltr('ban')}</button>`);
     InitModal("ban_user", modalid);
 }
 
 function BanUser(discordid) {
-    LockBtn("#button-ban-user", "Banning...");
+    LockBtn("#button-ban-user", mltr("banning"));
 
     expire = -1;
     if ($("#ban-until").val() != "")
@@ -801,7 +801,7 @@ function BanUser(discordid) {
             UnlockBtn("#button-ban-user");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User banned!", 5000, false);
+            toastNotification("success", "Success", mltr("user_banned"), 5000, false);
             DestroyModal("ban_user");
         },
         error: function (data) {
@@ -812,12 +812,12 @@ function BanUser(discordid) {
 }
 
 function UnbanShow(discordid, name){
-    modalid = ShowModal(`Unban User`, `<p>Are you sure you want to unban this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">Unban</button>`);
+    modalid = ShowModal(mltr('unban_user'), `<p>${mltr('unban_user_note')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">${mltr('unban')}</button>`);
     InitModal("unban_user", modalid);
 }
 
 function UnbanUser(discordid) {
-    LockBtn("#button-unban-user", "Unbanning...");
+    LockBtn("#button-unban-user", mltr("unbanning"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/ban",
@@ -833,7 +833,7 @@ function UnbanUser(discordid) {
             UnlockBtn("#button-unban-user");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User unbanned!", 5000, false);
+            toastNotification("success", "Success", mltr("user_unbanned"), 5000, false);
             DestroyModal("unban_user");
         },
         error: function (data) {
@@ -844,12 +844,12 @@ function UnbanUser(discordid) {
 }
 
 function DeleteUserShow(discordid, name){
-    modalid = ShowModal(`Delete User`, `<p>Are you sure you want to delete this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br>The account will be deleted and their connection with TruckersMP and Steam will be deleted. They will have to login with Discord to register again.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">Delete</button>`);
+    modalid = ShowModal(mltr('delete_user'), `<p>${mltr('delete_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_user_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">${mltr('delete')}</button>`);
     InitModal("delete_user", modalid);
 }
 
 function DeleteUser(discordid) {
-    LockBtn("#button-delete-user", "Deleting...");
+    LockBtn("#button-delete-user", mltr("deleting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
@@ -862,7 +862,7 @@ function DeleteUser(discordid) {
             UnlockBtn("#button-delete-user");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("user_deleted"), 5000, false);
             DestroyModal("delete_user");
         },
         error: function (data) {
@@ -873,12 +873,12 @@ function DeleteUser(discordid) {
 }
 
 function DeleteAccountShow(){
-    modalid = ShowModal(`Delete Account`, `<p>Are you sure you want to delete your account?</p><p>The account will be deleted from our system, including basic info such as username and email, and account connections of Steam and TruckersMP. You will have to login with Discord to register again.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">Delete</button>`);
+    modalid = ShowModal(mltr('delete_account'), mltr('delete_account_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">${mltr('delete')}</button>`);
     InitModal("delete_account", modalid);
 }
 
 function DeleteAccount(discordid) {
-    LockBtn("#button-delete-account", "Deleting...");
+    LockBtn("#button-delete-account", mltr("deleting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user",
@@ -890,7 +890,7 @@ function DeleteAccount(discordid) {
         success: function (data) {
             UnlockBtn("#button-delete-account");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Account deleted. Goodbye!", 5000, false);
+            toastNotification("success", "Success", mltr("account_deleted_goodbye"), 5000, false);
             Logout();
             DestroyModal("delete_account");
         },

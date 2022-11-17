@@ -6,7 +6,9 @@
 3.Add translation for javascript  
 
 **v2.4.1**  
-Added full translation table  
+1.Added full translation table  
+2.Added `Update Discord ID` option under `Members Tab`  
+3.Added `<a>` tag for account info under `Profile Tab`  
 
 **v2.3.2**  
 1.Integrated `naviolive.js` to `bundle.js`  

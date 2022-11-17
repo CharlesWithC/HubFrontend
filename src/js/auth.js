@@ -29,8 +29,8 @@ function SteamValidate() {
                 $("#auth-message-content").html("Error: Invalid login");
                 return AjaxError(data);
             }
-            $("#auth-message-content").html("Steam account updated!");
-            toastNotification("success", "Success", "Steam account updated!", 5000);
+            $("#auth-message-content").html(mltr("steam_account_updated"));
+            toastNotification("success", "Success", mltr("steam_account_updated"), 5000);
             setTimeout(function () {
                 ShowTab("#settings-tab");
             }, 1000);
@@ -79,8 +79,8 @@ function AuthValidate() {
                 localStorage.setItem("token", newtoken);
                 ValidateToken();
                 $(".tabs").removeClass("loaded");
-                $("#auth-message-content").html("Welcome back!");
-                toastNotification("success", "Success", "Welcome back!", 5000);
+                $("#auth-message-content").html(mltr("welcome_back"));
+                toastNotification("success", "Success", mltr("welcome_back"), 5000);
                 setTimeout(function () {
                     ShowTab("#overview-tab");
                 }, 1000);
@@ -119,8 +119,8 @@ function OAuthMFA() {
             localStorage.removeItem("tipt");
             ValidateToken();
             $(".tabs").removeClass("loaded");
-            $("#auth-message-content").html("Welcome back!");
-            toastNotification("success", "Success", "Welcome back!", 5000);
+            $("#auth-message-content").html(mltr("welcome_back"));
+            toastNotification("success", "Success", mltr("welcome_back"), 5000);
             setTimeout(function () {
                 ShowTab("#overview-tab");
             }, 1000);
@@ -133,7 +133,7 @@ function OAuthMFA() {
 }
 
 function UpdateTruckersMPID() {
-    LockBtn("#button-settings-update-truckersmpid", "Updating...");
+    LockBtn("#button-settings-update-truckersmpid", mltr("updating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/truckersmp",
         type: "PATCH",
@@ -147,7 +147,7 @@ function UpdateTruckersMPID() {
         success: function (data) {
             UnlockBtn("#button-settings-update-truckersmpid");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "TruckersMP account updated!", 5000);
+            toastNotification("success", "Success", mltr("truckersmp_account_updated"), 5000);
         },
         error: function (data) {
             UnlockBtn("#button-settings-update-truckersmpid");
@@ -186,7 +186,7 @@ var CaptchaCallback = function (hcaptcha_response) {
                     localStorage.setItem("token", token);
                     ValidateToken();
                     $(".tabs").removeClass("loaded");
-                    toastNotification("success", "Success", "Welcome back!", 5000);
+                    toastNotification("success", "Success", mltr("welcome_back"), 5000);
                     setTimeout(function () {
                         ShowTab("#overview-tab");
                     }, 1000);
@@ -209,7 +209,7 @@ function ShowCaptcha() {
     email = $("#signin-email").val();
     password = $("#signin-password").val();
     if (email == "" || password == "") {
-        return toastNotification("warning", "", "Enter email and password.", 3000, false);
+        return toastNotification("warning", "", mltr("enter_email_and_password"), 3000, false);
     }
     LockBtn("#button-signin", `<span class="rect-20"><i class="fa-solid fa-right-to-bracket"></i></span> Logging in`);
     requireCaptcha = true;
@@ -226,8 +226,8 @@ mfato = -1;
 function MFAVerify() {
     otp = $("#mfa-otp").val();
     if (!isNumber(otp) || otp.length != 6)
-        return toastNotification("error", "Error", "Invalid OTP!", 5000);
-    LockBtn("#button-mfa-verify", "Verifying...");
+        return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
+    LockBtn("#button-mfa-verify", mltr("verifying"));
     mfato = setTimeout(function () {
         // remove otp cache after 75 seconds (2.5 rounds)
         if (!$("#mfa-tab").is(":visible")) {
@@ -256,7 +256,7 @@ function MFAVerify() {
             localStorage.removeItem("pending-mfa");
             $(".tabs").removeClass("loaded");
             ValidateToken();
-            toastNotification("success", "Success", "Welcome back!", 5000);
+            toastNotification("success", "Success", mltr("welcome_back"), 5000);
             setTimeout(function () {
                 ShowTab("#overview-tab");
             }, 1000);

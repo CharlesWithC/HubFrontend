@@ -246,18 +246,18 @@ function LoadDeliveryList(noplaceholder = false) {
 }
 
 function ShowDeliveryLogExport() {
-    modalid = ShowModal("Export Delivery Log", `
-        <p>A csv table will be downloaded containing delivery logs of the selected date range.</p>
-        <p><i>Rate limit: 3 downloads / hour</i></p>
-        <label class="form-label">Date Range</label>
+    modalid = ShowModal(mltr("export_delivery_log"), `
+        <p>${mltr("export_delivery_log_note")}</p>
+        <p><i>${mltr("export_delivery_log_rate_limit")}</i></p>
+        <label class="form-label">${mltr("date_range")}</label>
         <div class="input-group mb-2">
-            <span class="input-group-text">From</span>
+            <span class="input-group-text">${mltr("from")}</span>
             <input type="date" class="form-control bg-dark text-white" id="delivery-log-export-start-time">
         </div>
         <div class="input-group mb-2">
-            <span class="input-group-text">To</span>
+            <span class="input-group-text">${mltr("to")}</span>
             <input type="date" class="form-control bg-dark text-white" id="delivery-log-export-end-time">
-        </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delivery-log-export" type="button" class="btn btn-primary" onclick="DeliveryLogExport();">Export</button>`);
+        </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-delivery-log-export" type="button" class="btn btn-primary" onclick="DeliveryLogExport();">${mltr("export")}</button>`);
     InitModal("delivery_log_export", modalid);
 }
 
@@ -268,7 +268,7 @@ function DeliveryLogExport() {
         start_time = +new Date($("#delivery-log-export-start-time").val()) / 1000;
         end_time = +new Date($("#delivery-log-export-end-time").val()) / 1000 + 86400;
     }
-    LockBtn("#button-delivery-log-export", "Exporting...");
+    LockBtn("#button-delivery-log-export", mltr("exporting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/export",
         type: "GET",
@@ -282,7 +282,7 @@ function DeliveryLogExport() {
         success: function (data) {
             UnlockBtn("#button-delivery-log-export");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Delivery log exported!", 5000);
+            toastNotification("success", "Success", mltr("delivery_log_exported"), 5000);
             FileOutput("export.csv", data);
         },
         error: function (data) {
@@ -299,7 +299,7 @@ rrevents = [];
 punit = "€";
 curlogid = -1;
 async function DeliveryRoutePlay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", mltr("please_zoom__drag_the_map_to_activate_it"), 5000, false);
     clearInterval(dmapint);
     dmapint = -999;
     lastevent = 0;
@@ -393,7 +393,7 @@ async function DeliveryRoutePlay() {
 }
 
 function ToggleRouteReplay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", mltr("please_zoom__drag_the_map_to_activate_it"), 5000, false);
     if (dmapint == -999) {
         dmapint = -2;
         $("#truck-svg").hide();
@@ -806,29 +806,29 @@ function MoreDeliveryDetail() {
         extra = "";
         if (auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
         if (auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
-        info += GenTableRow("Log ID", d.logid + "&nbsp;&nbsp;" + extra);
+        info += GenTableRow(mltr("log_id"), d.logid + "&nbsp;&nbsp;" + extra);
     } else {
-        info += GenTableRow("Log ID", d.logid);
+        info += GenTableRow(mltr("log_id"), d.logid);
     }
-    info += GenTableRow("Navio ID", d.detail.data.object.id);
-    info += GenTableRow("Time Submitted", getDateTime(d.timestamp * 1000));
-    info += GenTableRow("Time Spent", duration);
+    info += GenTableRow(mltr("navio_id"), d.detail.data.object.id);
+    info += GenTableRow(mltr("time_submitted"), getDateTime(d.timestamp * 1000));
+    info += GenTableRow(mltr("time_spent"), duration);
     isdelivered = false;
     if (d.detail.type == "job.delivered") {
         isdelivered = true;
-        info += GenTableRow("Status", "<span style='color:lightgreen'>Delivered</span>");
+        info += GenTableRow(mltr("status"), "<span style='color:lightgreen'>Delivered</span>");
     } else if (d.detail.type == "job.cancelled") {
-        info += GenTableRow("Status", "<span style='color:red'>Cancelled</span>");
+        info += GenTableRow(mltr("status"), "<span style='color:red'>Cancelled</span>");
     }
     if (d.telemetry != "") {
-        info += GenTableRow("Delivery Route", "<span style='color:lightgreen'>Available</span>");
+        info += GenTableRow(mltr("delivery_route"), "<span style='color:lightgreen'>Available</span>");
     } else {
-        info += GenTableRow("Delivery Route", "<span style='color:red'>Unavailable</span>");
+        info += GenTableRow(mltr("delivery_route"), "<span style='color:red'>Unavailable</span>");
     }
-    info += GenTableRow("Division", `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
+    info += GenTableRow(mltr("division"), `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
-    info += GenTableRow("Driver", GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
+    info += GenTableRow(mltr("driver"), GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
 
     d = d.detail.data.object;
 
@@ -842,33 +842,33 @@ function MoreDeliveryDetail() {
     if (d.source_city != null) source_city = d.source_city.name;
     if (d.destination_company != null) destination_company = d.destination_company.name, destination_company_id = d.destination_company.unique_id;
     if (d.destination_city != null) destination_city = d.destination_city.name;
-    info += GenTableRow("Source Company", `${source_company} <span style="color:grey">(${source_company_id})</span>`);
-    info += GenTableRow("Source City", `${source_city} <span style="color:grey">(${d.source_city.unique_id})</span>`);
-    info += GenTableRow("Destination Company", `${destination_company} <span style="color:grey">(${destination_company_id})</span>`);
-    info += GenTableRow("Destination City", `${destination_city} <span style="color:grey">(${d.destination_city.unique_id})</span>`);
-    info += GenTableRow("Logged Distance", distance);
+    info += GenTableRow(mltr("source_company"), `${source_company} <span style="color:grey">(${source_company_id})</span>`);
+    info += GenTableRow(mltr("source_city"), `${source_city} <span style="color:grey">(${d.source_city.unique_id})</span>`);
+    info += GenTableRow(mltr("destination_company"), `${destination_company} <span style="color:grey">(${destination_company_id})</span>`);
+    info += GenTableRow(mltr("destination_city"), `${destination_city} <span style="color:grey">(${d.destination_city.unique_id})</span>`);
+    info += GenTableRow(mltr("logged_distance"), distance);
     if (isdelivered) {
         distance2 = d.events[d.events.length - 1].meta.distance;
         distance2_org = d.events[d.events.length - 1].meta.distance
         distance2 = TSeparator(parseInt(distance2 * distance_ratio)) + distance_unit_txt;
-        info += GenTableRow("Reported Distance", distance2);
+        info += GenTableRow(mltr("reported_distance"), distance2);
         revenue = TSeparator(d.events[d.events.length - 1].meta.revenue);
     } else {
         penalty = TSeparator(d.events[d.events.length - 1].meta.penalty);
     }
     distance3 = d.planned_distance;
     distance3 = TSeparator(parseInt(distance3 * distance_ratio)) + distance_unit_txt;
-    info += GenTableRow("Planned Distance", distance3);
+    info += GenTableRow(mltr("planned_distance"), distance3);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     cargo = d.cargo.name;
     cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
-    info += GenTableRow("Cargo", `${cargo} <span style="color:grey">(${d.cargo.unique_id})</span>`);
+    info += GenTableRow(mltr("cargo"), `${cargo} <span style="color:grey">(${d.cargo.unique_id})</span>`);
     damage_color = "lightgreen";
     if (d.cargo.damage >= 0.03) damage_color = "yellow";
     if (d.cargo.damage >= 0.1) damage_color = "red";
-    info += GenTableRow("Cargo Mass", cargo_mass);
-    info += GenTableRow("Cargo Damage", `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
+    info += GenTableRow(mltr("cargo_mass"), cargo_mass);
+    info += GenTableRow(mltr("cargo_damage"), `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
     truck = d.truck.brand.name + " " + d.truck.name;
     truck_brand_id = d.truck.brand.unique_id;
     license_plate = d.truck.license_plate;
@@ -877,25 +877,25 @@ function MoreDeliveryDetail() {
     if (d.trailers.length > 1) trs = "s";
     for (var i = 0; i < d.trailers.length; i++) trailer += d.trailers[i].license_plate + " | ";
     trailer = trailer.slice(0, -3);
-    info += GenTableRow("Truck", truck);
-    info += GenTableRow("Truck Plate", license_plate);
-    info += GenTableRow("Trailer Plate", trailer);
+    info += GenTableRow(mltr("truck"), truck);
+    info += GenTableRow(mltr("truck_plate"), license_plate);
+    info += GenTableRow(mltr("trailer_plate"), trailer);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     fuel_used_org = d.fuel_used;
     fuel_used = TSeparator(parseInt(d.fuel_used * fuel_ratio)) + fuel_unit_txt;
-    info += GenTableRow("Fuel", fuel_used);
+    info += GenTableRow(mltr("fuel"), fuel_used);
     if (isdelivered) {
         avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance2_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
     } else {
         avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
     }
-    info += GenTableRow("Avg. Fuel", avg_fuel);
-    info += GenTableRow("AdBlue", d.adblue_used);
+    info += GenTableRow(mltr("avg_fuel"), avg_fuel);
+    info += GenTableRow(mltr("adblue"), d.adblue_used);
     top_speed = parseInt(d.truck.top_speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
     average_speed = parseInt(d.truck.average_speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
-    info += GenTableRow("Max. Speed", top_speed);
-    info += GenTableRow("Avg. Speed", average_speed);
+    info += GenTableRow(mltr("max_speed"), top_speed);
+    info += GenTableRow(mltr("avg_speed"), average_speed);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     punit = "€";
@@ -909,27 +909,27 @@ function MoreDeliveryDetail() {
     offence = -offence;
     offence = TSeparator(offence);
     if (isdelivered) {
-        info += GenTableRow("Revenue", `${punit}${revenue}`);
+        info += GenTableRow(mltr("revenue"), `${punit}${revenue}`);
     } else {
-        info += GenTableRow("Penalty", `${punit}${penalty}`);
+        info += GenTableRow(mltr("penalty"), `${punit}${penalty}`);
     }
-    info += GenTableRow("Offence", `${punit}${offence}`);
+    info += GenTableRow(mltr("offence"), `${punit}${offence}`);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     if (d.is_special == true) {
-        info += GenTableRow("Is Special Transport?", "<span style='color:lightgreen'>Yes</span>");
+        info += GenTableRow(mltr("is_special_transport"), "<span style='color:lightgreen'>Yes</span>");
     } else {
-        info += GenTableRow("Is Special Transport?", "No");
+        info += GenTableRow(mltr("is_special_transport"), "No");
     }
     if (d.is_late == true) {
-        info += GenTableRow("Is Late?", "<span style='color:red'>Yes</span>");
+        info += GenTableRow(mltr("is_late"), "<span style='color:red'>Yes</span>");
     } else {
-        info += GenTableRow("Is Late?", "<span style='color:lightgreen'>No</span>");
+        info += GenTableRow(mltr("is_late"), "<span style='color:lightgreen'>No</span>");
     }
     if (d.game.had_police_enabled == true) {
-        info += GenTableRow("Had Police Enabled?", "<span style='color:lightgreen'>Yes</span>");
+        info += GenTableRow(mltr("had_police_enabled"), "<span style='color:lightgreen'>Yes</span>");
     } else {
-        info += GenTableRow("Had Police Enabled?", "<span style='color:red'>No</span>");
+        info += GenTableRow(mltr("had_police_enabled"), "<span style='color:red'>No</span>");
     }
 
     MARKET = {
@@ -940,7 +940,7 @@ function MoreDeliveryDetail() {
     };
     mkt = "Unknown";
     if (Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
-    info += GenTableRow("Market", mkt);
+    info += GenTableRow(mltr("market"), mkt);
     mode = "Single Player";
     if (d.multiplayer != null) {
         mode = "Multiplayer";
@@ -950,10 +950,10 @@ function MoreDeliveryDetail() {
             mode = "SCS Convoy";
         }
     }
-    info += GenTableRow("Mode", mode);
+    info += GenTableRow(mltr("mode"), mode);
 
     info += "</table>";
 
-    modalid = ShowModal(`Delivery Log`, info);
+    modalid = ShowModal(mltr('delivery_log'), info);
     InitModal("delivery_log_detail", modalid);
 }

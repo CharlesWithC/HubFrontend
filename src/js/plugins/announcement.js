@@ -134,7 +134,7 @@ function PostAnnouncement(){
     content = simplemde["#announcement-new-content"].value();
     anntype = $("#announcement-new-type").find(":selected").val();
     if(!isNumber(anntype)){
-        return toastNotification("warning", "Warning", "Please select an announcement type!", 3000);
+        return toastNotification("warning", "Warning", mltr("please_select_an_announcement_type"), 3000);
     }
     is_private = $("#announcement-visibility-private").is(":checked");
     discord_channelid = $("#announcement-new-discord-channel").val();
@@ -143,7 +143,7 @@ function PostAnnouncement(){
         discord_channelid = 0;
         discord_message = "";
     }
-    LockBtn("#button-announcement-new-post", "Posting...");
+    LockBtn("#button-announcement-new-post", mltr("posting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement",
         type: "POST",
@@ -162,7 +162,7 @@ function PostAnnouncement(){
         success: function (data) {
             UnlockBtn("#button-announcement-new-post");
             if (data.error) AjaxError(data);
-            toastNotification("success", "Success", "Announcement posted!", 5000, false);
+            toastNotification("success", "Success", mltr("announcement_posted"), 5000, false);
             LoadAnnouncement(noplaceholder = false);
         },
         error: function (data) {
@@ -183,7 +183,7 @@ function EditAnnouncement(announcementid){
         discord_channelid = 0;
         discord_message = "";
     }
-    LockBtn("#button-announcement-edit-"+announcementid+"-save", "Saving...");
+    LockBtn("#button-announcement-edit-"+announcementid+"-save", mltr("saving"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement?announcementid="+announcementid,
         type: "PATCH",
@@ -203,7 +203,7 @@ function EditAnnouncement(announcementid){
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
             if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
-            toastNotification("success", "Success", "Edit saved!", 5000, false);
+            toastNotification("success", "Success", mltr("edit_saved"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
@@ -215,12 +215,12 @@ function EditAnnouncement(announcementid){
 function DeleteAnnouncementShow(announcementid){
     if(shiftdown) return DeleteAnnouncement(announcementid);
     content = $("#announcement-display-"+announcementid+"-title").html();
-    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_announcement"), `<p>${mltr("delete_announcement_note")}</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">${mltr("delete")}</button>`);
     InitModal("delete_announcement", modalid);
 }
 
 function DeleteAnnouncement(announcementid){
-    LockBtn("#button-announcement-delete-"+announcementid, "Deleting...");
+    LockBtn("#button-announcement-delete-"+announcementid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement?announcementid=" + announcementid,
         type: "DELETE",
@@ -232,7 +232,7 @@ function DeleteAnnouncement(announcementid){
             UnlockBtn("#button-announcement-delete-"+announcementid);
             if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
-            toastNotification("success", "Success", "Announcement deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("announcement_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
         },
         error: function (data) {

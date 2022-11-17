@@ -88,9 +88,9 @@ socket.addEventListener("message", ({
     if (type === "NEW_EVENT") {
         if (data.type == 1) {
             drivername = membersteam[data.driver];
-            if (drivername == "undefined" || drivername == undefined) drivername = "Unknown Driver";
+            if (drivername == "undefined" || drivername == undefined) drivername = mltr("unknown_driver");
             $("#delivery-tab").removeClass("loaded");
-            toastNotification("success", "Job Delivery", "<b>" + drivername + "</b><br><b>Distance:</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>Revenue:</b> €" + TSeparator(data.revenue), 10000, false);
+            toastNotification("success", mltr("job_delivery"), "<b>" + drivername + "</b><br><b>"+mltr("distance")+":</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>"+mltr("revenue")+":</b> €" + TSeparator(data.revenue), 10000, false);
         }
     }
 });
@@ -161,7 +161,7 @@ function PlayerPoint(steamid, mapid){
         cargo = d.job.cargo.name;
     speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
     distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
-    toastNotification("info", drivername, `<b>Truck: </b>${truck}<br><b>Cargo: </b>${cargo}<br><b>Speed: </b>${speed}<br><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>Show profile</a>`, 5000, false);
+    toastNotification("info", drivername, `<b>${mltr("truck")}: </b>${truck}<br><b>${mltr("cargo")}: </b>${cargo}<br><b>${mltr("speed")}: </b>${speed}<br><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${mltr("show_profile")}</a>`, 5000, false);
     clearInterval(autocenterint[mapid]);
     autocenterint[mapid] = setInterval(function(){
         d = driverdata[steamid];

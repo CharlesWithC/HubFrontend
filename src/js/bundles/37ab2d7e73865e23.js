@@ -17,7 +17,7 @@ $(document).ready(function () {
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?v2.4.1",
+        url: "/languages/en.json?" + (+new Date()),
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -28,7 +28,7 @@ $(document).ready(function () {
         lang = enlang;
     } else {
         $.ajax({
-            url: "/languages/"+language+".json?v2.4.1",
+            url: "/languages/"+language+".json?" + (+new Date()),
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -41,6 +41,7 @@ $(document).ready(function () {
 });
 
 function mltr(key){
+    key = key.toLowerCase();
     if(lang[key] == undefined){
         if(enlang[key] == undefined){
             return "";
@@ -584,7 +585,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("Close")}</button>`) {
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button>`) {
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
@@ -872,7 +873,7 @@ function LoadConfiguration() {
             if(!fileReader.result.startsWith("data:text/html")){
                 $('#web-custom-application').val("");
                 custom_application = undefined;
-                return toastNotification("error", "Error", "You must selected a HTML file!", 5000);
+                return toastNotification("error", "Error", mltr("you_must_selected_a_html_file"), 5000);
             }
             custom_application = atob(fileReader.result.replaceAll("data:text/html;base64,",""));
         };
@@ -884,7 +885,7 @@ function LoadConfiguration() {
             if(!fileReader.result.startsWith("data:text/css")){
                 $('#web-custom-style').val("");
                 custom_style = undefined;
-                return toastNotification("error", "Error", "You must selected a CSS file!", 5000);
+                return toastNotification("error", "Error", mltr("you_must_selected_a_css_file"), 5000);
             }
             custom_style = atob(fileReader.result.replaceAll("data:text/css;base64,",""));
         };
@@ -898,7 +899,7 @@ function RevertConfig() {
         typeof value === 'number' && value > 1e10 ?
         BigInt(value) :
         value));
-    toastNotification("success", "Success", "Config reverted to after last reload.", 5000);
+    toastNotification("success", "Success", mltr("config_reverted_to_after_last_reload"), 5000);
 }
 
 function ResetConfig() {
@@ -907,7 +908,7 @@ function ResetConfig() {
         typeof value === 'number' && value > 1e10 ?
         BigInt(value) :
         value));
-    toastNotification("success", "Success", "Config reset to before editing.", 5000);
+    toastNotification("success", "Success", mltr("config_reset_to_before_editing"), 5000);
 }
 
 function UpdateConfig() {
@@ -915,12 +916,12 @@ function UpdateConfig() {
     try {
         config = JSON.parse(config);
     } catch {
-        return toastNotification("error", "Error", "Failed to parse config! Make sure it's in correct JSON Format!", 5000, false);
+        return toastNotification("error", "Error", mltr("failed_to_parse_config_make_sure_its_in_correct_json_format"), 5000, false);
     }
     if (config["navio_api_token"] == "") delete config["navio_api_token"];
     if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
     if (config["discord_bot_token"] == "") delete config["discord_bot_token"];
-    LockBtn("#button-save-config", "Saving...");
+    LockBtn("#button-save-config", mltr("saving"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/config",
         type: "PATCH",
@@ -938,7 +939,7 @@ function UpdateConfig() {
         success: function (data) {
             UnlockBtn("#button-save-config");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Config updated! Reload API to make it take effect!", 5000, false);
+            toastNotification("success", "Success", mltr("config_updated_reload_api_to_make_it_take_effect"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-save-config");
@@ -948,7 +949,7 @@ function UpdateConfig() {
 }
 
 function ReloadAPIShow() {
-    if (!mfaenabled) return toastNotification("error", "Error", "MFA must be enabled to reload API!", 5000);
+    if (!mfaenabled) return toastNotification("error", "Error", mltr("mfa_must_be_enabled_to_reload_api"), 5000);
     mfafunc = ReloadServer;
     LockBtn("#button-reload-api-show", `Reloading...`);
     setTimeout(function () {
@@ -975,7 +976,7 @@ function ReloadServer() {
             reloadAPIMFA = false;
             ShowTab("#config-tab", "#button-config-tab");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "API reloading...", 5000, false);
+            toastNotification("success", "Success", mltr("api_reloading"), 5000, false);
         },
         error: function (data) {
             reloadAPIMFA = false;
@@ -994,17 +995,17 @@ function ResetCustomApplication(){
         success: function (data) {
             UnlockBtn("#button-reset-custom-application");
             custom_application = data;
-            toastNotification("success", "Success", "Custom application reset to default!", 5000);
+            toastNotification("success", "Success", mltr("custom_application_reset_to_default"), 5000);
         },
         error: function (data) {
             UnlockBtn("#button-reset-custom-application");
-            toastNotification("error", "Error", "Failed to reset custom application: Unable to retrieve default application!", 5000);
+            toastNotification("error", "Error", mltr("failed_to_reset_custom_application_unable_to_retrieve_default_application"), 5000);
         }
     })
 }
 
 function UpdateWebConfig() {
-    LockBtn("#button-save-web-config", "Saving...");
+    LockBtn("#button-save-web-config", mltr("saving"));
 
     tipt = "";
 
@@ -1039,7 +1040,7 @@ function UpdateWebConfig() {
                 success: function (data) {
                     UnlockBtn("#button-save-web-config");
                     if (data.error) return AjaxError(data);
-                    toastNotification("success", "Success", "Web config updated!", 5000, false);
+                    toastNotification("success", "Success", mltr("web_config_updated"), 5000, false);
                 },
                 error: function (data) {
                     UnlockBtn("#button-save-web-config");
@@ -1301,18 +1302,18 @@ function LoadDeliveryList(noplaceholder = false) {
 }
 
 function ShowDeliveryLogExport() {
-    modalid = ShowModal("Export Delivery Log", `
-        <p>A csv table will be downloaded containing delivery logs of the selected date range.</p>
-        <p><i>Rate limit: 3 downloads / hour</i></p>
-        <label class="form-label">Date Range</label>
+    modalid = ShowModal(mltr("export_delivery_log"), `
+        <p>${mltr("export_delivery_log_note")}</p>
+        <p><i>${mltr("export_delivery_log_rate_limit")}</i></p>
+        <label class="form-label">${mltr("date_range")}</label>
         <div class="input-group mb-2">
-            <span class="input-group-text">From</span>
+            <span class="input-group-text">${mltr("from")}</span>
             <input type="date" class="form-control bg-dark text-white" id="delivery-log-export-start-time">
         </div>
         <div class="input-group mb-2">
-            <span class="input-group-text">To</span>
+            <span class="input-group-text">${mltr("to")}</span>
             <input type="date" class="form-control bg-dark text-white" id="delivery-log-export-end-time">
-        </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delivery-log-export" type="button" class="btn btn-primary" onclick="DeliveryLogExport();">Export</button>`);
+        </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-delivery-log-export" type="button" class="btn btn-primary" onclick="DeliveryLogExport();">${mltr("export")}</button>`);
     InitModal("delivery_log_export", modalid);
 }
 
@@ -1323,7 +1324,7 @@ function DeliveryLogExport() {
         start_time = +new Date($("#delivery-log-export-start-time").val()) / 1000;
         end_time = +new Date($("#delivery-log-export-end-time").val()) / 1000 + 86400;
     }
-    LockBtn("#button-delivery-log-export", "Exporting...");
+    LockBtn("#button-delivery-log-export", mltr("exporting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/export",
         type: "GET",
@@ -1337,7 +1338,7 @@ function DeliveryLogExport() {
         success: function (data) {
             UnlockBtn("#button-delivery-log-export");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Delivery log exported!", 5000);
+            toastNotification("success", "Success", mltr("delivery_log_exported"), 5000);
             FileOutput("export.csv", data);
         },
         error: function (data) {
@@ -1354,7 +1355,7 @@ rrevents = [];
 punit = "€";
 curlogid = -1;
 async function DeliveryRoutePlay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", mltr("please_zoom__drag_the_map_to_activate_it"), 5000, false);
     clearInterval(dmapint);
     dmapint = -999;
     lastevent = 0;
@@ -1448,7 +1449,7 @@ async function DeliveryRoutePlay() {
 }
 
 function ToggleRouteReplay() {
-    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", "Please zoom & drag the map to activate it.", 5000, false);
+    if (window.dn == undefined || window.dn.previousExtent_ == undefined) return toastNotification("error", "Error", mltr("please_zoom__drag_the_map_to_activate_it"), 5000, false);
     if (dmapint == -999) {
         dmapint = -2;
         $("#truck-svg").hide();
@@ -1861,29 +1862,29 @@ function MoreDeliveryDetail() {
         extra = "";
         if (auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
         if (auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
-        info += GenTableRow("Log ID", d.logid + "&nbsp;&nbsp;" + extra);
+        info += GenTableRow(mltr("log_id"), d.logid + "&nbsp;&nbsp;" + extra);
     } else {
-        info += GenTableRow("Log ID", d.logid);
+        info += GenTableRow(mltr("log_id"), d.logid);
     }
-    info += GenTableRow("Navio ID", d.detail.data.object.id);
-    info += GenTableRow("Time Submitted", getDateTime(d.timestamp * 1000));
-    info += GenTableRow("Time Spent", duration);
+    info += GenTableRow(mltr("navio_id"), d.detail.data.object.id);
+    info += GenTableRow(mltr("time_submitted"), getDateTime(d.timestamp * 1000));
+    info += GenTableRow(mltr("time_spent"), duration);
     isdelivered = false;
     if (d.detail.type == "job.delivered") {
         isdelivered = true;
-        info += GenTableRow("Status", "<span style='color:lightgreen'>Delivered</span>");
+        info += GenTableRow(mltr("status"), "<span style='color:lightgreen'>Delivered</span>");
     } else if (d.detail.type == "job.cancelled") {
-        info += GenTableRow("Status", "<span style='color:red'>Cancelled</span>");
+        info += GenTableRow(mltr("status"), "<span style='color:red'>Cancelled</span>");
     }
     if (d.telemetry != "") {
-        info += GenTableRow("Delivery Route", "<span style='color:lightgreen'>Available</span>");
+        info += GenTableRow(mltr("delivery_route"), "<span style='color:lightgreen'>Available</span>");
     } else {
-        info += GenTableRow("Delivery Route", "<span style='color:red'>Unavailable</span>");
+        info += GenTableRow(mltr("delivery_route"), "<span style='color:red'>Unavailable</span>");
     }
-    info += GenTableRow("Division", `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
+    info += GenTableRow(mltr("division"), `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
-    info += GenTableRow("Driver", GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
+    info += GenTableRow(mltr("driver"), GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
 
     d = d.detail.data.object;
 
@@ -1897,33 +1898,33 @@ function MoreDeliveryDetail() {
     if (d.source_city != null) source_city = d.source_city.name;
     if (d.destination_company != null) destination_company = d.destination_company.name, destination_company_id = d.destination_company.unique_id;
     if (d.destination_city != null) destination_city = d.destination_city.name;
-    info += GenTableRow("Source Company", `${source_company} <span style="color:grey">(${source_company_id})</span>`);
-    info += GenTableRow("Source City", `${source_city} <span style="color:grey">(${d.source_city.unique_id})</span>`);
-    info += GenTableRow("Destination Company", `${destination_company} <span style="color:grey">(${destination_company_id})</span>`);
-    info += GenTableRow("Destination City", `${destination_city} <span style="color:grey">(${d.destination_city.unique_id})</span>`);
-    info += GenTableRow("Logged Distance", distance);
+    info += GenTableRow(mltr("source_company"), `${source_company} <span style="color:grey">(${source_company_id})</span>`);
+    info += GenTableRow(mltr("source_city"), `${source_city} <span style="color:grey">(${d.source_city.unique_id})</span>`);
+    info += GenTableRow(mltr("destination_company"), `${destination_company} <span style="color:grey">(${destination_company_id})</span>`);
+    info += GenTableRow(mltr("destination_city"), `${destination_city} <span style="color:grey">(${d.destination_city.unique_id})</span>`);
+    info += GenTableRow(mltr("logged_distance"), distance);
     if (isdelivered) {
         distance2 = d.events[d.events.length - 1].meta.distance;
         distance2_org = d.events[d.events.length - 1].meta.distance
         distance2 = TSeparator(parseInt(distance2 * distance_ratio)) + distance_unit_txt;
-        info += GenTableRow("Reported Distance", distance2);
+        info += GenTableRow(mltr("reported_distance"), distance2);
         revenue = TSeparator(d.events[d.events.length - 1].meta.revenue);
     } else {
         penalty = TSeparator(d.events[d.events.length - 1].meta.penalty);
     }
     distance3 = d.planned_distance;
     distance3 = TSeparator(parseInt(distance3 * distance_ratio)) + distance_unit_txt;
-    info += GenTableRow("Planned Distance", distance3);
+    info += GenTableRow(mltr("planned_distance"), distance3);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     cargo = d.cargo.name;
     cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
-    info += GenTableRow("Cargo", `${cargo} <span style="color:grey">(${d.cargo.unique_id})</span>`);
+    info += GenTableRow(mltr("cargo"), `${cargo} <span style="color:grey">(${d.cargo.unique_id})</span>`);
     damage_color = "lightgreen";
     if (d.cargo.damage >= 0.03) damage_color = "yellow";
     if (d.cargo.damage >= 0.1) damage_color = "red";
-    info += GenTableRow("Cargo Mass", cargo_mass);
-    info += GenTableRow("Cargo Damage", `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
+    info += GenTableRow(mltr("cargo_mass"), cargo_mass);
+    info += GenTableRow(mltr("cargo_damage"), `<span style="color:${damage_color}">${(d.cargo.damage * 100).toPrecision(2)}%`);
     truck = d.truck.brand.name + " " + d.truck.name;
     truck_brand_id = d.truck.brand.unique_id;
     license_plate = d.truck.license_plate;
@@ -1932,25 +1933,25 @@ function MoreDeliveryDetail() {
     if (d.trailers.length > 1) trs = "s";
     for (var i = 0; i < d.trailers.length; i++) trailer += d.trailers[i].license_plate + " | ";
     trailer = trailer.slice(0, -3);
-    info += GenTableRow("Truck", truck);
-    info += GenTableRow("Truck Plate", license_plate);
-    info += GenTableRow("Trailer Plate", trailer);
+    info += GenTableRow(mltr("truck"), truck);
+    info += GenTableRow(mltr("truck_plate"), license_plate);
+    info += GenTableRow(mltr("trailer_plate"), trailer);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     fuel_used_org = d.fuel_used;
     fuel_used = TSeparator(parseInt(d.fuel_used * fuel_ratio)) + fuel_unit_txt;
-    info += GenTableRow("Fuel", fuel_used);
+    info += GenTableRow(mltr("fuel"), fuel_used);
     if (isdelivered) {
         avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance2_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
     } else {
         avg_fuel = TSeparator(parseInt((fuel_used_org * fuel_ratio) / (distance_org * distance_ratio) * 100)) + fuel_unit_txt + "/100" + distance_unit_txt;
     }
-    info += GenTableRow("Avg. Fuel", avg_fuel);
-    info += GenTableRow("AdBlue", d.adblue_used);
+    info += GenTableRow(mltr("avg_fuel"), avg_fuel);
+    info += GenTableRow(mltr("adblue"), d.adblue_used);
     top_speed = parseInt(d.truck.top_speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
     average_speed = parseInt(d.truck.average_speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
-    info += GenTableRow("Max. Speed", top_speed);
-    info += GenTableRow("Avg. Speed", average_speed);
+    info += GenTableRow(mltr("max_speed"), top_speed);
+    info += GenTableRow(mltr("avg_speed"), average_speed);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     punit = "€";
@@ -1964,27 +1965,27 @@ function MoreDeliveryDetail() {
     offence = -offence;
     offence = TSeparator(offence);
     if (isdelivered) {
-        info += GenTableRow("Revenue", `${punit}${revenue}`);
+        info += GenTableRow(mltr("revenue"), `${punit}${revenue}`);
     } else {
-        info += GenTableRow("Penalty", `${punit}${penalty}`);
+        info += GenTableRow(mltr("penalty"), `${punit}${penalty}`);
     }
-    info += GenTableRow("Offence", `${punit}${offence}`);
+    info += GenTableRow(mltr("offence"), `${punit}${offence}`);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     if (d.is_special == true) {
-        info += GenTableRow("Is Special Transport?", "<span style='color:lightgreen'>Yes</span>");
+        info += GenTableRow(mltr("is_special_transport"), "<span style='color:lightgreen'>Yes</span>");
     } else {
-        info += GenTableRow("Is Special Transport?", "No");
+        info += GenTableRow(mltr("is_special_transport"), "No");
     }
     if (d.is_late == true) {
-        info += GenTableRow("Is Late?", "<span style='color:red'>Yes</span>");
+        info += GenTableRow(mltr("is_late"), "<span style='color:red'>Yes</span>");
     } else {
-        info += GenTableRow("Is Late?", "<span style='color:lightgreen'>No</span>");
+        info += GenTableRow(mltr("is_late"), "<span style='color:lightgreen'>No</span>");
     }
     if (d.game.had_police_enabled == true) {
-        info += GenTableRow("Had Police Enabled?", "<span style='color:lightgreen'>Yes</span>");
+        info += GenTableRow(mltr("had_police_enabled"), "<span style='color:lightgreen'>Yes</span>");
     } else {
-        info += GenTableRow("Had Police Enabled?", "<span style='color:red'>No</span>");
+        info += GenTableRow(mltr("had_police_enabled"), "<span style='color:red'>No</span>");
     }
 
     MARKET = {
@@ -1995,7 +1996,7 @@ function MoreDeliveryDetail() {
     };
     mkt = "Unknown";
     if (Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
-    info += GenTableRow("Market", mkt);
+    info += GenTableRow(mltr("market"), mkt);
     mode = "Single Player";
     if (d.multiplayer != null) {
         mode = "Multiplayer";
@@ -2005,11 +2006,11 @@ function MoreDeliveryDetail() {
             mode = "SCS Convoy";
         }
     }
-    info += GenTableRow("Mode", mode);
+    info += GenTableRow(mltr("mode"), mode);
 
     info += "</table>";
 
-    modalid = ShowModal(`Delivery Log`, info);
+    modalid = ShowModal(mltr('delivery_log'), info);
     InitModal("delivery_log_detail", modalid);
 }
 function LoadXOfTheMonth(){
@@ -2136,6 +2137,7 @@ function LoadMemberList(noplaceholder = false) {
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
@@ -2221,7 +2223,7 @@ function EditRolesShow(uid){
                 </div>`;
             }
             
-            modalid = ShowModal(`${d.name} (${d.userid})`, roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-roles" type="button" class="btn btn-primary" onclick="EditRoles(${d.userid});">Update</button>`);
+            modalid = ShowModal(`${d.name} (${d.userid})`, roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-edit-roles" type="button" class="btn btn-primary" onclick="EditRoles(${d.userid});">${mltr("update")}</button>`);
             InitModal("edit_roles", modalid);
         },
         error: function (data) {
@@ -2231,7 +2233,7 @@ function EditRolesShow(uid){
 }
 
 function EditRoles(uid) {
-    LockBtn("#button-edit-roles", "Updating...");
+    LockBtn("#button-edit-roles", mltr("updating"));
 
     d = $('input[name="edit-roles"]:checked');
     roles = [];
@@ -2253,7 +2255,7 @@ function EditRoles(uid) {
         success: function (data) {
             UnlockBtn("#button-edit-roles");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Member roles updated!", 5000, false);
+            toastNotification("success", "Success!", mltr("member_roles_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-edit-roles");
@@ -2300,7 +2302,7 @@ function EditPoints(uid) {
         success: function (data) {
             UnlockBtn("#button-edit-points");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "Member points updated!", 5000, false);
+            toastNotification("success", "Success!", mltr("member_points_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-edit-points");
@@ -2310,13 +2312,13 @@ function EditPoints(uid) {
 }
 
 function DismissMemberShow(uid, name){
-    if(uid == localStorage.getItem("userid")) return toastNotification("error", "Error", "You cannot dismiss yourself!", 5000);
-    modalid = ShowModal(`Dismiss Member`, `<p>Are you sure you want to dismiss this member?</p><p><i>${name} (User ID: ${uid})</i></p><br><p>Dismissing ${name} will erase all their delivery log (marking them as by unknown user) and remove them from Navio company. This <b>cannot</b> be undone.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">Dismiss</button>`);
+    if(uid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
+    modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${uid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">${mltr('dismiss')}</button>`);
     InitModal("dismiss_member", modalid);
 }
 
 function DismissMember(uid){
-    LockBtn("#button-dismiss-member", "Dismissing...");
+    LockBtn("#button-dismiss-member", mltr("dismissing"));
     
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
@@ -2329,7 +2331,7 @@ function DismissMember(uid){
             UnlockBtn("#button-dismiss-member");
             if (data.error) return AjaxError(data);
             LoadMemberList(noplaceholder=true);
-            toastNotification("success", "Success", "Member dismissed!", 5000, false);
+            toastNotification("success", "Success", mltr("member_dismissed"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-dismiss-member");
@@ -2468,14 +2470,14 @@ function LoadUserProfile(userid) {
             d = data.response.user;
 
             account_info = "<table>";
-            account_info += GenTableRow("ID", d.userid);
+            account_info += GenTableRow(mltr("id"), d.userid);
             if (d.email != undefined && d.email != "") {
-                account_info += GenTableRow("Email", d.email);
+                account_info += GenTableRow(mltr("email"), d.email);
             } 
-            account_info += GenTableRow("Discord", d.discordid);
-            account_info += GenTableRow("TruckersMP", d.truckersmpid);
-            account_info += GenTableRow("Steam", d.steamid);
-            account_info += GenTableRow("Joined At", getDateTime(d.join_timestamp * 1000));
+            account_info += GenTableRow(mltr("discord"), d.discordid);
+            account_info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+            account_info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+            account_info += GenTableRow(mltr("joined_at"), getDateTime(d.join_timestamp * 1000));
             
             roles = d.roles;
             rtxt = "";
@@ -2487,15 +2489,20 @@ function LoadUserProfile(userid) {
             }
             rtxt = rtxt.substring(0, rtxt.length - 2);
             
-            if(d.roles.length == 1) account_info += GenTableRow("Role", rtxt);
-            else account_info += GenTableRow("Roles", rtxt);
+            if(d.roles.length == 1) account_info += GenTableRow(mltr("role"), rtxt);
+            else account_info += GenTableRow(mltr("roles"), rtxt);
             
             account_info += GenTableRow("&nbsp;", "&nbsp;");
             activity_url = getActitivyUrl(d.activity.name);
             if(d.activity.name.includes("User ID")) d.activity.name = d.activity.name.split("(User ID")[0];
-            if(d.activity.name == "Offline") account_info += GenTableRow("Status", "Offline - Last seen " + timeAgo(new Date(d.activity.last_seen*1000)));
-            else if(d.activity.name == "Online") account_info += GenTableRow("Status", "Online");
-            else account_info += GenTableRow("Activity", `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
+            if(d.activity.name == "Offline"){
+                if(d.activity.last_seen != -1)
+                    account_info += GenTableRow(mltr("status"), mltr("offline") + " - " + mltr("last_seen") + " " + timeAgo(new Date(d.activity.last_seen*1000)));
+                else
+                    account_info += GenTableRow(mltr("status"), mltr("offline"));
+            }
+            else if(d.activity.name == "Online") account_info += GenTableRow(mltr("status"), mltr("online"));
+            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
 
             account_info += "</table>";
 
@@ -2550,14 +2557,16 @@ function LoadUserProfile(userid) {
                                 if (!data.error) {
                                     info += "<hr>";
                                     d = data.response.list[0];
-                                    info += "<b>Points</b><br>";
-                                    info += `<b>Distance</b>: ${d.points.distance}<br>`;
-                                    info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
-                                    info += `<b>Event</b>: ${d.points.event}<br>`;
-                                    info += `<b>Division</b>: ${d.points.division}<br>`;
-                                    info += `<b>Myth</b>: ${d.points.myth}<br>`;
-                                    info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
-                                    info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                    if(d != undefined){
+                                        info += "<b>Points</b><br>";
+                                        info += `<b>Distance</b>: ${d.points.distance}<br>`;
+                                        info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
+                                        info += `<b>Event</b>: ${d.points.event}<br>`;
+                                        info += `<b>Division</b>: ${d.points.division}<br>`;
+                                        info += `<b>Myth</b>: ${d.points.myth}<br>`;
+                                        info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
+                                        info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                    }
                                     info += `</p>`;
                                     $("#profile-text-statistics").html(info);
                                 }
@@ -2578,7 +2587,7 @@ function LoadUserProfile(userid) {
 }
 
 function GetDiscordRankRole() {
-    LockBtn(".button-rankings-role", "Getting...");
+    LockBtn(".button-rankings-role", mltr("getting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/roles/rank",
@@ -2590,7 +2599,7 @@ function GetDiscordRankRole() {
         success: function (data) {
             UnlockBtn(".button-rankings-role");
             if (data.error) return AjaxError(data);
-            else return toastNotification("success", "Success", "Discord role assigned!", 5000, false);
+            else return toastNotification("success", "Success", mltr("discord_role_assigned"), 5000, false);
         },
         error: function (data) {
             UnlockBtn(".button-rankings-role");
@@ -3025,7 +3034,7 @@ function LoadStats(basic = false, noplaceholder = false) {
     }
 }
 function UpdateBio() {
-    LockBtn("#button-settings-bio-save", "Saving...");
+    LockBtn("#button-settings-bio-save", mltr("saving"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/bio",
@@ -3040,7 +3049,7 @@ function UpdateBio() {
         success: function (data) {
             UnlockBtn("#button-settings-bio-save");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success!", "About Me saved!", 5000, false);
+            toastNotification("success", "Success!", mltr("about_me_saved"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-settings-bio-save");
@@ -3050,7 +3059,7 @@ function UpdateBio() {
 }
 
 function ResetApplicationToken(firstop = false) {
-    LockBtn("#button-settings-reset-application-token", "Resetting...");
+    LockBtn("#button-settings-reset-application-token", mltr("resetting"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -3081,7 +3090,7 @@ function ResetApplicationToken(firstop = false) {
                 $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
                 $("#button-application-token-copy").show();
-                toastNotification("success", "Success", "Application Token reset!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -3112,7 +3121,7 @@ function ResetApplicationToken(firstop = false) {
                 $("#settings-application-token-p").hide();
                 $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
-                toastNotification("success", "Success", "Application Token reset!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-reset-application-token");
@@ -3123,7 +3132,7 @@ function ResetApplicationToken(firstop = false) {
 }
 
 function DisableApplicationToken(firstop = false) {
-    LockBtn("#button-settings-disable-application-token", "Disabling...");
+    LockBtn("#button-settings-disable-application-token", mltr("disabling"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -3150,7 +3159,7 @@ function DisableApplicationToken(firstop = false) {
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html("Disabled");
-                toastNotification("success", "Success", "Application Token disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -3177,7 +3186,7 @@ function DisableApplicationToken(firstop = false) {
                 UnlockBtn("#button-settings-disable-application-token");
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html("Disabled");
-                toastNotification("success", "Success", "Application Token disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-disable-application-token");
@@ -3188,7 +3197,7 @@ function DisableApplicationToken(firstop = false) {
 }
 
 function UpdatePassword(firstop = false) {
-    LockBtn("#button-settings-password-update", "Updating...");
+    LockBtn("#button-settings-password-update", mltr("updating"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -3216,7 +3225,7 @@ function UpdatePassword(firstop = false) {
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
-                toastNotification("success", "Success", "Password updated!", 5000, false);
+                toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -3246,7 +3255,7 @@ function UpdatePassword(firstop = false) {
                 UnlockBtn("#button-settings-password-update");
                 if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
-                toastNotification("success", "Success", "Password updated!", 5000, false);
+                toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-password-update");
@@ -3257,7 +3266,7 @@ function UpdatePassword(firstop = false) {
 }
 
 function DisablePassword(firstop = false) {
-    LockBtn("#button-settings-password-disable", "Disabling...");
+    LockBtn("#button-settings-password-disable", mltr("disabling"));
 
     if(mfaenabled){
         otp = $("#mfa-otp").val();
@@ -3283,7 +3292,7 @@ function DisablePassword(firstop = false) {
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "Password disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
                 if(firstop && data.status == 400){
@@ -3309,7 +3318,7 @@ function DisablePassword(firstop = false) {
             success: function (data) {
                 UnlockBtn("#button-settings-password-disable");
                 if (data.error) return AjaxError(data);
-                toastNotification("success", "Success", "Password disabled!", 5000, false);
+                toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
                 UnlockBtn("#button-settings-password-disable");
@@ -3320,7 +3329,7 @@ function DisablePassword(firstop = false) {
 }
 
 function DisableMFAShow(){
-    modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA?</p><p>You will be able to login or enter sudo mode without MFA. This can put your account at risk.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">Disable</button>`);
+    modalid = ShowModal(mltr('disable_mfa'), mltr('disable_mfa_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">${mltr('disable')}</button>`);
     InitModal("disable_mfa", modalid);
 }
 
@@ -3329,7 +3338,7 @@ function DisableMFA(){
     
     if(otp.length != 6){
         mfafunc = DisableMFA;
-        LockBtn("#button-staff-disable-mfa", "Disabling...");
+        LockBtn("#button-staff-disable-mfa", mltr("disabling"));
         setTimeout(function(){UnlockBtn("#button-staff-disable-mfa");DestroyModal("disable_mfa");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
         return;
     }
@@ -3351,7 +3360,7 @@ function DisableMFA(){
             $("#button-settings-mfa-disable").hide();
             $("#button-settings-mfa-enable").show();
             mfaenabled = false;
-            toastNotification("success", "Success", "MFA disabled!", 5000, false);
+            toastNotification("success", "Success", mltr("mfa_disabled"), 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -3364,20 +3373,20 @@ function DisableMFA(){
 mfasecret = "";
 function EnableMFAShow(){
     mfasecret = RandomB32String(16);
-    modalid = ShowModal(`Enable MFA`, `<p>Please download a MFA application that supports TOTP like Authy, Google Authenticator. Type in the secret in the app and enter the generated TOTP in the input box.</p><p>Secret: <b>${mfasecret}</b></p>
+    modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
     <label for="mfa-enable-otp" class="form-label">OTP</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="mfa-enable-otp" placeholder="000 000">
-    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">Enable</button>`);
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">${mltr('enable')}</button>`);
     InitModal("enable_mfa", modalid);
 }
 
 function EnableMFA(){
     otp = $("#mfa-enable-otp").val();
     if(!isNumber(otp) || otp.length != 6)
-        return toastNotification("error", "Error", "Invalid OTP!", 5000);
+        return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
         
-    LockBtn("#button-enable-mfa", "Enabling...");
+    LockBtn("#button-enable-mfa", mltr("enabling"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa",
@@ -3397,7 +3406,7 @@ function EnableMFA(){
             $("#button-settings-mfa-enable").hide();
             mfaenabled = true;
             DestroyModal("enable_mfa");
-            toastNotification("success", "Success", "MFA Enabled.", 5000, false);
+            toastNotification("success", "Success", mltr("mfa_enabled"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-enable-mfa");
@@ -3407,12 +3416,12 @@ function EnableMFA(){
 }
 
 function UserResignShow(){
-    modalid = ShowModal(`Leave Company`, `<p>Are you sure you want to leave the company?</p><p>Your delivery log will be erased and you will be removed from Navio company. This <b>cannot</b> be undone.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">Resign</button>`);
+    modalid = ShowModal(mltr('leave_company'), mltr('leave_company_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">${mltr('resign')}</button>`);
     InitModal("user_resign", modalid);
 }
 
 function UserResign() {
-    LockBtn("#button-user-resign", "Resigning...");
+    LockBtn("#button-user-resign", mltr("resigning"));
 
     otp = $("#mfa-otp").val();
     if(mfaenabled){
@@ -3437,7 +3446,7 @@ function UserResign() {
             ShowTab("#user-settings-tab", "from-mfa");
             mfafunc = null;
             if (data.error) return AjaxError(data);
-            modalid = ShowModal(`You have left the company`, `<p>You have successfully resigned from the company. We are sad to see you leave. We wish you the best in your future career!</p>`);
+            modalid = ShowModal(mltr('you_have_left_the_company'), mltr('you_have_left_the_company_note'));
         },
         error: function (data) {
             AjaxError(data);
@@ -3495,7 +3504,7 @@ function RevokeToken(hsh) {
         return;
     }
 
-    LockBtn("#button-revoke-token-" + hsh, "Revoking...")
+    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"))
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
@@ -3510,7 +3519,7 @@ function RevokeToken(hsh) {
         success: function (data) {
             if (data.error) return AjaxError(data);
             LoadUserSessions(noplaceholder = true);
-            toastNotification("success", "Success", "Token revoked!", 5000, false);
+            toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
         },
         error: function (data) {
             AjaxError(data);
@@ -3626,13 +3635,13 @@ function ShowUserDetail(discordid) {
             
             d = data.response.user;
             info = "";
-            info += GenTableRow("Name", d.name);
-            info += GenTableRow("Email", d.email);
-            info += GenTableRow("Discord", discordid);
-            info += GenTableRow("TruckersMP", `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
-            info += GenTableRow("Steam", `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+            info += GenTableRow(mltr("name"), d.name);
+            info += GenTableRow(mltr("email"), d.email);
+            info += GenTableRow(mltr("discord"), discordid);
+            info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+            info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
             if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
-                info += GenTableRow("Ban Reason", bannedUserList[discordid]);
+                info += GenTableRow(mltr("ban_reason"), bannedUserList[discordid]);
             }
                 
             modalid = ShowModal(d.name, `<table>${info}</table>`);
@@ -3645,12 +3654,12 @@ function ShowUserDetail(discordid) {
 }
 
 function AcceptAsMemberShow(discordid, name){
-    modalid = ShowModal(`Accept As Member`, `<p>Are you sure you want to accept this user as member?</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be automatically added to Navio company and receive a Direct Message in Discord from Drivers Hub Bot regarding that they have been accepted.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">Accept</button>`);
+    modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">${mltr('accept')}</button>`);
     InitModal("accept_as_member", modalid);
 }
 
 function AcceptAsMember(discordid) {
-    LockBtn("#button-accept-as-member", "Accepting...");
+    LockBtn("#button-accept-as-member", mltr("accepting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/member",
         type: "PUT",
@@ -3665,7 +3674,7 @@ function AcceptAsMember(discordid) {
             UnlockBtn("#button-accept-as-member");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User accepted as member. User ID: " + data.response.userid, 5000, false);
+            toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.response.userid, 5000, false);
             DestroyModal("accept_as_member");
         },
         error: function (data) {
@@ -3676,15 +3685,15 @@ function AcceptAsMember(discordid) {
 }
 
 function UpdateDiscordShow(discordid, name){
-    modalid = ShowModal(`Update Discord ID`, `<p>You are updating Discord ID for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">New Discord ID</label>
+    modalid = ShowModal(mltr('update_discord_id'), `<p>${mltr('update_discord_id_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">${mltr('new_discord_id')}</label>
     <div class="input-group mb-3">
-        <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="997847494933368923">
-    </div><br><p>A new account in Drivers Hub will be created with new Discord account and data will be migrated automatically. The old account will be deleted. The user will have to login with new Discord account.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${discordid}');">Update</button>`);
+        <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="">
+    </div><br><p>${mltr('update_discord_id_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${discordid}');">${mltr('update')}</button>`);
     InitModal("update_discord", modalid);
 }
 
 function UpdateDiscord(old_discord_id) {
-    LockBtn("#button-update-discord", "Updating...");
+    LockBtn("#button-update-discord", mltr("updating"));
 
     new_discord_id = $("#new-discord-id").val();
 
@@ -3703,7 +3712,7 @@ function UpdateDiscord(old_discord_id) {
             UnlockBtn("#button-update-discord");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User's Discord ID has been updated!", 5000, false);
+            toastNotification("success", "Success", mltr("users_discord_id_has_been_updated"), 5000, false);
             DestroyModal("update_discord");
         },
         error: function (data) {
@@ -3725,9 +3734,9 @@ function DisableUserMFAShow(discordid, name){
             if (data.error) return AjaxError(data)
             mfa = data.response.user.mfa;
             if(!mfa){
-                return toastNotification("error", "Error", "User hasn't enabled MFA!", 5000);
+                return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
-            modalid = ShowModal(`Disable MFA`, `<p>Are you sure you want to disable MFA for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will be able to login or enter sudo mode without MFA. This can put their account at risk. Do not disable MFA for a user who didn't request it.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">Disable</button>`);
+            modalid = ShowModal(mltr('disable_mfa'), `<p>${mltr('disable_mfa_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('disable_mfa_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">${mltr('disable')}</button>`);
             InitModal("disable_mfa", modalid);
         },
         error: function (data) {
@@ -3737,7 +3746,7 @@ function DisableUserMFAShow(discordid, name){
 }
 
 function StaffDisableMFA(discordid) {
-    LockBtn("#button-staff-disable-mfa", "Disabling...");
+    LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa?discordid="+discordid,
@@ -3749,7 +3758,7 @@ function StaffDisableMFA(discordid) {
         success: function (data) {
             UnlockBtn("#button-staff-disable-mfa");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "User's MFA disabled!", 5000, false);
+            toastNotification("success", "Success", mltr("users_mfa_disabled"), 5000, false);
             DestroyModal("disable_mfa");
         },
         error: function (data) {
@@ -3760,12 +3769,12 @@ function StaffDisableMFA(discordid) {
 }
 
 function DeleteConnectionsShow(discordid, name){
-    modalid = ShowModal(`Delete Connections`, `<p>Are you sure you want to delete account connections for:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>Their Steam and TruckersMP connection will be removed and can be bound to another account. They will no longer be able to login with Steam. Discord connection will not be affected.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">Delete</button>`);
+    modalid = ShowModal(mltr('delete_connections'), `<p>${mltr('delete_connections_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_connections_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">${mltr('delete')}</button>`);
     InitModal("account_connections", modalid);
 }
 
 function DeleteConnections(discordid) {
-    LockBtn("#button-delete-connections", "Deleting...");
+    LockBtn("#button-delete-connections", mltr("deleting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/connections",
@@ -3781,7 +3790,7 @@ function DeleteConnections(discordid) {
             UnlockBtn("#button-delete-connections");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User's account connections unbound!", 5000, false);
+            toastNotification("success", "Success", mltr("users_account_connections_unbound"), 5000, false);
             DestroyModal("account_connections");
         },
         error: function (data) {
@@ -3792,19 +3801,19 @@ function DeleteConnections(discordid) {
 }
 
 function BanShow(discordid, name){
-    modalid = ShowModal(`Ban User`, `<p>Are you sure you want to ban this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br><p>They will not be allowed to login. Their existing data will not be affected.</p><br><label for="new-discord-id" class="form-label">Ban Until</label>
+    modalid = ShowModal(mltr('ban_user'), `<p>${mltr('ban_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('ban_user_note_2')}</p><br><label for="new-discord-id" class="form-label">${mltr('ban_until')}</label>
     <div class="input-group mb-3">
         <input type="date" class="form-control bg-dark text-white" id="ban-until">
     </div>
-    <label for="ban-reason" class="form-label">Reason</label>
+    <label for="ban-reason" class="form-label">${mltr('reason')}</label>
     <div class="input-group mb-3" style="height:calc(100% - 160px)">
-        <textarea type="text" class="form-control bg-dark text-white" id="ban-reason" placeholder="Reason for the ban" rows="3"></textarea>
-    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${discordid}');">Ban</button>`);
+        <textarea type="text" class="form-control bg-dark text-white" id="ban-reason" placeholder="" rows="3"></textarea>
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${discordid}');">${mltr('ban')}</button>`);
     InitModal("ban_user", modalid);
 }
 
 function BanUser(discordid) {
-    LockBtn("#button-ban-user", "Banning...");
+    LockBtn("#button-ban-user", mltr("banning"));
 
     expire = -1;
     if ($("#ban-until").val() != "")
@@ -3827,7 +3836,7 @@ function BanUser(discordid) {
             UnlockBtn("#button-ban-user");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User banned!", 5000, false);
+            toastNotification("success", "Success", mltr("user_banned"), 5000, false);
             DestroyModal("ban_user");
         },
         error: function (data) {
@@ -3838,12 +3847,12 @@ function BanUser(discordid) {
 }
 
 function UnbanShow(discordid, name){
-    modalid = ShowModal(`Unban User`, `<p>Are you sure you want to unban this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">Unban</button>`);
+    modalid = ShowModal(mltr('unban_user'), `<p>${mltr('unban_user_note')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">${mltr('unban')}</button>`);
     InitModal("unban_user", modalid);
 }
 
 function UnbanUser(discordid) {
-    LockBtn("#button-unban-user", "Unbanning...");
+    LockBtn("#button-unban-user", mltr("unbanning"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/ban",
@@ -3859,7 +3868,7 @@ function UnbanUser(discordid) {
             UnlockBtn("#button-unban-user");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User unbanned!", 5000, false);
+            toastNotification("success", "Success", mltr("user_unbanned"), 5000, false);
             DestroyModal("unban_user");
         },
         error: function (data) {
@@ -3870,12 +3879,12 @@ function UnbanUser(discordid) {
 }
 
 function DeleteUserShow(discordid, name){
-    modalid = ShowModal(`Delete User`, `<p>Are you sure you want to delete this user:</p><p><i>${name} (Discord ID: ${discordid})</i></p><br>The account will be deleted and their connection with TruckersMP and Steam will be deleted. They will have to login with Discord to register again.`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">Delete</button>`);
+    modalid = ShowModal(mltr('delete_user'), `<p>${mltr('delete_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_user_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">${mltr('delete')}</button>`);
     InitModal("delete_user", modalid);
 }
 
 function DeleteUser(discordid) {
-    LockBtn("#button-delete-user", "Deleting...");
+    LockBtn("#button-delete-user", mltr("deleting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
@@ -3888,7 +3897,7 @@ function DeleteUser(discordid) {
             UnlockBtn("#button-delete-user");
             if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder=true);
-            toastNotification("success", "Success", "User deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("user_deleted"), 5000, false);
             DestroyModal("delete_user");
         },
         error: function (data) {
@@ -3899,12 +3908,12 @@ function DeleteUser(discordid) {
 }
 
 function DeleteAccountShow(){
-    modalid = ShowModal(`Delete Account`, `<p>Are you sure you want to delete your account?</p><p>The account will be deleted from our system, including basic info such as username and email, and account connections of Steam and TruckersMP. You will have to login with Discord to register again.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">Delete</button>`);
+    modalid = ShowModal(mltr('delete_account'), mltr('delete_account_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">${mltr('delete')}</button>`);
     InitModal("delete_account", modalid);
 }
 
 function DeleteAccount(discordid) {
-    LockBtn("#button-delete-account", "Deleting...");
+    LockBtn("#button-delete-account", mltr("deleting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/user",
@@ -3916,7 +3925,7 @@ function DeleteAccount(discordid) {
         success: function (data) {
             UnlockBtn("#button-delete-account");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Account deleted. Goodbye!", 5000, false);
+            toastNotification("success", "Success", mltr("account_deleted_goodbye"), 5000, false);
             Logout();
             DestroyModal("delete_account");
         },
@@ -4124,9 +4133,9 @@ socket.addEventListener("message", ({
     if (type === "NEW_EVENT") {
         if (data.type == 1) {
             drivername = membersteam[data.driver];
-            if (drivername == "undefined" || drivername == undefined) drivername = "Unknown Driver";
+            if (drivername == "undefined" || drivername == undefined) drivername = mltr("unknown_driver");
             $("#delivery-tab").removeClass("loaded");
-            toastNotification("success", "Job Delivery", "<b>" + drivername + "</b><br><b>Distance:</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>Revenue:</b> €" + TSeparator(data.revenue), 10000, false);
+            toastNotification("success", mltr("job_delivery"), "<b>" + drivername + "</b><br><b>"+mltr("distance")+":</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>"+mltr("revenue")+":</b> €" + TSeparator(data.revenue), 10000, false);
         }
     }
 });
@@ -4197,7 +4206,7 @@ function PlayerPoint(steamid, mapid){
         cargo = d.job.cargo.name;
     speed = parseInt(d.truck.speed * 3.6 * distance_ratio) + distance_unit_txt + "/h";
     distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
-    toastNotification("info", drivername, `<b>Truck: </b>${truck}<br><b>Cargo: </b>${cargo}<br><b>Speed: </b>${speed}<br><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>Show profile</a>`, 5000, false);
+    toastNotification("info", drivername, `<b>${mltr("truck")}: </b>${truck}<br><b>${mltr("cargo")}: </b>${cargo}<br><b>${mltr("speed")}: </b>${speed}<br><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${mltr("show_profile")}</a>`, 5000, false);
     clearInterval(autocenterint[mapid]);
     autocenterint[mapid] = setInterval(function(){
         d = driverdata[steamid];
@@ -4483,7 +4492,7 @@ function PostAnnouncement(){
     content = simplemde["#announcement-new-content"].value();
     anntype = $("#announcement-new-type").find(":selected").val();
     if(!isNumber(anntype)){
-        return toastNotification("warning", "Warning", "Please select an announcement type!", 3000);
+        return toastNotification("warning", "Warning", mltr("please_select_an_announcement_type"), 3000);
     }
     is_private = $("#announcement-visibility-private").is(":checked");
     discord_channelid = $("#announcement-new-discord-channel").val();
@@ -4492,7 +4501,7 @@ function PostAnnouncement(){
         discord_channelid = 0;
         discord_message = "";
     }
-    LockBtn("#button-announcement-new-post", "Posting...");
+    LockBtn("#button-announcement-new-post", mltr("posting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement",
         type: "POST",
@@ -4511,7 +4520,7 @@ function PostAnnouncement(){
         success: function (data) {
             UnlockBtn("#button-announcement-new-post");
             if (data.error) AjaxError(data);
-            toastNotification("success", "Success", "Announcement posted!", 5000, false);
+            toastNotification("success", "Success", mltr("announcement_posted"), 5000, false);
             LoadAnnouncement(noplaceholder = false);
         },
         error: function (data) {
@@ -4532,7 +4541,7 @@ function EditAnnouncement(announcementid){
         discord_channelid = 0;
         discord_message = "";
     }
-    LockBtn("#button-announcement-edit-"+announcementid+"-save", "Saving...");
+    LockBtn("#button-announcement-edit-"+announcementid+"-save", mltr("saving"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement?announcementid="+announcementid,
         type: "PATCH",
@@ -4552,7 +4561,7 @@ function EditAnnouncement(announcementid){
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
             if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
-            toastNotification("success", "Success", "Edit saved!", 5000, false);
+            toastNotification("success", "Success", mltr("edit_saved"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
@@ -4564,12 +4573,12 @@ function EditAnnouncement(announcementid){
 function DeleteAnnouncementShow(announcementid){
     if(shiftdown) return DeleteAnnouncement(announcementid);
     content = $("#announcement-display-"+announcementid+"-title").html();
-    modalid = ShowModal("Delete Announcement", `<p>Are you sure you want to delete this announcement?</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_announcement"), `<p>${mltr("delete_announcement_note")}</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">${mltr("delete")}</button>`);
     InitModal("delete_announcement", modalid);
 }
 
 function DeleteAnnouncement(announcementid){
-    LockBtn("#button-announcement-delete-"+announcementid, "Deleting...");
+    LockBtn("#button-announcement-delete-"+announcementid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement?announcementid=" + announcementid,
         type: "DELETE",
@@ -4581,7 +4590,7 @@ function DeleteAnnouncement(announcementid){
             UnlockBtn("#button-announcement-delete-"+announcementid);
             if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
-            toastNotification("success", "Success", "Announcement deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("announcement_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
         },
         error: function (data) {
@@ -4743,8 +4752,8 @@ async function LoadAllApplicationList(noplaceholder = false) {
 }
 
 function GetApplicationDetail(applicationid, staffmode = false) {
-    LockBtn("#button-my-application-" + applicationid, "Loading...");
-    LockBtn("#button-all-application-" + applicationid, "Loading...");
+    LockBtn("#button-my-application-" + applicationid, mltr("loading"));
+    LockBtn("#button-all-application-" + applicationid, mltr("loading"));
     
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
@@ -4768,7 +4777,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             discordid = data.response.application.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
-                return toastNotification("error", "Error", "Application has no data", 5000, false);
+                return toastNotification("error", "Error", mltr("application_has_no_data"), 5000, false);
                 
             apptype = applicationTypes[data.response.application_type];
             ret = "";
@@ -4787,38 +4796,38 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                     info = "";
                     if (!data.error) {
                         d = data.response.user;
-                        info += GenTableRow("Name", d.name);
-                        info += GenTableRow("Email", d.email);
-                        info += GenTableRow("Discord", discordid);
-                        info += GenTableRow("TruckersMP", `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
-                        info += GenTableRow("Steam", `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+                        info += GenTableRow(mltr("name"), d.name);
+                        info += GenTableRow(mltr("email"), d.email);
+                        info += GenTableRow(mltr("discord"), discordid);
+                        info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+                        info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
                     }
                     bottom = "";
                     if (!staffmode) {
                         bottom = `
-                            <label for="application-new-message" class="form-label">Message</label>
+                            <label for="application-new-message" class="form-label">${mltr("message")}</label>
                             <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="Content of message to add to this application" style="height:160px"></textarea>
+                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="${mltr("message_placeholder")}" style="height:160px"></textarea>
                             </div>`;
-                        modalid = ShowModal("Application #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-application-new-message" type="button" class="btn btn-primary" onclick="AddMessageToApplication(${applicationid});">Update</button>`);
+                        modalid = ShowModal(mltr("application") + " #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-application-new-message" type="button" class="btn btn-primary" onclick="AddMessageToApplication(${applicationid});">${mltr("update")}</button>`);
                         InitModal("my_application_detail", modalid);
                     } else {
                         bottom = `
-                            <label for="application-new-message" class="form-label">Message</label>
+                            <label for="application-new-message" class="form-label">${mltr("message")}</label>
                             <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="Content of message to add to this application" style="height:160px"></textarea>
+                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="${mltr("message_placeholder")}" style="height:160px"></textarea>
                             </div>
 
-                            <label for="application-new-status" class="form-label">Status</label>
+                            <label for="application-new-status" class="form-label">${mltr("status")}</label>
                             <div class="mb-3">
                                 <select class="form-select bg-dark text-white" id="application-new-status">
-                                    <option selected>Select one from the list</option>
-                                    <option value="0">Pending</option>
-                                    <option value="1">Accepted</option>
-                                    <option value="2">Declined</option>
+                                    <option selected>${mltr("select_one_from_the_list")}</option>
+                                    <option value="0">${mltr("pending")}</option>
+                                    <option value="1">${mltr("accepted")}</option>
+                                    <option value="2">${mltr("declined")}</option>
                                 </select>
                             </div>`;
-                        modalid = ShowModal("Application #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-application-update-status" type="button" class="btn btn-primary" onclick="UpdateApplicationStatus(${applicationid});">Update</button>`);
+                        modalid = ShowModal(mltr("application") + " #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-application-update-status" type="button" class="btn btn-primary" onclick="UpdateApplicationStatus(${applicationid});">${mltr("update")}</button>`);
                         InitModal("all_application_detail", modalid);
                     }
                     UnlockBtn("#button-all-application-" + applicationid);
@@ -4836,7 +4845,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
 
 function AddMessageToApplication(applicationid) {
     message = $("#application-new-message").val();
-    LockBtn("#button-application-new-message", "Updating...");
+    LockBtn("#button-application-new-message", mltr("updating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/application",
         type: "PATCH",
@@ -4852,7 +4861,7 @@ function AddMessageToApplication(applicationid) {
             UnlockBtn("#button-application-new-message");
             if (data.error) return AjaxError(data);
             GetApplicationDetail(applicationid);
-            toastNotification("success", "Success!", "Message added!", 5000, false);
+            toastNotification("success", "Success!", mltr("message_added"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-application-new-message");
@@ -4863,10 +4872,10 @@ function AddMessageToApplication(applicationid) {
 
 function UpdateApplicationStatus(applicationid) {
     appstatus = parseInt($("#application-new-status").find(":selected").val());
-    if(!isNumber(appstatus)) return toastNotification("error", "Error", "Invalid application status!")
+    if(!isNumber(appstatus)) return toastNotification("error", "Error", mltr("invalid_application_status"))
     message = $("#application-new-message").val();
 
-    LockBtn("#button-application-update-status", "Updating...");
+    LockBtn("#button-application-update-status", mltr("updating"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/status",
@@ -4884,7 +4893,7 @@ function UpdateApplicationStatus(applicationid) {
             UnlockBtn("#button-application-update-status");
             if (data.error) return AjaxError(data);
             LoadAllApplicationList();
-            toastNotification("success", "Success", "Application status updated!", 5000, false);
+            toastNotification("success", "Success", mltr("application_status_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-application-update-status");
@@ -4894,7 +4903,7 @@ function UpdateApplicationStatus(applicationid) {
 }
 
 function SubmitApplication() {
-    LockBtn("#button-submit-application", "Submitting...");
+    LockBtn("#button-submit-application", mltr("submitting"));
 
     apptype = parseInt($("#application-type").find(":selected").attr("value"));
     data = {};
@@ -4937,7 +4946,7 @@ function SubmitApplication() {
         success: function (data) {
             UnlockBtn("#button-submit-application");
             if(data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Application submitted!", 5000, false);
+            toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-submit-application");
@@ -4954,14 +4963,14 @@ function UpdateStaffPositionsShow(){
             <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Positions" placeholder='Enter a position' multiple=''>
         </div>
     </div>`;
-    modalid = ShowModal("Update Staff Positions", content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">Update</button>`);
+    modalid = ShowModal(mltr("update_staff_positions"), content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">${mltr("update")}</button>`);
     InitModal("update_staff_positions", modalid);
     $('#application-staff-positions').flexdatalist({});
     $("#application-staff-positions").val(positions.join(","));
 }
 
 function UpdateStaffPositions() {
-    LockBtn("#button-update-staff-positions", "Updating...");
+    LockBtn("#button-update-staff-positions", mltr("updating"));
     positionstxt = $("#application-staff-positions").val();
 
     $.ajax({
@@ -4979,7 +4988,7 @@ function UpdateStaffPositions() {
             if (data.error) return AjaxError(data);
             positions = positionstxt.split(",");
             localStorage.setItem("positions", JSON.stringify(positions));
-            toastNotification("success", "Success!", "Staff positions updated!", 5000, false);
+            toastNotification("success", "Success!", mltr("staff_positions_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-update-staff-positions");
@@ -5051,13 +5060,13 @@ async function LoadChallenge(noplaceholder = false) {
                 status = "";
                 status_type = "";
                 if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-                    status = "Ongoing", status_type = "text-bg-success";
+                    status = mltr("ongoing"), status_type = "text-bg-success";
                 else if(challenge.start_time * 1000 > +new Date())
-                    status = "Upcoming", status_type = "text-bg-info";
+                    status = mltr("upcoming"), status_type = "text-bg-info";
                 else if(challenge.end_time * 1000 < +new Date())
-                    status = "Ended", status_type = "text-bg-danger";
+                    status = mltr("ended"), status_type = "text-bg-danger";
                 if(parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count))
-                    status = "Completed", status_type = "text-bg-warning";
+                    status = mltr("completed"), status_type = "text-bg-warning";
                 
                 extra_status = "";
                 roles = JSON.parse(localStorage.getItem("roles"));
@@ -5065,8 +5074,8 @@ async function LoadChallenge(noplaceholder = false) {
                 for(j = 0 ; j < challenge.required_roles.length ; j++){
                     if(roles.includes(challenge.required_roles[j])) roleok = true;
                 }
-                if(!roleok) extra_status = "Not Qualified";
-                if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = "Not Qualified";
+                if(!roleok) extra_status = mltr("not_qualified");
+                if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
 
                 badge_status = `<span class="badge ${status_type}">${status}</span>`;
                 if(extra_status != "") badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${extra_status}</span>`;
@@ -5090,31 +5099,31 @@ function ShowChallengeDetail(challengeid){
     info = "<table><tbody>";
     CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)"];
     challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
-    info += GenTableRow("Challenge Type", challenge_type);
-    info += GenTableRow("Reward Points", challenge.reward_points);
-    info += GenTableRow("Start Time", getDateTime(challenge.start_time * 1000));
-    info += GenTableRow("End Time", getDateTime(challenge.end_time * 1000));
+    info += GenTableRow(mltr("challenge_type"), challenge_type);
+    info += GenTableRow(mltr("reward_points"), challenge.reward_points);
+    info += GenTableRow(mltr("start_time"), getDateTime(challenge.start_time * 1000));
+    info += GenTableRow(mltr("end_time"), getDateTime(challenge.end_time * 1000));
     status = "";
     status_type = "";
     if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-        status = "Ongoing", status_type = "text-bg-success";
+        status = mltr("ongoing"), status_type = "text-bg-success";
     else if(challenge.start_time * 1000 > +new Date())
-        status = "Upcoming", status_type = "text-bg-info";
+        status = mltr("upcoming"), status_type = "text-bg-info";
     else if(challenge.end_time * 1000 < +new Date())
-        status = "Ended", status_type = "text-bg-danger";
+        status = mltr("ended"), status_type = "text-bg-danger";
     if(challenge.current_delivery_count >= challenge.delivery_count)
-        status = "Completed", status_type = "text-bg-warning";
+        status = mltr("completed"), status_type = "text-bg-warning";
     badge_status = `<span class="badge ${status_type}">${status}</span>`;
-    info += GenTableRow("Status", badge_status);
+    info += GenTableRow(mltr("status"), badge_status);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
-    info += GenTableRow("Deliveries", challenge.delivery_count);
-    info += GenTableRow("Current Deliveries", challenge.current_delivery_count);
+    info += GenTableRow(mltr("deliveries"), challenge.delivery_count);
+    info += GenTableRow(mltr("current_deliveries"), challenge.current_delivery_count);
     pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
     progress = `<div class="progress">
         <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${pct}%</div>
     </div>`;
-    info += GenTableRow("Progress", progress);
+    info += GenTableRow(mltr("progress"), progress);
     info += GenTableRow("&nbsp;", "&nbsp;");
 
     roles = challenge.required_roles;
@@ -5123,13 +5132,13 @@ function ShowChallengeDetail(challengeid){
         rolestxt += `${rolelist[roles[i]]} (${roles[i]}),`
     }
     rolestxt = rolestxt.slice(0,-1);
-    info += GenTableRow("Required Roles", rolestxt);
-    info += GenTableRow("Required Distance Driven", TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
-    if(!roleok) extra_status = "Not Qualified";
-    if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = "Not Qualified";
+    info += GenTableRow(mltr("required_roles"), rolestxt);
+    info += GenTableRow(mltr("required_distance_driven"), TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
+    if(!roleok) extra_status = mltr("not_qualified");
+    if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
     if(extra_status != "") badge_status = `<span class="badge text-bg-secondary">${extra_status}</span>`;
-    else badge_status = `<span class="badge text-bg-success">Qualified</span>`;
-    info += GenTableRow("Qualification", badge_status);
+    else badge_status = `<span class="badge text-bg-success">${mltr("qualified")}</span>`;
+    info += GenTableRow(mltr("qualification"), badge_status);
     info += GenTableRow("&nbsp;", "&nbsp;");
     
     completed_users = "";
@@ -5141,7 +5150,7 @@ function ShowChallengeDetail(challengeid){
     completed_users = completed_users.substr(0, completed_users.length - 2);
 
     if(challenge.completed.length != 0){
-        info += GenTableRow("Completed Members", completed_users);
+        info += GenTableRow(mltr("completed_members"), completed_users);
         info += GenTableRow("&nbsp;", "&nbsp;");
     }
 
@@ -5195,7 +5204,7 @@ function CreateChallenge() {
         }
     }
     
-    LockBtn("#button-challenge-new-create", "Creating...");
+    LockBtn("#button-challenge-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge",
         type: "POST",
@@ -5220,7 +5229,7 @@ function CreateChallenge() {
             UnlockBtn("#button-challenge-new-create");
             if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Challenge created!", 5000, false);
+            toastNotification("success", "Success", mltr("challenge_created"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-new-create");
@@ -5285,7 +5294,7 @@ function EditChallengeShow(challengeid){
 }
 
 function EditChallenge(challengeid) {
-    LockBtn("#button-challenge-edit", "Editing...");
+    LockBtn("#button-challenge-edit", mltr("editing"));
     title = $("#challenge-edit-title").val();
     description = simplemde["#challenge-edit-description"].value();
     start_time = +new Date($("#challenge-edit-start-time").val())/1000;
@@ -5330,7 +5339,7 @@ function EditChallenge(challengeid) {
         }
     }
     
-    LockBtn("#button-challenge-edit-create", "Creating...");
+    LockBtn("#button-challenge-edit-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
         type: "PATCH",
@@ -5355,7 +5364,7 @@ function EditChallenge(challengeid) {
             UnlockBtn("#button-challenge-edit");
             if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Challenge edited!", 5000, false);
+            toastNotification("success", "Success", mltr("challenge_edited"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-edit");
@@ -5366,12 +5375,12 @@ function EditChallenge(challengeid) {
 
 function DeleteChallengeShow(challengeid, title){
     if(shiftdown) return DeleteChallenge(challengeid);
-    modalid = ShowModal("Delete Challenge", `<p>Are you sure you want to delete this challenge?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-challenge-delete-${challengeid}" type="button" class="btn btn-danger" onclick="DeleteChallenge(${challengeid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_challenge"), `<p>${mltr("delete_challenge_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-challenge-delete-${challengeid}" type="button" class="btn btn-danger" onclick="DeleteChallenge(${challengeid});">${mltr("delete")}</button>`);
     InitModal("delete_challenge", modalid);
 }
 
 function DeleteChallenge(challengeid){
-    LockBtn("#button-challenge-delete-"+challengeid, "Deleting...");
+    LockBtn("#button-challenge-delete-"+challengeid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge?challengeid=" + challengeid,
         type: "DELETE",
@@ -5383,7 +5392,7 @@ function DeleteChallenge(challengeid){
             UnlockBtn("#button-challenge-delete-"+challengeid);
             if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Challenge deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("challenge_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_challenge")) DestroyModal("delete_challenge");
         },
         error: function (data) {
@@ -5395,20 +5404,20 @@ function DeleteChallenge(challengeid){
 
 function EditChallengeDeliveryShow(){
     div = `
-    <label for="challenge-challenge-id" class="form-label">Challenge ID</label>
+    <label for="challenge-challenge-id" class="form-label">${mltr('challenge_id')}</label>
     <div class="input-group mb-2">
         <input type="number" class="form-control bg-dark text-white" id="challenge-challenge-id" placeholder="0">
     </div>
-    <label for="challenge-dlog-id" class="form-label">Delivery Log ID</label>
+    <label for="challenge-dlog-id" class="form-label">${mltr('delivery_log_id')}</label>
     <div class="input-group mb-3">
         <input type="number" class="form-control bg-dark text-white" id="challenge-dlog-id" placeholder="0">
     </div>`;
-    modalid = ShowModal(`Challenge Delivery`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-challenge-delete-delivery" type="button" class="btn btn-danger" onclick="DeleteChallengeDelivery();">Delete</button><button id="button-challenge-add-delivery" type="button" class="btn btn-success" onclick="AddChallengeDelivery();">Add</button>`);
+    modalid = ShowModal(mltr('challenge_delivery'), div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('close')}</button><button id="button-challenge-delete-delivery" type="button" class="btn btn-danger" onclick="DeleteChallengeDelivery();">${mltr('delete')}</button><button id="button-challenge-add-delivery" type="button" class="btn btn-success" onclick="AddChallengeDelivery();">${mltr('add')}</button>`);
     InitModal("edit_challenge_delivery", modalid);
 }
 
 function AddChallengeDelivery(){
-    LockBtn("#button-challenge-add-delivery", "Adding...");
+    LockBtn("#button-challenge-add-delivery", mltr("adding"));
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
@@ -5425,7 +5434,7 @@ function AddChallengeDelivery(){
             UnlockBtn("#button-challenge-add-delivery");
             if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Delivery added!", 5000, false);
+            toastNotification("success", "Success", mltr("delivery_added"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-add-delivery");
@@ -5435,7 +5444,7 @@ function AddChallengeDelivery(){
 }
 
 function DeleteChallengeDelivery(){
-    LockBtn("#button-challenge-delete-delivery", "Deleting...");
+    LockBtn("#button-challenge-delete-delivery", mltr("deleting"));
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
@@ -5449,7 +5458,7 @@ function DeleteChallengeDelivery(){
             UnlockBtn("#button-challenge-delete-delivery");
             if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Delivery deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-delete-delivery");
@@ -5569,7 +5578,7 @@ async function LoadDivisionInfo(noplaceholder = false) {
 }
 
 function GetDivisionInfo(logid) {
-    LockBtn("#button-delivery-detail-division", "Checking...");
+    LockBtn("#button-delivery-detail-division", mltr("checking"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/division?logid=" + logid,
@@ -5611,10 +5620,10 @@ function GetDivisionInfo(logid) {
                     <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="(Optional, a reason should be provided here if you need to reject the request)" style="height:100%"></textarea>
                 </div>
                 `;
-                modalid = ShowModal(`Division Validation`, info, `
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">Reject</button>
-                <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
+                modalid = ShowModal(mltr('division_validation'), info, `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button>
+                <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">${mltr('reject')}</button>
+                <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">${mltr('accept')}</button>`);
                 InitModal("division_detail", modalid, top = true);
                 $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
@@ -5631,9 +5640,9 @@ function GetDivisionInfo(logid) {
                     }
                 }
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
-                    modalid = ShowModal(`Division Validation`, info, `
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="button-division-revalidate" type="button" class="btn btn-primary" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
+                    modalid = ShowModal(mltr('division_validation'), info, `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('close')}</button>
+                    <button id="button-division-revalidate" type="button" class="btn btn-primary" onclick="UpdateDivision(${logid}, 0);">${mltr('revalidate')}</button>`);
                     InitModal("division_detail", modalid, top = true);
                 } else {
                     $("#delivery-detail-division").html(info);
@@ -5650,9 +5659,9 @@ function GetDivisionInfo(logid) {
 
 function SubmitDivisionValidationRequest(logid) {
     divisionid = $("#select-division").find(":selected").val();
-    if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+    if (divisionid == "-1") return toastNotification("error", "Error", mltr("invalid_division"), 5000, false);
 
-    LockBtn("#button-request-division-validation", "Requesting...");
+    LockBtn("#button-request-division-validation", mltr("requesting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
@@ -5667,7 +5676,7 @@ function SubmitDivisionValidationRequest(logid) {
         success: async function (data) {
             UnlockBtn("#button-request-division-validation");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Request submitted!", 5000, false);
+            toastNotification("success", "Success", mltr("request_submitted"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-request-division-validation");
@@ -5721,17 +5730,17 @@ function UpdateDivision(logid, status) {
     divisionid = "-1";
     if (status >= 1) {
         divisionid = $("#select-division").find(":selected").val();
-        if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+        if (divisionid == "-1") return toastNotification("error", "Error", mltr("invalid_division"), 5000, false);
     }
 
     if (status == 1) {
-        LockBtn("#button-division-accept", "Accepting...");
+        LockBtn("#button-division-accept", mltr("accepting"));
         $("#button-division-reject").attr("disabled", "disabled");
     } else if (status == 2) {
-        LockBtn("#button-division-reject", "Rejecting...");
+        LockBtn("#button-division-reject", mltr("rejecting"));
         $("#button-division-accept").attr("disabled", "disabled");
     } else if (status == 0) {
-        LockBtn("#button-division-revalidate", "Requesting...");
+        LockBtn("#button-division-revalidate", mltr("requesting"));
     }
 
     message = $("#validate-division-message").val();
@@ -5762,11 +5771,11 @@ function UpdateDivision(logid, status) {
             if (data.error) return AjaxError(data);
             GetDivisionInfo(logid);
             if (status == 1) {
-                toastNotification("success", "Success", "Division delivery accepted!", 5000, false);
+                toastNotification("success", "Success", mltr("division_delivery_accepted"), 5000, false);
             } else if (status == 2) {
-                toastNotification("success", "Success", "Division delivery rejected!", 5000, false);
+                toastNotification("success", "Success", mltr("division_delivery_rejected"), 5000, false);
             } else if (status == 0) {
-                toastNotification("success", "Success", "Division delivery validation status updated to pending!", 5000, false);
+                toastNotification("success", "Success", mltr("division_delivery_validation_status_updated_to_pending"), 5000, false);
             }
         },
         error: function (data) {
@@ -5889,7 +5898,7 @@ function CreateDownloads(){
     link = $("#downloads-new-link").val();
     orderid = $("#downloads-new-orderid").val();
 
-    LockBtn("#button-downloads-new-create", "Creating...");
+    LockBtn("#button-downloads-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads",
         type: "POST",
@@ -5907,7 +5916,7 @@ function CreateDownloads(){
             UnlockBtn("#button-downloads-new-create");
             if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
-            toastNotification("success", "Success", "Downloadable item added!", 5000, false);
+            toastNotification("success", "Success", mltr("downloadable_item_added"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-downloads-new-create");
@@ -5935,7 +5944,7 @@ function EditDownloads(){
     link = $("#downloads-edit-link").val();
     orderid = $("#downloads-edit-orderid").val();
 
-    LockBtn("#button-downloads-edit", "Editing...");
+    LockBtn("#button-downloads-edit", mltr("editing"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
         type: "PATCH",
@@ -5953,7 +5962,7 @@ function EditDownloads(){
             UnlockBtn("#button-downloads-edit");
             if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
-            toastNotification("success", "Success", "Downloadable item edited!", 5000, false);
+            toastNotification("success", "Success", mltr("downloadable_item_edited"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-downloads-edit");
@@ -5965,12 +5974,12 @@ function EditDownloads(){
 function DeleteDownloadsShow(downloadsid){
     if(shiftdown) return DeleteDownloads(downloadsid);
     title = alldownloads[downloadsid].title;
-    modalid = ShowModal("Delete Downloadable Item", `<p>Are you sure you want to delete this downloadable item?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-downloads-delete-${downloadsid}" type="button" class="btn btn-danger" onclick="DeleteDownloads(${downloadsid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_downloadable_item"), `<p>${mltr("delete_downloadable_item_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-downloads-delete-${downloadsid}" type="button" class="btn btn-danger" onclick="DeleteDownloads(${downloadsid});">${mltr("delete")}</button>`);
     InitModal("delete_downloads", modalid);
 }
 
 function DeleteDownloads(downloadsid){
-    LockBtn("#button-downloads-delete-"+downloadsid, "Deleting...");
+    LockBtn("#button-downloads-delete-"+downloadsid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
         type: "DELETE",
@@ -5982,7 +5991,7 @@ function DeleteDownloads(downloadsid){
             UnlockBtn("#button-downloads-delete-"+downloadsid);
             if (data.error) AjaxError(data);
             LoadDownloads(noplaceholder = true);
-            toastNotification("success", "Success", "Downloadable item deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("downloadable_item_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_downloads")) DestroyModal("delete_downloads");
         },
         error: function (data) {
@@ -6180,14 +6189,14 @@ async function ShowEventDetail(eventid, reload = false) {
     }
     info += "<table><tbody>";
     if(event.link != ""){
-        info += GenTableRow("Link", `<a href="${event.link}" target="_blank">${event.link}</a>`);
+        info += GenTableRow(mltr("link"), `<a href="${event.link}" target="_blank">${event.link}</a>`);
     }
-    info += GenTableRow("Meetup", getDateTime(event.meetup_timestamp * 1000));
-    info += GenTableRow("Departure", getDateTime(event.departure_timestamp * 1000));
+    info += GenTableRow(mltr("meetup"), getDateTime(event.meetup_timestamp * 1000));
+    info += GenTableRow(mltr("departure"), getDateTime(event.departure_timestamp * 1000));
     if(userid != null && userid != -1){
-        info += GenTableRow("Points", parseInt(event.points));
-        info += GenTableRow(`Voters ${voteop}`, vote);
-        info += GenTableRow(`Attendees ${attendeeop}`, attendee);
+        info += GenTableRow(mltr("points"), parseInt(event.points));
+        info += GenTableRow(`${mltr("voters")} ${voteop}`, vote);
+        info += GenTableRow(`${mltr("attendees")} ${attendeeop}`, attendee);
     }
 
     info += "</tbody></table>"
@@ -6226,7 +6235,7 @@ function CreateEvent(){
     departure_timestamp = +new Date($("#event-new-departure-time").val())/1000;
     is_private = $("#event-visibility-private").is(":checked");
 
-    LockBtn("#button-event-new-create", "Creating...");
+    LockBtn("#button-event-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/event",
         type: "POST",
@@ -6249,7 +6258,7 @@ function CreateEvent(){
             UnlockBtn("#button-event-new-create");
             if (data.error) return AjaxError(data);
             LoadEvent(force = true);
-            toastNotification("success", "Success", "Event created!", 5000, false);
+            toastNotification("success", "Success", mltr("event_created"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-event-new-create");
@@ -6285,7 +6294,7 @@ function EditEventShow(eventid){
 }
 
 function EditEvent(){
-    LockBtn("#button-event-edit", "Editing...");
+    LockBtn("#button-event-edit", mltr("editing"));
     eventid = $("#event-edit-id").val();
     title = $("#event-edit-title").val();
     description = simplemde["#event-edit-description"].value();
@@ -6318,7 +6327,7 @@ function EditEvent(){
             UnlockBtn("#button-event-edit");
             if (data.error) return AjaxError(data);
             LoadEvent(force = true);
-            toastNotification("success", "Success", "Event created!", 5000, false);
+            toastNotification("success", "Success", mltr("event_edited"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-event-edit");
@@ -6330,12 +6339,12 @@ function EditEvent(){
 function DeleteEventShow(eventid){
     if(shiftdown) return DeleteEvent(eventid);
     title = allevents[eventid].title;
-    modalid = ShowModal("Delete Event", `<p>Are you sure you want to delete this event?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-event-delete-${eventid}" type="button" class="btn btn-danger" onclick="DeleteEvent(${eventid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_event"), `<p>${mltr("delete_event_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-event-delete-${eventid}" type="button" class="btn btn-danger" onclick="DeleteEvent(${eventid});">${mltr("delete")}</button>`);
     InitModal("delete_event", modalid);
 }
 
 function DeleteEvent(eventid){
-    LockBtn("#button-event-delete-"+eventid, "Deleting...");
+    LockBtn("#button-event-delete-"+eventid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
         type: "DELETE",
@@ -6347,7 +6356,7 @@ function DeleteEvent(eventid){
             UnlockBtn("#button-event-delete-"+eventid);
             if (data.error) AjaxError(data);
             LoadEvent(noplaceholder = true);
-            toastNotification("success", "Success", "Event deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("event_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_event")) DestroyModal("delete_event");
         },
         error: function (data) {
@@ -6358,19 +6367,19 @@ function DeleteEvent(eventid){
 }
 
 function EditAttendeeShow(eventid){
-    modalid = ShowModal("Edit Event Point & Attendee", `
+    modalid = ShowModal(mltr("edit_event_point__attendee"), `
     <p>#${eventid} | ${allevents[eventid].title}</p>
-    <label for="event-edit-point" class="form-label">Event Point</label>
+    <label for="event-edit-point" class="form-label">${mltr("event_points")}</label>
     <div class="input-group mb-3">
         <input type="number" class="form-control bg-dark text-white" id="event-edit-point" placeholder="3000">
     </div>
-    <label for="event-edit-attendee" class="form-label">Attendees</label>
+    <label for="event-edit-attendee" class="form-label">${mltr("attendees")}</label>
     <div class="input-group mb-3">
-        <input type='text' id="event-edit-attendee" placeholder='Select members from list' class="form-control bg-dark text-white flexdatalist" list="all-member-datalist" data-min-length='1' multiple='' data-selection-required='1'></input>
+        <input type='text' id="event-edit-attendee" placeholder="${mltr("select_members_from_list")}" class="form-control bg-dark text-white flexdatalist" list="all-member-datalist" data-min-length='1' multiple='' data-selection-required='1'></input>
     </div>
     <p id="event-edit-message"></p>`, 
-    `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    <button id="button-event-edit-attendee" type="button" class="btn btn-primary" onclick="EditEventAttendee(${eventid});">Edit</button>`);
+    `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button>
+    <button id="button-event-edit-attendee" type="button" class="btn btn-primary" onclick="EditEventAttendee(${eventid});">${mltr("edit")}</button>`);
     InitModal("edit_event_attendee", modalid, top=true);
     $('#event-edit-attendee').flexdatalist({
         selectionRequired: 1,
@@ -6389,7 +6398,7 @@ function EditAttendeeShow(eventid){
 function EditEventAttendee(eventid) {
     points = $("#event-edit-point").val();
     if(!isNumber(points)){
-        return toastNotification("error", "Error", "Invalid event point!", 5000);
+        return toastNotification("error", "Error", mltr("invalid_event_point"), 5000);
     }
     attendeestxt = $("#event-edit-attendee").val();
     attendeest = attendeestxt.split(",");
@@ -6400,7 +6409,7 @@ function EditEventAttendee(eventid) {
     }
     attendees = attendees.join(",");
 
-    LockBtn("#button-event-edit-attendee", "Editing...");
+    LockBtn("#button-event-edit-attendee", mltr("editing"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/event/attendee?eventid=" + eventid,
@@ -6418,7 +6427,7 @@ function EditEventAttendee(eventid) {
             if (data.error) return AjaxError(data);
             LoadEvent(noplaceholder = true);
             $("#event-edit-message").html("<br>" + marked.parse(data.response.message).replaceAll("\n","<br>"));
-            toastNotification("success", "Sucess", "Event point & attendee updated!", 5000);
+            toastNotification("success", "Sucess", mltr("event_point__attendee_updated"), 5000);
         },
         error: function (data) {
             UnlockBtn("#button-event-edit-attendee");
@@ -6457,8 +6466,8 @@ function SteamValidate() {
                 $("#auth-message-content").html("Error: Invalid login");
                 return AjaxError(data);
             }
-            $("#auth-message-content").html("Steam account updated!");
-            toastNotification("success", "Success", "Steam account updated!", 5000);
+            $("#auth-message-content").html(mltr("steam_account_updated"));
+            toastNotification("success", "Success", mltr("steam_account_updated"), 5000);
             setTimeout(function () {
                 ShowTab("#settings-tab");
             }, 1000);
@@ -6507,8 +6516,8 @@ function AuthValidate() {
                 localStorage.setItem("token", newtoken);
                 ValidateToken();
                 $(".tabs").removeClass("loaded");
-                $("#auth-message-content").html("Welcome back!");
-                toastNotification("success", "Success", "Welcome back!", 5000);
+                $("#auth-message-content").html(mltr("welcome_back"));
+                toastNotification("success", "Success", mltr("welcome_back"), 5000);
                 setTimeout(function () {
                     ShowTab("#overview-tab");
                 }, 1000);
@@ -6547,8 +6556,8 @@ function OAuthMFA() {
             localStorage.removeItem("tipt");
             ValidateToken();
             $(".tabs").removeClass("loaded");
-            $("#auth-message-content").html("Welcome back!");
-            toastNotification("success", "Success", "Welcome back!", 5000);
+            $("#auth-message-content").html(mltr("welcome_back"));
+            toastNotification("success", "Success", mltr("welcome_back"), 5000);
             setTimeout(function () {
                 ShowTab("#overview-tab");
             }, 1000);
@@ -6561,7 +6570,7 @@ function OAuthMFA() {
 }
 
 function UpdateTruckersMPID() {
-    LockBtn("#button-settings-update-truckersmpid", "Updating...");
+    LockBtn("#button-settings-update-truckersmpid", mltr("updating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/truckersmp",
         type: "PATCH",
@@ -6575,7 +6584,7 @@ function UpdateTruckersMPID() {
         success: function (data) {
             UnlockBtn("#button-settings-update-truckersmpid");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "TruckersMP account updated!", 5000);
+            toastNotification("success", "Success", mltr("truckersmp_account_updated"), 5000);
         },
         error: function (data) {
             UnlockBtn("#button-settings-update-truckersmpid");
@@ -6614,7 +6623,7 @@ var CaptchaCallback = function (hcaptcha_response) {
                     localStorage.setItem("token", token);
                     ValidateToken();
                     $(".tabs").removeClass("loaded");
-                    toastNotification("success", "Success", "Welcome back!", 5000);
+                    toastNotification("success", "Success", mltr("welcome_back"), 5000);
                     setTimeout(function () {
                         ShowTab("#overview-tab");
                     }, 1000);
@@ -6637,7 +6646,7 @@ function ShowCaptcha() {
     email = $("#signin-email").val();
     password = $("#signin-password").val();
     if (email == "" || password == "") {
-        return toastNotification("warning", "", "Enter email and password.", 3000, false);
+        return toastNotification("warning", "", mltr("enter_email_and_password"), 3000, false);
     }
     LockBtn("#button-signin", `<span class="rect-20"><i class="fa-solid fa-right-to-bracket"></i></span> Logging in`);
     requireCaptcha = true;
@@ -6654,8 +6663,8 @@ mfato = -1;
 function MFAVerify() {
     otp = $("#mfa-otp").val();
     if (!isNumber(otp) || otp.length != 6)
-        return toastNotification("error", "Error", "Invalid OTP!", 5000);
-    LockBtn("#button-mfa-verify", "Verifying...");
+        return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
+    LockBtn("#button-mfa-verify", mltr("verifying"));
     mfato = setTimeout(function () {
         // remove otp cache after 75 seconds (2.5 rounds)
         if (!$("#mfa-tab").is(":visible")) {
@@ -6684,7 +6693,7 @@ function MFAVerify() {
             localStorage.removeItem("pending-mfa");
             $(".tabs").removeClass("loaded");
             ValidateToken();
-            toastNotification("success", "Success", "Welcome back!", 5000);
+            toastNotification("success", "Success", mltr("welcome_back"), 5000);
             setTimeout(function () {
                 ShowTab("#overview-tab");
             }, 1000);
@@ -6735,9 +6744,9 @@ function Logout() {
     localStorage.removeItem("token");
     $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
     $("#button-user-profile").attr("data-bs-toggle", "");
-    $("#sidebar-username").html("Guest");
-    $("#sidebar-userid").html("Login First");
-    $("#sidebar-role").html("Loner");
+    $("#sidebar-username").html(mltr("guest"));
+    $("#sidebar-userid").html(mltr("login_first"));
+    $("#sidebar-role").html(mltr("loner"));
     $("#sidebar-avatar").attr("src", "https://charlws.com/me.gif");
     $("#sidebar-application").hide();
     $("#sidebar-staff").hide();
@@ -7184,7 +7193,7 @@ function UpdateRolesOnDisplay() {
     hrole = rolestxt[0];
     localStorage.setItem("highest-role", hrole);
 
-    if (hrole == undefined || hrole == "undefined") hrole = "Loner";
+    if (hrole == undefined || hrole == "undefined") hrole = mltr("loner");
     $("#sidebar-role").html(hrole);
     roleids = Object.keys(rolelist);
     for (var i = 0; i < roleids.length; i++) {
@@ -7337,7 +7346,7 @@ function ShowStaffTabs() {
 }
 
 function NonMemberMode() {
-    $("#sidebar-role").html("Loner");
+    $("#sidebar-role").html(mltr("loner"));
     $("#overview-right-col").hide();
     $("#overview-left-col").removeClass("col-8");
     $("#overview-left-col").addClass("col");
@@ -7390,8 +7399,8 @@ function ValidateToken() {
     if (token == "guest") {
         // Guest, not logged in, update elements
         $("#sidebar-application").hide();
-        $("#sidebar-username").html("Guest");
-        $("#sidebar-userid").html("Login First");
+        $("#sidebar-username").html(mltr("guest"));
+        $("#sidebar-userid").html(mltr("login_first"));
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-profile").attr("data-bs-toggle", "");
         $("#button-user-delivery-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);

@@ -110,7 +110,7 @@ async function LoadDivisionInfo(noplaceholder = false) {
 }
 
 function GetDivisionInfo(logid) {
-    LockBtn("#button-delivery-detail-division", "Checking...");
+    LockBtn("#button-delivery-detail-division", mltr("checking"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/division?logid=" + logid,
@@ -152,10 +152,10 @@ function GetDivisionInfo(logid) {
                     <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="(Optional, a reason should be provided here if you need to reject the request)" style="height:100%"></textarea>
                 </div>
                 `;
-                modalid = ShowModal(`Division Validation`, info, `
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">Reject</button>
-                <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">Accept</button>`);
+                modalid = ShowModal(mltr('division_validation'), info, `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button>
+                <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">${mltr('reject')}</button>
+                <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">${mltr('accept')}</button>`);
                 InitModal("division_detail", modalid, top = true);
                 $("#division-" + data.response.divisionid).prop("selected", true);
             } else {
@@ -172,9 +172,9 @@ function GetDivisionInfo(logid) {
                     }
                 }
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
-                    modalid = ShowModal(`Division Validation`, info, `
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button id="button-division-revalidate" type="button" class="btn btn-primary" onclick="UpdateDivision(${logid}, 0);">Revalidate</button>`);
+                    modalid = ShowModal(mltr('division_validation'), info, `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('close')}</button>
+                    <button id="button-division-revalidate" type="button" class="btn btn-primary" onclick="UpdateDivision(${logid}, 0);">${mltr('revalidate')}</button>`);
                     InitModal("division_detail", modalid, top = true);
                 } else {
                     $("#delivery-detail-division").html(info);
@@ -191,9 +191,9 @@ function GetDivisionInfo(logid) {
 
 function SubmitDivisionValidationRequest(logid) {
     divisionid = $("#select-division").find(":selected").val();
-    if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+    if (divisionid == "-1") return toastNotification("error", "Error", mltr("invalid_division"), 5000, false);
 
-    LockBtn("#button-request-division-validation", "Requesting...");
+    LockBtn("#button-request-division-validation", mltr("requesting"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
@@ -208,7 +208,7 @@ function SubmitDivisionValidationRequest(logid) {
         success: async function (data) {
             UnlockBtn("#button-request-division-validation");
             if (data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Request submitted!", 5000, false);
+            toastNotification("success", "Success", mltr("request_submitted"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-request-division-validation");
@@ -262,17 +262,17 @@ function UpdateDivision(logid, status) {
     divisionid = "-1";
     if (status >= 1) {
         divisionid = $("#select-division").find(":selected").val();
-        if (divisionid == "-1") return toastNotification("error", "Error", "Invalid division.", 5000, false);
+        if (divisionid == "-1") return toastNotification("error", "Error", mltr("invalid_division"), 5000, false);
     }
 
     if (status == 1) {
-        LockBtn("#button-division-accept", "Accepting...");
+        LockBtn("#button-division-accept", mltr("accepting"));
         $("#button-division-reject").attr("disabled", "disabled");
     } else if (status == 2) {
-        LockBtn("#button-division-reject", "Rejecting...");
+        LockBtn("#button-division-reject", mltr("rejecting"));
         $("#button-division-accept").attr("disabled", "disabled");
     } else if (status == 0) {
-        LockBtn("#button-division-revalidate", "Requesting...");
+        LockBtn("#button-division-revalidate", mltr("requesting"));
     }
 
     message = $("#validate-division-message").val();
@@ -303,11 +303,11 @@ function UpdateDivision(logid, status) {
             if (data.error) return AjaxError(data);
             GetDivisionInfo(logid);
             if (status == 1) {
-                toastNotification("success", "Success", "Division delivery accepted!", 5000, false);
+                toastNotification("success", "Success", mltr("division_delivery_accepted"), 5000, false);
             } else if (status == 2) {
-                toastNotification("success", "Success", "Division delivery rejected!", 5000, false);
+                toastNotification("success", "Success", mltr("division_delivery_rejected"), 5000, false);
             } else if (status == 0) {
-                toastNotification("success", "Success", "Division delivery validation status updated to pending!", 5000, false);
+                toastNotification("success", "Success", mltr("division_delivery_validation_status_updated_to_pending"), 5000, false);
             }
         },
         error: function (data) {

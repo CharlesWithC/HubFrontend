@@ -17,7 +17,7 @@ $(document).ready(function () {
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?v2.4.1",
+        url: "/languages/en.json?" + (+new Date()),
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -28,7 +28,7 @@ $(document).ready(function () {
         lang = enlang;
     } else {
         $.ajax({
-            url: "/languages/"+language+".json?v2.4.1",
+            url: "/languages/"+language+".json?" + (+new Date()),
             type: "GET",
             dataType: "json",
             success: function (data) {
@@ -41,6 +41,7 @@ $(document).ready(function () {
 });
 
 function mltr(key){
+    key = key.toLowerCase();
     if(lang[key] == undefined){
         if(enlang[key] == undefined){
             return "";
@@ -584,7 +585,7 @@ function sha256(ascii) {
     return result;
 };
 
-function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("Close")}</button>`) {
+function ShowModal(title, content, footer = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button>`) {
     modalid = RandomString(6);
     $("body").append(`<div id="modal-${modalid}" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">

@@ -62,13 +62,13 @@ async function LoadChallenge(noplaceholder = false) {
                 status = "";
                 status_type = "";
                 if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-                    status = "Ongoing", status_type = "text-bg-success";
+                    status = mltr("ongoing"), status_type = "text-bg-success";
                 else if(challenge.start_time * 1000 > +new Date())
-                    status = "Upcoming", status_type = "text-bg-info";
+                    status = mltr("upcoming"), status_type = "text-bg-info";
                 else if(challenge.end_time * 1000 < +new Date())
-                    status = "Ended", status_type = "text-bg-danger";
+                    status = mltr("ended"), status_type = "text-bg-danger";
                 if(parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count))
-                    status = "Completed", status_type = "text-bg-warning";
+                    status = mltr("completed"), status_type = "text-bg-warning";
                 
                 extra_status = "";
                 roles = JSON.parse(localStorage.getItem("roles"));
@@ -76,8 +76,8 @@ async function LoadChallenge(noplaceholder = false) {
                 for(j = 0 ; j < challenge.required_roles.length ; j++){
                     if(roles.includes(challenge.required_roles[j])) roleok = true;
                 }
-                if(!roleok) extra_status = "Not Qualified";
-                if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = "Not Qualified";
+                if(!roleok) extra_status = mltr("not_qualified");
+                if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
 
                 badge_status = `<span class="badge ${status_type}">${status}</span>`;
                 if(extra_status != "") badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${extra_status}</span>`;
@@ -101,31 +101,31 @@ function ShowChallengeDetail(challengeid){
     info = "<table><tbody>";
     CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)"];
     challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
-    info += GenTableRow("Challenge Type", challenge_type);
-    info += GenTableRow("Reward Points", challenge.reward_points);
-    info += GenTableRow("Start Time", getDateTime(challenge.start_time * 1000));
-    info += GenTableRow("End Time", getDateTime(challenge.end_time * 1000));
+    info += GenTableRow(mltr("challenge_type"), challenge_type);
+    info += GenTableRow(mltr("reward_points"), challenge.reward_points);
+    info += GenTableRow(mltr("start_time"), getDateTime(challenge.start_time * 1000));
+    info += GenTableRow(mltr("end_time"), getDateTime(challenge.end_time * 1000));
     status = "";
     status_type = "";
     if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-        status = "Ongoing", status_type = "text-bg-success";
+        status = mltr("ongoing"), status_type = "text-bg-success";
     else if(challenge.start_time * 1000 > +new Date())
-        status = "Upcoming", status_type = "text-bg-info";
+        status = mltr("upcoming"), status_type = "text-bg-info";
     else if(challenge.end_time * 1000 < +new Date())
-        status = "Ended", status_type = "text-bg-danger";
+        status = mltr("ended"), status_type = "text-bg-danger";
     if(challenge.current_delivery_count >= challenge.delivery_count)
-        status = "Completed", status_type = "text-bg-warning";
+        status = mltr("completed"), status_type = "text-bg-warning";
     badge_status = `<span class="badge ${status_type}">${status}</span>`;
-    info += GenTableRow("Status", badge_status);
+    info += GenTableRow(mltr("status"), badge_status);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
-    info += GenTableRow("Deliveries", challenge.delivery_count);
-    info += GenTableRow("Current Deliveries", challenge.current_delivery_count);
+    info += GenTableRow(mltr("deliveries"), challenge.delivery_count);
+    info += GenTableRow(mltr("current_deliveries"), challenge.current_delivery_count);
     pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
     progress = `<div class="progress">
         <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${pct}%</div>
     </div>`;
-    info += GenTableRow("Progress", progress);
+    info += GenTableRow(mltr("progress"), progress);
     info += GenTableRow("&nbsp;", "&nbsp;");
 
     roles = challenge.required_roles;
@@ -134,13 +134,13 @@ function ShowChallengeDetail(challengeid){
         rolestxt += `${rolelist[roles[i]]} (${roles[i]}),`
     }
     rolestxt = rolestxt.slice(0,-1);
-    info += GenTableRow("Required Roles", rolestxt);
-    info += GenTableRow("Required Distance Driven", TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
-    if(!roleok) extra_status = "Not Qualified";
-    if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = "Not Qualified";
+    info += GenTableRow(mltr("required_roles"), rolestxt);
+    info += GenTableRow(mltr("required_distance_driven"), TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
+    if(!roleok) extra_status = mltr("not_qualified");
+    if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
     if(extra_status != "") badge_status = `<span class="badge text-bg-secondary">${extra_status}</span>`;
-    else badge_status = `<span class="badge text-bg-success">Qualified</span>`;
-    info += GenTableRow("Qualification", badge_status);
+    else badge_status = `<span class="badge text-bg-success">${mltr("qualified")}</span>`;
+    info += GenTableRow(mltr("qualification"), badge_status);
     info += GenTableRow("&nbsp;", "&nbsp;");
     
     completed_users = "";
@@ -152,7 +152,7 @@ function ShowChallengeDetail(challengeid){
     completed_users = completed_users.substr(0, completed_users.length - 2);
 
     if(challenge.completed.length != 0){
-        info += GenTableRow("Completed Members", completed_users);
+        info += GenTableRow(mltr("completed_members"), completed_users);
         info += GenTableRow("&nbsp;", "&nbsp;");
     }
 
@@ -206,7 +206,7 @@ function CreateChallenge() {
         }
     }
     
-    LockBtn("#button-challenge-new-create", "Creating...");
+    LockBtn("#button-challenge-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge",
         type: "POST",
@@ -231,7 +231,7 @@ function CreateChallenge() {
             UnlockBtn("#button-challenge-new-create");
             if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Challenge created!", 5000, false);
+            toastNotification("success", "Success", mltr("challenge_created"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-new-create");
@@ -296,7 +296,7 @@ function EditChallengeShow(challengeid){
 }
 
 function EditChallenge(challengeid) {
-    LockBtn("#button-challenge-edit", "Editing...");
+    LockBtn("#button-challenge-edit", mltr("editing"));
     title = $("#challenge-edit-title").val();
     description = simplemde["#challenge-edit-description"].value();
     start_time = +new Date($("#challenge-edit-start-time").val())/1000;
@@ -341,7 +341,7 @@ function EditChallenge(challengeid) {
         }
     }
     
-    LockBtn("#button-challenge-edit-create", "Creating...");
+    LockBtn("#button-challenge-edit-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
         type: "PATCH",
@@ -366,7 +366,7 @@ function EditChallenge(challengeid) {
             UnlockBtn("#button-challenge-edit");
             if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Challenge edited!", 5000, false);
+            toastNotification("success", "Success", mltr("challenge_edited"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-edit");
@@ -377,12 +377,12 @@ function EditChallenge(challengeid) {
 
 function DeleteChallengeShow(challengeid, title){
     if(shiftdown) return DeleteChallenge(challengeid);
-    modalid = ShowModal("Delete Challenge", `<p>Are you sure you want to delete this challenge?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-challenge-delete-${challengeid}" type="button" class="btn btn-danger" onclick="DeleteChallenge(${challengeid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_challenge"), `<p>${mltr("delete_challenge_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-challenge-delete-${challengeid}" type="button" class="btn btn-danger" onclick="DeleteChallenge(${challengeid});">${mltr("delete")}</button>`);
     InitModal("delete_challenge", modalid);
 }
 
 function DeleteChallenge(challengeid){
-    LockBtn("#button-challenge-delete-"+challengeid, "Deleting...");
+    LockBtn("#button-challenge-delete-"+challengeid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge?challengeid=" + challengeid,
         type: "DELETE",
@@ -394,7 +394,7 @@ function DeleteChallenge(challengeid){
             UnlockBtn("#button-challenge-delete-"+challengeid);
             if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Challenge deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("challenge_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_challenge")) DestroyModal("delete_challenge");
         },
         error: function (data) {
@@ -406,20 +406,20 @@ function DeleteChallenge(challengeid){
 
 function EditChallengeDeliveryShow(){
     div = `
-    <label for="challenge-challenge-id" class="form-label">Challenge ID</label>
+    <label for="challenge-challenge-id" class="form-label">${mltr('challenge_id')}</label>
     <div class="input-group mb-2">
         <input type="number" class="form-control bg-dark text-white" id="challenge-challenge-id" placeholder="0">
     </div>
-    <label for="challenge-dlog-id" class="form-label">Delivery Log ID</label>
+    <label for="challenge-dlog-id" class="form-label">${mltr('delivery_log_id')}</label>
     <div class="input-group mb-3">
         <input type="number" class="form-control bg-dark text-white" id="challenge-dlog-id" placeholder="0">
     </div>`;
-    modalid = ShowModal(`Challenge Delivery`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-challenge-delete-delivery" type="button" class="btn btn-danger" onclick="DeleteChallengeDelivery();">Delete</button><button id="button-challenge-add-delivery" type="button" class="btn btn-success" onclick="AddChallengeDelivery();">Add</button>`);
+    modalid = ShowModal(mltr('challenge_delivery'), div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('close')}</button><button id="button-challenge-delete-delivery" type="button" class="btn btn-danger" onclick="DeleteChallengeDelivery();">${mltr('delete')}</button><button id="button-challenge-add-delivery" type="button" class="btn btn-success" onclick="AddChallengeDelivery();">${mltr('add')}</button>`);
     InitModal("edit_challenge_delivery", modalid);
 }
 
 function AddChallengeDelivery(){
-    LockBtn("#button-challenge-add-delivery", "Adding...");
+    LockBtn("#button-challenge-add-delivery", mltr("adding"));
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
@@ -436,7 +436,7 @@ function AddChallengeDelivery(){
             UnlockBtn("#button-challenge-add-delivery");
             if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Delivery added!", 5000, false);
+            toastNotification("success", "Success", mltr("delivery_added"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-add-delivery");
@@ -446,7 +446,7 @@ function AddChallengeDelivery(){
 }
 
 function DeleteChallengeDelivery(){
-    LockBtn("#button-challenge-delete-delivery", "Deleting...");
+    LockBtn("#button-challenge-delete-delivery", mltr("deleting"));
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
@@ -460,7 +460,7 @@ function DeleteChallengeDelivery(){
             UnlockBtn("#button-challenge-delete-delivery");
             if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
-            toastNotification("success", "Success", "Delivery deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-challenge-delete-delivery");

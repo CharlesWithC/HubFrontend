@@ -25,6 +25,7 @@ def append(key, val):
         p = open(codepath,"r",encoding="utf-8").read()
         p = p.replace(f'"{val}"', f'mltr("{key}")')
         p = p.replace(f"'{val}'", f"mltr('{key}')")
+        p = p.replace(f"`{val}`", f"mltr('{key}')")
         open(codepath,"w",encoding="utf-8").write(p)
 
     elif codepath.endswith(".php"):

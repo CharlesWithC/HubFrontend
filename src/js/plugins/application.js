@@ -151,8 +151,8 @@ async function LoadAllApplicationList(noplaceholder = false) {
 }
 
 function GetApplicationDetail(applicationid, staffmode = false) {
-    LockBtn("#button-my-application-" + applicationid, "Loading...");
-    LockBtn("#button-all-application-" + applicationid, "Loading...");
+    LockBtn("#button-my-application-" + applicationid, mltr("loading"));
+    LockBtn("#button-all-application-" + applicationid, mltr("loading"));
     
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
@@ -176,7 +176,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             discordid = data.response.application.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
-                return toastNotification("error", "Error", "Application has no data", 5000, false);
+                return toastNotification("error", "Error", mltr("application_has_no_data"), 5000, false);
                 
             apptype = applicationTypes[data.response.application_type];
             ret = "";
@@ -195,38 +195,38 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                     info = "";
                     if (!data.error) {
                         d = data.response.user;
-                        info += GenTableRow("Name", d.name);
-                        info += GenTableRow("Email", d.email);
-                        info += GenTableRow("Discord", discordid);
-                        info += GenTableRow("TruckersMP", `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
-                        info += GenTableRow("Steam", `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
+                        info += GenTableRow(mltr("name"), d.name);
+                        info += GenTableRow(mltr("email"), d.email);
+                        info += GenTableRow(mltr("discord"), discordid);
+                        info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+                        info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
                     }
                     bottom = "";
                     if (!staffmode) {
                         bottom = `
-                            <label for="application-new-message" class="form-label">Message</label>
+                            <label for="application-new-message" class="form-label">${mltr("message")}</label>
                             <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="Content of message to add to this application" style="height:160px"></textarea>
+                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="${mltr("message_placeholder")}" style="height:160px"></textarea>
                             </div>`;
-                        modalid = ShowModal("Application #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-application-new-message" type="button" class="btn btn-primary" onclick="AddMessageToApplication(${applicationid});">Update</button>`);
+                        modalid = ShowModal(mltr("application") + " #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-application-new-message" type="button" class="btn btn-primary" onclick="AddMessageToApplication(${applicationid});">${mltr("update")}</button>`);
                         InitModal("my_application_detail", modalid);
                     } else {
                         bottom = `
-                            <label for="application-new-message" class="form-label">Message</label>
+                            <label for="application-new-message" class="form-label">${mltr("message")}</label>
                             <div class="input-group mb-3" style="height:calc(100% - 160px)">
-                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="Content of message to add to this application" style="height:160px"></textarea>
+                                <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="${mltr("message_placeholder")}" style="height:160px"></textarea>
                             </div>
 
-                            <label for="application-new-status" class="form-label">Status</label>
+                            <label for="application-new-status" class="form-label">${mltr("status")}</label>
                             <div class="mb-3">
                                 <select class="form-select bg-dark text-white" id="application-new-status">
-                                    <option selected>Select one from the list</option>
-                                    <option value="0">Pending</option>
-                                    <option value="1">Accepted</option>
-                                    <option value="2">Declined</option>
+                                    <option selected>${mltr("select_one_from_the_list")}</option>
+                                    <option value="0">${mltr("pending")}</option>
+                                    <option value="1">${mltr("accepted")}</option>
+                                    <option value="2">${mltr("declined")}</option>
                                 </select>
                             </div>`;
-                        modalid = ShowModal("Application #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-application-update-status" type="button" class="btn btn-primary" onclick="UpdateApplicationStatus(${applicationid});">Update</button>`);
+                        modalid = ShowModal(mltr("application") + " #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-application-update-status" type="button" class="btn btn-primary" onclick="UpdateApplicationStatus(${applicationid});">${mltr("update")}</button>`);
                         InitModal("all_application_detail", modalid);
                     }
                     UnlockBtn("#button-all-application-" + applicationid);
@@ -244,7 +244,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
 
 function AddMessageToApplication(applicationid) {
     message = $("#application-new-message").val();
-    LockBtn("#button-application-new-message", "Updating...");
+    LockBtn("#button-application-new-message", mltr("updating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/application",
         type: "PATCH",
@@ -260,7 +260,7 @@ function AddMessageToApplication(applicationid) {
             UnlockBtn("#button-application-new-message");
             if (data.error) return AjaxError(data);
             GetApplicationDetail(applicationid);
-            toastNotification("success", "Success!", "Message added!", 5000, false);
+            toastNotification("success", "Success!", mltr("message_added"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-application-new-message");
@@ -271,10 +271,10 @@ function AddMessageToApplication(applicationid) {
 
 function UpdateApplicationStatus(applicationid) {
     appstatus = parseInt($("#application-new-status").find(":selected").val());
-    if(!isNumber(appstatus)) return toastNotification("error", "Error", "Invalid application status!")
+    if(!isNumber(appstatus)) return toastNotification("error", "Error", mltr("invalid_application_status"))
     message = $("#application-new-message").val();
 
-    LockBtn("#button-application-update-status", "Updating...");
+    LockBtn("#button-application-update-status", mltr("updating"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/status",
@@ -292,7 +292,7 @@ function UpdateApplicationStatus(applicationid) {
             UnlockBtn("#button-application-update-status");
             if (data.error) return AjaxError(data);
             LoadAllApplicationList();
-            toastNotification("success", "Success", "Application status updated!", 5000, false);
+            toastNotification("success", "Success", mltr("application_status_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-application-update-status");
@@ -302,7 +302,7 @@ function UpdateApplicationStatus(applicationid) {
 }
 
 function SubmitApplication() {
-    LockBtn("#button-submit-application", "Submitting...");
+    LockBtn("#button-submit-application", mltr("submitting"));
 
     apptype = parseInt($("#application-type").find(":selected").attr("value"));
     data = {};
@@ -345,7 +345,7 @@ function SubmitApplication() {
         success: function (data) {
             UnlockBtn("#button-submit-application");
             if(data.error) return AjaxError(data);
-            toastNotification("success", "Success", "Application submitted!", 5000, false);
+            toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-submit-application");
@@ -362,14 +362,14 @@ function UpdateStaffPositionsShow(){
             <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Positions" placeholder='Enter a position' multiple=''>
         </div>
     </div>`;
-    modalid = ShowModal("Update Staff Positions", content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">Update</button>`);
+    modalid = ShowModal(mltr("update_staff_positions"), content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">${mltr("update")}</button>`);
     InitModal("update_staff_positions", modalid);
     $('#application-staff-positions').flexdatalist({});
     $("#application-staff-positions").val(positions.join(","));
 }
 
 function UpdateStaffPositions() {
-    LockBtn("#button-update-staff-positions", "Updating...");
+    LockBtn("#button-update-staff-positions", mltr("updating"));
     positionstxt = $("#application-staff-positions").val();
 
     $.ajax({
@@ -387,7 +387,7 @@ function UpdateStaffPositions() {
             if (data.error) return AjaxError(data);
             positions = positionstxt.split(",");
             localStorage.setItem("positions", JSON.stringify(positions));
-            toastNotification("success", "Success!", "Staff positions updated!", 5000, false);
+            toastNotification("success", "Success!", mltr("staff_positions_updated"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-update-staff-positions");

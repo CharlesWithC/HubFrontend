@@ -187,14 +187,14 @@ async function ShowEventDetail(eventid, reload = false) {
     }
     info += "<table><tbody>";
     if(event.link != ""){
-        info += GenTableRow("Link", `<a href="${event.link}" target="_blank">${event.link}</a>`);
+        info += GenTableRow(mltr("link"), `<a href="${event.link}" target="_blank">${event.link}</a>`);
     }
-    info += GenTableRow("Meetup", getDateTime(event.meetup_timestamp * 1000));
-    info += GenTableRow("Departure", getDateTime(event.departure_timestamp * 1000));
+    info += GenTableRow(mltr("meetup"), getDateTime(event.meetup_timestamp * 1000));
+    info += GenTableRow(mltr("departure"), getDateTime(event.departure_timestamp * 1000));
     if(userid != null && userid != -1){
-        info += GenTableRow("Points", parseInt(event.points));
-        info += GenTableRow(`Voters ${voteop}`, vote);
-        info += GenTableRow(`Attendees ${attendeeop}`, attendee);
+        info += GenTableRow(mltr("points"), parseInt(event.points));
+        info += GenTableRow(`${mltr("voters")} ${voteop}`, vote);
+        info += GenTableRow(`${mltr("attendees")} ${attendeeop}`, attendee);
     }
 
     info += "</tbody></table>"
@@ -233,7 +233,7 @@ function CreateEvent(){
     departure_timestamp = +new Date($("#event-new-departure-time").val())/1000;
     is_private = $("#event-visibility-private").is(":checked");
 
-    LockBtn("#button-event-new-create", "Creating...");
+    LockBtn("#button-event-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/event",
         type: "POST",
@@ -256,7 +256,7 @@ function CreateEvent(){
             UnlockBtn("#button-event-new-create");
             if (data.error) return AjaxError(data);
             LoadEvent(force = true);
-            toastNotification("success", "Success", "Event created!", 5000, false);
+            toastNotification("success", "Success", mltr("event_created"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-event-new-create");
@@ -292,7 +292,7 @@ function EditEventShow(eventid){
 }
 
 function EditEvent(){
-    LockBtn("#button-event-edit", "Editing...");
+    LockBtn("#button-event-edit", mltr("editing"));
     eventid = $("#event-edit-id").val();
     title = $("#event-edit-title").val();
     description = simplemde["#event-edit-description"].value();
@@ -325,7 +325,7 @@ function EditEvent(){
             UnlockBtn("#button-event-edit");
             if (data.error) return AjaxError(data);
             LoadEvent(force = true);
-            toastNotification("success", "Success", "Event created!", 5000, false);
+            toastNotification("success", "Success", mltr("event_edited"), 5000, false);
         },
         error: function (data) {
             UnlockBtn("#button-event-edit");
@@ -337,12 +337,12 @@ function EditEvent(){
 function DeleteEventShow(eventid){
     if(shiftdown) return DeleteEvent(eventid);
     title = allevents[eventid].title;
-    modalid = ShowModal("Delete Event", `<p>Are you sure you want to delete this event?</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen"><b>PROTIP:</b></span><br>You can hold down shift when clicking delete button to bypass this confirmation entirely.</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button id="button-event-delete-${eventid}" type="button" class="btn btn-danger" onclick="DeleteEvent(${eventid});">Delete</button>`);
+    modalid = ShowModal(mltr("delete_event"), `<p>${mltr("delete_event_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-event-delete-${eventid}" type="button" class="btn btn-danger" onclick="DeleteEvent(${eventid});">${mltr("delete")}</button>`);
     InitModal("delete_event", modalid);
 }
 
 function DeleteEvent(eventid){
-    LockBtn("#button-event-delete-"+eventid, "Deleting...");
+    LockBtn("#button-event-delete-"+eventid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
         type: "DELETE",
@@ -354,7 +354,7 @@ function DeleteEvent(eventid){
             UnlockBtn("#button-event-delete-"+eventid);
             if (data.error) AjaxError(data);
             LoadEvent(noplaceholder = true);
-            toastNotification("success", "Success", "Event deleted!", 5000, false);
+            toastNotification("success", "Success", mltr("event_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_event")) DestroyModal("delete_event");
         },
         error: function (data) {
@@ -365,19 +365,19 @@ function DeleteEvent(eventid){
 }
 
 function EditAttendeeShow(eventid){
-    modalid = ShowModal("Edit Event Point & Attendee", `
+    modalid = ShowModal(mltr("edit_event_point__attendee"), `
     <p>#${eventid} | ${allevents[eventid].title}</p>
-    <label for="event-edit-point" class="form-label">Event Point</label>
+    <label for="event-edit-point" class="form-label">${mltr("event_points")}</label>
     <div class="input-group mb-3">
         <input type="number" class="form-control bg-dark text-white" id="event-edit-point" placeholder="3000">
     </div>
-    <label for="event-edit-attendee" class="form-label">Attendees</label>
+    <label for="event-edit-attendee" class="form-label">${mltr("attendees")}</label>
     <div class="input-group mb-3">
-        <input type='text' id="event-edit-attendee" placeholder='Select members from list' class="form-control bg-dark text-white flexdatalist" list="all-member-datalist" data-min-length='1' multiple='' data-selection-required='1'></input>
+        <input type='text' id="event-edit-attendee" placeholder="${mltr("select_members_from_list")}" class="form-control bg-dark text-white flexdatalist" list="all-member-datalist" data-min-length='1' multiple='' data-selection-required='1'></input>
     </div>
     <p id="event-edit-message"></p>`, 
-    `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    <button id="button-event-edit-attendee" type="button" class="btn btn-primary" onclick="EditEventAttendee(${eventid});">Edit</button>`);
+    `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button>
+    <button id="button-event-edit-attendee" type="button" class="btn btn-primary" onclick="EditEventAttendee(${eventid});">${mltr("edit")}</button>`);
     InitModal("edit_event_attendee", modalid, top=true);
     $('#event-edit-attendee').flexdatalist({
         selectionRequired: 1,
@@ -396,7 +396,7 @@ function EditAttendeeShow(eventid){
 function EditEventAttendee(eventid) {
     points = $("#event-edit-point").val();
     if(!isNumber(points)){
-        return toastNotification("error", "Error", "Invalid event point!", 5000);
+        return toastNotification("error", "Error", mltr("invalid_event_point"), 5000);
     }
     attendeestxt = $("#event-edit-attendee").val();
     attendeest = attendeestxt.split(",");
@@ -407,7 +407,7 @@ function EditEventAttendee(eventid) {
     }
     attendees = attendees.join(",");
 
-    LockBtn("#button-event-edit-attendee", "Editing...");
+    LockBtn("#button-event-edit-attendee", mltr("editing"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/event/attendee?eventid=" + eventid,
@@ -425,7 +425,7 @@ function EditEventAttendee(eventid) {
             if (data.error) return AjaxError(data);
             LoadEvent(noplaceholder = true);
             $("#event-edit-message").html("<br>" + marked.parse(data.response.message).replaceAll("\n","<br>"));
-            toastNotification("success", "Sucess", "Event point & attendee updated!", 5000);
+            toastNotification("success", "Sucess", mltr("event_point__attendee_updated"), 5000);
         },
         error: function (data) {
             UnlockBtn("#button-event-edit-attendee");
