@@ -421,6 +421,59 @@ function UserResign() {
     });
 }
 
+function LoadNotificationSettings(){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/notification/settings",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            $("#notifications-drivershub").removeAttr("disabled");
+            $("#notifications-discord").removeAttr("disabled");
+            $("#notifications-event").removeAttr("disabled");
+            $("#notifications-drivershub").prop("checked", data.response.drivershub);
+            $("#notifications-discord").prop("checked", data.response.discord);
+            $("#notifications-event").prop("checked", data.response.event);
+        }
+    })
+}
+
+function EnableNotification(item, name){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if(data.error) return AjaxError(data);
+            toastNotification("success", "Success", name + " notification enabled!", 5000);
+        }, error: function (data){
+            AjaxError(data);
+        }
+    })
+}
+
+function DisableNotification(item, name){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if(data.error) return AjaxError(data);
+            toastNotification("success", "Success", name + " notification disabled!", 5000);
+        }, error: function (data){
+            AjaxError(data);
+        }
+    })
+}
+
 user_session_placeholder_row = `
 <tr>
     <td style="width:40%;"><span class="placeholder w-100"></span></td>
@@ -438,7 +491,7 @@ function LoadUserSessions(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/token/all",
+        url: api_host + "/" + dhabbr + "/token/list?page_size=50",
         type: "GET",
         dataType: "json",
         headers: {
@@ -454,8 +507,9 @@ function LoadUserSessions(noplaceholder = false) {
 
                 $("#table_session_data").append(`<tr>
                     <td>${sessions[i].ip}</td>
-                    <td>${getDateTime(sessions[i].timestamp * 1000)}</td>
-                    <td>${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
+                    <td>${sessions[i].country}</td>
+                    <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
+                    <td>${timeAgo(new Date(sessions[i].last_used_timestamp * 1000))}</td>
                     <td>${opbtn}</td>
                 </tr>`);
             }

@@ -468,7 +468,31 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
+        LoadNotificationSettings();
         LoadUserSessions();
+        if(!loaded){
+            $("#notifications-drivershub").on("change", function(){
+                if($("#notifications-drivershub").prop("checked")){
+                    EnableNotification("drivershub", "Drivers Hub");
+                } else {
+                    DisableNotification("drivershub", "Drivers Hub");
+                }
+            });
+            $("#notifications-discord").on("change", function(){
+                if($("#notifications-discord").prop("checked")){
+                    EnableNotification("discord", "Discord");
+                } else {
+                    DisableNotification("discord", "Discord");
+                }
+            });
+            $("#notifications-event").on("change", function(){
+                if($("#notifications-event").prop("checked")){
+                    EnableNotification("event", "Event");
+                } else {
+                    DisableNotification("event", "Event");
+                }
+            });
+        }
         $("#settings-subtab").children().removeClass("active");
         $("#settings-subtab").children().removeClass("show");
         if (btnname != "from-mfa") {
@@ -905,6 +929,10 @@ window.onpopstate = function (event) {
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
 $(document).ready(async function () {
+    while (1) {
+        if(language != undefined) break;
+        await sleep(100);
+    }
     PreValidateToken();
     $("#mfa-otp").val("");
     $("textarea").val("");

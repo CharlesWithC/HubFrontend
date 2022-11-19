@@ -1,9 +1,9 @@
 # Changelog
 
-**TODO**  
-1.Update config editor  
-2.Table page size selector  
-3.Add translation for javascript  
+**v2.4.2**  
+1.Updated to be compatible with API v1.20.2  
+2.Added notification settings  
+3.Added Russian Translation
 
 **v2.4.1**  
 1.Added full translation table  

@@ -3456,6 +3456,59 @@ function UserResign() {
     });
 }
 
+function LoadNotificationSettings(){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/notification/settings",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            $("#notifications-drivershub").removeAttr("disabled");
+            $("#notifications-discord").removeAttr("disabled");
+            $("#notifications-event").removeAttr("disabled");
+            $("#notifications-drivershub").prop("checked", data.response.drivershub);
+            $("#notifications-discord").prop("checked", data.response.discord);
+            $("#notifications-event").prop("checked", data.response.event);
+        }
+    })
+}
+
+function EnableNotification(item, name){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if(data.error) return AjaxError(data);
+            toastNotification("success", "Success", name + " notification enabled!", 5000);
+        }, error: function (data){
+            AjaxError(data);
+        }
+    })
+}
+
+function DisableNotification(item, name){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if(data.error) return AjaxError(data);
+            toastNotification("success", "Success", name + " notification disabled!", 5000);
+        }, error: function (data){
+            AjaxError(data);
+        }
+    })
+}
+
 user_session_placeholder_row = `
 <tr>
     <td style="width:40%;"><span class="placeholder w-100"></span></td>
@@ -3473,7 +3526,7 @@ function LoadUserSessions(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/token/all",
+        url: api_host + "/" + dhabbr + "/token/list?page_size=50",
         type: "GET",
         dataType: "json",
         headers: {
@@ -3489,8 +3542,9 @@ function LoadUserSessions(noplaceholder = false) {
 
                 $("#table_session_data").append(`<tr>
                     <td>${sessions[i].ip}</td>
-                    <td>${getDateTime(sessions[i].timestamp * 1000)}</td>
-                    <td>${getDateTime((parseInt(sessions[i].timestamp) + 86400 * 7) * 1000)}</td>
+                    <td>${sessions[i].country}</td>
+                    <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
+                    <td>${timeAgo(new Date(sessions[i].last_used_timestamp * 1000))}</td>
                     <td>${opbtn}</td>
                 </tr>`);
             }
@@ -7174,7 +7228,31 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
+        LoadNotificationSettings();
         LoadUserSessions();
+        if(!loaded){
+            $("#notifications-drivershub").on("change", function(){
+                if($("#notifications-drivershub").prop("checked")){
+                    EnableNotification("drivershub", "Drivers Hub");
+                } else {
+                    DisableNotification("drivershub", "Drivers Hub");
+                }
+            });
+            $("#notifications-discord").on("change", function(){
+                if($("#notifications-discord").prop("checked")){
+                    EnableNotification("discord", "Discord");
+                } else {
+                    DisableNotification("discord", "Discord");
+                }
+            });
+            $("#notifications-event").on("change", function(){
+                if($("#notifications-event").prop("checked")){
+                    EnableNotification("event", "Event");
+                } else {
+                    DisableNotification("event", "Event");
+                }
+            });
+        }
         $("#settings-subtab").children().removeClass("active");
         $("#settings-subtab").children().removeClass("show");
         if (btnname != "from-mfa") {
@@ -7611,6 +7689,10 @@ window.onpopstate = function (event) {
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
 $(document).ready(async function () {
+    while (1) {
+        if(language != undefined) break;
+        await sleep(100);
+    }
     PreValidateToken();
     $("#mfa-otp").val("");
     $("textarea").val("");

@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/37ab2d7e73865e23.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/38376c1f76bd36f7.js"></script>
 
     <?php
     $application_html = "";
@@ -2122,6 +2122,28 @@
                             </div>
                         </div>
                         <hr>
+                        <label class="form-label" style="width:100%"><?php echo mltr("notifications"); ?></label>
+                        <div class="row px-3">
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-drivershub" disabled>
+                                <label class="form-check-label" for="notifications-drivershub">
+                                    <?php echo mltr("drivers_hub"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-discord" disabled>
+                                <label class="form-check-label" for="notifications-discord">
+                                    <?php echo mltr("discord"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-event" disabled>
+                                <label class="form-check-label" for="notifications-event">
+                                    <?php echo mltr("event"); ?>
+                                </label>
+                            </div>
+                        </div>
+                        <hr>
                         <label class="form-label" style="width:100%"><?php echo mltr("account_connections"); ?></label>
                         <div class="row">
                             <div class="col-6">
@@ -2187,8 +2209,9 @@
                                 <thead id="table_session_head">
                                     <tr class="text-xs text-gray-500 text-left">
                                         <th><?php echo mltr("ip"); ?></th>
+                                        <th><?php echo mltr("country"); ?></th>
                                         <th><?php echo mltr("login_time"); ?></th>
-                                        <th><?php echo mltr("expire_time"); ?></th>
+                                        <th><?php echo mltr("last_used"); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody id="table_session_data">
