@@ -1,5 +1,9 @@
 # Changelog
 
+**v2.4.3**  
+1.Fixed Navio Live 0 driver trucking issue  
+2.Added Spanish Translation  
+
 **v2.4.2**  
 1.Updated to be compatible with API v1.20.2  
 2.Added notification settings  

@@ -1,4 +1,3 @@
-
 function toastNotification(type, title, text, time = 5) {
     new Noty({
         type: type,
@@ -17,7 +16,7 @@ membersteam = {};
 memberuserid = {};
 curtab = "#overview-tab";
 distance_unit = localStorage.getItem("distance_unit");
-if(distance_unit == "imperial"){
+if (distance_unit == "imperial") {
     distance_unit_txt = "mi";
     distance_ratio = 0.621371;
 } else {
@@ -45,62 +44,69 @@ function UpdateSteam() {
     });
 }
 UpdateSteam();
-setInterval(UpdateSteam, 600*1000);
+setInterval(UpdateSteam, 600 * 1000);
 
-const socket = new WebSocket('wss://gateway.navio.app/');
-socket.addEventListener("open", () => {
-    socket.send(
-        JSON.stringify({
-            op: 1,
-            data: {
-                "subscribe_to_company": navio_company_id,
-                //"subscribe_to_all_drivers": true
-            },
-        }),
-    );
-});
-
-socket.addEventListener("message", ({
-    data: message
-}) => {
-    let {
-        type,
-        data
-    } = JSON.parse(message)
-
-    if (type === "AUTH_ACK") {
-        setInterval(() => {
-            socket.send(
-                JSON.stringify({
-                    op: 2,
-                }),
-            );
-        }, data.heartbeat_interval * 1000);
+$(document).ready(async function () {
+    while (1) {
+        if(isNumber(navio_company_id)) break;
+        await sleep(100);
     }
+    
+    const socket = new WebSocket('wss://gateway.navio.app/');
+    socket.addEventListener("open", () => {
+        socket.send(
+            JSON.stringify({
+                op: 1,
+                data: {
+                    "subscribe_to_company": parseInt(navio_company_id),
+                    //"subscribe_to_all_drivers": true
+                },
+            }),
+        );
+    });
 
-    if (type === "TELEMETRY_UPDATE") {
-        steamids[data.driver] = +new Date();
-        driverdata[data.driver] = data;
-        if(data.game.id == "eut2") ets2data[data.driver] = data;
-        else if(data.game.id == "ats") atsdata[data.driver] = data;
-    }
+    socket.addEventListener("message", ({
+        data: message
+    }) => {
+        let {
+            type,
+            data
+        } = JSON.parse(message)
 
-    if (type === "NEW_EVENT") {
-        if (data.type == 1) {
-            drivername = membersteam[data.driver];
-            if (drivername == "undefined" || drivername == undefined) drivername = mltr("unknown_driver");
-            $("#delivery-tab").removeClass("loaded");
-            toastNotification("success", mltr("job_delivery"), "<b>" + drivername + "</b><br><b>"+mltr("distance")+":</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>"+mltr("revenue")+":</b> €" + TSeparator(data.revenue), 10000, false);
+        if (type === "AUTH_ACK") {
+            setInterval(() => {
+                socket.send(
+                    JSON.stringify({
+                        op: 2,
+                    }),
+                );
+            }, data.heartbeat_interval * 1000);
         }
-    }
-});
+
+        if (type === "TELEMETRY_UPDATE") {
+            steamids[data.driver] = +new Date();
+            driverdata[data.driver] = data;
+            if (data.game.id == "eut2") ets2data[data.driver] = data;
+            else if (data.game.id == "ats") atsdata[data.driver] = data;
+        }
+
+        if (type === "NEW_EVENT") {
+            if (data.type == 1) {
+                drivername = membersteam[data.driver];
+                if (drivername == "undefined" || drivername == undefined) drivername = mltr("unknown_driver");
+                $("#delivery-tab").removeClass("loaded");
+                toastNotification("success", mltr("job_delivery"), "<b>" + drivername + "</b><br><b>" + mltr("distance") + ":</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>" + mltr("revenue") + ":</b> €" + TSeparator(data.revenue), 10000, false);
+            }
+        }
+    });
+})
 
 function CountOnlineDriver() {
     drivers = Object.keys(steamids);
     for (var i = 0; i < drivers.length; i++) {
         if (+new Date() - steamids[drivers[i]] > 120000) {
-            if(driverdata[drivers[i]].game.id == "eut2") delete ets2data[drivers[i]];
-            else if(driverdata[drivers[i]].game.id == "ats") delete atsdata[drivers[i]];
+            if (driverdata[drivers[i]].game.id == "eut2") delete ets2data[drivers[i]];
+            else if (driverdata[drivers[i]].game.id == "ats") delete atsdata[drivers[i]];
             delete steamids[drivers[i]];
             delete driverdata[drivers[i]];
         }
@@ -111,7 +117,7 @@ function CountOnlineDriver() {
 setInterval(function () {
     cnt = CountOnlineDriver()
     $("#overview-stats-live").html(cnt);
-    if(cnt <= 1) $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Driver Trucking");
+    if (cnt <= 1) $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Driver Trucking");
     else $("#topbar-message").html(`<span class="rect-20"><i class="fa-solid fa-truck-fast"></i></span> ` + cnt + " Drivers Trucking");
     dt = new Date();
     t = pad(dt.getHours(), 2) + ":" + pad(dt.getMinutes(), 2) + ":" + pad(dt.getSeconds(), 2);
@@ -149,8 +155,9 @@ setInterval(function () {
 }, 1000);
 
 autocenterint = {};
-function PlayerPoint(steamid, mapid){
-    if(steamid == 0 || steamid == "0") return;
+
+function PlayerPoint(steamid, mapid) {
+    if (steamid == 0 || steamid == "0") return;
     drivername = membersteam[steamid];
     nuserid = memberuserid[steamid];
     if (drivername == "undefined" || drivername == undefined) drivername = "Unknown";
@@ -163,9 +170,9 @@ function PlayerPoint(steamid, mapid){
     distance = TSeparator(parseInt(d.truck.navigation.distance / 1000 * distance_ratio)) + "." + String(parseInt(d.truck.navigation.distance * distance_ratio) % 1000).substring(0, 1) + distance_unit_txt;
     toastNotification("info", drivername, `<b>${mltr("truck")}: </b>${truck}<br><b>${mltr("cargo")}: </b>${cargo}<br><b>${mltr("speed")}: </b>${speed}<br><a style='cursor:pointer' onclick='LoadUserProfile(${nuserid})'>${mltr("show_profile")}</a>`, 5000, false);
     clearInterval(autocenterint[mapid]);
-    autocenterint[mapid] = setInterval(function(){
+    autocenterint[mapid] = setInterval(function () {
         d = driverdata[steamid];
-        if(d == undefined) return;
+        if (d == undefined) return;
         window.mapcenter[mapid] = [d.truck.position.x, -d.truck.position.z];
         $("#map > div > canvas").click(function () {
             clearInterval(autocenterint["map"]);
@@ -191,24 +198,27 @@ function RenderPoint(mapid, steamid, x, y, scale, nodetail = false, truckicon = 
     drivername = membersteam[steamid];
     t = $("#" + mapid).position().top;
     l = $("#" + mapid).position().left;
-    if(truckicon){
+    if (truckicon) {
         $("#" + mapid).append(`<a class="${mapid}-player" style='cursor:pointer;position:absolute;top:${t+x-12}px;left:${l+y-12}px' onclick="PlayerPoint('${steamid}', '${mapid}')";>${trucksvg}</a>`);
         return;
     }
-    if(scale <= 10){
-        if(!nodetail)  $("#" + mapid).append(`<a class="${mapid}-player" style='cursor:pointer;position:absolute;top:${t+x-30}px;left:${l+y-7.5}px;text-align:center;color:skyblue' onclick="PlayerPoint('${steamid}', '${mapid}')";>${drivername}</a>`);
+    if (scale <= 10) {
+        if (!nodetail) $("#" + mapid).append(`<a class="${mapid}-player" style='cursor:pointer;position:absolute;top:${t+x-30}px;left:${l+y-7.5}px;text-align:center;color:skyblue' onclick="PlayerPoint('${steamid}', '${mapid}')";>${drivername}</a>`);
         $("#" + mapid).append(`<a class="${mapid}-player dot" style='cursor:pointer;position:absolute;top:${t+x-7.5}px;left:${l+y-7.5}px' onclick="PlayerPoint('${steamid}', '${mapid}')";></a>`);
-    } else if(scale <= 25){
+    } else if (scale <= 25) {
         $("#" + mapid).append(`<a class="${mapid}-player dot-small" style='cursor:pointer;position:absolute;top:${t+x-5}px;left:${l+y-5}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);
         $("#" + mapid).append(`<a class="${mapid}-player dot-area" style='cursor:pointer;position:absolute;top:${t+x-25}px;left:${l+y-25}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);
     } else {
-        $("#" + mapid).append(`<a class="${mapid}-player dot-area" style='cursor:pointer;position:absolute;top:${t+x-25}px;left:${l+y-25}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);      
+        $("#" + mapid).append(`<a class="${mapid}-player dot-area" style='cursor:pointer;position:absolute;top:${t+x-25}px;left:${l+y-25}px' onclick="PlayerPoint('${steamid}', '${mapid}')"></a>`);
     }
 }
 
 window.n = {};
 setInterval(function () {
-    if(curtab != "#map-tab"){$(".map-player").remove();return;}
+    if (curtab != "#map-tab") {
+        $(".map-player").remove();
+        return;
+    }
     if (window.n == undefined || window.n.previousExtent_ == undefined) return;
     window.mapRange = {};
     mapRange["top"] = window.n.previousExtent_[3];
@@ -243,8 +253,11 @@ setInterval(function () {
 
 window.an = {};
 setInterval(function () {
-    if(curtab != "#map-tab"){$(".amap-player").remove();return;}
-    if(window.an == undefined || window.an.previousExtent_ == undefined) return;
+    if (curtab != "#map-tab") {
+        $(".amap-player").remove();
+        return;
+    }
+    if (window.an == undefined || window.an.previousExtent_ == undefined) return;
     window.amapRange = {};
     amapRange["top"] = window.an.previousExtent_[3];
     amapRange["left"] = window.an.previousExtent_[0];
@@ -279,7 +292,10 @@ setInterval(function () {
 
 window.pn = {};
 setInterval(function () {
-    if(curtab != "#map-tab"){$(".pmap-player").remove();return;}
+    if (curtab != "#map-tab") {
+        $(".pmap-player").remove();
+        return;
+    }
     if (window.pn == undefined || window.pn.previousExtent_ == undefined) return;
     window.pmapRange = {};
     pmapRange["top"] = window.pn.previousExtent_[3];
