@@ -11,7 +11,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.3)");
+    console.log("Drivers Hub: Frontend (v2.4.4)");
     console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
@@ -51,6 +51,10 @@ function mltr(key){
     } else {
         return lang[key];
     }
+}
+
+function convertQuotation(s){
+    return s.replaceAll(`"`,`\\\"`);
 }
 
 function ParseAjaxError(data) {
@@ -300,24 +304,13 @@ function parseMarkdown(markdownText) {
     return htmlText.trim()
 }
 
-RANKING = localStorage.getItem("driver-ranks");
-if (RANKING == null) {
-    RANKING = [];
-    $.ajax({
-        url: api_host + "/" + dhabbr + "/member/ranks",
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            d = data.response;
-            RANKING = {};
-            for (i = 0; i < d.length; i++) {
-                RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
-            }
-            localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
-        }
-    });
-} else {
-    RANKING = JSON.parse(RANKING);
+function SafeParse(e){
+    if(e == undefined) return undefined;
+    try {
+        return JSON.parse(e);
+    } catch {
+        return undefined;
+    }
 }
 
 function point2rank(point) {

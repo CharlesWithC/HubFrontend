@@ -1,18 +1,24 @@
 SVG_VERIFIED = `<svg style="display:inline;position:relative;top:-1.5px;color:skyblue" width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5213 2.62368C11.3147 1.75255 12.6853 1.75255 13.4787 2.62368L14.4989 3.74391C14.8998 4.18418 15.4761 4.42288 16.071 4.39508L17.5845 4.32435C18.7614 4.26934 19.7307 5.23857 19.6757 6.41554L19.6049 7.92905C19.5771 8.52388 19.8158 9.10016 20.2561 9.50111L21.3763 10.5213C22.2475 11.3147 22.2475 12.6853 21.3763 13.4787L20.2561 14.4989C19.8158 14.8998 19.5771 15.4761 19.6049 16.071L19.6757 17.5845C19.7307 18.7614 18.7614 19.7307 17.5845 19.6757L16.071 19.6049C15.4761 19.5771 14.8998 19.8158 14.4989 20.2561L13.4787 21.3763C12.6853 22.2475 11.3147 22.2475 10.5213 21.3763L9.50111 20.2561C9.10016 19.8158 8.52388 19.5771 7.92905 19.6049L6.41553 19.6757C5.23857 19.7307 4.26934 18.7614 4.32435 17.5845L4.39508 16.071C4.42288 15.4761 4.18418 14.8998 3.74391 14.4989L2.62368 13.4787C1.75255 12.6853 1.75255 11.3147 2.62368 10.5213L3.74391 9.50111C4.18418 9.10016 4.42288 8.52388 4.39508 7.92905L4.32435 6.41553C4.26934 5.23857 5.23857 4.26934 6.41554 4.32435L7.92905 4.39508C8.52388 4.42288 9.10016 4.18418 9.50111 3.74391L10.5213 2.62368Z" stroke="currentColor" stroke-width="1.5"/> <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/> </svg> `;
 SVG_LOCKED = `<svg style="display:inline;position:relative;top:-1.5px;color:red" xmlns="http://www.w3.org/2000/svg" width="18" height="18" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M17,9V7c0-2.8-2.2-5-5-5S7,4.2,7,7v2c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h10c1.7,0,3-1.3,3-3v-7C20,10.3,18.7,9,17,9z M9,7c0-1.7,1.3-3,3-3s3,1.3,3,3v2H9V7z M13,17c0,0.6-0.4,1-1,1s-1-0.4-1-1v-3c0-0.6,0.4-1,1-1s1,0.4,1,1V17z" fill="red"/></svg>`;
 
+default_text_color = "white";
+
 userid = localStorage.getItem("userid");
 token = localStorage.getItem("token");
 isAdmin = false;
-highestrole = 99999;
-roles = JSON.parse(localStorage.getItem("roles"));
-rolelist = JSON.parse(localStorage.getItem("role-list"));
-rolecolor = JSON.parse(localStorage.getItem("role-color"));
-perms = JSON.parse(localStorage.getItem("perms"));
-positions = JSON.parse(localStorage.getItem("positions"));
-divisions = JSON.parse(localStorage.getItem("divisions"));
-applicationTypes = JSON.parse(localStorage.getItem("application-types"));
-userPerm = JSON.parse(localStorage.getItem("user-perm"));
+requireCaptcha = false;
+highestrole = "Unknown Role";
+highestroleid = 99999;
+roles = SafeParse(localStorage.getItem("roles"));
+rolelist = SafeParse(localStorage.getItem("role-list"));
+rolecolor = SafeParse(localStorage.getItem("role-color"));
+perms = SafeParse(localStorage.getItem("perms"));
+positions = SafeParse(localStorage.getItem("positions"));
+divisions = SafeParse(localStorage.getItem("divisions"));
+applicationTypes = SafeParse(localStorage.getItem("application-types"));
+userPerm = SafeParse(localStorage.getItem("user-perm"));
+RANKING = SafeParse(localStorage.getItem("driver-ranks"));
+RANKCLR = SafeParse(localStorage.getItem("driver-ranks-color"));
 if (userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
 user_distance = null;
@@ -521,12 +527,15 @@ function UpdateRolesOnDisplay() {
     ShowStaffTabs();
 }
 
-function LoadCache() {
-    rolelist = JSON.parse(localStorage.getItem("role-list"));
-    perms = JSON.parse(localStorage.getItem("perms"));
-    positions = JSON.parse(localStorage.getItem("positions"));
-    applicationTypes = JSON.parse(localStorage.getItem("application-types"));
-    divisions = JSON.parse(localStorage.getItem("divisions"));
+function LoadCache(force) {
+    if(force) localStorage.removeItem("cache-expire");
+    rolelist = SafeParse(localStorage.getItem("role-list"));
+    perms = SafeParse(localStorage.getItem("perms"));
+    positions = SafeParse(localStorage.getItem("positions"));
+    applicationTypes = SafeParse(localStorage.getItem("application-types"));
+    divisions = SafeParse(localStorage.getItem("divisions"));
+    RANKING = SafeParse(localStorage.getItem("driver-ranks"));
+    RANKCLR = SafeParse(localStorage.getItem("driver-ranks-color"));
 
     if (positions != undefined && positions != null) {
         positionstxt = "";
@@ -540,7 +549,7 @@ function LoadCache() {
     }
 
     cacheExpire = parseInt(localStorage.getItem("cache-expire"));
-    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined))
+    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined && RANKING != undefined && RANKCLR != undefined))
         cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
@@ -591,6 +600,23 @@ function LoadCache() {
             }
         });
         $.ajax({
+            url: api_host + "/" + dhabbr + "/member/ranks",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                d = data.response;
+                RANKING = {};
+                RANKCLR = {};
+                for (i = 0; i < d.length; i++) {
+                    RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
+                    RANKCLR[parseInt(d[i]["distance"])] = d[i]["color"];
+                    if(RANKCLR[parseInt(d[i]["distance"])] == undefined) RANKCLR[parseInt(d[i]["distance"])] = default_text_color;
+                }
+                localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
+                localStorage.setItem("driver-ranks-color", JSON.stringify(RANKCLR));
+            }
+        });
+        $.ajax({
             url: api_host + "/" + dhabbr + "/division/list",
             type: "GET",
             dataType: "json",
@@ -635,7 +661,7 @@ function GetUserPermission() {
 }
 
 function ShowStaffTabs() {
-    t = JSON.parse(JSON.stringify(userPerm));
+    t = SafeParse(JSON.stringify(userPerm));
     if (t == null) return;
     if(t.indexOf('user') != -1) t.splice(t.indexOf('user'),1);
     if(t.indexOf('driver') != -1) t.splice(t.indexOf('driver'),1);
@@ -687,6 +713,7 @@ function PreValidateToken() {
     discordid = localStorage.getItem("discordid");
     avatar = localStorage.getItem("avatar");
     highestrole = localStorage.getItem("highest-role");
+    highestroleid = localStorage.getItem("highest-role-id");
 
     if (userid == null || name == null) {
         $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
@@ -801,8 +828,12 @@ function ValidateToken() {
             roles = user.roles.sort(function (a, b) {
                 return a - b
             });
-            highestrole = roles[0];
+            highestrole = rolelist[roles[0]];
+            if(highestrole == undefined) highestrole = "Unknown Role";
             highestroleid = roles[0];
+            localStorage.setItem("highest-role", highestrole);
+            localStorage.setItem("highest-role-id", highestroleid);
+            
             name = user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             avatar = user.avatar;
             discordid = user.discordid;
@@ -983,11 +1014,11 @@ $(document).ready(async function () {
     InitResizeHandler();
     PreserveApplicationQuestion();
     while (1) {
-        rolelist = JSON.parse(localStorage.getItem("role-list"));
-        rolecolor = JSON.parse(localStorage.getItem("role-color"));
-        perms = JSON.parse(localStorage.getItem("perms"));
-        positions = JSON.parse(localStorage.getItem("positions"));
-        applicationTypes = JSON.parse(localStorage.getItem("application-types"));
+        rolelist = SafeParse(localStorage.getItem("role-list"));
+        rolecolor = SafeParse(localStorage.getItem("role-color"));
+        perms = SafeParse(localStorage.getItem("perms"));
+        positions = SafeParse(localStorage.getItem("positions"));
+        applicationTypes = SafeParse(localStorage.getItem("application-types"));
         if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }

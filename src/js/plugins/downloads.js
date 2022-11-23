@@ -58,16 +58,34 @@ function LoadDownloads(noplaceholder = false){
                 alldownloads[downloadslist[i].downloadsid] = downloadslist[i];
                 creator = downloads.creator;
                 downloads_control = `<div style="float:right"><a style="cursor:pointer" onclick="DownloadsRedirect(${downloads.downloadsid});"><span class="rect-20"><i class="fa-solid fa-download"></i></span></a>`;
+                downloads_control_title_style = "";
+                downloads_control_top = "";
+                downloads_control_bottom = "";
                 if(userPerm.includes("downloads") || userPerm.includes("admin")){
                     downloads_control += `<a style="cursor:pointer" onclick="EditDownloadsShow(${downloads.downloadsid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteDownloadsShow(${downloads.downloadsid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
+                    downloads_control_title_style = `width:calc(100% - 100px)`;
+                    downloads_control_top = `<input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-title" placeholder="A short and nice title" value="${downloads.title}" style="display:none;width:100%;">`;
+                    downloads_control_bottom = `<div id="downloads-edit-${downloads.downloadsid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
+                        <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-description" placeholder="Content of the downloadable item, MarkDown supported" style="height:100%">${downloads.description}</textarea></div>
+                    <label for="downloads-edit-${downloads.downloadsid}-link" class="form-label">Link</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-link" placeholder="https://..." value="${convertQuotation(downloads.link)}">
+                    </div>
+                    <label for="downloads-edit-${downloads.downloadsid}-orderid" class="form-label">Order ID</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-orderid" placeholder="0" value="${downloads.orderid}">
+                    </div>
+                    <button id="button-downloads-edit-${downloads.downloadsid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditDownloads(${downloads.downloadsid});">Save</button></div>
+                    `;
                 } else {
                     downloads_control += "</div>";
                 }
                 content += `<div class="downloads shadow p-3 m-3 bg-dark rounded col" id="downloads-${downloads.downloadsid}">
-                    <h5><strong><span id="downloads-display-${downloads.downloadsid}-title"> ${downloads.title}</span></strong></h5>
+                    <h5 style="display:inline-block;${downloads_control_title_style}"><strong><span id="downloads-display-${downloads.downloadsid}-title"> ${downloads.title}</span>${downloads_control_top}</strong></h5>
                     ${downloads_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar)} | ${downloads.click_count} Downloads</strong></h6>
-                    <div id="downloads-display-${downloads.downloadsid}-description"">${marked.parse(downloads.description.replaceAll("\n", "<br>"))}</div>
+                    <div id="downloads-display-${downloads.downloadsid}-description">${marked.parse(downloads.description.replaceAll("\n", "<br>"))}</div>
+                    ${downloads_control_bottom}
                 </div>`;
             }
             content += `</div>`;
@@ -132,25 +150,20 @@ function CreateDownloads(){
 }
 
 function EditDownloadsShow(downloadsid){
-    $("#downloads-edit-id").val(downloadsid);
-    $("#downloads-edit-id-span").html(downloadsid);
-    downloads = alldownloads[downloadsid];
-    $("#downloads-edit-title").val(downloads.title);
-    $("#downloads-edit-description").val(downloads.description);
-    $("#downloads-edit-link").val(downloads.link);
-    $("#downloads-edit-orderid").val(downloads.orderid);
-    $("#downloads-edit").show();
+    $(`#downloads-edit-${downloadsid}-bottom-div`).css("height", ($(`#downloads-display-${downloadsid}-content`).height()) + "px");
+    $(`#downloads-edit-${downloadsid}-bottom-div`).toggle();
+    $(`#downloads-edit-${downloadsid}-title`).toggle();
+    $(`#downloads-display-${downloadsid}-description`).toggle();
+    $(`#downloads-display-${downloadsid}-title`).toggle();
 }
 
-function EditDownloads(){
-    downloadsid = $("#downloads-edit-id").val();
+function EditDownloads(downloadsid){
+    title = $(`#downloads-edit-${downloadsid}-title`).val();
+    description = $(`#downloads-edit-${downloadsid}-description`).val();
+    link = $(`#downloads-edit-${downloadsid}-link`).val();
+    orderid = $(`#downloads-edit-${downloadsid}-orderid`).val();
 
-    title = $("#downloads-edit-title").val();
-    description = simplemde["#downloads-edit-description"].value();
-    link = $("#downloads-edit-link").val();
-    orderid = $("#downloads-edit-orderid").val();
-
-    LockBtn("#button-downloads-edit", mltr("editing"));
+    LockBtn(`#button-downloads-edit-${downloadsid}-save`, mltr("editing"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
         type: "PATCH",
@@ -165,13 +178,13 @@ function EditDownloads(){
             "orderid": orderid
         },
         success: function (data) {
-            UnlockBtn("#button-downloads-edit");
+            UnlockBtn(`#button-downloads-edit-${downloadsid}-save`);
             if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_edited"), 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#button-downloads-edit");
+            UnlockBtn(`#button-downloads-edit-${downloadsid}-save`);
             AjaxError(data);
         }
     });

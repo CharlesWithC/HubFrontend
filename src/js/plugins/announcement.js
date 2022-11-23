@@ -99,9 +99,14 @@ function LoadAnnouncement(noplaceholder = false){
                             <option value="4" ${type_checked[4]}>Resolved</option>
                         </select>
                     </div>
-                    <div style="display:inline">
-                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="Channel ID" style="width: 150px;display:inline-block;margin-right:10px;">
-                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="Discord Message" style="width:250px;display:inline-block;">
+                    <label for="announcement-edit-${announcement.announcementid}-discord" class="form-label">Discord Integration</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Channel ID</span>
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="" style="width: 150px;display:inline-block;margin-right:10px;">
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Message</span>
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="" style="width:250px;display:inline-block;">
                     </div>
                     <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
                 }
@@ -109,7 +114,7 @@ function LoadAnnouncement(noplaceholder = false){
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
-                    <p id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</p>
+                    <div id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</div>
                     ${announcement_control_bottom}
                 </div>`;
             }

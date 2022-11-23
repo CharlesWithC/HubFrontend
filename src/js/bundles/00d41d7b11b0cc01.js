@@ -11,7 +11,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.3)");
+    console.log("Drivers Hub: Frontend (v2.4.4)");
     console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
@@ -51,6 +51,10 @@ function mltr(key){
     } else {
         return lang[key];
     }
+}
+
+function convertQuotation(s){
+    return s.replaceAll(`"`,`\\\"`);
 }
 
 function ParseAjaxError(data) {
@@ -300,24 +304,13 @@ function parseMarkdown(markdownText) {
     return htmlText.trim()
 }
 
-RANKING = localStorage.getItem("driver-ranks");
-if (RANKING == null) {
-    RANKING = [];
-    $.ajax({
-        url: api_host + "/" + dhabbr + "/member/ranks",
-        type: "GET",
-        dataType: "json",
-        success: function (data) {
-            d = data.response;
-            RANKING = {};
-            for (i = 0; i < d.length; i++) {
-                RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
-            }
-            localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
-        }
-    });
-} else {
-    RANKING = JSON.parse(RANKING);
+function SafeParse(e){
+    if(e == undefined) return undefined;
+    try {
+        return JSON.parse(e);
+    } catch {
+        return undefined;
+    }
 }
 
 function point2rank(point) {
@@ -2114,10 +2107,8 @@ function LoadMemberList(noplaceholder = false) {
                 name = user.name;
                 discordid = user.discordid;
                 avatar = user.avatar;
-                highestrole = user.roles[0];
-                highestroleid = roles[0];
-                highestrole = rolelist[highestrole];
-                if (highestrole == undefined) highestrole = "/";
+                cur_highestrole = rolelist[user.roles[0]];
+                if (cur_highestrole == undefined) cur_highestrole = "/";
                 if (avatar != null) {
                     if (avatar.startsWith("a_"))
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -2137,7 +2128,7 @@ function LoadMemberList(noplaceholder = false) {
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
@@ -2165,7 +2156,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -2359,22 +2350,26 @@ function LoadRanking(){
         },
         success: function (data) {
             if (data.error) AjaxError(data);
-            d = data.response.list[0];
-            rank = point2rank(d.points.total_no_limit);
-            $("#ranking-tab").children().remove();
             t = `<div class="row">`;
-            t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
-            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
+            $("#ranking-tab").children().remove();
+            if(data.response.list.length != 0){
+                d = data.response.list[0];
+                rank = point2rank(d.points.total_no_limit);
+                t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
+                <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
+            } else {
+                t += GenCard(`My Points`, "You are not a driver!");
+            }
             k = Object.keys(RANKING);
             for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
-                t += GenCard(RANKING[k[i]], `${TSeparator(k[i])} Points`);
+                t += GenCard(`<span style="color:${RANKCLR[k[i]]}"> ${RANKING[k[i]]}</span>`, `${TSeparator(k[i])} Points`);
             }
             t += `</div>`;
             if(t.length>2){
                 for(var i = 2, j = 2; i < k.length ; i = j){
                     t += `<div class="row">`;
                     for(j = i ; j < Math.min(k.length, i + 3) ; j++){
-                        t += GenCard(RANKING[k[j]], `${TSeparator(k[j])} Points`);
+                        t += GenCard(`<span style="color:${RANKCLR[k[j]]}"> ${RANKING[k[j]]}</span>`, `${TSeparator(k[j])} Points`);
                     }
                     t += `</div>`;
                 }
@@ -4527,9 +4522,14 @@ function LoadAnnouncement(noplaceholder = false){
                             <option value="4" ${type_checked[4]}>Resolved</option>
                         </select>
                     </div>
-                    <div style="display:inline">
-                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="Channel ID" style="width: 150px;display:inline-block;margin-right:10px;">
-                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="Discord Message" style="width:250px;display:inline-block;">
+                    <label for="announcement-edit-${announcement.announcementid}-discord" class="form-label">Discord Integration</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Channel ID</span>
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="" style="width: 150px;display:inline-block;margin-right:10px;">
+                    </div>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Message</span>
+                        <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="" style="width:250px;display:inline-block;">
                     </div>
                     <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
                 }
@@ -4537,7 +4537,7 @@ function LoadAnnouncement(noplaceholder = false){
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
-                    <p id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</p>
+                    <div id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</div>
                     ${announcement_control_bottom}
                 </div>`;
             }
@@ -5922,16 +5922,34 @@ function LoadDownloads(noplaceholder = false){
                 alldownloads[downloadslist[i].downloadsid] = downloadslist[i];
                 creator = downloads.creator;
                 downloads_control = `<div style="float:right"><a style="cursor:pointer" onclick="DownloadsRedirect(${downloads.downloadsid});"><span class="rect-20"><i class="fa-solid fa-download"></i></span></a>`;
+                downloads_control_title_style = "";
+                downloads_control_top = "";
+                downloads_control_bottom = "";
                 if(userPerm.includes("downloads") || userPerm.includes("admin")){
                     downloads_control += `<a style="cursor:pointer" onclick="EditDownloadsShow(${downloads.downloadsid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteDownloadsShow(${downloads.downloadsid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
+                    downloads_control_title_style = `width:calc(100% - 100px)`;
+                    downloads_control_top = `<input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-title" placeholder="A short and nice title" value="${downloads.title}" style="display:none;width:100%;">`;
+                    downloads_control_bottom = `<div id="downloads-edit-${downloads.downloadsid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
+                        <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-description" placeholder="Content of the downloadable item, MarkDown supported" style="height:100%">${downloads.description}</textarea></div>
+                    <label for="downloads-edit-${downloads.downloadsid}-link" class="form-label">Link</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-link" placeholder="https://..." value="${convertQuotation(downloads.link)}">
+                    </div>
+                    <label for="downloads-edit-${downloads.downloadsid}-orderid" class="form-label">Order ID</label>
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-orderid" placeholder="0" value="${downloads.orderid}">
+                    </div>
+                    <button id="button-downloads-edit-${downloads.downloadsid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditDownloads(${downloads.downloadsid});">Save</button></div>
+                    `;
                 } else {
                     downloads_control += "</div>";
                 }
                 content += `<div class="downloads shadow p-3 m-3 bg-dark rounded col" id="downloads-${downloads.downloadsid}">
-                    <h5><strong><span id="downloads-display-${downloads.downloadsid}-title"> ${downloads.title}</span></strong></h5>
+                    <h5 style="display:inline-block;${downloads_control_title_style}"><strong><span id="downloads-display-${downloads.downloadsid}-title"> ${downloads.title}</span>${downloads_control_top}</strong></h5>
                     ${downloads_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar)} | ${downloads.click_count} Downloads</strong></h6>
-                    <div id="downloads-display-${downloads.downloadsid}-description"">${marked.parse(downloads.description.replaceAll("\n", "<br>"))}</div>
+                    <div id="downloads-display-${downloads.downloadsid}-description">${marked.parse(downloads.description.replaceAll("\n", "<br>"))}</div>
+                    ${downloads_control_bottom}
                 </div>`;
             }
             content += `</div>`;
@@ -5996,25 +6014,20 @@ function CreateDownloads(){
 }
 
 function EditDownloadsShow(downloadsid){
-    $("#downloads-edit-id").val(downloadsid);
-    $("#downloads-edit-id-span").html(downloadsid);
-    downloads = alldownloads[downloadsid];
-    $("#downloads-edit-title").val(downloads.title);
-    $("#downloads-edit-description").val(downloads.description);
-    $("#downloads-edit-link").val(downloads.link);
-    $("#downloads-edit-orderid").val(downloads.orderid);
-    $("#downloads-edit").show();
+    $(`#downloads-edit-${downloadsid}-bottom-div`).css("height", ($(`#downloads-display-${downloadsid}-content`).height()) + "px");
+    $(`#downloads-edit-${downloadsid}-bottom-div`).toggle();
+    $(`#downloads-edit-${downloadsid}-title`).toggle();
+    $(`#downloads-display-${downloadsid}-description`).toggle();
+    $(`#downloads-display-${downloadsid}-title`).toggle();
 }
 
-function EditDownloads(){
-    downloadsid = $("#downloads-edit-id").val();
+function EditDownloads(downloadsid){
+    title = $(`#downloads-edit-${downloadsid}-title`).val();
+    description = $(`#downloads-edit-${downloadsid}-description`).val();
+    link = $(`#downloads-edit-${downloadsid}-link`).val();
+    orderid = $(`#downloads-edit-${downloadsid}-orderid`).val();
 
-    title = $("#downloads-edit-title").val();
-    description = simplemde["#downloads-edit-description"].value();
-    link = $("#downloads-edit-link").val();
-    orderid = $("#downloads-edit-orderid").val();
-
-    LockBtn("#button-downloads-edit", mltr("editing"));
+    LockBtn(`#button-downloads-edit-${downloadsid}-save`, mltr("editing"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
         type: "PATCH",
@@ -6029,13 +6042,13 @@ function EditDownloads(){
             "orderid": orderid
         },
         success: function (data) {
-            UnlockBtn("#button-downloads-edit");
+            UnlockBtn(`#button-downloads-edit-${downloadsid}-save`);
             if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_edited"), 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#button-downloads-edit");
+            UnlockBtn(`#button-downloads-edit-${downloadsid}-save`);
             AjaxError(data);
         }
     });
@@ -6777,18 +6790,24 @@ function MFAVerify() {
 SVG_VERIFIED = `<svg style="display:inline;position:relative;top:-1.5px;color:skyblue" width="18" height="18" stroke-width="1.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5213 2.62368C11.3147 1.75255 12.6853 1.75255 13.4787 2.62368L14.4989 3.74391C14.8998 4.18418 15.4761 4.42288 16.071 4.39508L17.5845 4.32435C18.7614 4.26934 19.7307 5.23857 19.6757 6.41554L19.6049 7.92905C19.5771 8.52388 19.8158 9.10016 20.2561 9.50111L21.3763 10.5213C22.2475 11.3147 22.2475 12.6853 21.3763 13.4787L20.2561 14.4989C19.8158 14.8998 19.5771 15.4761 19.6049 16.071L19.6757 17.5845C19.7307 18.7614 18.7614 19.7307 17.5845 19.6757L16.071 19.6049C15.4761 19.5771 14.8998 19.8158 14.4989 20.2561L13.4787 21.3763C12.6853 22.2475 11.3147 22.2475 10.5213 21.3763L9.50111 20.2561C9.10016 19.8158 8.52388 19.5771 7.92905 19.6049L6.41553 19.6757C5.23857 19.7307 4.26934 18.7614 4.32435 17.5845L4.39508 16.071C4.42288 15.4761 4.18418 14.8998 3.74391 14.4989L2.62368 13.4787C1.75255 12.6853 1.75255 11.3147 2.62368 10.5213L3.74391 9.50111C4.18418 9.10016 4.42288 8.52388 4.39508 7.92905L4.32435 6.41553C4.26934 5.23857 5.23857 4.26934 6.41554 4.32435L7.92905 4.39508C8.52388 4.42288 9.10016 4.18418 9.50111 3.74391L10.5213 2.62368Z" stroke="currentColor" stroke-width="1.5"/> <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/> </svg> `;
 SVG_LOCKED = `<svg style="display:inline;position:relative;top:-1.5px;color:red" xmlns="http://www.w3.org/2000/svg" width="18" height="18" enable-background="new 0 0 24 24" viewBox="0 0 24 24"><path d="M17,9V7c0-2.8-2.2-5-5-5S7,4.2,7,7v2c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h10c1.7,0,3-1.3,3-3v-7C20,10.3,18.7,9,17,9z M9,7c0-1.7,1.3-3,3-3s3,1.3,3,3v2H9V7z M13,17c0,0.6-0.4,1-1,1s-1-0.4-1-1v-3c0-0.6,0.4-1,1-1s1,0.4,1,1V17z" fill="red"/></svg>`;
 
+default_text_color = "white";
+
 userid = localStorage.getItem("userid");
 token = localStorage.getItem("token");
 isAdmin = false;
-highestrole = 99999;
-roles = JSON.parse(localStorage.getItem("roles"));
-rolelist = JSON.parse(localStorage.getItem("role-list"));
-rolecolor = JSON.parse(localStorage.getItem("role-color"));
-perms = JSON.parse(localStorage.getItem("perms"));
-positions = JSON.parse(localStorage.getItem("positions"));
-divisions = JSON.parse(localStorage.getItem("divisions"));
-applicationTypes = JSON.parse(localStorage.getItem("application-types"));
-userPerm = JSON.parse(localStorage.getItem("user-perm"));
+requireCaptcha = false;
+highestrole = "Unknown Role";
+highestroleid = 99999;
+roles = SafeParse(localStorage.getItem("roles"));
+rolelist = SafeParse(localStorage.getItem("role-list"));
+rolecolor = SafeParse(localStorage.getItem("role-color"));
+perms = SafeParse(localStorage.getItem("perms"));
+positions = SafeParse(localStorage.getItem("positions"));
+divisions = SafeParse(localStorage.getItem("divisions"));
+applicationTypes = SafeParse(localStorage.getItem("application-types"));
+userPerm = SafeParse(localStorage.getItem("user-perm"));
+RANKING = SafeParse(localStorage.getItem("driver-ranks"));
+RANKCLR = SafeParse(localStorage.getItem("driver-ranks-color"));
 if (userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
 user_distance = null;
@@ -7297,12 +7316,15 @@ function UpdateRolesOnDisplay() {
     ShowStaffTabs();
 }
 
-function LoadCache() {
-    rolelist = JSON.parse(localStorage.getItem("role-list"));
-    perms = JSON.parse(localStorage.getItem("perms"));
-    positions = JSON.parse(localStorage.getItem("positions"));
-    applicationTypes = JSON.parse(localStorage.getItem("application-types"));
-    divisions = JSON.parse(localStorage.getItem("divisions"));
+function LoadCache(force) {
+    if(force) localStorage.removeItem("cache-expire");
+    rolelist = SafeParse(localStorage.getItem("role-list"));
+    perms = SafeParse(localStorage.getItem("perms"));
+    positions = SafeParse(localStorage.getItem("positions"));
+    applicationTypes = SafeParse(localStorage.getItem("application-types"));
+    divisions = SafeParse(localStorage.getItem("divisions"));
+    RANKING = SafeParse(localStorage.getItem("driver-ranks"));
+    RANKCLR = SafeParse(localStorage.getItem("driver-ranks-color"));
 
     if (positions != undefined && positions != null) {
         positionstxt = "";
@@ -7316,7 +7338,7 @@ function LoadCache() {
     }
 
     cacheExpire = parseInt(localStorage.getItem("cache-expire"));
-    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined))
+    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined && RANKING != undefined && RANKCLR != undefined))
         cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
@@ -7367,6 +7389,23 @@ function LoadCache() {
             }
         });
         $.ajax({
+            url: api_host + "/" + dhabbr + "/member/ranks",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                d = data.response;
+                RANKING = {};
+                RANKCLR = {};
+                for (i = 0; i < d.length; i++) {
+                    RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
+                    RANKCLR[parseInt(d[i]["distance"])] = d[i]["color"];
+                    if(RANKCLR[parseInt(d[i]["distance"])] == undefined) RANKCLR[parseInt(d[i]["distance"])] = default_text_color;
+                }
+                localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
+                localStorage.setItem("driver-ranks-color", JSON.stringify(RANKCLR));
+            }
+        });
+        $.ajax({
             url: api_host + "/" + dhabbr + "/division/list",
             type: "GET",
             dataType: "json",
@@ -7411,7 +7450,7 @@ function GetUserPermission() {
 }
 
 function ShowStaffTabs() {
-    t = JSON.parse(JSON.stringify(userPerm));
+    t = SafeParse(JSON.stringify(userPerm));
     if (t == null) return;
     if(t.indexOf('user') != -1) t.splice(t.indexOf('user'),1);
     if(t.indexOf('driver') != -1) t.splice(t.indexOf('driver'),1);
@@ -7463,6 +7502,7 @@ function PreValidateToken() {
     discordid = localStorage.getItem("discordid");
     avatar = localStorage.getItem("avatar");
     highestrole = localStorage.getItem("highest-role");
+    highestroleid = localStorage.getItem("highest-role-id");
 
     if (userid == null || name == null) {
         $("#sidebar-username").html(`<span class="placeholder col-8"></span>`);
@@ -7577,8 +7617,12 @@ function ValidateToken() {
             roles = user.roles.sort(function (a, b) {
                 return a - b
             });
-            highestrole = roles[0];
+            highestrole = rolelist[roles[0]];
+            if(highestrole == undefined) highestrole = "Unknown Role";
             highestroleid = roles[0];
+            localStorage.setItem("highest-role", highestrole);
+            localStorage.setItem("highest-role-id", highestroleid);
+            
             name = user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             avatar = user.avatar;
             discordid = user.discordid;
@@ -7759,11 +7803,11 @@ $(document).ready(async function () {
     InitResizeHandler();
     PreserveApplicationQuestion();
     while (1) {
-        rolelist = JSON.parse(localStorage.getItem("role-list"));
-        rolecolor = JSON.parse(localStorage.getItem("role-color"));
-        perms = JSON.parse(localStorage.getItem("perms"));
-        positions = JSON.parse(localStorage.getItem("positions"));
-        applicationTypes = JSON.parse(localStorage.getItem("application-types"));
+        rolelist = SafeParse(localStorage.getItem("role-list"));
+        rolecolor = SafeParse(localStorage.getItem("role-color"));
+        perms = SafeParse(localStorage.getItem("perms"));
+        positions = SafeParse(localStorage.getItem("positions"));
+        applicationTypes = SafeParse(localStorage.getItem("application-types"));
         if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
         await sleep(100);
     }

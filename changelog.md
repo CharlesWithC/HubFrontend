@@ -1,5 +1,15 @@
 # Changelog
 
+**v2.4.4**  
+1.*[Announcement]* Fixed announcement editing showing original content  
+2.*[Application]* Fixed default application leading to `Answer element not found error`  
+3.*[Member]* Fixed non-driver member failing to see pages tabs that get their leaderboard data (partially)  
+4.Fixed 500 error with `/api`  
+5.*[Member]* Improved caching for `driver-ranks`  
+6.*[Member]* Added rank color  
+7.*[Downloads]* Integrated downloads editor to each downloadable item  
+8.Added `SafeParse` to prevent `JSON.Parse` throwing errors when data is `undefined`  
+
 **v2.4.3**  
 1.Fixed Navio Live 0 driver trucking issue  
 2.Added Spanish Translation  

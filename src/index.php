@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/e2e167946cf4fbd7.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/00d41d7b11b0cc01.js"></script>
 
     <?php
     $application_html = "";
@@ -834,37 +834,6 @@
                     <strong style="font-size:20px"><span class="rect-20"><i class="fa-regular fa-square-plus"></i></span> <?php echo mltr("edit_downloadable_item"); ?> #<span id="downloads-edit-id-span"></span></strong>
                 </button>
             </h5>
-            <div id="downloads-edit-collapse" class="collapsed" aria-labelledby="downloads-edit-heading" data-bs-parent="#downloads-edit">
-                <input type="text" class="form-control bg-dark text-white" id="downloads-edit-id" placeholder="" style="display:none">
-                <div class="row">
-                    <div class="col-6">
-                        <label for="downloads-edit-title" class="form-label"><?php echo mltr("title"); ?></label>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control bg-dark text-white" id="downloads-edit-title" placeholder="<?php echo mltr("title_placeholder"); ?>">
-                        </div>
-                        <label for="downloads-edit-link" class="form-label"><?php echo mltr("link"); ?></label>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white" id="downloads-edit-link" placeholder="<?php echo mltr("link_placeholder"); ?>">
-                        </div>
-                        <label for="downloads-edit-orderid" class="form-label"><?php echo mltr("order_id"); ?></label>
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white" id="downloads-edit-orderid" placeholder="<?php echo mltr("order_id_placeholder"); ?>">
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <label for="downloads-edit-description" class="form-label"><?php echo mltr("description"); ?></label>
-                        <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-description" placeholder="" style="height:calc(100% - 40px)"></textarea>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col p-3">
-                        <button id="button-downloads-edit" type="button" class="btn btn-primary w-100" onclick="EditDownloads();"><?php echo mltr("edit"); ?></button>
-                    </div>
-                    <div class="col p-3">
-                        <button type="button" class="btn btn-secondary w-100" onclick="$('#downloads-edit').hide();"><?php echo mltr("close"); ?></button>
-                    </div>
-                </div>
-            </div>
         </div>
         </section>
         <section id="map-tab" class="tabs">

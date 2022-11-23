@@ -99,10 +99,8 @@ function LoadMemberList(noplaceholder = false) {
                 name = user.name;
                 discordid = user.discordid;
                 avatar = user.avatar;
-                highestrole = user.roles[0];
-                highestroleid = roles[0];
-                highestrole = rolelist[highestrole];
-                if (highestrole == undefined) highestrole = "/";
+                cur_highestrole = rolelist[user.roles[0]];
+                if (cur_highestrole == undefined) cur_highestrole = "/";
                 if (avatar != null) {
                     if (avatar.startsWith("a_"))
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
@@ -122,7 +120,7 @@ function LoadMemberList(noplaceholder = false) {
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
@@ -150,7 +148,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -344,22 +342,26 @@ function LoadRanking(){
         },
         success: function (data) {
             if (data.error) AjaxError(data);
-            d = data.response.list[0];
-            rank = point2rank(d.points.total_no_limit);
-            $("#ranking-tab").children().remove();
             t = `<div class="row">`;
-            t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
-            <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
+            $("#ranking-tab").children().remove();
+            if(data.response.list.length != 0){
+                d = data.response.list[0];
+                rank = point2rank(d.points.total_no_limit);
+                t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
+                <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
+            } else {
+                t += GenCard(`My Points`, "You are not a driver!");
+            }
             k = Object.keys(RANKING);
             for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
-                t += GenCard(RANKING[k[i]], `${TSeparator(k[i])} Points`);
+                t += GenCard(`<span style="color:${RANKCLR[k[i]]}"> ${RANKING[k[i]]}</span>`, `${TSeparator(k[i])} Points`);
             }
             t += `</div>`;
             if(t.length>2){
                 for(var i = 2, j = 2; i < k.length ; i = j){
                     t += `<div class="row">`;
                     for(j = i ; j < Math.min(k.length, i + 3) ; j++){
-                        t += GenCard(RANKING[k[j]], `${TSeparator(k[j])} Points`);
+                        t += GenCard(`<span style="color:${RANKCLR[k[j]]}"> ${RANKING[k[j]]}</span>`, `${TSeparator(k[j])} Points`);
                     }
                     t += `</div>`;
                 }

@@ -21,7 +21,7 @@
     <meta content="<?php echo $config["name"] ?>" property="og:description" />
     <meta content="<?php echo $domain ?>/" property="og:url" />
     <meta content="/images/logo.png" property="og:image" />
-    <meta content="<?php echo $dhcolor ?>" data-react-helmet="true" name="theme-color" />
+    <meta content="<?php echo $config["color"] ?>" data-react-helmet="true" name="theme-color" />
     <meta content="/images/bg.jpg" name="twitter:card">
 
     <script>
