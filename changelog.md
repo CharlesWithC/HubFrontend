@@ -8,7 +8,8 @@
 5.*[Member]* Improved caching for `driver-ranks`  
 6.*[Member]* Added rank color  
 7.*[Downloads]* Integrated downloads editor to each downloadable item  
-8.Added `SafeParse` to prevent `JSON.Parse` throwing errors when data is `undefined`  
+8.*[Challenge]* Improved UI design for challenge details and added support to recurring challenge  
+9.Added `SafeParse` to prevent `JSON.Parse` throwing errors when data is `undefined`  
 
 **v2.4.3**  
 1.Fixed Navio Live 0 driver trucking issue  

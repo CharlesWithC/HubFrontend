@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/00d41d7b11b0cc01.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/bcd356a9088f6a2d.js"></script>
 
     <?php
     $application_html = "";

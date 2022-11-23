@@ -144,10 +144,21 @@ function ShowChallengeDetail(challengeid){
     info += GenTableRow("&nbsp;", "&nbsp;");
     
     completed_users = "";
-    for (i = 0; i < challenge.completed.length; i++) {
-        pointstxt = "";
-        if(challenge.challenge_type == 2)pointstxt = ` (${challenge.completed[i].points} Points)`;
-        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${challenge.completed[i].userid})">${challenge.completed[i].name}${pointstxt}</a>, `;
+    completed_users_cnt = {};
+    completed_user_info = {};
+    completed_user_point = {};
+    for (var i = 0; i < challenge.completed.length; i++) {
+        if(completed_users_cnt[challenge.completed[i].userid] == undefined) completed_users_cnt[challenge.completed[i].userid] = 1;
+        else completed_users_cnt[challenge.completed[i].userid] += 1;
+        completed_user_info[challenge.completed[i].userid] = challenge.completed[i];
+        completed_user_point[challenge.completed[i].userid] = parseInt(challenge.completed[i].points);
+    }
+    d = sortDictWithValue(completed_user_point);
+    for (var i = 0; i < d.length; i++) {
+        extrainfo = "";
+        if(challenge.challenge_type == 2) extrainfo = ` <span class="badge text-bg-secondary">${completed_user_info[d[i][0]].points} Points</span>`;
+        else if(challenge.challenge_type == 3) extrainfo = ` <span class="badge text-bg-secondary">x${completed_users_cnt[d[i][0]]}</span>`;
+        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${i})">${completed_user_info[d[i][0]].name}${extrainfo}</a>, `;
     }
     completed_users = completed_users.substr(0, completed_users.length - 2);
 

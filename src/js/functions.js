@@ -24,26 +24,27 @@ $(document).ready(function () {
             enlang = data;
         }
     });
-    if(language == "en"){
+    if (language == "en") {
         lang = enlang;
     } else {
         $.ajax({
-            url: "/languages/"+language+".json?" + (+new Date()),
+            url: "/languages/" + language + ".json?" + (+new Date()),
             type: "GET",
             dataType: "json",
             success: function (data) {
                 lang = data;
-            }, error: function (data){
+            },
+            error: function (data) {
                 lang = enlang;
             }
         });
     }
 });
 
-function mltr(key){
+function mltr(key) {
     key = key.toLowerCase();
-    if(lang[key] == undefined){
-        if(enlang[key] == undefined){
+    if (lang[key] == undefined) {
+        if (enlang[key] == undefined) {
             return "";
         } else {
             return enlang[key];
@@ -53,8 +54,21 @@ function mltr(key){
     }
 }
 
-function convertQuotation(s){
-    return s.replaceAll(`"`,`\\\"`);
+function convertQuotation(s) {
+    return s.replaceAll(`"`, `\\\"`);
+}
+
+function sortDictWithValue(dict) {
+    var items = Object.keys(dict).map(function (key) {
+        return [key, dict[key]];
+    });
+
+    // Sort the array based on the second element
+    items.sort(function (first, second) {
+        return second[1] - first[1];
+    });
+
+    return items;
 }
 
 function ParseAjaxError(data) {
@@ -304,8 +318,8 @@ function parseMarkdown(markdownText) {
     return htmlText.trim()
 }
 
-function SafeParse(e){
-    if(e == undefined) return undefined;
+function SafeParse(e) {
+    if (e == undefined) return undefined;
     try {
         return JSON.parse(e);
     } catch {
