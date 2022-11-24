@@ -5240,7 +5240,7 @@ function ShowChallengeDetail(challengeid){
         extrainfo = "";
         if(challenge.challenge_type == 2) extrainfo = ` <span class="badge text-bg-secondary">${completed_user_info[d[i][0]].points} Points</span>`;
         else if(challenge.challenge_type == 3) extrainfo = ` <span class="badge text-bg-secondary">x${completed_users_cnt[d[i][0]]}</span>`;
-        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${i})">${completed_user_info[d[i][0]].name}${extrainfo}</a>, `;
+        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${d[i][0]})">${completed_user_info[d[i][0]].name}${extrainfo}</a>, `;
     }
     completed_users = completed_users.substr(0, completed_users.length - 2);
 
@@ -7284,7 +7284,16 @@ async function ShowTab(tabname, btnname) {
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
         $("#config-subtab").children().removeClass("show");
-        $("#config-api-json-tab").click();
+        $("#config-api-tab").click();
+        if(!loaded){
+            setInterval(function(){
+                if($("#config-api-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api-json"){
+                    $("#config-api-control").appendTo("#config-api");
+                } else if($("#config-api-json-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api"){
+                    $("#config-api-control").appendTo("#config-api-json");
+                }
+            })
+        }
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -7773,6 +7782,7 @@ window.onpopstate = function (event) {
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
+tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip", "#api-delivery-post-gifs-tooltip"];
 $(document).ready(async function () {
     while (1) {
         if(language != undefined) break;
@@ -7815,6 +7825,7 @@ $(document).ready(async function () {
         for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
     }, 500);
     for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $("[title='Toggle Fullscreen (F11)']").remove();
     $("[title='Toggle Side by Side (F9)']").remove();
     PathDetect();

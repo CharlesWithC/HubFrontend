@@ -158,7 +158,7 @@ function ShowChallengeDetail(challengeid){
         extrainfo = "";
         if(challenge.challenge_type == 2) extrainfo = ` <span class="badge text-bg-secondary">${completed_user_info[d[i][0]].points} Points</span>`;
         else if(challenge.challenge_type == 3) extrainfo = ` <span class="badge text-bg-secondary">x${completed_users_cnt[d[i][0]]}</span>`;
-        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${i})">${completed_user_info[d[i][0]].name}${extrainfo}</a>, `;
+        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${d[i][0]})">${completed_user_info[d[i][0]].name}${extrainfo}</a>, `;
     }
     completed_users = completed_users.substr(0, completed_users.length - 2);
 

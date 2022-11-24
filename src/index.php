@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/bcd356a9088f6a2d.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/70aceb0a4ea08893.js"></script>
 
     <?php
     $application_html = "";
@@ -159,6 +159,12 @@
 
         .sidebar a:hover {
             background-color:rgb(66,74,82);
+        }
+
+        .info-tooltip-btn {
+            height: 20px;
+            position: relative;
+            top: -4px;
         }
 
         td {
@@ -279,7 +285,7 @@
             max-width: 250px;
         }
 
-        h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
+        h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong,.fa-regular,.fa-solid,.fa-brands {color: white;}
         th > .fc-scrollgrid-sync-inner {background-color: #444}
         .flexdatalist-results {background-color:#2F3136;}
         .flexdatalist-multiple li.value {background-color:#2F3136;}
@@ -1967,25 +1973,164 @@
                 <h5 style="display:inline-block"><strong><span clas="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span> <?php echo mltr("configuration"); ?></strong></h5>
                 <ul class="nav nav-tabs" role="tablist" style="float:right">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link bg-dark text-white active" id="config-api-json-tab" data-bs-toggle="tab" data-bs-target="#config-api-json" type="button" role="tab" aria-controls="config-api-json" aria-selected="true"><?php echo mltr("api_json"); ?></button>
+                        <button class="nav-link bg-dark text-white active" id="config-api-tab" data-bs-toggle="tab" data-bs-target="#config-api" type="button" role="tab" aria-controls="config-api" aria-selected="true"><?php echo mltr("api"); ?></button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link bg-dark text-white active" id="config-api-json-tab" data-bs-toggle="tab" data-bs-target="#config-api-json" type="button" role="tab" aria-controls="config-api-json" aria-selected="false"><?php echo mltr("api_json"); ?></button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link bg-dark text-white" id="config-web-tab" data-bs-toggle="tab" data-bs-target="#config-web" type="button" role="tab" aria-controls="config-web" aria-selected="false"><?php echo mltr("web"); ?></button>
                     </li>
                 </ul>
                 <div class="tab-content mt-3" id="config-subtab">
-                    <div class="tab-pane fade show active" id="config-api-json" role="tabpanel" aria-labelledby="config-api-json-tab" tabindex="0">
+                    <div class="tab-pane fade show active" id="config-api" role="tabpanel" aria-labelledby="config-api-tab" tabindex="0">
+                        <?php echo mltr("api_note"); ?>
+                        <br>
+                        <label class="form-label"><?php echo mltr("company_info"); ?></label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="api-name" class="form-label"><?php echo mltr("name"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-name">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-distance-unit" class="form-label"><?php echo mltr("distance_unit"); ?></label>
+                                <div class="input-group mb-3">
+                                    <select class="form-select bg-dark text-white" id="api-distance-unit">
+                                        <option value="metric" id="api-distance-unit-metric"><?php echo mltr("metric"); ?></option>
+                                        <option value="imperial" id="api-distance-unit-imperial"><?php echo mltr("imperial"); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-hex-color" class="form-label"><?php echo mltr("hex_color"); ?> <button id="api-hex-color-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("hex_color_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-hex-color">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="api-logo-link" class="form-label"><?php echo mltr("logo_link"); ?> <button id="api-logo-link-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("logo_link_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-logo-link">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-require-truckersmp" class="form-label"><?php echo mltr("require_truckersmp_account"); ?> <button id="api-require-truckersmp-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("require_truckersmp_account_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                                <div class="input-group mb-3">
+                                    <select class="form-select bg-dark text-white" id="api-require-truckersmp">
+                                        <option value="true" id="api-require-truckersmp-enable"><?php echo mltr("enable"); ?></option>
+                                        <option value="false" id="api-require-truckersmp-disable"><?php echo mltr("disable"); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-privacy" class="form-label"><?php echo mltr("privacy"); ?> <button id="api-privacy-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("privacy_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                                <div class="input-group mb-3">
+                                    <select class="form-select bg-dark text-white" id="api-privacy">
+                                        <option value="true" id="api-privacy-enable"><?php echo mltr("enable"); ?></option>
+                                        <option value="false" id="api-privacy-disable"><?php echo mltr("disable"); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <label class="form-label"><?php echo mltr("discord_integration"); ?> (<a href="https://wiki.charlws.com/books/chub/page/discord-application" target="_blank"><?php echo mltr("wiki"); ?></a>)</label>
+                        <div class="row">
+                            <div class="col-9">
+                                <label for="api-guild-id" class="form-label"><?php echo mltr("server_id"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-guild-id">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-in-guild-check" class="form-label"><?php echo mltr("in_guild_check"); ?> <button id="api-in-guild-check-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("in_guild_check_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                                <div class="input-group mb-3">
+                                    <select class="form-select bg-dark text-white" id="api-in-guild-check">
+                                        <option value="true" id="api-in-guild-check-enable"><?php echo mltr("enable"); ?></option>
+                                        <option value="false" id="api-in-guild-check-disable"><?php echo mltr("disable"); ?></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="api-discord-client-id" class="form-label"><?php echo mltr("client_id"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-discord-client-id">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="api-discord-client-secret" class="form-label"><?php echo mltr("client_secret"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-discord-client-secret">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="api-discord-callback-url" class="form-label"><?php echo mltr("callback_url"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-discord-callback-url">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label for="api-discord-oauth2-url" class="form-label"><?php echo mltr("oauth2_url"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-discord-oauth2-url">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <label for="api-discord-bot-token" class="form-label"><?php echo mltr("bot_token"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-discord-bot-token">
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <label class="form-label"><?php echo mltr("navio_integration"); ?> (<a href="https://wiki.charlws.com/books/chub/page/navio-integration" target="_blank"><?php echo mltr("wiki"); ?></a>)</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <label for="api-navio-api-token" class="form-label"><?php echo mltr("api_token"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-navio-api-token" placeholder="<?php echo mltr("leave_empty_to_keep_unchanged"); ?>">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-navio-company-id" class="form-label"><?php echo mltr("company_id"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-navio-company-id">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label for="api-delivery-log-channel-id" class="form-label"><?php echo mltr("delivery_log_channel_id"); ?> <button id="api-delivery-log-channel-id-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("delivery_log_channel_id_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark text-white" id="api-delivery-log-channel-id">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="row">
+                            <div class="col-3">
+                                <label for="api-delivery-post-gifs" class="form-label"><?php echo mltr("delivery_post_gifs"); ?> <button id="api-delivery-post-gifs-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("delivery_post_gifs_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
+                            </div>
+                        </div> -->
+                        <div class="row justify-content-end" id="config-api-control">
+                            <button id="button-revert-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="RevertConfig();"><?php echo mltr("revert"); ?></button>
+                            <button id="button-reset-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="ResetConfig();"><?php echo mltr("reset"); ?></button>
+                            <button id="button-save-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateConfig();"><?php echo mltr("save"); ?></button>
+                            <button id="button-reload-api-show" type="button" class="btn btn-danger col-1 mx-2" onclick="ReloadAPIShow();"><?php echo mltr("reload"); ?></button>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="config-api-json" role="tabpanel" aria-labelledby="config-api-json-tab" tabindex="0">
                         <?php echo mltr("api_json_note"); ?>
                         <br>
                         <label for="json-config" class="form-label"><?php echo mltr("json_config"); ?></label>
                         <div class="input-group mb-3" style="height:500px">
                             <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
-                        </div>
-                        <div class="row justify-content-end">
-                            <button id="button-revert-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="RevertConfig();"><?php echo mltr("revert"); ?></button>
-                            <button id="button-reset-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="ResetConfig();"><?php echo mltr("reset"); ?></button>
-                            <button id="button-save-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateConfig();"><?php echo mltr("save"); ?></button>
-                            <button id="button-reload-api-show" type="button" class="btn btn-danger col-1 mx-2" onclick="ReloadAPIShow();"><?php echo mltr("reload"); ?></button>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="config-web" role="tabpanel" aria-labelledby="config-web-tab" tabindex="0">
