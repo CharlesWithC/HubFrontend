@@ -21,6 +21,8 @@ RANKING = SafeParse(localStorage.getItem("driver-ranks"));
 RANKCLR = SafeParse(localStorage.getItem("driver-ranks-color"));
 if (userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
+user_language = localStorage.getItem("language");
+if (user_language == null) user_language = "en";
 user_distance = null;
 Chart.defaults.color = "white";
 shiftdown = false;
@@ -500,6 +502,48 @@ async function ShowTab(tabname, btnname) {
                     DisableNotification("discord", "Discord");
                 }
             });
+            $("#notifications-login").on("change", function(){
+                if($("#notifications-login").prop("checked")){
+                    EnableNotification("login", "Login");
+                } else {
+                    DisableNotification("login", "Login");
+                }
+            });
+            $("#notifications-dlog").on("change", function(){
+                if($("#notifications-dlog").prop("checked")){
+                    EnableNotification("dlog", "Delivery Log");
+                } else {
+                    DisableNotification("dlog", "Delivery Log");
+                }
+            });
+            $("#notifications-member").on("change", function(){
+                if($("#notifications-member").prop("checked")){
+                    EnableNotification("member", "Member");
+                } else {
+                    DisableNotification("member", "Member");
+                }
+            });
+            $("#notifications-application").on("change", function(){
+                if($("#notifications-application").prop("checked")){
+                    EnableNotification("application", "Application");
+                } else {
+                    DisableNotification("application", "Application");
+                }
+            });
+            $("#notifications-challenge").on("change", function(){
+                if($("#notifications-challenge").prop("checked")){
+                    EnableNotification("challenge", "Challenge");
+                } else {
+                    DisableNotification("challenge", "Challenge");
+                }
+            });
+            $("#notifications-division").on("change", function(){
+                if($("#notifications-division").prop("checked")){
+                    EnableNotification("division", "Division");
+                } else {
+                    DisableNotification("division", "Division");
+                }
+            });
             $("#notifications-event").on("change", function(){
                 if($("#notifications-event").prop("checked")){
                     EnableNotification("event", "Event");
@@ -892,6 +936,20 @@ function ValidateToken() {
                     }
                 }
             });
+
+            $.ajax({
+                url: api_host + "/" + dhabbr + "/user/language",
+                type: "GET",
+                dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token")
+                },
+                success: async function (data) {
+                    user_language = data.response.language;
+                    $("#api-language-" + user_language).prop("selected", true);
+                    localStorage.setItem("language", user_language);
+                }
+            });
         },
         error: function (data) {
             // Invalid token, log out
@@ -899,6 +957,42 @@ function ValidateToken() {
                 localStorage.removeItem("token");
                 ShowTab("#signin-tab", "#button-signin-tab");
             }
+        }
+    });
+}
+
+function InitLanguage(){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/languages",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            languages = data.response.supported;
+            for(var i = 0 ; i < languages.length ; i++){
+                $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${languages[i]}</option>`);
+            }
+            $("#api-language-" + user_language).prop("selected", true);
+            $("#api-language").on('change', function () {
+                var value = $(this).val();
+                $.ajax({
+                    url: api_host + "/" + dhabbr + "/user/language",
+                    type: "PATCH",
+                    dataType: "json",
+                    headers: {
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    },
+                    data: {
+                        language: value
+                    },
+                    success: function (data) {
+                        if(data.error) return AjaxError(data);
+                        toastNotification("success", "Success", "API Language Updated to: " + value, 5000);
+                    },
+                    error: function(data){
+                        AjaxError(data);
+                    }
+                });
+            });
         }
     });
 }
@@ -968,7 +1062,7 @@ window.onpopstate = function (event) {
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
-tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip", "#api-delivery-post-gifs-tooltip"];
+tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 $(document).ready(async function () {
     while (1) {
         if(language != undefined) break;
@@ -1023,6 +1117,7 @@ $(document).ready(async function () {
     InitLeaderboardTimeRange();
     InitInputHandler();
     InitResizeHandler();
+    InitLanguage();
     PreserveApplicationQuestion();
     while (1) {
         rolelist = SafeParse(localStorage.getItem("role-list"));

@@ -496,5 +496,8 @@
     "qualification": "Qualification",
     "not_qualified": "Not Qualified",
     "qualified": "Qualified",
-    "completed_members": "Completed Members"
+    "completed_members": "Completed Members",
+    "login": "Login",
+    "member": "Member",
+    "language": "Language"
 }

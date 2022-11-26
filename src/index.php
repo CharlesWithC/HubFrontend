@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/70aceb0a4ea08893.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/a8a3c5ff03eb6c9f.js"></script>
 
     <?php
     $application_html = "";
@@ -2251,10 +2251,55 @@
                                 </label>
                             </div>
                             <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-login" disabled>
+                                <label class="form-check-label" for="notifications-login">
+                                    <?php echo mltr("login"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-dlog" disabled>
+                                <label class="form-check-label" for="notifications-dlog">
+                                    <?php echo mltr("delivery_log"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-member" disabled>
+                                <label class="form-check-label" for="notifications-member">
+                                    <?php echo mltr("member"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-application" disabled>
+                                <label class="form-check-label" for="notifications-application">
+                                    <?php echo mltr("application"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-challenge" disabled>
+                                <label class="form-check-label" for="notifications-challenge">
+                                    <?php echo mltr("challenge"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
+                                <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-division" disabled>
+                                <label class="form-check-label" for="notifications-division">
+                                    <?php echo mltr("division"); ?>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2 col" style="display:inline-block">
                                 <input class="form-check-input settings-notification" type="checkbox" value="" id="notifications-event" disabled>
                                 <label class="form-check-label" for="notifications-event">
                                     <?php echo mltr("event"); ?>
                                 </label>
+                            </div>
+                        </div>
+                        <hr>
+                        <label class="form-label" style="width:100%"><?php echo mltr("language"); ?></label>
+                        <div class="row px-3">
+                            <label for="api-language" class="form-label"><?php echo mltr("api"); ?></label>
+                            <div class="mb-3">
+                                <select class="form-select bg-dark text-white" id="api-language">
+                                </select>
                             </div>
                         </div>
                         <hr>

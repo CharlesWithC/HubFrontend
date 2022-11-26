@@ -432,9 +432,22 @@ function LoadNotificationSettings(){
         success: function (data) {
             $("#notifications-drivershub").removeAttr("disabled");
             $("#notifications-discord").removeAttr("disabled");
+            $("#notifications-login").removeAttr("disabled");
+            $("#notifications-dlog").removeAttr("disabled");
+            $("#notifications-member").removeAttr("disabled");
+            $("#notifications-application").removeAttr("disabled");
+            $("#notifications-challenge").removeAttr("disabled");
+            $("#notifications-division").removeAttr("disabled");
             $("#notifications-event").removeAttr("disabled");
+
             $("#notifications-drivershub").prop("checked", data.response.drivershub);
             $("#notifications-discord").prop("checked", data.response.discord);
+            $("#notifications-login").prop("checked", data.response.login);
+            $("#notifications-dlog").prop("checked", data.response.dlog);
+            $("#notifications-member").prop("checked", data.response.member);
+            $("#notifications-application").prop("checked", data.response.application);
+            $("#notifications-challenge").prop("checked", data.response.challenge);
+            $("#notifications-division").prop("checked", data.response.division);
             $("#notifications-event").prop("checked", data.response.event);
         }
     })
