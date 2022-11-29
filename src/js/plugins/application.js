@@ -65,7 +65,7 @@ function LoadUserApplicationList(noplaceholder = false) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})">View Details</a>`]);
+                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
@@ -131,7 +131,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)">View Details</a>`]);
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");

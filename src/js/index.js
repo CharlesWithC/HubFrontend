@@ -303,6 +303,9 @@ async function GeneralLoad() {
 }
 
 async function ShowTab(tabname, btnname) {
+    $(".modal").fadeOut();
+    $(".modal-backdrop").fadeOut();
+    setTimeout(function(){$(".modal").remove();$(".modal-backdrop").remove();},1000);
     loadworking = true;
     // $("html, body").animate({
     //     scrollTop: 0

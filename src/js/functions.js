@@ -11,7 +11,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.4)");
+    console.log("Drivers Hub: Frontend (v2.4.5)");
     console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
@@ -78,7 +78,7 @@ function ParseAjaxError(data) {
 function AjaxError(data, no_notification = false) {
     errmsg = ParseAjaxError(data);
     if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
-    console.warn(`API Request Failed: ${errmsg}\nDetails:`);
+    console.warn(`API Request Failed: ${errmsg}\n<i class="fa-solid fa-folder-open"></i>:`);
     console.warn(data);
 }
 
@@ -473,19 +473,21 @@ function PushTable(table, data, total_pages, reload_function = "") {
     }
 
     for (var i = 0; i < data.length; i++) {
+        res = "";
         if (data[i][0].startsWith("<tr_style>")) {
             s = data[i][0];
             s = s.substr(10, s.length - 21);
-            $(table + "_data").append(`<tr style="${s}">`);
+            res += `<tr style="${s}">`;
         } else {
-            $(table + "_data").append(`<tr>`);
+            res += `<tr>`;
         }
         for (var j = 0; j < data[i].length; j++) {
             if (!data[i][j].startsWith("<tr_style>")) {
-                $(table + "_data").append(`<td>${data[i][j]}</td>`);
+                res += `<td>${data[i][j]}</td>`;
             }
         }
-        $(table + "_data").append(`</tr>`);
+        res += `</tr>`;
+        $(table + "_data").append(res);
     }
 }
 

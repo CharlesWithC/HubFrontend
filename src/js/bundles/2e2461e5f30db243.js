@@ -11,7 +11,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.4)");
+    console.log("Drivers Hub: Frontend (v2.4.5)");
     console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
@@ -78,7 +78,7 @@ function ParseAjaxError(data) {
 function AjaxError(data, no_notification = false) {
     errmsg = ParseAjaxError(data);
     if (!no_notification) toastNotification("error", "Error", errmsg, 5000, false);
-    console.warn(`API Request Failed: ${errmsg}\nDetails:`);
+    console.warn(`API Request Failed: ${errmsg}\n<i class="fa-solid fa-folder-open"></i>:`);
     console.warn(data);
 }
 
@@ -473,19 +473,21 @@ function PushTable(table, data, total_pages, reload_function = "") {
     }
 
     for (var i = 0; i < data.length; i++) {
+        res = "";
         if (data[i][0].startsWith("<tr_style>")) {
             s = data[i][0];
             s = s.substr(10, s.length - 21);
-            $(table + "_data").append(`<tr style="${s}">`);
+            res += `<tr style="${s}">`;
         } else {
-            $(table + "_data").append(`<tr>`);
+            res += `<tr>`;
         }
         for (var j = 0; j < data[i].length; j++) {
             if (!data[i][j].startsWith("<tr_style>")) {
-                $(table + "_data").append(`<td>${data[i][j]}</td>`);
+                res += `<td>${data[i][j]}</td>`;
             }
         }
-        $(table + "_data").append(`</tr>`);
+        res += `</tr>`;
+        $(table + "_data").append(res);
     }
 }
 
@@ -1068,7 +1070,7 @@ window.autofocus = {}
 function LoadDriverLeaderStatistics() {
     function AjaxLDLS(start, end, dottag) {
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1&point_types=distance",
             type: "GET",
             dataType: "json",
             headers: {
@@ -1188,8 +1190,10 @@ function LoadLeaderboard(noplaceholder = false) {
             data = [];
             for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
+                trstyle = "<tr_style></tr_style>";
+                if(user.user.userid == localStorage.getItem("userid")) trstyle = "<tr_style>background-color:#444;</tr_style>";
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio));
-                data.push([`${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
+                data.push([trstyle, `${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -1215,7 +1219,7 @@ function LoadDeliveryList(noplaceholder = false) {
     LockBtn("#button-delivery-log-options-update", btntxt = "...");
 
     page_size = parseInt($("#delivery-log-page-size").val());
-    if (!isNumber(page_size)) page_size = 10;
+    if (!isNumber(page_size)) page_size = 20;
 
     if (!noplaceholder) {
         $("#table_delivery_log_data").children().remove();
@@ -1296,7 +1300,9 @@ function LoadDeliveryList(noplaceholder = false) {
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
-                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
+                bgclr = "";
+                if(user.userid == localStorage.getItem("userid")) bgclr = "background-color:#444;";
+                data.push([`<tr_style>color:${color};${bgclr}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
@@ -1560,7 +1566,7 @@ function ShowDeliveryDetail(logid) {
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        success: function (data) {
+        success: async function (data) {
             if (data.error) {
                 ShowTab("#delivery-tab", "#button-delivery-tab");
                 return AjaxError(data);
@@ -1572,7 +1578,15 @@ function ShowDeliveryDetail(logid) {
             currentDeliveryLog = d;
             user = d.user;
             distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
-            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a>`);
+            delete_dlog = "";
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+            if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
+                delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${user.name}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
+            }
+            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
             $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));
 
             d = d.detail;
@@ -1847,6 +1861,35 @@ function ShowDeliveryDetail(logid) {
             AjaxError(data);
         }
     });
+}
+
+function DeleteDeliveryShow(name, logid) {
+    modalid = ShowModal(mltr('delete_delivery'), `<p>${mltr('delete_delivery_note_1')}</p><p><i>#${logid} (${name})</i></p><br><p>${mltr('delete_delivery_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-delivery" type="button" class="btn btn-danger" onclick="DeleteDelivery('${logid}');">${mltr('delete')}</button>`);
+    InitModal("delete_delivery", modalid);
+}
+
+function DeleteDelivery(logid){
+    LockBtn("#button-delete-delivery", mltr("deleting"));
+
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/dlog?logid="+logid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-delete-delivery");
+            if (data.error) return AjaxError(data);
+            LoadDeliveryList(noplaceholder=true);
+            toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
+            DestroyModal("delete_delivery");
+        },
+        error: function (data) {
+            UnlockBtn("#button-delete-delivery");
+            AjaxError(data);
+        }
+    })
 }
 
 function MoreDeliveryDetail() {
@@ -3656,7 +3699,7 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')"><i class="fa-solid fa-folder-open"></i></a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
@@ -3674,7 +3717,7 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')"><i class="fa-solid fa-folder-open"></i></a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -4763,7 +4806,7 @@ function LoadUserApplicationList(noplaceholder = false) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})">View Details</a>`]);
+                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
@@ -4829,7 +4872,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)">View Details</a>`]);
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
@@ -5575,7 +5618,7 @@ function DeleteChallengeDelivery(){
     });
 }
 division_placeholder_row = `
-<div class="shadow p-3 m-3 bg-dark rounded col card">
+<div class="shadow p-3 mb-3 bg-dark rounded col card">
     <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> <span class="placeholder" style="width:100px"></span></p>
     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> <span class="placeholder" style="width:120px"></span></p>
@@ -5598,7 +5641,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
     page = parseInt($("#table_division_delivery_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=10&division=only",
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=20&division=only",
         type: "GET",
         dataType: "json",
         headers: {
@@ -5626,7 +5669,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
 
-                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_division_delivery", data, total_pages, "LoadDivisionDeliveryList();");
@@ -5663,7 +5706,7 @@ async function LoadDivisionInfo(noplaceholder = false) {
                 totaldrivers = TSeparator(info[i].total_drivers);
                 totalpnt = TSeparator(info[i].total_points);
                 $("#division-summary-list").append(`
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                <div class="shadow p-3 mb-3 bg-dark rounded col card">
                     <h5 class="card-title"><strong>${divisionname}</strong></h5>
                     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ${totaldrivers} Drivers</p>
                     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ${totalpnt} Points</p>
@@ -5823,7 +5866,7 @@ function LoadPendingDivisionValidation() {
                         <td>${delivery.logid}</td>
                         <td>${divisions[delivery.divisionid].name}</td>
                         <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
-                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">View Details</a></td>
+                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a></td>
                     </tr>`);
                 }
             }
@@ -7130,6 +7173,9 @@ async function GeneralLoad() {
 }
 
 async function ShowTab(tabname, btnname) {
+    $(".modal").fadeOut();
+    $(".modal-backdrop").fadeOut();
+    setTimeout(function(){$(".modal").remove();$(".modal-backdrop").remove();},1000);
     loadworking = true;
     // $("html, body").animate({
     //     scrollTop: 0

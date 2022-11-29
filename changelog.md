@@ -1,5 +1,14 @@
 # Changelog
 
+**v2.4.5**  
+1.Fixed the issue that `<td>` are not in `<tr>`  
+2.Changed `View / Show Details` to icon  
+3.Changed "Driver of the X" to consider only `distance` point  
+4.Added separator for `tbody > tr`  
+5.Added highlight for user in delivery log and leaderboard list  
+6.Added delete delivery function  
+7.Added automatic modal destroy on tab switch  
+
 **v2.4.4**  
 1.*[Announcement]* Fixed announcement editing showing original content  
 2.*[Application]* Fixed default application leading to `Answer element not found error`  

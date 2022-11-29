@@ -5,7 +5,7 @@ window.autofocus = {}
 function LoadDriverLeaderStatistics() {
     function AjaxLDLS(start, end, dottag) {
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1&point_types=distance",
             type: "GET",
             dataType: "json",
             headers: {
@@ -125,8 +125,10 @@ function LoadLeaderboard(noplaceholder = false) {
             data = [];
             for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
+                trstyle = "<tr_style></tr_style>";
+                if(user.user.userid == localStorage.getItem("userid")) trstyle = "<tr_style>background-color:#444;</tr_style>";
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio));
-                data.push([`${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
+                data.push([trstyle, `${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
             }
             PushTable("#table_leaderboard", data, total_pages, "LoadLeaderboard();");
         },
@@ -152,7 +154,7 @@ function LoadDeliveryList(noplaceholder = false) {
     LockBtn("#button-delivery-log-options-update", btntxt = "...");
 
     page_size = parseInt($("#delivery-log-page-size").val());
-    if (!isNumber(page_size)) page_size = 10;
+    if (!isNumber(page_size)) page_size = 20;
 
     if (!noplaceholder) {
         $("#table_delivery_log_data").children().remove();
@@ -233,7 +235,9 @@ function LoadDeliveryList(noplaceholder = false) {
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
-                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
+                bgclr = "";
+                if(user.userid == localStorage.getItem("userid")) bgclr = "background-color:#444;";
+                data.push([`<tr_style>color:${color};${bgclr}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_delivery_log", data, total_pages, "LoadDeliveryList();");
@@ -497,7 +501,7 @@ function ShowDeliveryDetail(logid) {
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        success: function (data) {
+        success: async function (data) {
             if (data.error) {
                 ShowTab("#delivery-tab", "#button-delivery-tab");
                 return AjaxError(data);
@@ -509,7 +513,15 @@ function ShowDeliveryDetail(logid) {
             currentDeliveryLog = d;
             user = d.user;
             distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
-            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a>`);
+            delete_dlog = "";
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+            if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
+                delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${user.name}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
+            }
+            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
             $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));
 
             d = d.detail;
@@ -784,6 +796,35 @@ function ShowDeliveryDetail(logid) {
             AjaxError(data);
         }
     });
+}
+
+function DeleteDeliveryShow(name, logid) {
+    modalid = ShowModal(mltr('delete_delivery'), `<p>${mltr('delete_delivery_note_1')}</p><p><i>#${logid} (${name})</i></p><br><p>${mltr('delete_delivery_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-delivery" type="button" class="btn btn-danger" onclick="DeleteDelivery('${logid}');">${mltr('delete')}</button>`);
+    InitModal("delete_delivery", modalid);
+}
+
+function DeleteDelivery(logid){
+    LockBtn("#button-delete-delivery", mltr("deleting"));
+
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/dlog?logid="+logid,
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-delete-delivery");
+            if (data.error) return AjaxError(data);
+            LoadDeliveryList(noplaceholder=true);
+            toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
+            DestroyModal("delete_delivery");
+        },
+        error: function (data) {
+            UnlockBtn("#button-delete-delivery");
+            AjaxError(data);
+        }
+    })
 }
 
 function MoreDeliveryDetail() {

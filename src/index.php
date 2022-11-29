@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/a8a3c5ff03eb6c9f.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2e2461e5f30db243.js"></script>
 
     <?php
     $application_html = "";
@@ -189,6 +189,10 @@
         }
         table a:hover {
             color: #fff;
+        }
+        tbody > tr {
+            border-top: solid 1px #444;
+            line-height: 180%;
         }
 
         .form-label {
@@ -1025,7 +1029,7 @@
                     <div>
                         <label class="form-label"><?php echo mltr("page_size"); ?></label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-page-size" placeholder="10">
+                            <input type="text" class="form-control bg-dark text-white" id="delivery-log-page-size" placeholder="20">
                             <span class="input-group-text"><?php echo mltr("rows"); ?></span>
                         </div>
                     </div>
@@ -1503,24 +1507,24 @@
         </section>
         <section id="division-tab" class="tabs">
             <div class="row mb-3">
-                <div class="col-4" id="division-summary-list">
-                    <div class="shadow p-3 m-3 mt-0 bg-dark rounded col card">
+                <div class="col-2" id="division-summary-list">
+                    <div class="shadow p-3 mb-3 mt-0 bg-dark rounded col card">
                         <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
                         <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span><span class="placeholder" style="width:100px"></span></p>
                         <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span><span class="placeholder" style="width:120px"></span></p>
                     </div>
-                    <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <div class="shadow p-3 mb-3 bg-dark rounded col card">
                         <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
                         <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span><span class="placeholder" style="width:100px"></span></p>
                         <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span><span class="placeholder" style="width:120px"></span></p>
                     </div>
-                    <div class="shadow p-3 m-3 bg-dark rounded col card">
+                    <div class="shadow p-3 mb-3 bg-dark rounded col card">
                         <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
                         <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span><span class="placeholder" style="width:100px"></span></p>
                         <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span><span class="placeholder" style="width:120px"></span></p>
                     </div>
                 </div>
-                <div class="shadow p-3 bg-dark rounded col-8">
+                <div class="shadow p-3 bg-dark rounded col-10">
                     <h5><strong><span class="rect-20"><i class="fa-solid fa-warehouse"></i></span> <?php echo mltr("division_deliveries"); ?></strong></h5>
                     <div id="table_division_delivery" style="height:fit-content">
                         <table class="w-100">

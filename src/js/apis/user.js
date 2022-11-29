@@ -612,7 +612,7 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')"><i class="fa-solid fa-folder-open"></i></a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
@@ -630,7 +630,7 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')"><i class="fa-solid fa-folder-open"></i></a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
                             <li><hr class="dropdown-divider"></li>

@@ -1,5 +1,5 @@
 division_placeholder_row = `
-<div class="shadow p-3 m-3 bg-dark rounded col card">
+<div class="shadow p-3 mb-3 bg-dark rounded col card">
     <h5 class="card-title"><strong><span class="placeholder" style="width:150px"></span></strong></h5>
     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> <span class="placeholder" style="width:100px"></span></p>
     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> <span class="placeholder" style="width:120px"></span></p>
@@ -22,7 +22,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
     page = parseInt($("#table_division_delivery_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=10&division=only",
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=20&division=only",
         type: "GET",
         dataType: "json",
         headers: {
@@ -50,7 +50,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
 
-                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')">View Details</a>`]);
+                data.push([`<tr_style>color:${color}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_division_delivery", data, total_pages, "LoadDivisionDeliveryList();");
@@ -87,7 +87,7 @@ async function LoadDivisionInfo(noplaceholder = false) {
                 totaldrivers = TSeparator(info[i].total_drivers);
                 totalpnt = TSeparator(info[i].total_points);
                 $("#division-summary-list").append(`
-                <div class="shadow p-3 m-3 bg-dark rounded col card">
+                <div class="shadow p-3 mb-3 bg-dark rounded col card">
                     <h5 class="card-title"><strong>${divisionname}</strong></h5>
                     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> ${totaldrivers} Drivers</p>
                     <p class="card-text"><span class="rect-20"><i class="fa-solid fa-coins"></i></span> ${totalpnt} Points</p>
@@ -247,7 +247,7 @@ function LoadPendingDivisionValidation() {
                         <td>${delivery.logid}</td>
                         <td>${divisions[delivery.divisionid].name}</td>
                         <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
-                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">View Details</a></td>
+                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a></td>
                     </tr>`);
                 }
             }
