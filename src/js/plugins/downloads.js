@@ -84,7 +84,7 @@ function LoadDownloads(noplaceholder = false){
                     <h5 style="display:inline-block;${downloads_control_title_style}"><strong><span id="downloads-display-${downloads.downloadsid}-title"> ${downloads.title}</span>${downloads_control_top}</strong></h5>
                     ${downloads_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar)} | ${downloads.click_count} Downloads</strong></h6>
-                    <div id="downloads-display-${downloads.downloadsid}-description">${marked.parse(downloads.description.replaceAll("\n", "<br>"))}</div>
+                    <div id="downloads-display-${downloads.downloadsid}-description">${marked.parse(downloads.description.replaceAll("\n", "<br>")).replaceAll("<img ", "<img style='width:100%;' ")}</div>
                     ${downloads_control_bottom}
                 </div>`;
             }

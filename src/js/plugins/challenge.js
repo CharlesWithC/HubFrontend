@@ -265,7 +265,7 @@ function EditChallengeShow(challengeid){
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);
             $("#challenge-edit-title").val(d.title);
-            $("#challenge-edit-description").val(d.description);
+            simplemde["#challenge-edit-description"].value(d.description);
             $("#challenge-edit-start-time").val(new Date(d.start_time*1000).toISOString().slice(0,-1));
             $("#challenge-edit-end-time").val(new Date(d.end_time*1000).toISOString().slice(0,-1));
             $("#challenge-edit-type-"+d.challenge_type).prop("checked", true);

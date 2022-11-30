@@ -113,7 +113,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2e2461e5f30db243.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/8a6213b9c2f06069.js"></script>
 
     <?php
     $application_html = "";
@@ -459,7 +459,7 @@
                     data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
                 <img id="sidebar-avatar" src="https://charlws.com/me.gif" alt="" class="rounded-circle me-2"
                     width="30" height="30">
-                <span style="display:inline-block;position:relative;top:10px;line-height:14px;">
+                <span style="display:inline-block;position:relative;top:12px;line-height:14px;">
                     <strong id="sidebar-username" style="max-width:100px;width:100px;overflow:hidden;display:inline-block;"><span class="placeholder col-8"></span></strong>
                     <br>
                     <span style="font-size:12px;color:#ccc;max-width:100px;width:100px;overflow:hidden;max-height:14px;display:inline-block;"><span id="sidebar-userid" style="color:#ccc;"><span class="placeholder col-2"></span></span> | <span id="sidebar-role" style="color:#ccc;"><span class="placeholder col-6"></span></span></span>

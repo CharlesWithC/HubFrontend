@@ -46,6 +46,7 @@ function Logout() {
     localStorage.removeItem("token");
     $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
     $("#button-user-profile").attr("data-bs-toggle", "");
+    $("#user-profile-dropdown").hide();
     $("#sidebar-username").html(mltr("guest"));
     $("#sidebar-userid").html(mltr("login_first"));
     $("#sidebar-role").html(mltr("loner"));
@@ -804,6 +805,7 @@ function ValidateToken() {
         $("#sidebar-userid").html(mltr("login_first"));
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-profile").attr("data-bs-toggle", "");
+        $("#user-profile-dropdown").hide();
         $("#button-user-delivery-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-settings-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         NonMemberMode();
@@ -819,6 +821,7 @@ function ValidateToken() {
     $("#sidebar-application").show();
     $("#button-user-profile").attr("onclick", ``);
     $("#button-user-profile").attr("data-bs-toggle", "dropdown");
+    $("#user-profile-dropdown").css("display","");
     $("#button-user-delivery-tab").attr("onclick", `LoadUserProfile(localStorage.getItem('userid'));`);
     $("#button-user-settings-tab").attr("onclick", `ShowTab('#user-settings-tab');`);
 
@@ -846,6 +849,7 @@ function ValidateToken() {
             }
 
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
+            $("#user-profile-dropdown").css("display","");
 
             // X Drivers Trucking Info
             color = "green";

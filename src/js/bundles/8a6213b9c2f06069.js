@@ -5403,7 +5403,7 @@ function EditChallengeShow(challengeid){
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);
             $("#challenge-edit-title").val(d.title);
-            $("#challenge-edit-description").val(d.description);
+            simplemde["#challenge-edit-description"].value(d.description);
             $("#challenge-edit-start-time").val(new Date(d.start_time*1000).toISOString().slice(0,-1));
             $("#challenge-edit-end-time").val(new Date(d.end_time*1000).toISOString().slice(0,-1));
             $("#challenge-edit-type-"+d.challenge_type).prop("checked", true);
@@ -6029,7 +6029,7 @@ function LoadDownloads(noplaceholder = false){
                     <h5 style="display:inline-block;${downloads_control_title_style}"><strong><span id="downloads-display-${downloads.downloadsid}-title"> ${downloads.title}</span>${downloads_control_top}</strong></h5>
                     ${downloads_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar)} | ${downloads.click_count} Downloads</strong></h6>
-                    <div id="downloads-display-${downloads.downloadsid}-description">${marked.parse(downloads.description.replaceAll("\n", "<br>"))}</div>
+                    <div id="downloads-display-${downloads.downloadsid}-description">${marked.parse(downloads.description.replaceAll("\n", "<br>")).replaceAll("<img ", "<img style='width:100%;' ")}</div>
                     ${downloads_control_bottom}
                 </div>`;
             }
@@ -6916,6 +6916,7 @@ function Logout() {
     localStorage.removeItem("token");
     $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
     $("#button-user-profile").attr("data-bs-toggle", "");
+    $("#user-profile-dropdown").hide();
     $("#sidebar-username").html(mltr("guest"));
     $("#sidebar-userid").html(mltr("login_first"));
     $("#sidebar-role").html(mltr("loner"));
@@ -7674,6 +7675,7 @@ function ValidateToken() {
         $("#sidebar-userid").html(mltr("login_first"));
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-profile").attr("data-bs-toggle", "");
+        $("#user-profile-dropdown").hide();
         $("#button-user-delivery-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         $("#button-user-settings-tab").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         NonMemberMode();
@@ -7689,6 +7691,7 @@ function ValidateToken() {
     $("#sidebar-application").show();
     $("#button-user-profile").attr("onclick", ``);
     $("#button-user-profile").attr("data-bs-toggle", "dropdown");
+    $("#user-profile-dropdown").css("display","");
     $("#button-user-delivery-tab").attr("onclick", `LoadUserProfile(localStorage.getItem('userid'));`);
     $("#button-user-settings-tab").attr("onclick", `ShowTab('#user-settings-tab');`);
 
@@ -7716,6 +7719,7 @@ function ValidateToken() {
             }
 
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
+            $("#user-profile-dropdown").css("display","");
 
             // X Drivers Trucking Info
             color = "green";

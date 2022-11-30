@@ -2,12 +2,15 @@
 
 **v2.4.5**  
 1.Fixed the issue that `<td>` are not in `<tr>`  
-2.Changed `View / Show Details` to icon  
-3.Changed "Driver of the X" to consider only `distance` point  
-4.Added separator for `tbody > tr`  
-5.Added highlight for user in delivery log and leaderboard list  
-6.Added delete delivery function  
-7.Added automatic modal destroy on tab switch  
+2.Fixed profile dropup stuck visible when disabled  
+3.*[Downloads]* Fixed downloadable item image overflow  
+4.*[Challenge]* Fixed original challenge description not loaded when editing challenge  
+5.Changed `View / Show Details` to icon  
+6.Added separator for `tbody > tr`  
+7.Added highlight for user in delivery log and leaderboard list  
+8.Added automatic modal destroy on tab switch  
+9.*[Member]* Changed "Driver of the X" to consider only `distance` point  
+10.*[Dlog]* Added delete delivery function  
 
 **v2.4.4**  
 1.*[Announcement]* Fixed announcement editing showing original content  
