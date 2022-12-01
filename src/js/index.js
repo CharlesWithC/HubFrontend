@@ -23,6 +23,7 @@ if (userPerm == null) userPerm = [];
 isdark = parseInt(localStorage.getItem("darkmode"));
 user_language = localStorage.getItem("language");
 if (user_language == null) user_language = "en";
+setCookie("language", user_language);
 user_distance = null;
 Chart.defaults.color = "white";
 shiftdown = false;
@@ -955,6 +956,11 @@ function ValidateToken() {
                     user_language = data.response.language;
                     $("#api-language-" + user_language).prop("selected", true);
                     localStorage.setItem("language", user_language);
+                    if(getCookie("language") && getCookie("language") != user_language){
+                        setCookie("language", user_language);
+                        window.location.reload();
+                    }
+                    setCookie("language", user_language);
                 }
             });
         },
@@ -976,11 +982,11 @@ function InitLanguage(){
         success: function (data) {
             languages = data.response.supported;
             for(var i = 0 ; i < languages.length ; i++){
-                $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${languages[i]}</option>`);
+                $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${LANG_CODE[languages[i]]}</option>`);
             }
             $("#api-language-" + user_language).prop("selected", true);
             $("#api-language").on('change', function () {
-                var value = $(this).val();
+                user_language = $(this).val();
                 $.ajax({
                     url: api_host + "/" + dhabbr + "/user/language",
                     type: "PATCH",
@@ -989,11 +995,14 @@ function InitLanguage(){
                         "Authorization": "Bearer " + localStorage.getItem("token")
                     },
                     data: {
-                        language: value
+                        language: user_language
                     },
                     success: function (data) {
                         if(data.error) return AjaxError(data);
-                        toastNotification("success", "Success", "API Language Updated to: " + value, 5000);
+                        setCookie("language", user_language);
+                        localStorage.setItem("language", user_language);
+                        toastNotification("success", "Success", "Language Updated to: " + LANG_CODE[user_language], 5000);
+                        setTimeout(function(){window.location.reload();}, 500);
                     },
                     error: function(data){
                         AjaxError(data);

@@ -2,6 +2,54 @@ MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oc
 
 lang = "";
 enlang = "";
+LANG_CODE = {
+    'ar': 'Arabic',
+    'be': 'Belarusian',
+    'bg': 'Bulgarian',
+    'cs': 'Czech',
+    'cy': 'Welsh',
+    'da': 'Danish',
+    'de': 'German',
+    'el': 'Greek',
+    'en': 'English',
+    'eo': 'Esperanto',
+    'es': 'Spanish',
+    'et': 'Estonian',
+    'fi': 'Finnish',
+    'fr': 'French',
+    'ga': 'Irish',
+    'gd': 'Scottish',
+    'hu': 'Hungarian',
+    'hy': 'Armenian',
+    'id': 'Indonesian',
+    'is': 'Icelandic',
+    'it': 'Italian',
+    'ja': 'Japanese',
+    'ko': 'Korean',
+    'lt': 'Lithuanian',
+    'lv': 'Latvian',
+    'mk/sl': 'Macedonian',
+    'mn': 'Mongolian',
+    'mo': 'Moldavian',
+    'ne': 'Nepali',
+    'nl': 'Dutch',
+    'nn': 'Norwegian',
+    'pl': 'Polish',
+    'pt': 'Portuguese',
+    'ro': 'Romanian',
+    'ru': 'Russian',
+    'sk': 'Slovak',
+    'sl': 'Slovenian',
+    'sq': 'Albanian',
+    'sr': 'Serbian',
+    'sv': 'Swedish',
+    'th': 'Thai',
+    'tr': 'Turkish',
+    'uk': 'Ukrainian',
+    'vi': 'Vietnamese',
+    'yi': 'Yiddish',
+    'zh': 'Chinese'
+};
 
 $(document).ready(function () {
     drivershub = `    ____       _                         __  __      __  
@@ -765,4 +813,29 @@ function foregroundColorOf(color) {
     } else {
         return 'white';
     }
+}
+
+function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
+function removeCookie(name) {
+    document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }

@@ -5,12 +5,15 @@
 2.Fixed profile dropup stuck visible when disabled  
 3.*[Downloads]* Fixed downloadable item image overflow  
 4.*[Challenge]* Fixed original challenge description not loaded when editing challenge  
-5.Changed `View / Show Details` to icon  
-6.Added separator for `tbody > tr`  
-7.Added highlight for user in delivery log and leaderboard list  
-8.Added automatic modal destroy on tab switch  
-9.*[Member]* Changed "Driver of the X" to consider only `distance` point  
-10.*[Dlog]* Added delete delivery function  
+5.*[Challenge]* Fixed challenge editing display overwrites city / company  
+6.Changed `View / Show Details` to icon  
+7.Added separator for `tbody > tr`  
+8.Added highlight for user in delivery log and leaderboard list  
+9.Added automatic modal destroy on tab switch  
+10.Added human-readable language name  
+11.Added support to changing frontend language (using cookies in addition to `Accept-Language` header)  
+12.*[Member]* Changed "Driver of the X" to consider only `distance` point  
+13.*[Dlog]* Added delete delivery function  
 
 **v2.4.4**  
 1.*[Announcement]* Fixed announcement editing showing original content  

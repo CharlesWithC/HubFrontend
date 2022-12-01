@@ -76,7 +76,7 @@
     "close": "Закрыть",
     "color": "Цвет",
     "company": "Компания",
-    "completed_members": "Завершенные участники"
+    "completed_members": "Завершенные участники",
     "completed": "Выполненный",
     "config_reset_to_before_editing": "Сброс конфигурации до редактирования.",
     "config_reverted_to_after_last_reload": "Конфигурация восстановлена после последней перезагрузки.",
@@ -466,5 +466,5 @@
     "you_have_left_the_company_note": "<p>Вы успешно уволились из компании. Нам грустно видеть ваш уход. Мы желаем вам всего наилучшего в вашей будущей карьере!</p>",
     "you_have_left_the_company": "Вы покинули компанию",
     "you_must_selected_a_css_file": "Вы должны выбрать файл CSS!",
-    "you_must_selected_a_html_file": "Вы должны выбрать HTML файл!",
+    "you_must_selected_a_html_file": "Вы должны выбрать HTML файл!"
 }

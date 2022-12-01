@@ -14,10 +14,24 @@
 
     $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
     $language = substr($language, 0, 2);
+    $use_cookie_language = false;
+    if(isset($_COOKIE['language'])){
+        $use_cookie_language = true;
+        $language = $_COOKIE['language'];
+    }
+
     $enlang = json_decode(file_get_contents('./languages/en.json'), true);
     $lang = json_decode(file_get_contents('./languages/en.json'), true);
     if(file_exists('./languages/'.$language.'.json')){
         $lang = json_decode(file_get_contents('./languages/'.$language.'.json'), true);
+    } else {
+        if($use_cookie_language){
+            $language = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+            $language = substr($language, 0, 2);
+            if(file_exists('./languages/'.$language.'.json')){
+                $lang = json_decode(file_get_contents('./languages/'.$language.'.json'), true);
+            }
+        }
     }
 
     function mltr($key){ // multilang: translate
@@ -26,7 +40,11 @@
         if(array_key_exists($key, $lang)){
             return $lang[$key];
         } else {
-            return $enlang[$key];
+            if(array_key_exists($key, $enlang)){
+                return $enlang[$key];
+            } else {
+                return "";
+            }
         }
     }
 
@@ -113,7 +131,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/8a6213b9c2f06069.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/99dc5739a2ec75cc.js"></script>
 
     <?php
     $application_html = "";
@@ -1181,7 +1199,7 @@
                             </div>
                             <label for="challenge-new-source-company-id" class="form-label"><?php echo mltr("source_company_id"); ?></label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-source-city-id" placeholder="<?php echo mltr("unique_id_of_source_company"); ?>" multiple=''>
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-source-company-id" placeholder="<?php echo mltr("unique_id_of_source_company"); ?>" multiple=''>
                             </div>
                             <label for="challenge-new-destination-city-id" class="form-label"><?php echo mltr("destination_city_id"); ?></label>
                             <div class="input-group mb-2">
@@ -1189,7 +1207,7 @@
                             </div>
                             <label for="challenge-new-destination-company-id" class="form-label"><?php echo mltr("destination_company_id"); ?></label>
                             <div class="input-group mb-2">
-                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-destination-city-id" placeholder="<?php echo mltr("unique_id_of_destination_company"); ?>" multiple=''>
+                                <input type="text" class="form-control bg-dark text-white flexdatalist challenge-new-job-requirements" id="challenge-new-destination-company-id" placeholder="<?php echo mltr("unique_id_of_destination_company"); ?>" multiple=''>
                             </div>
                             <label for="challenge-new-minimum-distance" class="form-label"><?php echo mltr("minimum_distance"); ?></label>
                             <div class="input-group mb-2">
@@ -1402,7 +1420,7 @@
                         </div>
                         <label for="challenge-edit-source-company-id" class="form-label"><?php echo mltr("source_company_id"); ?></label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-source-city-id" placeholder="<?php echo mltr("unique_id_of_source_company"); ?>" multiple=''>
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-source-company-id" placeholder="<?php echo mltr("unique_id_of_source_company"); ?>" multiple=''>
                         </div>
                         <label for="challenge-edit-destination-city-id" class="form-label"><?php echo mltr("destination_city_id"); ?></label>
                         <div class="input-group mb-2">
@@ -1410,7 +1428,7 @@
                         </div>
                         <label for="challenge-edit-destination-company-id" class="form-label"><?php echo mltr("destination_company_id"); ?></label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-destination-city-id" placeholder="<?php echo mltr("unique_id_of_destination_company"); ?>" multiple=''>
+                            <input type="text" class="form-control bg-dark text-white flexdatalist challenge-edit-job-requirements" id="challenge-edit-destination-company-id" placeholder="<?php echo mltr("unique_id_of_destination_company"); ?>" multiple=''>
                         </div>
                         <label for="challenge-edit-minimum-distance" class="form-label"><?php echo mltr("minimum_distance"); ?></label>
                         <div class="input-group mb-2">
@@ -1713,7 +1731,7 @@
                     </div>
                     <div class="row">
                         <div class="col p-3">
-                            <button id="button-event-edit" type="button" class="btn btn-primary w-100" onclick="EditEvent();"><?php echo mltr("Edit"); ?></button>
+                            <button id="button-event-edit" type="button" class="btn btn-primary w-100" onclick="EditEvent();"><?php echo mltr("edit"); ?></button>
                         </div>
                         <div class="col p-3">
                             <button type="button" class="btn btn-secondary w-100" onclick="$('#event-edit').hide();"><?php echo mltr("close"); ?></button>
@@ -2300,9 +2318,9 @@
                         <hr>
                         <label class="form-label" style="width:100%"><?php echo mltr("language"); ?></label>
                         <div class="row px-3">
-                            <label for="api-language" class="form-label"><?php echo mltr("api"); ?></label>
                             <div class="mb-3">
                                 <select class="form-select bg-dark text-white" id="api-language">
+                                    <?php echo mltr("loading"); ?>
                                 </select>
                             </div>
                         </div>

@@ -52,7 +52,7 @@
                 type: "GET",
                 dataType: "json",
                 success: function (data) {
-                    $("#api_status").html("Opertional");
+                    $("#api_status").html("Operational");
                     $("#api_status").css("color", "green");
                     $("#api_version").html(data.response.version);
                     $("#message").html("API is working fine. If the pages don't load, there might be an issue with the code of frontend.")
