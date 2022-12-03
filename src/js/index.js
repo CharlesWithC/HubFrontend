@@ -339,7 +339,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        window.history.pushState("", "", '/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        else window.history.pushState("", "", '/member/' + userid);
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
@@ -412,7 +413,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#user-delivery-tab") {
         userid = btnname;
         profile_userid = userid;
-        window.history.pushState("", "", '/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        else window.history.pushState("", "", '/member/' + userid);
         $("#company-statistics").hide();
         $("#button-delivery-export").hide();
         $("#user-statistics").show();
@@ -1042,6 +1044,9 @@ async function PathDetect() {
     else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
+    else if (p == "/member/@me"){
+        LoadUserProfile(parseInt(localStorage.getItem("userid")));
+    }
     else if (p.startsWith("/member")) {
         if (getUrlParameter("userid")) {
             userid = getUrlParameter("userid");
@@ -1050,7 +1055,8 @@ async function PathDetect() {
         }
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
-    } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
+    }
+    else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");

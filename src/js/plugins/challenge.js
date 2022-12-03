@@ -50,7 +50,7 @@ async function LoadChallenge(noplaceholder = false) {
                 extra = "";
                 if(userPerm.includes("challenge") || userPerm.includes("admin")){ extra = `<a id="button-challenge-edit-show-${challenge.challengeid}" class="clickable" onclick="EditChallengeShow(${challenge.challengeid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-challenge-delete-show-${challenge.challengeid}" class="clickable" onclick="DeleteChallengeShow(${challenge.challengeid}, \`${challenge.title}\`);"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)"];
+                CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
                 challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
                 
                 pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
@@ -99,7 +99,7 @@ function ShowChallengeDetail(challengeid){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info = "<table><tbody>";
-    CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)"];
+    CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
     challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
     info += GenTableRow(mltr("challenge_type"), challenge_type);
     info += GenTableRow(mltr("reward_points"), challenge.reward_points);

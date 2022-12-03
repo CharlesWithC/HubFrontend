@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.4.6**  
+1.Added `/member/@me` as alternative to user's own profile  
+
 **v2.4.5**  
 1.Fixed the issue that `<td>` are not in `<tr>`  
 2.Fixed profile dropup stuck visible when disabled  

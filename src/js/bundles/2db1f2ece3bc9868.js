@@ -5261,7 +5261,7 @@ async function LoadChallenge(noplaceholder = false) {
                 extra = "";
                 if(userPerm.includes("challenge") || userPerm.includes("admin")){ extra = `<a id="button-challenge-edit-show-${challenge.challengeid}" class="clickable" onclick="EditChallengeShow(${challenge.challengeid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-challenge-delete-show-${challenge.challengeid}" class="clickable" onclick="DeleteChallengeShow(${challenge.challengeid}, \`${challenge.title}\`);"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)"];
+                CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
                 challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
                 
                 pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
@@ -5310,7 +5310,7 @@ function ShowChallengeDetail(challengeid){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info = "<table><tbody>";
-    CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)"];
+    CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
     challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
     info += GenTableRow(mltr("challenge_type"), challenge_type);
     info += GenTableRow(mltr("reward_points"), challenge.reward_points);
@@ -7282,7 +7282,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        window.history.pushState("", "", '/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        else window.history.pushState("", "", '/member/' + userid);
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
@@ -7355,7 +7356,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#user-delivery-tab") {
         userid = btnname;
         profile_userid = userid;
-        window.history.pushState("", "", '/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        else window.history.pushState("", "", '/member/' + userid);
         $("#company-statistics").hide();
         $("#button-delivery-export").hide();
         $("#user-statistics").show();
@@ -7985,6 +7987,9 @@ async function PathDetect() {
     else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
+    else if (p == "/member/@me"){
+        LoadUserProfile(parseInt(localStorage.getItem("userid")));
+    }
     else if (p.startsWith("/member")) {
         if (getUrlParameter("userid")) {
             userid = getUrlParameter("userid");
@@ -7993,7 +7998,8 @@ async function PathDetect() {
         }
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
-    } else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
+    }
+    else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");

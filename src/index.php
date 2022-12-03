@@ -131,7 +131,7 @@
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/99dc5739a2ec75cc.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/2db1f2ece3bc9868.js"></script>
 
     <?php
     $application_html = "";
@@ -1139,10 +1139,22 @@
                                         <?php echo mltr("personal_recurring"); ?>
                                     </label>
                                 </div>
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-4" value="4">
+                                    <label class="form-check-label" for="challenge-new-type-4">
+                                        Personal (Distance-based)
+                                    </label>
+                                </div>
                                 <div class="form-check" style="display:inline-block">
                                     <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-2" value="2">
                                     <label class="form-check-label" for="challenge-new-type-2">
                                         <?php echo mltr("company"); ?>
+                                    </label>
+                                </div>
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-new-type" id="challenge-new-type-5" value="5">
+                                    <label class="form-check-label" for="challenge-new-type-5">
+                                        Company (Distance-based)
                                     </label>
                                 </div>
                             </div>
@@ -1349,23 +1361,35 @@
                         <label for="challenge-edit-type" class="form-label" style="width:100%"><?php echo mltr("challenge_type"); ?></label>
                         <div class="mb-3">
                             <div class="form-check" style="display:inline-block;width:40%">
-                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-1" checked value="1" disabled>
                                     <label class="form-check-label" for="challenge-edit-type-1">
                                         <?php echo mltr("personal_one_time"); ?>
                                     </label>
                                 </div>
                             <div class="form-check" style="display:inline-block;width:40%">
-                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-3" value="3">
+                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-3" value="3" disabled>
                                 <label class="form-check-label" for="challenge-edit-type-3">
                                     <?php echo mltr("personal_recurring"); ?>
                                 </label>
                             </div>
-                            <div class="form-check" style="display:inline-block">
-                                <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-2" value="2">
-                                <label class="form-check-label" for="challenge-edit-type-2">
-                                    <?php echo mltr("company"); ?>
-                                </label>
-                            </div>
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-4" value="4" disabled>
+                                    <label class="form-check-label" for="challenge-edit-type-4">
+                                        Personal (Distance-based)
+                                    </label>
+                                </div>
+                                <div class="form-check" style="display:inline-block">
+                                    <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-2" value="2" disabled>
+                                    <label class="form-check-label" for="challenge-edit-type-2">
+                                        <?php echo mltr("company"); ?>
+                                    </label>
+                                </div>
+                                <div class="form-check" style="display:inline-block;width:40%">
+                                    <input class="form-check-input" type="radio" name="challenge-edit-type" id="challenge-edit-type-5" value="5" disabled>
+                                    <label class="form-check-label" for="challenge-edit-type-5">
+                                        Company (Distance-based)
+                                    </label>
+                                </div>
                         </div>
                         <label for="challenge-edit-delivery-count" class="form-label"><?php echo mltr("delivery_count"); ?></label>
                         <div class="input-group mb-2">
