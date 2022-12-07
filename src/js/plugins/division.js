@@ -218,12 +218,17 @@ function SubmitDivisionValidationRequest(logid) {
 }
 
 function LoadPendingDivisionValidation() {
+    InitPaginate("#table_division_pending", "LoadPendingDivisionValidation();");
+    page = parseInt($("#table_division_pending_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    
     $("#table_division_pending_data").empty();
     for (var i = 0; i < 5; i++) {
         $("#table_division_pending_data").append(division_pending_row);
     }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division/list/pending",
+        url: api_host + "/" + dhabbr + "/division/list/pending?page_size=20&page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -232,25 +237,17 @@ function LoadPendingDivisionValidation() {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            $("#table_division_pending_data").empty();
-            d = data.response.list;
-            if (d.length == 0) {
-                $("#table_division_pending_head").hide();
-                $("#table_division_pending_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
-            } else {
-                $("#table_division_pending_head").show();
-                for (i = 0; i < d.length; i++) {
-                    delivery = d[i];
-                    user = delivery.user;
-                    $("#table_division_pending_data").append(`
-                        <tr>
-                        <td>${delivery.logid}</td>
-                        <td>${divisions[delivery.divisionid].name}</td>
-                        <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
-                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a></td>
-                    </tr>`);
-                }
+            total_pages = data.response.total_pages;
+            pending_division = data.response.list;
+            data = [];
+
+            for (i = 0; i < pending_division.length; i++) {
+                delivery = pending_division[i];
+                user = delivery.user;
+                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">Show Details</a>`]);
             }
+
+            PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
         },
         error: function (data) {
             AjaxError(data);

@@ -29,6 +29,7 @@ Chart.defaults.color = "white";
 shiftdown = false;
 mfaenabled = false;
 mfafunc = null;
+allmembers = {};
 profile_userid = -1;
 modals = {};
 modalName2ID = {};
@@ -264,6 +265,7 @@ function InitSearchByName() {
             if (data.error) return;
             l = data.response.list;
             for (var i = 0; i < l.length; i++) {
+                allmembers[l[i].userid] = l[i].name;
                 $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
             }
             $(".search-name").flexdatalist({
@@ -700,6 +702,12 @@ function LoadCache(force) {
     }
 }
 
+function ClearCache(){
+    localStorage.removeItem("cache-expire");
+    toastNotification("success","Success","Local cache cleared!",5000);
+    setTimeout(function(){window.location.reload();},500);
+}
+
 userPermLoaded = false;
 
 function GetUserPermission() {
@@ -783,7 +791,7 @@ function PreValidateToken() {
     }
     $("#sidebar-username").html(name);
     $("#sidebar-userid").html("#" + userid);
-    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
+    $("#sidebar-banner").attr("src", api_host + "/" + dhabbr + "/member/banner?userid=" + userid);
     if (avatar.startsWith("a_"))
         $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
     else
@@ -904,7 +912,7 @@ function ValidateToken() {
             $("#sidebar-userid").html("#" + userid);
             $("#sidebar-bio").html(user.bio);
             simplemde["#settings-bio"].value(user.bio);
-            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
+            $("#sidebar-banner").attr("src", api_host + "/" + dhabbr + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else

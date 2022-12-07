@@ -519,7 +519,7 @@ function ShowDeliveryDetail(logid) {
                 await sleep(100);
             }
             if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
-                delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${user.name}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
+                delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${convertQuotation1(user.name)}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
             }
             $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
             $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));

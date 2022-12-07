@@ -1,5 +1,7 @@
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+logob64 = ""; 
+
 lang = "";
 enlang = "";
 LANG_CODE = {
@@ -51,6 +53,22 @@ LANG_CODE = {
     'zh': 'Chinese'
 };
 
+function toDataURL(src, callback) {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onload = function() {
+        var fileReader = new FileReader();
+        fileReader.onloadend = function() {
+            callback(fileReader.result);
+        }
+        fileReader.readAsDataURL(xhttp.response);
+    };
+
+    xhttp.responseType = 'blob';
+    xhttp.open('GET', src, true);
+    xhttp.send();
+}
+
 $(document).ready(function () {
     drivershub = `    ____       _                         __  __      __  
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
@@ -59,9 +77,10 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.5)");
+    console.log("Drivers Hub: Frontend (v2.4.6)");
     console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
+    console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
 
     $.ajax({
@@ -87,6 +106,10 @@ $(document).ready(function () {
             }
         });
     }
+
+    toDataURL("https://drivershub-cdn.charlws.com/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function(dataURL) {
+        logob64 = dataURL
+    });
 });
 
 function mltr(key) {
@@ -102,7 +125,11 @@ function mltr(key) {
     }
 }
 
-function convertQuotation(s) {
+function convertQuotation1(s) {
+    return s.replaceAll(`'`, `\\\'`);
+}
+
+function convertQuotation2(s) {
     return s.replaceAll(`"`, `\\\"`);
 }
 
@@ -178,13 +205,13 @@ function GetAvatarSrc(discordid, avatarid) {
             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".gif";
         else
             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".png";
-    } else src = "/images/logo.png";
+    } else src = logob64;
     return src;
 }
 
 function GetAvatarImg(src, userid, name) {
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         <b>${name}</b>
     </a>`;
 }
@@ -192,7 +219,7 @@ function GetAvatarImg(src, userid, name) {
 function GetAvatar(userid, name, discordid, avatarid) {
     src = GetAvatarSrc(discordid, avatarid);
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         ${name}
     </a>`;
 }
@@ -218,6 +245,32 @@ function FileOutput(filename, text) {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+}
+
+function FileURLOutput(filename, src){
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onload = function() {
+        var fileReader = new FileReader();
+        fileReader.onloadend = function() {
+            var element = document.createElement('a');
+            element.setAttribute('href', fileReader.result);
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+        fileReader.readAsDataURL(xhttp.response);
+    };
+
+    xhttp.onerror = function(){
+        toastNotification("error", "Error", "Error " + xhttp.status + ": " + xhttp.statusText, 5000);
+    };
+
+    xhttp.responseType = 'blob';
+    xhttp.open('GET', src, true);
+    xhttp.send();
 }
 
 function isJSONNumber(obj) {
@@ -1657,7 +1710,7 @@ function ShowDeliveryDetail(logid) {
                 await sleep(100);
             }
             if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
-                delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${user.name}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
+                delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${convertQuotation1(user.name)}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
             }
             $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
             $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));
@@ -2155,7 +2208,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#driver-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -2180,7 +2233,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${dhabbr}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#staff-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -2245,7 +2298,7 @@ function LoadMemberList(noplaceholder = false) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
+                    avatar = logob64;
                 }
                 userop = ``;
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -2255,13 +2308,13 @@ function LoadMemberList(noplaceholder = false) {
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">Update Discord ID</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >Dismiss</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes("hr")){
@@ -2271,9 +2324,9 @@ function LoadMemberList(noplaceholder = false) {
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${name}')" style="color:red">Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">Dismiss</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes(`division`)){
@@ -2286,7 +2339,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -2515,7 +2568,7 @@ user_statistics_placeholder = `<div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
     <div style="padding:20px 0 0 20px;float:left" id="profile-info">
     </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
     </div>
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
@@ -2546,22 +2599,35 @@ user_statistics_placeholder = `<div class="row">
 </div>
 </div>`;
 
+function getActivityName(name){
+    if(name.startsWith("dlog_")) return "Viewing Delivery Log #" + name.split("_")[1];
+    else if(name == "dlog") return "Viewing Delivery Logs";
+    else if(name == "index") return "Viewing Drivers Hub Index";
+    else if(name == "leaderboard") return "Viewing Leaderboard";
+    else if(name == "member") return "Viewing Member List";
+    else if(name.includes("member_")) return "Viewing Member "+allmembers[name.split("_")[1]];
+    else if(name == "announcement") return "Viewing Announcements";
+    else if(name == "application") return "Viewing Appliactions";
+    else if(name == "challenge") return "Viewing Challenges";
+    else if(name == "division") return "Viewing Divisions";
+    else if(name == "downloads") return "Viewing Downloads";
+    else if(name == "event") return "Viewing Events";
+    else return "/";
+}
+
 function getActitivyUrl(name){
-    if(name == "Viewing Configuration") return "/config";
-    else if(name == "Viewing Audit Log") return "/audit";
-    else if(name.startsWith("Viewing Delivery Log #")) return "/delivery/"+name.split("#")[1];
-    else if(name == "Viewing Delivery Logs") return "/delivery";
-    else if(name == "Viewing Drivers Hub Index") return "/";
-    else if(name == "Viewing Leaderboard") return "/leaderboard";
-    else if(name == "Viewing Members") return "/member";
-    else if(name.includes("User ID")) return "/member/"+name.split(": ")[1].split(")")[0];
-    else if(name == "Viewing Pending Users") return "/manage/user";
-    else if(name == "Viewing Announcements") return "/announcement";
-    else if(name == "Viewing Applications") return "/application/my";
-    else if(name == "Viewing Challenges") return "/challenge";
-    else if(name == "Viewing Divisions") return "/division";
-    else if(name == "Viewing Downloads") return "/downloads";
-    else if(name == "Viewing Events") return "/event";
+    if(name.startsWith("dlog_")) return "/delivery/"+name.split("_")[1];
+    else if(name == "dlog") return "/delivery";
+    else if(name == "index") return "/";
+    else if(name == "leaderboard") return "/leaderboard";
+    else if(name == "member") return "/member";
+    else if(name.includes("member_")) return "/member/"+name.split("_")[1];
+    else if(name == "announcement") return "/announcement";
+    else if(name == "application") return "/application/my";
+    else if(name == "challenge") return "/challenge";
+    else if(name == "division") return "/division";
+    else if(name == "downloads") return "/downloads";
+    else if(name == "event") return "/event";
     else return "/";
 }
 
@@ -2619,15 +2685,14 @@ function LoadUserProfile(userid) {
             
             account_info += GenTableRow("&nbsp;", "&nbsp;");
             activity_url = getActitivyUrl(d.activity.name);
-            if(d.activity.name.includes("User ID")) d.activity.name = d.activity.name.split("(User ID")[0];
-            if(d.activity.name == "Offline"){
+            if(d.activity.name == "offline"){
                 if(d.activity.last_seen != -1)
                     account_info += GenTableRow(mltr("status"), mltr("offline") + " - " + mltr("last_seen") + " " + timeAgo(new Date(d.activity.last_seen*1000)));
                 else
                     account_info += GenTableRow(mltr("status"), mltr("offline"));
             }
-            else if(d.activity.name == "Online") account_info += GenTableRow(mltr("status"), mltr("online"));
-            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
+            else if(d.activity.name == "online") account_info += GenTableRow(mltr("status"), mltr("online"));
+            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${getActivityName(d.activity.name)}</a>`);
 
             account_info += "</table>";
 
@@ -3074,11 +3139,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
+                        avatar = logob64;
                     }
                     $("#table_mini_leaderboard_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
             <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${totalpnt}</td>
             </tr>`);
@@ -3110,11 +3175,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
+                        avatar = logob64;
                     }
                     $("#table_new_driver_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${joindt}</td>
             </tr>`);
@@ -3145,11 +3210,11 @@ function LoadStats(basic = false, noplaceholder = false) {
                         else
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                     } else {
-                        avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
+                        avatar = logob64;
                     }
                     $("#table_recent_visitors_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');"></td>
+                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
                 <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${last_seen}</td>
             </tr>`);
@@ -3678,7 +3743,16 @@ function LoadUserSessions(noplaceholder = false) {
                     opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
                 else opbtn = `(Current)`;
 
+                browser_icon = ``;
+                if (sessions[i].user_agent.indexOf("Chrome") != -1) browser_icon = `<i class="fa-brands fa-chrome"></i>`;
+                else if (sessions[i].user_agent.indexOf("Firefox") != -1) browser_icon = `<i class="fa-brands fa-firefox"></i>`;
+                else if (sessions[i].user_agent.indexOf("MSIE") != -1) browser_icon = `<i class="fa-brands fa-internet-explorer"></i>`;
+                else if (sessions[i].user_agent.indexOf("Edge") != -1) browser_icon = `<i class="fa-brands fa-edge"></i>`;
+                else if (sessions[i].user_agent.indexOf("Opera") != -1) browser_icon = `<i class="fa-brands fa-opera"></i>`;
+                else if (sessions[i].user_agent.indexOf("Safari") != -1) browser_icon = `<i class="fa-brands fa-safari"></i>`;
+
                 $("#table_session_data").append(`<tr>
+                    <td>${browser_icon}</td>
                     <td>${sessions[i].ip}</td>
                     <td>${sessions[i].country}</td>
                     <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
@@ -3772,16 +3846,16 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')"><i class="fa-solid fa-folder-open"></i></a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${user.name}')">Update Discord ID</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">Accept As Member</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">Update Discord ID</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${user.name}')">${bantxt}</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${user.name}')">Delete</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">Delete</a></li>
                         </ul>
                     </div>`;
                 } else if(userPerm.includes("hr")){
@@ -3790,9 +3864,9 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')"><i class="fa-solid fa-folder-open"></i></a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${user.name}')">Accept As Member</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">Accept As Member</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red">${bantxt}</a></li>
                         </ul>
@@ -5160,6 +5234,11 @@ function SubmitApplication() {
             UnlockBtn("#button-submit-application");
             if(data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
+
+            if($("#check-application-enable-notification").prop("checked") == true){
+                EnableNotification("discord", "Discord");
+                EnableNotification("application", "Application");
+            }
         },
         error: function (data) {
             UnlockBtn("#button-submit-application");
@@ -5910,12 +5989,17 @@ function SubmitDivisionValidationRequest(logid) {
 }
 
 function LoadPendingDivisionValidation() {
+    InitPaginate("#table_division_pending", "LoadPendingDivisionValidation();");
+    page = parseInt($("#table_division_pending_page_input").val())
+    if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
+
+    
     $("#table_division_pending_data").empty();
     for (var i = 0; i < 5; i++) {
         $("#table_division_pending_data").append(division_pending_row);
     }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division/list/pending",
+        url: api_host + "/" + dhabbr + "/division/list/pending?page_size=20&page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
@@ -5924,25 +6008,17 @@ function LoadPendingDivisionValidation() {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            $("#table_division_pending_data").empty();
-            d = data.response.list;
-            if (d.length == 0) {
-                $("#table_division_pending_head").hide();
-                $("#table_division_pending_data").append(`<tr><td style="color:#ccc"><i>No Data</i></td>`);
-            } else {
-                $("#table_division_pending_head").show();
-                for (i = 0; i < d.length; i++) {
-                    delivery = d[i];
-                    user = delivery.user;
-                    $("#table_division_pending_data").append(`
-                        <tr>
-                        <td>${delivery.logid}</td>
-                        <td>${divisions[delivery.divisionid].name}</td>
-                        <td>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}</td>
-                        <td><a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a></td>
-                    </tr>`);
-                }
+            total_pages = data.response.total_pages;
+            pending_division = data.response.list;
+            data = [];
+
+            for (i = 0; i < pending_division.length; i++) {
+                delivery = pending_division[i];
+                user = delivery.user;
+                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">Show Details</a>`]);
             }
+
+            PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
         },
         error: function (data) {
             AjaxError(data);
@@ -6087,7 +6163,7 @@ function LoadDownloads(noplaceholder = false){
                         <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-description" placeholder="Content of the downloadable item, MarkDown supported" style="height:100%">${downloads.description}</textarea></div>
                     <label for="downloads-edit-${downloads.downloadsid}-link" class="form-label">Link</label>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-link" placeholder="https://..." value="${convertQuotation(downloads.link)}">
+                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-link" placeholder="https://..." value="${convertQuotation2(downloads.link)}">
                     </div>
                     <label for="downloads-edit-${downloads.downloadsid}-orderid" class="form-label">Order ID</label>
                     <div class="input-group mb-2">
@@ -6518,7 +6594,7 @@ function EditEventShow(eventid){
     $("#event-edit-id-span").html(eventid);
     $("#event-edit-id").val(eventid);
     $("#event-edit-title").val(title);
-    $("#event-edit-description").val(description);
+    simplemde["#event-edit-description"].value(description);
     $("#event-edit-truckersmp-link").val(truckersmp_link);
     $("#event-edit-departure").val(departure);
     $("#event-edit-destination").val(destination);
@@ -6972,6 +7048,7 @@ Chart.defaults.color = "white";
 shiftdown = false;
 mfaenabled = false;
 mfafunc = null;
+allmembers = {};
 profile_userid = -1;
 modals = {};
 modalName2ID = {};
@@ -7207,6 +7284,7 @@ function InitSearchByName() {
             if (data.error) return;
             l = data.response.list;
             for (var i = 0; i < l.length; i++) {
+                allmembers[l[i].userid] = l[i].name;
                 $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
             }
             $(".search-name").flexdatalist({
@@ -7643,6 +7721,12 @@ function LoadCache(force) {
     }
 }
 
+function ClearCache(){
+    localStorage.removeItem("cache-expire");
+    toastNotification("success","Success","Local cache cleared!",5000);
+    setTimeout(function(){window.location.reload();},500);
+}
+
 userPermLoaded = false;
 
 function GetUserPermission() {
@@ -7726,7 +7810,7 @@ function PreValidateToken() {
     }
     $("#sidebar-username").html(name);
     $("#sidebar-userid").html("#" + userid);
-    $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
+    $("#sidebar-banner").attr("src", api_host + "/" + dhabbr + "/member/banner?userid=" + userid);
     if (avatar.startsWith("a_"))
         $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
     else
@@ -7847,7 +7931,7 @@ function ValidateToken() {
             $("#sidebar-userid").html("#" + userid);
             $("#sidebar-bio").html(user.bio);
             simplemde["#settings-bio"].value(user.bio);
-            $("#sidebar-banner").attr("src", "https://drivershub.charlws.com/" + dhabbr + "/member/banner?userid=" + userid);
+            $("#sidebar-banner").attr("src", api_host + "/" + dhabbr + "/member/banner?userid=" + userid);
             if (avatar.startsWith("a_"))
                 $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
             else

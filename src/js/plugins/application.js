@@ -346,6 +346,11 @@ function SubmitApplication() {
             UnlockBtn("#button-submit-application");
             if(data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
+
+            if($("#check-application-enable-notification").prop("checked") == true){
+                EnableNotification("discord", "Discord");
+                EnableNotification("application", "Application");
+            }
         },
         error: function (data) {
             UnlockBtn("#button-submit-application");

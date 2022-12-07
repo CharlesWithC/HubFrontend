@@ -17,7 +17,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png'");><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#driver-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -42,7 +42,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/${dhabbr}/logo.png')";><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#staff-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -107,7 +107,7 @@ function LoadMemberList(noplaceholder = false) {
                     else
                         src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
                 } else {
-                    avatar = "https://drivershub-cdn.charlws.com/assets/"+dhabbr+"/logo.png";
+                    avatar = logob64;
                 }
                 userop = ``;
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -117,13 +117,13 @@ function LoadMemberList(noplaceholder = false) {
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${name}')">Disable MFA</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${name}')">Update Discord ID</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${name}')">Delete Connections</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">Update Discord ID</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${name}')" >Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >Dismiss</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes("hr")){
@@ -133,9 +133,9 @@ function LoadMemberList(noplaceholder = false) {
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${name}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${name}')" style="color:red">Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">Dismiss</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes(`division`)){
@@ -148,7 +148,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="$(this).attr('src','https://drivershub-cdn.charlws.com/assets/`+dhabbr+`/logo.png');">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
@@ -377,7 +377,7 @@ user_statistics_placeholder = `<div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
     <div style="padding:20px 0 0 20px;float:left" id="profile-info">
     </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" src="/images/logo.png" onerror="$(this).attr('src','/images/logo.png');" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
+    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
     </div>
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
@@ -408,22 +408,35 @@ user_statistics_placeholder = `<div class="row">
 </div>
 </div>`;
 
+function getActivityName(name){
+    if(name.startsWith("dlog_")) return "Viewing Delivery Log #" + name.split("_")[1];
+    else if(name == "dlog") return "Viewing Delivery Logs";
+    else if(name == "index") return "Viewing Drivers Hub Index";
+    else if(name == "leaderboard") return "Viewing Leaderboard";
+    else if(name == "member") return "Viewing Member List";
+    else if(name.includes("member_")) return "Viewing Member "+allmembers[name.split("_")[1]];
+    else if(name == "announcement") return "Viewing Announcements";
+    else if(name == "application") return "Viewing Appliactions";
+    else if(name == "challenge") return "Viewing Challenges";
+    else if(name == "division") return "Viewing Divisions";
+    else if(name == "downloads") return "Viewing Downloads";
+    else if(name == "event") return "Viewing Events";
+    else return "/";
+}
+
 function getActitivyUrl(name){
-    if(name == "Viewing Configuration") return "/config";
-    else if(name == "Viewing Audit Log") return "/audit";
-    else if(name.startsWith("Viewing Delivery Log #")) return "/delivery/"+name.split("#")[1];
-    else if(name == "Viewing Delivery Logs") return "/delivery";
-    else if(name == "Viewing Drivers Hub Index") return "/";
-    else if(name == "Viewing Leaderboard") return "/leaderboard";
-    else if(name == "Viewing Members") return "/member";
-    else if(name.includes("User ID")) return "/member/"+name.split(": ")[1].split(")")[0];
-    else if(name == "Viewing Pending Users") return "/manage/user";
-    else if(name == "Viewing Announcements") return "/announcement";
-    else if(name == "Viewing Applications") return "/application/my";
-    else if(name == "Viewing Challenges") return "/challenge";
-    else if(name == "Viewing Divisions") return "/division";
-    else if(name == "Viewing Downloads") return "/downloads";
-    else if(name == "Viewing Events") return "/event";
+    if(name.startsWith("dlog_")) return "/delivery/"+name.split("_")[1];
+    else if(name == "dlog") return "/delivery";
+    else if(name == "index") return "/";
+    else if(name == "leaderboard") return "/leaderboard";
+    else if(name == "member") return "/member";
+    else if(name.includes("member_")) return "/member/"+name.split("_")[1];
+    else if(name == "announcement") return "/announcement";
+    else if(name == "application") return "/application/my";
+    else if(name == "challenge") return "/challenge";
+    else if(name == "division") return "/division";
+    else if(name == "downloads") return "/downloads";
+    else if(name == "event") return "/event";
     else return "/";
 }
 
@@ -481,15 +494,14 @@ function LoadUserProfile(userid) {
             
             account_info += GenTableRow("&nbsp;", "&nbsp;");
             activity_url = getActitivyUrl(d.activity.name);
-            if(d.activity.name.includes("User ID")) d.activity.name = d.activity.name.split("(User ID")[0];
-            if(d.activity.name == "Offline"){
+            if(d.activity.name == "offline"){
                 if(d.activity.last_seen != -1)
                     account_info += GenTableRow(mltr("status"), mltr("offline") + " - " + mltr("last_seen") + " " + timeAgo(new Date(d.activity.last_seen*1000)));
                 else
                     account_info += GenTableRow(mltr("status"), mltr("offline"));
             }
-            else if(d.activity.name == "Online") account_info += GenTableRow(mltr("status"), mltr("online"));
-            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${d.activity.name}</a>`);
+            else if(d.activity.name == "online") account_info += GenTableRow(mltr("status"), mltr("online"));
+            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${getActivityName(d.activity.name)}</a>`);
 
             account_info += "</table>";
 

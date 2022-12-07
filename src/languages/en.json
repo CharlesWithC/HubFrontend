@@ -502,5 +502,9 @@
     "language": "Language",
     "delete_delivery": "Delete Delivery",
     "delete_delivery_note_1": "Are you sure you want to delete this job:",
-    "delete_delivery_note_2": "The job will be deleted and related statistics will be affected (there might be cache of up to 2 minutes). It can be recovered by resending webhook post from Navio Dashboard (if supported). The ID is not recoverable."
+    "delete_delivery_note_2": "The job will be deleted and related statistics will be affected (there might be cache of up to 2 minutes). It can be recovered by resending webhook post from Navio Dashboard (if supported). The ID is not recoverable.",
+    "clear_cache": "Clear Cache",
+    "download_default": "Download Default",
+    "download_current": "Download Current",
+    "enable_appliation_notification": "Enable Discord & Appliation Notifications? This will allow you to receive the latest updates on the application from staff team."
 }

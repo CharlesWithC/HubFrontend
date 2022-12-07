@@ -2471,7 +2471,7 @@
         <section id="footer">
             <hr style="border:1px solid #777;margin-bottom:8px">
             <div style="width:49.5%;text-align:left;display:inline-block">
-                &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;
+                &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;Nighty Release
             </div>
             <div style="width:49.5%;text-align:right;display:inline-block">
                 <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>

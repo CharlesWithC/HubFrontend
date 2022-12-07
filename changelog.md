@@ -1,7 +1,19 @@
 # Changelog
 
 **v2.4.6**  
-1.Added `/member/@me` as alternative to user's own profile  
+0.Added nighty release  
+1.Fixed the bug that dropup banner does not display on regular / premium plan  
+2.Fixed the bug that `'` in string breaks html element  
+3.Fixed event description cannot be loaded when editing  
+4.Fixed the bug of falling into endless loop of getting `logo.png`  
+5.Reduced the number of `logo.png` requests by saving it into `logob64` (after base64 encode) in memory  
+6.Added `/member/@me` as alternative to user's own profile  
+7.Added `Clear Cache` button  
+8.Added activity parse  
+9.Added browser icon in sessions  
+10.Added page separator for pending division validation request  
+11.Added `Download Default` (if exists) and `Download Current` button to web config editor - Custom Application & Style  
+12.Added option to enable Discord & Application notification before submitting application  
 
 **v2.4.5**  
 1.Fixed the issue that `<td>` are not in `<tr>`  

@@ -279,7 +279,7 @@ function EditEventShow(eventid){
     $("#event-edit-id-span").html(eventid);
     $("#event-edit-id").val(eventid);
     $("#event-edit-title").val(title);
-    $("#event-edit-description").val(description);
+    simplemde["#event-edit-description"].value(description);
     $("#event-edit-truckersmp-link").val(truckersmp_link);
     $("#event-edit-departure").val(departure);
     $("#event-edit-destination").val(destination);

@@ -69,7 +69,7 @@ function LoadDownloads(noplaceholder = false){
                         <textarea type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-description" placeholder="Content of the downloadable item, MarkDown supported" style="height:100%">${downloads.description}</textarea></div>
                     <label for="downloads-edit-${downloads.downloadsid}-link" class="form-label">Link</label>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-link" placeholder="https://..." value="${convertQuotation(downloads.link)}">
+                        <input type="text" class="form-control bg-dark text-white" id="downloads-edit-${downloads.downloadsid}-link" placeholder="https://..." value="${convertQuotation2(downloads.link)}">
                     </div>
                     <label for="downloads-edit-${downloads.downloadsid}-orderid" class="form-label">Order ID</label>
                     <div class="input-group mb-2">

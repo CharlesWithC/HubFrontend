@@ -1,5 +1,7 @@
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+logob64 = ""; 
+
 lang = "";
 enlang = "";
 LANG_CODE = {
@@ -51,6 +53,22 @@ LANG_CODE = {
     'zh': 'Chinese'
 };
 
+function toDataURL(src, callback) {
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onload = function() {
+        var fileReader = new FileReader();
+        fileReader.onloadend = function() {
+            callback(fileReader.result);
+        }
+        fileReader.readAsDataURL(xhttp.response);
+    };
+
+    xhttp.responseType = 'blob';
+    xhttp.open('GET', src, true);
+    xhttp.send();
+}
+
 $(document).ready(function () {
     drivershub = `    ____       _                         __  __      __  
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_ 
@@ -59,9 +77,10 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.5)");
+    console.log("Drivers Hub: Frontend (v2.4.6)");
     console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
+    console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
 
     $.ajax({
@@ -87,6 +106,10 @@ $(document).ready(function () {
             }
         });
     }
+
+    toDataURL("https://drivershub-cdn.charlws.com/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function(dataURL) {
+        logob64 = dataURL
+    });
 });
 
 function mltr(key) {
@@ -102,7 +125,11 @@ function mltr(key) {
     }
 }
 
-function convertQuotation(s) {
+function convertQuotation1(s) {
+    return s.replaceAll(`'`, `\\\'`);
+}
+
+function convertQuotation2(s) {
     return s.replaceAll(`"`, `\\\"`);
 }
 
@@ -178,13 +205,13 @@ function GetAvatarSrc(discordid, avatarid) {
             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".gif";
         else
             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".png";
-    } else src = "/images/logo.png";
+    } else src = logob64;
     return src;
 }
 
 function GetAvatarImg(src, userid, name) {
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         <b>${name}</b>
     </a>`;
 }
@@ -192,7 +219,7 @@ function GetAvatarImg(src, userid, name) {
 function GetAvatar(userid, name, discordid, avatarid) {
     src = GetAvatarSrc(discordid, avatarid);
     return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
-        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="$(this).attr('src','/images/logo.png');">
+        <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         ${name}
     </a>`;
 }
@@ -218,6 +245,32 @@ function FileOutput(filename, text) {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+}
+
+function FileURLOutput(filename, src){
+    var xhttp = new XMLHttpRequest();
+
+    xhttp.onload = function() {
+        var fileReader = new FileReader();
+        fileReader.onloadend = function() {
+            var element = document.createElement('a');
+            element.setAttribute('href', fileReader.result);
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+        fileReader.readAsDataURL(xhttp.response);
+    };
+
+    xhttp.onerror = function(){
+        toastNotification("error", "Error", "Error " + xhttp.status + ": " + xhttp.statusText, 5000);
+    };
+
+    xhttp.responseType = 'blob';
+    xhttp.open('GET', src, true);
+    xhttp.send();
 }
 
 function isJSONNumber(obj) {
