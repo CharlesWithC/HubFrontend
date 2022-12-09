@@ -192,7 +192,7 @@ function UpdateConfig() {
 function ReloadAPIShow() {
     if (!mfaenabled) return toastNotification("error", "Error", mltr("mfa_must_be_enabled_to_reload_api"), 5000);
     mfafunc = ReloadServer;
-    LockBtn("#button-reload-api-show", `Reloading...`);
+    LockBtn("#button-reload-api-show", mltr("reloading"));
     setTimeout(function () {
         UnlockBtn("#button-reload-api-show");
         setTimeout(function () {
@@ -205,7 +205,7 @@ function ReloadServer() {
     otp = $("#mfa-otp").val();
     $.ajax({
         url: api_host + "/" + dhabbr + "/reload",
-        type: "PUT",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -251,8 +251,8 @@ function UpdateWebConfig() {
     tipt = "";
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/tip",
-        type: "PUT",
+        url: api_host + "/" + dhabbr + "/user/tip",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + token

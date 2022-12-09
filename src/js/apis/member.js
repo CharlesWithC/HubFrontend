@@ -113,38 +113,38 @@ function LoadMemberList(noplaceholder = false) {
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        ${mltr('manage')}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">Update Discord ID</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >${mltr('dismiss')}</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes("hr")){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        ${mltr('manage')}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes(`division`)){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        ${mltr('manage')}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                     </ul>
                 </div>`;
                 }
@@ -175,7 +175,7 @@ function EditRolesShow(uid){
 
             roled = `
             <div>
-                <label class="form-label">Roles</label>
+                <label class="form-label">${mltr('roles')}</label>
                 <br>
             </div>`;
             
@@ -249,16 +249,16 @@ function EditRoles(uid) {
 
 function EditPointsShow(uid, name){
     div = `
-    <label class="form-label">Points</label>
+    <label class="form-label">${mltr('points')}</label>
     <div class="input-group mb-2">
-        <span class="input-group-text" id="edit-points-distance-label">Distance</span>
+        <span class="input-group-text" id="edit-points-distance-label">${mltr('distance')}</span>
         <input type="number" class="form-control bg-dark text-white" id="edit-points-distance" placeholder="0" aria-describedby="edit-points-distance-label">
     </div>
     <div class="input-group mb-3">
-        <span class="input-group-text" id="edit-points-myth-label">Myth</span>
+        <span class="input-group-text" id="edit-points-myth-label">${mltr('myth')}</span>
         <input type="number" class="form-control bg-dark text-white" id="edit-points-myth" placeholder="0" aria-describedby="edit-points-myth-label">
     </div>`;
-    modalid = ShowModal(`${name} (${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${uid});">Update</button>`);
+    modalid = ShowModal(`${name} (${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${uid});">${mltr('update')}</button>`);
     InitModal("edit_points", modalid);
 }
 
@@ -305,7 +305,7 @@ function DismissMember(uid){
     
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
-        type: "DELETE",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -347,10 +347,10 @@ function LoadRanking(){
             if(data.response.list.length != 0){
                 d = data.response.list[0];
                 rank = point2rank(d.points.total_no_limit);
-                t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
-                <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
+                t += GenCard(mltr('my_points'), TSeparator(d.points.total_no_limit) + " - " + rank + `
+                <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">${mltr('get_discord_role')}</button>`);
             } else {
-                t += GenCard(`My Points`, "You are not a driver!");
+                t += GenCard(mltr('my_points'), mltr("you_are_not_a_driver"));
             }
             k = Object.keys(RANKING);
             for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
@@ -382,20 +382,20 @@ user_statistics_placeholder = `<div class="row">
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
 <div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> Account</strong></h5>
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> ${mltr('account')}</strong></h5>
     <div id="user-account-info"></div>
 </div>
 </div>
 <div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> Statistics</strong></h5>
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> ${mltr('statistics')}</strong></h5>
     <div style="float:right">
         <div class="btn-group" id="user-chart-scale-group">
             <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
             <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
             <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
         </div>
-        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">Sum</a>
+        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">${mltr('sum')}</a>
     </div>
     </h2>
     <div class="p-4 overflow-x-auto" style="display: block;">
@@ -403,24 +403,24 @@ user_statistics_placeholder = `<div class="row">
     </div>
 </div>
 <div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> Statistics</strong></h5>
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> ${mltr('statistics')}</strong></h5>
     <div id="profile-text-statistics"></div>
 </div>
 </div>`;
 
 function getActivityName(name){
-    if(name.startsWith("dlog_")) return "Viewing Delivery Log #" + name.split("_")[1];
-    else if(name == "dlog") return "Viewing Delivery Logs";
-    else if(name == "index") return "Viewing Drivers Hub Index";
-    else if(name == "leaderboard") return "Viewing Leaderboard";
-    else if(name == "member") return "Viewing Member List";
-    else if(name.includes("member_")) return "Viewing Member "+allmembers[name.split("_")[1]];
-    else if(name == "announcement") return "Viewing Announcements";
-    else if(name == "application") return "Viewing Appliactions";
-    else if(name == "challenge") return "Viewing Challenges";
-    else if(name == "division") return "Viewing Divisions";
-    else if(name == "downloads") return "Viewing Downloads";
-    else if(name == "event") return "Viewing Events";
+    if(name.startsWith("dlog_")) return mltr("viewing_delivery_log") + " #" + name.split("_")[1];
+    else if(name == "dlog") return mltr("viewing_delivery_logs");
+    else if(name == "index") return mltr("viewing_drivers_hub_index");
+    else if(name == "leaderboard") return mltr("viewing_leaderboard");
+    else if(name == "member") return mltr("viewing_members");
+    else if(name.includes("member_")) return mltr("viewing") + allmembers[name.split("_")[1]] + "'s " + mltr("profile");
+    else if(name == "announcement") return mltr("viewing_announcements");
+    else if(name == "application") return mltr("viewing_appliactions");
+    else if(name == "challenge") return mltr("viewing_challenges");
+    else if(name == "division") return mltr("viewing_divisions");
+    else if(name == "downloads") return mltr("viewing_downloads");
+    else if(name == "event") return mltr("viewing_events");
     else return "/";
 }
 
@@ -527,21 +527,21 @@ function LoadUserProfile(userid) {
                     if (!data.error) {
                         d = data.response;
                         info = "";
-                        info += `<b>Jobs</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
-                        info += `<b>Including cancelled jobs</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
+                        info += `<b>${mltr('jobs')}</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
+                        info += `<b>${mltr('including_cancelled_jobs')}</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
 
                         dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
                         dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
                         dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
-                        info += `<b>Distance</b>: ${dtot} (${dets2} + ${dats})<br>`;
+                        info += `<b>${mltr('distance')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
 
                         dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
                         dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
                         dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
-                        info += `<b>Fuel</b>: ${dtot} (${dets2} + ${dats})<br>`;
+                        info += `<b>${mltr('fuel')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
 
-                        info += "<b>Profit</b>: €" + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
-                        info += "<b>Including cancellation penalty</b>: -€" + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
+                        info += `<b>${mltr('profit')}</b>: €` + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
+                        info += `<b>${mltr('including_cancellation_penalty')}</b>: -€` + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
 
                         $("#profile-text-statistics").html(info);
 
@@ -557,14 +557,14 @@ function LoadUserProfile(userid) {
                                     info += "<hr>";
                                     d = data.response.list[0];
                                     if(d != undefined){
-                                        info += "<b>Points</b><br>";
-                                        info += `<b>Distance</b>: ${d.points.distance}<br>`;
-                                        info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
-                                        info += `<b>Event</b>: ${d.points.event}<br>`;
-                                        info += `<b>Division</b>: ${d.points.division}<br>`;
-                                        info += `<b>Myth</b>: ${d.points.myth}<br>`;
-                                        info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
-                                        info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                        info += `<b>${mltr('points')}</b><br>`;
+                                        info += `<b>${mltr('distance')}</b>: ${d.points.distance}<br>`;
+                                        info += `<b>${mltr('challenge')}</b>: ${d.points.challenge}<br>`;
+                                        info += `<b>${mltr('event')}</b>: ${d.points.event}<br>`;
+                                        info += `<b>${mltr('division')}</b>: ${d.points.division}<br>`;
+                                        info += `<b>${mltr('myth')}</b>: ${d.points.myth}<br>`;
+                                        info += `<b>${mltr('total')}: ${d.points.total_no_limit}</b><br>`;
+                                        info += `<b>${mltr('rank')}: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
                                     }
                                     info += `</p>`;
                                     $("#profile-text-statistics").html(info);

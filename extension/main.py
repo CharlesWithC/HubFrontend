@@ -66,7 +66,7 @@ async def patchConfig(abbr: str, domain: str, api_host: str, request: Request, \
 
     ok = False
     try:
-        r = requests.get(f"{api_host}/{abbr}/auth/tip?token="+token, timeout = 3)
+        r = requests.get(f"{api_host}/{abbr}/user/tip?token="+token, timeout = 3)
         if r.status_code != 200:
             response.status_code = r.status_code
             return {"error": True, "descriptor": json.loads(r.text)["descriptor"]}

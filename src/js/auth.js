@@ -228,6 +228,7 @@ function MFAVerify() {
     if (!isNumber(otp) || otp.length != 6)
         return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
     LockBtn("#button-mfa-verify", mltr("verifying"));
+    clearInterval(mfato);
     mfato = setTimeout(function () {
         // remove otp cache after 75 seconds (2.5 rounds)
         if (!$("#mfa-tab").is(":visible")) {
@@ -249,7 +250,7 @@ function MFAVerify() {
         },
         success: function (data) {
             UnlockBtn("#button-mfa-verify");
-            if (data.error == true) AjaxError(data);
+            if (data.error == true) return AjaxError(data);
             newtoken = data.response.token;
             localStorage.setItem("token", newtoken);
             localStorage.removeItem("tip");

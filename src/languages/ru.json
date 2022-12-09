@@ -75,7 +75,7 @@
     "clear": "Очистить",
     "close": "Закрыть",
     "color": "Цвет",
-    "company": "Компания",
+    "company_one_time": "Компания",
     "completed_members": "Завершенные участники",
     "completed": "Выполненный",
     "config_reset_to_before_editing": "Сброс конфигурации до редактирования.",

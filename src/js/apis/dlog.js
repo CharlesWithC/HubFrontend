@@ -231,7 +231,7 @@ function LoadDeliveryList(noplaceholder = false) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.division.divisionid != undefined) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division.divisionid != undefined) dextra = `<span title='${mltr("validated_division_delivery")}'>` + SVG_VERIFIED + "</span>";
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
@@ -521,7 +521,7 @@ function ShowDeliveryDetail(logid) {
             if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
                 delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${convertQuotation1(user.name)}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
             }
-            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
+            $("#delivery-detail-title").html(`${mltr("delivery")} #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
             $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));
 
             d = d.detail;
@@ -536,10 +536,10 @@ function ShowDeliveryDetail(logid) {
             cargo = d.cargo.name;
             cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
 
-            source_company = "Unknown company";
-            source_city = "Unknown city";
-            destination_company = "Unknown company";
-            destination_city = "Unknown city";
+            source_company = "N/A";
+            source_city = "N/A";
+            destination_company = "N/A";
+            destination_city = "N/A";
             source_company_id = "";
             destination_company_id = "";
             if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
@@ -587,41 +587,41 @@ function ShowDeliveryDetail(logid) {
                 e = rrevents[i];
                 meta = e.meta;
                 if (e.type == "started") {
-                    GenTimelineItem(e, i, `Job Started`, `From ${source_company}, ${source_city}`);
+                    GenTimelineItem(e, i, mltr('job_started'), `${mltr("from")} ${source_company}, ${source_city}`);
                 } else if (e.type == "delivered") {
-                    GenTimelineItem(e, i, `Job Delivered`, `To ${destination_company}, ${destination_city}<br>Earned ${punit}${TSeparator(meta.revenue)} & ${TSeparator(meta.earned_xp)} XP`);
+                    GenTimelineItem(e, i, mltr('job_delivered'), `${mltr("to")} ${destination_company}, ${destination_city}<br>${mltr("earned")}  ${punit}${TSeparator(meta.revenue)} & ${TSeparator(meta.earned_xp)} XP`);
                 } else if (e.type == "cancelled") {
-                    GenTimelineItem(e, i, `Job Cancelled`, `Penalty: ${punit}${TSeparator(meta.penalty)}`);
+                    GenTimelineItem(e, i, mltr('job_cancelled'), `${mltr("penalty")}: ${punit}${TSeparator(meta.penalty)}`);
                 } else if (e.type == "fine") {
                     if (meta.offence == "crash") {
-                        GenTimelineItem(e, i, `Crash`, `Fined: ${punit}${TSeparator(meta.amount)}`);
+                        GenTimelineItem(e, i, mltr('crash'), `${mltr("fined")}: ${punit}${TSeparator(meta.amount)}`);
                     } else if (meta.offence == "speeding") {
                         speed = TSeparator(parseInt(meta.speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                         speed_limit = TSeparator(parseInt(meta.speed_limit * distance_ratio)) + distance_unit_txt + "/h";
-                        GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Fined: ${punit}${TSeparator(meta.amount)}`);
+                        GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("fined")}: ${punit}${TSeparator(meta.amount)}`);
                     } else if (meta.offence == "wrong_way") {
-                        GenTimelineItem(e, i, `Wrong Way`, `Fined: ${punit}${TSeparator(meta.amount)}`);
+                        GenTimelineItem(e, i, mltr('wrong_way'), `${mltr("fined")}: ${punit}${TSeparator(meta.amount)}`);
                     }
                 } else if (e.type == "tollgate") {
-                    GenTimelineItem(e, i, `Tollgate`, `Paid ${punit}${TSeparator(meta.cost)}`);
+                    GenTimelineItem(e, i, mltr('tollgate'), `${mltr("paid")} ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "ferry") {
-                    GenTimelineItem(e, i, `Ferry`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
+                    GenTimelineItem(e, i, mltr('ferry'), `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "train") {
-                    GenTimelineItem(e, i, `Train`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
+                    GenTimelineItem(e, i, mltr('train'), `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "collision") {
                     damage = meta.wear_engine + meta.wear_chassis + meta.wear_transmission + meta.wear_cabin + meta.wear_wheels;
-                    GenTimelineItem(e, i, `Collision`, `Truck Damage: ${(damage*100).toFixed(2)}%`);
+                    GenTimelineItem(e, i, mltr('collision'), `${mltr("truck_damage")}: ${(damage*100).toFixed(2)}%`);
                 } else if (e.type == "repair") {
-                    GenTimelineItem(e, i, `Repair`, `Truck repaired.`);
+                    GenTimelineItem(e, i, mltr('repair'), mltr('truck_repaired'));
                 } else if (e.type == "refuel") {
                     fuel = TSeparator(parseInt(meta.amount * fuel_ratio)) + fuel_unit_txt;
-                    GenTimelineItem(e, i, `Refuel`, `Refueled ${fuel} fuel.`);
+                    GenTimelineItem(e, i, mltr('refuel'), `${mltr("refueled")} ${fuel}.`);
                 } else if (e.type == "teleport") {
-                    GenTimelineItem(e, i, `Teleport`, `Teleported to another location.`);
+                    GenTimelineItem(e, i, mltr('teleport'), mltr('teleported_to_another_location'));
                 } else if (e.type == "speeding") {
                     speed = TSeparator(parseInt(meta.max_speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                     speed_limit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
-                    GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Duration: ${meta.end-meta.start} seconds<br><i>Not fined</i>`);
+                    GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("duration")}: ${meta.end-meta.start} sec<br><i>${mltr("not_fined")}</i>`);
                 }
             }
             new SimpleBar($("#delivery-detail-timeline-div")[0]);
@@ -646,8 +646,8 @@ function ShowDeliveryDetail(logid) {
             else if (basic[0].startsWith("v")) {
                 $("#dmap").prepend(`
                 <div style="position:absolute;z-index:10;padding:10px;">
-                    <h5>Delivery Route <span style="color:red">Not Available</span></h5>
-                    <p style="font-size:12px">Potential reasons: Navio Live not enabled, offline when driving</p>
+                    <h5>${mltr('delivery_route')} <span style="color:red">${mltr('not_available')}</span></h5>
+                    <p style="font-size:12px">${mltr('delivery_route_not_available_note')}</p>
                 </div>`);
                 return;
             }
@@ -754,8 +754,8 @@ function ShowDeliveryDetail(logid) {
             } else {
                 $("#dmap").prepend(`
                 <div style="position:absolute;z-index:10;padding:10px;">
-                    <h5>Delivery Route <span style="color:red">Not Available</span></h5>
-                    <p style="font-size:12px">Potential reasons: Navio Live not enabled, offline when driving</p>
+                    <h5>${mltr('delivery_route')} <span style="color:red">${mltr('not_available')}</span></h5>
+                    <p style="font-size:12px">${mltr('delivery_route_not_available_note')}</p>
                 </div>`);
                 return;
             }
@@ -845,8 +845,8 @@ function MoreDeliveryDetail() {
         auto_park = t.events[t.events.length - 1].meta.auto_park;
         auto_load = t.events[t.events.length - 1].meta.auto_load;
         extra = "";
-        if (auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
-        if (auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
+        if (auto_park == "1") extra += `<span class="badge text-bg-primary">${mltr("auto_park")}</span>&nbsp;&nbsp;`;
+        if (auto_load == "1") extra += `<span class="badge text-bg-primary">${mltr("auto_load")}</span>`;
         info += GenTableRow(mltr("log_id"), d.logid + "&nbsp;&nbsp;" + extra);
     } else {
         info += GenTableRow(mltr("log_id"), d.logid);
@@ -857,26 +857,26 @@ function MoreDeliveryDetail() {
     isdelivered = false;
     if (d.detail.type == "job.delivered") {
         isdelivered = true;
-        info += GenTableRow(mltr("status"), "<span style='color:lightgreen'>Delivered</span>");
+        info += GenTableRow(mltr("status"), `<span style='color:lightgreen'>${mltr("delivered")}</span>`);
     } else if (d.detail.type == "job.cancelled") {
-        info += GenTableRow(mltr("status"), "<span style='color:red'>Cancelled</span>");
+        info += GenTableRow(mltr("status"), `<span style='color:red'>${mltr("cancelled")}</span>`);
     }
     if (d.telemetry != "") {
-        info += GenTableRow(mltr("delivery_route"), "<span style='color:lightgreen'>Available</span>");
+        info += GenTableRow(mltr("delivery_route"), `<span style='color:lightgreen'>${mltr("available")}</span>`);
     } else {
-        info += GenTableRow(mltr("delivery_route"), "<span style='color:red'>Unavailable</span>");
+        info += GenTableRow(mltr("delivery_route"), `<span style='color:red'>${mltr("unavailable")}</span>`);
     }
-    info += GenTableRow(mltr("division"), `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
+    info += GenTableRow(mltr("division"), `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">${mltr("check")}</button></span>`);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     info += GenTableRow(mltr("driver"), GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
 
     d = d.detail.data.object;
 
-    source_company = "Unknown company";
-    source_city = "Unknown city";
-    destination_company = "Unknown company";
-    destination_city = "Unknown city";
+    source_company = "N/A";
+    source_city = "N/A";
+    destination_company = "N/A";
+    destination_city = "N/A";
     source_company_id = "";
     destination_company_id = "";
     if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
@@ -974,21 +974,21 @@ function MoreDeliveryDetail() {
     }
 
     MARKET = {
-        "cargo_market": "Cargo Market",
-        "freight_market": "Freight Market",
-        "quick_job": "Quick Job",
-        "external_contracts": "External Contracts"
+        "cargo_market": mltr("cargo_market"),
+        "freight_market": mltr("freight_market"),
+        "quick_job": mltr("quick_job"),
+        "external_contracts": mltr("external_contracts")
     };
-    mkt = "Unknown";
+    mkt = mltr("unknown");
     if (Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
     info += GenTableRow(mltr("market"), mkt);
-    mode = "Single Player";
+    mode = mltr("single_player");
     if (d.multiplayer != null) {
-        mode = "Multiplayer";
+        mode = mltr("multiplayer");
         if (d.multiplayer.type == "truckersmp") {
-            mode = "TruckersMP";
+            mode = mltr("truckersmp");
         } else if (d.multiplayer.type == "scs_convoy") {
-            mode = "SCS Convoy";
+            mode = mltr("scs_convoy");
         }
     }
     info += GenTableRow(mltr("mode"), mode);

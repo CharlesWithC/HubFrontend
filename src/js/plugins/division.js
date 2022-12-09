@@ -46,7 +46,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.division != "") dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division != "") dextra = `<span title='${mltr("validated_division_delivery")}'>` + SVG_VERIFIED + "</span>";
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
 
@@ -127,29 +127,29 @@ function GetDivisionInfo(logid) {
             for (var i = 0; i < Object.keys(divisions).length; i++) {
                 divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
             }
-            if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
+            if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">${mltr("no_division_found")}</span>`);
 
             info = ``;
             if (data.response.status == "-1") {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
-                    <option value="-1" selected>Select Division</option>
+                    <option value="-1" selected>${mltr("select_division")}</option>
                     ${divisionopt}
                 </select>`;
-                info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">Request Validation</button>`;
+                info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">${mltr("request_validation")}</button>`;
                 $("#delivery-detail-division").html(info);
             } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
                 info += `
-                <p>This delivery is pending division validation.</p>
-                <label for="select-division" class="form-label">Division</label>
+                <p>${mltr("division_pending_validation")}</p>
+                <label for="select-division" class="form-label">${mltr("divisions")}</label>
                 <div class="mb-3">
                     <select class="form-select bg-dark text-white" id="select-division">
                         ${divisionopt}
                     </select>
                 </div>
-                <label for="validate-division-message" class="form-label">Message</label>
+                <label for="validate-division-message" class="form-label">${mltr("message")}</label>
                 <div class="input-group mb-3" style="height:100px;">
-                    <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="(Optional, a reason should be provided here if you need to reject the request)" style="height:100%"></textarea>
+                    <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="" style="height:100%"></textarea>
                 </div>
                 `;
                 modalid = ShowModal(mltr('division_validation'), info, `
@@ -163,12 +163,12 @@ function GetDivisionInfo(logid) {
                     $("#delivery-detail-division").html(divisions[data.response.divisionid].name);
                 } else {
                     info += divisions[data.response.divisionid].name + " ";
-                    if (data.response.status == "0") info += "| Pending Validation";
+                    if (data.response.status == "0") info += "| " + mltr("pending_validation");
                     else if (data.response.status == "1") info += SVG_VERIFIED;
                     else if (data.response.status == "2") {
                         staff = data.response.update_staff;
                         staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
-                        info += `| Rejected By ` + staff;
+                        info += `| ${mltr("rejected_by")} ` + staff;
                     }
                 }
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
@@ -244,7 +244,7 @@ function LoadPendingDivisionValidation() {
             for (i = 0; i < pending_division.length; i++) {
                 delivery = pending_division[i];
                 user = delivery.user;
-                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">Show Details</a>`]);
+                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">${mltr("show_details")}</a>`]);
             }
 
             PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");

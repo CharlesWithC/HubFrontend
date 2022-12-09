@@ -45,7 +45,7 @@ function LoadUserApplicationList(noplaceholder = false) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            STATUS = ["Pending", "Accepted", "Declined"];
+            STATUS = [mltr("pending"), mltr("accepted"), mltr("declined")];
 
             applicationList = data.response.list;
             total_pages = data.response.total_pages;
@@ -54,7 +54,7 @@ function LoadUserApplicationList(noplaceholder = false) {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                if(apptype == undefined) apptype = "Unknown";
+                if(apptype == undefined) apptype = mltr("unknown");
                 submit_time = getDateTime(application.submit_timestamp * 1000);
                 update_time = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0)  closedat = "/";
@@ -110,7 +110,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            STATUS = ["Pending", "Accepted", "Declined"];
+            STATUS = [mltr("pending"), mltr("accepted"), mltr("declined")];
 
             applicationList = data.response.list;
             total_pages = data.response.total_pages;
@@ -119,7 +119,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                if(apptype == undefined) apptype = "Unknown";
+                if(apptype == undefined) apptype = mltr("unknown");
                 submit_time = getDateTime(application.submit_timestamp * 1000);
                 update_time = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0)  closedat = "/";
@@ -323,7 +323,7 @@ function SubmitApplication() {
                 answer = answer.join(", ");
                 data[question] = answer;
             } else {
-                data[question] = "*Invalid application question: Answer element not found!*";
+                data[question] = "*" + mltr("error_invalid_application_question") + "*";
             }
         } else {
             continue;
@@ -348,8 +348,8 @@ function SubmitApplication() {
             toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
 
             if($("#check-application-enable-notification").prop("checked") == true){
-                EnableNotification("discord", "Discord");
-                EnableNotification("application", "Application");
+                EnableNotification("discord", mltr("discord"));
+                EnableNotification("application", mltr("application"));
             }
         },
         error: function (data) {
@@ -364,7 +364,7 @@ function UpdateStaffPositionsShow(){
     <div>
         <label class="form-label">Positions</label>
         <div class="input-group mb-2">
-            <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Positions" placeholder='Enter a position' multiple=''>
+            <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="${mltr("positions")}" placeholder='${mltr("enter_a_position")}' multiple=''>
         </div>
     </div>`;
     modalid = ShowModal(mltr("update_staff_positions"), content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">${mltr("update")}</button>`);

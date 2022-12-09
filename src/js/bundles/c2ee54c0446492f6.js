@@ -1086,7 +1086,7 @@ function UpdateConfig() {
 function ReloadAPIShow() {
     if (!mfaenabled) return toastNotification("error", "Error", mltr("mfa_must_be_enabled_to_reload_api"), 5000);
     mfafunc = ReloadServer;
-    LockBtn("#button-reload-api-show", `Reloading...`);
+    LockBtn("#button-reload-api-show", mltr("reloading"));
     setTimeout(function () {
         UnlockBtn("#button-reload-api-show");
         setTimeout(function () {
@@ -1099,7 +1099,7 @@ function ReloadServer() {
     otp = $("#mfa-otp").val();
     $.ajax({
         url: api_host + "/" + dhabbr + "/reload",
-        type: "PUT",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -1145,8 +1145,8 @@ function UpdateWebConfig() {
     tipt = "";
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/tip",
-        type: "PUT",
+        url: api_host + "/" + dhabbr + "/user/tip",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + token
@@ -1422,7 +1422,7 @@ function LoadDeliveryList(noplaceholder = false) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.division.divisionid != undefined) dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division.divisionid != undefined) dextra = `<span title='${mltr("validated_division_delivery")}'>` + SVG_VERIFIED + "</span>";
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
@@ -1712,7 +1712,7 @@ function ShowDeliveryDetail(logid) {
             if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
                 delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${convertQuotation1(user.name)}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
             }
-            $("#delivery-detail-title").html(`Delivery #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
+            $("#delivery-detail-title").html(`${mltr("delivery")} #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
             $("#delivery-detail-user").html(GetAvatar(user.userid, user.name, user.discordid, user.avatar));
 
             d = d.detail;
@@ -1727,10 +1727,10 @@ function ShowDeliveryDetail(logid) {
             cargo = d.cargo.name;
             cargo_mass = TSeparator(parseInt(d.cargo.mass * weight_ratio)) + weight_unit_txt;
 
-            source_company = "Unknown company";
-            source_city = "Unknown city";
-            destination_company = "Unknown company";
-            destination_city = "Unknown city";
+            source_company = "N/A";
+            source_city = "N/A";
+            destination_company = "N/A";
+            destination_city = "N/A";
             source_company_id = "";
             destination_company_id = "";
             if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
@@ -1778,41 +1778,41 @@ function ShowDeliveryDetail(logid) {
                 e = rrevents[i];
                 meta = e.meta;
                 if (e.type == "started") {
-                    GenTimelineItem(e, i, `Job Started`, `From ${source_company}, ${source_city}`);
+                    GenTimelineItem(e, i, mltr('job_started'), `${mltr("from")} ${source_company}, ${source_city}`);
                 } else if (e.type == "delivered") {
-                    GenTimelineItem(e, i, `Job Delivered`, `To ${destination_company}, ${destination_city}<br>Earned ${punit}${TSeparator(meta.revenue)} & ${TSeparator(meta.earned_xp)} XP`);
+                    GenTimelineItem(e, i, mltr('job_delivered'), `${mltr("to")} ${destination_company}, ${destination_city}<br>${mltr("earned")}  ${punit}${TSeparator(meta.revenue)} & ${TSeparator(meta.earned_xp)} XP`);
                 } else if (e.type == "cancelled") {
-                    GenTimelineItem(e, i, `Job Cancelled`, `Penalty: ${punit}${TSeparator(meta.penalty)}`);
+                    GenTimelineItem(e, i, mltr('job_cancelled'), `${mltr("penalty")}: ${punit}${TSeparator(meta.penalty)}`);
                 } else if (e.type == "fine") {
                     if (meta.offence == "crash") {
-                        GenTimelineItem(e, i, `Crash`, `Fined: ${punit}${TSeparator(meta.amount)}`);
+                        GenTimelineItem(e, i, mltr('crash'), `${mltr("fined")}: ${punit}${TSeparator(meta.amount)}`);
                     } else if (meta.offence == "speeding") {
                         speed = TSeparator(parseInt(meta.speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                         speed_limit = TSeparator(parseInt(meta.speed_limit * distance_ratio)) + distance_unit_txt + "/h";
-                        GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Fined: ${punit}${TSeparator(meta.amount)}`);
+                        GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("fined")}: ${punit}${TSeparator(meta.amount)}`);
                     } else if (meta.offence == "wrong_way") {
-                        GenTimelineItem(e, i, `Wrong Way`, `Fined: ${punit}${TSeparator(meta.amount)}`);
+                        GenTimelineItem(e, i, mltr('wrong_way'), `${mltr("fined")}: ${punit}${TSeparator(meta.amount)}`);
                     }
                 } else if (e.type == "tollgate") {
-                    GenTimelineItem(e, i, `Tollgate`, `Paid ${punit}${TSeparator(meta.cost)}`);
+                    GenTimelineItem(e, i, mltr('tollgate'), `${mltr("paid")} ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "ferry") {
-                    GenTimelineItem(e, i, `Ferry`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
+                    GenTimelineItem(e, i, mltr('ferry'), `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "train") {
-                    GenTimelineItem(e, i, `Train`, `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
+                    GenTimelineItem(e, i, mltr('train'), `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "collision") {
                     damage = meta.wear_engine + meta.wear_chassis + meta.wear_transmission + meta.wear_cabin + meta.wear_wheels;
-                    GenTimelineItem(e, i, `Collision`, `Truck Damage: ${(damage*100).toFixed(2)}%`);
+                    GenTimelineItem(e, i, mltr('collision'), `${mltr("truck_damage")}: ${(damage*100).toFixed(2)}%`);
                 } else if (e.type == "repair") {
-                    GenTimelineItem(e, i, `Repair`, `Truck repaired.`);
+                    GenTimelineItem(e, i, mltr('repair'), mltr('truck_repaired'));
                 } else if (e.type == "refuel") {
                     fuel = TSeparator(parseInt(meta.amount * fuel_ratio)) + fuel_unit_txt;
-                    GenTimelineItem(e, i, `Refuel`, `Refueled ${fuel} fuel.`);
+                    GenTimelineItem(e, i, mltr('refuel'), `${mltr("refueled")} ${fuel}.`);
                 } else if (e.type == "teleport") {
-                    GenTimelineItem(e, i, `Teleport`, `Teleported to another location.`);
+                    GenTimelineItem(e, i, mltr('teleport'), mltr('teleported_to_another_location'));
                 } else if (e.type == "speeding") {
                     speed = TSeparator(parseInt(meta.max_speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                     speed_limit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
-                    GenTimelineItem(e, i, `Speeding`, `Speed: ${speed} | Limit: ${speed_limit}<br>Duration: ${meta.end-meta.start} seconds<br><i>Not fined</i>`);
+                    GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("duration")}: ${meta.end-meta.start} sec<br><i>${mltr("not_fined")}</i>`);
                 }
             }
             new SimpleBar($("#delivery-detail-timeline-div")[0]);
@@ -1837,8 +1837,8 @@ function ShowDeliveryDetail(logid) {
             else if (basic[0].startsWith("v")) {
                 $("#dmap").prepend(`
                 <div style="position:absolute;z-index:10;padding:10px;">
-                    <h5>Delivery Route <span style="color:red">Not Available</span></h5>
-                    <p style="font-size:12px">Potential reasons: Navio Live not enabled, offline when driving</p>
+                    <h5>${mltr('delivery_route')} <span style="color:red">${mltr('not_available')}</span></h5>
+                    <p style="font-size:12px">${mltr('delivery_route_not_available_note')}</p>
                 </div>`);
                 return;
             }
@@ -1945,8 +1945,8 @@ function ShowDeliveryDetail(logid) {
             } else {
                 $("#dmap").prepend(`
                 <div style="position:absolute;z-index:10;padding:10px;">
-                    <h5>Delivery Route <span style="color:red">Not Available</span></h5>
-                    <p style="font-size:12px">Potential reasons: Navio Live not enabled, offline when driving</p>
+                    <h5>${mltr('delivery_route')} <span style="color:red">${mltr('not_available')}</span></h5>
+                    <p style="font-size:12px">${mltr('delivery_route_not_available_note')}</p>
                 </div>`);
                 return;
             }
@@ -2036,8 +2036,8 @@ function MoreDeliveryDetail() {
         auto_park = t.events[t.events.length - 1].meta.auto_park;
         auto_load = t.events[t.events.length - 1].meta.auto_load;
         extra = "";
-        if (auto_park == "1") extra += `<span class="badge text-bg-primary">Auto Park</span>&nbsp;&nbsp;`;
-        if (auto_load == "1") extra += `<span class="badge text-bg-primary">Auto Load</span>`;
+        if (auto_park == "1") extra += `<span class="badge text-bg-primary">${mltr("auto_park")}</span>&nbsp;&nbsp;`;
+        if (auto_load == "1") extra += `<span class="badge text-bg-primary">${mltr("auto_load")}</span>`;
         info += GenTableRow(mltr("log_id"), d.logid + "&nbsp;&nbsp;" + extra);
     } else {
         info += GenTableRow(mltr("log_id"), d.logid);
@@ -2048,26 +2048,26 @@ function MoreDeliveryDetail() {
     isdelivered = false;
     if (d.detail.type == "job.delivered") {
         isdelivered = true;
-        info += GenTableRow(mltr("status"), "<span style='color:lightgreen'>Delivered</span>");
+        info += GenTableRow(mltr("status"), `<span style='color:lightgreen'>${mltr("delivered")}</span>`);
     } else if (d.detail.type == "job.cancelled") {
-        info += GenTableRow(mltr("status"), "<span style='color:red'>Cancelled</span>");
+        info += GenTableRow(mltr("status"), `<span style='color:red'>${mltr("cancelled")}</span>`);
     }
     if (d.telemetry != "") {
-        info += GenTableRow(mltr("delivery_route"), "<span style='color:lightgreen'>Available</span>");
+        info += GenTableRow(mltr("delivery_route"), `<span style='color:lightgreen'>${mltr("available")}</span>`);
     } else {
-        info += GenTableRow(mltr("delivery_route"), "<span style='color:red'>Unavailable</span>");
+        info += GenTableRow(mltr("delivery_route"), `<span style='color:red'>${mltr("unavailable")}</span>`);
     }
-    info += GenTableRow(mltr("division"), `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">Check</button></span>`);
+    info += GenTableRow(mltr("division"), `<span id="delivery-detail-division"><button id="button-delivery-detail-division" type="button" class="btn btn-primary"  onclick="GetDivisionInfo(${d.logid});">${mltr("check")}</button></span>`);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
     info += GenTableRow(mltr("driver"), GetAvatar(d.user.userid, d.user.name, d.user.discordid, d.user.avatar));
 
     d = d.detail.data.object;
 
-    source_company = "Unknown company";
-    source_city = "Unknown city";
-    destination_company = "Unknown company";
-    destination_city = "Unknown city";
+    source_company = "N/A";
+    source_city = "N/A";
+    destination_company = "N/A";
+    destination_city = "N/A";
     source_company_id = "";
     destination_company_id = "";
     if (d.source_company != null) source_company = d.source_company.name, source_company_id = d.source_company.unique_id;
@@ -2165,21 +2165,21 @@ function MoreDeliveryDetail() {
     }
 
     MARKET = {
-        "cargo_market": "Cargo Market",
-        "freight_market": "Freight Market",
-        "quick_job": "Quick Job",
-        "external_contracts": "External Contracts"
+        "cargo_market": mltr("cargo_market"),
+        "freight_market": mltr("freight_market"),
+        "quick_job": mltr("quick_job"),
+        "external_contracts": mltr("external_contracts")
     };
-    mkt = "Unknown";
+    mkt = mltr("unknown");
     if (Object.keys(MARKET).includes(d.market)) mkt = MARKET[d.market];
     info += GenTableRow(mltr("market"), mkt);
-    mode = "Single Player";
+    mode = mltr("single_player");
     if (d.multiplayer != null) {
-        mode = "Multiplayer";
+        mode = mltr("multiplayer");
         if (d.multiplayer.type == "truckersmp") {
-            mode = "TruckersMP";
+            mode = mltr("truckersmp");
         } else if (d.multiplayer.type == "scs_convoy") {
-            mode = "SCS Convoy";
+            mode = mltr("scs_convoy");
         }
     }
     info += GenTableRow(mltr("mode"), mode);
@@ -2304,38 +2304,38 @@ function LoadMemberList(noplaceholder = false) {
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        ${mltr('manage')}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">Update Discord ID</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >${mltr('dismiss')}</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes("hr")){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        ${mltr('manage')}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
-                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">Points</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">Dismiss</a></li>
+                        <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
                 </div>`;
                 } else if(userPerm.includes(`division`)){
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        ${mltr('manage')}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark">
-                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">Roles</a></li>
+                        <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                     </ul>
                 </div>`;
                 }
@@ -2366,7 +2366,7 @@ function EditRolesShow(uid){
 
             roled = `
             <div>
-                <label class="form-label">Roles</label>
+                <label class="form-label">${mltr('roles')}</label>
                 <br>
             </div>`;
             
@@ -2440,16 +2440,16 @@ function EditRoles(uid) {
 
 function EditPointsShow(uid, name){
     div = `
-    <label class="form-label">Points</label>
+    <label class="form-label">${mltr('points')}</label>
     <div class="input-group mb-2">
-        <span class="input-group-text" id="edit-points-distance-label">Distance</span>
+        <span class="input-group-text" id="edit-points-distance-label">${mltr('distance')}</span>
         <input type="number" class="form-control bg-dark text-white" id="edit-points-distance" placeholder="0" aria-describedby="edit-points-distance-label">
     </div>
     <div class="input-group mb-3">
-        <span class="input-group-text" id="edit-points-myth-label">Myth</span>
+        <span class="input-group-text" id="edit-points-myth-label">${mltr('myth')}</span>
         <input type="number" class="form-control bg-dark text-white" id="edit-points-myth" placeholder="0" aria-describedby="edit-points-myth-label">
     </div>`;
-    modalid = ShowModal(`${name} (${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${uid});">Update</button>`);
+    modalid = ShowModal(`${name} (${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${uid});">${mltr('update')}</button>`);
     InitModal("edit_points", modalid);
 }
 
@@ -2496,7 +2496,7 @@ function DismissMember(uid){
     
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
-        type: "DELETE",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -2538,10 +2538,10 @@ function LoadRanking(){
             if(data.response.list.length != 0){
                 d = data.response.list[0];
                 rank = point2rank(d.points.total_no_limit);
-                t += GenCard(`My Points`, TSeparator(d.points.total_no_limit) + " - " + rank + `
-                <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">Get Discord Role</button>`);
+                t += GenCard(mltr('my_points'), TSeparator(d.points.total_no_limit) + " - " + rank + `
+                <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">${mltr('get_discord_role')}</button>`);
             } else {
-                t += GenCard(`My Points`, "You are not a driver!");
+                t += GenCard(mltr('my_points'), mltr("you_are_not_a_driver"));
             }
             k = Object.keys(RANKING);
             for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
@@ -2573,20 +2573,20 @@ user_statistics_placeholder = `<div class="row">
     <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
 </div>
 <div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> Account</strong></h5>
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> ${mltr('account')}</strong></h5>
     <div id="user-account-info"></div>
 </div>
 </div>
 <div class="row">
 <div class="shadow p-3 m-3 bg-dark rounded col">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> Statistics</strong></h5>
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> ${mltr('statistics')}</strong></h5>
     <div style="float:right">
         <div class="btn-group" id="user-chart-scale-group">
             <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
             <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
             <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
         </div>
-        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">Sum</a>
+        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">${mltr('sum')}</a>
     </div>
     </h2>
     <div class="p-4 overflow-x-auto" style="display: block;">
@@ -2594,24 +2594,24 @@ user_statistics_placeholder = `<div class="row">
     </div>
 </div>
 <div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> Statistics</strong></h5>
+    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> ${mltr('statistics')}</strong></h5>
     <div id="profile-text-statistics"></div>
 </div>
 </div>`;
 
 function getActivityName(name){
-    if(name.startsWith("dlog_")) return "Viewing Delivery Log #" + name.split("_")[1];
-    else if(name == "dlog") return "Viewing Delivery Logs";
-    else if(name == "index") return "Viewing Drivers Hub Index";
-    else if(name == "leaderboard") return "Viewing Leaderboard";
-    else if(name == "member") return "Viewing Member List";
-    else if(name.includes("member_")) return "Viewing Member "+allmembers[name.split("_")[1]];
-    else if(name == "announcement") return "Viewing Announcements";
-    else if(name == "application") return "Viewing Appliactions";
-    else if(name == "challenge") return "Viewing Challenges";
-    else if(name == "division") return "Viewing Divisions";
-    else if(name == "downloads") return "Viewing Downloads";
-    else if(name == "event") return "Viewing Events";
+    if(name.startsWith("dlog_")) return mltr("viewing_delivery_log") + " #" + name.split("_")[1];
+    else if(name == "dlog") return mltr("viewing_delivery_logs");
+    else if(name == "index") return mltr("viewing_drivers_hub_index");
+    else if(name == "leaderboard") return mltr("viewing_leaderboard");
+    else if(name == "member") return mltr("viewing_members");
+    else if(name.includes("member_")) return mltr("viewing") + allmembers[name.split("_")[1]] + "'s " + mltr("profile");
+    else if(name == "announcement") return mltr("viewing_announcements");
+    else if(name == "application") return mltr("viewing_appliactions");
+    else if(name == "challenge") return mltr("viewing_challenges");
+    else if(name == "division") return mltr("viewing_divisions");
+    else if(name == "downloads") return mltr("viewing_downloads");
+    else if(name == "event") return mltr("viewing_events");
     else return "/";
 }
 
@@ -2718,21 +2718,21 @@ function LoadUserProfile(userid) {
                     if (!data.error) {
                         d = data.response;
                         info = "";
-                        info += `<b>Jobs</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
-                        info += `<b>Including cancelled jobs</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
+                        info += `<b>${mltr('jobs')}</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
+                        info += `<b>${mltr('including_cancelled_jobs')}</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
 
                         dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
                         dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
                         dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
-                        info += `<b>Distance</b>: ${dtot} (${dets2} + ${dats})<br>`;
+                        info += `<b>${mltr('distance')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
 
                         dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
                         dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
                         dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
-                        info += `<b>Fuel</b>: ${dtot} (${dets2} + ${dats})<br>`;
+                        info += `<b>${mltr('fuel')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
 
-                        info += "<b>Profit</b>: €" + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
-                        info += "<b>Including cancellation penalty</b>: -€" + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
+                        info += `<b>${mltr('profit')}</b>: €` + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
+                        info += `<b>${mltr('including_cancellation_penalty')}</b>: -€` + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
 
                         $("#profile-text-statistics").html(info);
 
@@ -2748,14 +2748,14 @@ function LoadUserProfile(userid) {
                                     info += "<hr>";
                                     d = data.response.list[0];
                                     if(d != undefined){
-                                        info += "<b>Points</b><br>";
-                                        info += `<b>Distance</b>: ${d.points.distance}<br>`;
-                                        info += `<b>Challenge</b>: ${d.points.challenge}<br>`;
-                                        info += `<b>Event</b>: ${d.points.event}<br>`;
-                                        info += `<b>Division</b>: ${d.points.division}<br>`;
-                                        info += `<b>Myth</b>: ${d.points.myth}<br>`;
-                                        info += `<b>Total: ${d.points.total_no_limit}</b><br>`;
-                                        info += `<b>Rank: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
+                                        info += `<b>${mltr('points')}</b><br>`;
+                                        info += `<b>${mltr('distance')}</b>: ${d.points.distance}<br>`;
+                                        info += `<b>${mltr('challenge')}</b>: ${d.points.challenge}<br>`;
+                                        info += `<b>${mltr('event')}</b>: ${d.points.event}<br>`;
+                                        info += `<b>${mltr('division')}</b>: ${d.points.division}<br>`;
+                                        info += `<b>${mltr('myth')}</b>: ${d.points.myth}<br>`;
+                                        info += `<b>${mltr('total')}: ${d.points.total_no_limit}</b><br>`;
+                                        info += `<b>${mltr('rank')}: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
                                     }
                                     info += `</p>`;
                                     $("#profile-text-statistics").html(info);
@@ -2977,33 +2977,6 @@ function refreshStats(){
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
-
-            // const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
-            // const config = {
-            //     type: 'pie',
-            //     data: {
-            //         labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
-            //         datasets: [{
-            //             label: 'Game Preference',
-            //             data: [d.job.all.ets2.tot, d.job.all.ats.tot],
-            //             backgroundColor: ["skyblue", "pink"],
-            //         }]
-            //     },
-            //     options: {
-            //         responsive: true,
-            //         plugins: {
-            //             legend: {
-            //                 position: 'top',
-            //             },
-            //             title: {
-            //                 display: true,
-            //                 text: 'Game Preference'
-            //             }
-            //         }
-            //     },
-            // };
-            // if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
-            // deliveryStatsChart = new Chart(ctx, config);
         }
     });
 }
@@ -3056,33 +3029,6 @@ function LoadStats(basic = false, noplaceholder = false) {
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
-
-            // const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
-            // const config = {
-            //     type: 'pie',
-            //     data: {
-            //         labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
-            //         datasets: [{
-            //             label: 'Game Preference',
-            //             data: [d.job.all.ets2.tot, d.job.all.ats.tot],
-            //             backgroundColor: ["skyblue", "pink"],
-            //         }]
-            //     },
-            //     options: {
-            //         responsive: true,
-            //         plugins: {
-            //             legend: {
-            //                 position: 'top',
-            //             },
-            //             title: {
-            //                 display: true,
-            //                 text: 'Game Preference'
-            //             }
-            //         }
-            //     },
-            // };
-            // if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
-            // deliveryStatsChart = new Chart(ctx, config);
         }
     });
 
@@ -3348,7 +3294,7 @@ function DisableApplicationToken(firstop = false) {
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
-                $("#settings-application-token").html("Disabled");
+                $("#settings-application-token").html(mltr("disabled"));
                 toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
@@ -3375,7 +3321,7 @@ function DisableApplicationToken(firstop = false) {
             success: function (data) {
                 UnlockBtn("#button-settings-disable-application-token");
                 if (data.error) return AjaxError(data);
-                $("#settings-application-token").html("Disabled");
+                $("#settings-application-token").html(mltr("disabled"));
                 toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
@@ -3534,7 +3480,7 @@ function DisableMFA(){
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/user/mfa",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3564,7 +3510,7 @@ mfasecret = "";
 function EnableMFAShow(){
     mfasecret = RandomB32String(16);
     modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
-    <label for="mfa-enable-otp" class="form-label">OTP</label>
+    <label for="mfa-enable-otp" class="form-label">${mltr('otp')}</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="mfa-enable-otp" placeholder="000 000">
     </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">${mltr('enable')}</button>`);
@@ -3579,8 +3525,8 @@ function EnableMFA(){
     LockBtn("#button-enable-mfa", mltr("enabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/mfa",
-        type: "PUT",
+        url: api_host + "/" + dhabbr + "/user/mfa",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -3624,7 +3570,7 @@ function UserResign() {
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/resign",
-        type: "DELETE",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -3688,7 +3634,7 @@ function EnableNotification(item, name){
         },
         success: function (data) {
             if(data.error) return AjaxError(data);
-            toastNotification("success", "Success", name + " notification enabled!", 5000);
+            toastNotification("success", "Success", name + ` ${mltr('notification_enabled')}!`, 5000);
         }, error: function (data){
             AjaxError(data);
         }
@@ -3705,7 +3651,7 @@ function DisableNotification(item, name){
         },
         success: function (data) {
             if(data.error) return AjaxError(data);
-            toastNotification("success", "Success", name + " notification disabled!", 5000);
+            toastNotification("success", "Success", name + ` ${mltr('notification_disabled')}!`, 5000);
         }, error: function (data){
             AjaxError(data);
         }
@@ -3740,7 +3686,7 @@ function LoadUserSessions(noplaceholder = false) {
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
-                    opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
+                    opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
                 else opbtn = `(Current)`;
 
                 browser_icon = ``;
@@ -3765,8 +3711,8 @@ function LoadUserSessions(noplaceholder = false) {
 }
 
 function RevokeToken(hsh) {
-    if ($("#button-revoke-token-" + hsh).html() == "Revoke") {
-        $("#button-revoke-token-" + hsh).html("Confirm?");
+    if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
+        $("#button-revoke-token-" + hsh).html(mltr("confirm"));
         return;
     }
 
@@ -3834,10 +3780,10 @@ function LoadUserList(noplaceholder = false) {
 
             for (i = 0; i < userList.length; i++) {
                 user = userList[i];
-                bantxt = "Ban";
+                bantxt = mltr("ban");
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.reason;
+                if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -3846,16 +3792,16 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">Accept As Member</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">Update Discord ID</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">Delete</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
                         </ul>
                     </div>`;
                 } else if(userPerm.includes("hr")){
@@ -3864,9 +3810,9 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">Accept As Member</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red">${bantxt}</a></li>
                         </ul>
@@ -4015,7 +3961,7 @@ function StaffDisableMFA(discordid) {
     LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/mfa?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user/mfa?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -4722,33 +4668,33 @@ function LoadAnnouncement(noplaceholder = false){
                         <div class="form-check" style="display:inline-block;width:80px;">
                             <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
                                 <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
-                                    Public
+                                    ${mltr("public")}
                                 </label>
                             </div>
                         <div class="form-check" style="display:inline-block;width:80px;">
                             <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
                             <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
-                                Private
+                                ${mltr("private")}
                             </label>
                         </div>
                         <select style="display:inline-block;width:130px" class="form-select bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
-                            <option value="0" ${type_checked[0]}>Information</option>
-                            <option value="1" ${type_checked[1]}>Event</option>
-                            <option value="2" ${type_checked[2]}>Warning</option>
-                            <option value="3" ${type_checked[3]}>Critical</option>
-                            <option value="4" ${type_checked[4]}>Resolved</option>
+                            <option value="0" ${type_checked[0]}>${mltr("information")}</option>
+                            <option value="1" ${type_checked[1]}>${mltr("event")}</option>
+                            <option value="2" ${type_checked[2]}>${mltr("warning")}</option>
+                            <option value="3" ${type_checked[3]}>${mltr("critical")}</option>
+                            <option value="4" ${type_checked[4]}>${mltr("resolved")}</option>
                         </select>
                     </div>
                     <label for="announcement-edit-${announcement.announcementid}-discord" class="form-label">Discord Integration</label>
                     <div class="input-group mb-2">
-                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Channel ID</span>
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">${mltr("channel_id")}</span>
                         <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="" style="width: 150px;display:inline-block;margin-right:10px;">
                     </div>
                     <div class="input-group mb-2">
-                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Message</span>
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">${mltr("message")}</span>
                         <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="" style="width:250px;display:inline-block;">
                     </div>
-                    <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
+                    <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">${mltr("save")}</button></div>`;
                 }
                 content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col" id="announcement-${announcement.announcementid}">
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
@@ -4933,7 +4879,7 @@ function LoadUserApplicationList(noplaceholder = false) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            STATUS = ["Pending", "Accepted", "Declined"];
+            STATUS = [mltr("pending"), mltr("accepted"), mltr("declined")];
 
             applicationList = data.response.list;
             total_pages = data.response.total_pages;
@@ -4942,7 +4888,7 @@ function LoadUserApplicationList(noplaceholder = false) {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                if(apptype == undefined) apptype = "Unknown";
+                if(apptype == undefined) apptype = mltr("unknown");
                 submit_time = getDateTime(application.submit_timestamp * 1000);
                 update_time = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0)  closedat = "/";
@@ -4998,7 +4944,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
         success: function (data) {
             if (data.error) return AjaxError(data);
 
-            STATUS = ["Pending", "Accepted", "Declined"];
+            STATUS = [mltr("pending"), mltr("accepted"), mltr("declined")];
 
             applicationList = data.response.list;
             total_pages = data.response.total_pages;
@@ -5007,7 +4953,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                if(apptype == undefined) apptype = "Unknown";
+                if(apptype == undefined) apptype = mltr("unknown");
                 submit_time = getDateTime(application.submit_timestamp * 1000);
                 update_time = getDateTime(application.update_timestamp * 1000);
                 if (application.update_timestamp == 0)  closedat = "/";
@@ -5211,7 +5157,7 @@ function SubmitApplication() {
                 answer = answer.join(", ");
                 data[question] = answer;
             } else {
-                data[question] = "*Invalid application question: Answer element not found!*";
+                data[question] = "*" + mltr("error_invalid_application_question") + "*";
             }
         } else {
             continue;
@@ -5236,8 +5182,8 @@ function SubmitApplication() {
             toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
 
             if($("#check-application-enable-notification").prop("checked") == true){
-                EnableNotification("discord", "Discord");
-                EnableNotification("application", "Application");
+                EnableNotification("discord", mltr("discord"));
+                EnableNotification("application", mltr("application"));
             }
         },
         error: function (data) {
@@ -5252,7 +5198,7 @@ function UpdateStaffPositionsShow(){
     <div>
         <label class="form-label">Positions</label>
         <div class="input-group mb-2">
-            <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="Positions" placeholder='Enter a position' multiple=''>
+            <input id="application-staff-positions" type="text" class="form-control bg-dark text-white flexdatalist" aria-label="${mltr("positions")}" placeholder='${mltr("enter_a_position")}' multiple=''>
         </div>
     </div>`;
     modalid = ShowModal(mltr("update_staff_positions"), content, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-update-staff-positions" type="button" class="btn btn-primary" onclick="UpdateStaffPositions();">${mltr("update")}</button>`);
@@ -5340,7 +5286,7 @@ async function LoadChallenge(noplaceholder = false) {
                 extra = "";
                 if(userPerm.includes("challenge") || userPerm.includes("admin")){ extra = `<a id="button-challenge-edit-show-${challenge.challengeid}" class="clickable" onclick="EditChallengeShow(${challenge.challengeid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-challenge-delete-show-${challenge.challengeid}" class="clickable" onclick="DeleteChallengeShow(${challenge.challengeid}, \`${challenge.title}\`);"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
+                CHALLENGE_TYPE = ["", mltr("personal_one_time"), mltr("company_one_time"), mltr("personal_recurring"), mltr("personal_distance_based"), mltr("company_distance_based")];
                 challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
                 
                 pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
@@ -5349,28 +5295,24 @@ async function LoadChallenge(noplaceholder = false) {
                     <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${challenge.current_delivery_count} / ${challenge.delivery_count}</div>
                 </div>`;
 
-                status = "";
-                status_type = "";
+                badge_status = "";
+
                 if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-                    status = mltr("ongoing"), status_type = "text-bg-success";
+                    badge_status += `<span class="badge text-bg-success">${mltr("ongoing")}</span>`;
                 else if(challenge.start_time * 1000 > +new Date())
-                    status = mltr("upcoming"), status_type = "text-bg-info";
+                    badge_status += `<span class="badge text-bg-info">${mltr("upcoming")}</span>`;
                 else if(challenge.end_time * 1000 < +new Date())
-                    status = mltr("ended"), status_type = "text-bg-danger";
+                    badge_status += `<span class="badge text-bg-danger">${mltr("ended")}</span>`;
                 if(parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count))
-                    status = mltr("completed"), status_type = "text-bg-warning";
+                    badge_status += `&nbsp;&nbsp;<span class="badge text-bg-warning">${mltr("completed")}</span>`;
                 
-                extra_status = "";
                 roles = JSON.parse(localStorage.getItem("roles"));
                 roleok = false;
                 for(j = 0 ; j < challenge.required_roles.length ; j++){
                     if(roles.includes(challenge.required_roles[j])) roleok = true;
                 }
-                if(!roleok) extra_status = mltr("not_qualified");
-                if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
-
-                badge_status = `<span class="badge ${status_type}">${status}</span>`;
-                if(extra_status != "") badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${extra_status}</span>`;
+                if(!roleok || parseInt(user_distance) < parseInt(challenge.required_distance))
+                    badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${mltr("not_qualified")}</span>`;
 
                 data.push([`<a class="clickable" onclick="ShowChallengeDetail('${challenge.challengeid}')">${challenge.title}</a>`, `${challenge_type}`, `${challenge.reward_points}`, `${progress}`, `${badge_status}`, extra]);
             }
@@ -5389,28 +5331,32 @@ function ShowChallengeDetail(challengeid){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info = "<table><tbody>";
-    CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
+    CHALLENGE_TYPE = ["", mltr("personal_one_time"), mltr("company_one_time"), mltr("personal_recurring"), mltr("personal_distance_based"), mltr("company_distance_based")];
     challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
     info += GenTableRow(mltr("challenge_type"), challenge_type);
     info += GenTableRow(mltr("reward_points"), challenge.reward_points);
     info += GenTableRow(mltr("start_time"), getDateTime(challenge.start_time * 1000));
     info += GenTableRow(mltr("end_time"), getDateTime(challenge.end_time * 1000));
-    status = "";
-    status_type = "";
+
+    badge_status = "";
     if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-        status = mltr("ongoing"), status_type = "text-bg-success";
+        badge_status += `<span class="badge text-bg-success">${mltr("ongoing")}</span>`;
     else if(challenge.start_time * 1000 > +new Date())
-        status = mltr("upcoming"), status_type = "text-bg-info";
+        badge_status += `<span class="badge text-bg-info">${mltr("upcoming")}</span>`;
     else if(challenge.end_time * 1000 < +new Date())
-        status = mltr("ended"), status_type = "text-bg-danger";
-    if(challenge.current_delivery_count >= challenge.delivery_count)
-        status = mltr("completed"), status_type = "text-bg-warning";
-    badge_status = `<span class="badge ${status_type}">${status}</span>`;
+        badge_status += `<span class="badge text-bg-danger">${mltr("ended")}</span>`;
+    if(parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count))
+        badge_status += `&nbsp;&nbsp;<span class="badge text-bg-warning">${mltr("completed")}</span>`;
     info += GenTableRow(mltr("status"), badge_status);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
-    info += GenTableRow(mltr("deliveries"), challenge.delivery_count);
-    info += GenTableRow(mltr("current_deliveries"), challenge.current_delivery_count);
+    if(challenge.challenge_type <= 3){
+        info += GenTableRow(mltr("deliveries"), challenge.delivery_count);
+        info += GenTableRow(mltr("current_deliveries"), challenge.current_delivery_count);
+    } else if(challenge.challenge_type <= 5){
+        info += GenTableRow(mltr("distance_sum"), challenge.delivery_count);
+        info += GenTableRow(mltr("current_distance"), challenge.current_delivery_count);
+    }
     pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
     progress = `<div class="progress">
         <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${pct}%</div>
@@ -5418,6 +5364,7 @@ function ShowChallengeDetail(challengeid){
     info += GenTableRow(mltr("progress"), progress);
     info += GenTableRow("&nbsp;", "&nbsp;");
 
+    badge_status = "";
     roles = challenge.required_roles;
     rolestxt = "";
     for(var i = 0 ; i < roles.length ; i++){
@@ -5426,10 +5373,10 @@ function ShowChallengeDetail(challengeid){
     rolestxt = rolestxt.slice(0,-1);
     info += GenTableRow(mltr("required_roles"), rolestxt);
     info += GenTableRow(mltr("required_distance_driven"), TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
-    if(!roleok) extra_status = mltr("not_qualified");
-    if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
-    if(extra_status != "") badge_status = `<span class="badge text-bg-secondary">${extra_status}</span>`;
-    else badge_status = `<span class="badge text-bg-success">${mltr("qualified")}</span>`;
+    if(!roleok || parseInt(user_distance) < parseInt(challenge.required_distance))
+        badge_status = `<span class="badge text-bg-secondary">${mltr("not_qualified")}</span>`;
+    else
+        badge_status = `<span class="badge text-bg-success">${mltr("qualified")}</span>`;
     info += GenTableRow(mltr("qualification"), badge_status);
     info += GenTableRow("&nbsp;", "&nbsp;");
     
@@ -5817,7 +5764,7 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
                 color = "";
                 if (delivery.profit < 0) color = "grey";
                 dextra = "";
-                if (delivery.division != "") dextra = "<span title='Validated Division Delivery'>" + SVG_VERIFIED + "</span>";
+                if (delivery.division != "") dextra = `<span title='${mltr("validated_division_delivery")}'>` + SVG_VERIFIED + "</span>";
 
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
 
@@ -5898,29 +5845,29 @@ function GetDivisionInfo(logid) {
             for (var i = 0; i < Object.keys(divisions).length; i++) {
                 divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
             }
-            if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">No division found</span>`);
+            if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">${mltr("no_division_found")}</span>`);
 
             info = ``;
             if (data.response.status == "-1") {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
-                    <option value="-1" selected>Select Division</option>
+                    <option value="-1" selected>${mltr("select_division")}</option>
                     ${divisionopt}
                 </select>`;
-                info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">Request Validation</button>`;
+                info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">${mltr("request_validation")}</button>`;
                 $("#delivery-detail-division").html(info);
             } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
                 info += `
-                <p>This delivery is pending division validation.</p>
-                <label for="select-division" class="form-label">Division</label>
+                <p>${mltr("division_pending_validation")}</p>
+                <label for="select-division" class="form-label">${mltr("divisions")}</label>
                 <div class="mb-3">
                     <select class="form-select bg-dark text-white" id="select-division">
                         ${divisionopt}
                     </select>
                 </div>
-                <label for="validate-division-message" class="form-label">Message</label>
+                <label for="validate-division-message" class="form-label">${mltr("message")}</label>
                 <div class="input-group mb-3" style="height:100px;">
-                    <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="(Optional, a reason should be provided here if you need to reject the request)" style="height:100%"></textarea>
+                    <textarea type="text" class="form-control bg-dark text-white" id="validate-division-message" placeholder="" style="height:100%"></textarea>
                 </div>
                 `;
                 modalid = ShowModal(mltr('division_validation'), info, `
@@ -5934,12 +5881,12 @@ function GetDivisionInfo(logid) {
                     $("#delivery-detail-division").html(divisions[data.response.divisionid].name);
                 } else {
                     info += divisions[data.response.divisionid].name + " ";
-                    if (data.response.status == "0") info += "| Pending Validation";
+                    if (data.response.status == "0") info += "| " + mltr("pending_validation");
                     else if (data.response.status == "1") info += SVG_VERIFIED;
                     else if (data.response.status == "2") {
                         staff = data.response.update_staff;
                         staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
-                        info += `| Rejected By ` + staff;
+                        info += `| ${mltr("rejected_by")} ` + staff;
                     }
                 }
                 if (userPerm.includes("division") || userPerm.includes("admin")) {
@@ -6015,7 +5962,7 @@ function LoadPendingDivisionValidation() {
             for (i = 0; i < pending_division.length; i++) {
                 delivery = pending_division[i];
                 user = delivery.user;
-                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">Show Details</a>`]);
+                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">${mltr("show_details")}</a>`]);
             }
 
             PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
@@ -6978,6 +6925,7 @@ function MFAVerify() {
     if (!isNumber(otp) || otp.length != 6)
         return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
     LockBtn("#button-mfa-verify", mltr("verifying"));
+    clearInterval(mfato);
     mfato = setTimeout(function () {
         // remove otp cache after 75 seconds (2.5 rounds)
         if (!$("#mfa-tab").is(":visible")) {
@@ -6999,7 +6947,7 @@ function MFAVerify() {
         },
         success: function (data) {
             UnlockBtn("#button-mfa-verify");
-            if (data.error == true) AjaxError(data);
+            if (data.error == true) return AjaxError(data);
             newtoken = data.response.token;
             localStorage.setItem("token", newtoken);
             localStorage.removeItem("tip");
@@ -7518,65 +7466,65 @@ async function ShowTab(tabname, btnname) {
         if(!loaded){
             $("#notifications-drivershub").on("change", function(){
                 if($("#notifications-drivershub").prop("checked")){
-                    EnableNotification("drivershub", "Drivers Hub");
+                    EnableNotification("drivershub", mltr("drivers_hub"));
                 } else {
-                    DisableNotification("drivershub", "Drivers Hub");
+                    DisableNotification("drivershub", mltr("drivers_hub"));
                 }
             });
             $("#notifications-discord").on("change", function(){
                 if($("#notifications-discord").prop("checked")){
-                    EnableNotification("discord", "Discord");
+                    EnableNotification("discord", mltr("discord"));
                 } else {
-                    DisableNotification("discord", "Discord");
+                    DisableNotification("discord", mltr("discord"));
                 }
             });
             $("#notifications-login").on("change", function(){
                 if($("#notifications-login").prop("checked")){
-                    EnableNotification("login", "Login");
+                    EnableNotification("login", mltr("login"));
                 } else {
-                    DisableNotification("login", "Login");
+                    DisableNotification("login", mltr("login"));
                 }
             });
             $("#notifications-dlog").on("change", function(){
                 if($("#notifications-dlog").prop("checked")){
-                    EnableNotification("dlog", "Delivery Log");
+                    EnableNotification("dlog", mltr("delivery_log"));
                 } else {
-                    DisableNotification("dlog", "Delivery Log");
+                    DisableNotification("dlog", mltr("delivery_log"));
                 }
             });
             $("#notifications-member").on("change", function(){
                 if($("#notifications-member").prop("checked")){
-                    EnableNotification("member", "Member");
+                    EnableNotification("member", mltr("member"));
                 } else {
-                    DisableNotification("member", "Member");
+                    DisableNotification("member", mltr("member"));
                 }
             });
             $("#notifications-application").on("change", function(){
                 if($("#notifications-application").prop("checked")){
-                    EnableNotification("application", "Application");
+                    EnableNotification("application", mltr("application"));
                 } else {
-                    DisableNotification("application", "Application");
+                    DisableNotification("application", mltr("application"));
                 }
             });
             $("#notifications-challenge").on("change", function(){
                 if($("#notifications-challenge").prop("checked")){
-                    EnableNotification("challenge", "Challenge");
+                    EnableNotification("challenge", mltr("challenge"));
                 } else {
-                    DisableNotification("challenge", "Challenge");
+                    DisableNotification("challenge", mltr("challenge"));
                 }
             });
             $("#notifications-division").on("change", function(){
                 if($("#notifications-division").prop("checked")){
-                    EnableNotification("division", "Division");
+                    EnableNotification("division", mltr("division"));
                 } else {
-                    DisableNotification("division", "Division");
+                    DisableNotification("division", mltr("division"));
                 }
             });
             $("#notifications-event").on("change", function(){
                 if($("#notifications-event").prop("checked")){
-                    EnableNotification("event", "Event");
+                    EnableNotification("event", mltr("event"));
                 } else {
-                    DisableNotification("event", "Event");
+                    DisableNotification("event", mltr("event"));
                 }
             });
         }

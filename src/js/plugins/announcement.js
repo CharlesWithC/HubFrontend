@@ -82,33 +82,33 @@ function LoadAnnouncement(noplaceholder = false){
                         <div class="form-check" style="display:inline-block;width:80px;">
                             <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-public" ${public_checked}>
                                 <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-public">
-                                    Public
+                                    ${mltr("public")}
                                 </label>
                             </div>
                         <div class="form-check" style="display:inline-block;width:80px;">
                             <input class="form-check-input" type="radio" name="announcement-edit-${announcement.announcementid}-visibility" id="announcement-edit-${announcement.announcementid}-visibility-private" ${private_checked}>
                             <label class="form-check-label" for="announcement-edit-${announcement.announcementid}-visibility-private">
-                                Private
+                                ${mltr("private")}
                             </label>
                         </div>
                         <select style="display:inline-block;width:130px" class="form-select bg-dark text-white" aria-label="Default select example" id="announcement-edit-${announcement.announcementid}-type">
-                            <option value="0" ${type_checked[0]}>Information</option>
-                            <option value="1" ${type_checked[1]}>Event</option>
-                            <option value="2" ${type_checked[2]}>Warning</option>
-                            <option value="3" ${type_checked[3]}>Critical</option>
-                            <option value="4" ${type_checked[4]}>Resolved</option>
+                            <option value="0" ${type_checked[0]}>${mltr("information")}</option>
+                            <option value="1" ${type_checked[1]}>${mltr("event")}</option>
+                            <option value="2" ${type_checked[2]}>${mltr("warning")}</option>
+                            <option value="3" ${type_checked[3]}>${mltr("critical")}</option>
+                            <option value="4" ${type_checked[4]}>${mltr("resolved")}</option>
                         </select>
                     </div>
                     <label for="announcement-edit-${announcement.announcementid}-discord" class="form-label">Discord Integration</label>
                     <div class="input-group mb-2">
-                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Channel ID</span>
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">${mltr("channel_id")}</span>
                         <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-channel" placeholder="" style="width: 150px;display:inline-block;margin-right:10px;">
                     </div>
                     <div class="input-group mb-2">
-                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">Message</span>
+                        <span class="input-group-text" id="announcement-edit-${announcement.announcementid}-discord-channel-label">${mltr("message")}</span>
                         <input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-discord-message" placeholder="" style="width:250px;display:inline-block;">
                     </div>
-                    <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">Save</button></div>`;
+                    <button id="button-announcement-edit-${announcement.announcementid}-save" type="button" class="btn btn-primary" style="float:right" onclick="EditAnnouncement(${announcement.announcementid});">${mltr("save")}</button></div>`;
                 }
                 content += `<div class="announcement shadow p-3 m-3 bg-dark rounded col" id="announcement-${announcement.announcementid}">
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>

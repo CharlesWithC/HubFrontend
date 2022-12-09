@@ -499,65 +499,65 @@ async function ShowTab(tabname, btnname) {
         if(!loaded){
             $("#notifications-drivershub").on("change", function(){
                 if($("#notifications-drivershub").prop("checked")){
-                    EnableNotification("drivershub", "Drivers Hub");
+                    EnableNotification("drivershub", mltr("drivers_hub"));
                 } else {
-                    DisableNotification("drivershub", "Drivers Hub");
+                    DisableNotification("drivershub", mltr("drivers_hub"));
                 }
             });
             $("#notifications-discord").on("change", function(){
                 if($("#notifications-discord").prop("checked")){
-                    EnableNotification("discord", "Discord");
+                    EnableNotification("discord", mltr("discord"));
                 } else {
-                    DisableNotification("discord", "Discord");
+                    DisableNotification("discord", mltr("discord"));
                 }
             });
             $("#notifications-login").on("change", function(){
                 if($("#notifications-login").prop("checked")){
-                    EnableNotification("login", "Login");
+                    EnableNotification("login", mltr("login"));
                 } else {
-                    DisableNotification("login", "Login");
+                    DisableNotification("login", mltr("login"));
                 }
             });
             $("#notifications-dlog").on("change", function(){
                 if($("#notifications-dlog").prop("checked")){
-                    EnableNotification("dlog", "Delivery Log");
+                    EnableNotification("dlog", mltr("delivery_log"));
                 } else {
-                    DisableNotification("dlog", "Delivery Log");
+                    DisableNotification("dlog", mltr("delivery_log"));
                 }
             });
             $("#notifications-member").on("change", function(){
                 if($("#notifications-member").prop("checked")){
-                    EnableNotification("member", "Member");
+                    EnableNotification("member", mltr("member"));
                 } else {
-                    DisableNotification("member", "Member");
+                    DisableNotification("member", mltr("member"));
                 }
             });
             $("#notifications-application").on("change", function(){
                 if($("#notifications-application").prop("checked")){
-                    EnableNotification("application", "Application");
+                    EnableNotification("application", mltr("application"));
                 } else {
-                    DisableNotification("application", "Application");
+                    DisableNotification("application", mltr("application"));
                 }
             });
             $("#notifications-challenge").on("change", function(){
                 if($("#notifications-challenge").prop("checked")){
-                    EnableNotification("challenge", "Challenge");
+                    EnableNotification("challenge", mltr("challenge"));
                 } else {
-                    DisableNotification("challenge", "Challenge");
+                    DisableNotification("challenge", mltr("challenge"));
                 }
             });
             $("#notifications-division").on("change", function(){
                 if($("#notifications-division").prop("checked")){
-                    EnableNotification("division", "Division");
+                    EnableNotification("division", mltr("division"));
                 } else {
-                    DisableNotification("division", "Division");
+                    DisableNotification("division", mltr("division"));
                 }
             });
             $("#notifications-event").on("change", function(){
                 if($("#notifications-event").prop("checked")){
-                    EnableNotification("event", "Event");
+                    EnableNotification("event", mltr("event"));
                 } else {
-                    DisableNotification("event", "Event");
+                    DisableNotification("event", mltr("event"));
                 }
             });
         }

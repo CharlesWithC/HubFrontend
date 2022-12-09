@@ -127,7 +127,7 @@
     "challenge_type": "Mücadele Türü",
     "personal_one_time": "Kişisel (Tek seferlik)",
     "personal_recurring": "Kişisel (Tekrarlayan)",
-    "company": "Şirket",
+    "company_one_time": "Şirket",
     "delivery_count": "Teslimat Sayısı",
     "required_roles_with_note": "Gerekli Roller (herhangi biri, en fazla 20 role kadar)",
     "required_distance": "Gerekli Mesafe",

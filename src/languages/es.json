@@ -116,7 +116,7 @@
     "challenge_type": "Tipo de desafío",
     "personal_one_time": "Personal (una sola vez)",
     "personal_recurring": "Personal (recurrente)",
-    "company": "Compañía",
+    "company_one_time": "Compañía",
     "delivery_count": "Recuento de entregas",
     "required_roles_with_note": "Roles requeridos (cualquiera de ellos, hasta 20 roles)",
     "required_distance": "Distancia requerida",

@@ -12,6 +12,10 @@ addprefix = True
 if "noprefix" in sys.argv:
     addprefix = False
 
+prevent_recurse = False
+if "prevent_recurse" in sys.argv:
+    prevent_recurse = True
+
 bundle = ""
 
 def dfs(f):
@@ -46,6 +50,9 @@ dfs("src/js")
 
 hsh = hashlib.sha256(bundle.encode()).hexdigest()[:16]
 
+if addprefix:
+    hsh = hsh[:-3] + ".nighty"
+
 if not genonly:
     # f = open(f"src/nighty.php","r").read()
     # t = f.split("\n")
@@ -68,5 +75,5 @@ if not genonly:
 
 open(f"src/js/bundles/{hsh}.js","w",encoding="utf-8").write(bundle)
 
-if addprefix:
-    os.system("python ./tools/nighty_convert.py")
+if addprefix and not prevent_recurse:
+    os.system("python ./tools/nighty_release.py")

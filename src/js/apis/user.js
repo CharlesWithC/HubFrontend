@@ -123,7 +123,7 @@ function DisableApplicationToken(firstop = false) {
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
-                $("#settings-application-token").html("Disabled");
+                $("#settings-application-token").html(mltr("disabled"));
                 toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
@@ -150,7 +150,7 @@ function DisableApplicationToken(firstop = false) {
             success: function (data) {
                 UnlockBtn("#button-settings-disable-application-token");
                 if (data.error) return AjaxError(data);
-                $("#settings-application-token").html("Disabled");
+                $("#settings-application-token").html(mltr("disabled"));
                 toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
             },
             error: function (data) {
@@ -309,7 +309,7 @@ function DisableMFA(){
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/mfa",
+        url: api_host + "/" + dhabbr + "/user/mfa",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -339,7 +339,7 @@ mfasecret = "";
 function EnableMFAShow(){
     mfasecret = RandomB32String(16);
     modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
-    <label for="mfa-enable-otp" class="form-label">OTP</label>
+    <label for="mfa-enable-otp" class="form-label">${mltr('otp')}</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="mfa-enable-otp" placeholder="000 000">
     </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">${mltr('enable')}</button>`);
@@ -354,8 +354,8 @@ function EnableMFA(){
     LockBtn("#button-enable-mfa", mltr("enabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/mfa",
-        type: "PUT",
+        url: api_host + "/" + dhabbr + "/user/mfa",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -399,7 +399,7 @@ function UserResign() {
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/resign",
-        type: "DELETE",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -463,7 +463,7 @@ function EnableNotification(item, name){
         },
         success: function (data) {
             if(data.error) return AjaxError(data);
-            toastNotification("success", "Success", name + " notification enabled!", 5000);
+            toastNotification("success", "Success", name + ` ${mltr('notification_enabled')}!`, 5000);
         }, error: function (data){
             AjaxError(data);
         }
@@ -480,7 +480,7 @@ function DisableNotification(item, name){
         },
         success: function (data) {
             if(data.error) return AjaxError(data);
-            toastNotification("success", "Success", name + " notification disabled!", 5000);
+            toastNotification("success", "Success", name + ` ${mltr('notification_disabled')}!`, 5000);
         }, error: function (data){
             AjaxError(data);
         }
@@ -515,7 +515,7 @@ function LoadUserSessions(noplaceholder = false) {
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
-                    opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">Revoke</button>`;
+                    opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
                 else opbtn = `(Current)`;
 
                 browser_icon = ``;
@@ -540,8 +540,8 @@ function LoadUserSessions(noplaceholder = false) {
 }
 
 function RevokeToken(hsh) {
-    if ($("#button-revoke-token-" + hsh).html() == "Revoke") {
-        $("#button-revoke-token-" + hsh).html("Confirm?");
+    if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
+        $("#button-revoke-token-" + hsh).html(mltr("confirm"));
         return;
     }
 
@@ -609,10 +609,10 @@ function LoadUserList(noplaceholder = false) {
 
             for (i = 0; i < userList.length; i++) {
                 user = userList[i];
-                bantxt = "Ban";
+                bantxt = mltr("ban");
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = "Unban", bantxt2 = "(Banned)", bannedUserList[user.discordid] = user.ban.reason;
+                if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -621,16 +621,16 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">Accept As Member</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">Update Discord ID</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">Disable MFA</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">Delete Connections</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">Delete</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
                         </ul>
                     </div>`;
                 } else if(userPerm.includes("hr")){
@@ -639,9 +639,9 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">Show Details</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">Accept As Member</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red">${bantxt}</a></li>
                         </ul>
@@ -790,7 +790,7 @@ function StaffDisableMFA(discordid) {
     LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/auth/mfa?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user/mfa?discordid="+discordid,
         type: "DELETE",
         dataType: "json",
         headers: {

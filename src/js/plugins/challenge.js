@@ -50,7 +50,7 @@ async function LoadChallenge(noplaceholder = false) {
                 extra = "";
                 if(userPerm.includes("challenge") || userPerm.includes("admin")){ extra = `<a id="button-challenge-edit-show-${challenge.challengeid}" class="clickable" onclick="EditChallengeShow(${challenge.challengeid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-challenge-delete-show-${challenge.challengeid}" class="clickable" onclick="DeleteChallengeShow(${challenge.challengeid}, \`${challenge.title}\`);"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
+                CHALLENGE_TYPE = ["", mltr("personal_one_time"), mltr("company_one_time"), mltr("personal_recurring"), mltr("personal_distance_based"), mltr("company_distance_based")];
                 challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
                 
                 pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
@@ -59,28 +59,24 @@ async function LoadChallenge(noplaceholder = false) {
                     <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${challenge.current_delivery_count} / ${challenge.delivery_count}</div>
                 </div>`;
 
-                status = "";
-                status_type = "";
+                badge_status = "";
+
                 if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-                    status = mltr("ongoing"), status_type = "text-bg-success";
+                    badge_status += `<span class="badge text-bg-success">${mltr("ongoing")}</span>`;
                 else if(challenge.start_time * 1000 > +new Date())
-                    status = mltr("upcoming"), status_type = "text-bg-info";
+                    badge_status += `<span class="badge text-bg-info">${mltr("upcoming")}</span>`;
                 else if(challenge.end_time * 1000 < +new Date())
-                    status = mltr("ended"), status_type = "text-bg-danger";
+                    badge_status += `<span class="badge text-bg-danger">${mltr("ended")}</span>`;
                 if(parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count))
-                    status = mltr("completed"), status_type = "text-bg-warning";
+                    badge_status += `&nbsp;&nbsp;<span class="badge text-bg-warning">${mltr("completed")}</span>`;
                 
-                extra_status = "";
                 roles = JSON.parse(localStorage.getItem("roles"));
                 roleok = false;
                 for(j = 0 ; j < challenge.required_roles.length ; j++){
                     if(roles.includes(challenge.required_roles[j])) roleok = true;
                 }
-                if(!roleok) extra_status = mltr("not_qualified");
-                if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
-
-                badge_status = `<span class="badge ${status_type}">${status}</span>`;
-                if(extra_status != "") badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${extra_status}</span>`;
+                if(!roleok || parseInt(user_distance) < parseInt(challenge.required_distance))
+                    badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${mltr("not_qualified")}</span>`;
 
                 data.push([`<a class="clickable" onclick="ShowChallengeDetail('${challenge.challengeid}')">${challenge.title}</a>`, `${challenge_type}`, `${challenge.reward_points}`, `${progress}`, `${badge_status}`, extra]);
             }
@@ -99,28 +95,32 @@ function ShowChallengeDetail(challengeid){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info = "<table><tbody>";
-    CHALLENGE_TYPE = ["", "Personal (One-time)", "Company", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
+    CHALLENGE_TYPE = ["", mltr("personal_one_time"), mltr("company_one_time"), mltr("personal_recurring"), mltr("personal_distance_based"), mltr("company_distance_based")];
     challenge_type = CHALLENGE_TYPE[challenge.challenge_type];
     info += GenTableRow(mltr("challenge_type"), challenge_type);
     info += GenTableRow(mltr("reward_points"), challenge.reward_points);
     info += GenTableRow(mltr("start_time"), getDateTime(challenge.start_time * 1000));
     info += GenTableRow(mltr("end_time"), getDateTime(challenge.end_time * 1000));
-    status = "";
-    status_type = "";
+
+    badge_status = "";
     if(challenge.start_time * 1000 <= +new Date() && challenge.end_time * 1000 >= +new Date()) 
-        status = mltr("ongoing"), status_type = "text-bg-success";
+        badge_status += `<span class="badge text-bg-success">${mltr("ongoing")}</span>`;
     else if(challenge.start_time * 1000 > +new Date())
-        status = mltr("upcoming"), status_type = "text-bg-info";
+        badge_status += `<span class="badge text-bg-info">${mltr("upcoming")}</span>`;
     else if(challenge.end_time * 1000 < +new Date())
-        status = mltr("ended"), status_type = "text-bg-danger";
-    if(challenge.current_delivery_count >= challenge.delivery_count)
-        status = mltr("completed"), status_type = "text-bg-warning";
-    badge_status = `<span class="badge ${status_type}">${status}</span>`;
+        badge_status += `<span class="badge text-bg-danger">${mltr("ended")}</span>`;
+    if(parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count))
+        badge_status += `&nbsp;&nbsp;<span class="badge text-bg-warning">${mltr("completed")}</span>`;
     info += GenTableRow(mltr("status"), badge_status);
 
     info += GenTableRow("&nbsp;", "&nbsp;");
-    info += GenTableRow(mltr("deliveries"), challenge.delivery_count);
-    info += GenTableRow(mltr("current_deliveries"), challenge.current_delivery_count);
+    if(challenge.challenge_type <= 3){
+        info += GenTableRow(mltr("deliveries"), challenge.delivery_count);
+        info += GenTableRow(mltr("current_deliveries"), challenge.current_delivery_count);
+    } else if(challenge.challenge_type <= 5){
+        info += GenTableRow(mltr("distance_sum"), challenge.delivery_count);
+        info += GenTableRow(mltr("current_distance"), challenge.current_delivery_count);
+    }
     pct = Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100),100);
     progress = `<div class="progress">
         <div class="progress-bar progress-bar-striped" role="progressbar" style="width:${pct}%" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">${pct}%</div>
@@ -128,6 +128,7 @@ function ShowChallengeDetail(challengeid){
     info += GenTableRow(mltr("progress"), progress);
     info += GenTableRow("&nbsp;", "&nbsp;");
 
+    badge_status = "";
     roles = challenge.required_roles;
     rolestxt = "";
     for(var i = 0 ; i < roles.length ; i++){
@@ -136,10 +137,10 @@ function ShowChallengeDetail(challengeid){
     rolestxt = rolestxt.slice(0,-1);
     info += GenTableRow(mltr("required_roles"), rolestxt);
     info += GenTableRow(mltr("required_distance_driven"), TSeparator(parseInt((challenge.required_distance * distance_ratio))) + distance_unit_txt);
-    if(!roleok) extra_status = mltr("not_qualified");
-    if(parseInt(user_distance) < parseInt(challenge.required_distance)) extra_status = mltr("not_qualified");
-    if(extra_status != "") badge_status = `<span class="badge text-bg-secondary">${extra_status}</span>`;
-    else badge_status = `<span class="badge text-bg-success">${mltr("qualified")}</span>`;
+    if(!roleok || parseInt(user_distance) < parseInt(challenge.required_distance))
+        badge_status = `<span class="badge text-bg-secondary">${mltr("not_qualified")}</span>`;
+    else
+        badge_status = `<span class="badge text-bg-success">${mltr("qualified")}</span>`;
     info += GenTableRow(mltr("qualification"), badge_status);
     info += GenTableRow("&nbsp;", "&nbsp;");
     

@@ -1,5 +1,7 @@
 import os, sys
 
+os.system("python ./tools/bundle.py prevent_recurse")
+
 pfx = "nighty"
 
 if len(sys.argv) > 1:

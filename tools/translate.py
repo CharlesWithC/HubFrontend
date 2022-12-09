@@ -26,6 +26,8 @@ def append(key, val):
         p = p.replace(f'"{val}"', f'mltr("{key}")')
         p = p.replace(f"'{val}'", f"mltr('{key}')")
         p = p.replace(f"`{val}`", f"mltr('{key}')")
+        p = p.replace(f">{val}<", f">${{mltr('{key}')}}<")
+        p = p.replace(f"> {val}<", f"> ${{mltr('{key}')}}<")
         open(codepath,"w",encoding="utf-8").write(p)
 
     elif codepath.endswith(".php"):

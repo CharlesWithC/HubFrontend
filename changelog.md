@@ -6,14 +6,18 @@
 2.Fixed the bug that `'` in string breaks html element  
 3.Fixed event description cannot be loaded when editing  
 4.Fixed the bug of falling into endless loop of getting `logo.png`  
-5.Reduced the number of `logo.png` requests by saving it into `logob64` (after base64 encode) in memory  
-6.Added `/member/@me` as alternative to user's own profile  
-7.Added `Clear Cache` button  
-8.Added activity parse  
-9.Added browser icon in sessions  
-10.Added page separator for pending division validation request  
-11.Added `Download Default` (if exists) and `Download Current` button to web config editor - Custom Application & Style  
-12.Added option to enable Discord & Application notification before submitting application  
+5.Fixed the issue that 2FA login resets when OTP is invalid occasionally  
+6.Reduced the number of `logo.png` requests by saving it into `logob64` (after base64 encode) in memory  
+7.Added `/member/@me` as alternative to user's own profile  
+8.Added `Clear Cache` button  
+9.Added activity parse  
+10.Added browser icon in sessions  
+11.Added page separator for pending division validation request  
+12.Added `Download Default` (if exists) and `Download Current` button to web config editor - Custom Application & Style  
+13.Added option to enable Discord & Application notification before submitting application  
+14.Added better support to distance-based challenge  
+15.Improved challenge status badge  
+16.Improved language string table  
 
 **v2.4.5**  
 1.Fixed the issue that `<td>` are not in `<tr>`  

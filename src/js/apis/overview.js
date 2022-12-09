@@ -178,33 +178,6 @@ function refreshStats(){
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
-
-            // const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
-            // const config = {
-            //     type: 'pie',
-            //     data: {
-            //         labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
-            //         datasets: [{
-            //             label: 'Game Preference',
-            //             data: [d.job.all.ets2.tot, d.job.all.ats.tot],
-            //             backgroundColor: ["skyblue", "pink"],
-            //         }]
-            //     },
-            //     options: {
-            //         responsive: true,
-            //         plugins: {
-            //             legend: {
-            //                 position: 'top',
-            //             },
-            //             title: {
-            //                 display: true,
-            //                 text: 'Game Preference'
-            //             }
-            //         }
-            //     },
-            // };
-            // if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
-            // deliveryStatsChart = new Chart(ctx, config);
         }
     });
 }
@@ -257,33 +230,6 @@ function LoadStats(basic = false, noplaceholder = false) {
 
             $("#dalljob").html(newjobs);
             $("#dtotdistance").html(newdistance);
-
-            // const ctx = document.getElementById('deliveryStatsChart').getContext('2d');
-            // const config = {
-            //     type: 'pie',
-            //     data: {
-            //         labels: ['Euro Truck Simulator 2', 'American Truck Simulator'],
-            //         datasets: [{
-            //             label: 'Game Preference',
-            //             data: [d.job.all.ets2.tot, d.job.all.ats.tot],
-            //             backgroundColor: ["skyblue", "pink"],
-            //         }]
-            //     },
-            //     options: {
-            //         responsive: true,
-            //         plugins: {
-            //             legend: {
-            //                 position: 'top',
-            //             },
-            //             title: {
-            //                 display: true,
-            //                 text: 'Game Preference'
-            //             }
-            //         }
-            //     },
-            // };
-            // if (deliveryStatsChart != undefined) deliveryStatsChart.destroy();
-            // deliveryStatsChart = new Chart(ctx, config);
         }
     });
 
