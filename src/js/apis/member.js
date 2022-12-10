@@ -118,6 +118,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
@@ -134,6 +135,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
@@ -414,7 +416,7 @@ function getActivityName(name){
     else if(name == "index") return mltr("viewing_drivers_hub_index");
     else if(name == "leaderboard") return mltr("viewing_leaderboard");
     else if(name == "member") return mltr("viewing_members");
-    else if(name.includes("member_")) return mltr("viewing") + allmembers[name.split("_")[1]] + "'s " + mltr("profile");
+    else if(name.includes("member_")) return mltr("viewing") + " " + allmembers[name.split("_")[1]] + "'s " + mltr("profile");
     else if(name == "announcement") return mltr("viewing_announcements");
     else if(name == "application") return mltr("viewing_appliactions");
     else if(name == "challenge") return mltr("viewing_challenges");
@@ -438,6 +440,29 @@ function getActitivyUrl(name){
     else if(name == "downloads") return "/downloads";
     else if(name == "event") return "/event";
     else return "/";
+}
+
+function UpdateUsername(discordid){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/name",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            discordid: discordid
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            if(curtab == "#user-delivery-tab") LoadUserProfile(profile_userid);
+            if(curtab == "#member-tab") LoadMemberList(noplaceholder = true);
+            if(curtab == "#manage-user-tab") LoadUserList(noplaceholder = true);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
 }
 
 function LoadUserProfile(userid) {
@@ -506,9 +531,19 @@ function LoadUserProfile(userid) {
             account_info += "</table>";
 
             $("#user-account-info").html(account_info);
+            
+            extra = "";
+            
+            while(1){
+                if(userPermLoaded) break;
+                await sleep(100);
+            }
+            if(userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")){
+                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateUsername('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
+            }
 
             profile_info = "";
-            profile_info += "<h1 style='font-size:40px'><b>" + d.name + "</b></h1>";
+            profile_info += `<h1 style='font-size:40px'><b>${d.name}</b> ${extra}</h1>`;
             profile_info += "" + marked.parse(d.bio);
             $("#profile-info").html(profile_info);
             

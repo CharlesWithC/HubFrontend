@@ -133,7 +133,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/c2ee54c0446492f6.js"></script>
+    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0eaf8d1a79bb710a.js"></script>
 
     <?php
     $application_html = "";

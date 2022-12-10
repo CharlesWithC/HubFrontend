@@ -670,9 +670,9 @@ function LoadCache(force) {
                 RANKING = {};
                 RANKCLR = {};
                 for (i = 0; i < d.length; i++) {
-                    RANKING[parseInt(d[i]["distance"])] = d[i]["name"];
-                    RANKCLR[parseInt(d[i]["distance"])] = d[i]["color"];
-                    if(RANKCLR[parseInt(d[i]["distance"])] == undefined) RANKCLR[parseInt(d[i]["distance"])] = default_text_color;
+                    RANKING[parseInt(d[i]["points"])] = d[i]["name"];
+                    RANKCLR[parseInt(d[i]["points"])] = d[i]["color"];
+                    if(RANKCLR[parseInt(d[i]["points"])] == undefined) RANKCLR[parseInt(d[i]["points"])] = default_text_color;
                 }
                 localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
                 localStorage.setItem("driver-ranks-color", JSON.stringify(RANKCLR));

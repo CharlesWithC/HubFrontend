@@ -624,6 +624,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>

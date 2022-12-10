@@ -1,5 +1,9 @@
 # Changelog
 
+**v2.4.7**  
+1.Added refresh username button  
+2.Updated to be compatible with API v1.21.6  
+
 **v2.4.6**  
 0.Added nighty release  
 1.Fixed the bug that dropup banner does not display on regular / premium plan  
