@@ -71,7 +71,7 @@
     ?>
 
     <title><?php echo $config["name"] ?></title>
-    <link rel="icon" href="https://drivershub-cdn.charlws.com/assets/<?php echo $config["abbr"] ?>/logo.png?<?php echo $config["logo_key"] ?>" type="image/x-icon" />
+    <link rel="icon" href="https://cdn.chub.page/assets/<?php echo $config["abbr"] ?>/logo.png?<?php echo $config["logo_key"] ?>" type="image/x-icon" />
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $config["name"] ?> <?php echo mltr("drivers_hub"); ?> | <?php echo $config["slogan"] ?>">
@@ -83,14 +83,14 @@
     <meta content="<?php echo $config["color"] ?>" data-react-helmet="true" name="theme-color" />
     <meta content="/images/bg.jpg" name="twitter:card">
 
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/unisans/css/unisans.min.css">
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
 
-    <link href="https://drivershub-cdn.charlws.com/css/custom.css" rel="stylesheet">
-    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
-    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/brands.min.css" rel="stylesheet">
-    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/regular.min.css" rel="stylesheet">
-    <link href="https://drivershub-cdn.charlws.com/assets/fontawesome/css/solid.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/css/custom.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/solid.min.css" rel="stylesheet">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
         integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
@@ -107,12 +107,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.css" />
-    <script src="https://drivershub-cdn.charlws.com/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.css" />
+    <script src="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
 
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/noty/noty.css" />
-    <script src="https://drivershub-cdn.charlws.com/assets/noty/noty.min.js"></script>
-    <link rel="stylesheet" href="https://drivershub-cdn.charlws.com/assets/noty/themes/mint.css" />
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
+    <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
@@ -133,7 +133,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://drivershub-cdn.charlws.com/js/bundles/0eaf8d1a79bb710a.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/f807ca6e4cdc3035.js"></script>
 
     <?php
     $application_html = "";
@@ -146,12 +146,12 @@
     }
     ?>
     <?php if(in_array("livemap", $config["plugins"])){
-    echo '<script src="https://drivershub-cdn.charlws.com/js/map/ets2map.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/map/ets2map_promods.js"></script>
-    <script src="https://drivershub-cdn.charlws.com/js/map/atsmap.js"></script>';} ?>
+    echo '<script src="https://cdn.chub.page/js/map/ets2map.js"></script>
+    <script src="https://cdn.chub.page/js/map/ets2map_promods.js"></script>
+    <script src="https://cdn.chub.page/js/map/atsmap.js"></script>';} ?>
     <?php
     if(in_array("addon", $config["plugins"])){
-        echo '<script src="https://drivershub-cdn.charlws.com/assets/'.$config["abbr"].'/addon.js"></script>';
+        echo '<script src="https://cdn.chub.page/assets/'.$config["abbr"].'/addon.js"></script>';
     }
     ?>
     <style>
@@ -348,7 +348,7 @@
 <body style="width:100%;overflow-x:hidden;background-color:#2F3136;color:white;">
     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar" style="position:fixed;top:0;left:0;width:260px;height:100vh;z-index:99;">
         <div style="height:60px;overflow:hidden">
-            <img src="https://drivershub-cdn.charlws.com/assets/<?php echo $config["abbr"] ?>/banner.png?<?php echo $config["banner_key"] ?>" alt="Banner" width="100%">
+            <img src="https://cdn.chub.page/assets/<?php echo $config["abbr"] ?>/banner.png?<?php echo $config["banner_key"] ?>" alt="Banner" width="100%">
         </div>
         <hr>
         <div id="sidebar" style="height:calc(100% - 150px);">
@@ -2246,13 +2246,13 @@
                             <button class="btn btn-outline-secondary" type="button" onclick="custom_application='';$('#web-custom-application').val('');"><?php echo mltr("clear"); ?></button>
                             <button class="btn btn-outline-secondary" type="button" id="button-reset-custom-application" onclick="ResetCustomApplication();"><?php echo mltr("reset"); ?></button>
                             <button class="btn btn-outline-secondary" type="button" onclick="FileURLOutput('default_application.html','/default_application.html');"><?php echo mltr("download_default"); ?></button>
-                            <button class="btn btn-outline-secondary" type="button" onclick="FileURLOutput('application.html','https://drivershub-cdn.charlws.com/assets/<?php echo $config['abbr']; ?>/application.html');"><?php echo mltr("download_current"); ?></button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="FileURLOutput('application.html','https://cdn.chub.page/assets/<?php echo $config['abbr']; ?>/application.html');"><?php echo mltr("download_current"); ?></button>
                         </div>
                         <label for="web-custom-style" class="form-label"><?php echo mltr("custom_style_(.css)"); ?></label>
                         <div class="input-group mb-3">
                             <input type="file" class="form-control bg-dark text-white" id="web-custom-style">
                             <button class="btn btn-outline-secondary" type="button" onclick="custom_style='';$('#web-custom-style').val('');"><?php echo mltr("clear"); ?></button>
-                            <button class="btn btn-outline-secondary" type="button" onclick="FileURLOutput('style.css','https://drivershub-cdn.charlws.com/assets/<?php echo $config['abbr']; ?>/style.css');"><?php echo mltr("download_current"); ?></button>
+                            <button class="btn btn-outline-secondary" type="button" onclick="FileURLOutput('style.css','https://cdn.chub.page/assets/<?php echo $config['abbr']; ?>/style.css');"><?php echo mltr("download_current"); ?></button>
                         </div>
                         <div class="row justify-content-end">
                             <button id="button-save-web-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateWebConfig();"><?php echo mltr("save"); ?></button>

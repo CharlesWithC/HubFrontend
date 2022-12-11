@@ -610,9 +610,10 @@ function LoadUserList(noplaceholder = false) {
             for (i = 0; i < userList.length; i++) {
                 user = userList[i];
                 bantxt = mltr("ban");
+                banbtntxt = "Ban";
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
+                if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if(userPerm.includes("hrm") || userPerm.includes("admin")){
@@ -630,7 +631,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="${bantxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
                         </ul>
                     </div>`;
@@ -644,7 +645,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
                         </ul>
                     </div>`;
                 }

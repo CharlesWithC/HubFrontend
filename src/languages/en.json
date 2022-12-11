@@ -202,7 +202,7 @@
     "hex_color_note": "E.g. #2fc1f7, it should not be too bright or too dark.",
     "navio_company_id_note": "Used for Tracker and Live Map.",
     "logo_link": "Logo Link",
-    "logo_link_note": "It looks like https://drivershub-cdn.charlws.com/assets/{abbr}/logo.png if you're using our CDN.",
+    "logo_link_note": "It looks like https://cdn.chub.page/assets/{abbr}/logo.png if you're using our CDN.",
     "require_truckersmp_account": "Require TruckersMP Account?",
     "require_truckersmp_account_note": "If enabled, then users will need to bind TruckersMP Account to submit driver application or be given driver role.",
     "privacy": "Privacy",

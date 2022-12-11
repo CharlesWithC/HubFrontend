@@ -202,7 +202,7 @@
     "hex_color_note": "Por ejemplo, #2fc1f7, no debe ser demasiado brillante ni demasiado oscuro.",
     "navio_company_id_note": "Se utiliza para Tracker y Live Map.",
     "logo_link": "Enlace del logotipo",
-    "logo_link_note": "Parece https://drivershub-cdn.charlws.com/assets/{abbr}/logo.png si está utilizando nuestro CDN.",
+    "logo_link_note": "Parece https://cdn.chub.page/assets/{abbr}/logo.png si está utilizando nuestro CDN.",
     "require_truckersmp_account": "¿Requiere una cuenta de TruckersMP?",
     "require_truckersmp_account_note": "Si está habilitado, los usuarios deberán vincular la cuenta de TruckersMP para enviar la solicitud de conductor o se les asignará el rol de conductor.",
     "privacy": "Privacidad",

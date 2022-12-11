@@ -1075,7 +1075,7 @@ async function PathDetect() {
     else if (p == "/settings") ShowTab("#user-settings-tab");
     else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
-        window.location.href = "https://drivershub-cdn.charlws.com/assets/" + dhabbr + "/" + filename;
+        window.location.href = "https://cdn.chub.page/assets/" + dhabbr + "/" + filename;
     } else if (p.startsWith("/steamcallback")) {
         SteamValidate();
     } else if (p.startsWith("/auth")) {

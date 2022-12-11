@@ -1,6 +1,6 @@
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-logob64 = ""; 
+logob64 = "";
 
 lang = "";
 enlang = "";
@@ -78,7 +78,7 @@ $(document).ready(function () {
                                                          `
     console.log(drivershub);
     console.log("Drivers Hub: Frontend (v2.4.7)");
-    console.log('The official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
+    console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2022 CharlesWithC All rights reserved.");
@@ -107,7 +107,7 @@ $(document).ready(function () {
         });
     }
 
-    toDataURL("https://drivershub-cdn.charlws.com/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function(dataURL) {
+    toDataURL("https://cdn.chub.page/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function(dataURL) {
         logob64 = dataURL
     });
 });

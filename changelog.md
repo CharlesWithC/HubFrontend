@@ -1,8 +1,10 @@
 # Changelog
 
 **v2.4.7**  
-1.Added refresh username button  
-2.Updated to be compatible with API v1.21.6  
+0.Changed CDN domain to `cdn.chub.page`  
+1.Updated to be compatible with API v1.21.6  
+2.Fixed the bug that HR cannot ban user  
+3.Added refresh username button  
 
 **v2.4.6**  
 0.Added nighty release  
