@@ -3,10 +3,11 @@
 **v2.4.7**  
 0.Changed CDN domain to `cdn.chub.page`  
 1.Updated to be compatible with API v1.21.7  
-2.Fixed the bug that HR cannot ban user  
-3.Fixed the bug that `RANKING = undefiend` lead to functions stuck  
-4.Fixed bugs with Web Config Editor (HubFrontend:Extension)  
-5.Added refresh username button  
+2.Fixed HR cannot ban user  
+3.Fixed `RANKING = undefiend` lead to functions stuck  
+4.Fixed markdown image overflow  
+5.Fixed Web Config Editor (HubFrontend:Extension)  
+6.Added refresh username button  
 
 **v2.4.6**  
 0.Added nighty release  

@@ -133,7 +133,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/32ab4ac21d2cd885.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/20e8d63a27e87fb6.js"></script>
 
     <?php
     $application_html = "";

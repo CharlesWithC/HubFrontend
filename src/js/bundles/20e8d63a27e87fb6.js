@@ -2733,7 +2733,7 @@ function LoadUserProfile(userid) {
 
             profile_info = "";
             profile_info += `<h1 style='font-size:40px'><b>${d.name}</b> ${extra}</h1>`;
-            profile_info += "" + marked.parse(d.bio);
+            profile_info += "" + marked.parse(d.bio).replaceAll("<img ", "<img style='width:100%;' ");
             $("#profile-info").html(profile_info);
             
             avatar = GetAvatarSrc(d.discordid, d.avatar);
@@ -4735,7 +4735,7 @@ function LoadAnnouncement(noplaceholder = false){
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
-                    <div id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</div>
+                    <div id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>")).replaceAll("<img ", "<img style='width:100%;' ")}</div>
                     ${announcement_control_bottom}
                 </div>`;
             }
@@ -5439,7 +5439,7 @@ function ShowChallengeDetail(challengeid){
         info += GenTableRow("&nbsp;", "&nbsp;");
     }
 
-    info += "</tbody></table>" + marked.parse(challenge.description);
+    info += "</tbody></table>" + marked.parse(challenge.description).replaceAll("<img ", "<img style='width:100%;' ");
     modalid = ShowModal(challenge.title, info);
     InitModal("challenge_detail", modalid);
 }
