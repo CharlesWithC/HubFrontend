@@ -89,9 +89,8 @@ function LoadConfiguration() {
         }
     });
 
-    web_host = api_host.replaceAll("https://", "https://web.");
     $.ajax({
-        url: web_host + "/" + dhabbr + "/config?domain=" + window.location.hostname,
+        url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -263,9 +262,8 @@ function UpdateWebConfig() {
                 return AjaxError(data);
             }
             tipt = data.response.token;
-            web_host = api_host.replaceAll("https://", "https://web.");
             $.ajax({
-                url: web_host + "/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
+                url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
                 type: "PATCH",
                 dataType: "json",
                 headers: {

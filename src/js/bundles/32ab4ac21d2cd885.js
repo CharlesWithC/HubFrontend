@@ -983,9 +983,8 @@ function LoadConfiguration() {
         }
     });
 
-    web_host = api_host.replaceAll("https://", "https://web.");
     $.ajax({
-        url: web_host + "/" + dhabbr + "/config?domain=" + window.location.hostname,
+        url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname,
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -1157,9 +1156,8 @@ function UpdateWebConfig() {
                 return AjaxError(data);
             }
             tipt = data.response.token;
-            web_host = api_host.replaceAll("https://", "https://web.");
             $.ajax({
-                url: web_host + "/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
+                url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
                 type: "PATCH",
                 dataType: "json",
                 headers: {
@@ -3662,7 +3660,7 @@ function LoadNotificationSettings(){
 function EnableNotification(item, name){
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
-        type: "PATCH",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -3679,7 +3677,7 @@ function EnableNotification(item, name){
 function DisableNotification(item, name){
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
-        type: "PATCH",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -4278,7 +4276,7 @@ function NotificationsMarkAllAsRead(){
     if($("#unread-notification").html()=="") return;
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
-        type: "PUT",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -6505,7 +6503,7 @@ async function ShowEventDetail(eventid, reload = false) {
 function VoteEvent(eventid, resp) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/event/vote?eventid=" + eventid,
-        type: "PUT",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -7069,7 +7067,7 @@ function Logout() {
 }
 
 function InitRankingDisplay() {
-    if (RANKING != []) {
+    if (RANKING != undefined && RANKING != null && RANKING != []) {
         rankpnt = Object.keys(RANKING);
         for (var i = 0; i < Math.ceil(rankpnt.length / 8); i++) {
             ranktable = `<table class="table-auto" style="display:inline">
@@ -7485,16 +7483,16 @@ async function ShowTab(tabname, btnname) {
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
         $("#config-subtab").children().removeClass("show");
-        $("#config-api-tab").click();
-        if(!loaded){
-            setInterval(function(){
-                if($("#config-api-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api-json"){
-                    $("#config-api-control").appendTo("#config-api");
-                } else if($("#config-api-json-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api"){
-                    $("#config-api-control").appendTo("#config-api-json");
-                }
-            })
-        }
+        $("#config-api-json-tab").click();
+        // if(!loaded){
+        //     setInterval(function(){
+        //         if($("#config-api-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api-json"){
+        //             $("#config-api-control").appendTo("#config-api");
+        //         } else if($("#config-api-json-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api"){
+        //             $("#config-api-control").appendTo("#config-api-json");
+        //         }
+        //     })
+        // }
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -8096,7 +8094,8 @@ window.onpopstate = function (event) {
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
-tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
+// tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
+tooltipINIT = [];
 $(document).ready(async function () {
     while (1) {
         if(language != undefined) break;

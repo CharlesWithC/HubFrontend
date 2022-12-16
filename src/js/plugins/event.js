@@ -206,7 +206,7 @@ async function ShowEventDetail(eventid, reload = false) {
 function VoteEvent(eventid, resp) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/event/vote?eventid=" + eventid,
-        type: "PUT",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")

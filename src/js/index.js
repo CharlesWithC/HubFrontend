@@ -65,7 +65,7 @@ function Logout() {
 }
 
 function InitRankingDisplay() {
-    if (RANKING != []) {
+    if (RANKING != undefined && RANKING != null && RANKING != []) {
         rankpnt = Object.keys(RANKING);
         for (var i = 0; i < Math.ceil(rankpnt.length / 8); i++) {
             ranktable = `<table class="table-auto" style="display:inline">
@@ -481,16 +481,16 @@ async function ShowTab(tabname, btnname) {
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
         $("#config-subtab").children().removeClass("show");
-        $("#config-api-tab").click();
-        if(!loaded){
-            setInterval(function(){
-                if($("#config-api-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api-json"){
-                    $("#config-api-control").appendTo("#config-api");
-                } else if($("#config-api-json-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api"){
-                    $("#config-api-control").appendTo("#config-api-json");
-                }
-            })
-        }
+        $("#config-api-json-tab").click();
+        // if(!loaded){
+        //     setInterval(function(){
+        //         if($("#config-api-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api-json"){
+        //             $("#config-api-control").appendTo("#config-api");
+        //         } else if($("#config-api-json-tab").hasClass("active") && $($("#config-api-control").parent()).attr("id") == "config-api"){
+        //             $("#config-api-control").appendTo("#config-api-json");
+        //         }
+        //     })
+        // }
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
@@ -1092,7 +1092,8 @@ window.onpopstate = function (event) {
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
-tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
+// tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
+tooltipINIT = [];
 $(document).ready(async function () {
     while (1) {
         if(language != undefined) break;

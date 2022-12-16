@@ -51,7 +51,7 @@
     $path = $_SERVER['REQUEST_URI'];
     if (str_starts_with($path, '/images')) {
         $t = explode("/", $path);
-        header('Location: //drivershub-cdn.charlws.com/assets/'.$config["abbr"].'/'.$t[2]);
+        header('Location: //cdn.chub.page/assets/'.$config["abbr"].'/'.$t[2]);
         exit();
     }
     if (str_starts_with($path, '/js')) {
@@ -60,7 +60,7 @@
         if(stristr($path, 'beta')){
             $beta_prefix = "beta";
         }
-        header('Location: //drivershub-cdn.charlws.com/js/'.$beta_prefix.'/'.$t[2]);
+        header('Location: //cdn.chub.page/js/'.$beta_prefix.'/'.$t[2]);
         exit();
     }
     if (str_starts_with($path, '/banner')) {
@@ -133,7 +133,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/f807ca6e4cdc3035.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/32ab4ac21d2cd885.js"></script>
 
     <?php
     $application_html = "";
@@ -2027,18 +2027,18 @@
             <div class="shadow p-3 m-3 bg-dark rounded col">
                 <h5 style="display:inline-block"><strong><span clas="rect-20"><i class="fa-solid fa-screwdriver-wrench"></i></span> <?php echo mltr("configuration"); ?></strong></h5>
                 <ul class="nav nav-tabs" role="tablist" style="float:right">
-                    <li class="nav-item" role="presentation">
+                    <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link bg-dark text-white active" id="config-api-tab" data-bs-toggle="tab" data-bs-target="#config-api" type="button" role="tab" aria-controls="config-api" aria-selected="true"><?php echo mltr("api"); ?></button>
-                    </li>
+                    </li> -->
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link bg-dark text-white active" id="config-api-json-tab" data-bs-toggle="tab" data-bs-target="#config-api-json" type="button" role="tab" aria-controls="config-api-json" aria-selected="false"><?php echo mltr("api_json"); ?></button>
+                        <button class="nav-link bg-dark text-white active" id="config-api-json-tab" data-bs-toggle="tab" data-bs-target="#config-api-json" type="button" role="tab" aria-controls="config-api-json" aria-selected="true"><?php echo mltr("api_json"); ?></button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link bg-dark text-white" id="config-web-tab" data-bs-toggle="tab" data-bs-target="#config-web" type="button" role="tab" aria-controls="config-web" aria-selected="false"><?php echo mltr("web"); ?></button>
                     </li>
                 </ul>
                 <div class="tab-content mt-3" id="config-subtab">
-                    <div class="tab-pane fade show active" id="config-api" role="tabpanel" aria-labelledby="config-api-tab" tabindex="0">
+                    <!-- <div class="tab-pane fade show active" id="config-api" role="tabpanel" aria-labelledby="config-api-tab" tabindex="0">
                         <?php echo mltr("api_note"); ?>
                         <br>
                         <label class="form-label"><?php echo mltr("company_info"); ?></label>
@@ -2168,24 +2168,24 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="row">
+                        <div class="row">
                             <div class="col-3">
                                 <label for="api-delivery-post-gifs" class="form-label"><?php echo mltr("delivery_post_gifs"); ?> <button id="api-delivery-post-gifs-tooltip" type="button" class="btn p-0 info-tooltip-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="<?php echo mltr("delivery_post_gifs_note"); ?>"><i class="fa-solid fa-circle-info"></i></button></label>
                             </div>
-                        </div> -->
-                        <div class="row justify-content-end" id="config-api-control">
-                            <button id="button-revert-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="RevertConfig();"><?php echo mltr("revert"); ?></button>
-                            <button id="button-reset-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="ResetConfig();"><?php echo mltr("reset"); ?></button>
-                            <button id="button-save-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateConfig();"><?php echo mltr("save"); ?></button>
-                            <button id="button-reload-api-show" type="button" class="btn btn-danger col-1 mx-2" onclick="ReloadAPIShow();"><?php echo mltr("reload"); ?></button>
                         </div>
-                    </div>
-                    <div class="tab-pane fade" id="config-api-json" role="tabpanel" aria-labelledby="config-api-json-tab" tabindex="0">
+                    </div> -->
+                    <div class="tab-pane fade show active" id="config-api-json" role="tabpanel" aria-labelledby="config-api-json-tab" tabindex="0">
                         <?php echo mltr("api_json_note"); ?>
                         <br>
                         <label for="json-config" class="form-label"><?php echo mltr("json_config"); ?></label>
                         <div class="input-group mb-3" style="height:500px">
                             <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
+                        </div>
+                        <div class="row justify-content-end" id="config-api-control">
+                            <button id="button-revert-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="RevertConfig();"><?php echo mltr("revert"); ?></button>
+                            <button id="button-reset-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="ResetConfig();"><?php echo mltr("reset"); ?></button>
+                            <button id="button-save-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateConfig();"><?php echo mltr("save"); ?></button>
+                            <button id="button-reload-api-show" type="button" class="btn btn-danger col-1 mx-2" onclick="ReloadAPIShow();"><?php echo mltr("reload"); ?></button>
                         </div>
                     </div>
                     <div class="tab-pane fade" id="config-web" role="tabpanel" aria-labelledby="config-web-tab" tabindex="0">

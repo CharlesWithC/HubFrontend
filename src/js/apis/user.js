@@ -456,7 +456,7 @@ function LoadNotificationSettings(){
 function EnableNotification(item, name){
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
-        type: "PATCH",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -473,7 +473,7 @@ function EnableNotification(item, name){
 function DisableNotification(item, name){
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
-        type: "PATCH",
+        type: "POST",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -1072,7 +1072,7 @@ function NotificationsMarkAllAsRead(){
     if($("#unread-notification").html()=="") return;
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
-        type: "PUT",
+        type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
