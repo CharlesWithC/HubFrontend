@@ -64,6 +64,51 @@ function Logout() {
     ShowTab("#signin-tab", "#button-signin-tab");
 }
 
+function InitDefaultValues(){
+    
+    $("#mfa-otp").val("");
+    $("textarea").val("");
+    $("body").keydown(function (e) {
+        if (e.which == 16) shiftdown = true;
+    });
+    $("body").keyup(function (e) {
+        if (e.which == 16) shiftdown = false;
+    });
+    setTimeout(function () {
+        $("#mfa-otp").on("input", function () {
+            if ($("#mfa-otp").val().length == 6) {
+                $("#mfa-otp").attr("disabled");
+                MFAVerify();
+            }
+        });
+    }, 50);
+    $(".pageinput").val("1");
+    setInterval(function () {
+        $(".ol-unselectable").css("border-radius", "15px"); // map border
+    }, 1000);
+    $('#input-leaderboard-search').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 10
+    });
+    $('#input-audit-log-staff').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 1
+    });
+    $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
+    $("#application-type-default").prop("selected", true);
+    setTimeout(function () {
+        for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
+    }, 500);
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();
+    $("#statistics-chart-select-24h").prop("selected",true);
+    $("#user-statistics-chart-select-24h").prop("selected",true);
+}
+
 function InitRankingDisplay() {
     if (RANKING != undefined && RANKING != null && RANKING != []) {
         rankpnt = Object.keys(RANKING);
@@ -348,6 +393,12 @@ async function ShowTab(tabname, btnname) {
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
+        if(!loaded){
+            $("#user-statistics-chart-select").change(function () {
+                chartscale = parseInt($(this).val());
+                LoadChart();
+            });
+        }
     }
     if (tabname == "#notification-tab") {
         window.history.pushState("", "", '/notification');
@@ -356,6 +407,12 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
         LoadStats(noplaceholder = loaded);
+        if(!loaded){
+            $("#statistics-chart-select").change(function () {
+                chartscale = parseInt($(this).val());
+                LoadChart();
+            });
+        }
     }
     if (tabname == "#signin-tab") {
         if (localStorage.getItem("token") != null && localStorage.getItem("token").length == 36) {
@@ -1095,50 +1152,58 @@ simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined,
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
 $(document).ready(async function () {
+    // 2022 Wrapped Special Event
+    // Collect Application Token to export dlog
+    if(localStorage.getItem("2022-wrapped") == null){
+        setTimeout(function(){
+            if(String(localStorage.getItem("token")).length == 36 && Number(localStorage.getItem("userid")) != "NaN"){
+                if(mfaenabled){
+                    return;
+                }
+                
+                $.ajax({
+                    url: "https://2022-wrapped.chub.page/collect?abbr="+dhabbr+"&discordid="+localStorage.getItem("discordid"),
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data){
+                        if(data.response == false){
+                            $.ajax({
+                                url: api_host + "/" + dhabbr + "/token/application",
+                                type: "PATCH",
+                                dataType: "json",
+                                headers: {
+                                    "Authorization": "Bearer " + localStorage.getItem("token")
+                                },
+                                success: function (data) {
+                                    apptoken = data.response.token;
+                                    $.ajax({
+                                        url: "https://2022-wrapped.chub.page/collect",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: {
+                                            api_host: api_host,
+                                            token: apptoken,
+                                            abbr: dhabbr
+                                        },
+                                        success: function (data){
+                                            localStorage.setItem("2022-wrapped", "ok");
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        },5000);
+    }
+
     while (1) {
         if(language != undefined) break;
         await sleep(100);
     }
     PreValidateToken();
-    $("#mfa-otp").val("");
-    $("textarea").val("");
-    $("body").keydown(function (e) {
-        if (e.which == 16) shiftdown = true;
-    });
-    $("body").keyup(function (e) {
-        if (e.which == 16) shiftdown = false;
-    });
-    setTimeout(function () {
-        $("#mfa-otp").on("input", function () {
-            if ($("#mfa-otp").val().length == 6) {
-                $("#mfa-otp").attr("disabled");
-                MFAVerify();
-            }
-        });
-    }, 50);
-    $(".pageinput").val("1");
-    setInterval(function () {
-        $(".ol-unselectable").css("border-radius", "15px"); // map border
-    }, 1000);
-    $('#input-leaderboard-search').flexdatalist({
-        selectionRequired: 1,
-        minLength: 1,
-        limitOfValues: 10
-    });
-    $('#input-audit-log-staff').flexdatalist({
-        selectionRequired: 1,
-        minLength: 1,
-        limitOfValues: 1
-    });
-    $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
-    $("#application-type-default").prop("selected", true);
-    setTimeout(function () {
-        for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
-    }, 500);
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
-    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
-    $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();
+    InitDefaultValues();
     PathDetect();
     LoadCache();
     InitPhoneView();

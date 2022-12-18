@@ -168,7 +168,7 @@ function ShowChallengeDetail(challengeid){
         info += GenTableRow("&nbsp;", "&nbsp;");
     }
 
-    info += "</tbody></table>" + marked.parse(challenge.description);
+    info += "</tbody></table>" + marked.parse(challenge.description).replaceAll("<img ", "<img style='width:100%;' ");
     modalid = ShowModal(challenge.title, info);
     InitModal("challenge_detail", modalid);
 }

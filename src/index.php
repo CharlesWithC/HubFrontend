@@ -76,12 +76,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="<?php echo $config["name"] ?> <?php echo mltr("drivers_hub"); ?> | <?php echo $config["slogan"] ?>">
 
-    <meta content="<?php echo $config["name"] ?> <?php echo mltr("drivers_hub"); ?>" property="og:title" />
-    <meta content="<?php echo $config["slogan"] ?>" property="og:description" />
-    <meta content="https://<?php echo $domain ?>/" property="og:url" />
-    <meta content="/images/logo.png?<?php echo $config["logo_key"] ?>" property="og:image" />
+    <meta property="og:title" content="<?php echo $config["name"] ?> <?php echo mltr("drivers_hub"); ?>" />
+    <meta property="og:description" content="<?php echo $config["slogan"] ?>" />
+    <meta name="keywords" content="Game,TruckSim,ETS2,ATS,TruckersMP,DriversHub">
+    <meta property="og:url" content="https://<?php echo $domain ?>/" />
+    <meta property="og:image" content="https://cdn.chub.page/assets/<?php echo $config["abbr"] ?>/logo.png?<?php echo $config["logo_key"] ?>" />
     <meta content="<?php echo $config["color"] ?>" data-react-helmet="true" name="theme-color" />
-    <meta content="/images/bg.jpg" name="twitter:card">
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image:src" content="https://cdn.chub.page/assets/<?php echo $config["abbr"] ?>/logo.png?<?php echo $config["logo_key"] ?>" />
+    <meta name="twitter:site" content="@CharlesWithC" />
+    <meta name="twitter:creator" content="@CharlesWithC" />
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
@@ -133,7 +137,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/32ab4ac21d2cd885.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/87b140412f2f64d9.js"></script>
 
     <?php
     $application_html = "";
@@ -333,15 +337,13 @@
         echo "<style>".file_get_contents('/var/hub/cdn/assets/'.$config["abbr"].'/style.css')."</style>";
     }
     ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7EDVTC3J2E"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-        gtag('config', 'G-7EDVTC3J2E');
+    gtag('config', 'G-SLZ5TY9MVN');
     </script>
 </head>
 

@@ -544,7 +544,7 @@ function LoadUserProfile(userid) {
 
             profile_info = "";
             profile_info += `<h1 style='font-size:40px'><b>${d.name}</b> ${extra}</h1>`;
-            profile_info += "" + marked.parse(d.bio);
+            profile_info += "" + marked.parse(d.bio).replaceAll("<img ", "<img style='width:100%;' ");
             $("#profile-info").html(profile_info);
             
             avatar = GetAvatarSrc(d.discordid, d.avatar);

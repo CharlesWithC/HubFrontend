@@ -4,20 +4,20 @@ addup = 1;
 
 async function LoadChart(userid = -1) {
     if (userid != -1) {
-        $("#user-chart-scale-group").children().removeClass("active");
-        $("#user-chart-scale-"+chartscale).addClass("active");
-        if(!addup) $("#user-chart-sum").removeClass("active");
+        if (!addup) $("#user-chart-sum").removeClass("active");
         else $("#user-chart-sum").addClass("active");
     } else {
-        $("#overview-chart-scale-group").children().removeClass("active");
-        $("#overview-chart-scale-"+chartscale).addClass("active");
-        if(!addup) $("#overview-chart-sum").removeClass("active");
+        if (!addup) $("#overview-chart-sum").removeClass("active");
         else $("#overview-chart-sum").addClass("active");
     }
+    RANGES = [0, 24, 7, 14, 30, 45, 60, 60];
+    INTERVAL = [0, 3600, 86400, 86400, 86400, 172800, 518400, 1036800];
+    ranges = RANGES[chartscale];
+    interval = INTERVAL[chartscale];
     pref = "s";
     if (userid != -1) pref = "user-s";
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?ranges=" + ranges + "&interval=" + interval + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -36,8 +36,10 @@ async function LoadChart(userid = -1) {
                 ts = new Date(ts * 1000);
                 if (chartscale == 1) { // 24h
                     ts = pad(ts.getHours(), 2) + ":" + pad(ts.getMinutes(), 2);
-                } else if (chartscale >= 2) { // 7 d / 30 d
+                } else if (chartscale >= 2 && chartscale <= 5) {
                     ts = MONTH_ABBR[ts.getMonth()] + " " + OrdinalSuffix(ts.getDate());
+                } else if (chartscale >= 6) {
+                    ts = (1900 + ts.getYear()) + " " + MONTH_ABBR[ts.getMonth()] + " " + OrdinalSuffix(ts.getDate());
                 }
                 labels.push(ts);
                 if (d[i].distance == 0) {
@@ -139,9 +141,9 @@ async function LoadChart(userid = -1) {
 
 deliveryStatsChart = undefined;
 
-function refreshStats(){
-    stats_start_time = parseInt(+ new Date() / 1000 - 86400);
-    stats_end_time = parseInt(+ new Date() / 1000);
+function refreshStats() {
+    stats_start_time = parseInt(+new Date() / 1000 - 86400);
+    stats_end_time = parseInt(+new Date() / 1000);
     if ($("#stats_start").val() != "" && $("#stats_end").val() != "") {
         stats_start_time = +new Date($("#stats_start").val()) / 1000;
         stats_end_time = +new Date($("#stats_end").val()) / 1000 + 86400;
@@ -163,7 +165,7 @@ function refreshStats(){
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
-            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new * fuel_ratio)) + fuel_unit_txt;
             $("#overview-stats-driver-tot").html(drivers);
             $("#overview-stats-driver-new").html(newdrivers);
             $("#overview-stats-distance-tot").html(distance);
@@ -184,7 +186,7 @@ function refreshStats(){
 
 function LoadStats(basic = false, noplaceholder = false) {
     if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
-    if(curtab == "#overview-tab"){
+    if (curtab == "#overview-tab") {
         $.ajax({
             url: api_host + "/" + dhabbr,
             type: "GET",
@@ -196,8 +198,8 @@ function LoadStats(basic = false, noplaceholder = false) {
     }
     LoadChart();
 
-    stats_start_time = parseInt(+ new Date() / 1000 - 86400);
-    stats_end_time = parseInt(+ new Date() / 1000);
+    stats_start_time = parseInt(+new Date() / 1000 - 86400);
+    stats_end_time = parseInt(+new Date() / 1000);
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
@@ -215,7 +217,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
-            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new * fuel_ratio)) + fuel_unit_txt;
             $("#overview-stats-driver-tot").html(drivers);
             $("#overview-stats-driver-new").html(newdrivers);
             $("#overview-stats-distance-tot").html(distance);
@@ -234,8 +236,8 @@ function LoadStats(basic = false, noplaceholder = false) {
     });
 
     // get weekly data
-    start_time = parseInt(+ new Date() / 1000 - 86400 * 7);
-    end_time = parseInt(+ new Date() / 1000);
+    start_time = parseInt(+new Date() / 1000 - 86400 * 7);
+    end_time = parseInt(+new Date() / 1000);
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
@@ -253,7 +255,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
-            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new * fuel_ratio)) + fuel_unit_txt;
             $("#wprofit").html(neweuroprofit + " + " + newdollarprofit);
             $("#walljob").html(newjobs);
             $("#wtotdistance").html(newdistance);

@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.7)");
+    console.log("Drivers Hub: Frontend (Nighty Release) (v2.4.8)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -1696,7 +1696,7 @@ function ShowDeliveryDetail(logid) {
                 return AjaxError(data);
             }
 
-            window.history.pushState("", "", '/delivery/' + logid);
+            window.history.pushState("", "", '/nighty/delivery/' + logid);
 
             d = data.response.dlog;
             currentDeliveryLog = d;
@@ -2733,7 +2733,7 @@ function LoadUserProfile(userid) {
 
             profile_info = "";
             profile_info += `<h1 style='font-size:40px'><b>${d.name}</b> ${extra}</h1>`;
-            profile_info += "" + marked.parse(d.bio);
+            profile_info += "" + marked.parse(d.bio).replaceAll("<img ", "<img style='width:100%;' ");
             $("#profile-info").html(profile_info);
             
             avatar = GetAvatarSrc(d.discordid, d.avatar);
@@ -2836,20 +2836,20 @@ addup = 1;
 
 async function LoadChart(userid = -1) {
     if (userid != -1) {
-        $("#user-chart-scale-group").children().removeClass("active");
-        $("#user-chart-scale-"+chartscale).addClass("active");
-        if(!addup) $("#user-chart-sum").removeClass("active");
+        if (!addup) $("#user-chart-sum").removeClass("active");
         else $("#user-chart-sum").addClass("active");
     } else {
-        $("#overview-chart-scale-group").children().removeClass("active");
-        $("#overview-chart-scale-"+chartscale).addClass("active");
-        if(!addup) $("#overview-chart-sum").removeClass("active");
+        if (!addup) $("#overview-chart-sum").removeClass("active");
         else $("#overview-chart-sum").addClass("active");
     }
+    RANGES = [0, 24, 7, 14, 30, 45, 60, 60];
+    INTERVAL = [0, 3600, 86400, 86400, 86400, 172800, 518400, 1036800];
+    ranges = RANGES[chartscale];
+    interval = INTERVAL[chartscale];
     pref = "s";
     if (userid != -1) pref = "user-s";
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?scale=" + chartscale + "&sum_up=" + addup + "&userid=" + userid,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?ranges=" + ranges + "&interval=" + interval + "&sum_up=" + addup + "&userid=" + userid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -2868,8 +2868,10 @@ async function LoadChart(userid = -1) {
                 ts = new Date(ts * 1000);
                 if (chartscale == 1) { // 24h
                     ts = pad(ts.getHours(), 2) + ":" + pad(ts.getMinutes(), 2);
-                } else if (chartscale >= 2) { // 7 d / 30 d
+                } else if (chartscale >= 2 && chartscale <= 5) {
                     ts = MONTH_ABBR[ts.getMonth()] + " " + OrdinalSuffix(ts.getDate());
+                } else if (chartscale >= 6) {
+                    ts = (1900 + ts.getYear()) + " " + MONTH_ABBR[ts.getMonth()] + " " + OrdinalSuffix(ts.getDate());
                 }
                 labels.push(ts);
                 if (d[i].distance == 0) {
@@ -2971,9 +2973,9 @@ async function LoadChart(userid = -1) {
 
 deliveryStatsChart = undefined;
 
-function refreshStats(){
-    stats_start_time = parseInt(+ new Date() / 1000 - 86400);
-    stats_end_time = parseInt(+ new Date() / 1000);
+function refreshStats() {
+    stats_start_time = parseInt(+new Date() / 1000 - 86400);
+    stats_end_time = parseInt(+new Date() / 1000);
     if ($("#stats_start").val() != "" && $("#stats_end").val() != "") {
         stats_start_time = +new Date($("#stats_start").val()) / 1000;
         stats_end_time = +new Date($("#stats_end").val()) / 1000 + 86400;
@@ -2995,7 +2997,7 @@ function refreshStats(){
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
-            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new * fuel_ratio)) + fuel_unit_txt;
             $("#overview-stats-driver-tot").html(drivers);
             $("#overview-stats-driver-new").html(newdrivers);
             $("#overview-stats-distance-tot").html(distance);
@@ -3016,7 +3018,7 @@ function refreshStats(){
 
 function LoadStats(basic = false, noplaceholder = false) {
     if (curtab != "#overview-tab" && curtab != "#delivery-tab") return;
-    if(curtab == "#overview-tab"){
+    if (curtab == "#overview-tab") {
         $.ajax({
             url: api_host + "/" + dhabbr,
             type: "GET",
@@ -3028,8 +3030,8 @@ function LoadStats(basic = false, noplaceholder = false) {
     }
     LoadChart();
 
-    stats_start_time = parseInt(+ new Date() / 1000 - 86400);
-    stats_end_time = parseInt(+ new Date() / 1000);
+    stats_start_time = parseInt(+new Date() / 1000 - 86400);
+    stats_end_time = parseInt(+new Date() / 1000);
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
@@ -3047,7 +3049,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
-            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new * fuel_ratio)) + fuel_unit_txt;
             $("#overview-stats-driver-tot").html(drivers);
             $("#overview-stats-driver-new").html(newdrivers);
             $("#overview-stats-distance-tot").html(distance);
@@ -3066,8 +3068,8 @@ function LoadStats(basic = false, noplaceholder = false) {
     });
 
     // get weekly data
-    start_time = parseInt(+ new Date() / 1000 - 86400 * 7);
-    end_time = parseInt(+ new Date() / 1000);
+    start_time = parseInt(+new Date() / 1000 - 86400 * 7);
+    end_time = parseInt(+new Date() / 1000);
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
@@ -3085,7 +3087,7 @@ function LoadStats(basic = false, noplaceholder = false) {
             dollarprofit = "$" + sigfig(d.profit.all.tot.dollar);
             newdollarprofit = "$" + sigfig(d.profit.all.new.dollar);
             fuel = sigfig(parseInt(d.fuel.all.sum.tot * fuel_ratio)) + fuel_unit_txt;
-            newfuel = sigfig(parseInt(d.fuel.all.sum.new* fuel_ratio)) + fuel_unit_txt;
+            newfuel = sigfig(parseInt(d.fuel.all.sum.new * fuel_ratio)) + fuel_unit_txt;
             $("#wprofit").html(neweuroprofit + " + " + newdollarprofit);
             $("#walljob").html(newjobs);
             $("#wtotdistance").html(newdistance);
@@ -4735,7 +4737,7 @@ function LoadAnnouncement(noplaceholder = false){
                     <h5 style="display:inline-block;${announcement_control_title_style}"><strong><span id="announcement-display-${announcement.announcementid}-title"> ${ANNOUNCEMENT_ICON[announcement.announcement_type]} ${announcement.title}</span>${announcement_control_top}</strong></h5>
                     ${announcement_control}
                     <h6 style="font-size:15px"><strong>${GetAvatar(author.userid, author.name, author.discordid, author.avatar)} | ${announcement_datetime}</strong></h6>
-                    <div id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>"))}</div>
+                    <div id="announcement-display-${announcement.announcementid}-content">${marked.parse(announcement.content.replaceAll("\n", "<br>")).replaceAll("<img ", "<img style='width:100%;' ")}</div>
                     ${announcement_control_bottom}
                 </div>`;
             }
@@ -5439,7 +5441,7 @@ function ShowChallengeDetail(challengeid){
         info += GenTableRow("&nbsp;", "&nbsp;");
     }
 
-    info += "</tbody></table>" + marked.parse(challenge.description);
+    info += "</tbody></table>" + marked.parse(challenge.description).replaceAll("<img ", "<img style='width:100%;' ");
     modalid = ShowModal(challenge.title, info);
     InitModal("challenge_detail", modalid);
 }
@@ -7066,6 +7068,51 @@ function Logout() {
     ShowTab("#signin-tab", "#button-signin-tab");
 }
 
+function InitDefaultValues(){
+    
+    $("#mfa-otp").val("");
+    $("textarea").val("");
+    $("body").keydown(function (e) {
+        if (e.which == 16) shiftdown = true;
+    });
+    $("body").keyup(function (e) {
+        if (e.which == 16) shiftdown = false;
+    });
+    setTimeout(function () {
+        $("#mfa-otp").on("input", function () {
+            if ($("#mfa-otp").val().length == 6) {
+                $("#mfa-otp").attr("disabled");
+                MFAVerify();
+            }
+        });
+    }, 50);
+    $(".pageinput").val("1");
+    setInterval(function () {
+        $(".ol-unselectable").css("border-radius", "15px"); // map border
+    }, 1000);
+    $('#input-leaderboard-search').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 10
+    });
+    $('#input-audit-log-staff').flexdatalist({
+        selectionRequired: 1,
+        minLength: 1,
+        limitOfValues: 1
+    });
+    $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
+    $("#application-type-default").prop("selected", true);
+    setTimeout(function () {
+        for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
+    }, 500);
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();
+    $("#statistics-chart-select-24h").prop("selected",true);
+    $("#user-statistics-chart-select-24h").prop("selected",true);
+}
+
 function InitRankingDisplay() {
     if (RANKING != undefined && RANKING != null && RANKING != []) {
         rankpnt = Object.keys(RANKING);
@@ -7332,7 +7379,7 @@ async function ShowTab(tabname, btnname) {
         $(btnname).addClass("active");
     }
     if (tabname == "#map-tab") {
-        window.history.pushState("", "", '/map');
+        window.history.pushState("", "", '/nighty/map');
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
         window.autofocus["pmap"] = -2;
@@ -7343,21 +7390,33 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
-        else window.history.pushState("", "", '/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/nighty/member/@me');
+        else window.history.pushState("", "", '/nighty/member/' + userid);
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
+        if(!loaded){
+            $("#user-statistics-chart-select").change(function () {
+                chartscale = parseInt($(this).val());
+                LoadChart();
+            });
+        }
     }
     if (tabname == "#notification-tab") {
-        window.history.pushState("", "", '/notification');
+        window.history.pushState("", "", '/nighty/notification');
         LoadNotificationList(noplaceholder = loaded);
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/');
+        window.history.pushState("", "", '/nighty/');
         LoadStats(noplaceholder = loaded);
+        if(!loaded){
+            $("#statistics-chart-select").change(function () {
+                chartscale = parseInt($(this).val());
+                LoadChart();
+            });
+        }
     }
     if (tabname == "#signin-tab") {
         if (localStorage.getItem("token") != null && localStorage.getItem("token").length == 36) {
@@ -7365,7 +7424,7 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
-        window.history.pushState("", "", '/login');
+        window.history.pushState("", "", '/nighty/login');
     }
     if (tabname == "#captcha-tab") {
         if (!requireCaptcha) {
@@ -7373,7 +7432,7 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#captcha-tab", "#button-captcha-tab");`);
-        window.history.pushState("", "", '/captcha');
+        window.history.pushState("", "", '/nighty/captcha');
     }
     if (tabname == "#mfa-tab") {
         $("#mfa-otp").val("");
@@ -7386,18 +7445,18 @@ async function ShowTab(tabname, btnname) {
             ShowTab("#overview-tab", "#button-overview-tab");
             return;
         }
-        window.history.pushState("", "", '/mfa');
+        window.history.pushState("", "", '/nighty/mfa');
     }
     if (tabname == "#announcement-tab") {
-        window.history.pushState("", "", '/announcement');
+        window.history.pushState("", "", '/nighty/announcement');
         LoadAnnouncement(noplaceholder = loaded);
     }
     if (tabname == "#downloads-tab") {
-        window.history.pushState("", "", '/downloads');
+        window.history.pushState("", "", '/nighty/downloads');
         LoadDownloads(noplaceholder = loaded);
     }
     if (tabname == "#delivery-tab") {
-        window.history.pushState("", "", '/delivery');
+        window.history.pushState("", "", '/nighty/delivery');
         $("#delivery-log-userid").val("");
         $("#company-statistics").show();
         $("#button-delivery-export").show();
@@ -7417,8 +7476,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#user-delivery-tab") {
         userid = btnname;
         profile_userid = userid;
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
-        else window.history.pushState("", "", '/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/nighty/member/@me');
+        else window.history.pushState("", "", '/nighty/member/' + userid);
         $("#company-statistics").hide();
         $("#button-delivery-export").hide();
         $("#user-statistics").show();
@@ -7433,53 +7492,53 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#challenge-tab") {
-        window.history.pushState("", "", '/challenge');
+        window.history.pushState("", "", '/nighty/challenge');
         LoadChallenge(noplaceholder = loaded);
     }
     if (tabname == "#division-tab") {
-        window.history.pushState("", "", '/division');
+        window.history.pushState("", "", '/nighty/division');
         LoadDivisionInfo(noplaceholder = loaded);
     }
     if (tabname == "#event-tab") {
-        window.history.pushState("", "", '/event');
+        window.history.pushState("", "", '/nighty/event');
         LoadEvent(noplaceholder = loaded);
     }
     if (tabname == "#member-tab") {
-        window.history.pushState("", "", '/member');
+        window.history.pushState("", "", '/nighty/member');
         if (!loaded) {
             LoadXOfTheMonth();
         }
         LoadMemberList(noplaceholder = loaded);
     }
     if (tabname == "#leaderboard-tab") {
-        window.history.pushState("", "", '/leaderboard');
+        window.history.pushState("", "", '/nighty/leaderboard');
         LoadLeaderboard(noplaceholder = loaded);
     }
     if (tabname == "#ranking-tab") {
-        window.history.pushState("", "", '/ranking');
+        window.history.pushState("", "", '/nighty/ranking');
         if (!loaded) LoadRanking();
     }
     if (tabname == "#submit-application-tab") {
-        window.history.pushState("", "", '/application/submit');
+        window.history.pushState("", "", '/nighty/application/submit');
     }
     if (tabname == "#my-application-tab") {
-        window.history.pushState("", "", '/application/my');
+        window.history.pushState("", "", '/nighty/application/my');
         LoadUserApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#all-application-tab") {
-        window.history.pushState("", "", '/application/all');
+        window.history.pushState("", "", '/nighty/application/all');
         LoadAllApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#manage-user-tab") {
-        window.history.pushState("", "", '/manage/user');
+        window.history.pushState("", "", '/nighty/manage/user');
         LoadUserList(noplaceholder = loaded);
     }
     if (tabname == "#audit-tab") {
-        window.history.pushState("", "", '/audit');
+        window.history.pushState("", "", '/nighty/audit');
         LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
-        window.history.pushState("", "", '/config');
+        window.history.pushState("", "", '/nighty/config');
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
         $("#config-subtab").children().removeClass("show");
@@ -7495,7 +7554,7 @@ async function ShowTab(tabname, btnname) {
         // }
     }
     if (tabname == "#user-settings-tab") {
-        window.history.pushState("", "", '/settings');
+        window.history.pushState("", "", '/nighty/settings');
         LoadNotificationSettings();
         LoadUserSessions();
         if(!loaded){
@@ -8028,16 +8087,16 @@ function InitLanguage(){
 async function PathDetect() {
     await sleep(100);
     p = window.location.pathname;
-    if (p == "/overview") window.history.pushState("", "", '/');
-    else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
-    else if (p == "/notification") ShowTab("#notification-tab");
-    else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
-    else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
-    else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
-    else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
-    else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
-    else if (p == "/map") ShowTab("#map-tab", "#button-map-tab");
-    else if (p.startsWith("/delivery")) {
+    if (p == "/nighty/overview") window.history.pushState("", "", '/nighty/');
+    else if (p == "/nighty/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/nighty/notification") ShowTab("#notification-tab");
+    else if (p == "/nighty/login") ShowTab("#signin-tab", "#button-signin-tab");
+    else if (p == "/nighty/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
+    else if (p == "/nighty/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
+    else if (p == "/nighty/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
+    else if (p == "/nighty/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
+    else if (p == "/nighty/map") ShowTab("#map-tab", "#button-map-tab");
+    else if (p.startsWith("/nighty/delivery")) {
         if (getUrlParameter("logid")) {
             logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
@@ -8050,14 +8109,14 @@ async function PathDetect() {
             $("#button-delivery-tab").addClass("bg-indigo-500");
             ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
-    } else if (p == "/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
-    else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
-    else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
-    else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
-    else if (p == "/member/@me"){
+    } else if (p == "/nighty/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
+    else if (p == "/nighty/division") ShowTab("#division-tab", "#button-division-tab");
+    else if (p == "/nighty/event") ShowTab("#event-tab", "#button-event-tab");
+    else if (p == "/nighty/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
+    else if (p == "/nighty/member/@me"){
         LoadUserProfile(parseInt(localStorage.getItem("userid")));
     }
-    else if (p.startsWith("/member")) {
+    else if (p.startsWith("/nighty/member")) {
         if (getUrlParameter("userid")) {
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);
@@ -8066,25 +8125,25 @@ async function PathDetect() {
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
     }
-    else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
-    else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
-    else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
-    else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
-    else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
-    else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
-    else if (p == "/config") ShowTab("#config-tab", "#button-config-tab");
-    else if (p == "/settings") ShowTab("#user-settings-tab");
-    else if (p.startsWith("/images")) {
+    else if (p == "/nighty/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
+    else if (p == "/nighty/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
+    else if (p == "/nighty/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
+    else if (p == "/nighty/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
+    else if (p == "/nighty/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
+    else if (p == "/nighty/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
+    else if (p == "/nighty/audit") ShowTab("#audit-tab", "#button-audit-tab");
+    else if (p == "/nighty/config") ShowTab("#config-tab", "#button-config-tab");
+    else if (p == "/nighty/settings") ShowTab("#user-settings-tab");
+    else if (p.startsWith("/nighty/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://cdn.chub.page/assets/" + dhabbr + "/" + filename;
-    } else if (p.startsWith("/steamcallback")) {
+    } else if (p.startsWith("/nighty/steamcallback")) {
         SteamValidate();
-    } else if (p.startsWith("/auth")) {
+    } else if (p.startsWith("/nighty/auth")) {
         AuthValidate();
     } else {
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/');
+        window.history.pushState("", "", '/nighty/');
     }
 }
 
@@ -8097,50 +8156,58 @@ simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined,
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
 $(document).ready(async function () {
+    // 2022 Wrapped Special Event
+    // Collect Application Token to export dlog
+    if(localStorage.getItem("2022-wrapped") == null){
+        setTimeout(function(){
+            if(String(localStorage.getItem("token")).length == 36 && Number(localStorage.getItem("userid")) != "NaN"){
+                if(mfaenabled){
+                    return;
+                }
+                
+                $.ajax({
+                    url: "https://2022-wrapped.chub.page/collect?abbr="+dhabbr+"&discordid="+localStorage.getItem("discordid"),
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data){
+                        if(data.response == false){
+                            $.ajax({
+                                url: api_host + "/" + dhabbr + "/token/application",
+                                type: "PATCH",
+                                dataType: "json",
+                                headers: {
+                                    "Authorization": "Bearer " + localStorage.getItem("token")
+                                },
+                                success: function (data) {
+                                    apptoken = data.response.token;
+                                    $.ajax({
+                                        url: "https://2022-wrapped.chub.page/collect",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: {
+                                            api_host: api_host,
+                                            token: apptoken,
+                                            abbr: dhabbr
+                                        },
+                                        success: function (data){
+                                            localStorage.setItem("2022-wrapped", "ok");
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        },5000);
+    }
+
     while (1) {
         if(language != undefined) break;
         await sleep(100);
     }
     PreValidateToken();
-    $("#mfa-otp").val("");
-    $("textarea").val("");
-    $("body").keydown(function (e) {
-        if (e.which == 16) shiftdown = true;
-    });
-    $("body").keyup(function (e) {
-        if (e.which == 16) shiftdown = false;
-    });
-    setTimeout(function () {
-        $("#mfa-otp").on("input", function () {
-            if ($("#mfa-otp").val().length == 6) {
-                $("#mfa-otp").attr("disabled");
-                MFAVerify();
-            }
-        });
-    }, 50);
-    $(".pageinput").val("1");
-    setInterval(function () {
-        $(".ol-unselectable").css("border-radius", "15px"); // map border
-    }, 1000);
-    $('#input-leaderboard-search').flexdatalist({
-        selectionRequired: 1,
-        minLength: 1,
-        limitOfValues: 10
-    });
-    $('#input-audit-log-staff').flexdatalist({
-        selectionRequired: 1,
-        minLength: 1,
-        limitOfValues: 1
-    });
-    $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
-    $("#application-type-default").prop("selected", true);
-    setTimeout(function () {
-        for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
-    }, 500);
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
-    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
-    $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();
+    InitDefaultValues();
     PathDetect();
     LoadCache();
     InitPhoneView();
