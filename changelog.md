@@ -2,7 +2,8 @@
 
 **v2.4.8**  
 1.Fixed chart stretching endlessly when resizing window  
-2.Added custom time range for statistics chart  
+2.Fixed user profile tab some title / button not showing text  
+3.Added custom time range for statistics chart  
 
 **v2.4.7**  
 0.Changed CDN domain to `cdn.chub.page`  

@@ -137,7 +137,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/ecec11905a06f.nighty.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/84ab5516bc9473e8.js"></script>
 
     <?php
     $application_html = "";
@@ -618,10 +618,10 @@
                             <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> <?php echo mltr("statistics"); ?></strong></h5>
                             <div style="float:right">
                                 <select class="form-select bg-dark text-white" style="display:inline-block;margin-right:5px;width:120px;" id="statistics-chart-select">
-                                    <option value="1" selected id="statistics-chart-select-24h">24 Hours</option>
+                                    <option value="1">24 Hours</option>
                                     <option value="2">7 Days</option>
                                     <option value="3">14 Days</option>
-                                    <option value="4">30 Days</option>
+                                    <option value="4" selected id="statistics-chart-select-30d">30 Days</option>
                                     <option value="5">90 Days</option>
                                     <option value="6">360 Days</option>
                                     <option value="7">600 Days</option>
@@ -940,10 +940,10 @@
                         <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> <?php echo mltr("statistics"); ?></strong></h5>
                         <div style="float:right">
                             <select class="form-select bg-dark text-white" style="display:inline-block;margin-right:5px;width:120px;" id="user-statistics-chart-select">
-                                <option value="1" selected id="user-statistics-chart-select-24h">24 Hours</option>
+                                <option value="1">24 Hours</option>
                                 <option value="2">7 Days</option>
                                 <option value="3">14 Days</option>
-                                <option value="4">30 Days</option>
+                                <option value="4" selected id="user-statistics-chart-select-30d">30 Days</option>
                                 <option value="5">90 Days</option>
                                 <option value="6">360 Days</option>
                                 <option value="7">600 Days</option>

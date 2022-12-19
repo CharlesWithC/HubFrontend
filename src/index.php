@@ -137,7 +137,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/87b140412f2f64d9.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/84ab5516bc9473e8.js"></script>
 
     <?php
     $application_html = "";
@@ -342,7 +342,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-SLZ5TY9MVN');
     </script>
 </head>
@@ -618,16 +617,20 @@
                         <div class="shadow p-3 m-3 bg-dark rounded col">
                             <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> <?php echo mltr("statistics"); ?></strong></h5>
                             <div style="float:right">
-                                <div class="btn-group" id="overview-chart-scale-group">
-                                    <a id="overview-chart-scale-1" onclick='chartscale=1;LoadChart()' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
-                                    <a id="overview-chart-scale-2" onclick='chartscale=2;LoadChart()' style="cursor:pointer" class="btn btn-primary">7d</a>
-                                    <a id="overview-chart-scale-3" onclick='chartscale=3;LoadChart()' style="cursor:pointer" class="btn btn-primary active">30d</a>
-                                </div>
+                                <select class="form-select bg-dark text-white" style="display:inline-block;margin-right:5px;width:120px;" id="statistics-chart-select">
+                                    <option value="1">24 Hours</option>
+                                    <option value="2">7 Days</option>
+                                    <option value="3">14 Days</option>
+                                    <option value="4" selected id="statistics-chart-select-30d">30 Days</option>
+                                    <option value="5">90 Days</option>
+                                    <option value="6">360 Days</option>
+                                    <option value="7">600 Days</option>
+                                </select>
                                 <a id="overview-chart-sum" onclick='addup=1-addup;LoadChart()' style="cursor:pointer" class="btn btn-primary active"><?php echo mltr("sum"); ?></a>
                             </div>
                             </h2>
-                            <div class="p-4 overflow-x-auto" style="display: block;">
-                                <canvas id="statistics-chart" width="100%" height="300px"></canvas>
+                            <div class="p-4 overflow-x-auto" style="display: block;max-height:400px;">
+                                <canvas id="statistics-chart" width="100%" height="400px"></canvas>
                             </div>
                         </div>
                     </div>
@@ -936,16 +939,20 @@
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> <?php echo mltr("statistics"); ?></strong></h5>
                         <div style="float:right">
-                            <div class="btn-group" id="user-chart-scale-group">
-                                <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
-                                <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
-                                <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
-                            </div>
+                            <select class="form-select bg-dark text-white" style="display:inline-block;margin-right:5px;width:120px;" id="user-statistics-chart-select">
+                                <option value="1">24 Hours</option>
+                                <option value="2">7 Days</option>
+                                <option value="3">14 Days</option>
+                                <option value="4" selected id="user-statistics-chart-select-30d">30 Days</option>
+                                <option value="5">90 Days</option>
+                                <option value="6">360 Days</option>
+                                <option value="7">600 Days</option>
+                            </select>
                             <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active"><?php echo mltr("sum"); ?></a>
                         </div>
                         </h2>
-                        <div class="p-4 overflow-x-auto" style="display: block;">
-                            <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
+                        <div class="p-4 overflow-x-auto" style="display:block;max-height:400px;">
+                            <canvas id="user-statistics-chart" width="100%" height="400px"></canvas>
                         </div>
                     </div>
                     <div class="shadow p-3 m-3 bg-dark rounded col-4">

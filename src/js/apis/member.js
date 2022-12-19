@@ -375,48 +375,13 @@ function LoadRanking(){
     });
 }
 
-user_statistics_placeholder = `<div class="row">
-<div class="shadow p-3 m-3 bg-dark rounded col">
-    <div style="padding:20px 0 0 20px;float:left" id="profile-info">
-    </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
-    </div>
-    <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
-</div>
-<div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> ${mltr('account')}</strong></h5>
-    <div id="user-account-info"></div>
-</div>
-</div>
-<div class="row">
-<div class="shadow p-3 m-3 bg-dark rounded col">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> ${mltr('statistics')}</strong></h5>
-    <div style="float:right">
-        <div class="btn-group" id="user-chart-scale-group">
-            <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
-            <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
-            <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
-        </div>
-        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">${mltr('sum')}</a>
-    </div>
-    </h2>
-    <div class="p-4 overflow-x-auto" style="display: block;">
-        <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
-    </div>
-</div>
-<div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> ${mltr('statistics')}</strong></h5>
-    <div id="profile-text-statistics"></div>
-</div>
-</div>`;
-
 function getActivityName(name){
     if(name.startsWith("dlog_")) return mltr("viewing_delivery_log") + " #" + name.split("_")[1];
     else if(name == "dlog") return mltr("viewing_delivery_logs");
     else if(name == "index") return mltr("viewing_drivers_hub_index");
     else if(name == "leaderboard") return mltr("viewing_leaderboard");
     else if(name == "member") return mltr("viewing_members");
-    else if(name.includes("member_")) return mltr("viewing") + " " + allmembers[name.split("_")[1]] + "'s " + mltr("profile");
+    else if(name.includes("member_")) return mltr("viewing_profile") + ": " + allmembers[name.split("_")[1]];
     else if(name == "announcement") return mltr("viewing_announcements");
     else if(name == "application") return mltr("viewing_appliactions");
     else if(name == "challenge") return mltr("viewing_challenges");
@@ -469,9 +434,54 @@ function LoadUserProfile(userid) {
     if (userid < 0) return;
     profile_userid = userid;
 
+    user_statistics_placeholder = `<div class="row">
+    <div class="shadow p-3 m-3 bg-dark rounded col">
+        <div style="padding:20px 0 0 20px;float:left" id="profile-info">
+        </div>
+        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
+        </div>
+        <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+    </div>
+    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> ${mltr('account')}</strong></h5>
+        <div id="user-account-info"></div>
+    </div>
+    </div>
+    <div class="row">
+    <div class="shadow p-3 m-3 bg-dark rounded col">
+        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> ${mltr('statistics')}</strong></h5>
+        <div style="float:right">
+            <select class="form-select bg-dark text-white" style="display:inline-block;margin-right:5px;width:120px;" id="user-statistics-chart-select">
+                <option value="1">24 Hours</option>
+                <option value="2">7 Days</option>
+                <option value="3">14 Days</option>
+                <option value="4" selected id="user-statistics-chart-select-30d">30 Days</option>
+                <option value="5">90 Days</option>
+                <option value="6">360 Days</option>
+                <option value="7">600 Days</option>
+            </select>
+            <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">${mltr('sum')}</a>
+        </div>
+        </h2>
+        <div class="p-4 overflow-x-auto" style="display: block;">
+            <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
+        </div>
+    </div>
+    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> ${mltr('statistics')}</strong></h5>
+        <div id="profile-text-statistics"></div>
+    </div>
+    </div>`;
+    
     $("#user-statistics").html(user_statistics_placeholder);
+    $("#user-statistics-chart-select").change(function () {
+        chartscale = parseInt($(this).val());
+        LoadChart(userid);
+    });
     $('#delivery-log-userid').val(userid);
     $("#profile-banner").attr("src", "/banner/" + userid);
+    chartscale = 4;
+    LoadChart(userid);
 
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;

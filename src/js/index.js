@@ -105,8 +105,8 @@ function InitDefaultValues(){
     for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $("[title='Toggle Fullscreen (F11)']").remove();
     $("[title='Toggle Side by Side (F9)']").remove();
-    $("#statistics-chart-select-24h").prop("selected",true);
-    $("#user-statistics-chart-select-24h").prop("selected",true);
+    $("#statistics-chart-select-30d").prop("selected",true);
+    $("#user-statistics-chart-select-30d").prop("selected",true);
 }
 
 function InitRankingDisplay() {
@@ -393,12 +393,6 @@ async function ShowTab(tabname, btnname) {
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
-        if(!loaded){
-            $("#user-statistics-chart-select").change(function () {
-                chartscale = parseInt($(this).val());
-                LoadChart();
-            });
-        }
     }
     if (tabname == "#notification-tab") {
         window.history.pushState("", "", '/notification');
@@ -1200,6 +1194,10 @@ $(document).ready(async function () {
 
     while (1) {
         if(language != undefined) break;
+        await sleep(100);
+    }
+    while (1) {
+        if(mltr("drivers_hub") != "") break;
         await sleep(100);
     }
     PreValidateToken();

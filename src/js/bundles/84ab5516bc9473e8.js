@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (Nighty Release) (v2.4.8)");
+    console.log("Drivers Hub: Frontend (v2.4.8)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -1696,7 +1696,7 @@ function ShowDeliveryDetail(logid) {
                 return AjaxError(data);
             }
 
-            window.history.pushState("", "", '/nighty/delivery/' + logid);
+            window.history.pushState("", "", '/delivery/' + logid);
 
             d = data.response.dlog;
             currentDeliveryLog = d;
@@ -2564,48 +2564,13 @@ function LoadRanking(){
     });
 }
 
-user_statistics_placeholder = `<div class="row">
-<div class="shadow p-3 m-3 bg-dark rounded col">
-    <div style="padding:20px 0 0 20px;float:left" id="profile-info">
-    </div>
-    <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
-    </div>
-    <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
-</div>
-<div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> ${mltr('account')}</strong></h5>
-    <div id="user-account-info"></div>
-</div>
-</div>
-<div class="row">
-<div class="shadow p-3 m-3 bg-dark rounded col">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> ${mltr('statistics')}</strong></h5>
-    <div style="float:right">
-        <div class="btn-group" id="user-chart-scale-group">
-            <a id="user-chart-scale-1" onclick='chartscale=1;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary" aria-current="page">24h</a>
-            <a id="user-chart-scale-2" onclick='chartscale=2;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary">7d</a>
-            <a id="user-chart-scale-3" onclick='chartscale=3;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">30d</a>
-        </div>
-        <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">${mltr('sum')}</a>
-    </div>
-    </h2>
-    <div class="p-4 overflow-x-auto" style="display: block;">
-        <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
-    </div>
-</div>
-<div class="shadow p-3 m-3 bg-dark rounded col-4">
-    <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> ${mltr('statistics')}</strong></h5>
-    <div id="profile-text-statistics"></div>
-</div>
-</div>`;
-
 function getActivityName(name){
     if(name.startsWith("dlog_")) return mltr("viewing_delivery_log") + " #" + name.split("_")[1];
     else if(name == "dlog") return mltr("viewing_delivery_logs");
     else if(name == "index") return mltr("viewing_drivers_hub_index");
     else if(name == "leaderboard") return mltr("viewing_leaderboard");
     else if(name == "member") return mltr("viewing_members");
-    else if(name.includes("member_")) return mltr("viewing") + " " + allmembers[name.split("_")[1]] + "'s " + mltr("profile");
+    else if(name.includes("member_")) return mltr("viewing_profile") + ": " + allmembers[name.split("_")[1]];
     else if(name == "announcement") return mltr("viewing_announcements");
     else if(name == "application") return mltr("viewing_appliactions");
     else if(name == "challenge") return mltr("viewing_challenges");
@@ -2658,9 +2623,54 @@ function LoadUserProfile(userid) {
     if (userid < 0) return;
     profile_userid = userid;
 
+    user_statistics_placeholder = `<div class="row">
+    <div class="shadow p-3 m-3 bg-dark rounded col">
+        <div style="padding:20px 0 0 20px;float:left" id="profile-info">
+        </div>
+        <div style="width:170px;padding:10px;float:right"><img id="profile-avatar" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);" style="border-radius: 100%;width:150px;height:150px;border:solid ${dhcolor} 5px;">
+        </div>
+        <a style="cursor:pointer"><img id="profile-banner" onclick="CopyBannerURL(profile_userid)" onerror="$(this).hide();" style="border-radius:10px;width:100%;margin-top:10px;margin-bottom:20px;"></a>
+    </div>
+    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-user"></i></span> ${mltr('account')}</strong></h5>
+        <div id="user-account-info"></div>
+    </div>
+    </div>
+    <div class="row">
+    <div class="shadow p-3 m-3 bg-dark rounded col">
+        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-chart-line"></i></span> ${mltr('statistics')}</strong></h5>
+        <div style="float:right">
+            <select class="form-select bg-dark text-white" style="display:inline-block;margin-right:5px;width:120px;" id="user-statistics-chart-select">
+                <option value="1">24 Hours</option>
+                <option value="2">7 Days</option>
+                <option value="3">14 Days</option>
+                <option value="4" selected id="user-statistics-chart-select-30d">30 Days</option>
+                <option value="5">90 Days</option>
+                <option value="6">360 Days</option>
+                <option value="7">600 Days</option>
+            </select>
+            <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active">${mltr('sum')}</a>
+        </div>
+        </h2>
+        <div class="p-4 overflow-x-auto" style="display: block;">
+            <canvas id="user-statistics-chart" width="100%" height="300px"></canvas>
+        </div>
+    </div>
+    <div class="shadow p-3 m-3 bg-dark rounded col-4">
+        <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-align-left"></i></span> ${mltr('statistics')}</strong></h5>
+        <div id="profile-text-statistics"></div>
+    </div>
+    </div>`;
+    
     $("#user-statistics").html(user_statistics_placeholder);
+    $("#user-statistics-chart-select").change(function () {
+        chartscale = parseInt($(this).val());
+        LoadChart(userid);
+    });
     $('#delivery-log-userid').val(userid);
     $("#profile-banner").attr("src", "/banner/" + userid);
+    chartscale = 4;
+    LoadChart(userid);
 
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
@@ -2831,7 +2841,7 @@ function GetDiscordRankRole() {
     })
 }
 sc = undefined;
-chartscale = 3;
+chartscale = 4;
 addup = 1;
 
 async function LoadChart(userid = -1) {
@@ -7109,8 +7119,8 @@ function InitDefaultValues(){
     for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $("[title='Toggle Fullscreen (F11)']").remove();
     $("[title='Toggle Side by Side (F9)']").remove();
-    $("#statistics-chart-select-24h").prop("selected",true);
-    $("#user-statistics-chart-select-24h").prop("selected",true);
+    $("#statistics-chart-select-30d").prop("selected",true);
+    $("#user-statistics-chart-select-30d").prop("selected",true);
 }
 
 function InitRankingDisplay() {
@@ -7379,7 +7389,7 @@ async function ShowTab(tabname, btnname) {
         $(btnname).addClass("active");
     }
     if (tabname == "#map-tab") {
-        window.history.pushState("", "", '/nighty/map');
+        window.history.pushState("", "", '/map');
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
         window.autofocus["pmap"] = -2;
@@ -7390,26 +7400,20 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/nighty/member/@me');
-        else window.history.pushState("", "", '/nighty/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        else window.history.pushState("", "", '/member/' + userid);
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
         $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
         LoadUserProfile(userid);
-        if(!loaded){
-            $("#user-statistics-chart-select").change(function () {
-                chartscale = parseInt($(this).val());
-                LoadChart();
-            });
-        }
     }
     if (tabname == "#notification-tab") {
-        window.history.pushState("", "", '/nighty/notification');
+        window.history.pushState("", "", '/notification');
         LoadNotificationList(noplaceholder = loaded);
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/nighty/');
+        window.history.pushState("", "", '/');
         LoadStats(noplaceholder = loaded);
         if(!loaded){
             $("#statistics-chart-select").change(function () {
@@ -7424,7 +7428,7 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
-        window.history.pushState("", "", '/nighty/login');
+        window.history.pushState("", "", '/login');
     }
     if (tabname == "#captcha-tab") {
         if (!requireCaptcha) {
@@ -7432,7 +7436,7 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#captcha-tab", "#button-captcha-tab");`);
-        window.history.pushState("", "", '/nighty/captcha');
+        window.history.pushState("", "", '/captcha');
     }
     if (tabname == "#mfa-tab") {
         $("#mfa-otp").val("");
@@ -7445,18 +7449,18 @@ async function ShowTab(tabname, btnname) {
             ShowTab("#overview-tab", "#button-overview-tab");
             return;
         }
-        window.history.pushState("", "", '/nighty/mfa');
+        window.history.pushState("", "", '/mfa');
     }
     if (tabname == "#announcement-tab") {
-        window.history.pushState("", "", '/nighty/announcement');
+        window.history.pushState("", "", '/announcement');
         LoadAnnouncement(noplaceholder = loaded);
     }
     if (tabname == "#downloads-tab") {
-        window.history.pushState("", "", '/nighty/downloads');
+        window.history.pushState("", "", '/downloads');
         LoadDownloads(noplaceholder = loaded);
     }
     if (tabname == "#delivery-tab") {
-        window.history.pushState("", "", '/nighty/delivery');
+        window.history.pushState("", "", '/delivery');
         $("#delivery-log-userid").val("");
         $("#company-statistics").show();
         $("#button-delivery-export").show();
@@ -7476,8 +7480,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#user-delivery-tab") {
         userid = btnname;
         profile_userid = userid;
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/nighty/member/@me');
-        else window.history.pushState("", "", '/nighty/member/' + userid);
+        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        else window.history.pushState("", "", '/member/' + userid);
         $("#company-statistics").hide();
         $("#button-delivery-export").hide();
         $("#user-statistics").show();
@@ -7492,53 +7496,53 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#challenge-tab") {
-        window.history.pushState("", "", '/nighty/challenge');
+        window.history.pushState("", "", '/challenge');
         LoadChallenge(noplaceholder = loaded);
     }
     if (tabname == "#division-tab") {
-        window.history.pushState("", "", '/nighty/division');
+        window.history.pushState("", "", '/division');
         LoadDivisionInfo(noplaceholder = loaded);
     }
     if (tabname == "#event-tab") {
-        window.history.pushState("", "", '/nighty/event');
+        window.history.pushState("", "", '/event');
         LoadEvent(noplaceholder = loaded);
     }
     if (tabname == "#member-tab") {
-        window.history.pushState("", "", '/nighty/member');
+        window.history.pushState("", "", '/member');
         if (!loaded) {
             LoadXOfTheMonth();
         }
         LoadMemberList(noplaceholder = loaded);
     }
     if (tabname == "#leaderboard-tab") {
-        window.history.pushState("", "", '/nighty/leaderboard');
+        window.history.pushState("", "", '/leaderboard');
         LoadLeaderboard(noplaceholder = loaded);
     }
     if (tabname == "#ranking-tab") {
-        window.history.pushState("", "", '/nighty/ranking');
+        window.history.pushState("", "", '/ranking');
         if (!loaded) LoadRanking();
     }
     if (tabname == "#submit-application-tab") {
-        window.history.pushState("", "", '/nighty/application/submit');
+        window.history.pushState("", "", '/application/submit');
     }
     if (tabname == "#my-application-tab") {
-        window.history.pushState("", "", '/nighty/application/my');
+        window.history.pushState("", "", '/application/my');
         LoadUserApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#all-application-tab") {
-        window.history.pushState("", "", '/nighty/application/all');
+        window.history.pushState("", "", '/application/all');
         LoadAllApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#manage-user-tab") {
-        window.history.pushState("", "", '/nighty/manage/user');
+        window.history.pushState("", "", '/manage/user');
         LoadUserList(noplaceholder = loaded);
     }
     if (tabname == "#audit-tab") {
-        window.history.pushState("", "", '/nighty/audit');
+        window.history.pushState("", "", '/audit');
         LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
-        window.history.pushState("", "", '/nighty/config');
+        window.history.pushState("", "", '/config');
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
         $("#config-subtab").children().removeClass("show");
@@ -7554,7 +7558,7 @@ async function ShowTab(tabname, btnname) {
         // }
     }
     if (tabname == "#user-settings-tab") {
-        window.history.pushState("", "", '/nighty/settings');
+        window.history.pushState("", "", '/settings');
         LoadNotificationSettings();
         LoadUserSessions();
         if(!loaded){
@@ -8087,16 +8091,16 @@ function InitLanguage(){
 async function PathDetect() {
     await sleep(100);
     p = window.location.pathname;
-    if (p == "/nighty/overview") window.history.pushState("", "", '/nighty/');
-    else if (p == "/nighty/") ShowTab("#overview-tab", "#button-overview-tab");
-    else if (p == "/nighty/notification") ShowTab("#notification-tab");
-    else if (p == "/nighty/login") ShowTab("#signin-tab", "#button-signin-tab");
-    else if (p == "/nighty/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
-    else if (p == "/nighty/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
-    else if (p == "/nighty/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
-    else if (p == "/nighty/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
-    else if (p == "/nighty/map") ShowTab("#map-tab", "#button-map-tab");
-    else if (p.startsWith("/nighty/delivery")) {
+    if (p == "/overview") window.history.pushState("", "", '/');
+    else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/notification") ShowTab("#notification-tab");
+    else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
+    else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
+    else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
+    else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
+    else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
+    else if (p == "/map") ShowTab("#map-tab", "#button-map-tab");
+    else if (p.startsWith("/delivery")) {
         if (getUrlParameter("logid")) {
             logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
@@ -8109,14 +8113,14 @@ async function PathDetect() {
             $("#button-delivery-tab").addClass("bg-indigo-500");
             ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
-    } else if (p == "/nighty/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
-    else if (p == "/nighty/division") ShowTab("#division-tab", "#button-division-tab");
-    else if (p == "/nighty/event") ShowTab("#event-tab", "#button-event-tab");
-    else if (p == "/nighty/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
-    else if (p == "/nighty/member/@me"){
+    } else if (p == "/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
+    else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
+    else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
+    else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
+    else if (p == "/member/@me"){
         LoadUserProfile(parseInt(localStorage.getItem("userid")));
     }
-    else if (p.startsWith("/nighty/member")) {
+    else if (p.startsWith("/member")) {
         if (getUrlParameter("userid")) {
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);
@@ -8125,25 +8129,25 @@ async function PathDetect() {
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
     }
-    else if (p == "/nighty/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
-    else if (p == "/nighty/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
-    else if (p == "/nighty/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
-    else if (p == "/nighty/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
-    else if (p == "/nighty/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/nighty/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
-    else if (p == "/nighty/audit") ShowTab("#audit-tab", "#button-audit-tab");
-    else if (p == "/nighty/config") ShowTab("#config-tab", "#button-config-tab");
-    else if (p == "/nighty/settings") ShowTab("#user-settings-tab");
-    else if (p.startsWith("/nighty/images")) {
+    else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
+    else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
+    else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
+    else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
+    else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
+    else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
+    else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
+    else if (p == "/config") ShowTab("#config-tab", "#button-config-tab");
+    else if (p == "/settings") ShowTab("#user-settings-tab");
+    else if (p.startsWith("/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://cdn.chub.page/assets/" + dhabbr + "/" + filename;
-    } else if (p.startsWith("/nighty/steamcallback")) {
+    } else if (p.startsWith("/steamcallback")) {
         SteamValidate();
-    } else if (p.startsWith("/nighty/auth")) {
+    } else if (p.startsWith("/auth")) {
         AuthValidate();
     } else {
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/nighty/');
+        window.history.pushState("", "", '/');
     }
 }
 
@@ -8204,6 +8208,10 @@ $(document).ready(async function () {
 
     while (1) {
         if(language != undefined) break;
+        await sleep(100);
+    }
+    while (1) {
+        if(mltr("drivers_hub") != "") break;
         await sleep(100);
     }
     PreValidateToken();
