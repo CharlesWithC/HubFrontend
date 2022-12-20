@@ -89,23 +89,23 @@ $(document).ready(function () {
         dataType: "json",
         success: function (data) {
             enlang = data;
+            if (language == "en") {
+                lang = enlang;
+            } else {
+                $.ajax({
+                    url: "/languages/" + language + ".json?" + (+new Date()),
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        lang = data;
+                    },
+                    error: function (data) {
+                        lang = enlang;
+                    }
+                });
+            }
         }
     });
-    if (language == "en") {
-        lang = enlang;
-    } else {
-        $.ajax({
-            url: "/languages/" + language + ".json?" + (+new Date()),
-            type: "GET",
-            dataType: "json",
-            success: function (data) {
-                lang = data;
-            },
-            error: function (data) {
-                lang = enlang;
-            }
-        });
-    }
 
     toDataURL("https://cdn.chub.page/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function(dataURL) {
         logob64 = dataURL

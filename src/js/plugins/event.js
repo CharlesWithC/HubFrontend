@@ -183,9 +183,9 @@ async function ShowEventDetail(eventid, reload = false) {
         </div>
     </div>`;
     function GenTableRow(key, val){
-        return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
+        return `<tr><td style="min-width:120px"><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
-    info += "<table><tbody>";
+    info += "<table style='width:100%'><tbody>";
     if(event.link != ""){
         info += GenTableRow(mltr("link"), `<a href="${event.link}" target="_blank">${event.link}</a>`);
     }
@@ -199,7 +199,9 @@ async function ShowEventDetail(eventid, reload = false) {
 
     info += "</tbody></table>"
     info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + marked.parse(event.description).replaceAll("<img","<img style='width:100%' ") + "</p></div>";
-    modalid = ShowModal(event.title, info);
+    event_ics = ics();
+	event_ics.addEvent(event.title, event.link + "\n" + event.description, event.departure + " - " + event.destination, new Date(event.meetup_timestamp * 1000), new Date(event.departure_timestamp * 1000));
+    modalid = ShowModal(event.title, info, `<button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="event_ics.download();">${mltr("export")} (.ics)</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button>`);
     InitModal("event_detail", modalid);
 }
 

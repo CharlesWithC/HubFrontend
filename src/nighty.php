@@ -118,6 +118,8 @@
     <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
+    <script src="https://cdn.chub.page/assets/ics/ics.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
@@ -137,7 +139,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/84ab5516bc9473e8.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/8dd61462b8d4ee1f.js"></script>
 
     <?php
     $application_html = "";
@@ -1686,11 +1688,11 @@
             </div>
             <div class="shadow p-3 m-3 bg-dark rounded">
                 <h5><strong><span class="rect-20"><i class="fa-solid fa-table-list"></i></span> <?php echo mltr("events_list"); ?></strong></h5>
-                <div id="table_event_list">
+                <div id="table_event_list" style="overflow:scroll">
                     <table class="w-100">
                         <thead id="table_event_list_head">
                             <tr>
-                                <th scope="col"><?php echo mltr("title"); ?></th>
+                                <th scope="col" style="min-width:180px"><?php echo mltr("title"); ?></th>
                                 <th scope="col"><?php echo mltr("departure"); ?></th>
                                 <th scope="col"><?php echo mltr("destination"); ?></th>
                                 <th scope="col" style="width:120px"><?php echo mltr("distance"); ?></th>
