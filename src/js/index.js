@@ -355,8 +355,8 @@ function InitDefaultValues(){
     for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $("[title='Toggle Fullscreen (F11)']").remove();
     $("[title='Toggle Side by Side (F9)']").remove();
-    $("#statistics-chart-select-30d").prop("selected",true);
-    $("#user-statistics-chart-select-30d").prop("selected",true);
+    $("#statistics-chart-select-360d").prop("selected",true);
+    $("#user-statistics-chart-select-360d").prop("selected",true);
 }
 
 function InitRankingDisplay() {
@@ -626,6 +626,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#map-tab") {
         window.history.pushState("", "", '/map');
+        document.title = mltr("live_map") + " - " + company_name;
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
         window.autofocus["pmap"] = -2;
@@ -638,6 +639,7 @@ async function ShowTab(tabname, btnname) {
         else userid = localStorage.getItem("userid");
         if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
         else window.history.pushState("", "", '/member/' + userid);
+        document.title = mltr("member") + " - " + company_name;
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
         $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
@@ -646,15 +648,18 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#notification-tab") {
         window.history.pushState("", "", '/notification');
+        document.title = mltr("notifications") + " - " + company_name;
         LoadNotificationList(noplaceholder = loaded);
     }
     // NOTE 2022 Wrapped
     if (tabname == "#2022wrapped-tab") {
         window.history.pushState("", "", '/2022wrapped');
+        document.title = "2022 Wrapped - " + company_name;
         if(!loaded) Show2022Wrapped();
     }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
+        document.title = mltr("overview") + " - " + company_name;
         LoadStats(noplaceholder = loaded);
         if(!loaded){
             $("#statistics-chart-select").change(function () {
@@ -670,6 +675,7 @@ async function ShowTab(tabname, btnname) {
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
         window.history.pushState("", "", '/login');
+        document.title = mltr("login") + " - " + company_name;
     }
     if (tabname == "#captcha-tab") {
         if (!requireCaptcha) {
@@ -678,6 +684,7 @@ async function ShowTab(tabname, btnname) {
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#captcha-tab", "#button-captcha-tab");`);
         window.history.pushState("", "", '/captcha');
+        document.title = mltr("captcha") + " - " + company_name;
     }
     if (tabname == "#mfa-tab") {
         $("#mfa-otp").val("");
@@ -691,17 +698,21 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         window.history.pushState("", "", '/mfa');
+        document.title = mltr("mfa") + " - " + company_name;
     }
     if (tabname == "#announcement-tab") {
         window.history.pushState("", "", '/announcement');
         LoadAnnouncement(noplaceholder = loaded);
+        document.title = mltr("announcements") + " - " + company_name;
     }
     if (tabname == "#downloads-tab") {
         window.history.pushState("", "", '/downloads');
         LoadDownloads(noplaceholder = loaded);
+        document.title = mltr("downloads") + " - " + company_name;
     }
     if (tabname == "#delivery-tab") {
         window.history.pushState("", "", '/delivery');
+        document.title = mltr("delivery") + " - " + company_name;
         $("#delivery-log-userid").val("");
         $("#company-statistics").show();
         $("#button-delivery-export").show();
@@ -723,6 +734,7 @@ async function ShowTab(tabname, btnname) {
         profile_userid = userid;
         if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
         else window.history.pushState("", "", '/member/' + userid);
+        document.title = mltr("member") + " - " + company_name;
         $("#company-statistics").hide();
         $("#button-delivery-export").hide();
         $("#user-statistics").show();
@@ -738,18 +750,22 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#challenge-tab") {
         window.history.pushState("", "", '/challenge');
+        document.title = mltr("challenges") + " - " + company_name;
         LoadChallenge(noplaceholder = loaded);
     }
     if (tabname == "#division-tab") {
         window.history.pushState("", "", '/division');
+        document.title = mltr("divisions") + " - " + company_name;
         LoadDivisionInfo(noplaceholder = loaded);
     }
     if (tabname == "#event-tab") {
         window.history.pushState("", "", '/event');
+        document.title = mltr("events") + " - " + company_name;
         LoadEvent(noplaceholder = loaded);
     }
     if (tabname == "#member-tab") {
         window.history.pushState("", "", '/member');
+        document.title = mltr("members") + " - " + company_name;
         if (!loaded) {
             LoadXOfTheMonth();
         }
@@ -757,33 +773,41 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#leaderboard-tab") {
         window.history.pushState("", "", '/leaderboard');
+        document.title = mltr("leaderboard") + " - " + company_name;
         LoadLeaderboard(noplaceholder = loaded);
     }
     if (tabname == "#ranking-tab") {
         window.history.pushState("", "", '/ranking');
+        document.title = mltr("rankings") + " - " + company_name;
         if (!loaded) LoadRanking();
     }
     if (tabname == "#submit-application-tab") {
-        window.history.pushState("", "", '/application/submit');
+        window.history.pushState("", "", '/application/new');
+        document.title = mltr("new_application") + " - " + company_name;
     }
     if (tabname == "#my-application-tab") {
         window.history.pushState("", "", '/application/my');
+        document.title = mltr("my_applications") + " - " + company_name;
         LoadUserApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#all-application-tab") {
         window.history.pushState("", "", '/application/all');
+        document.title = mltr("all_applications") + " - " + company_name;
         LoadAllApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#manage-user-tab") {
         window.history.pushState("", "", '/manage/user');
+        document.title = mltr("pending_users") + " - " + company_name;
         LoadUserList(noplaceholder = loaded);
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
+        document.title = mltr("audit_log") + " - " + company_name;
         LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
         window.history.pushState("", "", '/config');
+        document.title = mltr("configuration") + " - " + company_name;
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
         $("#config-subtab").children().removeClass("show");
@@ -800,6 +824,7 @@ async function ShowTab(tabname, btnname) {
     }
     if (tabname == "#user-settings-tab") {
         window.history.pushState("", "", '/settings');
+        document.title = mltr("settings") + " - " + company_name;
         LoadNotificationSettings();
         LoadUserSessions();
         if(!loaded){
@@ -1380,7 +1405,7 @@ async function PathDetect() {
     else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
     else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
     else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
-    else if (p == "/application/submit" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
+    else if (p == "/application/new" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
     else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
     else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
     else if (p == "/config") ShowTab("#config-tab", "#button-config-tab");

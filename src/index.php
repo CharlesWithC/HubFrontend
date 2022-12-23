@@ -140,7 +140,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/35fe478e62c1b741.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/30d3295c1cb9dff1.js"></script>
 
     <?php
     $application_html = "";
@@ -650,9 +650,9 @@
                                     <option value="1">24 Hours</option>
                                     <option value="2">7 Days</option>
                                     <option value="3">14 Days</option>
-                                    <option value="4" selected id="statistics-chart-select-30d">30 Days</option>
+                                    <option value="4">30 Days</option>
                                     <option value="5">90 Days</option>
-                                    <option value="6">360 Days</option>
+                                    <option value="6" selected id="statistics-chart-select-360d">360 Days</option>
                                     <option value="7">600 Days</option>
                                 </select>
                                 <a id="overview-chart-sum" onclick='addup=1-addup;LoadChart()' style="cursor:pointer" class="btn btn-primary active"><?php echo mltr("sum"); ?></a>
@@ -972,9 +972,9 @@
                                 <option value="1">24 Hours</option>
                                 <option value="2">7 Days</option>
                                 <option value="3">14 Days</option>
-                                <option value="4" selected id="user-statistics-chart-select-30d">30 Days</option>
+                                <option value="4">30 Days</option>
                                 <option value="5">90 Days</option>
-                                <option value="6">360 Days</option>
+                                <option value="6" selected id="user-statistics-chart-select-360d">360 Days</option>
                                 <option value="7">600 Days</option>
                             </select>
                             <a id="user-chart-sum" onclick='addup=1-addup;LoadChart(profile_userid)' style="cursor:pointer" class="btn btn-primary active"><?php echo mltr("sum"); ?></a>

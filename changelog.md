@@ -1,5 +1,10 @@
 # Changelog
 
+**v2.5.1**  
+1.Added 2022 Wrapped  
+2.Added tab title  
+3.Changed default chart scale to 360d  
+
 **v2.4.8**  
 1.Fixed chart stretching endlessly when resizing window  
 2.Fixed user profile tab some title / button not showing text  

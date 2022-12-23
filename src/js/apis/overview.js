@@ -1,5 +1,5 @@
 sc = undefined;
-chartscale = 4;
+chartscale = 6;
 addup = 1;
 
 async function LoadChart(userid = -1) {

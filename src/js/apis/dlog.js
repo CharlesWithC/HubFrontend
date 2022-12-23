@@ -490,6 +490,8 @@ function ShowDeliveryDetail(logid) {
     $("#delivery-detail-tab").html(deliveryDetailTabPlaceholder);
     $("#delivery-detail-tab").show();
 
+    document.title = mltr("delivery") + " #" + logid + " - " + company_name;
+
     curlogid = logid;
     window.autofocus["dmap"] = -2;
     rri = 0;

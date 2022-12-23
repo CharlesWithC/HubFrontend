@@ -503,6 +503,8 @@ function LoadUserProfile(userid) {
             ShowTab("#user-delivery-tab", userid);
 
             d = data.response.user;
+            
+            document.title = d.name + " - " + company_name;
 
             account_info = "<table>";
             account_info += GenTableRow(mltr("id"), d.userid);
