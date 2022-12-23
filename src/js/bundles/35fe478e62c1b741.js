@@ -892,6 +892,55 @@ function getCookie(name) {
 function removeCookie(name) {
     document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
+
+function CSVToArray( strData, strDelimiter ){
+    strDelimiter = (strDelimiter || ",");
+    var objPattern = new RegExp(
+        (
+            "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+            "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+            "([^\"\\" + strDelimiter + "\\r\\n]*))"
+        ),
+        "gi"
+        );
+    var arrData = [[]];
+    var arrMatches = null;
+    while (arrMatches = objPattern.exec( strData )){
+        var strMatchedDelimiter = arrMatches[ 1 ];
+        if (
+            strMatchedDelimiter.length &&
+            strMatchedDelimiter !== strDelimiter
+            ){
+            arrData.push( [] );
+        }
+
+        var strMatchedValue;
+        if (arrMatches[ 2 ]){
+            strMatchedValue = arrMatches[ 2 ].replace(
+                new RegExp( "\"\"", "g" ),"\"");
+
+        } else {
+            strMatchedValue = arrMatches[ 3 ];
+
+        }
+        arrData[ arrData.length - 1 ].push( strMatchedValue );
+    }
+
+    return( arrData );
+}
+
+function sortDictByKey(dict) {
+    const keys = Object.keys(dict);
+    keys.sort();
+    const sortedDict = [];
+    for (const key of keys) {
+        sortedDict.push({
+            [key]: dict[key]
+        });
+    }
+    return sortedDict;
+}
+
 audit_log_placeholder_row = `
 <tr>
     <td style="width:20%;"><span class="placeholder w-100"></span></td>
@@ -7050,6 +7099,256 @@ profile_userid = -1;
 modals = {};
 modalName2ID = {};
 
+// NOTE 2022 Wrapped
+function Load2022Wrapped(){
+    // export dlog / load dlog from cache
+    w22dlog = localStorage.getItem("dlog-export-cache");
+    w22cachetime = localStorage.getItem("dlog-export-cache-time");
+    if(w22dlog == null || +new Date() - w22cachetime >= 3600000 && w22cachetime <= 1672531200000){
+        $.ajax({
+            url: api_host + "/" + dhabbr + "/dlog/export",
+            type: "GET",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                start_time: 1640995200,
+                end_time: 1672531199
+            },
+            success: function (data) {
+                if (data.error){
+                    if(w22dlog == null){
+                        console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
+                    } else {
+                        console.warn("Failed to export delivery log, using last export cache.");
+                    }
+                    return;
+                }
+                w22dlog = data;
+                localStorage.setItem("dlog-export-cache", w22dlog);
+                localStorage.setItem("dlog-export-cache-time", +new Date());
+            },
+            error: function (data) {
+                if(w22dlog == null){
+                    console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
+                } else {
+                    console.warn("Failed to export delivery log, using last export cache.");
+                }
+            }
+        })
+    }
+    if(w22dlog == null) return;
+    w22data = CSVToArray(w22dlog);
+
+    firstdlog = null;
+    longestdlog = null;
+    longestmax = -1;
+    firstcancel = null;
+    mostdamage = null;
+    damagemax = -1;
+    firstchallenge = null;
+    firstdivision = null;
+    mostprofit = null;
+    profitmax = -1;
+    
+    distancecount = 0;
+    jobcount = 0;
+    fuelcount = 0;
+    eprofitcount = 0;
+    aprofitcount = 0;
+    destcount = {};
+    routecount = {};
+    truckcount = {};
+    cargocount = {};
+    for(var i = 0 ; i < w22data.length ; i++){
+        w22d = w22data[i];
+        if(w22d[7] != localStorage.getItem("userid")) continue;
+        if(w22d[6] == "1" && firstdlog == null) firstdlog = w22d;
+        if(w22d[6] == "1" && parseFloat(w22d[13]) > parseFloat(longestmax)) longestmax = w22d[13], longestdlog = w22d;
+        if(w22d[6] == "0" && firstcancel == null) firstcancel = w22d;
+        if(parseFloat(w22d[18]) > parseFloat(damagemax)) damagemax = w22d[18], mostdamage = w22d;
+        if(w22d[6] == "1" && w22d[33] != undefined && firstdivision == null) firstdivision = w22d;
+        if(w22d[6] == "1" && w22d[34] != undefined && firstchallenge == null) firstchallenge = w22d;
+        if(w22d[6] == "1" && parseFloat(w22d[31]) > parseFloat(profitmax)) profitmax = w22d[31], mostprofit = w22d;
+        if(w22d[6] != "1") continue;
+        distancecount += parseFloat(w22d[13]);
+        jobcount += 1;
+        fuelcount += parseFloat(w22d[23]);
+        if (w22d[2].startsWith("e")) eprofitcount += parseFloat(w22d[31]);
+        else aprofitcount += parseFloat(w22d[31]);
+        dest = w22d[12];
+        if(destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
+        route = w22d[10] + " - " + w22d[12];
+        if(routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
+        truck = w22d[19] + " " + w22d[20];
+        if(truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
+        cargo = w22d[16];
+        if(cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
+    }
+
+    username = localStorage.getItem("name");
+    discordid = localStorage.getItem("discordid");
+    avatar = localStorage.getItem("avatar");
+    join_timestamp = localStorage.getItem("join-timestamp");
+
+    $("#22w-head").append(`<p style="font-size:40px;;"><b>Hey, ${username}</b></p>`);
+    $("#22w-head").append(`<p>This is your 2022 wrapped.</p>`);
+    $("#22w-avatar").attr("src", GetAvatarSrc(discordid, avatar));
+
+    function GenTimelineItem(title, content, time, color) {
+        return `
+        <li class="timeline-item timeline-${color} mb-5" style="display:none">
+            <h5 class="fw-bold">${title}</h5>
+            <p class="text-muted mb-2 fw-bold">${getDateTime(time)}</p>
+            <p>${content}</p>
+        </li>`;
+    }
+    $("#22w-timeline").children().remove();
+    $("#22w-timeline").append(GenTimelineItem("The Beginning", `You joined <b>${company_name}</b>.`, join_timestamp * 1000, "white"));
+
+    timeline = {};
+    if(firstdlog != null){
+        punit = "€";
+        if (!firstdlog[2].startsWith("e")) punit = "$";
+        timeline[parseInt(+new Date(firstdlog[3]) + "00")] = GenTimelineItem("First Delivery", `You made your first delivery carrying <b style="color:#2fc1f7">${firstdlog[16]}</b> from <b style="color:#2fc1f7">${firstdlog[9]}, ${firstdlog[10]}</b> to <b style="color:#2fc1f7">${firstdlog[11]}, ${firstdlog[12]}</b>. You drove <b style="color:#2fc1f7">${TSeparator(parseInt(firstdlog[13]* distance_ratio))}${distance_unit_txt}</b> and earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>.`, +new Date(firstdlog[3]), "green");
+    }
+    if(firstdivision != null){
+        punit = "€";
+        if (!mostdamage[2].startsWith("e")) punit = "$";
+        timeline[parseInt(+new Date(mostdamage[3]) + "01")] = GenTimelineItem("First Division Delivery", `You sent <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. That is your first delivery accepted by division management team.`, +new Date(mostdamage[3]), "green");
+    }
+    if(firstchallenge != null){
+        punit = "€";
+        if (!firstchallenge[2].startsWith("e")) punit = "$";
+        timeline[parseInt(+new Date(firstchallenge[3]) + "02")] = GenTimelineItem("First Challenge Delivery", `You sent <b style="color:#2fc1f7">${firstchallenge[16]}</b> from <b style="color:#2fc1f7">${firstchallenge[9]}, ${firstchallenge[10]}</b> to <b style="color:#2fc1f7">${firstchallenge[11]}, ${firstchallenge[12]}</b>. That is your first delivery accepted by the challenge system.`, +new Date(firstchallenge[3]), "green");
+    }
+    if(longestdlog != null){
+        timeline[parseInt(+new Date(longestdlog[3]) + "10")] = GenTimelineItem("Well, it's far", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(longestdlog[13]* distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${longestdlog[16]}</b> from <b style="color:#2fc1f7">${longestdlog[9]}, ${longestdlog[10]}</b> to <b style="color:#2fc1f7">${longestdlog[11]}, ${longestdlog[12]}</b>. That is the longest job you've ever submitted.`, +new Date(longestdlog[3]), "yellow");
+    }
+    if(mostprofit != null){
+        punit = "€";
+        if (!mostprofit[2].startsWith("e")) punit = "$";
+        avgpft = parseFloat(parseInt(mostprofit[31]) / parseInt(mostprofit[13]*distance_ratio)).toPrecision(2);
+        timeline[parseInt(+new Date(mostprofit[3]) + "11")] = GenTimelineItem("Wow, that's a lot!", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(mostprofit[13]*distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${mostprofit[16]}</b> from <b style="color:#2fc1f7">${mostprofit[9]}, ${mostprofit[10]}</b> to <b style="color:#2fc1f7">${mostprofit[11]}, ${mostprofit[12]}</b>. You earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>, that is <b style="color:#2fc1f7">${punit}${avgpft}/${distance_unit_txt}</b>.`, +new Date(mostprofit[3]), "yellow");
+    }
+    if(mostdamage != null){
+        timeline[parseInt(+new Date(mostdamage[3]) + "20")] = GenTimelineItem("Damm!", `You are sending <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. But you crashed and the cargo is <b style="color:#2fc1f7">${parseFloat(mostdamage[18]*100).toPrecision(2)}%</b> damaged.`, +new Date(mostdamage[3]), "red");
+    }
+    if(firstcancel != null){
+        punit = "€";
+        if (!firstcancel[2].startsWith("e")) punit = "$";
+        timeline[parseInt(+new Date(firstcancel[3]) + "00")] = GenTimelineItem("It's abandoned...", `This is the first time you cancelled a job. Never mind, it's OK that you take another job.`, +new Date(firstcancel[3]), "red");
+    }
+    timeline = sortDictByKey(timeline);
+    keys = Object.keys(timeline);
+    for (pair of timeline) {
+        key = Object.keys(pair)[0];
+        value = pair[key];
+        $("#22w-timeline").append(`${value}`);
+    }
+
+    dt2023 = +new Date(1672531199680);
+    if(+new Date() < 1672531199680) dt2023 = +new Date();
+
+    eqcount = parseFloat(distancecount / 40075).toFixed(1);
+    distancecount = TSeparator(parseInt(distancecount * distance_ratio));
+    jobcount = TSeparator(jobcount);
+    fuelcount = TSeparator(parseInt(fuelcount * fuel_ratio));
+    eprofitcount = TSeparator(eprofitcount);
+    aprofitcount = TSeparator(aprofitcount);
+    maxdest = Object.entries(destcount).sort((a, b) => b[1] - a[1])[0][0];
+    maxroute = Object.entries(routecount).sort((a, b) => b[1] - a[1])[0][0];
+    maxtruck = Object.entries(truckcount).sort((a, b) => b[1] - a[1])[0][0];
+    maxcargo = Object.entries(cargocount).sort((a, b) => b[1] - a[1])[0][0];
+    content = `You completed a total of <b style="color:#2fc1f7">${jobcount}</b> jobs this year, consuming <b style="color:#2fc1f7">${fuelcount}${fuel_unit_txt}</b> fuel, resulting in a profit of <b style="color:#2fc1f7">€${eprofitcount}</b> and <b style="color:#2fc1f7">$${aprofitcount}</b>.<br>You traveled a distance of <b style="color:#2fc1f7">${distancecount}${distance_unit_txt}</b>, which is an impressive feat and equivalent to driving around the equator <b style="color:#2fc1f7">${eqcount} times</b>.<br>Your most preferred truck was <b style="color:#2fc1f7">${maxtruck}</b>, and the cargo <b style="color:#2fc1f7">${maxcargo}</b> was the most frequently transported.<br>The route <b style="color:#2fc1f7">${maxroute}</b> was driven the most, and the destination <b style="color:#2fc1f7">${maxdest}</b> received the most cargos.<br>Keep up the great work!`;
+    $("#22w-timeline").append(GenTimelineItem("In 2022,", content, dt2023, "white"));
+    
+    distancecount = 0;
+    jobcount = 0;
+    fuelcount = 0;
+    eprofitcount = 0;
+    aprofitcount = 0;
+    destcount = {};
+    routecount = {};
+    truckcount = {};
+    cargocount = {};
+    for(var i = 0 ; i < w22data.length ; i++){
+        w22d = w22data[i];
+        if(w22d[6] != "1") continue;
+        distancecount += parseFloat(w22d[13]);
+        jobcount += 1;
+        fuelcount += parseFloat(w22d[23]);
+        if (w22d[2].startsWith("e")) eprofitcount += parseFloat(w22d[31]);
+        else aprofitcount += parseFloat(w22d[31]);
+        dest = w22d[12];
+        if(destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
+        route = w22d[10] + " - " + w22d[12];
+        if(routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
+        truck = w22d[19] + " " + w22d[20];
+        if(truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
+        cargo = w22d[16];
+        if(cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
+    }
+    eqcount = parseFloat(distancecount / 40075).toFixed(1);
+    distancecount = TSeparator(parseInt(distancecount * distance_ratio));
+    jobcount = TSeparator(jobcount);
+    fuelcount = TSeparator(parseInt(fuelcount * fuel_ratio));
+    eprofitcount = TSeparator(eprofitcount);
+    aprofitcount = TSeparator(aprofitcount);
+    maxdest = Object.entries(destcount).sort((a, b) => b[1] - a[1])[0][0];
+    maxroute = Object.entries(routecount).sort((a, b) => b[1] - a[1])[0][0];
+    maxtruck = Object.entries(truckcount).sort((a, b) => b[1] - a[1])[0][0];
+    maxcargo = Object.entries(cargocount).sort((a, b) => b[1] - a[1])[0][0];
+    content = `A total of <b style="color:#2fc1f7">${jobcount}</b> jobs were completed, consuming <b style="color:#2fc1f7">${fuelcount}${fuel_unit_txt}</b> fuel, resulting in a profit of <b style="color:#2fc1f7">€${eprofitcount}</b> and <b style="color:#2fc1f7">$${aprofitcount}</b>.<br>A distance of <b style="color:#2fc1f7">${distancecount}${distance_unit_txt}</b> was traveled, which is equivalent to driving around the equator <b style="color:#2fc1f7">${eqcount} times</b>.<br>The truck <b style="color:#2fc1f7">${maxtruck}</b> was the most preferred and the cargo <b style="color:#2fc1f7">${maxcargo}</b> was the most frequently transported.<br>The route <b style="color:#2fc1f7">${maxroute}</b> was driven the most, and the destination <b style="color:#2fc1f7">${maxdest}</b> received the most cargos.`;
+    $("#22w-timeline").append("<div></div>"); // placeholder for longer fadeIn
+    $("#22w-timeline").append(GenTimelineItem("What about the entire company?", content, dt2023, "white"));
+    $("#22w-timeline").append("<div></div>"); // placeholder for longer fadeIn
+    $("#22w-timeline").append(GenTimelineItem("Wait, it has not ended!", "We as CHub Team have something to show you!", dt2023, "white"));
+    
+    $("#sidebar-information").after(`<li class="nav-item">
+        <a id="button-2022wrapped-tab" onclick="ShowTab('#2022wrapped-tab', '#button-2022wrapped-tab')" class="nav-link text-white clickable" aria-current="page">
+            <span class="rect-20"><i class="fa-solid fa-gift"></i></span>
+            2022 Wrapped
+        </a>
+    </li>`);
+
+    if(curtab == "#2022wrapped-tab"){
+        $(".nav-link").removeClass("active");
+        $("#button-2022wrapped-tab").addClass("active");
+    }
+}
+
+function Show2022Wrapped(){
+    w22tlonshow = 0;
+    w22tlint = setInterval(function(){
+        if(w22tlonshow >= $("#22w-timeline").children().length){
+            setTimeout(function(){
+                $("#2022wrapped-left").animate({
+                    width: "66.6666%"
+                }, 1000);
+                $("html, body").animate({
+                    scrollTop: 0
+                }, 1200);
+                setTimeout(function(){
+                    $("#2022wrapped-left").addClass("col-7");
+                    $("#2022wrapped-left").attr("style","");
+                    $("#2022wrapped-right").fadeIn();
+                    $($("#2022wrapped-left").children()[0]).css("margin","");
+                    $($("#2022wrapped-left").children()[0]).addClass("m-1");
+                    $("#22w-timeline").children().last().remove();
+                }, 1100);
+            }, 1500);
+            clearInterval(w22tlint);
+            return;
+        }
+        $($("#22w-timeline").children()[w22tlonshow]).fadeIn();
+        $("html, body").animate({
+            scrollTop: $($("#22w-timeline").children()[w22tlonshow]).offset().top - $(window).height() / 2
+        }, 3000);
+        w22tlonshow += 1;
+    }, 3000);
+}
+
 function Logout() {
     token = localStorage.getItem("token");
     $.ajax({
@@ -7413,6 +7712,11 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#notification-tab") {
         window.history.pushState("", "", '/notification');
         LoadNotificationList(noplaceholder = loaded);
+    }
+    // NOTE 2022 Wrapped
+    if (tabname == "#2022wrapped-tab") {
+        window.history.pushState("", "", '/2022wrapped');
+        if(!loaded) Show2022Wrapped();
     }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
@@ -8004,7 +8308,11 @@ function ValidateToken() {
             if (!userPerm.includes("driver") && !userPerm.includes("admin")) {
                 $("#sidebar-userid").html("##");
                 NonMemberMode();
+                return;
             }
+            
+            // NOTE 2022 Wrapped
+            Load2022Wrapped();
 
             $.ajax({
                 url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
@@ -8093,7 +8401,9 @@ function InitLanguage(){
 async function PathDetect() {
     await sleep(100);
     p = window.location.pathname;
-    if (p == "/overview") window.history.pushState("", "", '/');
+    // NOTE 2022 Wrapped
+    if (p == "/2022wrapped") ShowTab("#2022wrapped-tab", "#button-2022wrapped-tab");
+    else if (p == "/overview") window.history.pushState("", "", '/');
     else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
     else if (p == "/notification") ShowTab("#notification-tab");
     else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
@@ -8162,7 +8472,7 @@ simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined,
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
 $(document).ready(async function () {
-    // 2022 Wrapped Special Event
+    // NOTE 2022 Wrapped Special Event
     // Collect Application Token to export dlog
     if(localStorage.getItem("2022-wrapped") == null){
         setTimeout(function(){

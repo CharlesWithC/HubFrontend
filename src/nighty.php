@@ -132,6 +132,7 @@
             echo 'language = "'.$language.'";';
             echo 'dhabbr = "'.$config["abbr"].'";';
             echo 'dhcolor = "'.$config["color"].'";';
+            echo 'company_name = "'.$config["name"].'";';
             echo 'api_host = "'.$config["api_host"].'";';
             echo 'navio_company_id = "'.$config["navio_company_id"].'";';
             echo 'company_distance_unit = "'.$config["distance_unit"].'";';
@@ -139,7 +140,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/8dd61462b8d4ee1f.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/35fe478e62c1b741.js"></script>
 
     <?php
     $application_html = "";
@@ -357,7 +358,7 @@
         <div id="sidebar" style="height:calc(100% - 150px);">
             <ul class="nav nav-pills flex-column mb-auto">
                 <div style="margin:5px 0;">
-                    <li><strong style="color:darkgrey"><?php echo mltr("information"); ?></strong></li>
+                    <li id="sidebar-information"><strong style="color:darkgrey"><?php echo mltr("information"); ?></strong></li>
                     <li class="nav-item">
                         <a id="button-overview-tab" onclick="ShowTab('#overview-tab', '#button-overview-tab')" class="nav-link text-white clickable" aria-current="page">
                             <span class="rect-20"><i class="fa-solid fa-chart-column"></i></span>
@@ -576,6 +577,32 @@
             <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
                 <h1><strong><span id="auth-message-title"></strong></h1>
                 <p><span id="auth-message-content"></p>
+            </div>
+        </section>
+        <section id="2022wrapped-tab" class="tabs">
+            <div class="row">
+                <div id="2022wrapped-left">
+                    <div class="shadow p-3 bg-dark rounded" style="min-height:200px;margin:1rem 1rem 50vh 1rem;">
+                        <div style="width:170px;padding:10px;float:right"><img id="22w-avatar" src="https://cdn.discordapp.com/avatars/873178118213472286/a_cb5bf8235227e32543d0aa1b516d8cab.gif" onerror="if($(this).attr('src')!='/images/logo.png?4a19d588') $(this).attr('src','/images/logo.png?4a19d588');" style="border-radius:100%;width:150px;height:150px;border:solid #770202 5px;">
+                        </div>
+                        <div style="padding:20px 0 0 20px;" id="22w-head">
+                            <p style="font-size:40px;;"></p>
+                        </div>
+                        <div class="p-3" style="position:relative">
+                            <ul class="timeline" id="22w-timeline"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div id="2022wrapped-right" class="col-5" style="display:none;">
+                    <div class="shadow p-3 m-1 bg-dark rounded">
+                    <h5 style="display:inline-block"><strong><img src="https://drivershub.charlws.com/images/logo.png" width="20px" height="20px"> CHub Statistics</strong></h5>
+                    <img src="https://2022-wrapped.chub.page/charts/company_dlog.png" width="100%">
+                    <img src="https://2022-wrapped.chub.page/charts/top_10_driver.png" width="100%">
+                    <img src="https://2022-wrapped.chub.page/charts/top_10_truck.png" width="100%">
+                    <img src="https://2022-wrapped.chub.page/charts/top_10_cargo.png" width="100%">
+                    <img src="https://2022-wrapped.chub.page/charts/top_10_route.png" width="100%">
+                </div>
+                </div>
             </div>
         </section>
         <section id="overview-tab" class="tabs">
