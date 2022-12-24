@@ -140,7 +140,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/30d3295c1cb9dff1.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/c841f3a9f7bbd1bb.js"></script>
 
     <?php
     $application_html = "";
@@ -702,6 +702,28 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="shadow p-3 m-3 bg-dark rounded col">
+                            <h5 style="display:inline-block"><strong><img src="https://drivershub.charlws.com/images/logo.png" width="20px" height="20px"> CHub Staff Application | Dec 2022</strong></h5>
+                            <p style="font-size:12px;color:grey">This is a global announcement from <b>CHub</b>, not an announcement from <b><?php echo $config['name'] ?></b></p>
+                            <p>Hey!</p>
+                            <br>
+                            <p>First of all, <b>Merry Christmas</b>!</p>
+                            <br>
+                            <p>We're glad to announce that, <b style="color:#2fc1f7">staff application</b> has reopened!</p>
+                            <p>Available positions: <b style="color:#b12773">Support Team</b>, <b style="color:#e28843">Marketing Team</b></p>
+                            <br>
+                            <p>If you are interested, you can fill the form to apply: <a href="https://go.charlws.com/chub-recruitment" target="_blank" style="color:#2fc1f7">https://go.charlws.com/chub-recruitment</a></p>
+                            <p>You could also join our Discord with <a href="https://discord.gg/KRFsymnVKm" target="_blank" style="color:#2fc1f7">https://discord.gg/KRFsymnVKm</a></p>
+                            <p><i>The form is open from Dec 24th to Dec 31st (23:59:59 UTC).</i></p>
+                            <br>
+                            <p>Thanks for your interest in joining, and we wish you good luck!</p>
+                            <p>Again, hope you enjoy yourself at Christmas!</p>
+                            <br>
+                            <p><b style="color:#2fc1f7">Best wishes, </b></p>
+                            <p><b style="color:#2fc1f7">CharlesWithC | CHub</b></p>
                         </div>
                     </div>
                 </div>
@@ -2513,9 +2535,9 @@
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;
             </div>
             <div style="width:49.5%;text-align:right;display:inline-block">
-                <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>
+                <a href="https://drivershub.charlws.com/" target="_blank">CHub</a> <a href="https://go.charlws.com/chub-recruitment" target="_blank"><span class='badge' style="background-color:#E74C3C">Now Recruiting</span></a>
                 &nbsp;&nbsp;
-                <a href="https://discord.gg/wNTaaBZ5qd" target="_blank"><?php echo mltr("discord"); ?></a>
+                <a href="https://discord.gg/KRFsymnVKm" target="_blank"><?php echo mltr("discord"); ?></a>
                 &nbsp;&nbsp;
                 <a href="https://wiki.charlws.com/" target="_blank"><?php echo mltr("wiki"); ?></a>
             </div>

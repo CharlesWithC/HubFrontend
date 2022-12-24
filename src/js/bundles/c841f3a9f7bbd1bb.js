@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.4.9)");
+    console.log("Drivers Hub: Frontend (v2.5.1)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
