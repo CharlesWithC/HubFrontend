@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.1)");
+    console.log("Drivers Hub: Frontend (v2.5.2)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -5237,9 +5237,11 @@ function UpdateApplicationStatus(applicationid) {
 
 function SubmitApplication() {
     LockBtn("#button-submit-application", mltr("submitting"));
+    $(".application-error").remove();
 
     apptype = parseInt($("#application-type").find(":selected").attr("value"));
     data = {};
+    err = false;
     for(var i = 1 ; i <= 100 ; i++){
         if($("#application" + apptype + "Question" + i).length != 0){
             question = applicationQuestions["#application" + apptype + "Question" + i];
@@ -5247,6 +5249,13 @@ function SubmitApplication() {
             if($("#" + answerid).length != 0){ // can find by id => text input / textarea / select
                 if(!$("#" + answerid).is(':visible')) continue;
                 data[question] = $("#" + answerid).val();
+                min_length = $("#" + answerid).attr("min-length");
+                if(isNumber(min_length)){
+                    if(data[question] != "" && data[question].length < Number(min_length)){
+                        $($("#" + answerid).parent()).after(`<p style='color:red' class='application-error'>This field must contain at least ${min_length} characters.</p>`);
+                        err = true;
+                    }
+                }
             } else if($("input[name='"+answerid+"']").length != 0){ // can find by name => radio / checkbox
                 if(!$("input[name='"+answerid+"']").is(':visible')) continue;
                 answer = [];
@@ -5259,9 +5268,17 @@ function SubmitApplication() {
             } else {
                 data[question] = "*" + mltr("error_invalid_application_question") + "*";
             }
+            if(data[question] == ""){
+                $($("#" + answerid).parent()).after(`<p style='color:red' class='application-error'>This field must not be empty.</p>`);
+                err = true;
+            }
         } else {
             continue;
         }
+    }
+    if(err){
+        UnlockBtn("#button-submit-application");
+        return;
     }
     data = JSON.stringify(data);
 

@@ -1,5 +1,9 @@
 # Changelog
 
+**v2.5.2**  
+1.Updated Turkish Translation  
+2.Added application `min-length` attribute  
+
 **v2.5.1**  
 1.Added 2022 Wrapped  
 2.Added tab title  
