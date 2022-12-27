@@ -314,8 +314,11 @@ function Logout() {
     ShowTab("#signin-tab", "#button-signin-tab");
 }
 
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
+simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
+// tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
+tooltipINIT = [];
 function InitDefaultValues(){
-    
     $("#mfa-otp").val("");
     $("textarea").val("");
     $("body").keydown(function (e) {
@@ -1068,6 +1071,7 @@ function ShowStaffTabs() {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();
             $("#button-all-application-tab").show();
+            UpdatePendingApplicationBadge();
             $("#button-manage-user").show();
             $("#button-audit-tab").show();
             $("#button-config-tab").show();
@@ -1075,6 +1079,7 @@ function ShowStaffTabs() {
             if (userPerm.includes("hr") || userPerm.includes("division")) {
                 $("#sidebar-staff").show();
                 $("#button-all-application-tab").show();
+                UpdatePendingApplicationBadge();
             }
             if (userPerm.includes("hr")) {
                 $("#sidebar-staff").show();
@@ -1427,10 +1432,6 @@ window.onpopstate = function (event) {
     PathDetect();
 };
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
-simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
-// tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
-tooltipINIT = [];
 $(document).ready(async function () {
     // NOTE 2022 Wrapped Special Event
     // Collect Application Token to export dlog

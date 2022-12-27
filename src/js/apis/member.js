@@ -118,7 +118,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
@@ -135,7 +135,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
@@ -407,16 +407,13 @@ function getActitivyUrl(name){
     else return "/";
 }
 
-function UpdateUsername(discordid){
+function UpdateProfile(discordid){
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/name",
+        url: api_host + "/" + dhabbr + "/user/profile?discordid="+discordid,
         type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: discordid
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
@@ -551,7 +548,7 @@ function LoadUserProfile(userid) {
                 await sleep(100);
             }
             if(userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")){
-                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateUsername('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
+                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateProfile('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
             }
 
             profile_info = "";

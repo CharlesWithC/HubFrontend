@@ -2358,7 +2358,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
@@ -2375,7 +2375,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
@@ -2647,16 +2647,13 @@ function getActitivyUrl(name){
     else return "/";
 }
 
-function UpdateUsername(discordid){
+function UpdateProfile(discordid){
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/name",
+        url: api_host + "/" + dhabbr + "/user/profile?discordid="+discordid,
         type: "PATCH",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        data: {
-            discordid: discordid
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
@@ -2791,7 +2788,7 @@ function LoadUserProfile(userid) {
                 await sleep(100);
             }
             if(userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")){
-                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateUsername('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
+                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateProfile('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
             }
 
             profile_info = "";
@@ -3894,7 +3891,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateUsername('${user.discordid}')">${mltr('refresh_username')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
@@ -4944,6 +4941,29 @@ function PreserveApplicationQuestion(){
             }
         }
     }
+}
+
+function UpdatePendingApplicationBadge(){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/application/list?page=1&page_size=1&status=0&application_type=0&all_user=1",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            count = data.response.total_items;
+            $("#pending-application-badge").remove();
+            if(count > 0){
+                $("#button-all-application-tab").append(`<span class='badge' id="pending-application-badge" style="background-color:red">${count}</span>`);
+            }
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
 }
 
 my_application_placeholder_row = `
@@ -7400,8 +7420,11 @@ function Logout() {
     ShowTab("#signin-tab", "#button-signin-tab");
 }
 
+simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
+simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
+// tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
+tooltipINIT = [];
 function InitDefaultValues(){
-    
     $("#mfa-otp").val("");
     $("textarea").val("");
     $("body").keydown(function (e) {
@@ -8154,6 +8177,7 @@ function ShowStaffTabs() {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();
             $("#button-all-application-tab").show();
+            UpdatePendingApplicationBadge();
             $("#button-manage-user").show();
             $("#button-audit-tab").show();
             $("#button-config-tab").show();
@@ -8161,6 +8185,7 @@ function ShowStaffTabs() {
             if (userPerm.includes("hr") || userPerm.includes("division")) {
                 $("#sidebar-staff").show();
                 $("#button-all-application-tab").show();
+                UpdatePendingApplicationBadge();
             }
             if (userPerm.includes("hr")) {
                 $("#sidebar-staff").show();
@@ -8513,10 +8538,6 @@ window.onpopstate = function (event) {
     PathDetect();
 };
 
-simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
-simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
-// tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
-tooltipINIT = [];
 $(document).ready(async function () {
     // NOTE 2022 Wrapped Special Event
     // Collect Application Token to export dlog

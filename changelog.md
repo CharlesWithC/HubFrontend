@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.5.3**  
+1.Added pending application count badge  
+
 **v2.5.2**  
 1.Updated Turkish Translation  
 2.Added application `min-length` attribute  

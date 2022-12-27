@@ -12,6 +12,29 @@ function PreserveApplicationQuestion(){
     }
 }
 
+function UpdatePendingApplicationBadge(){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/application/list?page=1&page_size=1&status=0&application_type=0&all_user=1",
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+
+            count = data.response.total_items;
+            $("#pending-application-badge").remove();
+            if(count > 0){
+                $("#button-all-application-tab").append(`<span class='badge' id="pending-application-badge" style="background-color:red">${count}</span>`);
+            }
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
 my_application_placeholder_row = `
 <tr>
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
