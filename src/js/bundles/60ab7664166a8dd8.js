@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.2)");
+    console.log("Drivers Hub: Frontend (v2.5.3)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -7140,6 +7140,39 @@ profile_userid = -1;
 modals = {};
 modalName2ID = {};
 
+var TSRadio = new Audio('https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3');
+
+function TSRPlay(){
+    TSRadio = new Audio('https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3');
+    TSRadio.play();
+    $("#tsr-control").attr("onclick", "TSRPause();");
+    $("#tsr-control").html(`<i class="fa-solid fa-circle-pause" style="color:#2F8DF8;font-size:40px;"></i>`);
+}
+
+function TSRPause(){
+    TSRadio.pause();
+    $("#tsr-control").attr("onclick", "TSRPlay();");
+    $("#tsr-control").html(`<i class="fa-solid fa-circle-play" style="color:#2F8DF8;font-size:40px;"></i>`);
+}
+
+function TSRUpdate(){
+    $.ajax({
+        url: "https://truckstopradio.co.uk/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            $("#tsr-song").html(data.song.title);
+            $("#tsr-artist").html(data.song.artist);
+            $("#tsr-spotify").attr("href", data.song.extraInfo.track.external_urls.spotify);
+            $("#tsr-graphic").attr("src", data.song.graphic.medium);
+        }
+    });
+}
+
+function TSRefresh(){
+
+}
+
 // NOTE 2022 Wrapped
 function Load2022Wrapped(){
     // export dlog / load dlog from cache
@@ -8539,6 +8572,8 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
+    TSRUpdate();
+    setInterval(TSRUpdate, 10000);
     // NOTE 2022 Wrapped Special Event
     // Collect Application Token to export dlog
     if(localStorage.getItem("2022-wrapped") == null){

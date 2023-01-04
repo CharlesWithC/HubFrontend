@@ -140,7 +140,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/ddc6c4ad95fc3210.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/60ab7664166a8dd8.js"></script>
 
     <?php
     $application_html = "";
@@ -704,30 +704,20 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="shadow p-3 m-3 bg-dark rounded col">
-                            <h5 style="display:inline-block"><strong><img src="https://drivershub.charlws.com/images/logo.png" width="20px" height="20px"> CHub Staff Application | Dec 2022</strong></h5>
-                            <p style="font-size:12px;color:grey">This is a global announcement from <b>CHub</b>, not an announcement from <b><?php echo $config['name'] ?></b></p>
-                            <p>Hey!</p>
-                            <br>
-                            <p>First of all, <b>Merry Christmas</b>!</p>
-                            <br>
-                            <p>We're glad to announce that, <b style="color:#2fc1f7">staff application</b> has reopened!</p>
-                            <p>Available positions: <b style="color:#b12773">Support Team</b>, <b style="color:#e28843">Marketing Team</b></p>
-                            <br>
-                            <p>If you are interested, you can fill the form to apply: <a href="https://go.charlws.com/chub-recruitment" target="_blank" style="color:#2fc1f7">https://go.charlws.com/chub-recruitment</a></p>
-                            <p>You could also join our Discord with <a href="https://discord.gg/KRFsymnVKm" target="_blank" style="color:#2fc1f7">https://discord.gg/KRFsymnVKm</a></p>
-                            <p><i>The form is open from Dec 24th to Dec 31st (23:59:59 UTC).</i></p>
-                            <br>
-                            <p>Thanks for your interest in joining, and we wish you good luck!</p>
-                            <p>Again, hope you enjoy yourself at Christmas!</p>
-                            <br>
-                            <p><b style="color:#2fc1f7">Best wishes, </b></p>
-                            <p><b style="color:#2fc1f7">CharlesWithC | CHub</b></p>
-                        </div>
-                    </div>
                 </div>
                 <div class="col-4" id="overview-right-col">
+                    <div class="shadow p-3 m-3 bg-dark rounded col row">
+                        <div style="display:inline-block;width:calc(100% - 120px)">
+                            <span class="badge" style="background:#2F8DF8;font-size:15px;margin-bottom:12px">Now Playing</span>
+                            <h5 style="max-width:100%;overflow:clip;margin-bottom:8px"><b id="tsr-song">TruckStopRadio</b></h5>
+                            <p style="color:#888;max-width:100%;overflow:clip;margin-bottom:12px"><b id="tsr-artist">Loading data...</b></p>
+                            <p style="float:left;"><a style="cursor:pointer;" onclick="TSRPlay()" id="tsr-control"><i class="fa-solid fa-circle-play" style="color:#2F8DF8;font-size:40px;"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<a id="tsr-spotify" style="cursor:pointer" target="_blank"><i class="fa-brands fa-spotify" style="font-size:40px;"></i></a></p>
+                        </div>
+                        <div style="display:inline-block;width:100px">
+                            <a href="https://truckstopradio.co.uk/" target="_blank"><img src="https://truckstopradio.co.uk/img/tsr-logo.png" height="30px" style="margin-bottom:15px"></img></a>
+                            <img id="tsr-graphic" src="https://truckstopradio.co.uk/img/autodj.png" height="100px"></img>
+                        </div>
+                    </div>
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> <?php echo mltr("leaderboard"); ?></strong></h5>
                         <div id="table_mini_leaderboard">
@@ -2535,7 +2525,7 @@
                 &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;
             </div>
             <div style="width:49.5%;text-align:right;display:inline-block">
-                <a href="https://drivershub.charlws.com/" target="_blank">CHub</a> <a href="https://go.charlws.com/chub-recruitment" target="_blank"><span class='badge' style="background-color:#E74C3C">Now Recruiting</span></a>
+                <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>
                 &nbsp;&nbsp;
                 <a href="https://discord.gg/KRFsymnVKm" target="_blank"><?php echo mltr("discord"); ?></a>
                 &nbsp;&nbsp;
