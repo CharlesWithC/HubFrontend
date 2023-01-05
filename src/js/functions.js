@@ -77,11 +77,11 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.3)");
-    console.log('An official client side solution of "Drivers Hub: Backend" (© 2022 CharlesWithC)');
+    console.log("Drivers Hub: Frontend (v2.5.4)");
+    console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
-    console.log("Copyright © 2022 CharlesWithC All rights reserved.");
+    console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
         url: "/languages/en.json?" + (+new Date()),

@@ -89,5 +89,5 @@
     <p><b>Version</b>: <span id="api_version">Fetching...</span></p>
     <p><span id="message"></span></p>
     <br>
-    <p>Copyright &copy 2022 <a href="https://charlws.com" target="_blank" style="text-decoration:none;color:black">CharlesWithC</a></p>
+    <p>Copyright &copy 2023 <a href="https://charlws.com" target="_blank" style="text-decoration:none;color:black">CharlesWithC</a></p>
 </body>

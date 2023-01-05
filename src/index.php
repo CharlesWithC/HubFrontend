@@ -140,7 +140,7 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/60ab7664166a8dd8.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/1536bae3c4f48627.js"></script>
 
     <?php
     $application_html = "";
@@ -706,9 +706,9 @@
                     </div>
                 </div>
                 <div class="col-4" id="overview-right-col">
-                    <div class="shadow p-3 m-3 bg-dark rounded col row">
+                    <div class="shadow p-3 m-3 bg-dark rounded col row" id="tsr-card">
                         <div style="display:inline-block;width:calc(100% - 120px)">
-                            <span class="badge" style="background:#2F8DF8;font-size:15px;margin-bottom:12px">Now Playing</span>
+                            <span><span class="badge" style="background:#2F8DF8;font-size:15px;margin-bottom:12px">Now Playing</span>&nbsp;&nbsp;<a style="cursor:pointer;color:#444" onclick='$("#tsr-card").remove();localStorage.setItem("no-tsr","true");'>x</a></span>
                             <h5 style="max-width:100%;overflow:clip;margin-bottom:8px"><b id="tsr-song">TruckStopRadio</b></h5>
                             <p style="color:#888;max-width:100%;overflow:clip;margin-bottom:12px"><b id="tsr-artist">Loading data...</b></p>
                             <p style="float:left;"><a style="cursor:pointer;" onclick="TSRPlay()" id="tsr-control"><i class="fa-solid fa-circle-play" style="color:#2F8DF8;font-size:40px;"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;<a id="tsr-spotify" style="cursor:pointer" target="_blank"><i class="fa-brands fa-spotify" style="font-size:40px;"></i></a></p>
@@ -2522,7 +2522,7 @@
         <section id="footer">
             <hr style="border:1px solid #777;margin-bottom:8px">
             <div style="width:49.5%;text-align:left;display:inline-block">
-                &copy 2022 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;
+                &copy 2023 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;
             </div>
             <div style="width:49.5%;text-align:right;display:inline-block">
                 <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>

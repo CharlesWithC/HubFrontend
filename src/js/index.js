@@ -63,10 +63,6 @@ function TSRUpdate(){
     });
 }
 
-function TSRefresh(){
-
-}
-
 // NOTE 2022 Wrapped
 function Load2022Wrapped(){
     // export dlog / load dlog from cache
@@ -1071,6 +1067,7 @@ function LoadCache(force) {
 
 function ClearCache(){
     localStorage.removeItem("cache-expire");
+    localStorage.removeItem("no-tsr");
     toastNotification("success","Success","Local cache cleared!",5000);
     setTimeout(function(){window.location.reload();},500);
 }
@@ -1310,7 +1307,7 @@ function ValidateToken() {
             }
             
             // NOTE 2022 Wrapped
-            Load2022Wrapped();
+            // Load2022Wrapped();
 
             $.ajax({
                 url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
@@ -1466,53 +1463,57 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
-    TSRUpdate();
-    setInterval(TSRUpdate, 10000);
+    if(localStorage.getItem("no-tsr") != "true"){
+        TSRUpdate();
+        setInterval(TSRUpdate, 10000);
+    } else {
+        $("#tsr-card").remove();
+    }
     // NOTE 2022 Wrapped Special Event
     // Collect Application Token to export dlog
-    if(localStorage.getItem("2022-wrapped") == null){
-        setTimeout(function(){
-            if(String(localStorage.getItem("token")).length == 36 && Number(localStorage.getItem("userid")) != "NaN"){
-                if(mfaenabled){
-                    return;
-                }
+    // if(localStorage.getItem("2022-wrapped") == null){
+    //     setTimeout(function(){
+    //         if(String(localStorage.getItem("token")).length == 36 && Number(localStorage.getItem("userid")) != "NaN"){
+    //             if(mfaenabled){
+    //                 return;
+    //             }
                 
-                $.ajax({
-                    url: "https://2022-wrapped.chub.page/collect?abbr="+dhabbr+"&discordid="+localStorage.getItem("discordid"),
-                    type: "GET",
-                    dataType: "json",
-                    success: function (data){
-                        if(data.response == false){
-                            $.ajax({
-                                url: api_host + "/" + dhabbr + "/token/application",
-                                type: "PATCH",
-                                dataType: "json",
-                                headers: {
-                                    "Authorization": "Bearer " + localStorage.getItem("token")
-                                },
-                                success: function (data) {
-                                    apptoken = data.response.token;
-                                    $.ajax({
-                                        url: "https://2022-wrapped.chub.page/collect",
-                                        type: "POST",
-                                        dataType: "json",
-                                        data: {
-                                            api_host: api_host,
-                                            token: apptoken,
-                                            abbr: dhabbr
-                                        },
-                                        success: function (data){
-                                            localStorage.setItem("2022-wrapped", "ok");
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        },5000);
-    }
+    //             $.ajax({
+    //                 url: "https://2022-wrapped.chub.page/collect?abbr="+dhabbr+"&discordid="+localStorage.getItem("discordid"),
+    //                 type: "GET",
+    //                 dataType: "json",
+    //                 success: function (data){
+    //                     if(data.response == false){
+    //                         $.ajax({
+    //                             url: api_host + "/" + dhabbr + "/token/application",
+    //                             type: "PATCH",
+    //                             dataType: "json",
+    //                             headers: {
+    //                                 "Authorization": "Bearer " + localStorage.getItem("token")
+    //                             },
+    //                             success: function (data) {
+    //                                 apptoken = data.response.token;
+    //                                 $.ajax({
+    //                                     url: "https://2022-wrapped.chub.page/collect",
+    //                                     type: "POST",
+    //                                     dataType: "json",
+    //                                     data: {
+    //                                         api_host: api_host,
+    //                                         token: apptoken,
+    //                                         abbr: dhabbr
+    //                                     },
+    //                                     success: function (data){
+    //                                         localStorage.setItem("2022-wrapped", "ok");
+    //                                     }
+    //                                 });
+    //                             }
+    //                         });
+    //                     }
+    //                 }
+    //             });
+    //         }
+    //     },5000);
+    // }
 
     while (1) {
         if(language != undefined) break;

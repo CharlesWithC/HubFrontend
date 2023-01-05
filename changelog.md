@@ -1,5 +1,10 @@
 # Changelog
 
+**v2.5.4**  
+1.Added TSR Card (Removable)  
+-> If you want it back after removing it, Clear Cache in Settings  
+2.Removed 2022 Wrapped  
+
 **v2.5.3**  
 1.Added pending application count badge  
 
