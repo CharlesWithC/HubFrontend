@@ -84,7 +84,7 @@ $(document).ready(function () {
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?" + (+new Date()),
+        url: "/languages/en.json?",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?" + (+new Date()),
+                    url: "/languages/" + language + ".json?",
                     type: "GET",
                     dataType: "json",
                     success: function (data) {
@@ -312,7 +312,15 @@ function getUrlParameter(sParam) {
     return false;
 };
 
-function toastNotification(type, title, text, time = 5000) {
+async function toastNotification(type, title, text, time = 5000) {
+    while(1){
+        try{
+            Noty;
+            break;
+        } catch {
+            await sleep(100);
+        }
+    }
     new Noty({
         type: type,
         layout: 'topRight',
@@ -717,7 +725,16 @@ function ShowModal(title, content, footer = `<button type="button" class="btn bt
     return modalid;
 }
 
-function InitModal(name, modalid, top = false) {
+async function InitModal(name, modalid, top = false) {
+    while(1){
+        try{
+            bootstrap;
+            break;
+        } catch {
+            await sleep(100);
+        }
+    }
+
     DestroyModal(name, immediately = true);
     modalName2ID[name] = modalid;
     modals[name] = new bootstrap.Modal('#modal-' + modalid);

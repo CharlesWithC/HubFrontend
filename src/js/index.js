@@ -20,12 +20,10 @@ userPerm = SafeParse(localStorage.getItem("user-perm"));
 RANKING = SafeParse(localStorage.getItem("driver-ranks"));
 RANKCLR = SafeParse(localStorage.getItem("driver-ranks-color"));
 if (userPerm == null) userPerm = [];
-isdark = parseInt(localStorage.getItem("darkmode"));
 user_language = localStorage.getItem("language");
 if (user_language == null) user_language = "en";
 setCookie("language", user_language);
 user_distance = null;
-Chart.defaults.color = "white";
 shiftdown = false;
 mfaenabled = false;
 mfafunc = null;
@@ -34,7 +32,7 @@ profile_userid = -1;
 modals = {};
 modalName2ID = {};
 
-var TSRadio = new Audio('https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3');
+var TSRadio;
 
 function TSRPlay(){
     TSRadio = new Audio('https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3');
@@ -347,7 +345,7 @@ simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#t
 simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
-function InitDefaultValues(){
+async function InitDefaultValues(){
     $("#mfa-otp").val("");
     $("textarea").val("");
     $("body").keydown(function (e) {
@@ -368,6 +366,20 @@ function InitDefaultValues(){
     setInterval(function () {
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
+    $("#application-type-default").prop("selected", true);
+    $("#statistics-chart-select-360d").prop("selected",true);
+    $("#user-statistics-chart-select-360d").prop("selected",true);
+    
+    while(1){try{SimpleBar;break;}catch{await sleep(10);}}
+    for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
+    while(1){try{SimpleMDE;break;}catch{await sleep(10);}}
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    while(1){try{bootstrap;break;}catch{await sleep(10);}}
+    while(1){try{bootstrap;break;}catch{await sleep(10);}}
+    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();
+    while(1){if($('#input-leaderboard-search').flexdatalist != undefined) break; else await sleep(10);}
     $('#input-leaderboard-search').flexdatalist({
         selectionRequired: 1,
         minLength: 1,
@@ -378,17 +390,8 @@ function InitDefaultValues(){
         minLength: 1,
         limitOfValues: 1
     });
+    InitSearchByName();
     $("#input-audit-log-staff-flexdatalist").css("border-radius", "0.375rem 0 0 0.375rem");
-    $("#application-type-default").prop("selected", true);
-    setTimeout(function () {
-        for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
-    }, 500);
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
-    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
-    $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();
-    $("#statistics-chart-select-360d").prop("selected",true);
-    $("#user-statistics-chart-select-360d").prop("selected",true);
 }
 
 function InitRankingDisplay() {
@@ -516,70 +519,6 @@ function InitLeaderboardTimeRange() {
     $("#lbend").val(date.toISOString().slice(0, -1).substring(0, 10));
 }
 
-function InitDarkMode() {
-    localStorage.setItem("darkmode", "1"); // NOTE
-    isdark = parseInt(localStorage.getItem("darkmode"));
-    if (localStorage.getItem("darkmode") == undefined) isdark = 1;
-    if (localStorage.getItem("darkmode") == "1") {
-        $("body").css("background-color", "#2F3136");
-        $("body").css("color", "white");
-        $("head").append(`<style id='convertbg'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr,strong {color: white;}
-            .text-gray-500,.text-gray-600 {color: #ddd;}
-            .bg-white {background-color: rgba(255, 255, 255, 0.1);}
-            .swal2-popup {background-color: rgb(41 48 57)}
-            .rounded-full {background-color: #888}
-            th > .fc-scrollgrid-sync-inner {background-color: #444}
-            a:hover {color: white}
-            .flexdatalist-results {background-color:#57595D};
-            a {color: #ccc}</style>`);
-        $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
-    } else {
-        $("head").append(`<style>.rounded-full {background-color: #ddd}</style>`);
-    }
-}
-
-function ToggleDarkMode() {
-    isdark = 0; // NOTE
-    if (!isdark) {
-        $("body").css("background-color", "#2F3136");
-        $("body").css("color", "white");
-        $("head").append(`<style id='convertbg'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {color: white;}
-            svg{}
-            .text-gray-500,.text-gray-600 {color: #ddd;}
-            .bg-white {background-color: rgba(255, 255, 255, 0.2);}
-            .swal2-popup {background-color: rgb(41 48 57)}
-            .rounded-full {background-color: #888;}
-            a:hover {color: white}
-            .flexdatalist-results {background-color:#57595D};
-            a: {color: #444}</style>`);
-        Chart.defaults.color = "white";
-        $("#darkmode-svg").html(`<i class="fa-solid fa-sun"></i>`);
-    } else {
-        $("body").css("background-color", "white");
-        $("body").css("color", "");
-        $("head").append(`<style id='convertbg2'>
-            h1,h2,h3,p,span,text,label,input,textarea,select,tr {}
-            svg{}
-            .text-gray-500,.text-gray-600 {}
-            .bg-white {background-color: white;}
-            .swal2-popup {background-color: white;}
-            .rounded-full {background-color: #ddd;}
-            a:hover {color: black}
-            .flexdatalist-results {background-color:white};
-            a {color: #ccc}</style>`);
-        $("#darkmode-svg").html(`<i class="fa-solid fa-moon"></i>`);
-        $("#convertbg2").remove();
-        $("#convertbg").remove();
-        Chart.defaults.color = "black";
-        $("body").html($("body").html().replaceAll("skyblue", "#382CDD").replaceAll("lightgreen", "green"));
-    }
-    isdark = 1 - isdark;
-    localStorage.setItem("darkmode", isdark);
-    LoadStats();
-}
-
 function InitSearchByName() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/list/all",
@@ -610,37 +549,12 @@ function InitSearchByName() {
 eventsCalendar = undefined;
 curtab = "#overview-tab";
 loadworking = false;
-async function GeneralLoad() {
-    if (loadworking) return;
-    loadworking = true;
-    if (isdark) $("#loading").css("border", "solid lightgreen 1px");
-    else $("#loading").css("border", "solid green 1px");
-    $("#loading").css("width", "50%");
-    $("#loading").css("transition", "width: 0.1s");
-    maxajax = 0;
-    lastw = 0;
-    while ($.active > 0) {
-        maxajax = Math.max($.active + 1, maxajax);
-        neww = parseInt(100 - $.active / maxajax * 100);
-        $("#loading").css("width", `${neww}%`);
-        await sleep(50);
-    }
-    neww = 100;
-    $("#loading").css("width", `${neww}%`);
-    neww = 1;
-    $("#loading").css("width", `${neww}%`);
-    $("#loading").css("border", "solid transparent 1px");
-    loadworking = false;
-}
 
 async function ShowTab(tabname, btnname) {
     $(".modal").fadeOut();
     $(".modal-backdrop").fadeOut();
     setTimeout(function(){$(".modal").remove();$(".modal-backdrop").remove();},1000);
     loadworking = true;
-    // $("html, body").animate({
-    //     scrollTop: 0
-    // }, "slow");
     curtab = tabname;
     clearInterval(dmapint);
     dmapint = -1;
@@ -1227,17 +1141,7 @@ function ValidateToken() {
 
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
             $("#user-profile-dropdown").css("display","");
-
-            // X Drivers Trucking Info
-            color = "green";
-            if (isdark) color = "lightgreen";
-            $("#header").prepend(`<p style="color:${color}"><svg style="color:${color};display:inline" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-            fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16">
-            <path fill-rule="evenodd"
-                d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"
-                fill="${color}"></path>
-            </svg>&nbsp;&nbsp;<span id="topbar-message" style="color:${color}"></span><span style="color:orange"></p>`);
-
+            
             // User Information
             user = data.response.user;
             localStorage.setItem("roles", JSON.stringify(user.roles));
@@ -1463,57 +1367,36 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
+    $("head").append(`
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/solid.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <script src="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
+    <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css" />
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
+    <script src="https://js.sentry-cdn.com/74f4194340d9481491344b82f1623100.min.js" crossorigin="anonymous"></script>
+	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://cdn.chub.page/assets/ics/ics.min.js"></script>
+    <script src="https://cdn.chub.page/js/map/ets2map.js"></script>
+    <script src="https://cdn.chub.page/js/map/ets2map_promods.js"></script>
+    <script src="https://cdn.chub.page/js/map/atsmap.js"></script>`);
     if(localStorage.getItem("no-tsr") != "true"){
-        TSRUpdate();
+        setTimeout(function(){TSRUpdate();},500);
         setInterval(TSRUpdate, 10000);
     } else {
         $("#tsr-card").remove();
     }
-    // NOTE 2022 Wrapped Special Event
-    // Collect Application Token to export dlog
-    // if(localStorage.getItem("2022-wrapped") == null){
-    //     setTimeout(function(){
-    //         if(String(localStorage.getItem("token")).length == 36 && Number(localStorage.getItem("userid")) != "NaN"){
-    //             if(mfaenabled){
-    //                 return;
-    //             }
-                
-    //             $.ajax({
-    //                 url: "https://2022-wrapped.chub.page/collect?abbr="+dhabbr+"&discordid="+localStorage.getItem("discordid"),
-    //                 type: "GET",
-    //                 dataType: "json",
-    //                 success: function (data){
-    //                     if(data.response == false){
-    //                         $.ajax({
-    //                             url: api_host + "/" + dhabbr + "/token/application",
-    //                             type: "PATCH",
-    //                             dataType: "json",
-    //                             headers: {
-    //                                 "Authorization": "Bearer " + localStorage.getItem("token")
-    //                             },
-    //                             success: function (data) {
-    //                                 apptoken = data.response.token;
-    //                                 $.ajax({
-    //                                     url: "https://2022-wrapped.chub.page/collect",
-    //                                     type: "POST",
-    //                                     dataType: "json",
-    //                                     data: {
-    //                                         api_host: api_host,
-    //                                         token: apptoken,
-    //                                         abbr: dhabbr
-    //                                     },
-    //                                     success: function (data){
-    //                                         localStorage.setItem("2022-wrapped", "ok");
-    //                                     }
-    //                                 });
-    //                             }
-    //                         });
-    //                     }
-    //                 }
-    //             });
-    //         }
-    //     },5000);
-    // }
 
     while (1) {
         if(language != undefined) break;
@@ -1529,7 +1412,6 @@ $(document).ready(async function () {
     LoadCache();
     InitPhoneView();
     InitDistanceUnit();
-    InitSearchByName();
     InitRankingDisplay();
     InitLeaderboardTimeRange();
     InitInputHandler();

@@ -23,7 +23,18 @@ async function LoadChart(userid = -1) {
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        success: function (data) {
+        success: async function (data) {
+            while(1){
+                try{
+                    Chart;
+                    break;
+                } catch {
+                    await sleep(100);
+                }
+            }
+            
+            Chart.defaults.color = "white";
+            
             d = data.response;
             const ctx = document.getElementById(pref + 'tatistics-chart').getContext('2d');
             labels = [];

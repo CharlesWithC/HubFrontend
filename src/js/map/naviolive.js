@@ -52,53 +52,57 @@ $(document).ready(async function () {
         await sleep(100);
     }
     
-    const socket = new WebSocket('wss://gateway.navio.app/');
-    socket.addEventListener("open", () => {
-        socket.send(
-            JSON.stringify({
-                op: 1,
-                data: {
-                    "subscribe_to_company": parseInt(navio_company_id),
-                    //"subscribe_to_all_drivers": true
-                },
-            }),
-        );
-    });
-
-    socket.addEventListener("message", ({
-        data: message
-    }) => {
-        let {
-            type,
-            data
-        } = JSON.parse(message)
-
-        if (type === "AUTH_ACK") {
-            setInterval(() => {
-                socket.send(
-                    JSON.stringify({
-                        op: 2,
-                    }),
-                );
-            }, data.heartbeat_interval * 1000);
-        }
-
-        if (type === "TELEMETRY_UPDATE") {
-            steamids[data.driver] = +new Date();
-            driverdata[data.driver] = data;
-            if (data.game.id == "eut2") ets2data[data.driver] = data;
-            else if (data.game.id == "ats") atsdata[data.driver] = data;
-        }
-
-        if (type === "NEW_EVENT") {
-            if (data.type == 1) {
-                drivername = membersteam[data.driver];
-                if (drivername == "undefined" || drivername == undefined) drivername = mltr("unknown_driver");
-                $("#delivery-tab").removeClass("loaded");
-                toastNotification("success", mltr("job_delivery"), "<b>" + drivername + "</b><br><b>" + mltr("distance") + ":</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>" + mltr("revenue") + ":</b> €" + TSeparator(data.revenue), 10000, false);
+    try {
+        const socket = new WebSocket('wss://gateway.navio.app/');
+        socket.addEventListener("open", () => {
+            socket.send(
+                JSON.stringify({
+                    op: 1,
+                    data: {
+                        "subscribe_to_company": parseInt(navio_company_id),
+                        //"subscribe_to_all_drivers": true
+                    },
+                }),
+            );
+        });
+    
+        socket.addEventListener("message", ({
+            data: message
+        }) => {
+            let {
+                type,
+                data
+            } = JSON.parse(message)
+    
+            if (type === "AUTH_ACK") {
+                setInterval(() => {
+                    socket.send(
+                        JSON.stringify({
+                            op: 2,
+                        }),
+                    );
+                }, data.heartbeat_interval * 1000);
             }
-        }
-    });
+    
+            if (type === "TELEMETRY_UPDATE") {
+                steamids[data.driver] = +new Date();
+                driverdata[data.driver] = data;
+                if (data.game.id == "eut2") ets2data[data.driver] = data;
+                else if (data.game.id == "ats") atsdata[data.driver] = data;
+            }
+    
+            if (type === "NEW_EVENT") {
+                if (data.type == 1) {
+                    drivername = membersteam[data.driver];
+                    if (drivername == "undefined" || drivername == undefined) drivername = mltr("unknown_driver");
+                    $("#delivery-tab").removeClass("loaded");
+                    toastNotification("success", mltr("job_delivery"), "<b>" + drivername + "</b><br><b>" + mltr("distance") + ":</b> " + TSeparator(parseInt(data.distance * distance_ratio)) + distance_unit_txt + "<br><b>" + mltr("revenue") + ":</b> €" + TSeparator(data.revenue), 10000, false);
+                }
+            }
+        });
+    } catch {
+        console.warn("Cannot connect to Live Gateway.");
+    }
 })
 
 function CountOnlineDriver() {

@@ -87,46 +87,6 @@
     <meta name="twitter:site" content="@CharlesWithC" />
     <meta name="twitter:creator" content="@CharlesWithC" />
 
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
-
-    <link href="https://cdn.chub.page/css/custom.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/solid.min.css" rel="stylesheet">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css" />
-    <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.css" />
-    <script src="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
-
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
-    <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
-
-    <script src="https://cdn.chub.page/assets/ics/ics.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
-
-    <script src="https://js.sentry-cdn.com/74f4194340d9481491344b82f1623100.min.js" crossorigin="anonymous"></script>
-
-	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-
     <script>
         <?php 
             echo 'language = "'.$language.'";';
@@ -140,7 +100,17 @@
             echo 'banner_key = "'.$config["banner_key"].'";';
         ?>
     </script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/1536bae3c4f48627.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/08df167b42a5033a.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <link href="https://cdn.chub.page/css/custom.css" rel="stylesheet">
 
     <?php
     $application_html = "";
@@ -152,10 +122,6 @@
         $application_html = file_get_contents('default_application.html');
     }
     ?>
-    <?php if(in_array("livemap", $config["plugins"])){
-    echo '<script src="https://cdn.chub.page/js/map/ets2map.js"></script>
-    <script src="https://cdn.chub.page/js/map/ets2map_promods.js"></script>
-    <script src="https://cdn.chub.page/js/map/atsmap.js"></script>';} ?>
     <?php
     if(in_array("addon", $config["plugins"])){
         echo '<script src="https://cdn.chub.page/assets/'.$config["abbr"].'/addon.js"></script>';
@@ -579,7 +545,7 @@
                 <p><span id="auth-message-content"></p>
             </div>
         </section>
-        <section id="2022wrapped-tab" class="tabs">
+        <!-- <section id="2022wrapped-tab" class="tabs">
             <div class="row">
                 <div id="2022wrapped-left">
                     <div class="shadow p-3 bg-dark rounded" style="min-height:200px;margin:1rem 1rem 50vh 1rem;">
@@ -604,7 +570,7 @@
                 </div>
                 </div>
             </div>
-        </section>
+        </section> -->
         <section id="overview-tab" class="tabs">
             <div class="row">
                 <div class="col-8" id="overview-left-col">

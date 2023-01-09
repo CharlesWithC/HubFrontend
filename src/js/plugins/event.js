@@ -33,6 +33,15 @@ async function LoadEvent(noplaceholder = false) {
                     })
                 }
 
+                while(1){
+                    try{
+                        FullCalendar;
+                        break;
+                    } catch {
+                        await sleep(100);
+                    }
+                }
+
                 var eventsCalendarEl = document.getElementById('events-calendar');
                 var eventsCalendar = new FullCalendar.Calendar(eventsCalendarEl, {
                     initialView: 'dayGridMonth',
