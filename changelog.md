@@ -1,5 +1,14 @@
 # Changelog
 
+**v2.5.5**  
+1.Removed lazy load  
+2.Downgraded `SimpleBar`  
+3.Changed mini leaderboard in overview tab to monthly leaderboard  
+4.Changed default order of challenge to by end time  
+5.Added filter by role to members tab  
+6.Added shortcut button to update application status  
+7.Added hidden function to unban user (Ctrl+Alt+U)  
+
 **v2.5.4**  
 1.Added TSR Card (Removable)  
 -> If you want it back after removing it, Clear Cache in Settings  

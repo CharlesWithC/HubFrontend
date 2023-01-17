@@ -58,6 +58,7 @@ member_list_placeholder_row = `
     <td style="width:calc(100% - 40px - 60%);"><span class="placeholder w-100"></span></td>
     <td style="width:calc(100% - 40px - 40%);"><span class="placeholder w-100"></span></td>
 </tr>`;
+filter_roles = [];
 function LoadMemberList(noplaceholder = false) {
     LockBtn("#button-member-list-search", btntxt = "...");
 
@@ -75,7 +76,7 @@ function LoadMemberList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
+        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name + "&roles="+filter_roles.join(","),
         type: "GET",
         dataType: "json",
         headers: {
@@ -160,6 +161,49 @@ function LoadMemberList(noplaceholder = false) {
             AjaxError(data);
         }
     })
+}
+
+function FilterRolesShow(){
+    roled = `
+    <div>
+        <label class="form-label">${mltr('roles')}</label>
+        <br>
+    </div>`;
+    
+    roleids = Object.keys(rolelist);
+    for (var i = 0; i < roleids.length; i++) {
+        if(i>0&&i%2==0) roled += "<br>";
+        checked = "";
+        if(filter_roles.includes(roleids[i])) checked = "checked";
+        roled += `
+        <div class="form-check mb-2" style="width:49.5%;display:inline-block">
+            <input class="form-check-input" type="checkbox" value="" id="filter-roles-${roleids[i]}" name="filter-roles" ${checked}>
+            <label class="form-check-label" for="filter-roles-${roleids[i]}">
+                ${rolelist[roleids[i]]}
+            </label>
+        </div>`;
+    }
+    
+    modalid = ShowModal(mltr("filter_by_roles"), roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button type="button" class="btn btn-primary" onclick="FilterRoles();LoadMemberList(true)" data-bs-dismiss="modal">${mltr("confirm")}</button>`);
+    InitModal("filter_roles", modalid);
+    
+    $('input[name="filter-roles"]').on('change', function() {
+        var numChecked = $('input[name="filter-roles"]:checked').length;
+        if (numChecked >= 5) {
+            $('input[name="filter-roles"]').prop('disabled', true);
+            $('input[name="filter-roles"]:checked').prop('disabled', false);
+        } else if (numChecked < 5) {
+            $('input[name="filter-roles"]').prop('disabled', false);
+        }
+    });
+}
+
+function FilterRoles(){
+    checked = $('input[name="filter-roles"]:checked');
+    filter_roles = [];
+    for(var i = 0 ; i < checked.length ; i ++){
+        filter_roles.push($(checked[i]).attr("id").replaceAll("filter-roles-",""));
+    }
 }
 
 function EditRolesShow(uid){

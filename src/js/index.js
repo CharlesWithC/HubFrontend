@@ -370,16 +370,7 @@ async function InitDefaultValues(){
     $("#statistics-chart-select-360d").prop("selected",true);
     $("#user-statistics-chart-select-360d").prop("selected",true);
     
-    while(1){try{SimpleBar;break;}catch{await sleep(10);}}
-    for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
-    while(1){try{SimpleMDE;break;}catch{await sleep(10);}}
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
-    while(1){try{bootstrap;break;}catch{await sleep(10);}}
-    while(1){try{bootstrap;break;}catch{await sleep(10);}}
-    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
-    $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();
-    while(1){if($('#input-leaderboard-search').flexdatalist != undefined) break; else await sleep(10);}
+    // for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $('#input-leaderboard-search').flexdatalist({
         selectionRequired: 1,
         minLength: 1,
@@ -745,6 +736,18 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/manage/user');
         document.title = mltr("pending_users") + " - " + company_name;
         LoadUserList(noplaceholder = loaded);
+        if(!loaded){
+            $(document).on('keydown', function(e) {
+                if (e.ctrlKey && e.altKey && e.keyCode === 85) {
+                    discordid = prompt("Enter Discord ID to unban:");
+                    if(!isNumber(discordid)) {
+                        alert("Discord ID must be an integer!");
+                        return;
+                    }
+                    UnbanUser(discordid);
+                }
+              });
+        }
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
@@ -1367,36 +1370,15 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
-    $("head").append(`
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/solid.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-    <script src="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
-    <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css" />
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
-    <script src="https://js.sentry-cdn.com/74f4194340d9481491344b82f1623100.min.js" crossorigin="anonymous"></script>
-	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <script src="https://cdn.chub.page/assets/ics/ics.min.js"></script>
-    <script src="https://cdn.chub.page/js/map/ets2map.js"></script>
-    <script src="https://cdn.chub.page/js/map/ets2map_promods.js"></script>
-    <script src="https://cdn.chub.page/js/map/atsmap.js"></script>`);
     if(localStorage.getItem("no-tsr") != "true"){
         setTimeout(function(){TSRUpdate();},500);
         setInterval(TSRUpdate, 10000);
     } else {
         $("#tsr-card").remove();
     }
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
 
     while (1) {
         if(language != undefined) break;

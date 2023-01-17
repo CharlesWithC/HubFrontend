@@ -20,7 +20,7 @@ async function LoadChallenge(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/challenge/list?page=" + page+"&order_by=end_time&order=desc",
         type: "GET",
         dataType: "json",
         headers: {

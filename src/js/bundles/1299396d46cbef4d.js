@@ -77,14 +77,14 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.4)");
+    console.log("Drivers Hub: Frontend (v2.5.5)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?",
+        url: "/languages/en.json?v2.5.5",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?",
+                    url: "/languages/" + language + ".json?v2.5.5",
                     type: "GET",
                     dataType: "json",
                     success: function (data) {
@@ -2315,6 +2315,7 @@ member_list_placeholder_row = `
     <td style="width:calc(100% - 40px - 60%);"><span class="placeholder w-100"></span></td>
     <td style="width:calc(100% - 40px - 40%);"><span class="placeholder w-100"></span></td>
 </tr>`;
+filter_roles = [];
 function LoadMemberList(noplaceholder = false) {
     LockBtn("#button-member-list-search", btntxt = "...");
 
@@ -2332,7 +2333,7 @@ function LoadMemberList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name,
+        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name + "&roles="+filter_roles.join(","),
         type: "GET",
         dataType: "json",
         headers: {
@@ -2417,6 +2418,49 @@ function LoadMemberList(noplaceholder = false) {
             AjaxError(data);
         }
     })
+}
+
+function FilterRolesShow(){
+    roled = `
+    <div>
+        <label class="form-label">${mltr('roles')}</label>
+        <br>
+    </div>`;
+    
+    roleids = Object.keys(rolelist);
+    for (var i = 0; i < roleids.length; i++) {
+        if(i>0&&i%2==0) roled += "<br>";
+        checked = "";
+        if(filter_roles.includes(roleids[i])) checked = "checked";
+        roled += `
+        <div class="form-check mb-2" style="width:49.5%;display:inline-block">
+            <input class="form-check-input" type="checkbox" value="" id="filter-roles-${roleids[i]}" name="filter-roles" ${checked}>
+            <label class="form-check-label" for="filter-roles-${roleids[i]}">
+                ${rolelist[roleids[i]]}
+            </label>
+        </div>`;
+    }
+    
+    modalid = ShowModal(mltr("filter_by_roles"), roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button type="button" class="btn btn-primary" onclick="FilterRoles();LoadMemberList(true)" data-bs-dismiss="modal">${mltr("confirm")}</button>`);
+    InitModal("filter_roles", modalid);
+    
+    $('input[name="filter-roles"]').on('change', function() {
+        var numChecked = $('input[name="filter-roles"]:checked').length;
+        if (numChecked >= 5) {
+            $('input[name="filter-roles"]').prop('disabled', true);
+            $('input[name="filter-roles"]:checked').prop('disabled', false);
+        } else if (numChecked < 5) {
+            $('input[name="filter-roles"]').prop('disabled', false);
+        }
+    });
+}
+
+function FilterRoles(){
+    checked = $('input[name="filter-roles"]:checked');
+    filter_roles = [];
+    for(var i = 0 ; i < checked.length ; i ++){
+        filter_roles.push($(checked[i]).attr("id").replaceAll("filter-roles-",""));
+    }
 }
 
 function EditRolesShow(uid){
@@ -3184,8 +3228,10 @@ function LoadStats(basic = false, noplaceholder = false) {
 
     if (String(localStorage.getItem("token")).length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
+        date = new Date();
+        firstSecondOfMonthTimestamp = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time="+parseInt(firstSecondOfMonthTimestamp/1000)+"&end_time="+parseInt(+new Date()/1000),
             type: "GET",
             dataType: "json",
             headers: {
@@ -3835,7 +3881,7 @@ function LoadUserSessions(noplaceholder = false) {
 
 function RevokeToken(hsh) {
     if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
-        $("#button-revoke-token-" + hsh).html(mltr("confirm"));
+        $("#button-revoke-token-" + hsh).html(mltr("confirm")+"?");
         return;
     }
 
@@ -5116,8 +5162,8 @@ async function LoadAllApplicationList(noplaceholder = false) {
                 color = "lightblue";
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
-
-                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>`]);
+                
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 1)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 2)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 0)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
@@ -5253,6 +5299,30 @@ function AddMessageToApplication(applicationid) {
             AjaxError(data);
         }
     });
+}
+
+function ForceUpdateApplicationStatus(applicationid, appstatus){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/application/status",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "applicationid": applicationid,
+            "status": appstatus,
+            "message": ""
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            LoadAllApplicationList();
+            toastNotification("success", "Success", mltr("application_status_updated"), 5000, false);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
 }
 
 function UpdateApplicationStatus(applicationid) {
@@ -5425,7 +5495,7 @@ async function LoadChallenge(noplaceholder = false) {
         }
     }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge/list?page=" + page,
+        url: api_host + "/" + dhabbr + "/challenge/list?page=" + page+"&order_by=end_time&order=desc",
         type: "GET",
         dataType: "json",
         headers: {
@@ -7517,16 +7587,7 @@ async function InitDefaultValues(){
     $("#statistics-chart-select-360d").prop("selected",true);
     $("#user-statistics-chart-select-360d").prop("selected",true);
     
-    while(1){try{SimpleBar;break;}catch{await sleep(10);}}
-    for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
-    while(1){try{SimpleMDE;break;}catch{await sleep(10);}}
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
-    while(1){try{bootstrap;break;}catch{await sleep(10);}}
-    while(1){try{bootstrap;break;}catch{await sleep(10);}}
-    for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
-    $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();
-    while(1){if($('#input-leaderboard-search').flexdatalist != undefined) break; else await sleep(10);}
+    // for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $('#input-leaderboard-search').flexdatalist({
         selectionRequired: 1,
         minLength: 1,
@@ -7892,6 +7953,18 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/manage/user');
         document.title = mltr("pending_users") + " - " + company_name;
         LoadUserList(noplaceholder = loaded);
+        if(!loaded){
+            $(document).on('keydown', function(e) {
+                if (e.ctrlKey && e.altKey && e.keyCode === 85) {
+                    discordid = prompt("Enter Discord ID to unban:");
+                    if(!isNumber(discordid)) {
+                        alert("Discord ID must be an integer!");
+                        return;
+                    }
+                    UnbanUser(discordid);
+                }
+              });
+        }
     }
     if (tabname == "#audit-tab") {
         window.history.pushState("", "", '/audit');
@@ -8514,36 +8587,15 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
-    $("head").append(`
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
-    <link href="https://cdn.chub.page/assets/fontawesome/css/solid.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
-    <script src="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
-    <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@latest/dist/simplebar.css" />
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
-    <script src="https://js.sentry-cdn.com/74f4194340d9481491344b82f1623100.min.js" crossorigin="anonymous"></script>
-	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <script src="https://cdn.chub.page/assets/ics/ics.min.js"></script>
-    <script src="https://cdn.chub.page/js/map/ets2map.js"></script>
-    <script src="https://cdn.chub.page/js/map/ets2map_promods.js"></script>
-    <script src="https://cdn.chub.page/js/map/atsmap.js"></script>`);
     if(localStorage.getItem("no-tsr") != "true"){
         setTimeout(function(){TSRUpdate();},500);
         setInterval(TSRUpdate, 10000);
     } else {
         $("#tsr-card").remove();
     }
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    $("[title='Toggle Fullscreen (F11)']").remove();
+    $("[title='Toggle Side by Side (F9)']").remove();for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
 
     while (1) {
         if(language != undefined) break;

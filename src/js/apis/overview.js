@@ -275,8 +275,10 @@ function LoadStats(basic = false, noplaceholder = false) {
 
     if (String(localStorage.getItem("token")).length != 36 || !isNumber(localStorage.getItem("userid")) || localStorage.getItem("userid") == "-1") return; // guest / invalid
     if (!basic) {
+        date = new Date();
+        firstSecondOfMonthTimestamp = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time="+parseInt(firstSecondOfMonthTimestamp/1000)+"&end_time="+parseInt(+new Date()/1000),
             type: "GET",
             dataType: "json",
             headers: {

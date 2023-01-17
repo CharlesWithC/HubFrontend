@@ -153,8 +153,8 @@ async function LoadAllApplicationList(noplaceholder = false) {
                 color = "lightblue";
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
-
-                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>`]);
+                
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 1)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 2)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 0)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
@@ -290,6 +290,30 @@ function AddMessageToApplication(applicationid) {
             AjaxError(data);
         }
     });
+}
+
+function ForceUpdateApplicationStatus(applicationid, appstatus){
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/application/status",
+        type: "PATCH",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "applicationid": applicationid,
+            "status": appstatus,
+            "message": ""
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            LoadAllApplicationList();
+            toastNotification("success", "Success", mltr("application_status_updated"), 5000, false);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
 }
 
 function UpdateApplicationStatus(applicationid) {

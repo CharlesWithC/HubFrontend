@@ -586,6 +586,7 @@
     "notification_enabled": "notification enabled",
     "notification_disabled": "notification disabled",
     "revoke": "Revoke",
-    "confirm": "Confirm?",
-    "banned": "Banned"
+    "confirm": "Confirm",
+    "banned": "Banned",
+    "filter_by_roles": "Filter by Roles"
 }

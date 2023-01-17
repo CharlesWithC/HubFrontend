@@ -541,7 +541,7 @@ function LoadUserSessions(noplaceholder = false) {
 
 function RevokeToken(hsh) {
     if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
-        $("#button-revoke-token-" + hsh).html(mltr("confirm"));
+        $("#button-revoke-token-" + hsh).html(mltr("confirm")+"?");
         return;
     }
 

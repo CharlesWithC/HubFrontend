@@ -101,16 +101,44 @@
         ?>
     </script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" integrity="sha384-IDwe1+LCz02ROU9k972gdyvl+AESN10+x7tBKgc9I5HFtuNz0wWnPclzo6p9vxnk" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/08df167b42a5033a.js"></script>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link href="https://cdn.chub.page/css/custom.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xcatliu/simplemde-theme-dark@master/dist/simplemde-theme-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/simplebar@5.3.9/dist/simplebar.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simplebar@5.3.9/dist/simplebar.css" />
+
+    <script src="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/flexdatalist/jquery.flexdatalist.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
+    <script src="https://cdn.chub.page/assets/noty/noty.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
+
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/1299396d46cbef4d.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
+    <link href="https://cdn.chub.page/assets/fontawesome/css/solid.min.css" rel="stylesheet">
+    <script src="https://js.sentry-cdn.com/74f4194340d9481491344b82f1623100.min.js" crossorigin="anonymous"></script>
+	<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://cdn.chub.page/js/map/ets2map.js"></script>
+    <script src="https://cdn.chub.page/js/map/ets2map_promods.js"></script>
+    <script src="https://cdn.chub.page/js/map/atsmap.js"></script>
+    <script src="https://cdn.chub.page/assets/ics/ics.min.js"></script>
 
     <?php
     $application_html = "";
@@ -972,7 +1000,7 @@
                 <div id="delivery-log" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-truck"></i></span> <?php echo mltr("deliveries"); ?></strong></h5>
                     <div id="delivery-log-button-right-wrapper" style="float:right;"><a id="button-delivery-export" class="member-only clickable" onclick="ShowDeliveryLogExport();"><span class="rect-20"><i class="fa-solid fa-file-export"></i></span></a>
-                    <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
+                    <a id="delivery-log-options-show" class="clickable" onclick='$("#delivery-log-options-show").hide();$("#delivery-log-options").show();'><span class="rect-20"><i class="fa-solid fa-gear"></i></span></a></div>
                     <div id="table_delivery_log">
                         <table class="w-100">
                             <thead id="table_delivery_log_head">
@@ -1334,7 +1362,7 @@
             </div>
             <div class="shadow p-3 m-3 bg-dark rounded">
                 <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-fire-flame-curved"></i></span> <?php echo mltr("challenges"); ?></strong></h5>
-                <a id="button-challenge-edit-delivery" style="float:right;display:none;" class="clickable" onclick='EditChallengeDeliveryShow();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a>
+                <a id="button-challenge-edit-delivery" style="float:right;display:none;" class="clickable" onclick='EditChallengeDeliveryShow();'><span class="rect-20"><i class="fa-solid fa-gear"></i></span></a>
                 <div id="table_challenge_list">
                     <table class="w-100">
                         <thead id="table_challenge_list_head">
@@ -1798,9 +1826,10 @@
                 <div id="member-tab-right">
                     <div class="shadow p-3 m-3 bg-dark rounded">
                         <h5 style="display:inline"><strong><span class="rect-20"><i class="fa-solid fa-user-group"></i></span> <?php echo mltr("members"); ?></strong></h5>
-                        <div class="input-group mb-3" style="float:right;width:200px;position:relative;top:-5px;">
+                        <div class="input-group mb-3" style="float:right;width:250px;position:relative;top:-5px;">
                             <input id="input-member-search" type="text" class="form-control bg-dark text-white" placeholder="<?php echo mltr("username"); ?>" aria-label="<?php echo mltr("username"); ?>" aria-describedby="button-member-list-search" >
                             <button class="btn btn-outline-secondary" type="button" id="button-member-list-search" style="min-width:0" onclick="LoadMemberList(noplaceholder=true);"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            <button class="btn btn-outline-secondary" type="button" id="button-member-list-filter" style="min-width:0" onclick="FilterRolesShow();"><i class="fa-solid fa-gear"></i></button>
                         </div>
                         <div id="table_member_list" class="mt-3">
                             <table class="w-100">
@@ -1824,7 +1853,7 @@
                 <div id="leaderboard" class="shadow p-3 m-3 bg-dark rounded col" style="height:fit-content">
                     <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> <?php echo mltr("leaderboard"); ?></strong></h5>
                     <div id="leaderboard-button-right-wrapper" style="float:right;">
-                        <a id="leaderboard-options-show" class="clickable" onclick='$("#leaderboard-options-show").hide();$("#leaderboard-options").show();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a>
+                        <a id="leaderboard-options-show" class="clickable" onclick='$("#leaderboard-options-show").hide();$("#leaderboard-options").show();'><span class="rect-20"><i class="fa-solid fa-gear"></i></span></a>
                     </div>
                     <div id="table_leaderboard">
                         <table class="w-100">
@@ -1994,7 +2023,7 @@
             <div class="shadow p-3 m-3 bg-dark rounded col">
                 <h5 style="display:inline-block"><strong><span class="rect-20"><i class="fa-solid fa-envelopes-bulk"></i></span> <?php echo mltr("all_applications"); ?></strong></h5>
                 <div id="all-application-right-wrapper" style="float:right;">
-                    <a class="clickable" onclick='UpdateStaffPositionsShow();'><span class="rec-20"><i class="fa-solid fa-gear"></i></span></a></div>
+                    <a class="clickable" onclick='UpdateStaffPositionsShow();'><span class="rect-20"><i class="fa-solid fa-gear"></i></span></a></div>
                 <div id="table_all_application">
                     <table class="w-100">
                         <thead id="table_all_application_head">
