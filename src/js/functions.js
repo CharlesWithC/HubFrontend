@@ -77,14 +77,14 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.5)");
+    console.log("Drivers Hub: Frontend (v2.5.6)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
-
+ 
     $.ajax({
-        url: "/languages/en.json?v2.5.5",
+        url: "/languages/en.json?v2.5.6",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?v2.5.5",
+                    url: "/languages/" + language + ".json?v2.5.6",
                     type: "GET",
                     dataType: "json",
                     success: function (data) {
@@ -393,6 +393,9 @@ function sigfig(num, sigfigs_opt) {
     // 1000: power10 = 3, suffixNum = 1, suffix = 'K'
     var suffixNum = Math.floor(power10 / 3);
     var suffix = SUFFIXES[suffixNum];
+    if(suffix == undefined){
+        suffix = "e" + suffixNum*3;
+    }
     // Would be 1 for '', 1000 for 'K', 1000000 for 'M', etc.
     var suffixPower10 = Math.pow(10, suffixNum * 3);
     var base = num / suffixPower10;

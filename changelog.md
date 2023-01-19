@@ -1,5 +1,9 @@
 # Changelog
 
+**v2.5.6**  
+1.Added shortcut button to update division status  
+2.Fixed `sigfig` showing `undefined` suffix for number larger than 1e15  
+
 **v2.5.5**  
 1.Removed lazy load  
 2.Downgraded `SimpleBar`  

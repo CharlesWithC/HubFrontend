@@ -77,14 +77,14 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.5)");
+    console.log("Drivers Hub: Frontend (v2.5.6)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
-
+ 
     $.ajax({
-        url: "/languages/en.json?v2.5.5",
+        url: "/languages/en.json?v2.5.6",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?v2.5.5",
+                    url: "/languages/" + language + ".json?v2.5.6",
                     type: "GET",
                     dataType: "json",
                     success: function (data) {
@@ -393,6 +393,9 @@ function sigfig(num, sigfigs_opt) {
     // 1000: power10 = 3, suffixNum = 1, suffix = 'K'
     var suffixNum = Math.floor(power10 / 3);
     var suffix = SUFFIXES[suffixNum];
+    if(suffix == undefined){
+        suffix = "e" + suffixNum*3;
+    }
     // Would be 1 for '', 1000 for 'K', 1000000 for 'M', etc.
     var suffixPower10 = Math.pow(10, suffixNum * 3);
     var base = num / suffixPower10;
@@ -5163,7 +5166,7 @@ async function LoadAllApplicationList(noplaceholder = false) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
                 
-                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 1)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 2)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a id="button-all-application-${application.applicationid}" class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 0)"><i class="fa-solid fa-question"></i></a>`]);
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 1)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 2)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 0)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
@@ -6201,7 +6204,7 @@ function LoadPendingDivisionValidation() {
             for (i = 0; i < pending_division.length; i++) {
                 delivery = pending_division[i];
                 user = delivery.user;
-                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">${mltr("show_details")}</a>`]);
+                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 1, ${delivery.divisionid}, true)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 2, ${delivery.divisionid}, true)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 0, ${delivery.divisionid}, true)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
@@ -6212,9 +6215,8 @@ function LoadPendingDivisionValidation() {
     })
 }
 
-function UpdateDivision(logid, status) {
-    divisionid = "-1";
-    if (status >= 1) {
+function UpdateDivision(logid, status, divisionid = -1, force = false) {
+    if (status >= 1 && divisionid == -1) {
         divisionid = $("#select-division").find(":selected").val();
         if (divisionid == "-1") return toastNotification("error", "Error", mltr("invalid_division"), 5000, false);
     }
@@ -6255,7 +6257,8 @@ function UpdateDivision(logid, status) {
                 UnlockBtn("#button-division-revalidate");
             }
             if (data.error) return AjaxError(data);
-            GetDivisionInfo(logid);
+            if(!force) GetDivisionInfo(logid);
+            LoadPendingDivisionValidation();
             if (status == 1) {
                 toastNotification("success", "Success", mltr("division_delivery_accepted"), 5000, false);
             } else if (status == 2) {

@@ -244,7 +244,7 @@ function LoadPendingDivisionValidation() {
             for (i = 0; i < pending_division.length; i++) {
                 delivery = pending_division[i];
                 user = delivery.user;
-                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})">${mltr("show_details")}</a>`]);
+                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 1, ${delivery.divisionid}, true)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 2, ${delivery.divisionid}, true)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 0, ${delivery.divisionid}, true)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
@@ -255,9 +255,8 @@ function LoadPendingDivisionValidation() {
     })
 }
 
-function UpdateDivision(logid, status) {
-    divisionid = "-1";
-    if (status >= 1) {
+function UpdateDivision(logid, status, divisionid = -1, force = false) {
+    if (status >= 1 && divisionid == -1) {
         divisionid = $("#select-division").find(":selected").val();
         if (divisionid == "-1") return toastNotification("error", "Error", mltr("invalid_division"), 5000, false);
     }
@@ -298,7 +297,8 @@ function UpdateDivision(logid, status) {
                 UnlockBtn("#button-division-revalidate");
             }
             if (data.error) return AjaxError(data);
-            GetDivisionInfo(logid);
+            if(!force) GetDivisionInfo(logid);
+            LoadPendingDivisionValidation();
             if (status == 1) {
                 toastNotification("success", "Success", mltr("division_delivery_accepted"), 5000, false);
             } else if (status == 2) {

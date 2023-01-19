@@ -126,7 +126,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/1299396d46cbef4d.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/4961fe0abf02d404.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -614,7 +614,7 @@
                             <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-driver-new"><span class="placeholder col-4"></span></span></p>
                         </div>
                         <div class="shadow p-3 m-3 bg-dark rounded col card">
-                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> <?php echo mltr("delivered"); ?></strong></h5>
+                            <h5 class="card-title"><strong><span class="rect-20"><i class="fa-solid fa-truck-ramp-box"></i></span> <?php echo mltr("jobs"); ?></strong></h5>
                             <p class="card-text"><span id="overview-stats-delivery-tot"><span class="placeholder col-5"></span></span></p>
                             <p class="card-text"><span class="rect-20"><i class="fa-solid fa-arrow-trend-up"></i></span><span id="overview-stats-delivery-new"><span class="placeholder col-4"></span></span></p>
                         </div>
