@@ -203,7 +203,7 @@ function ReloadAPIShow() {
 function ReloadServer() {
     otp = $("#mfa-otp").val();
     $.ajax({
-        url: api_host + "/" + dhabbr + "/reload",
+        url: api_host + "/" + dhabbr + "/restart",
         type: "POST",
         dataType: "json",
         headers: {

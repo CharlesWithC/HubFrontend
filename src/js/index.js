@@ -468,6 +468,17 @@ function InitInputHandler() {
             ShowCaptcha();
         }
     });
+    $("#toggleLoginPassword").click(function () {
+        let passwordInput = $("#signin-password");
+        let passwordType = passwordInput.attr("type");
+        if (passwordType === "password") {
+          passwordInput.attr("type", "text");
+          $("#toggleLoginPassword").removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+          passwordInput.attr("type", "password");
+          $("#toggleLoginPassword").removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
 }
 
 function InitDistanceUnit() {

@@ -1166,7 +1166,7 @@ function ReloadAPIShow() {
 function ReloadServer() {
     otp = $("#mfa-otp").val();
     $.ajax({
-        url: api_host + "/" + dhabbr + "/reload",
+        url: api_host + "/" + dhabbr + "/restart",
         type: "POST",
         dataType: "json",
         headers: {
@@ -7686,6 +7686,17 @@ function InitInputHandler() {
     $("#signin-password").keypress(function (e) {
         if (e.which == 13) {
             ShowCaptcha();
+        }
+    });
+    $("#toggleLoginPassword").click(function () {
+        let passwordInput = $("#signin-password");
+        let passwordType = passwordInput.attr("type");
+        if (passwordType === "password") {
+          passwordInput.attr("type", "text");
+          $("#toggleLoginPassword").removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+          passwordInput.attr("type", "password");
+          $("#toggleLoginPassword").removeClass("fa-eye-slash").addClass("fa-eye");
         }
     });
 }

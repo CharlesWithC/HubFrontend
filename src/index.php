@@ -126,7 +126,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/4961fe0abf02d404.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/7d087d85a296e2e1.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -535,6 +535,7 @@
                         <label for="signin-password" class="form-label"><?php echo mltr("password"); ?></label>
                         <div class="input-group mb-3">
                             <input type="password" class="form-control bg-dark text-white" id="signin-password" placeholder="12345678">
+                            <span class="input-group-text" style="background-color:transparent;color:white;"><i class="fa fa-eye" aria-hidden="true" id="toggleLoginPassword" style="cursor:pointer"></i></span>
                         </div>
                         <button id="button-signin" type="button" class="btn btn-primary w-100" onclick="ShowCaptcha();"><span class="rect-20"><i class="fa-solid fa-right-to-bracket"></i></span> <?php echo mltr("log_in"); ?></button>
                     </div>
