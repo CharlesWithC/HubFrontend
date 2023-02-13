@@ -126,7 +126,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/7d087d85a296e2e1.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/83be2e80f6e3dbd0.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -2228,6 +2228,7 @@
                             <textarea type="text" class="form-control bg-dark text-white" id="json-config" placeholder="{...}"></textarea>
                         </div>
                         <div class="row justify-content-end" id="config-api-control">
+                            <button id="button-active-tracksim" type="button" class="btn btn-danger col-2 mx-2" onclick="ActivateTrackSim();"><?php echo mltr("activate_tracksim"); ?></button>
                             <button id="button-revert-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="RevertConfig();"><?php echo mltr("revert"); ?></button>
                             <button id="button-reset-config" type="button" class="btn btn-secondary col-1 mx-2" onclick="ResetConfig();"><?php echo mltr("reset"); ?></button>
                             <button id="button-save-config" type="button" class="btn btn-primary col-1 mx-2" onclick="UpdateConfig();"><?php echo mltr("save"); ?></button>

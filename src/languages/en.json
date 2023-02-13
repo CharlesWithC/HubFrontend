@@ -588,5 +588,6 @@
     "revoke": "Revoke",
     "confirm": "Confirm",
     "banned": "Banned",
-    "filter_by_roles": "Filter by Roles"
+    "filter_by_roles": "Filter by Roles",
+    "activate_tracksim": "Activate TrackSim"
 }

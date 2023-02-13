@@ -1256,6 +1256,27 @@ function UpdateWebConfig() {
         }
     });
 }
+
+function ActivateTrackSim(){
+    LockBtn("#button-active-tracksim", mltr("working"));
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/tracksim/setup",
+        type: "POST",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            UnlockBtn("#button-active-tracksim");
+            if (data.error) return AjaxError(data);
+            toastNotification("success", "Success", "Success! Please check your email for further instructions sent by TrackSim.", 5000, false);
+        },
+        error: function (data) {
+            UnlockBtn("#button-active-tracksim");
+            AjaxError(data);
+        }
+    })
+}
 dmapint = -1;
 window.mapcenter = {}
 window.autofocus = {}
