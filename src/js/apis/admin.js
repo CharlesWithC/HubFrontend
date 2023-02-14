@@ -158,7 +158,8 @@ function UpdateConfig() {
     } catch {
         return toastNotification("error", "Error", mltr("failed_to_parse_config_make_sure_its_in_correct_json_format"), 5000, false);
     }
-    if (config["navio_api_token"] == "") delete config["navio_api_token"];
+    if (config["tracker_api_token"] == "") delete config["tracker_api_token"];
+    if (config["tracker_webhook_secret"] == "") delete config["tracker_webhook_secret"];
     if (config["discord_client_secret"] == "") delete config["discord_client_secret"];
     if (config["discord_bot_token"] == "") delete config["discord_bot_token"];
     LockBtn("#button-save-config", mltr("saving"));

@@ -126,7 +126,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/83be2e80f6e3dbd0.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/cc9031d84d0aed22.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
