@@ -713,6 +713,8 @@
                             <img id="tsr-graphic" src="https://truckstopradio.co.uk/img/autodj.png" height="100px"></img>
                         </div>
                     </div>
+                    <?php if ($_SERVER['HTTP_CF_CONNECTING_IP'] === 'FR' && config["api_host"] != "https://drivershub.charlws.com") {
+                        echo'<div class="shadow m-3 bg-dark rounded col row" id="ccot-card"><a href="https://truckersmp.com/events/9994" target="_blank" style="padding:0"><img src="https://static.truckersmp.com/images/event/cover/9994.1674582834.jpeg" style="width:100%;padding:0;border-radius:5px;"></a></div>';} ?>
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> <?php echo mltr("leaderboard"); ?></strong></h5>
                         <div id="table_mini_leaderboard">
@@ -2523,6 +2525,8 @@
             </div>
             <div style="width:49.5%;text-align:right;display:inline-block">
                 <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>
+                &nbsp;&nbsp;
+                <a href="https://patreon.com/charlws" target="_blank">Patreon <span class="badge" style="background:#DAA520;color:black;">Get Golden Name</span></a>
                 &nbsp;&nbsp;
                 <a href="https://discord.gg/KRFsymnVKm" target="_blank"><?php echo mltr("discord"); ?></a>
                 &nbsp;&nbsp;
