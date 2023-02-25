@@ -77,6 +77,7 @@ function AuthValidate() {
                 }
                 newtoken = data.response.token;
                 localStorage.setItem("token", newtoken);
+                authorizationHeader = {"Authorization": "Bearer " + newtoken};
                 ValidateToken();
                 $(".tabs").removeClass("loaded");
                 $("#auth-message-content").html(mltr("welcome_back"));
@@ -116,6 +117,7 @@ function OAuthMFA() {
             }
             token = data.response.token;
             localStorage.setItem("token", token);
+            authorizationHeader = {"Authorization": "Bearer " + token};
             localStorage.removeItem("tipt");
             ValidateToken();
             $(".tabs").removeClass("loaded");
@@ -184,6 +186,7 @@ var CaptchaCallback = function (hcaptcha_response) {
                     ShowTab("#mfa-tab");
                 } else {
                     localStorage.setItem("token", token);
+                    authorizationHeader = {"Authorization": "Bearer " + token};
                     ValidateToken();
                     $(".tabs").removeClass("loaded");
                     toastNotification("success", "Success", mltr("welcome_back"), 5000);
@@ -253,6 +256,7 @@ function MFAVerify() {
             if (data.error == true) return AjaxError(data);
             newtoken = data.response.token;
             localStorage.setItem("token", newtoken);
+            authorizationHeader = {"Authorization": "Bearer " + newtoken};
             localStorage.removeItem("tip");
             localStorage.removeItem("pending-mfa");
             $(".tabs").removeClass("loaded");

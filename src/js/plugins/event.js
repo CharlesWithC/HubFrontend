@@ -17,9 +17,7 @@ async function LoadEvent(noplaceholder = false) {
             url: api_host + "/" + dhabbr + "/event/all",
             type: "GET",
             dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
+            headers: authorizationHeader,
             success: async function (data) {
                 if (data.error) return AjaxError(data.response);
                 d = data.response.list;
@@ -78,9 +76,7 @@ async function LoadEvent(noplaceholder = false) {
         url: api_host + "/" + dhabbr + "/event/list?page=" + page,
         type: "GET",
         dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
+        headers: authorizationHeader,
         success: async function (data) {
             if (data.error) return AjaxError(data);
             
@@ -139,9 +135,7 @@ async function ShowEventDetail(eventid, reload = false) {
             url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
             type: "GET",
             dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
+            headers: authorizationHeader,
             success: function (data) {
                 if (data.error) return AjaxError(data);
                 allevents[eventid] = data.response.event;

@@ -35,9 +35,7 @@ function LoadAnnouncement(noplaceholder = false){
         url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
         dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + token
-        },
+        headers: authorizationHeader,
         success: async function (data) {
             while(1){
                 if(userPermLoaded) break;

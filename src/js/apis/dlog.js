@@ -209,9 +209,7 @@ function LoadDeliveryList(noplaceholder = false) {
         url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
         type: "GET",
         dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
+        headers: authorizationHeader,
         success: function (data) {
             UnlockBtn("#button-delivery-log-options-update");
             if (data.error) return AjaxError(data);
@@ -500,9 +498,7 @@ function ShowDeliveryDetail(logid) {
         url: api_host + "/" + dhabbr + "/dlog?logid=" + String(logid),
         type: "GET",
         dataType: "json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
+        headers: authorizationHeader,
         success: async function (data) {
             if (data.error) {
                 ShowTab("#delivery-tab", "#button-delivery-tab");
