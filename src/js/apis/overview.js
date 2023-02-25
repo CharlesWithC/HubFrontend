@@ -306,7 +306,7 @@ function LoadStats(basic = false, noplaceholder = false) {
                     $("#table_mini_leaderboard_data").append(`<tr>
               <td>
                 <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
-            <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+            <td><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${totalpnt}</td>
             </tr>`);
                 }
@@ -342,7 +342,7 @@ function LoadStats(basic = false, noplaceholder = false) {
                     $("#table_new_driver_data").append(`<tr>
               <td>
                 <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
-                <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+                <td><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${joindt}</td>
             </tr>`);
                 }
@@ -377,7 +377,7 @@ function LoadStats(basic = false, noplaceholder = false) {
                     $("#table_recent_visitors_data").append(`<tr>
               <td>
                 <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
-                <td><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a></td>
+                <td><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${last_seen}</td>
             </tr>`);
                 }

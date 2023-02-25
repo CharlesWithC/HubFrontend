@@ -56,9 +56,9 @@ LANG_CODE = {
 function toDataURL(src, callback) {
     var xhttp = new XMLHttpRequest();
 
-    xhttp.onload = function() {
+    xhttp.onload = function () {
         var fileReader = new FileReader();
-        fileReader.onloadend = function() {
+        fileReader.onloadend = function () {
             callback(fileReader.result);
         }
         fileReader.readAsDataURL(xhttp.response);
@@ -82,7 +82,7 @@ $(document).ready(function () {
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
- 
+
     $.ajax({
         url: "/languages/en.json?v2.5.6",
         type: "GET",
@@ -107,7 +107,7 @@ $(document).ready(function () {
         }
     });
 
-    toDataURL("https://cdn.chub.page/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function(dataURL) {
+    toDataURL("https://cdn.chub.page/assets/" + dhabbr + "/logo.png?v=2.4.6&key=" + logo_key, function (dataURL) {
         logob64 = dataURL
     });
 });
@@ -199,6 +199,24 @@ function RandomB32String(length) {
     return result;
 }
 
+SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484" , "patron": "#DAA520", "server_booster": "#DAA520"};
+
+function GetSpecialColor(discordid) {
+    if(specialRoles == undefined) return null;
+    let spr = Object.keys(specialRoles);
+    for (var i = 0; i < spr.length; i++) {
+        if (specialRoles[spr[i]].includes(discordid)) {
+            return SPECIAL_COLOR[spr[i]];
+        }
+    }
+    return null;
+}
+
+function GetSpecialColorStyle(discordid) {
+    if (GetSpecialColor(discordid) != null) return `color:${GetSpecialColor(discordid)};`;
+    else return "";
+}
+
 function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
         if (avatarid.startsWith("a_"))
@@ -218,7 +236,8 @@ function GetAvatarImg(src, userid, name) {
 
 function GetAvatar(userid, name, discordid, avatarid) {
     src = GetAvatarSrc(discordid, avatarid);
-    return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
+    style = GetSpecialColorStyle(discordid);
+    return `<a style="cursor:pointer;${style}" onclick="LoadUserProfile(${userid})">
         <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         ${name}
     </a>`;
@@ -247,12 +266,12 @@ function FileOutput(filename, text) {
     document.body.removeChild(element);
 }
 
-function FileURLOutput(filename, src){
+function FileURLOutput(filename, src) {
     var xhttp = new XMLHttpRequest();
 
-    xhttp.onload = function() {
+    xhttp.onload = function () {
         var fileReader = new FileReader();
-        fileReader.onloadend = function() {
+        fileReader.onloadend = function () {
             var element = document.createElement('a');
             element.setAttribute('href', fileReader.result);
             element.setAttribute('download', filename);
@@ -264,7 +283,7 @@ function FileURLOutput(filename, src){
         fileReader.readAsDataURL(xhttp.response);
     };
 
-    xhttp.onerror = function(){
+    xhttp.onerror = function () {
         toastNotification("error", "Error", "Error " + xhttp.status + ": " + xhttp.statusText, 5000);
     };
 
@@ -313,8 +332,8 @@ function getUrlParameter(sParam) {
 };
 
 async function toastNotification(type, title, text, time = 5000) {
-    while(1){
-        try{
+    while (1) {
+        try {
             Noty;
             break;
         } catch {
@@ -393,8 +412,8 @@ function sigfig(num, sigfigs_opt) {
     // 1000: power10 = 3, suffixNum = 1, suffix = 'K'
     var suffixNum = Math.floor(power10 / 3);
     var suffix = SUFFIXES[suffixNum];
-    if(suffix == undefined){
-        suffix = "e" + suffixNum*3;
+    if (suffix == undefined) {
+        suffix = "e" + suffixNum * 3;
     }
     // Would be 1 for '', 1000 for 'K', 1000000 for 'M', etc.
     var suffixPower10 = Math.pow(10, suffixNum * 3);
@@ -729,8 +748,8 @@ function ShowModal(title, content, footer = `<button type="button" class="btn bt
 }
 
 async function InitModal(name, modalid, top = false) {
-    while(1){
-        try{
+    while (1) {
+        try {
             bootstrap;
             break;
         } catch {
@@ -794,22 +813,22 @@ function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
 
     if (minutes < 10) {
         // Adding leading zero to minutes
-        minutes = `0${ minutes }`;
+        minutes = `0${minutes}`;
     }
 
     if (prefomattedDate) {
         // Today at 10:20
         // Yesterday at 10:20
-        return `${ prefomattedDate } at ${ hours }:${ minutes }`;
+        return `${prefomattedDate} at ${hours}:${minutes}`;
     }
 
     if (hideYear) {
         // January 10. at 10:20
-        return `${ month } ${ OrdinalSuffix(day) } at ${ hours }:${ minutes }`;
+        return `${month} ${OrdinalSuffix(day)} at ${hours}:${minutes}`;
     }
 
     // January 10. 2017. at 10:20
-    return `${ month } ${ OrdinalSuffix(day) } ${ year } at ${ hours }:${ minutes }`;
+    return `${month} ${OrdinalSuffix(day)} ${year} at ${hours}:${minutes}`;
 }
 
 
@@ -833,11 +852,11 @@ function timeAgo(dateParam) {
     if (seconds < 5) {
         return mltr('now');
     } else if (seconds < 60) {
-        return `${ seconds } ${mltr('sec_ago')}`;
+        return `${seconds} ${mltr('sec_ago')}`;
     } else if (seconds < 90) {
         return mltr('about_a_min_ago');
     } else if (minutes < 60) {
-        return `${ minutes } ${mltr('min_ago')}`;
+        return `${minutes} ${mltr('min_ago')}`;
     } else if (isToday) {
         return getFormattedDate(date, mltr('today')); // Today at 10:20
     } else if (isYesterday) {
@@ -913,7 +932,7 @@ function removeCookie(name) {
     document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
-function CSVToArray( strData, strDelimiter ){
+function CSVToArray(strData, strDelimiter) {
     strDelimiter = (strDelimiter || ",");
     var objPattern = new RegExp(
         (
@@ -922,31 +941,31 @@ function CSVToArray( strData, strDelimiter ){
             "([^\"\\" + strDelimiter + "\\r\\n]*))"
         ),
         "gi"
-        );
+    );
     var arrData = [[]];
     var arrMatches = null;
-    while (arrMatches = objPattern.exec( strData )){
-        var strMatchedDelimiter = arrMatches[ 1 ];
+    while (arrMatches = objPattern.exec(strData)) {
+        var strMatchedDelimiter = arrMatches[1];
         if (
             strMatchedDelimiter.length &&
             strMatchedDelimiter !== strDelimiter
-            ){
-            arrData.push( [] );
+        ) {
+            arrData.push([]);
         }
 
         var strMatchedValue;
-        if (arrMatches[ 2 ]){
-            strMatchedValue = arrMatches[ 2 ].replace(
-                new RegExp( "\"\"", "g" ),"\"");
+        if (arrMatches[2]) {
+            strMatchedValue = arrMatches[2].replace(
+                new RegExp("\"\"", "g"), "\"");
 
         } else {
-            strMatchedValue = arrMatches[ 3 ];
+            strMatchedValue = arrMatches[3];
 
         }
-        arrData[ arrData.length - 1 ].push( strMatchedValue );
+        arrData[arrData.length - 1].push(strMatchedValue);
     }
 
-    return( arrData );
+    return (arrData);
 }
 
 function sortDictByKey(dict) {

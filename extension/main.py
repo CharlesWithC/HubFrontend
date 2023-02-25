@@ -1,18 +1,55 @@
 # Drivers Hub: Frontend (Extend)
 # Author: @CharlesWithC
 
-from fastapi import FastAPI, Request, Response, Header
-from fastapi.responses import RedirectResponse
+import json
+import os
+import time
+import urllib
+import uuid
+
+import requests
 import uvicorn
-import requests, json, os, urllib, uuid
 from bs4 import BeautifulSoup
+from fastapi import FastAPI, Header, Request, Response
+from fastapi.responses import RedirectResponse
 
 app = FastAPI()
+
+rolesCache = []
+rolesLU = 0
+
+discord_bot_token = os.getenv("BOT_TOKEN")
 
 @app.get("/")
 async def index():
     return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
 
+# #2fc1f7 #e488b9 #e75757 #f6529a #ecb484
+
+def updateRolesCache():
+    global rolesCache
+    rolesCache = {"project_team": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "patron": [], "server_booster": []}
+    ROLES = {"project_team": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "patron": "1031947700419186779", "server_booster": "988263021010898995"}
+    while True:
+        r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/members?limit=1000", headers={"Authorization": f"Bot {discord_bot_token}"})
+        if r.status_code == 200:
+            d = json.loads(r.text)
+            for dd in d:
+                for role in ROLES.keys():
+                    if ROLES[role] in dd["roles"]:
+                        rolesCache[role].append(dd["user"]["id"])
+                        break
+            if len(d) <= 1000:
+                break
+
+@app.get("/roles")
+async def getRoles():
+    global rolesLU
+    if time.time() - rolesLU >= 300:
+        rolesLU = time.time()
+        updateRolesCache()
+    return {"error": False, "response": rolesCache}
+    
 @app.get("/{abbr}/config")
 async def getConfig(abbr: str, domain: str, request: Request, response: Response):
     if not os.path.exists(f"/var/hub/config/{domain}.json"):

@@ -11,6 +11,7 @@ highestrole = "Unknown Role";
 highestroleid = 99999;
 roles = SafeParse(localStorage.getItem("roles"));
 rolelist = SafeParse(localStorage.getItem("role-list"));
+specialRoles =  SafeParse(localStorage.getItem("special-roles"));
 rolecolor = SafeParse(localStorage.getItem("role-color"));
 perms = SafeParse(localStorage.getItem("perms"));
 positions = SafeParse(localStorage.getItem("positions"));
@@ -883,6 +884,7 @@ function UpdateRolesOnDisplay() {
 function LoadCache(force) {
     if(force) localStorage.removeItem("cache-expire");
     rolelist = SafeParse(localStorage.getItem("role-list"));
+    specialRoles = SafeParse(localStorage.getItem("special-roles"));
     perms = SafeParse(localStorage.getItem("perms"));
     positions = SafeParse(localStorage.getItem("positions"));
     applicationTypes = SafeParse(localStorage.getItem("application-types"));
@@ -900,6 +902,16 @@ function LoadCache(force) {
     } else {
         positions = [];
     }
+
+    $.ajax({
+        url: "https://config.chub.page/roles",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            specialRoles = data.response;
+            localStorage.setItem("special-roles", specialRoles);
+        }
+    });
 
     cacheExpire = parseInt(localStorage.getItem("cache-expire"));
     if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined && RANKING != undefined && RANKCLR != undefined))
@@ -1414,6 +1426,7 @@ $(document).ready(async function () {
     while (1) {
         rolelist = SafeParse(localStorage.getItem("role-list"));
         rolecolor = SafeParse(localStorage.getItem("role-color"));
+        specialRoles =  SafeParse(localStorage.getItem("special-roles"));
         perms = SafeParse(localStorage.getItem("perms"));
         positions = SafeParse(localStorage.getItem("positions"));
         applicationTypes = SafeParse(localStorage.getItem("application-types"));

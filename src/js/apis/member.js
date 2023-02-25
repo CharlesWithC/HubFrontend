@@ -17,7 +17,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#driver-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer; ${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#driver-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -42,7 +42,7 @@ function LoadXOfTheMonth(){
                 name = user.name;
                 discordid = user.discordid;
                 avatar = GetAvatarSrc(discordid, user.avatar);
-                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`);
+                $("#staff-of-the-month-info").html(`<img src="${avatar}" width="60%" style="border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"><br><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a>`);
                 $("#staff-of-the-month").show();
 
                 $("#member-tab-left").show();
@@ -151,7 +151,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">`, `<a style="cursor: pointer" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
+                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">`, `<a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");
