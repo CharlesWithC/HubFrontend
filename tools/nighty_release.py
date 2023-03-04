@@ -21,6 +21,6 @@ for ll in l:
     d = d.replace("Drivers Hub: Frontend ", "Drivers Hub: Frontend (Nighty Release) ")
     open("./src/js/bundles/" + ll, "w", encoding="utf-8").write(d)
     d = open("./src/nighty.php","r", encoding="utf-8").read()
-    d = d.replace("""<a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;Nighty Release""", """<a href="https://charlws.com" target="_blank">CharlesWithC</a>""")
-    d = d.replace("""<a href="https://charlws.com" target="_blank">CharlesWithC</a>""", """<a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;Nighty Release""")
+    d = d.replace("""<a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;(Nighty Release)""", """<a href="https://charlws.com" target="_blank">CharlesWithC</a>""")
+    d = d.replace("""<a href="https://charlws.com" target="_blank">CharlesWithC</a>""", """<a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;(Nighty Release)""")
     open("./src/nighty.php","w", encoding="utf-8").write(d)

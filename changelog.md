@@ -3,6 +3,7 @@
 **v2.5.7**  
 1.Replaced UniSans with OpenSans  
 2.Fixed name/role display  
+3.Added support to multiple application tokens  
 
 **v2.5.6**  
 1.Added shortcut button to update division status  

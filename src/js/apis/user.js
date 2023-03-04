@@ -23,55 +23,54 @@ function UpdateBio() {
     });
 }
 
-function ResetApplicationToken(firstop = false) {
-    LockBtn("#button-settings-reset-application-token", mltr("resetting"));
+function GenerateApplicationToken(firstop = false) {
+    LockBtn("#button-settings-generate-application-token", mltr("working"));
 
-    if(mfaenabled){
+    if (mfaenabled) {
         otp = $("#mfa-otp").val();
 
-        if(otp.length != 6){
-            mfafunc = ResetApplicationToken;
-            setTimeout(function(){UnlockBtn("#button-settings-reset-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+        if (otp.length != 6) {
+            mfafunc = GenerateApplicationToken;
+            setTimeout(function () { UnlockBtn("#button-settings-generate-application-token"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
 
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
-            type: "PATCH",
+            type: "POST",
             dataType: "json",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             data: {
+                app_name: $("#application-token-app-name").val(),
                 otp: otp,
             },
             success: function (data) {
-                UnlockBtn("#button-settings-reset-application-token");
+                UnlockBtn("#button-settings-generate-application-token");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html(data.response.token);
-                $("#settings-application-token-p").hide();
-                $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
-                $("#button-application-token-copy").show();
-                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
+                $("#application-token-new").show();
+                toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
             error: function (data) {
-                if(firstop && data.status == 400){
+                if (firstop && data.status == 400) {
                     // failed due to auto try, then do mfa
-                    mfafunc = ResetApplicationToken;
-                    setTimeout(function(){UnlockBtn("#button-settings-reset-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    mfafunc = GenerateApplicationToken;
+                    setTimeout(function () { UnlockBtn("#button-settings-generate-application-token"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
                     return;
                 }
-                UnlockBtn("#button-settings-reset-application-token");
+                UnlockBtn("#button-settings-generate-application-token");
                 AjaxError(data);
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
             }
         });
     }
-    else{
+    else {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "PATCH",
@@ -90,71 +89,6 @@ function ResetApplicationToken(firstop = false) {
             },
             error: function (data) {
                 UnlockBtn("#button-settings-reset-application-token");
-                AjaxError(data);
-            }
-        });
-    }
-}
-
-function DisableApplicationToken(firstop = false) {
-    LockBtn("#button-settings-disable-application-token", mltr("disabling"));
-
-    if(mfaenabled){
-        otp = $("#mfa-otp").val();
-
-        if(otp.length != 6){
-            mfafunc = DisableApplicationToken;
-            setTimeout(function(){UnlockBtn("#button-settings-disable-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
-            return;
-        }
-
-        $.ajax({
-            url: api_host + "/" + dhabbr + "/token/application",
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            data: {
-                otp: otp
-            },
-            success: function (data) {
-                UnlockBtn("#button-settings-disable-application-token");
-                ShowTab("#user-settings-tab", "from-mfa");
-                mfafunc = null;
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(mltr("disabled"));
-                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
-            },
-            error: function (data) {
-                if(firstop && data.status == 400){
-                    // failed due to auto try, then do mfa
-                    mfafunc = DisableApplicationToken;
-                    setTimeout(function(){UnlockBtn("#button-settings-disable-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
-                    return;
-                }
-                UnlockBtn("#button-settings-disable-application-token");
-                AjaxError(data);
-                ShowTab("#user-settings-tab", "from-mfa");
-                mfafunc = null;
-            }
-        });
-    } else {
-        $.ajax({
-            url: api_host + "/" + dhabbr + "/token/application",
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                UnlockBtn("#button-settings-disable-application-token");
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(mltr("disabled"));
-                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#button-settings-disable-application-token");
                 AjaxError(data);
             }
         });
@@ -164,15 +98,15 @@ function DisableApplicationToken(firstop = false) {
 function UpdatePassword(firstop = false) {
     LockBtn("#button-settings-password-update", mltr("updating"));
 
-    if(mfaenabled){
+    if (mfaenabled) {
         otp = $("#mfa-otp").val();
 
-        if(otp.length != 6){
+        if (otp.length != 6) {
             mfafunc = UpdatePassword;
-            setTimeout(function(){UnlockBtn("#button-settings-password-update");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            setTimeout(function () { UnlockBtn("#button-settings-password-update"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
-        
+
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
@@ -193,10 +127,10 @@ function UpdatePassword(firstop = false) {
                 toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
             error: function (data) {
-                if(firstop && data.status == 400){
+                if (firstop && data.status == 400) {
                     // failed due to auto try, then do mfa
                     mfafunc = UpdatePassword;
-                    setTimeout(function(){UnlockBtn("#button-settings-password-update");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    setTimeout(function () { UnlockBtn("#button-settings-password-update"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
                     return;
                 }
                 UnlockBtn("#button-settings-password-update");
@@ -233,15 +167,15 @@ function UpdatePassword(firstop = false) {
 function DisablePassword(firstop = false) {
     LockBtn("#button-settings-password-disable", mltr("disabling"));
 
-    if(mfaenabled){
+    if (mfaenabled) {
         otp = $("#mfa-otp").val();
 
-        if(otp.length != 6){
+        if (otp.length != 6) {
             mfafunc = DisablePassword;
-            setTimeout(function(){UnlockBtn("#button-settings-password-disable");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            setTimeout(function () { UnlockBtn("#button-settings-password-disable"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
-        
+
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
@@ -260,10 +194,10 @@ function DisablePassword(firstop = false) {
                 toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
-                if(firstop && data.status == 400){
+                if (firstop && data.status == 400) {
                     // failed due to auto try, then do mfa
                     mfafunc = DisablePassword;
-                    setTimeout(function(){UnlockBtn("#button-settings-password-disable");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    setTimeout(function () { UnlockBtn("#button-settings-password-disable"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
                     return;
                 }
                 UnlockBtn("#button-settings-password-disable");
@@ -293,18 +227,18 @@ function DisablePassword(firstop = false) {
     }
 }
 
-function DisableMFAShow(){
+function DisableMFAShow() {
     modalid = ShowModal(mltr('disable_mfa'), mltr('disable_mfa_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">${mltr('disable')}</button>`);
     InitModal("disable_mfa", modalid);
 }
 
-function DisableMFA(){
+function DisableMFA() {
     otp = $("#mfa-otp").val();
-    
-    if(otp.length != 6){
+
+    if (otp.length != 6) {
         mfafunc = DisableMFA;
         LockBtn("#button-staff-disable-mfa", mltr("disabling"));
-        setTimeout(function(){UnlockBtn("#button-staff-disable-mfa");DestroyModal("disable_mfa");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+        setTimeout(function () { UnlockBtn("#button-staff-disable-mfa"); DestroyModal("disable_mfa"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
         return;
     }
 
@@ -336,7 +270,7 @@ function DisableMFA(){
 }
 
 mfasecret = "";
-function EnableMFAShow(){
+function EnableMFAShow() {
     mfasecret = RandomB32String(16);
     modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
     <label for="mfa-enable-otp" class="form-label">${mltr('otp')}</label>
@@ -346,11 +280,11 @@ function EnableMFAShow(){
     InitModal("enable_mfa", modalid);
 }
 
-function EnableMFA(){
+function EnableMFA() {
     otp = $("#mfa-enable-otp").val();
-    if(!isNumber(otp) || otp.length != 6)
+    if (!isNumber(otp) || otp.length != 6)
         return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
-        
+
     LockBtn("#button-enable-mfa", mltr("enabling"));
 
     $.ajax({
@@ -380,7 +314,7 @@ function EnableMFA(){
     });
 }
 
-function UserResignShow(){
+function UserResignShow() {
     modalid = ShowModal(mltr('leave_company'), mltr('leave_company_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">${mltr('resign')}</button>`);
     InitModal("user_resign", modalid);
 }
@@ -389,10 +323,10 @@ function UserResign() {
     LockBtn("#button-user-resign", mltr("resigning"));
 
     otp = $("#mfa-otp").val();
-    if(mfaenabled){
-        if(otp.length != 6){
+    if (mfaenabled) {
+        if (otp.length != 6) {
             mfafunc = UserResign;
-            setTimeout(function(){UnlockBtn("#button-user-resign");DestroyModal("user_resign");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            setTimeout(function () { UnlockBtn("#button-user-resign"); DestroyModal("user_resign"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
     }
@@ -421,7 +355,7 @@ function UserResign() {
     });
 }
 
-function LoadNotificationSettings(){
+function LoadNotificationSettings() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/settings",
         type: "GET",
@@ -453,7 +387,7 @@ function LoadNotificationSettings(){
     })
 }
 
-function EnableNotification(item, name){
+function EnableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
         type: "POST",
@@ -462,15 +396,15 @@ function EnableNotification(item, name){
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if(data.error) return AjaxError(data);
+            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_enabled')}!`, 5000);
-        }, error: function (data){
+        }, error: function (data) {
             AjaxError(data);
         }
     })
 }
 
-function DisableNotification(item, name){
+function DisableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
         type: "POST",
@@ -479,9 +413,9 @@ function DisableNotification(item, name){
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if(data.error) return AjaxError(data);
+            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_disabled')}!`, 5000);
-        }, error: function (data){
+        }, error: function (data) {
             AjaxError(data);
         }
     })
@@ -493,25 +427,21 @@ user_session_placeholder_row = `
     <td style="width:25%;"><span class="placeholder w-100"></span></td>
     <td style="width:25%;"><span class="placeholder w-100"></span></td>
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
-</tr>`
+</tr>`;
 
-function LoadUserSessions(noplaceholder = false) {
-    if(!noplaceholder){
-        $("#table_session_data").empty();
-        for(var i = 0 ; i < 10 ; i ++){
-            $("#table_session_data").append(user_session_placeholder_row);
-        }    
-    }
-
+bearerSession = [];
+gslWorking = false;
+function GetSessionList(page = 1) {
+    if (gslWorking) return;
+    gslWorking = true;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/token/list?page_size=50",
+        url: api_host + "/" + dhabbr + "/token/list?page_size=250&page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#table_session_data").empty();
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
@@ -526,7 +456,7 @@ function LoadUserSessions(noplaceholder = false) {
                 else if (sessions[i].user_agent.indexOf("Opera") != -1) browser_icon = `<i class="fa-brands fa-opera"></i>`;
                 else if (sessions[i].user_agent.indexOf("Safari") != -1) browser_icon = `<i class="fa-brands fa-safari"></i>`;
 
-                $("#table_session_data").append(`<tr>
+                bearerSession.push(`<tr>
                     <td>${browser_icon}</td>
                     <td>${sessions[i].ip}</td>
                     <td>${sessions[i].country}</td>
@@ -535,13 +465,78 @@ function LoadUserSessions(noplaceholder = false) {
                     <td>${opbtn}</td>
                 </tr>`);
             }
+            if (parseInt(data.response.total_pages) > page) {
+                GetSessionList(page + 1);
+            } else {
+                gslWorking = false;
+            }
+        }
+    })
+}
+appSession = [];
+gatlWorking = false;
+function GetApplicationTokenList(page = 1) {
+    if (gatlWorking) return;
+    gatlWorking = true;
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/token/application/list?page_size=250&page=" + page,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            sessions = data.response.list;
+            for (var i = 0; i < sessions.length; i++) {
+                opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
+
+                browser_icon = `<i class="fa-solid fa-link"></i>`;
+                if(sessions[i].app_name.toLowerCase().includes("bot")) browser_icon=`<i class="fa-solid fa-robot"></i>`
+
+                appSession.push(`<tr>
+                    <td>${browser_icon}</td>
+                    <td>${sessions[i].app_name}</td>
+                    <td><i>Application Token</i></td>
+                    <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
+                    <td>${timeAgo(new Date(sessions[i].last_used_timestamp * 1000))}</td>
+                    <td>${opbtn}</td>
+                </tr>`);
+            }
+            if (parseInt(data.response.total_pages) > page) {
+                GetApplicationTokenList(page + 1);
+            } else {
+                gatlWorking = false;
+            }
         }
     })
 }
 
+async function LoadUserSessions(noplaceholder = false) {
+    if (!noplaceholder) {
+        $("#table_session_data").empty();
+        for (var i = 0; i < 10; i++) {
+            $("#table_session_data").append(user_session_placeholder_row);
+        }
+    }
+
+    bearerSession = [];
+    appSession = [];
+
+    GetSessionList();
+    GetApplicationTokenList();
+    while(gslWorking || gatlWorking) await sleep(100);
+    $("#table_session_data").empty();
+    for(let i = 0 ; i < bearerSession.length ; i++){
+        $("#table_session_data").append(bearerSession[i]);
+    }
+    for(let i = 0 ; i < appSession.length ; i++){
+        $("#table_session_data").append(appSession[i]);
+    }
+}
+
 function RevokeToken(hsh) {
     if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
-        $("#button-revoke-token-" + hsh).html(mltr("confirm")+"?");
+        $("#button-revoke-token-" + hsh).html(mltr("confirm") + "?");
         return;
     }
 
@@ -549,6 +544,35 @@ function RevokeToken(hsh) {
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "hash": hsh
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            LoadUserSessions(noplaceholder = true);
+            toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+function RevokeApplicationToken(hsh) {
+    if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
+        $("#button-revoke-token-" + hsh).html(mltr("confirm") + "?");
+        return;
+    }
+
+    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"))
+
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/token/application",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -582,7 +606,7 @@ function LoadUserList(noplaceholder = false) {
     page = parseInt($("#table_pending_user_list_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_pending_user_list_data").children().remove();
         for (i = 0; i < 15; i++) {
             $("#table_pending_user_list_data").append(user_placeholder_row);
@@ -616,7 +640,7 @@ function LoadUserList(noplaceholder = false) {
                 if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
-                if(userPerm.includes("hrm") || userPerm.includes("admin")){
+                if (userPerm.includes("hrm") || userPerm.includes("admin")) {
                     userop = `<div class="dropdown">
                         <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage
@@ -635,7 +659,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
                         </ul>
                     </div>`;
-                } else if(userPerm.includes("hr")){
+                } else if (userPerm.includes("hr")) {
                     userop = `<div class="dropdown">
                         <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage
@@ -675,7 +699,7 @@ function ShowUserDetail(discordid) {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            
+
             d = data.response.user;
             info = "";
             info += GenTableRow(mltr("name"), d.name);
@@ -686,7 +710,7 @@ function ShowUserDetail(discordid) {
             if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
                 info += GenTableRow(mltr("ban_reason"), bannedUserList[discordid]);
             }
-                
+
             modalid = ShowModal(d.name, `<table>${info}</table>`);
             InitModal("user_detail", modalid);
         },
@@ -696,7 +720,7 @@ function ShowUserDetail(discordid) {
     });
 }
 
-function AcceptAsMemberShow(discordid, name){
+function AcceptAsMemberShow(discordid, name) {
     modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">${mltr('accept')}</button>`);
     InitModal("accept_as_member", modalid);
 }
@@ -716,7 +740,7 @@ function AcceptAsMember(discordid) {
         success: function (data) {
             UnlockBtn("#button-accept-as-member");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.response.userid, 5000, false);
             DestroyModal("accept_as_member");
         },
@@ -727,7 +751,7 @@ function AcceptAsMember(discordid) {
     })
 }
 
-function UpdateDiscordShow(discordid, name){
+function UpdateDiscordShow(discordid, name) {
     modalid = ShowModal(mltr('update_discord_id'), `<p>${mltr('update_discord_id_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">${mltr('new_discord_id')}</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="">
@@ -754,7 +778,7 @@ function UpdateDiscord(old_discord_id) {
         success: function (data) {
             UnlockBtn("#button-update-discord");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_discord_id_has_been_updated"), 5000, false);
             DestroyModal("update_discord");
         },
@@ -765,9 +789,9 @@ function UpdateDiscord(old_discord_id) {
     })
 }
 
-function DisableUserMFAShow(discordid, name){
+function DisableUserMFAShow(discordid, name) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -776,7 +800,7 @@ function DisableUserMFAShow(discordid, name){
         success: function (data) {
             if (data.error) return AjaxError(data)
             mfa = data.response.user.mfa;
-            if(!mfa){
+            if (!mfa) {
                 return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
             modalid = ShowModal(mltr('disable_mfa'), `<p>${mltr('disable_mfa_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('disable_mfa_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">${mltr('disable')}</button>`);
@@ -792,7 +816,7 @@ function StaffDisableMFA(discordid) {
     LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/mfa?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user/mfa?discordid=" + discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -811,7 +835,7 @@ function StaffDisableMFA(discordid) {
     })
 }
 
-function DeleteConnectionsShow(discordid, name){
+function DeleteConnectionsShow(discordid, name) {
     modalid = ShowModal(mltr('delete_connections'), `<p>${mltr('delete_connections_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_connections_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">${mltr('delete')}</button>`);
     InitModal("account_connections", modalid);
 }
@@ -832,7 +856,7 @@ function DeleteConnections(discordid) {
         success: function (data) {
             UnlockBtn("#button-delete-connections");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_account_connections_unbound"), 5000, false);
             DestroyModal("account_connections");
         },
@@ -843,7 +867,7 @@ function DeleteConnections(discordid) {
     })
 }
 
-function BanShow(discordid, name){
+function BanShow(discordid, name) {
     modalid = ShowModal(mltr('ban_user'), `<p>${mltr('ban_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('ban_user_note_2')}</p><br><label for="new-discord-id" class="form-label">${mltr('ban_until')}</label>
     <div class="input-group mb-3">
         <input type="date" class="form-control bg-dark text-white" id="ban-until">
@@ -878,7 +902,7 @@ function BanUser(discordid) {
         success: function (data) {
             UnlockBtn("#button-ban-user");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_banned"), 5000, false);
             DestroyModal("ban_user");
         },
@@ -889,7 +913,7 @@ function BanUser(discordid) {
     })
 }
 
-function UnbanShow(discordid, name){
+function UnbanShow(discordid, name) {
     modalid = ShowModal(mltr('unban_user'), `<p>${mltr('unban_user_note')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">${mltr('unban')}</button>`);
     InitModal("unban_user", modalid);
 }
@@ -910,7 +934,7 @@ function UnbanUser(discordid) {
         success: function (data) {
             UnlockBtn("#button-unban-user");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_unbanned"), 5000, false);
             DestroyModal("unban_user");
         },
@@ -921,7 +945,7 @@ function UnbanUser(discordid) {
     })
 }
 
-function DeleteUserShow(discordid, name){
+function DeleteUserShow(discordid, name) {
     modalid = ShowModal(mltr('delete_user'), `<p>${mltr('delete_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_user_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">${mltr('delete')}</button>`);
     InitModal("delete_user", modalid);
 }
@@ -930,7 +954,7 @@ function DeleteUser(discordid) {
     LockBtn("#button-delete-user", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -939,7 +963,7 @@ function DeleteUser(discordid) {
         success: function (data) {
             UnlockBtn("#button-delete-user");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_deleted"), 5000, false);
             DestroyModal("delete_user");
         },
@@ -950,7 +974,7 @@ function DeleteUser(discordid) {
     })
 }
 
-function DeleteAccountShow(){
+function DeleteAccountShow() {
     modalid = ShowModal(mltr('delete_account'), mltr('delete_account_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">${mltr('delete')}</button>`);
     InitModal("delete_account", modalid);
 }
@@ -979,7 +1003,7 @@ function DeleteAccount(discordid) {
     })
 }
 
-function LoadNotification(){
+function LoadNotification() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list",
         type: "GET",
@@ -991,13 +1015,13 @@ function LoadNotification(){
             if (data.error) return AjaxError(data);
             d = data.response.list;
             $("#notification-dropdown").children().remove();
-            for(i = 0 ; i < d.length ; i++){
-                style="";
-                if(d[i].read) style="color:grey"
+            for (i = 0; i < d.length; i++) {
+                style = "";
+                if (d[i].read) style = "color:grey"
                 $("#notification-dropdown").append(`
                 <div>
-                    <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}</p>
-                    <p class="text-muted" style="margin-bottom:5px">${timeAgo(new Date(d[i].timestamp*1000))}</p>
+                    <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n", "<br>").replaceAll("<p>", "").replaceAll("</p>", "").slice(0, -1)}</p>
+                    <p class="text-muted" style="margin-bottom:5px">${timeAgo(new Date(d[i].timestamp * 1000))}</p>
                 </div>`);
             }
         }
@@ -1013,10 +1037,10 @@ function LoadNotification(){
         success: function (data) {
             if (data.error) return AjaxError(data);
             cnt = data.response.total_items;
-            if(cnt > 0 && cnt <= 99){
+            if (cnt > 0 && cnt <= 99) {
                 $("#notification-pop").show();
                 $("#unread-notification").html(cnt);
-            } else if (cnt >= 100){
+            } else if (cnt >= 100) {
                 $("#notification-pop").show();
                 $("#unread-notification").html("99+");
             }
@@ -1030,13 +1054,13 @@ notification_placerholder_row = `
     <td style="width:180px;"><span class="placeholder w-100"></span></td>
 </tr>`;
 
-function LoadNotificationList(noplaceholder = false){
+function LoadNotificationList(noplaceholder = false) {
     InitPaginate("#table_notification_list", "LoadNotificationList();");
     page = parseInt($("#table_notification_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_notification_list_data").empty();
-        for(var i = 0 ; i < 10 ; i++){
+        for (var i = 0; i < 10; i++) {
             $("#table_notification_list_data").append(notification_placerholder_row);
         }
     }
@@ -1049,7 +1073,7 @@ function LoadNotificationList(noplaceholder = false){
         },
         success: async function (data) {
             if (data.error) return AjaxError(data);
-            
+
             notificationList = data.response.list;
             total_pages = data.response.total_pages;
             data = [];
@@ -1057,7 +1081,7 @@ function LoadNotificationList(noplaceholder = false){
             for (i = 0; i < notificationList.length; i++) {
                 notification = notificationList[i];
 
-                data.push([`${marked.parse(notification.content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}`, timeAgo(new Date(notification.timestamp * 1000))]);
+                data.push([`${marked.parse(notification.content).replaceAll("\n", "<br>").replaceAll("<p>", "").replaceAll("</p>", "").slice(0, -1)}`, timeAgo(new Date(notification.timestamp * 1000))]);
             }
 
             PushTable("#table_notification_list", data, total_pages, "LoadNotificationList();");
@@ -1068,8 +1092,8 @@ function LoadNotificationList(noplaceholder = false){
     });
 }
 
-function NotificationsMarkAllAsRead(){
-    if($("#unread-notification").html()=="") return;
+function NotificationsMarkAllAsRead() {
+    if ($("#unread-notification").html() == "") return;
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
         type: "PATCH",
@@ -1085,4 +1109,30 @@ function NotificationsMarkAllAsRead(){
             $("#unread-notification").html("");
         }
     });
+}
+
+function HandleOAuth() {
+    callback_url = getUrlParameter("callback_url");
+    try {
+        callback_url = new URL(callback_url);
+        if (!callback_url.host.endsWith(".oauth.chub.page")) {
+            $("#oauth-message-title").html("CHub OAuth");
+            $("#oauth-message-content").html("You are authorizing a third-party application that is not monitored by CHub. For your safety, please manually generate an Application Token in Settings - Security.");
+        } else {
+            $("#oauth-message-title").html("CHub OAuth");
+            $("#oauth-message-content").html("Fetching application information...");
+            $.ajax({
+                url: callback_url.protocol + "//" + callback_url.host + "/info",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    $("#oauth-message-title").html(`CHub X ${data.response.name}`);
+                    $("#oauth-message-content").html(`${data.response.name} wants to access your Drivers Hub account.<br>We will generate a new Application Token and send it to ${data.response.name}. They will be able to manage your account, but they won't be allowed to perform dangerous actions such as resigning as you.`);
+                }
+            });
+        }
+    } catch (error) {
+        $("#oauth-message-title").html("CHub OAuth");
+        $("#oauth-message-content").html("That does not look like a valid callback url.");
+    }
 }

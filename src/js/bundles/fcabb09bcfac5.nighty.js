@@ -77,14 +77,14 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.7)");
+    console.log("Drivers Hub: Frontend (Nighty Release) (v2.5.7)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?v2.5.7",
+        url: "/languages/en.json?v2.5.70720",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?v2.5.6",
+                    url: "/languages/" + language + ".json?v2.5.70720",
                     type: "GET",
                     dataType: "json",
                     success: function (data) {
@@ -199,10 +199,10 @@ function RandomB32String(length) {
     return result;
 }
 
-SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484" , "patron": "#DAA520", "server_booster": "#DAA520"};
+SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "patron": "#DAA520", "server_booster": "#DAA520" };
 
 function GetSpecialColor(discordid) {
-    if(specialRoles == undefined) return null;
+    if (specialRoles == undefined) return null;
     let spr = Object.keys(specialRoles);
     for (var i = 0; i < spr.length; i++) {
         if (specialRoles[spr[i]].includes(discordid)) {
@@ -835,6 +835,9 @@ function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
 
 // --- Main function
 function timeAgo(dateParam) {
+    if (dateParam.getTime() === new Date(0).getTime()) {
+        return "Never";
+    }
     if (!dateParam) {
         return null;
     }
@@ -1805,7 +1808,7 @@ function ShowDeliveryDetail(logid) {
                 return AjaxError(data);
             }
 
-            window.history.pushState("", "", '/delivery/' + logid);
+            window.history.pushState("", "", '/nighty/delivery/' + logid);
 
             d = data.response.dlog;
             currentDeliveryLog = d;
@@ -3404,55 +3407,54 @@ function UpdateBio() {
     });
 }
 
-function ResetApplicationToken(firstop = false) {
-    LockBtn("#button-settings-reset-application-token", mltr("resetting"));
+function GenerateApplicationToken(firstop = false) {
+    LockBtn("#button-settings-generate-application-token", mltr("working"));
 
-    if(mfaenabled){
+    if (mfaenabled) {
         otp = $("#mfa-otp").val();
 
-        if(otp.length != 6){
-            mfafunc = ResetApplicationToken;
-            setTimeout(function(){UnlockBtn("#button-settings-reset-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+        if (otp.length != 6) {
+            mfafunc = GenerateApplicationToken;
+            setTimeout(function () { UnlockBtn("#button-settings-generate-application-token"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
 
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
-            type: "PATCH",
+            type: "POST",
             dataType: "json",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             data: {
+                app_name: $("#application-token-app-name").val(),
                 otp: otp,
             },
             success: function (data) {
-                UnlockBtn("#button-settings-reset-application-token");
+                UnlockBtn("#button-settings-generate-application-token");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html(data.response.token);
-                $("#settings-application-token-p").hide();
-                $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
-                $("#button-application-token-copy").show();
-                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
+                $("#application-token-new").show();
+                toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
             error: function (data) {
-                if(firstop && data.status == 400){
+                if (firstop && data.status == 400) {
                     // failed due to auto try, then do mfa
-                    mfafunc = ResetApplicationToken;
-                    setTimeout(function(){UnlockBtn("#button-settings-reset-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    mfafunc = GenerateApplicationToken;
+                    setTimeout(function () { UnlockBtn("#button-settings-generate-application-token"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
                     return;
                 }
-                UnlockBtn("#button-settings-reset-application-token");
+                UnlockBtn("#button-settings-generate-application-token");
                 AjaxError(data);
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
             }
         });
     }
-    else{
+    else {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "PATCH",
@@ -3471,71 +3473,6 @@ function ResetApplicationToken(firstop = false) {
             },
             error: function (data) {
                 UnlockBtn("#button-settings-reset-application-token");
-                AjaxError(data);
-            }
-        });
-    }
-}
-
-function DisableApplicationToken(firstop = false) {
-    LockBtn("#button-settings-disable-application-token", mltr("disabling"));
-
-    if(mfaenabled){
-        otp = $("#mfa-otp").val();
-
-        if(otp.length != 6){
-            mfafunc = DisableApplicationToken;
-            setTimeout(function(){UnlockBtn("#button-settings-disable-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
-            return;
-        }
-
-        $.ajax({
-            url: api_host + "/" + dhabbr + "/token/application",
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            data: {
-                otp: otp
-            },
-            success: function (data) {
-                UnlockBtn("#button-settings-disable-application-token");
-                ShowTab("#user-settings-tab", "from-mfa");
-                mfafunc = null;
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(mltr("disabled"));
-                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
-            },
-            error: function (data) {
-                if(firstop && data.status == 400){
-                    // failed due to auto try, then do mfa
-                    mfafunc = DisableApplicationToken;
-                    setTimeout(function(){UnlockBtn("#button-settings-disable-application-token");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
-                    return;
-                }
-                UnlockBtn("#button-settings-disable-application-token");
-                AjaxError(data);
-                ShowTab("#user-settings-tab", "from-mfa");
-                mfafunc = null;
-            }
-        });
-    } else {
-        $.ajax({
-            url: api_host + "/" + dhabbr + "/token/application",
-            type: "DELETE",
-            dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            },
-            success: function (data) {
-                UnlockBtn("#button-settings-disable-application-token");
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(mltr("disabled"));
-                toastNotification("success", "Success", mltr("application_token_disabled"), 5000, false);
-            },
-            error: function (data) {
-                UnlockBtn("#button-settings-disable-application-token");
                 AjaxError(data);
             }
         });
@@ -3545,15 +3482,15 @@ function DisableApplicationToken(firstop = false) {
 function UpdatePassword(firstop = false) {
     LockBtn("#button-settings-password-update", mltr("updating"));
 
-    if(mfaenabled){
+    if (mfaenabled) {
         otp = $("#mfa-otp").val();
 
-        if(otp.length != 6){
+        if (otp.length != 6) {
             mfafunc = UpdatePassword;
-            setTimeout(function(){UnlockBtn("#button-settings-password-update");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            setTimeout(function () { UnlockBtn("#button-settings-password-update"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
-        
+
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
@@ -3574,10 +3511,10 @@ function UpdatePassword(firstop = false) {
                 toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
             error: function (data) {
-                if(firstop && data.status == 400){
+                if (firstop && data.status == 400) {
                     // failed due to auto try, then do mfa
                     mfafunc = UpdatePassword;
-                    setTimeout(function(){UnlockBtn("#button-settings-password-update");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    setTimeout(function () { UnlockBtn("#button-settings-password-update"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
                     return;
                 }
                 UnlockBtn("#button-settings-password-update");
@@ -3614,15 +3551,15 @@ function UpdatePassword(firstop = false) {
 function DisablePassword(firstop = false) {
     LockBtn("#button-settings-password-disable", mltr("disabling"));
 
-    if(mfaenabled){
+    if (mfaenabled) {
         otp = $("#mfa-otp").val();
 
-        if(otp.length != 6){
+        if (otp.length != 6) {
             mfafunc = DisablePassword;
-            setTimeout(function(){UnlockBtn("#button-settings-password-disable");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            setTimeout(function () { UnlockBtn("#button-settings-password-disable"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
-        
+
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
@@ -3641,10 +3578,10 @@ function DisablePassword(firstop = false) {
                 toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
-                if(firstop && data.status == 400){
+                if (firstop && data.status == 400) {
                     // failed due to auto try, then do mfa
                     mfafunc = DisablePassword;
-                    setTimeout(function(){UnlockBtn("#button-settings-password-disable");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+                    setTimeout(function () { UnlockBtn("#button-settings-password-disable"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
                     return;
                 }
                 UnlockBtn("#button-settings-password-disable");
@@ -3674,18 +3611,18 @@ function DisablePassword(firstop = false) {
     }
 }
 
-function DisableMFAShow(){
+function DisableMFAShow() {
     modalid = ShowModal(mltr('disable_mfa'), mltr('disable_mfa_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-disable-mfa" type="button" class="btn btn-danger" onclick="DisableMFA();">${mltr('disable')}</button>`);
     InitModal("disable_mfa", modalid);
 }
 
-function DisableMFA(){
+function DisableMFA() {
     otp = $("#mfa-otp").val();
-    
-    if(otp.length != 6){
+
+    if (otp.length != 6) {
         mfafunc = DisableMFA;
         LockBtn("#button-staff-disable-mfa", mltr("disabling"));
-        setTimeout(function(){UnlockBtn("#button-staff-disable-mfa");DestroyModal("disable_mfa");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+        setTimeout(function () { UnlockBtn("#button-staff-disable-mfa"); DestroyModal("disable_mfa"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
         return;
     }
 
@@ -3717,7 +3654,7 @@ function DisableMFA(){
 }
 
 mfasecret = "";
-function EnableMFAShow(){
+function EnableMFAShow() {
     mfasecret = RandomB32String(16);
     modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
     <label for="mfa-enable-otp" class="form-label">${mltr('otp')}</label>
@@ -3727,11 +3664,11 @@ function EnableMFAShow(){
     InitModal("enable_mfa", modalid);
 }
 
-function EnableMFA(){
+function EnableMFA() {
     otp = $("#mfa-enable-otp").val();
-    if(!isNumber(otp) || otp.length != 6)
+    if (!isNumber(otp) || otp.length != 6)
         return toastNotification("error", "Error", mltr("invalid_otp"), 5000);
-        
+
     LockBtn("#button-enable-mfa", mltr("enabling"));
 
     $.ajax({
@@ -3761,7 +3698,7 @@ function EnableMFA(){
     });
 }
 
-function UserResignShow(){
+function UserResignShow() {
     modalid = ShowModal(mltr('leave_company'), mltr('leave_company_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-user-resign" type="button" class="btn btn-primary" onclick="UserResign();">${mltr('resign')}</button>`);
     InitModal("user_resign", modalid);
 }
@@ -3770,10 +3707,10 @@ function UserResign() {
     LockBtn("#button-user-resign", mltr("resigning"));
 
     otp = $("#mfa-otp").val();
-    if(mfaenabled){
-        if(otp.length != 6){
+    if (mfaenabled) {
+        if (otp.length != 6) {
             mfafunc = UserResign;
-            setTimeout(function(){UnlockBtn("#button-user-resign");DestroyModal("user_resign");setTimeout(function(){ShowTab("#mfa-tab");},500);},1000);
+            setTimeout(function () { UnlockBtn("#button-user-resign"); DestroyModal("user_resign"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
             return;
         }
     }
@@ -3802,7 +3739,7 @@ function UserResign() {
     });
 }
 
-function LoadNotificationSettings(){
+function LoadNotificationSettings() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/settings",
         type: "GET",
@@ -3834,7 +3771,7 @@ function LoadNotificationSettings(){
     })
 }
 
-function EnableNotification(item, name){
+function EnableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
         type: "POST",
@@ -3843,15 +3780,15 @@ function EnableNotification(item, name){
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if(data.error) return AjaxError(data);
+            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_enabled')}!`, 5000);
-        }, error: function (data){
+        }, error: function (data) {
             AjaxError(data);
         }
     })
 }
 
-function DisableNotification(item, name){
+function DisableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
         type: "POST",
@@ -3860,9 +3797,9 @@ function DisableNotification(item, name){
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if(data.error) return AjaxError(data);
+            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_disabled')}!`, 5000);
-        }, error: function (data){
+        }, error: function (data) {
             AjaxError(data);
         }
     })
@@ -3874,25 +3811,21 @@ user_session_placeholder_row = `
     <td style="width:25%;"><span class="placeholder w-100"></span></td>
     <td style="width:25%;"><span class="placeholder w-100"></span></td>
     <td style="width:10%;"><span class="placeholder w-100"></span></td>
-</tr>`
+</tr>`;
 
-function LoadUserSessions(noplaceholder = false) {
-    if(!noplaceholder){
-        $("#table_session_data").empty();
-        for(var i = 0 ; i < 10 ; i ++){
-            $("#table_session_data").append(user_session_placeholder_row);
-        }    
-    }
-
+bearerSession = [];
+gslWorking = false;
+function GetSessionList(page = 1) {
+    if (gslWorking) return;
+    gslWorking = true;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/token/list?page_size=50",
+        url: api_host + "/" + dhabbr + "/token/list?page_size=250&page=" + page,
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            $("#table_session_data").empty();
             sessions = data.response.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
@@ -3907,7 +3840,7 @@ function LoadUserSessions(noplaceholder = false) {
                 else if (sessions[i].user_agent.indexOf("Opera") != -1) browser_icon = `<i class="fa-brands fa-opera"></i>`;
                 else if (sessions[i].user_agent.indexOf("Safari") != -1) browser_icon = `<i class="fa-brands fa-safari"></i>`;
 
-                $("#table_session_data").append(`<tr>
+                bearerSession.push(`<tr>
                     <td>${browser_icon}</td>
                     <td>${sessions[i].ip}</td>
                     <td>${sessions[i].country}</td>
@@ -3916,13 +3849,78 @@ function LoadUserSessions(noplaceholder = false) {
                     <td>${opbtn}</td>
                 </tr>`);
             }
+            if (parseInt(data.response.total_pages) > page) {
+                GetSessionList(page + 1);
+            } else {
+                gslWorking = false;
+            }
+        }
+    })
+}
+appSession = [];
+gatlWorking = false;
+function GetApplicationTokenList(page = 1) {
+    if (gatlWorking) return;
+    gatlWorking = true;
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/token/application/list?page_size=250&page=" + page,
+        type: "GET",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        success: function (data) {
+            sessions = data.response.list;
+            for (var i = 0; i < sessions.length; i++) {
+                opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
+
+                browser_icon = `<i class="fa-solid fa-link"></i>`;
+                if(sessions[i].app_name.toLowerCase().includes("bot")) browser_icon=`<i class="fa-solid fa-robot"></i>`
+
+                appSession.push(`<tr>
+                    <td>${browser_icon}</td>
+                    <td>${sessions[i].app_name}</td>
+                    <td><i>Application Token</i></td>
+                    <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
+                    <td>${timeAgo(new Date(sessions[i].last_used_timestamp * 1000))}</td>
+                    <td>${opbtn}</td>
+                </tr>`);
+            }
+            if (parseInt(data.response.total_pages) > page) {
+                GetApplicationTokenList(page + 1);
+            } else {
+                gatlWorking = false;
+            }
         }
     })
 }
 
+async function LoadUserSessions(noplaceholder = false) {
+    if (!noplaceholder) {
+        $("#table_session_data").empty();
+        for (var i = 0; i < 10; i++) {
+            $("#table_session_data").append(user_session_placeholder_row);
+        }
+    }
+
+    bearerSession = [];
+    appSession = [];
+
+    GetSessionList();
+    GetApplicationTokenList();
+    while(gslWorking || gatlWorking) await sleep(100);
+    $("#table_session_data").empty();
+    for(let i = 0 ; i < bearerSession.length ; i++){
+        $("#table_session_data").append(bearerSession[i]);
+    }
+    for(let i = 0 ; i < appSession.length ; i++){
+        $("#table_session_data").append(appSession[i]);
+    }
+}
+
 function RevokeToken(hsh) {
     if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
-        $("#button-revoke-token-" + hsh).html(mltr("confirm")+"?");
+        $("#button-revoke-token-" + hsh).html(mltr("confirm") + "?");
         return;
     }
 
@@ -3930,6 +3928,35 @@ function RevokeToken(hsh) {
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
+        type: "DELETE",
+        dataType: "json",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: {
+            "hash": hsh
+        },
+        success: function (data) {
+            if (data.error) return AjaxError(data);
+            LoadUserSessions(noplaceholder = true);
+            toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
+        },
+        error: function (data) {
+            AjaxError(data);
+        }
+    })
+}
+
+function RevokeApplicationToken(hsh) {
+    if ($("#button-revoke-token-" + hsh).html() == mltr("revoke")) {
+        $("#button-revoke-token-" + hsh).html(mltr("confirm") + "?");
+        return;
+    }
+
+    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"))
+
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/token/application",
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -3963,7 +3990,7 @@ function LoadUserList(noplaceholder = false) {
     page = parseInt($("#table_pending_user_list_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_pending_user_list_data").children().remove();
         for (i = 0; i < 15; i++) {
             $("#table_pending_user_list_data").append(user_placeholder_row);
@@ -3997,7 +4024,7 @@ function LoadUserList(noplaceholder = false) {
                 if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
-                if(userPerm.includes("hrm") || userPerm.includes("admin")){
+                if (userPerm.includes("hrm") || userPerm.includes("admin")) {
                     userop = `<div class="dropdown">
                         <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage
@@ -4016,7 +4043,7 @@ function LoadUserList(noplaceholder = false) {
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
                         </ul>
                     </div>`;
-                } else if(userPerm.includes("hr")){
+                } else if (userPerm.includes("hr")) {
                     userop = `<div class="dropdown">
                         <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Manage
@@ -4056,7 +4083,7 @@ function ShowUserDetail(discordid) {
         },
         success: function (data) {
             if (data.error) return AjaxError(data);
-            
+
             d = data.response.user;
             info = "";
             info += GenTableRow(mltr("name"), d.name);
@@ -4067,7 +4094,7 @@ function ShowUserDetail(discordid) {
             if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
                 info += GenTableRow(mltr("ban_reason"), bannedUserList[discordid]);
             }
-                
+
             modalid = ShowModal(d.name, `<table>${info}</table>`);
             InitModal("user_detail", modalid);
         },
@@ -4077,7 +4104,7 @@ function ShowUserDetail(discordid) {
     });
 }
 
-function AcceptAsMemberShow(discordid, name){
+function AcceptAsMemberShow(discordid, name) {
     modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">${mltr('accept')}</button>`);
     InitModal("accept_as_member", modalid);
 }
@@ -4097,7 +4124,7 @@ function AcceptAsMember(discordid) {
         success: function (data) {
             UnlockBtn("#button-accept-as-member");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.response.userid, 5000, false);
             DestroyModal("accept_as_member");
         },
@@ -4108,7 +4135,7 @@ function AcceptAsMember(discordid) {
     })
 }
 
-function UpdateDiscordShow(discordid, name){
+function UpdateDiscordShow(discordid, name) {
     modalid = ShowModal(mltr('update_discord_id'), `<p>${mltr('update_discord_id_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">${mltr('new_discord_id')}</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="">
@@ -4135,7 +4162,7 @@ function UpdateDiscord(old_discord_id) {
         success: function (data) {
             UnlockBtn("#button-update-discord");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_discord_id_has_been_updated"), 5000, false);
             DestroyModal("update_discord");
         },
@@ -4146,9 +4173,9 @@ function UpdateDiscord(old_discord_id) {
     })
 }
 
-function DisableUserMFAShow(discordid, name){
+function DisableUserMFAShow(discordid, name) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "GET",
         dataType: "json",
         headers: {
@@ -4157,7 +4184,7 @@ function DisableUserMFAShow(discordid, name){
         success: function (data) {
             if (data.error) return AjaxError(data)
             mfa = data.response.user.mfa;
-            if(!mfa){
+            if (!mfa) {
                 return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
             modalid = ShowModal(mltr('disable_mfa'), `<p>${mltr('disable_mfa_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('disable_mfa_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">${mltr('disable')}</button>`);
@@ -4173,7 +4200,7 @@ function StaffDisableMFA(discordid) {
     LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/mfa?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user/mfa?discordid=" + discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -4192,7 +4219,7 @@ function StaffDisableMFA(discordid) {
     })
 }
 
-function DeleteConnectionsShow(discordid, name){
+function DeleteConnectionsShow(discordid, name) {
     modalid = ShowModal(mltr('delete_connections'), `<p>${mltr('delete_connections_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_connections_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">${mltr('delete')}</button>`);
     InitModal("account_connections", modalid);
 }
@@ -4213,7 +4240,7 @@ function DeleteConnections(discordid) {
         success: function (data) {
             UnlockBtn("#button-delete-connections");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_account_connections_unbound"), 5000, false);
             DestroyModal("account_connections");
         },
@@ -4224,7 +4251,7 @@ function DeleteConnections(discordid) {
     })
 }
 
-function BanShow(discordid, name){
+function BanShow(discordid, name) {
     modalid = ShowModal(mltr('ban_user'), `<p>${mltr('ban_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('ban_user_note_2')}</p><br><label for="new-discord-id" class="form-label">${mltr('ban_until')}</label>
     <div class="input-group mb-3">
         <input type="date" class="form-control bg-dark text-white" id="ban-until">
@@ -4259,7 +4286,7 @@ function BanUser(discordid) {
         success: function (data) {
             UnlockBtn("#button-ban-user");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_banned"), 5000, false);
             DestroyModal("ban_user");
         },
@@ -4270,7 +4297,7 @@ function BanUser(discordid) {
     })
 }
 
-function UnbanShow(discordid, name){
+function UnbanShow(discordid, name) {
     modalid = ShowModal(mltr('unban_user'), `<p>${mltr('unban_user_note')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">${mltr('unban')}</button>`);
     InitModal("unban_user", modalid);
 }
@@ -4291,7 +4318,7 @@ function UnbanUser(discordid) {
         success: function (data) {
             UnlockBtn("#button-unban-user");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_unbanned"), 5000, false);
             DestroyModal("unban_user");
         },
@@ -4302,7 +4329,7 @@ function UnbanUser(discordid) {
     })
 }
 
-function DeleteUserShow(discordid, name){
+function DeleteUserShow(discordid, name) {
     modalid = ShowModal(mltr('delete_user'), `<p>${mltr('delete_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_user_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">${mltr('delete')}</button>`);
     InitModal("delete_user", modalid);
 }
@@ -4311,7 +4338,7 @@ function DeleteUser(discordid) {
     LockBtn("#button-delete-user", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "DELETE",
         dataType: "json",
         headers: {
@@ -4320,7 +4347,7 @@ function DeleteUser(discordid) {
         success: function (data) {
             UnlockBtn("#button-delete-user");
             if (data.error) return AjaxError(data);
-            LoadUserList(noplaceholder=true);
+            LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_deleted"), 5000, false);
             DestroyModal("delete_user");
         },
@@ -4331,7 +4358,7 @@ function DeleteUser(discordid) {
     })
 }
 
-function DeleteAccountShow(){
+function DeleteAccountShow() {
     modalid = ShowModal(mltr('delete_account'), mltr('delete_account_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">${mltr('delete')}</button>`);
     InitModal("delete_account", modalid);
 }
@@ -4360,7 +4387,7 @@ function DeleteAccount(discordid) {
     })
 }
 
-function LoadNotification(){
+function LoadNotification() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list",
         type: "GET",
@@ -4372,13 +4399,13 @@ function LoadNotification(){
             if (data.error) return AjaxError(data);
             d = data.response.list;
             $("#notification-dropdown").children().remove();
-            for(i = 0 ; i < d.length ; i++){
-                style="";
-                if(d[i].read) style="color:grey"
+            for (i = 0; i < d.length; i++) {
+                style = "";
+                if (d[i].read) style = "color:grey"
                 $("#notification-dropdown").append(`
                 <div>
-                    <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}</p>
-                    <p class="text-muted" style="margin-bottom:5px">${timeAgo(new Date(d[i].timestamp*1000))}</p>
+                    <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n", "<br>").replaceAll("<p>", "").replaceAll("</p>", "").slice(0, -1)}</p>
+                    <p class="text-muted" style="margin-bottom:5px">${timeAgo(new Date(d[i].timestamp * 1000))}</p>
                 </div>`);
             }
         }
@@ -4394,10 +4421,10 @@ function LoadNotification(){
         success: function (data) {
             if (data.error) return AjaxError(data);
             cnt = data.response.total_items;
-            if(cnt > 0 && cnt <= 99){
+            if (cnt > 0 && cnt <= 99) {
                 $("#notification-pop").show();
                 $("#unread-notification").html(cnt);
-            } else if (cnt >= 100){
+            } else if (cnt >= 100) {
                 $("#notification-pop").show();
                 $("#unread-notification").html("99+");
             }
@@ -4411,13 +4438,13 @@ notification_placerholder_row = `
     <td style="width:180px;"><span class="placeholder w-100"></span></td>
 </tr>`;
 
-function LoadNotificationList(noplaceholder = false){
+function LoadNotificationList(noplaceholder = false) {
     InitPaginate("#table_notification_list", "LoadNotificationList();");
     page = parseInt($("#table_notification_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_notification_list_data").empty();
-        for(var i = 0 ; i < 10 ; i++){
+        for (var i = 0; i < 10; i++) {
             $("#table_notification_list_data").append(notification_placerholder_row);
         }
     }
@@ -4430,7 +4457,7 @@ function LoadNotificationList(noplaceholder = false){
         },
         success: async function (data) {
             if (data.error) return AjaxError(data);
-            
+
             notificationList = data.response.list;
             total_pages = data.response.total_pages;
             data = [];
@@ -4438,7 +4465,7 @@ function LoadNotificationList(noplaceholder = false){
             for (i = 0; i < notificationList.length; i++) {
                 notification = notificationList[i];
 
-                data.push([`${marked.parse(notification.content).replaceAll("\n","<br>").replaceAll("<p>","").replaceAll("</p>","").slice(0,-1)}`, timeAgo(new Date(notification.timestamp * 1000))]);
+                data.push([`${marked.parse(notification.content).replaceAll("\n", "<br>").replaceAll("<p>", "").replaceAll("</p>", "").slice(0, -1)}`, timeAgo(new Date(notification.timestamp * 1000))]);
             }
 
             PushTable("#table_notification_list", data, total_pages, "LoadNotificationList();");
@@ -4449,8 +4476,8 @@ function LoadNotificationList(noplaceholder = false){
     });
 }
 
-function NotificationsMarkAllAsRead(){
-    if($("#unread-notification").html()=="") return;
+function NotificationsMarkAllAsRead() {
+    if ($("#unread-notification").html() == "") return;
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
         type: "PATCH",
@@ -4466,6 +4493,32 @@ function NotificationsMarkAllAsRead(){
             $("#unread-notification").html("");
         }
     });
+}
+
+function HandleOAuth() {
+    callback_url = getUrlParameter("callback_url");
+    try {
+        callback_url = new URL(callback_url);
+        if (!callback_url.host.endsWith(".oauth.chub.page")) {
+            $("#oauth-message-title").html("CHub OAuth");
+            $("#oauth-message-content").html("You are authorizing a third-party application that is not monitored by CHub. For your safety, please manually generate an Application Token in Settings - Security.");
+        } else {
+            $("#oauth-message-title").html("CHub OAuth");
+            $("#oauth-message-content").html("Fetching application information...");
+            $.ajax({
+                url: callback_url.protocol + "//" + callback_url.host + "/info",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    $("#oauth-message-title").html(`CHub X ${data.response.name}`);
+                    $("#oauth-message-content").html(`${data.response.name} wants to access your Drivers Hub account.<br>We will generate a new Application Token and send it to ${data.response.name}. They will be able to manage your account, but they won't be allowed to perform dangerous actions such as resigning as you.`);
+                }
+            });
+        }
+    } catch (error) {
+        $("#oauth-message-title").html("CHub OAuth");
+        $("#oauth-message-content").html("That does not look like a valid callback url.");
+    }
 }
 function toastNotification(type, title, text, time = 5) {
     new Noty({
@@ -4522,7 +4575,7 @@ $(document).ready(async function () {
     }
     
     try {
-        const socket = new WebSocket('wss://gateway.navio.app/');
+        const socket = new WebSocket('wss://gateway.tracksim.app/');
         socket.addEventListener("open", () => {
             socket.send(
                 JSON.stringify({
@@ -7259,7 +7312,7 @@ default_text_color = "white";
 
 token = localStorage.getItem("token");
 authorizationHeader = {};
-if(token != null) authorizationHeader = {"Authorization": "Bearer " + token};
+if (token != null) authorizationHeader = { "Authorization": "Bearer " + token };
 userid = localStorage.getItem("userid");
 isAdmin = false;
 requireCaptcha = false;
@@ -7267,7 +7320,7 @@ highestrole = "Unknown Role";
 highestroleid = 99999;
 roles = SafeParse(localStorage.getItem("roles"));
 rolelist = SafeParse(localStorage.getItem("role-list"));
-specialRoles =  SafeParse(localStorage.getItem("special-roles"));
+specialRoles = SafeParse(localStorage.getItem("special-roles"));
 rolecolor = SafeParse(localStorage.getItem("role-color"));
 perms = SafeParse(localStorage.getItem("perms"));
 positions = SafeParse(localStorage.getItem("positions"));
@@ -7288,23 +7341,24 @@ allmembers = {};
 profile_userid = -1;
 modals = {};
 modalName2ID = {};
+callback_url = ""; // for oauth
 
 var TSRadio;
 
-function TSRPlay(){
+function TSRPlay() {
     TSRadio = new Audio('https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3');
     TSRadio.play();
     $("#tsr-control").attr("onclick", "TSRPause();");
     $("#tsr-control").html(`<i class="fa-solid fa-circle-pause" style="color:#2F8DF8;font-size:40px;"></i>`);
 }
 
-function TSRPause(){
+function TSRPause() {
     TSRadio.pause();
     $("#tsr-control").attr("onclick", "TSRPlay();");
     $("#tsr-control").html(`<i class="fa-solid fa-circle-play" style="color:#2F8DF8;font-size:40px;"></i>`);
 }
 
-function TSRUpdate(){
+function TSRUpdate() {
     $.ajax({
         url: "https://truckstopradio.co.uk/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing",
         type: "GET",
@@ -7319,11 +7373,11 @@ function TSRUpdate(){
 }
 
 // NOTE 2022 Wrapped
-function Load2022Wrapped(){
+function Load2022Wrapped() {
     // export dlog / load dlog from cache
     w22dlog = localStorage.getItem("dlog-export-cache");
     w22cachetime = localStorage.getItem("dlog-export-cache-time");
-    if(w22dlog == null || +new Date() - w22cachetime >= 3600000 && w22cachetime <= 1672531200000){
+    if (w22dlog == null || +new Date() - w22cachetime >= 3600000 && w22cachetime <= 1672531200000) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/dlog/export",
             type: "GET",
@@ -7335,8 +7389,8 @@ function Load2022Wrapped(){
                 end_time: 1672531199
             },
             success: function (data) {
-                if (data.error){
-                    if(w22dlog == null){
+                if (data.error) {
+                    if (w22dlog == null) {
                         console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
                     } else {
                         console.warn("Failed to export delivery log, using last export cache.");
@@ -7348,7 +7402,7 @@ function Load2022Wrapped(){
                 localStorage.setItem("dlog-export-cache-time", +new Date());
             },
             error: function (data) {
-                if(w22dlog == null){
+                if (w22dlog == null) {
                     console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
                 } else {
                     console.warn("Failed to export delivery log, using last export cache.");
@@ -7356,7 +7410,7 @@ function Load2022Wrapped(){
             }
         })
     }
-    if(w22dlog == null) return;
+    if (w22dlog == null) return;
     w22data = CSVToArray(w22dlog);
 
     firstdlog = null;
@@ -7369,7 +7423,7 @@ function Load2022Wrapped(){
     firstdivision = null;
     mostprofit = null;
     profitmax = -1;
-    
+
     distancecount = 0;
     jobcount = 0;
     fuelcount = 0;
@@ -7379,30 +7433,30 @@ function Load2022Wrapped(){
     routecount = {};
     truckcount = {};
     cargocount = {};
-    for(var i = 0 ; i < w22data.length ; i++){
+    for (var i = 0; i < w22data.length; i++) {
         w22d = w22data[i];
-        if(w22d[7] != localStorage.getItem("userid")) continue;
-        if(w22d[6] == "1" && firstdlog == null) firstdlog = w22d;
-        if(w22d[6] == "1" && parseFloat(w22d[13]) > parseFloat(longestmax)) longestmax = w22d[13], longestdlog = w22d;
-        if(w22d[6] == "0" && firstcancel == null) firstcancel = w22d;
-        if(parseFloat(w22d[18]) > parseFloat(damagemax)) damagemax = w22d[18], mostdamage = w22d;
-        if(w22d[6] == "1" && w22d[33] != undefined && firstdivision == null) firstdivision = w22d;
-        if(w22d[6] == "1" && w22d[34] != undefined && firstchallenge == null) firstchallenge = w22d;
-        if(w22d[6] == "1" && parseFloat(w22d[31]) > parseFloat(profitmax)) profitmax = w22d[31], mostprofit = w22d;
-        if(w22d[6] != "1") continue;
+        if (w22d[7] != localStorage.getItem("userid")) continue;
+        if (w22d[6] == "1" && firstdlog == null) firstdlog = w22d;
+        if (w22d[6] == "1" && parseFloat(w22d[13]) > parseFloat(longestmax)) longestmax = w22d[13], longestdlog = w22d;
+        if (w22d[6] == "0" && firstcancel == null) firstcancel = w22d;
+        if (parseFloat(w22d[18]) > parseFloat(damagemax)) damagemax = w22d[18], mostdamage = w22d;
+        if (w22d[6] == "1" && w22d[33] != undefined && firstdivision == null) firstdivision = w22d;
+        if (w22d[6] == "1" && w22d[34] != undefined && firstchallenge == null) firstchallenge = w22d;
+        if (w22d[6] == "1" && parseFloat(w22d[31]) > parseFloat(profitmax)) profitmax = w22d[31], mostprofit = w22d;
+        if (w22d[6] != "1") continue;
         distancecount += parseFloat(w22d[13]);
         jobcount += 1;
         fuelcount += parseFloat(w22d[23]);
         if (w22d[2].startsWith("e")) eprofitcount += parseFloat(w22d[31]);
         else aprofitcount += parseFloat(w22d[31]);
         dest = w22d[12];
-        if(destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
+        if (destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
         route = w22d[10] + " - " + w22d[12];
-        if(routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
+        if (routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
         truck = w22d[19] + " " + w22d[20];
-        if(truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
+        if (truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
         cargo = w22d[16];
-        if(cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
+        if (cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
     }
 
     username = localStorage.getItem("name");
@@ -7426,34 +7480,34 @@ function Load2022Wrapped(){
     $("#22w-timeline").append(GenTimelineItem("The Beginning", `You joined <b>${company_name}</b>.`, join_timestamp * 1000, "white"));
 
     timeline = {};
-    if(firstdlog != null){
+    if (firstdlog != null) {
         punit = "€";
         if (!firstdlog[2].startsWith("e")) punit = "$";
-        timeline[parseInt(+new Date(firstdlog[3]) + "00")] = GenTimelineItem("First Delivery", `You made your first delivery carrying <b style="color:#2fc1f7">${firstdlog[16]}</b> from <b style="color:#2fc1f7">${firstdlog[9]}, ${firstdlog[10]}</b> to <b style="color:#2fc1f7">${firstdlog[11]}, ${firstdlog[12]}</b>. You drove <b style="color:#2fc1f7">${TSeparator(parseInt(firstdlog[13]* distance_ratio))}${distance_unit_txt}</b> and earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>.`, +new Date(firstdlog[3]), "green");
+        timeline[parseInt(+new Date(firstdlog[3]) + "00")] = GenTimelineItem("First Delivery", `You made your first delivery carrying <b style="color:#2fc1f7">${firstdlog[16]}</b> from <b style="color:#2fc1f7">${firstdlog[9]}, ${firstdlog[10]}</b> to <b style="color:#2fc1f7">${firstdlog[11]}, ${firstdlog[12]}</b>. You drove <b style="color:#2fc1f7">${TSeparator(parseInt(firstdlog[13] * distance_ratio))}${distance_unit_txt}</b> and earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>.`, +new Date(firstdlog[3]), "green");
     }
-    if(firstdivision != null){
+    if (firstdivision != null) {
         punit = "€";
         if (!mostdamage[2].startsWith("e")) punit = "$";
         timeline[parseInt(+new Date(mostdamage[3]) + "01")] = GenTimelineItem("First Division Delivery", `You sent <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. That is your first delivery accepted by division management team.`, +new Date(mostdamage[3]), "green");
     }
-    if(firstchallenge != null){
+    if (firstchallenge != null) {
         punit = "€";
         if (!firstchallenge[2].startsWith("e")) punit = "$";
         timeline[parseInt(+new Date(firstchallenge[3]) + "02")] = GenTimelineItem("First Challenge Delivery", `You sent <b style="color:#2fc1f7">${firstchallenge[16]}</b> from <b style="color:#2fc1f7">${firstchallenge[9]}, ${firstchallenge[10]}</b> to <b style="color:#2fc1f7">${firstchallenge[11]}, ${firstchallenge[12]}</b>. That is your first delivery accepted by the challenge system.`, +new Date(firstchallenge[3]), "green");
     }
-    if(longestdlog != null){
-        timeline[parseInt(+new Date(longestdlog[3]) + "10")] = GenTimelineItem("Well, it's far", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(longestdlog[13]* distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${longestdlog[16]}</b> from <b style="color:#2fc1f7">${longestdlog[9]}, ${longestdlog[10]}</b> to <b style="color:#2fc1f7">${longestdlog[11]}, ${longestdlog[12]}</b>. That is the longest job you've ever submitted.`, +new Date(longestdlog[3]), "yellow");
+    if (longestdlog != null) {
+        timeline[parseInt(+new Date(longestdlog[3]) + "10")] = GenTimelineItem("Well, it's far", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(longestdlog[13] * distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${longestdlog[16]}</b> from <b style="color:#2fc1f7">${longestdlog[9]}, ${longestdlog[10]}</b> to <b style="color:#2fc1f7">${longestdlog[11]}, ${longestdlog[12]}</b>. That is the longest job you've ever submitted.`, +new Date(longestdlog[3]), "yellow");
     }
-    if(mostprofit != null){
+    if (mostprofit != null) {
         punit = "€";
         if (!mostprofit[2].startsWith("e")) punit = "$";
-        avgpft = parseFloat(parseInt(mostprofit[31]) / parseInt(mostprofit[13]*distance_ratio)).toPrecision(2);
-        timeline[parseInt(+new Date(mostprofit[3]) + "11")] = GenTimelineItem("Wow, that's a lot!", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(mostprofit[13]*distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${mostprofit[16]}</b> from <b style="color:#2fc1f7">${mostprofit[9]}, ${mostprofit[10]}</b> to <b style="color:#2fc1f7">${mostprofit[11]}, ${mostprofit[12]}</b>. You earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>, that is <b style="color:#2fc1f7">${punit}${avgpft}/${distance_unit_txt}</b>.`, +new Date(mostprofit[3]), "yellow");
+        avgpft = parseFloat(parseInt(mostprofit[31]) / parseInt(mostprofit[13] * distance_ratio)).toPrecision(2);
+        timeline[parseInt(+new Date(mostprofit[3]) + "11")] = GenTimelineItem("Wow, that's a lot!", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(mostprofit[13] * distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${mostprofit[16]}</b> from <b style="color:#2fc1f7">${mostprofit[9]}, ${mostprofit[10]}</b> to <b style="color:#2fc1f7">${mostprofit[11]}, ${mostprofit[12]}</b>. You earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>, that is <b style="color:#2fc1f7">${punit}${avgpft}/${distance_unit_txt}</b>.`, +new Date(mostprofit[3]), "yellow");
     }
-    if(mostdamage != null){
-        timeline[parseInt(+new Date(mostdamage[3]) + "20")] = GenTimelineItem("Damm!", `You are sending <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. But you crashed and the cargo is <b style="color:#2fc1f7">${parseFloat(mostdamage[18]*100).toPrecision(2)}%</b> damaged.`, +new Date(mostdamage[3]), "red");
+    if (mostdamage != null) {
+        timeline[parseInt(+new Date(mostdamage[3]) + "20")] = GenTimelineItem("Damm!", `You are sending <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. But you crashed and the cargo is <b style="color:#2fc1f7">${parseFloat(mostdamage[18] * 100).toPrecision(2)}%</b> damaged.`, +new Date(mostdamage[3]), "red");
     }
-    if(firstcancel != null){
+    if (firstcancel != null) {
         punit = "€";
         if (!firstcancel[2].startsWith("e")) punit = "$";
         timeline[parseInt(+new Date(firstcancel[3]) + "00")] = GenTimelineItem("It's abandoned...", `This is the first time you cancelled a job. Never mind, it's OK that you take another job.`, +new Date(firstcancel[3]), "red");
@@ -7467,7 +7521,7 @@ function Load2022Wrapped(){
     }
 
     dt2023 = +new Date(1672531199680);
-    if(+new Date() < 1672531199680) dt2023 = +new Date();
+    if (+new Date() < 1672531199680) dt2023 = +new Date();
 
     eqcount = parseFloat(distancecount / 40075).toFixed(1);
     distancecount = TSeparator(parseInt(distancecount * distance_ratio));
@@ -7481,7 +7535,7 @@ function Load2022Wrapped(){
     maxcargo = Object.entries(cargocount).sort((a, b) => b[1] - a[1])[0][0];
     content = `You completed a total of <b style="color:#2fc1f7">${jobcount}</b> jobs this year, consuming <b style="color:#2fc1f7">${fuelcount}${fuel_unit_txt}</b> fuel, resulting in a profit of <b style="color:#2fc1f7">€${eprofitcount}</b> and <b style="color:#2fc1f7">$${aprofitcount}</b>.<br>You traveled a distance of <b style="color:#2fc1f7">${distancecount}${distance_unit_txt}</b>, which is an impressive feat and equivalent to driving around the equator <b style="color:#2fc1f7">${eqcount} times</b>.<br>Your most preferred truck was <b style="color:#2fc1f7">${maxtruck}</b>, and the cargo <b style="color:#2fc1f7">${maxcargo}</b> was the most frequently transported.<br>The route <b style="color:#2fc1f7">${maxroute}</b> was driven the most, and the destination <b style="color:#2fc1f7">${maxdest}</b> received the most cargos.<br>Keep up the great work!`;
     $("#22w-timeline").append(GenTimelineItem("In 2022,", content, dt2023, "white"));
-    
+
     distancecount = 0;
     jobcount = 0;
     fuelcount = 0;
@@ -7491,22 +7545,22 @@ function Load2022Wrapped(){
     routecount = {};
     truckcount = {};
     cargocount = {};
-    for(var i = 0 ; i < w22data.length ; i++){
+    for (var i = 0; i < w22data.length; i++) {
         w22d = w22data[i];
-        if(w22d[6] != "1") continue;
+        if (w22d[6] != "1") continue;
         distancecount += parseFloat(w22d[13]);
         jobcount += 1;
         fuelcount += parseFloat(w22d[23]);
         if (w22d[2].startsWith("e")) eprofitcount += parseFloat(w22d[31]);
         else aprofitcount += parseFloat(w22d[31]);
         dest = w22d[12];
-        if(destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
+        if (destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
         route = w22d[10] + " - " + w22d[12];
-        if(routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
+        if (routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
         truck = w22d[19] + " " + w22d[20];
-        if(truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
+        if (truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
         cargo = w22d[16];
-        if(cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
+        if (cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
     }
     eqcount = parseFloat(distancecount / 40075).toFixed(1);
     distancecount = TSeparator(parseInt(distancecount * distance_ratio));
@@ -7523,7 +7577,7 @@ function Load2022Wrapped(){
     $("#22w-timeline").append(GenTimelineItem("What about the entire company?", content, dt2023, "white"));
     $("#22w-timeline").append("<div></div>"); // placeholder for longer fadeIn
     $("#22w-timeline").append(GenTimelineItem("Wait, it has not ended!", "We as CHub Team have something to show you!", dt2023, "white"));
-    
+
     $("#sidebar-information").after(`<li class="nav-item">
         <a id="button-2022wrapped-tab" onclick="ShowTab('#2022wrapped-tab', '#button-2022wrapped-tab')" class="nav-link text-white clickable" aria-current="page">
             <span class="rect-20"><i class="fa-solid fa-gift"></i></span>
@@ -7531,28 +7585,28 @@ function Load2022Wrapped(){
         </a>
     </li>`);
 
-    if(curtab == "#2022wrapped-tab"){
+    if (curtab == "#2022wrapped-tab") {
         $(".nav-link").removeClass("active");
         $("#button-2022wrapped-tab").addClass("active");
     }
 }
 
-function Show2022Wrapped(){
+function Show2022Wrapped() {
     w22tlonshow = 0;
-    w22tlint = setInterval(function(){
-        if(w22tlonshow >= $("#22w-timeline").children().length){
-            setTimeout(function(){
+    w22tlint = setInterval(function () {
+        if (w22tlonshow >= $("#22w-timeline").children().length) {
+            setTimeout(function () {
                 $("#2022wrapped-left").animate({
                     width: "66.6666%"
                 }, 1000);
                 $("html, body").animate({
                     scrollTop: 0
                 }, 1200);
-                setTimeout(function(){
+                setTimeout(function () {
                     $("#2022wrapped-left").addClass("col-7");
-                    $("#2022wrapped-left").attr("style","");
+                    $("#2022wrapped-left").attr("style", "");
                     $("#2022wrapped-right").fadeIn();
-                    $($("#2022wrapped-left").children()[0]).css("margin","");
+                    $($("#2022wrapped-left").children()[0]).css("margin", "");
                     $($("#2022wrapped-left").children()[0]).addClass("m-1");
                     $("#22w-timeline").children().last().remove();
                 }, 1100);
@@ -7599,10 +7653,10 @@ function Logout() {
 }
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
-simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
+simplemde = { "#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined }
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
-async function InitDefaultValues(){
+async function InitDefaultValues() {
     $("#mfa-otp").val("");
     $("textarea").val("");
     $("body").keydown(function (e) {
@@ -7624,9 +7678,9 @@ async function InitDefaultValues(){
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
     $("#application-type-default").prop("selected", true);
-    $("#statistics-chart-select-360d").prop("selected",true);
-    $("#user-statistics-chart-select-360d").prop("selected",true);
-    
+    $("#statistics-chart-select-360d").prop("selected", true);
+    $("#user-statistics-chart-select-360d").prop("selected", true);
+
     // for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $('#input-leaderboard-search').flexdatalist({
         selectionRequired: 1,
@@ -7729,11 +7783,11 @@ function InitInputHandler() {
         let passwordInput = $("#signin-password");
         let passwordType = passwordInput.attr("type");
         if (passwordType === "password") {
-          passwordInput.attr("type", "text");
-          $("#toggleLoginPassword").removeClass("fa-eye").addClass("fa-eye-slash");
+            passwordInput.attr("type", "text");
+            $("#toggleLoginPassword").removeClass("fa-eye").addClass("fa-eye-slash");
         } else {
-          passwordInput.attr("type", "password");
-          $("#toggleLoginPassword").removeClass("fa-eye-slash").addClass("fa-eye");
+            passwordInput.attr("type", "password");
+            $("#toggleLoginPassword").removeClass("fa-eye-slash").addClass("fa-eye");
         }
     });
 }
@@ -7812,7 +7866,7 @@ loadworking = false;
 async function ShowTab(tabname, btnname) {
     $(".modal").fadeOut();
     $(".modal-backdrop").fadeOut();
-    setTimeout(function(){$(".modal").remove();$(".modal-backdrop").remove();},1000);
+    setTimeout(function () { $(".modal").remove(); $(".modal-backdrop").remove(); }, 1000);
     loadworking = true;
     curtab = tabname;
     clearInterval(dmapint);
@@ -7830,7 +7884,7 @@ async function ShowTab(tabname, btnname) {
         $(btnname).addClass("active");
     }
     if (tabname == "#map-tab") {
-        window.history.pushState("", "", '/map');
+        window.history.pushState("", "", '/nighty/map');
         document.title = mltr("live_map") + " - " + company_name;
         window.autofocus["map"] = -2;
         window.autofocus["amap"] = -2;
@@ -7842,8 +7896,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
-        else window.history.pushState("", "", '/member/' + userid);
+        if (String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/nighty/member/@me');
+        else window.history.pushState("", "", '/nighty/member/' + userid);
         document.title = mltr("member") + " - " + company_name;
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
@@ -7852,21 +7906,21 @@ async function ShowTab(tabname, btnname) {
         LoadUserProfile(userid);
     }
     if (tabname == "#notification-tab") {
-        window.history.pushState("", "", '/notification');
+        window.history.pushState("", "", '/nighty/notification');
         document.title = mltr("notifications") + " - " + company_name;
         LoadNotificationList(noplaceholder = loaded);
     }
     // NOTE 2022 Wrapped
     if (tabname == "#2022wrapped-tab") {
-        window.history.pushState("", "", '/2022wrapped');
+        window.history.pushState("", "", '/nighty/2022wrapped');
         document.title = "2022 Wrapped - " + company_name;
-        if(!loaded) Show2022Wrapped();
+        if (!loaded) Show2022Wrapped();
     }
     if (tabname == "#overview-tab") {
-        window.history.pushState("", "", '/');
+        window.history.pushState("", "", '/nighty/');
         document.title = mltr("overview") + " - " + company_name;
         LoadStats(noplaceholder = loaded);
-        if(!loaded){
+        if (!loaded) {
             $("#statistics-chart-select").change(function () {
                 chartscale = parseInt($(this).val());
                 LoadChart();
@@ -7879,7 +7933,7 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#signin-tab", "#button-signin-tab");`);
-        window.history.pushState("", "", '/login');
+        window.history.pushState("", "", '/nighty/login');
         document.title = mltr("login") + " - " + company_name;
     }
     if (tabname == "#captcha-tab") {
@@ -7888,7 +7942,7 @@ async function ShowTab(tabname, btnname) {
             return;
         }
         $("#button-user-profile").attr("onclick", `ShowTab("#captcha-tab", "#button-captcha-tab");`);
-        window.history.pushState("", "", '/captcha');
+        window.history.pushState("", "", '/nighty/captcha');
         document.title = mltr("captcha") + " - " + company_name;
     }
     if (tabname == "#mfa-tab") {
@@ -7902,21 +7956,21 @@ async function ShowTab(tabname, btnname) {
             ShowTab("#overview-tab", "#button-overview-tab");
             return;
         }
-        window.history.pushState("", "", '/mfa');
+        window.history.pushState("", "", '/nighty/mfa');
         document.title = mltr("mfa") + " - " + company_name;
     }
     if (tabname == "#announcement-tab") {
-        window.history.pushState("", "", '/announcement');
+        window.history.pushState("", "", '/nighty/announcement');
         LoadAnnouncement(noplaceholder = loaded);
         document.title = mltr("announcements") + " - " + company_name;
     }
     if (tabname == "#downloads-tab") {
-        window.history.pushState("", "", '/downloads');
+        window.history.pushState("", "", '/nighty/downloads');
         LoadDownloads(noplaceholder = loaded);
         document.title = mltr("downloads") + " - " + company_name;
     }
     if (tabname == "#delivery-tab") {
-        window.history.pushState("", "", '/delivery');
+        window.history.pushState("", "", '/nighty/delivery');
         document.title = mltr("delivery") + " - " + company_name;
         $("#delivery-log-userid").val("");
         $("#company-statistics").show();
@@ -7937,8 +7991,8 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#user-delivery-tab") {
         userid = btnname;
         profile_userid = userid;
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
-        else window.history.pushState("", "", '/member/' + userid);
+        if (String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/nighty/member/@me');
+        else window.history.pushState("", "", '/nighty/member/' + userid);
         document.title = mltr("member") + " - " + company_name;
         $("#company-statistics").hide();
         $("#button-delivery-export").hide();
@@ -7954,22 +8008,22 @@ async function ShowTab(tabname, btnname) {
         $("#delivery-tab").attr("last-load-userid", userid);
     }
     if (tabname == "#challenge-tab") {
-        window.history.pushState("", "", '/challenge');
+        window.history.pushState("", "", '/nighty/challenge');
         document.title = mltr("challenges") + " - " + company_name;
         LoadChallenge(noplaceholder = loaded);
     }
     if (tabname == "#division-tab") {
-        window.history.pushState("", "", '/division');
+        window.history.pushState("", "", '/nighty/division');
         document.title = mltr("divisions") + " - " + company_name;
         LoadDivisionInfo(noplaceholder = loaded);
     }
     if (tabname == "#event-tab") {
-        window.history.pushState("", "", '/event');
+        window.history.pushState("", "", '/nighty/event');
         document.title = mltr("events") + " - " + company_name;
         LoadEvent(noplaceholder = loaded);
     }
     if (tabname == "#member-tab") {
-        window.history.pushState("", "", '/member');
+        window.history.pushState("", "", '/nighty/member');
         document.title = mltr("members") + " - " + company_name;
         if (!loaded) {
             LoadXOfTheMonth();
@@ -7977,53 +8031,53 @@ async function ShowTab(tabname, btnname) {
         LoadMemberList(noplaceholder = loaded);
     }
     if (tabname == "#leaderboard-tab") {
-        window.history.pushState("", "", '/leaderboard');
+        window.history.pushState("", "", '/nighty/leaderboard');
         document.title = mltr("leaderboard") + " - " + company_name;
         LoadLeaderboard(noplaceholder = loaded);
     }
     if (tabname == "#ranking-tab") {
-        window.history.pushState("", "", '/ranking');
+        window.history.pushState("", "", '/nighty/ranking');
         document.title = mltr("rankings") + " - " + company_name;
         if (!loaded) LoadRanking();
     }
     if (tabname == "#submit-application-tab") {
-        window.history.pushState("", "", '/application/new');
+        window.history.pushState("", "", '/nighty/application/new');
         document.title = mltr("new_application") + " - " + company_name;
     }
     if (tabname == "#my-application-tab") {
-        window.history.pushState("", "", '/application/my');
+        window.history.pushState("", "", '/nighty/application/my');
         document.title = mltr("my_applications") + " - " + company_name;
         LoadUserApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#all-application-tab") {
-        window.history.pushState("", "", '/application/all');
+        window.history.pushState("", "", '/nighty/application/all');
         document.title = mltr("all_applications") + " - " + company_name;
         LoadAllApplicationList(noplaceholder = loaded);
     }
     if (tabname == "#manage-user-tab") {
-        window.history.pushState("", "", '/manage/user');
+        window.history.pushState("", "", '/nighty/manage/user');
         document.title = mltr("pending_users") + " - " + company_name;
         LoadUserList(noplaceholder = loaded);
-        if(!loaded){
-            $(document).on('keydown', function(e) {
+        if (!loaded) {
+            $(document).on('keydown', function (e) {
                 if (e.ctrlKey && e.altKey && e.keyCode === 85) {
                     discordid = prompt("Enter Discord ID to unban:");
-                    if(!isNumber(discordid)) {
+                    if (!isNumber(discordid)) {
                         alert("Discord ID must be an integer!");
                         return;
                     }
                     UnbanUser(discordid);
                 }
-              });
+            });
         }
     }
     if (tabname == "#audit-tab") {
-        window.history.pushState("", "", '/audit');
+        window.history.pushState("", "", '/nighty/audit');
         document.title = mltr("audit_log") + " - " + company_name;
         LoadAuditLog(noplaceholder = loaded);
     }
     if (tabname == "#config-tab") {
-        window.history.pushState("", "", '/config');
+        window.history.pushState("", "", '/nighty/config');
         document.title = mltr("configuration") + " - " + company_name;
         LoadConfiguration();
         $("#config-subtab").children().removeClass("active");
@@ -8040,69 +8094,69 @@ async function ShowTab(tabname, btnname) {
         // }
     }
     if (tabname == "#user-settings-tab") {
-        window.history.pushState("", "", '/settings');
+        window.history.pushState("", "", '/nighty/settings');
         document.title = mltr("settings") + " - " + company_name;
         LoadNotificationSettings();
         LoadUserSessions();
-        if(!loaded){
-            $("#notifications-drivershub").on("change", function(){
-                if($("#notifications-drivershub").prop("checked")){
+        if (!loaded) {
+            $("#notifications-drivershub").on("change", function () {
+                if ($("#notifications-drivershub").prop("checked")) {
                     EnableNotification("drivershub", mltr("drivers_hub"));
                 } else {
                     DisableNotification("drivershub", mltr("drivers_hub"));
                 }
             });
-            $("#notifications-discord").on("change", function(){
-                if($("#notifications-discord").prop("checked")){
+            $("#notifications-discord").on("change", function () {
+                if ($("#notifications-discord").prop("checked")) {
                     EnableNotification("discord", mltr("discord"));
                 } else {
                     DisableNotification("discord", mltr("discord"));
                 }
             });
-            $("#notifications-login").on("change", function(){
-                if($("#notifications-login").prop("checked")){
+            $("#notifications-login").on("change", function () {
+                if ($("#notifications-login").prop("checked")) {
                     EnableNotification("login", mltr("login"));
                 } else {
                     DisableNotification("login", mltr("login"));
                 }
             });
-            $("#notifications-dlog").on("change", function(){
-                if($("#notifications-dlog").prop("checked")){
+            $("#notifications-dlog").on("change", function () {
+                if ($("#notifications-dlog").prop("checked")) {
                     EnableNotification("dlog", mltr("delivery_log"));
                 } else {
                     DisableNotification("dlog", mltr("delivery_log"));
                 }
             });
-            $("#notifications-member").on("change", function(){
-                if($("#notifications-member").prop("checked")){
+            $("#notifications-member").on("change", function () {
+                if ($("#notifications-member").prop("checked")) {
                     EnableNotification("member", mltr("member"));
                 } else {
                     DisableNotification("member", mltr("member"));
                 }
             });
-            $("#notifications-application").on("change", function(){
-                if($("#notifications-application").prop("checked")){
+            $("#notifications-application").on("change", function () {
+                if ($("#notifications-application").prop("checked")) {
                     EnableNotification("application", mltr("application"));
                 } else {
                     DisableNotification("application", mltr("application"));
                 }
             });
-            $("#notifications-challenge").on("change", function(){
-                if($("#notifications-challenge").prop("checked")){
+            $("#notifications-challenge").on("change", function () {
+                if ($("#notifications-challenge").prop("checked")) {
                     EnableNotification("challenge", mltr("challenge"));
                 } else {
                     DisableNotification("challenge", mltr("challenge"));
                 }
             });
-            $("#notifications-division").on("change", function(){
-                if($("#notifications-division").prop("checked")){
+            $("#notifications-division").on("change", function () {
+                if ($("#notifications-division").prop("checked")) {
                     EnableNotification("division", mltr("division"));
                 } else {
                     DisableNotification("division", mltr("division"));
                 }
             });
-            $("#notifications-event").on("change", function(){
-                if($("#notifications-event").prop("checked")){
+            $("#notifications-event").on("change", function () {
+                if ($("#notifications-event").prop("checked")) {
                     EnableNotification("event", mltr("event"));
                 } else {
                     DisableNotification("event", mltr("event"));
@@ -8138,7 +8192,7 @@ function UpdateRolesOnDisplay() {
 }
 
 function LoadCache(force) {
-    if(force) localStorage.removeItem("cache-expire");
+    if (force) localStorage.removeItem("cache-expire");
     rolelist = SafeParse(localStorage.getItem("role-list"));
     specialRoles = SafeParse(localStorage.getItem("special-roles"));
     perms = SafeParse(localStorage.getItem("perms"));
@@ -8231,7 +8285,7 @@ function LoadCache(force) {
                 for (i = 0; i < d.length; i++) {
                     RANKING[parseInt(d[i]["points"])] = d[i]["name"];
                     RANKCLR[parseInt(d[i]["points"])] = d[i]["color"];
-                    if(RANKCLR[parseInt(d[i]["points"])] == undefined) RANKCLR[parseInt(d[i]["points"])] = default_text_color;
+                    if (RANKCLR[parseInt(d[i]["points"])] == undefined) RANKCLR[parseInt(d[i]["points"])] = default_text_color;
                 }
                 localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
                 localStorage.setItem("driver-ranks-color", JSON.stringify(RANKCLR));
@@ -8261,11 +8315,11 @@ function LoadCache(force) {
     }
 }
 
-function ClearCache(){
+function ClearCache() {
     localStorage.removeItem("cache-expire");
     localStorage.removeItem("no-tsr");
-    toastNotification("success","Success","Local cache cleared!",5000);
-    setTimeout(function(){window.location.reload();},500);
+    toastNotification("success", "Success", "Local cache cleared!", 5000);
+    setTimeout(function () { window.location.reload(); }, 500);
 }
 
 userPermLoaded = false;
@@ -8291,8 +8345,8 @@ function GetUserPermission() {
 function ShowStaffTabs() {
     t = SafeParse(JSON.stringify(userPerm));
     if (t == null) return;
-    if(t.indexOf('user') != -1) t.splice(t.indexOf('user'),1);
-    if(t.indexOf('driver') != -1) t.splice(t.indexOf('driver'),1);
+    if (t.indexOf('user') != -1) t.splice(t.indexOf('user'), 1);
+    if (t.indexOf('driver') != -1) t.splice(t.indexOf('driver'), 1);
     if (t.length > 0) {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();
@@ -8390,7 +8444,7 @@ function ValidateToken() {
     $("#sidebar-application").show();
     $("#button-user-profile").attr("onclick", ``);
     $("#button-user-profile").attr("data-bs-toggle", "dropdown");
-    $("#user-profile-dropdown").css("display","");
+    $("#user-profile-dropdown").css("display", "");
     $("#button-user-delivery-tab").attr("onclick", `LoadUserProfile(localStorage.getItem('userid'));`);
     $("#button-user-settings-tab").attr("onclick", `ShowTab('#user-settings-tab');`);
 
@@ -8418,8 +8472,8 @@ function ValidateToken() {
             }
 
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
-            $("#user-profile-dropdown").css("display","");
-            
+            $("#user-profile-dropdown").css("display", "");
+
             // User Information
             user = data.response.user;
             localStorage.setItem("roles", JSON.stringify(user.roles));
@@ -8448,11 +8502,11 @@ function ValidateToken() {
                 return a - b
             });
             highestrole = rolelist[roles[0]];
-            if(highestrole == undefined) highestrole = "Unknown Role";
+            if (highestrole == undefined) highestrole = "Unknown Role";
             highestroleid = roles[0];
             localStorage.setItem("highest-role", highestrole);
             localStorage.setItem("highest-role-id", highestroleid);
-            
+
             name = user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             avatar = user.avatar;
             discordid = user.discordid;
@@ -8487,7 +8541,7 @@ function ValidateToken() {
                 NonMemberMode();
                 return;
             }
-            
+
             // NOTE 2022 Wrapped
             // Load2022Wrapped();
 
@@ -8518,7 +8572,7 @@ function ValidateToken() {
                     user_language = data.response.language;
                     $("#api-language-" + user_language).prop("selected", true);
                     localStorage.setItem("language", user_language);
-                    if(getCookie("language") && getCookie("language") != user_language){
+                    if (getCookie("language") && getCookie("language") != user_language) {
                         setCookie("language", user_language);
                         window.location.reload();
                     }
@@ -8536,14 +8590,14 @@ function ValidateToken() {
     });
 }
 
-function InitLanguage(){
+function InitLanguage() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/languages",
         type: "GET",
         dataType: "json",
         success: function (data) {
             languages = data.response.supported;
-            for(var i = 0 ; i < languages.length ; i++){
+            for (var i = 0; i < languages.length; i++) {
                 $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${LANG_CODE[languages[i]]}</option>`);
             }
             $("#api-language-" + user_language).prop("selected", true);
@@ -8560,13 +8614,13 @@ function InitLanguage(){
                         language: user_language
                     },
                     success: function (data) {
-                        if(data.error) return AjaxError(data);
+                        if (data.error) return AjaxError(data);
                         setCookie("language", user_language);
                         localStorage.setItem("language", user_language);
                         toastNotification("success", "Success", "Language Updated to: " + LANG_CODE[user_language], 5000);
-                        setTimeout(function(){window.location.reload();}, 500);
+                        setTimeout(function () { window.location.reload(); }, 500);
                     },
-                    error: function(data){
+                    error: function (data) {
                         AjaxError(data);
                     }
                 });
@@ -8579,17 +8633,17 @@ async function PathDetect() {
     await sleep(100);
     p = window.location.pathname;
     // NOTE 2022 Wrapped
-    if (p == "/2022wrapped") ShowTab("#2022wrapped-tab", "#button-2022wrapped-tab");
-    else if (p == "/overview") window.history.pushState("", "", '/');
-    else if (p == "/") ShowTab("#overview-tab", "#button-overview-tab");
-    else if (p == "/notification") ShowTab("#notification-tab");
-    else if (p == "/login") ShowTab("#signin-tab", "#button-signin-tab");
-    else if (p == "/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
-    else if (p == "/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
-    else if (p == "/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
-    else if (p == "/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
-    else if (p == "/map") ShowTab("#map-tab", "#button-map-tab");
-    else if (p.startsWith("/delivery")) {
+    if (p == "/nighty/2022wrapped") ShowTab("#2022wrapped-tab", "#button-2022wrapped-tab");
+    else if (p == "/nighty/overview") window.history.pushState("", "", '/nighty/');
+    else if (p == "/nighty/") ShowTab("#overview-tab", "#button-overview-tab");
+    else if (p == "/nighty/notification") ShowTab("#notification-tab");
+    else if (p == "/nighty/login") ShowTab("#signin-tab", "#button-signin-tab");
+    else if (p == "/nighty/captcha") ShowTab("#captcha-tab", "#button-captcha-tab");
+    else if (p == "/nighty/mfa") ShowTab("#mfa-tab", "#button-mfa-tab");
+    else if (p == "/nighty/announcement") ShowTab("#announcement-tab", "#button-announcement-tab");
+    else if (p == "/nighty/downloads") ShowTab("#downloads-tab", "#button-downloads-tab");
+    else if (p == "/nighty/map") ShowTab("#map-tab", "#button-map-tab");
+    else if (p.startsWith("/nighty/delivery")) {
         if (getUrlParameter("logid")) {
             logid = getUrlParameter("logid");
             $(".tabbtns").removeClass("bg-indigo-500");
@@ -8602,14 +8656,14 @@ async function PathDetect() {
             $("#button-delivery-tab").addClass("bg-indigo-500");
             ShowDeliveryDetail(p.split("/")[2]);
         } else ShowTab("#delivery-tab", "#button-delivery-tab");
-    } else if (p == "/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
-    else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
-    else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
-    else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
-    else if (p == "/member/@me"){
+    } else if (p == "/nighty/challenge") ShowTab("#challenge-tab", "#button-challenge-tab");
+    else if (p == "/nighty/division") ShowTab("#division-tab", "#button-division-tab");
+    else if (p == "/nighty/event") ShowTab("#event-tab", "#button-event-tab");
+    else if (p == "/nighty/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
+    else if (p == "/nighty/member/@me") {
         LoadUserProfile(parseInt(localStorage.getItem("userid")));
     }
-    else if (p.startsWith("/member")) {
+    else if (p.startsWith("/nighty/member")) {
         if (getUrlParameter("userid")) {
             userid = getUrlParameter("userid");
             LoadUserProfile(userid);
@@ -8618,25 +8672,28 @@ async function PathDetect() {
         if (p.split("/").length >= 3) LoadUserProfile(parseInt(p.split("/")[2]));
         else ShowTab("#member-tab", "#button-member-tab");
     }
-    else if (p == "/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
-    else if (p == "/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
-    else if (p == "/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
-    else if (p == "/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
-    else if (p == "/application/new" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
-    else if (p == "/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
-    else if (p == "/audit") ShowTab("#audit-tab", "#button-audit-tab");
-    else if (p == "/config") ShowTab("#config-tab", "#button-config-tab");
-    else if (p == "/settings") ShowTab("#user-settings-tab");
-    else if (p.startsWith("/images")) {
+    else if (p == "/nighty/leaderboard") ShowTab("#leaderboard-tab", "#button-leaderboard-tab");
+    else if (p == "/nighty/ranking") ShowTab("#ranking-tab", "#button-ranking-tab");
+    else if (p == "/nighty/application/my") ShowTab("#my-application-tab", "#button-my-application-tab");
+    else if (p == "/nighty/application/all") ShowTab("#all-application-tab", "#button-all-application-tab");
+    else if (p == "/nighty/application/new" || p == "/apply") ShowTab("#submit-application-tab", "#button-submit-application-tab");
+    else if (p == "/nighty/manage/user") ShowTab("#manage-user-tab", "#button-manage-user");
+    else if (p == "/nighty/audit") ShowTab("#audit-tab", "#button-audit-tab");
+    else if (p == "/nighty/config") ShowTab("#config-tab", "#button-config-tab");
+    else if (p == "/nighty/settings") ShowTab("#user-settings-tab");
+    else if (p.startsWith("/nighty/images")) {
         filename = p.split("/")[2];
         window.location.href = "https://cdn.chub.page/assets/" + dhabbr + "/" + filename;
-    } else if (p.startsWith("/steamcallback")) {
+    } else if (p.startsWith("/nighty/steamcallback")) {
         SteamValidate();
-    } else if (p.startsWith("/auth")) {
+    } else if (p.startsWith("/nighty/auth")) {
         AuthValidate();
+    } else if (p.startsWith("/nighty/oauth")) {
+        HandleOAuth();
+        ShowTab("#oauth-tab");
     } else {
         ShowTab("#overview-tab", "#button-overview-tab");
-        window.history.pushState("", "", '/');
+        window.history.pushState("", "", '/nighty/');
     }
 }
 
@@ -8645,22 +8702,22 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
-    if(localStorage.getItem("no-tsr") != "true"){
-        setTimeout(function(){TSRUpdate();},500);
+    if (localStorage.getItem("no-tsr") != "true") {
+        setTimeout(function () { TSRUpdate(); }, 500);
         setInterval(TSRUpdate, 10000);
     } else {
         $("#tsr-card").remove();
     }
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({ element: $(Object.keys(simplemde)[i])[0] });
     $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
+    $("[title='Toggle Side by Side (F9)']").remove(); for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
 
     while (1) {
-        if(language != undefined) break;
+        if (language != undefined) break;
         await sleep(100);
     }
     while (1) {
-        if(mltr("drivers_hub") != "") break;
+        if (mltr("drivers_hub") != "") break;
         await sleep(100);
     }
     PreValidateToken();
@@ -8678,7 +8735,7 @@ $(document).ready(async function () {
     while (1) {
         rolelist = SafeParse(localStorage.getItem("role-list"));
         rolecolor = SafeParse(localStorage.getItem("role-color"));
-        specialRoles =  SafeParse(localStorage.getItem("special-roles"));
+        specialRoles = SafeParse(localStorage.getItem("special-roles"));
         perms = SafeParse(localStorage.getItem("perms"));
         positions = SafeParse(localStorage.getItem("positions"));
         applicationTypes = SafeParse(localStorage.getItem("application-types"));

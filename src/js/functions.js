@@ -84,7 +84,7 @@ $(document).ready(function () {
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?v2.5.7",
+        url: "/languages/en.json?v2.5.70720",
         type: "GET",
         dataType: "json",
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?v2.5.6",
+                    url: "/languages/" + language + ".json?v2.5.70720",
                     type: "GET",
                     dataType: "json",
                     success: function (data) {
@@ -199,10 +199,10 @@ function RandomB32String(length) {
     return result;
 }
 
-SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484" , "patron": "#DAA520", "server_booster": "#DAA520"};
+SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "patron": "#DAA520", "server_booster": "#DAA520" };
 
 function GetSpecialColor(discordid) {
-    if(specialRoles == undefined) return null;
+    if (specialRoles == undefined) return null;
     let spr = Object.keys(specialRoles);
     for (var i = 0; i < spr.length; i++) {
         if (specialRoles[spr[i]].includes(discordid)) {
@@ -835,6 +835,9 @@ function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
 
 // --- Main function
 function timeAgo(dateParam) {
+    if (dateParam.getTime() === new Date(0).getTime()) {
+        return "Never";
+    }
     if (!dateParam) {
         return null;
     }

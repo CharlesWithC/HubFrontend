@@ -5,7 +5,7 @@ default_text_color = "white";
 
 token = localStorage.getItem("token");
 authorizationHeader = {};
-if(token != null) authorizationHeader = {"Authorization": "Bearer " + token};
+if (token != null) authorizationHeader = { "Authorization": "Bearer " + token };
 userid = localStorage.getItem("userid");
 isAdmin = false;
 requireCaptcha = false;
@@ -13,7 +13,7 @@ highestrole = "Unknown Role";
 highestroleid = 99999;
 roles = SafeParse(localStorage.getItem("roles"));
 rolelist = SafeParse(localStorage.getItem("role-list"));
-specialRoles =  SafeParse(localStorage.getItem("special-roles"));
+specialRoles = SafeParse(localStorage.getItem("special-roles"));
 rolecolor = SafeParse(localStorage.getItem("role-color"));
 perms = SafeParse(localStorage.getItem("perms"));
 positions = SafeParse(localStorage.getItem("positions"));
@@ -34,23 +34,24 @@ allmembers = {};
 profile_userid = -1;
 modals = {};
 modalName2ID = {};
+callback_url = ""; // for oauth
 
 var TSRadio;
 
-function TSRPlay(){
+function TSRPlay() {
     TSRadio = new Audio('https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3');
     TSRadio.play();
     $("#tsr-control").attr("onclick", "TSRPause();");
     $("#tsr-control").html(`<i class="fa-solid fa-circle-pause" style="color:#2F8DF8;font-size:40px;"></i>`);
 }
 
-function TSRPause(){
+function TSRPause() {
     TSRadio.pause();
     $("#tsr-control").attr("onclick", "TSRPlay();");
     $("#tsr-control").html(`<i class="fa-solid fa-circle-play" style="color:#2F8DF8;font-size:40px;"></i>`);
 }
 
-function TSRUpdate(){
+function TSRUpdate() {
     $.ajax({
         url: "https://truckstopradio.co.uk/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing",
         type: "GET",
@@ -65,11 +66,11 @@ function TSRUpdate(){
 }
 
 // NOTE 2022 Wrapped
-function Load2022Wrapped(){
+function Load2022Wrapped() {
     // export dlog / load dlog from cache
     w22dlog = localStorage.getItem("dlog-export-cache");
     w22cachetime = localStorage.getItem("dlog-export-cache-time");
-    if(w22dlog == null || +new Date() - w22cachetime >= 3600000 && w22cachetime <= 1672531200000){
+    if (w22dlog == null || +new Date() - w22cachetime >= 3600000 && w22cachetime <= 1672531200000) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/dlog/export",
             type: "GET",
@@ -81,8 +82,8 @@ function Load2022Wrapped(){
                 end_time: 1672531199
             },
             success: function (data) {
-                if (data.error){
-                    if(w22dlog == null){
+                if (data.error) {
+                    if (w22dlog == null) {
                         console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
                     } else {
                         console.warn("Failed to export delivery log, using last export cache.");
@@ -94,7 +95,7 @@ function Load2022Wrapped(){
                 localStorage.setItem("dlog-export-cache-time", +new Date());
             },
             error: function (data) {
-                if(w22dlog == null){
+                if (w22dlog == null) {
                     console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
                 } else {
                     console.warn("Failed to export delivery log, using last export cache.");
@@ -102,7 +103,7 @@ function Load2022Wrapped(){
             }
         })
     }
-    if(w22dlog == null) return;
+    if (w22dlog == null) return;
     w22data = CSVToArray(w22dlog);
 
     firstdlog = null;
@@ -115,7 +116,7 @@ function Load2022Wrapped(){
     firstdivision = null;
     mostprofit = null;
     profitmax = -1;
-    
+
     distancecount = 0;
     jobcount = 0;
     fuelcount = 0;
@@ -125,30 +126,30 @@ function Load2022Wrapped(){
     routecount = {};
     truckcount = {};
     cargocount = {};
-    for(var i = 0 ; i < w22data.length ; i++){
+    for (var i = 0; i < w22data.length; i++) {
         w22d = w22data[i];
-        if(w22d[7] != localStorage.getItem("userid")) continue;
-        if(w22d[6] == "1" && firstdlog == null) firstdlog = w22d;
-        if(w22d[6] == "1" && parseFloat(w22d[13]) > parseFloat(longestmax)) longestmax = w22d[13], longestdlog = w22d;
-        if(w22d[6] == "0" && firstcancel == null) firstcancel = w22d;
-        if(parseFloat(w22d[18]) > parseFloat(damagemax)) damagemax = w22d[18], mostdamage = w22d;
-        if(w22d[6] == "1" && w22d[33] != undefined && firstdivision == null) firstdivision = w22d;
-        if(w22d[6] == "1" && w22d[34] != undefined && firstchallenge == null) firstchallenge = w22d;
-        if(w22d[6] == "1" && parseFloat(w22d[31]) > parseFloat(profitmax)) profitmax = w22d[31], mostprofit = w22d;
-        if(w22d[6] != "1") continue;
+        if (w22d[7] != localStorage.getItem("userid")) continue;
+        if (w22d[6] == "1" && firstdlog == null) firstdlog = w22d;
+        if (w22d[6] == "1" && parseFloat(w22d[13]) > parseFloat(longestmax)) longestmax = w22d[13], longestdlog = w22d;
+        if (w22d[6] == "0" && firstcancel == null) firstcancel = w22d;
+        if (parseFloat(w22d[18]) > parseFloat(damagemax)) damagemax = w22d[18], mostdamage = w22d;
+        if (w22d[6] == "1" && w22d[33] != undefined && firstdivision == null) firstdivision = w22d;
+        if (w22d[6] == "1" && w22d[34] != undefined && firstchallenge == null) firstchallenge = w22d;
+        if (w22d[6] == "1" && parseFloat(w22d[31]) > parseFloat(profitmax)) profitmax = w22d[31], mostprofit = w22d;
+        if (w22d[6] != "1") continue;
         distancecount += parseFloat(w22d[13]);
         jobcount += 1;
         fuelcount += parseFloat(w22d[23]);
         if (w22d[2].startsWith("e")) eprofitcount += parseFloat(w22d[31]);
         else aprofitcount += parseFloat(w22d[31]);
         dest = w22d[12];
-        if(destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
+        if (destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
         route = w22d[10] + " - " + w22d[12];
-        if(routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
+        if (routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
         truck = w22d[19] + " " + w22d[20];
-        if(truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
+        if (truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
         cargo = w22d[16];
-        if(cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
+        if (cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
     }
 
     username = localStorage.getItem("name");
@@ -172,34 +173,34 @@ function Load2022Wrapped(){
     $("#22w-timeline").append(GenTimelineItem("The Beginning", `You joined <b>${company_name}</b>.`, join_timestamp * 1000, "white"));
 
     timeline = {};
-    if(firstdlog != null){
+    if (firstdlog != null) {
         punit = "€";
         if (!firstdlog[2].startsWith("e")) punit = "$";
-        timeline[parseInt(+new Date(firstdlog[3]) + "00")] = GenTimelineItem("First Delivery", `You made your first delivery carrying <b style="color:#2fc1f7">${firstdlog[16]}</b> from <b style="color:#2fc1f7">${firstdlog[9]}, ${firstdlog[10]}</b> to <b style="color:#2fc1f7">${firstdlog[11]}, ${firstdlog[12]}</b>. You drove <b style="color:#2fc1f7">${TSeparator(parseInt(firstdlog[13]* distance_ratio))}${distance_unit_txt}</b> and earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>.`, +new Date(firstdlog[3]), "green");
+        timeline[parseInt(+new Date(firstdlog[3]) + "00")] = GenTimelineItem("First Delivery", `You made your first delivery carrying <b style="color:#2fc1f7">${firstdlog[16]}</b> from <b style="color:#2fc1f7">${firstdlog[9]}, ${firstdlog[10]}</b> to <b style="color:#2fc1f7">${firstdlog[11]}, ${firstdlog[12]}</b>. You drove <b style="color:#2fc1f7">${TSeparator(parseInt(firstdlog[13] * distance_ratio))}${distance_unit_txt}</b> and earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>.`, +new Date(firstdlog[3]), "green");
     }
-    if(firstdivision != null){
+    if (firstdivision != null) {
         punit = "€";
         if (!mostdamage[2].startsWith("e")) punit = "$";
         timeline[parseInt(+new Date(mostdamage[3]) + "01")] = GenTimelineItem("First Division Delivery", `You sent <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. That is your first delivery accepted by division management team.`, +new Date(mostdamage[3]), "green");
     }
-    if(firstchallenge != null){
+    if (firstchallenge != null) {
         punit = "€";
         if (!firstchallenge[2].startsWith("e")) punit = "$";
         timeline[parseInt(+new Date(firstchallenge[3]) + "02")] = GenTimelineItem("First Challenge Delivery", `You sent <b style="color:#2fc1f7">${firstchallenge[16]}</b> from <b style="color:#2fc1f7">${firstchallenge[9]}, ${firstchallenge[10]}</b> to <b style="color:#2fc1f7">${firstchallenge[11]}, ${firstchallenge[12]}</b>. That is your first delivery accepted by the challenge system.`, +new Date(firstchallenge[3]), "green");
     }
-    if(longestdlog != null){
-        timeline[parseInt(+new Date(longestdlog[3]) + "10")] = GenTimelineItem("Well, it's far", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(longestdlog[13]* distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${longestdlog[16]}</b> from <b style="color:#2fc1f7">${longestdlog[9]}, ${longestdlog[10]}</b> to <b style="color:#2fc1f7">${longestdlog[11]}, ${longestdlog[12]}</b>. That is the longest job you've ever submitted.`, +new Date(longestdlog[3]), "yellow");
+    if (longestdlog != null) {
+        timeline[parseInt(+new Date(longestdlog[3]) + "10")] = GenTimelineItem("Well, it's far", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(longestdlog[13] * distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${longestdlog[16]}</b> from <b style="color:#2fc1f7">${longestdlog[9]}, ${longestdlog[10]}</b> to <b style="color:#2fc1f7">${longestdlog[11]}, ${longestdlog[12]}</b>. That is the longest job you've ever submitted.`, +new Date(longestdlog[3]), "yellow");
     }
-    if(mostprofit != null){
+    if (mostprofit != null) {
         punit = "€";
         if (!mostprofit[2].startsWith("e")) punit = "$";
-        avgpft = parseFloat(parseInt(mostprofit[31]) / parseInt(mostprofit[13]*distance_ratio)).toPrecision(2);
-        timeline[parseInt(+new Date(mostprofit[3]) + "11")] = GenTimelineItem("Wow, that's a lot!", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(mostprofit[13]*distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${mostprofit[16]}</b> from <b style="color:#2fc1f7">${mostprofit[9]}, ${mostprofit[10]}</b> to <b style="color:#2fc1f7">${mostprofit[11]}, ${mostprofit[12]}</b>. You earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>, that is <b style="color:#2fc1f7">${punit}${avgpft}/${distance_unit_txt}</b>.`, +new Date(mostprofit[3]), "yellow");
+        avgpft = parseFloat(parseInt(mostprofit[31]) / parseInt(mostprofit[13] * distance_ratio)).toPrecision(2);
+        timeline[parseInt(+new Date(mostprofit[3]) + "11")] = GenTimelineItem("Wow, that's a lot!", `You drove <b style="color:#2fc1f7">${TSeparator(parseInt(mostprofit[13] * distance_ratio))}${distance_unit_txt}</b> carrying <b style="color:#2fc1f7">${mostprofit[16]}</b> from <b style="color:#2fc1f7">${mostprofit[9]}, ${mostprofit[10]}</b> to <b style="color:#2fc1f7">${mostprofit[11]}, ${mostprofit[12]}</b>. You earned <b style="color:#2fc1f7">${punit}${TSeparator(parseInt(firstdlog[31]))}</b>, that is <b style="color:#2fc1f7">${punit}${avgpft}/${distance_unit_txt}</b>.`, +new Date(mostprofit[3]), "yellow");
     }
-    if(mostdamage != null){
-        timeline[parseInt(+new Date(mostdamage[3]) + "20")] = GenTimelineItem("Damm!", `You are sending <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. But you crashed and the cargo is <b style="color:#2fc1f7">${parseFloat(mostdamage[18]*100).toPrecision(2)}%</b> damaged.`, +new Date(mostdamage[3]), "red");
+    if (mostdamage != null) {
+        timeline[parseInt(+new Date(mostdamage[3]) + "20")] = GenTimelineItem("Damm!", `You are sending <b style="color:#2fc1f7">${mostdamage[16]}</b> from <b style="color:#2fc1f7">${mostdamage[9]}, ${mostdamage[10]}</b> to <b style="color:#2fc1f7">${mostdamage[11]}, ${mostdamage[12]}</b>. But you crashed and the cargo is <b style="color:#2fc1f7">${parseFloat(mostdamage[18] * 100).toPrecision(2)}%</b> damaged.`, +new Date(mostdamage[3]), "red");
     }
-    if(firstcancel != null){
+    if (firstcancel != null) {
         punit = "€";
         if (!firstcancel[2].startsWith("e")) punit = "$";
         timeline[parseInt(+new Date(firstcancel[3]) + "00")] = GenTimelineItem("It's abandoned...", `This is the first time you cancelled a job. Never mind, it's OK that you take another job.`, +new Date(firstcancel[3]), "red");
@@ -213,7 +214,7 @@ function Load2022Wrapped(){
     }
 
     dt2023 = +new Date(1672531199680);
-    if(+new Date() < 1672531199680) dt2023 = +new Date();
+    if (+new Date() < 1672531199680) dt2023 = +new Date();
 
     eqcount = parseFloat(distancecount / 40075).toFixed(1);
     distancecount = TSeparator(parseInt(distancecount * distance_ratio));
@@ -227,7 +228,7 @@ function Load2022Wrapped(){
     maxcargo = Object.entries(cargocount).sort((a, b) => b[1] - a[1])[0][0];
     content = `You completed a total of <b style="color:#2fc1f7">${jobcount}</b> jobs this year, consuming <b style="color:#2fc1f7">${fuelcount}${fuel_unit_txt}</b> fuel, resulting in a profit of <b style="color:#2fc1f7">€${eprofitcount}</b> and <b style="color:#2fc1f7">$${aprofitcount}</b>.<br>You traveled a distance of <b style="color:#2fc1f7">${distancecount}${distance_unit_txt}</b>, which is an impressive feat and equivalent to driving around the equator <b style="color:#2fc1f7">${eqcount} times</b>.<br>Your most preferred truck was <b style="color:#2fc1f7">${maxtruck}</b>, and the cargo <b style="color:#2fc1f7">${maxcargo}</b> was the most frequently transported.<br>The route <b style="color:#2fc1f7">${maxroute}</b> was driven the most, and the destination <b style="color:#2fc1f7">${maxdest}</b> received the most cargos.<br>Keep up the great work!`;
     $("#22w-timeline").append(GenTimelineItem("In 2022,", content, dt2023, "white"));
-    
+
     distancecount = 0;
     jobcount = 0;
     fuelcount = 0;
@@ -237,22 +238,22 @@ function Load2022Wrapped(){
     routecount = {};
     truckcount = {};
     cargocount = {};
-    for(var i = 0 ; i < w22data.length ; i++){
+    for (var i = 0; i < w22data.length; i++) {
         w22d = w22data[i];
-        if(w22d[6] != "1") continue;
+        if (w22d[6] != "1") continue;
         distancecount += parseFloat(w22d[13]);
         jobcount += 1;
         fuelcount += parseFloat(w22d[23]);
         if (w22d[2].startsWith("e")) eprofitcount += parseFloat(w22d[31]);
         else aprofitcount += parseFloat(w22d[31]);
         dest = w22d[12];
-        if(destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
+        if (destcount[dest] == undefined) destcount[dest] = 1; else destcount[dest] += 1;
         route = w22d[10] + " - " + w22d[12];
-        if(routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
+        if (routecount[route] == undefined) routecount[route] = 1; else routecount[route] += 1;
         truck = w22d[19] + " " + w22d[20];
-        if(truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
+        if (truckcount[truck] == undefined) truckcount[truck] = 1; else truckcount[truck] += 1;
         cargo = w22d[16];
-        if(cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
+        if (cargocount[cargo] == undefined) cargocount[cargo] = 1; else cargocount[cargo] += 1;
     }
     eqcount = parseFloat(distancecount / 40075).toFixed(1);
     distancecount = TSeparator(parseInt(distancecount * distance_ratio));
@@ -269,7 +270,7 @@ function Load2022Wrapped(){
     $("#22w-timeline").append(GenTimelineItem("What about the entire company?", content, dt2023, "white"));
     $("#22w-timeline").append("<div></div>"); // placeholder for longer fadeIn
     $("#22w-timeline").append(GenTimelineItem("Wait, it has not ended!", "We as CHub Team have something to show you!", dt2023, "white"));
-    
+
     $("#sidebar-information").after(`<li class="nav-item">
         <a id="button-2022wrapped-tab" onclick="ShowTab('#2022wrapped-tab', '#button-2022wrapped-tab')" class="nav-link text-white clickable" aria-current="page">
             <span class="rect-20"><i class="fa-solid fa-gift"></i></span>
@@ -277,28 +278,28 @@ function Load2022Wrapped(){
         </a>
     </li>`);
 
-    if(curtab == "#2022wrapped-tab"){
+    if (curtab == "#2022wrapped-tab") {
         $(".nav-link").removeClass("active");
         $("#button-2022wrapped-tab").addClass("active");
     }
 }
 
-function Show2022Wrapped(){
+function Show2022Wrapped() {
     w22tlonshow = 0;
-    w22tlint = setInterval(function(){
-        if(w22tlonshow >= $("#22w-timeline").children().length){
-            setTimeout(function(){
+    w22tlint = setInterval(function () {
+        if (w22tlonshow >= $("#22w-timeline").children().length) {
+            setTimeout(function () {
                 $("#2022wrapped-left").animate({
                     width: "66.6666%"
                 }, 1000);
                 $("html, body").animate({
                     scrollTop: 0
                 }, 1200);
-                setTimeout(function(){
+                setTimeout(function () {
                     $("#2022wrapped-left").addClass("col-7");
-                    $("#2022wrapped-left").attr("style","");
+                    $("#2022wrapped-left").attr("style", "");
                     $("#2022wrapped-right").fadeIn();
-                    $($("#2022wrapped-left").children()[0]).css("margin","");
+                    $($("#2022wrapped-left").children()[0]).css("margin", "");
                     $($("#2022wrapped-left").children()[0]).addClass("m-1");
                     $("#22w-timeline").children().last().remove();
                 }, 1100);
@@ -345,10 +346,10 @@ function Logout() {
 }
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
-simplemde = {"#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined}
+simplemde = { "#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined }
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
-async function InitDefaultValues(){
+async function InitDefaultValues() {
     $("#mfa-otp").val("");
     $("textarea").val("");
     $("body").keydown(function (e) {
@@ -370,9 +371,9 @@ async function InitDefaultValues(){
         $(".ol-unselectable").css("border-radius", "15px"); // map border
     }, 1000);
     $("#application-type-default").prop("selected", true);
-    $("#statistics-chart-select-360d").prop("selected",true);
-    $("#user-statistics-chart-select-360d").prop("selected",true);
-    
+    $("#statistics-chart-select-360d").prop("selected", true);
+    $("#user-statistics-chart-select-360d").prop("selected", true);
+
     // for(i=0;i<tooltipINIT.length;i++) new bootstrap.Tooltip($(tooltipINIT[i]), {boundary: document.body});
     $('#input-leaderboard-search').flexdatalist({
         selectionRequired: 1,
@@ -475,11 +476,11 @@ function InitInputHandler() {
         let passwordInput = $("#signin-password");
         let passwordType = passwordInput.attr("type");
         if (passwordType === "password") {
-          passwordInput.attr("type", "text");
-          $("#toggleLoginPassword").removeClass("fa-eye").addClass("fa-eye-slash");
+            passwordInput.attr("type", "text");
+            $("#toggleLoginPassword").removeClass("fa-eye").addClass("fa-eye-slash");
         } else {
-          passwordInput.attr("type", "password");
-          $("#toggleLoginPassword").removeClass("fa-eye-slash").addClass("fa-eye");
+            passwordInput.attr("type", "password");
+            $("#toggleLoginPassword").removeClass("fa-eye-slash").addClass("fa-eye");
         }
     });
 }
@@ -558,7 +559,7 @@ loadworking = false;
 async function ShowTab(tabname, btnname) {
     $(".modal").fadeOut();
     $(".modal-backdrop").fadeOut();
-    setTimeout(function(){$(".modal").remove();$(".modal-backdrop").remove();},1000);
+    setTimeout(function () { $(".modal").remove(); $(".modal-backdrop").remove(); }, 1000);
     loadworking = true;
     curtab = tabname;
     clearInterval(dmapint);
@@ -588,7 +589,7 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#ProfileTab") {
         if (isNumber(btnname)) userid = btnname;
         else userid = localStorage.getItem("userid");
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        if (String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
         else window.history.pushState("", "", '/member/' + userid);
         document.title = mltr("member") + " - " + company_name;
         $("#UserBanner").show();
@@ -606,13 +607,13 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#2022wrapped-tab") {
         window.history.pushState("", "", '/2022wrapped');
         document.title = "2022 Wrapped - " + company_name;
-        if(!loaded) Show2022Wrapped();
+        if (!loaded) Show2022Wrapped();
     }
     if (tabname == "#overview-tab") {
         window.history.pushState("", "", '/');
         document.title = mltr("overview") + " - " + company_name;
         LoadStats(noplaceholder = loaded);
-        if(!loaded){
+        if (!loaded) {
             $("#statistics-chart-select").change(function () {
                 chartscale = parseInt($(this).val());
                 LoadChart();
@@ -683,7 +684,7 @@ async function ShowTab(tabname, btnname) {
     if (tabname == "#user-delivery-tab") {
         userid = btnname;
         profile_userid = userid;
-        if(String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
+        if (String(userid) == localStorage.getItem("userid")) window.history.pushState("", "", '/member/@me');
         else window.history.pushState("", "", '/member/' + userid);
         document.title = mltr("member") + " - " + company_name;
         $("#company-statistics").hide();
@@ -750,17 +751,17 @@ async function ShowTab(tabname, btnname) {
         window.history.pushState("", "", '/manage/user');
         document.title = mltr("pending_users") + " - " + company_name;
         LoadUserList(noplaceholder = loaded);
-        if(!loaded){
-            $(document).on('keydown', function(e) {
+        if (!loaded) {
+            $(document).on('keydown', function (e) {
                 if (e.ctrlKey && e.altKey && e.keyCode === 85) {
                     discordid = prompt("Enter Discord ID to unban:");
-                    if(!isNumber(discordid)) {
+                    if (!isNumber(discordid)) {
                         alert("Discord ID must be an integer!");
                         return;
                     }
                     UnbanUser(discordid);
                 }
-              });
+            });
         }
     }
     if (tabname == "#audit-tab") {
@@ -790,65 +791,65 @@ async function ShowTab(tabname, btnname) {
         document.title = mltr("settings") + " - " + company_name;
         LoadNotificationSettings();
         LoadUserSessions();
-        if(!loaded){
-            $("#notifications-drivershub").on("change", function(){
-                if($("#notifications-drivershub").prop("checked")){
+        if (!loaded) {
+            $("#notifications-drivershub").on("change", function () {
+                if ($("#notifications-drivershub").prop("checked")) {
                     EnableNotification("drivershub", mltr("drivers_hub"));
                 } else {
                     DisableNotification("drivershub", mltr("drivers_hub"));
                 }
             });
-            $("#notifications-discord").on("change", function(){
-                if($("#notifications-discord").prop("checked")){
+            $("#notifications-discord").on("change", function () {
+                if ($("#notifications-discord").prop("checked")) {
                     EnableNotification("discord", mltr("discord"));
                 } else {
                     DisableNotification("discord", mltr("discord"));
                 }
             });
-            $("#notifications-login").on("change", function(){
-                if($("#notifications-login").prop("checked")){
+            $("#notifications-login").on("change", function () {
+                if ($("#notifications-login").prop("checked")) {
                     EnableNotification("login", mltr("login"));
                 } else {
                     DisableNotification("login", mltr("login"));
                 }
             });
-            $("#notifications-dlog").on("change", function(){
-                if($("#notifications-dlog").prop("checked")){
+            $("#notifications-dlog").on("change", function () {
+                if ($("#notifications-dlog").prop("checked")) {
                     EnableNotification("dlog", mltr("delivery_log"));
                 } else {
                     DisableNotification("dlog", mltr("delivery_log"));
                 }
             });
-            $("#notifications-member").on("change", function(){
-                if($("#notifications-member").prop("checked")){
+            $("#notifications-member").on("change", function () {
+                if ($("#notifications-member").prop("checked")) {
                     EnableNotification("member", mltr("member"));
                 } else {
                     DisableNotification("member", mltr("member"));
                 }
             });
-            $("#notifications-application").on("change", function(){
-                if($("#notifications-application").prop("checked")){
+            $("#notifications-application").on("change", function () {
+                if ($("#notifications-application").prop("checked")) {
                     EnableNotification("application", mltr("application"));
                 } else {
                     DisableNotification("application", mltr("application"));
                 }
             });
-            $("#notifications-challenge").on("change", function(){
-                if($("#notifications-challenge").prop("checked")){
+            $("#notifications-challenge").on("change", function () {
+                if ($("#notifications-challenge").prop("checked")) {
                     EnableNotification("challenge", mltr("challenge"));
                 } else {
                     DisableNotification("challenge", mltr("challenge"));
                 }
             });
-            $("#notifications-division").on("change", function(){
-                if($("#notifications-division").prop("checked")){
+            $("#notifications-division").on("change", function () {
+                if ($("#notifications-division").prop("checked")) {
                     EnableNotification("division", mltr("division"));
                 } else {
                     DisableNotification("division", mltr("division"));
                 }
             });
-            $("#notifications-event").on("change", function(){
-                if($("#notifications-event").prop("checked")){
+            $("#notifications-event").on("change", function () {
+                if ($("#notifications-event").prop("checked")) {
                     EnableNotification("event", mltr("event"));
                 } else {
                     DisableNotification("event", mltr("event"));
@@ -884,7 +885,7 @@ function UpdateRolesOnDisplay() {
 }
 
 function LoadCache(force) {
-    if(force) localStorage.removeItem("cache-expire");
+    if (force) localStorage.removeItem("cache-expire");
     rolelist = SafeParse(localStorage.getItem("role-list"));
     specialRoles = SafeParse(localStorage.getItem("special-roles"));
     perms = SafeParse(localStorage.getItem("perms"));
@@ -977,7 +978,7 @@ function LoadCache(force) {
                 for (i = 0; i < d.length; i++) {
                     RANKING[parseInt(d[i]["points"])] = d[i]["name"];
                     RANKCLR[parseInt(d[i]["points"])] = d[i]["color"];
-                    if(RANKCLR[parseInt(d[i]["points"])] == undefined) RANKCLR[parseInt(d[i]["points"])] = default_text_color;
+                    if (RANKCLR[parseInt(d[i]["points"])] == undefined) RANKCLR[parseInt(d[i]["points"])] = default_text_color;
                 }
                 localStorage.setItem("driver-ranks", JSON.stringify(RANKING));
                 localStorage.setItem("driver-ranks-color", JSON.stringify(RANKCLR));
@@ -1007,11 +1008,11 @@ function LoadCache(force) {
     }
 }
 
-function ClearCache(){
+function ClearCache() {
     localStorage.removeItem("cache-expire");
     localStorage.removeItem("no-tsr");
-    toastNotification("success","Success","Local cache cleared!",5000);
-    setTimeout(function(){window.location.reload();},500);
+    toastNotification("success", "Success", "Local cache cleared!", 5000);
+    setTimeout(function () { window.location.reload(); }, 500);
 }
 
 userPermLoaded = false;
@@ -1037,8 +1038,8 @@ function GetUserPermission() {
 function ShowStaffTabs() {
     t = SafeParse(JSON.stringify(userPerm));
     if (t == null) return;
-    if(t.indexOf('user') != -1) t.splice(t.indexOf('user'),1);
-    if(t.indexOf('driver') != -1) t.splice(t.indexOf('driver'),1);
+    if (t.indexOf('user') != -1) t.splice(t.indexOf('user'), 1);
+    if (t.indexOf('driver') != -1) t.splice(t.indexOf('driver'), 1);
     if (t.length > 0) {
         if (userPerm.includes("admin")) {
             $("#sidebar-staff").show();
@@ -1136,7 +1137,7 @@ function ValidateToken() {
     $("#sidebar-application").show();
     $("#button-user-profile").attr("onclick", ``);
     $("#button-user-profile").attr("data-bs-toggle", "dropdown");
-    $("#user-profile-dropdown").css("display","");
+    $("#user-profile-dropdown").css("display", "");
     $("#button-user-delivery-tab").attr("onclick", `LoadUserProfile(localStorage.getItem('userid'));`);
     $("#button-user-settings-tab").attr("onclick", `ShowTab('#user-settings-tab');`);
 
@@ -1164,8 +1165,8 @@ function ValidateToken() {
             }
 
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
-            $("#user-profile-dropdown").css("display","");
-            
+            $("#user-profile-dropdown").css("display", "");
+
             // User Information
             user = data.response.user;
             localStorage.setItem("roles", JSON.stringify(user.roles));
@@ -1194,11 +1195,11 @@ function ValidateToken() {
                 return a - b
             });
             highestrole = rolelist[roles[0]];
-            if(highestrole == undefined) highestrole = "Unknown Role";
+            if (highestrole == undefined) highestrole = "Unknown Role";
             highestroleid = roles[0];
             localStorage.setItem("highest-role", highestrole);
             localStorage.setItem("highest-role-id", highestroleid);
-            
+
             name = user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
             avatar = user.avatar;
             discordid = user.discordid;
@@ -1233,7 +1234,7 @@ function ValidateToken() {
                 NonMemberMode();
                 return;
             }
-            
+
             // NOTE 2022 Wrapped
             // Load2022Wrapped();
 
@@ -1264,7 +1265,7 @@ function ValidateToken() {
                     user_language = data.response.language;
                     $("#api-language-" + user_language).prop("selected", true);
                     localStorage.setItem("language", user_language);
-                    if(getCookie("language") && getCookie("language") != user_language){
+                    if (getCookie("language") && getCookie("language") != user_language) {
                         setCookie("language", user_language);
                         window.location.reload();
                     }
@@ -1282,14 +1283,14 @@ function ValidateToken() {
     });
 }
 
-function InitLanguage(){
+function InitLanguage() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/languages",
         type: "GET",
         dataType: "json",
         success: function (data) {
             languages = data.response.supported;
-            for(var i = 0 ; i < languages.length ; i++){
+            for (var i = 0; i < languages.length; i++) {
                 $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${LANG_CODE[languages[i]]}</option>`);
             }
             $("#api-language-" + user_language).prop("selected", true);
@@ -1306,13 +1307,13 @@ function InitLanguage(){
                         language: user_language
                     },
                     success: function (data) {
-                        if(data.error) return AjaxError(data);
+                        if (data.error) return AjaxError(data);
                         setCookie("language", user_language);
                         localStorage.setItem("language", user_language);
                         toastNotification("success", "Success", "Language Updated to: " + LANG_CODE[user_language], 5000);
-                        setTimeout(function(){window.location.reload();}, 500);
+                        setTimeout(function () { window.location.reload(); }, 500);
                     },
-                    error: function(data){
+                    error: function (data) {
                         AjaxError(data);
                     }
                 });
@@ -1352,7 +1353,7 @@ async function PathDetect() {
     else if (p == "/division") ShowTab("#division-tab", "#button-division-tab");
     else if (p == "/event") ShowTab("#event-tab", "#button-event-tab");
     else if (p == "/staff/event") ShowTab("#staff-event-tab", "#button-staff-event-tab");
-    else if (p == "/member/@me"){
+    else if (p == "/member/@me") {
         LoadUserProfile(parseInt(localStorage.getItem("userid")));
     }
     else if (p.startsWith("/member")) {
@@ -1380,6 +1381,9 @@ async function PathDetect() {
         SteamValidate();
     } else if (p.startsWith("/auth")) {
         AuthValidate();
+    } else if (p.startsWith("/oauth")) {
+        HandleOAuth();
+        ShowTab("#oauth-tab");
     } else {
         ShowTab("#overview-tab", "#button-overview-tab");
         window.history.pushState("", "", '/');
@@ -1391,22 +1395,22 @@ window.onpopstate = function (event) {
 };
 
 $(document).ready(async function () {
-    if(localStorage.getItem("no-tsr") != "true"){
-        setTimeout(function(){TSRUpdate();},500);
+    if (localStorage.getItem("no-tsr") != "true") {
+        setTimeout(function () { TSRUpdate(); }, 500);
         setInterval(TSRUpdate, 10000);
     } else {
         $("#tsr-card").remove();
     }
-    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({element:$(Object.keys(simplemde)[i])[0]});
+    for (i = 0; i < Object.keys(simplemde).length; i++) simplemde[Object.keys(simplemde)[i]] = new SimpleMDE({ element: $(Object.keys(simplemde)[i])[0] });
     $("[title='Toggle Fullscreen (F11)']").remove();
-    $("[title='Toggle Side by Side (F9)']").remove();for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
+    $("[title='Toggle Side by Side (F9)']").remove(); for (i = 0; i < simplebarINIT.length; i++) new SimpleBar($(simplebarINIT[i])[0]);
 
     while (1) {
-        if(language != undefined) break;
+        if (language != undefined) break;
         await sleep(100);
     }
     while (1) {
-        if(mltr("drivers_hub") != "") break;
+        if (mltr("drivers_hub") != "") break;
         await sleep(100);
     }
     PreValidateToken();
@@ -1424,7 +1428,7 @@ $(document).ready(async function () {
     while (1) {
         rolelist = SafeParse(localStorage.getItem("role-list"));
         rolecolor = SafeParse(localStorage.getItem("role-color"));
-        specialRoles =  SafeParse(localStorage.getItem("special-roles"));
+        specialRoles = SafeParse(localStorage.getItem("special-roles"));
         perms = SafeParse(localStorage.getItem("perms"));
         positions = SafeParse(localStorage.getItem("positions"));
         applicationTypes = SafeParse(localStorage.getItem("application-types"));

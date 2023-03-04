@@ -53,7 +53,7 @@ $(document).ready(async function () {
     }
     
     try {
-        const socket = new WebSocket('wss://gateway.navio.app/');
+        const socket = new WebSocket('wss://gateway.tracksim.app/');
         socket.addEventListener("open", () => {
             socket.send(
                 JSON.stringify({
