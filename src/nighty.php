@@ -126,9 +126,9 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/68dd9ec8586d9471.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/d4f206609a775907.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/montserrat/css/montserrat.min.css">
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
     <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
     <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
@@ -476,11 +476,11 @@
             <a id="button-user-profile" class="text-white text-decoration-none clickable"
                     data-bs-toggle="dropdown" aria-expanded="false" style="padding:10px 5px;border-radius:5px;width:160px">
                 <img id="sidebar-avatar" src="https://charlws.com/me.gif" alt="" class="rounded-circle me-2"
-                    width="30" height="30">
-                <span style="display:inline-block;position:relative;top:12px;line-height:14px;">
-                    <strong id="sidebar-username" style="max-width:100px;width:100px;overflow:hidden;display:inline-block;"><span class="placeholder col-8"></span></strong>
+                    width="30" height="30" style="position:relative;top:-2px">
+                <span style="display:inline-block;position:relative;top:10px;line-height:14px;">
+                    <strong id="sidebar-username" style="max-width:100px;width:100px;overflow:hidden;display:inline-block;white-space:nowrap;"><span class="placeholder col-8"></span></strong>
                     <br>
-                    <span style="font-size:12px;color:#ccc;max-width:100px;width:100px;overflow:hidden;max-height:14px;display:inline-block;"><span id="sidebar-userid" style="color:#ccc;"><span class="placeholder col-2"></span></span> | <span id="sidebar-role" style="color:#ccc;"><span class="placeholder col-6"></span></span></span>
+                    <span style="font-size:12px;color:#ccc;max-width:100px;width:100px;overflow:hidden;max-height:16px;height:16px;display:inline-block;white-space:nowrap;"><span id="sidebar-userid" style="color:#ccc;"><span class="placeholder col-2"></span></span> | <span id="sidebar-role" style="color:#ccc;"><span class="placeholder col-6"></span></span></span>
                 </span>
             </a>
             <ul id="user-profile-dropdown" class="dropdown-menu dropdown-menu-dark text-small shadow" style="padding-top:0">

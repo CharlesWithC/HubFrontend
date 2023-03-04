@@ -1,0 +1,28 @@
+* {
+    outline-width: 0;
+    font-family: OpenSans, sans-serif
+}
+
+@font-face {
+    font-family: OpenSans;
+    src: url(https://cdn.chub.page/assets/opensans/webfonts/OpenSans-Regular.woff2) format('woff2')
+}
+
+@font-face {
+    font-family: OpenSans;
+    src: url(https://cdn.chub.page/assets/opensans/webfonts/OpenSans-Italic.woff2) format('woff2');
+    font-style: italic
+}
+
+@font-face {
+    font-family: OpenSans;
+    src: url(https://cdn.chub.page/assets/opensans/webfonts/OpenSans-Bold.woff2) format('woff2');
+    font-weight: 700
+}
+
+@font-face {
+    font-family: OpenSans;
+    src: url(https://cdn.chub.page/assets/opensans/webfonts/OpenSans-BoldItalic.woff2) format('woff2');
+    font-weight: 700;
+    font-style: italic
+}

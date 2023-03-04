@@ -1,7 +1,8 @@
 # Changelog
 
 **v2.5.7**  
-1.Replaced UniSans with Montserrat  
+1.Replaced UniSans with OpenSans  
+2.Fixed name/role display  
 
 **v2.5.6**  
 1.Added shortcut button to update division status  

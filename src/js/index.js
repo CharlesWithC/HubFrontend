@@ -911,7 +911,7 @@ function LoadCache(force) {
         dataType: "json",
         success: function (data) {
             specialRoles = data.response;
-            localStorage.setItem("special-roles", specialRoles);
+            localStorage.setItem("special-roles", JSON.stringify(specialRoles));
         }
     });
 
@@ -1428,7 +1428,7 @@ $(document).ready(async function () {
         perms = SafeParse(localStorage.getItem("perms"));
         positions = SafeParse(localStorage.getItem("positions"));
         applicationTypes = SafeParse(localStorage.getItem("application-types"));
-        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined && specialRoles != undefined) break;
         await sleep(100);
     }
     roleids = Object.keys(rolelist);

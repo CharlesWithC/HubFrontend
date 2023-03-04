@@ -228,7 +228,8 @@ function GetAvatarSrc(discordid, avatarid) {
 }
 
 function GetAvatarImg(src, userid, name) {
-    return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
+    style = GetSpecialColorStyle(src.split("/")[4]);
+    return `<a style="cursor:pointer;${style}" onclick="LoadUserProfile(${userid})">
         <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         <b>${name}</b>
     </a>`;
@@ -8164,7 +8165,7 @@ function LoadCache(force) {
         dataType: "json",
         success: function (data) {
             specialRoles = data.response;
-            localStorage.setItem("special-roles", specialRoles);
+            localStorage.setItem("special-roles", JSON.stringify(specialRoles));
         }
     });
 
@@ -8681,7 +8682,7 @@ $(document).ready(async function () {
         perms = SafeParse(localStorage.getItem("perms"));
         positions = SafeParse(localStorage.getItem("positions"));
         applicationTypes = SafeParse(localStorage.getItem("application-types"));
-        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined) break;
+        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined && specialRoles != undefined) break;
         await sleep(100);
     }
     roleids = Object.keys(rolelist);

@@ -228,7 +228,8 @@ function GetAvatarSrc(discordid, avatarid) {
 }
 
 function GetAvatarImg(src, userid, name) {
-    return `<a style="cursor:pointer" onclick="LoadUserProfile(${userid})">
+    style = GetSpecialColorStyle(src.split("/")[4]);
+    return `<a style="cursor:pointer;${style}" onclick="LoadUserProfile(${userid})">
         <img src="${src}" style="width:20px;height:20px;border-radius:100%;display:inline" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">
         <b>${name}</b>
     </a>`;
