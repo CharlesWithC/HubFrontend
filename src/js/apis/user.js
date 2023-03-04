@@ -493,11 +493,11 @@ function GetApplicationTokenList(page = 1) {
                 opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
 
                 browser_icon = `<i class="fa-solid fa-link"></i>`;
-                if (sessions[i].app_id.toLowerCase().includes("bot")) browser_icon = `<i class="fa-solid fa-robot"></i>`
+                if (sessions[i].app_name.toLowerCase().includes("bot")) browser_icon = `<i class="fa-solid fa-robot"></i>`
 
                 appSession.push(`<tr>
                     <td>${browser_icon}</td>
-                    <td>${sessions[i].app_id}</td>
+                    <td>${sessions[i].app_name}</td>
                     <td><i>Application Token</i></td>
                     <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
                     <td>${timeAgo(new Date(sessions[i].last_used_timestamp * 1000))}</td>
