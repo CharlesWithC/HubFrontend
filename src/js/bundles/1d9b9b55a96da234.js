@@ -3463,13 +3463,10 @@ function GenerateApplicationToken(firstop = false) {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             data: {
-                app_name: $("#application-token-app-name").val(),
-                otp: otp,
+                app_name: $("#application-token-app-name").val()
             },
             success: function (data) {
                 UnlockBtn("#button-settings-generate-application-token");
-                ShowTab("#user-settings-tab", "from-mfa");
-                mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html(data.response.token);
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
@@ -4597,12 +4594,9 @@ function OAuthAuthorize(firstop = false) {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             data: {
-                app_name: oauth_app_name,
-                otp: otp,
+                app_name: oauth_app_name
             },
             success: function (data) {
-                ShowTab("#user-settings-tab", "from-mfa");
-                mfafunc = null;
                 if (data.error) return AjaxError(data);
                 let searchParams = new URLSearchParams(oauth_callback_url.search);
                 searchParams.set('discordid', localStorage.getItem("discordid"));
