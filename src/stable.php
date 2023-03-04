@@ -6,6 +6,10 @@
     <?php
     $domain = $_SERVER['HTTP_HOST'];
 
+    if(file_exists('/var/hub/config/suspended-'.$domain.'.json')){
+        echo 'Drivers Hub suspended due to payment not sent! It might be terminated at any time.';
+        exit();
+    }
     if(!file_exists('/var/hub/config/'.$domain.'.json')){
         header('Location: //drivershub.charlws.com/');
         exit();
@@ -126,7 +130,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/d4f206609a775907.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/0bef191019964d50.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -570,8 +574,23 @@
         <section id="auth-message-tab" class="tabs" style="height:80vh">
             <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
             <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
-                <h1><strong><span id="auth-message-title"></strong></h1>
-                <p><span id="auth-message-content"></p>
+                <h1><strong><span id="auth-message-title"></span></strong></h1>
+                <p><span id="auth-message-content"></span></p>
+            </div>
+        </section>
+        <section id="oauth-tab" class="tabs" style="height:80vh">
+            <div style="height:calc(max(0px, (100% - 500px) / 2))"></div>
+            <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
+                <h1><strong><span id="oauth-message-title">CHub OAuth</span></strong></h1>
+                <p><span id="oauth-message-content">Please wait...</span></p>
+                <div id="oauth-control-div" class="row justify-content-between" style="display:none">
+                    <div class="col-auto">
+                        <button class="btn btn-secondary" style="width:100px" onclick='ShowTab("#overview-tab", "#button-overview-tab");'>Cancel</button>
+                    </div>
+                    <div class="col-auto">
+                        <button id="button-oauth-authorize" type="button" class="btn btn-primary" onclick="OAuthAuthorize(true);" style="width:100px">Authorize</button>
+                    </div>
+                </div>                
             </div>
         </section>
         <!-- <section id="2022wrapped-tab" class="tabs">
@@ -2451,12 +2470,17 @@
                         <hr>
                         <label for="settings-application-token" class="form-label"><?php echo mltr("application_token"); ?></label>
                         <p><?php echo mltr("application_token_note_1"); ?></p>
-                        <p id="settings-application-token-p" style="font-size:15px"><?php echo mltr("application_token_note_2"); ?></p>
-                        <p id="settings-application-token" style="display:none"></p>
+                        <p id="settings-application-token-p"><?php echo mltr("application_token_note_2"); ?></p>
                         <div style="display:block">
-                            <button id="button-application-token-copy" type="button" class="btn btn-secondary" style="display:none;display:none" onclick="">Copy</button>
-                            <button id="button-settings-disable-application-token" type="button" class="btn btn-danger" style="display:inline-block" onclick="DisableApplicationToken(firstop=true);"><?php echo mltr("disable"); ?></button>
-                            <button id="button-settings-reset-application-token" type="button" class="btn btn-primary" style="display:inline-block" onclick="ResetApplicationToken(firstop=true);"><?php echo mltr("reset_token"); ?></button>
+                            <label for="application-token-app-name" class="form-label"><?php echo mltr("application_name"); ?></label>
+                            <div class="input-group mb-3" style="width:200px;display:inline-block;">
+                                <input type="text" class="form-control bg-dark text-white w-100" id="application-token-app-name" placeholder="Utility Bot">
+                            </div>
+                            <button id="button-settings-generate-application-token" type="button" class="btn btn-primary" style="display:inline-block" onclick="GenerateApplicationToken(firstop=true);"><?php echo mltr("generate"); ?></button>
+                        </div>
+                        <div style="display:none" id="application-token-new">
+                            <p style="display:inline-block"><b><?php echo mltr("application_token"); ?></b>: <span id="settings-application-token"></span></p>
+                            <button id="button-application-token-copy" type="button" class="btn btn-secondary" onclick="">Copy</button>
                         </div>
                         <hr>
                         <label for="settings-mfa" class="form-label"><?php echo mltr("multiple_factor_authentication"); ?></label>

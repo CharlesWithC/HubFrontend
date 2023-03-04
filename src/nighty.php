@@ -6,6 +6,10 @@
     <?php
     $domain = $_SERVER['HTTP_HOST'];
 
+    if(file_exists('/var/hub/config/suspended-'.$domain.'.json')){
+        echo 'Drivers Hub suspended due to payment not sent! It might be terminated at any time.';
+        exit();
+    }
     if(!file_exists('/var/hub/config/'.$domain.'.json')){
         header('Location: //drivershub.charlws.com/');
         exit();
@@ -126,7 +130,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/fcabb09bcfac5.nighty.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/0bef191019964d50.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -570,15 +574,23 @@
         <section id="auth-message-tab" class="tabs" style="height:80vh">
             <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
             <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
-                <h1><strong><span id="auth-message-title"></strong></h1>
-                <p><span id="auth-message-content"></p>
+                <h1><strong><span id="auth-message-title"></span></strong></h1>
+                <p><span id="auth-message-content"></span></p>
             </div>
         </section>
         <section id="oauth-tab" class="tabs" style="height:80vh">
-            <div style="height:calc(max(0px, (100% - 400px) / 2))"></div>
+            <div style="height:calc(max(0px, (100% - 500px) / 2))"></div>
             <div class="shadow p-5 m-3 bg-dark rounded m-auto" style="width:500px">
-                <h1><strong><span id="oauth-message-title"></strong></h1>
-                <p><span id="oauth-message-content"></p>
+                <h1><strong><span id="oauth-message-title">CHub OAuth</span></strong></h1>
+                <p><span id="oauth-message-content">Please wait...</span></p>
+                <div id="oauth-control-div" class="row justify-content-between" style="display:none">
+                    <div class="col-auto">
+                        <button class="btn btn-secondary" style="width:100px" onclick='ShowTab("#overview-tab", "#button-overview-tab");'>Cancel</button>
+                    </div>
+                    <div class="col-auto">
+                        <button id="button-oauth-authorize" type="button" class="btn btn-primary" onclick="OAuthAuthorize(true);" style="width:100px">Authorize</button>
+                    </div>
+                </div>                
             </div>
         </section>
         <!-- <section id="2022wrapped-tab" class="tabs">

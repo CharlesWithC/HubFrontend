@@ -4,6 +4,7 @@
 1.Replaced UniSans with OpenSans  
 2.Fixed name/role display  
 3.Added support to multiple application tokens  
+4.Added OAuth function  
 
 **v2.5.6**  
 1.Added shortcut button to update division status  

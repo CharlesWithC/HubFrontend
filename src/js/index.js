@@ -1074,6 +1074,11 @@ function NonMemberMode() {
     $(".member-only").hide();
     $(".non-member-only").show();
     $("#sidebar-staff").hide();
+    let p = window.location.pathname;
+    if (p.startsWith("/oauth")) {
+        toastNotification("error", "Error", "You must login to authorize the application!", 5000);
+        ShowTab("#signin-tab", "#button-signin-tab");
+    }
 }
 
 function MemberMode() {
@@ -1324,7 +1329,7 @@ function InitLanguage() {
 
 async function PathDetect() {
     await sleep(100);
-    p = window.location.pathname;
+    let p = window.location.pathname;
     // NOTE 2022 Wrapped
     if (p == "/2022wrapped") ShowTab("#2022wrapped-tab", "#button-2022wrapped-tab");
     else if (p == "/overview") window.history.pushState("", "", '/');

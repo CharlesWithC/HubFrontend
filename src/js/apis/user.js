@@ -73,22 +73,27 @@ function GenerateApplicationToken(firstop = false) {
     else {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
-            type: "PATCH",
+            type: "POST",
             dataType: "json",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
+            data: {
+                app_name: $("#application-token-app-name").val(),
+                otp: otp,
+            },
             success: function (data) {
-                UnlockBtn("#button-settings-reset-application-token");
+                UnlockBtn("#button-settings-generate-application-token");
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
                 if (data.error) return AjaxError(data);
                 $("#settings-application-token").html(data.response.token);
-                $("#settings-application-token-p").hide();
-                $("#settings-application-token").show();
                 $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
-                toastNotification("success", "Success", mltr("application_token_reset"), 5000, false);
+                $("#application-token-new").show();
+                toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
             error: function (data) {
-                UnlockBtn("#button-settings-reset-application-token");
+                UnlockBtn("#button-settings-generate-application-token");
                 AjaxError(data);
             }
         });
@@ -491,11 +496,11 @@ function GetApplicationTokenList(page = 1) {
                 opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
 
                 browser_icon = `<i class="fa-solid fa-link"></i>`;
-                if(sessions[i].app_name.toLowerCase().includes("bot")) browser_icon=`<i class="fa-solid fa-robot"></i>`
+                if (sessions[i].app_id.toLowerCase().includes("bot")) browser_icon = `<i class="fa-solid fa-robot"></i>`
 
                 appSession.push(`<tr>
                     <td>${browser_icon}</td>
-                    <td>${sessions[i].app_name}</td>
+                    <td>${sessions[i].app_id}</td>
                     <td><i>Application Token</i></td>
                     <td>${getDateTime(sessions[i].create_timestamp * 1000)}</td>
                     <td>${timeAgo(new Date(sessions[i].last_used_timestamp * 1000))}</td>
@@ -524,12 +529,12 @@ async function LoadUserSessions(noplaceholder = false) {
 
     GetSessionList();
     GetApplicationTokenList();
-    while(gslWorking || gatlWorking) await sleep(100);
+    while (gslWorking || gatlWorking) await sleep(100);
     $("#table_session_data").empty();
-    for(let i = 0 ; i < bearerSession.length ; i++){
+    for (let i = 0; i < bearerSession.length; i++) {
         $("#table_session_data").append(bearerSession[i]);
     }
-    for(let i = 0 ; i < appSession.length ; i++){
+    for (let i = 0; i < appSession.length; i++) {
         $("#table_session_data").append(appSession[i]);
     }
 }
@@ -1112,27 +1117,119 @@ function NotificationsMarkAllAsRead() {
 }
 
 function HandleOAuth() {
-    callback_url = getUrlParameter("callback_url");
+    oauth_callback_url = getUrlParameter("callback_url");
+    app_id = getUrlParameter("app_id");
     try {
-        callback_url = new URL(callback_url);
-        if (!callback_url.host.endsWith(".oauth.chub.page")) {
-            $("#oauth-message-title").html("CHub OAuth");
-            $("#oauth-message-content").html("You are authorizing a third-party application that is not monitored by CHub. For your safety, please manually generate an Application Token in Settings - Security.");
-        } else {
-            $("#oauth-message-title").html("CHub OAuth");
-            $("#oauth-message-content").html("Fetching application information...");
-            $.ajax({
-                url: callback_url.protocol + "//" + callback_url.host + "/info",
-                type: "GET",
-                dataType: "json",
-                success: function (data) {
-                    $("#oauth-message-title").html(`CHub X ${data.response.name}`);
-                    $("#oauth-message-content").html(`${data.response.name} wants to access your Drivers Hub account.<br>We will generate a new Application Token and send it to ${data.response.name}. They will be able to manage your account, but they won't be allowed to perform dangerous actions such as resigning as you.`);
+        oauth_callback_url = new URL(oauth_callback_url);
+        $.ajax({
+            url: `https://${app_id}.apps.chub.page/info`,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                oauth_app_name = data.name;
+                if (oauth_callback_url.host != data.callback_domain) {
+                    $("#oauth-message-title").html("CHub OAuth");
+                    $("#oauth-message-content").html("callback_url not valid");
+                    return;
                 }
-            });
-        }
+                let badge = "";
+                let extra = "";
+                if (!["utilbot"].includes(app_id)) {
+                    extra = `<br><br><span style='font-size:12px;color:grey'><b>${data.name}</b> is created by a 3rd-party developer. CHub is not affiliated with <b>${data.name}</b>.`;
+                } else {
+                    extra = `<br><br><span style='font-size:12px;color:grey'><b>${data.name}</b> is an official application created by CHub.`;
+                    badge = `<span class="badge text-bg-primary" style="position:relative;font-size:12px;top:-6px;margin-left:10px;">Official</span>`
+                }
+                $("#oauth-control-div").show();
+                $("#oauth-message-title").html(`${data.name}${badge}`);
+                $("#oauth-message-content").html(`wants to access your Drivers Hub account.<br><br>A new Application Token will be generated and sent to <b>${data.name}</b>. The application will be able to manage your account, but it won't be allowed to perform dangerous actions such as resigning as you.<br><br>About <b>${data.name}</b>:<br>${data.description}${extra}`);
+            },
+            error: function (data) {
+                $("#button-oauth-authorize").hide();
+                $("#oauth-control-div").show();
+                $("#oauth-message-title").html(`CHub OAuth`);
+                $("#oauth-message-content").html(`The application is not recognized. Refer to the <a href="https://github.com/charlws/OAuthApps" target="_blank">GitHub Repo</a> for more info on getting an application recognized.`);
+            }
+        });
     } catch (error) {
         $("#oauth-message-title").html("CHub OAuth");
-        $("#oauth-message-content").html("That does not look like a valid callback url.");
+        $("#oauth-message-content").html("callback_url is not valid");
+    }
+}
+
+function OAuthAuthorize(firstop = false) {
+    LockBtn("#button-oauth-authorize", mltr("working"));
+
+    if (mfaenabled) {
+        otp = $("#mfa-otp").val();
+
+        if (otp.length != 6) {
+            mfafunc = OAuthAuthorize;
+            setTimeout(function () { UnlockBtn("#button-oauth-authorize"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
+            return;
+        }
+
+        $.ajax({
+            url: api_host + "/" + dhabbr + "/token/application",
+            type: "POST",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                app_name: oauth_app_name,
+                otp: otp,
+            },
+            success: function (data) {
+                ShowTab("#oauth-tab", "from-mfa");
+                mfafunc = null;
+                if (data.error) return AjaxError(data);
+                let searchParams = new URLSearchParams(oauth_callback_url.search);
+                searchParams.set('discordid', localStorage.getItem("discordid"));
+                searchParams.set('token', data.response.token);
+                oauth_callback_url.search = searchParams.toString();
+                window.location.href = oauth_callback_url.toString();
+            },
+            error: function (data) {
+                if (firstop && data.status == 400) {
+                    // failed due to auto try, then do mfa
+                    mfafunc = OAuthAuthorize;
+                    setTimeout(function () { UnlockBtn("#button-oauth-authorize"); setTimeout(function () { ShowTab("#mfa-tab"); }, 500); }, 1000);
+                    return;
+                }
+                UnlockBtn("#button-oauth-authorize");
+                AjaxError(data);
+                ShowTab("#oauth-tab", "from-mfa");
+                mfafunc = null;
+            }
+        });
+    }
+    else {
+        $.ajax({
+            url: api_host + "/" + dhabbr + "/token/application",
+            type: "POST",
+            dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            data: {
+                app_name: oauth_app_name,
+                otp: otp,
+            },
+            success: function (data) {
+                ShowTab("#user-settings-tab", "from-mfa");
+                mfafunc = null;
+                if (data.error) return AjaxError(data);
+                let searchParams = new URLSearchParams(oauth_callback_url.search);
+                searchParams.set('discordid', localStorage.getItem("discordid"));
+                searchParams.set('token', data.response.token);
+                oauth_callback_url.search = searchParams.toString();
+                window.location.href = oauth_callback_url.toString();
+            },
+            error: function (data) {
+                UnlockBtn("#button-oauth-authorize");
+                AjaxError(data);
+            }
+        });
     }
 }
