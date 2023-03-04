@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.5.7**  
+1.Replaced UniSans with Montserrat  
+
 **v2.5.6**  
 1.Added shortcut button to update division status  
 2.Fixed `sigfig` showing `undefined` suffix for number larger than 1e15  

@@ -126,9 +126,9 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/b42e6717e4a59423.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/68dd9ec8586d9471.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.chub.page/assets/unisans/css/unisans.min.css">
+    <link rel="stylesheet" href="https://cdn.chub.page/assets/montserrat/css/montserrat.min.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
     <link href="https://cdn.chub.page/assets/fontawesome/css/brands.min.css" rel="stylesheet">
     <link href="https://cdn.chub.page/assets/fontawesome/css/regular.min.css" rel="stylesheet">
