@@ -34,7 +34,7 @@ function LoadAnnouncement(noplaceholder = false){
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: async function (data) {
             while(1){
@@ -44,7 +44,7 @@ function LoadAnnouncement(noplaceholder = false){
             if(userPerm.includes("announcement") || userPerm.includes("admin")){
                 $("#announcement-new").show();
             }
-            announcements = data.response.list;
+            announcements = data.list;
             content = "";
             for (i = 0; i < announcements.length; i++) {
                 if(i % 2 == 0){
@@ -119,7 +119,7 @@ function LoadAnnouncement(noplaceholder = false){
             content += `</div>`;
             $("#announcements").children().remove();
             $("#announcements").append(content);
-            UpdatePaginate("#announcements", data.response.total_pages, "LoadAnnouncement();");
+            UpdatePaginate("#announcements", data.total_pages, "LoadAnnouncement();");
         }
     });
 }
@@ -150,21 +150,20 @@ function PostAnnouncement(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
             "channelid": discord_channelid,
             "discord_message_content": discord_message
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-announcement-new-post");
-            if (data.error) AjaxError(data);
             toastNotification("success", "Success", mltr("announcement_posted"), 5000, false);
             LoadAnnouncement(noplaceholder = false);
         },
@@ -188,23 +187,22 @@ function EditAnnouncement(announcementid){
     }
     LockBtn("#button-announcement-edit-"+announcementid+"-save", mltr("saving"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/announcement?announcementid="+announcementid,
+        url: api_host + "/" + dhabbr + "/announcement/"+announcementid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
             "channelid": discord_channelid,
             "discord_message_content": discord_message
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
-            if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("edit_saved"), 5000, false);
         },
@@ -225,15 +223,14 @@ function DeleteAnnouncementShow(announcementid){
 function DeleteAnnouncement(announcementid){
     LockBtn("#button-announcement-delete-"+announcementid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/announcement?announcementid=" + announcementid,
+        url: api_host + "/" + dhabbr + "/announcement/" + announcementid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-announcement-delete-"+announcementid);
-            if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("announcement_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");

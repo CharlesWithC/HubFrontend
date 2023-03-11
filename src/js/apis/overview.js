@@ -15,27 +15,28 @@ async function LoadChart(userid = -1) {
     ranges = RANGES[chartscale];
     interval = INTERVAL[chartscale];
     pref = "s";
-    if (userid != -1) pref = "user-s";
+    userlimit = "";
+    if (userid != -1) pref = "user-s", userlimit = "&userid=" + userid;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?ranges=" + ranges + "&interval=" + interval + "&sum_up=" + addup + "&userid=" + userid,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?ranges=" + ranges + "&interval=" + interval + "&sum_up=" + addup + userlimit,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            while(1){
-                try{
+            while (1) {
+                try {
                     Chart;
                     break;
                 } catch {
                     await sleep(100);
                 }
             }
-            
+
             Chart.defaults.color = "white";
-            
-            d = data.response;
+
+            d = data;
             const ctx = document.getElementById(pref + 'tatistics-chart').getContext('2d');
             labels = [];
             distance = [];
@@ -108,7 +109,7 @@ async function LoadChart(userid = -1) {
                         backgroundColor: "pink",
                         xAxisID: 'x1',
                         yAxisID: 'y1'
-                    }, ]
+                    },]
                 },
                 showTooltips: true,
                 options: {
@@ -162,9 +163,9 @@ function refreshStats() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
-            d = data.response;
+            d = data;
             drivers = TSeparator(d.driver.tot);
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
@@ -201,7 +202,7 @@ function LoadStats(basic = false, noplaceholder = false) {
         $.ajax({
             url: api_host + "/" + dhabbr,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             }
@@ -214,9 +215,9 @@ function LoadStats(basic = false, noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
-            d = data.response;
+            d = data;
             drivers = TSeparator(d.driver.tot);
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
@@ -252,9 +253,9 @@ function LoadStats(basic = false, noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
-            d = data.response;
+            d = data;
             drivers = TSeparator(d.driver.tot);
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
@@ -278,15 +279,14 @@ function LoadStats(basic = false, noplaceholder = false) {
         date = new Date();
         firstSecondOfMonthTimestamp = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time="+parseInt(firstSecondOfMonthTimestamp/1000)+"&end_time="+parseInt(+new Date()/1000),
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + parseInt(firstSecondOfMonthTimestamp / 1000) + "&end_time=" + parseInt(+new Date() / 1000),
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                users = data.response.list;
+                users = data.list;
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
@@ -315,13 +315,12 @@ function LoadStats(basic = false, noplaceholder = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=join_timestamp&order=desc",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                users = data.response.list;
+                users = data.list;
                 $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
@@ -351,13 +350,12 @@ function LoadStats(basic = false, noplaceholder = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=last_seen&order=desc",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                users = data.response.list;
+                users = data.list;
                 $("#table_recent_visitors_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];

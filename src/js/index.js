@@ -77,19 +77,11 @@ function Load2022Wrapped() {
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 start_time: 1640995200,
                 end_time: 1672531199
-            },
+            }),
             success: function (data) {
-                if (data.error) {
-                    if (w22dlog == null) {
-                        console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
-                    } else {
-                        console.warn("Failed to export delivery log, using last export cache.");
-                    }
-                    return;
-                }
                 w22dlog = data;
                 localStorage.setItem("dlog-export-cache", w22dlog);
                 localStorage.setItem("dlog-export-cache-time", +new Date());
@@ -526,16 +518,16 @@ function InitLeaderboardTimeRange() {
 }
 
 function InitSearchByName() {
+    // TODO Recursively fetch all members
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list?page_size=250",
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return;
-            l = data.response.list;
+            l = data.list;
             for (var i = 0; i < l.length; i++) {
                 allmembers[l[i].userid] = l[i].name;
                 $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
@@ -926,7 +918,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                positions = data.response;
+                positions = data;
                 localStorage.setItem("positions", JSON.stringify(positions));
             }
         });
@@ -935,7 +927,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                roles = data.response;
+                roles = data;
                 rolelist = {};
                 rolecolor = {};
                 for (var i = 0; i < roles.length; i++) {
@@ -951,7 +943,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                d = data.response;
+                d = data;
                 applicationTypes = {};
                 for (var i = 0; i < d.length; i++)
                     applicationTypes[parseInt(d[i].applicationid)] = d[i].name;
@@ -963,7 +955,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                perms = data.response;
+                perms = data;
                 localStorage.setItem("perms", JSON.stringify(perms));
             }
         });
@@ -972,7 +964,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                d = data.response;
+                d = data;
                 RANKING = {};
                 RANKCLR = {};
                 for (i = 0; i < d.length; i++) {
@@ -992,7 +984,7 @@ function LoadCache(force) {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                d = data.response;
+                d = data;
                 divisions = {};
                 for (i = 0; i < d.length; i++) {
                     divisions[d[i].id] = d[i];
@@ -1162,18 +1154,11 @@ function ValidateToken() {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            if (data.error) {
-                // Invalid token, log out
-                localStorage.removeItem("token");
-                ShowTab("#signin-tab", "#button-signin-tab");
-                return;
-            }
-
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
             $("#user-profile-dropdown").css("display", "");
 
             // User Information
-            user = data.response.user;
+            user = data;
             localStorage.setItem("roles", JSON.stringify(user.roles));
             localStorage.setItem("name", user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
             localStorage.setItem("avatar", user.avatar);
@@ -1251,11 +1236,13 @@ function ValidateToken() {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    if (!data.error && data.response.list.length == 1) {
-                        user_distance = data.response.list[0].points.distance;
+                    if (data.list.length == 1) {
+                        user_distance = data.list[0].points.distance;
                     } else {
                         user_distance = 0;
                     }
+                }, error: function () {
+                    user_distance = 0;
                 }
             });
 
@@ -1267,7 +1254,7 @@ function ValidateToken() {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    user_language = data.response.language;
+                    user_language = data.language;
                     $("#api-language-" + user_language).prop("selected", true);
                     localStorage.setItem("language", user_language);
                     if (getCookie("language") && getCookie("language") != user_language) {
@@ -1294,7 +1281,7 @@ function InitLanguage() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            languages = data.response.supported;
+            languages = data.supported;
             for (var i = 0; i < languages.length; i++) {
                 $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${LANG_CODE[languages[i]]}</option>`);
             }
@@ -1308,11 +1295,10 @@ function InitLanguage() {
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token")
                     },
-                    data: {
+                    data: JSON.stringify({
                         language: user_language
-                    },
+                    }),
                     success: function (data) {
-                        if (data.error) return AjaxError(data);
                         setCookie("language", user_language);
                         localStorage.setItem("language", user_language);
                         toastNotification("success", "Success", "Language Updated to: " + LANG_CODE[user_language], 5000);

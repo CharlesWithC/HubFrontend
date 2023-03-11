@@ -1,5 +1,14 @@
 # Changelog
 
+**v2.6.0 (pre-release)**  
+Updated to be mostly compatible with API v2.0.0  
+
+**Known issues to be fixed:**  
+1.Fix event calendar to recursively get all events  
+2.Fix member search to recursively get all members  
+3.Fix challenge completed members  
+4.Fix event cannot show votes and attendees
+
 **v2.5.7**  
 1.Replaced UniSans with OpenSans  
 2.Fixed name/role display  

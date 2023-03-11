@@ -12,7 +12,7 @@ division_pending_row = `<tr>
 </tr>`;
 
 function LoadDivisionDeliveryList(noplaceholder = false) {
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_division_delivery_data").empty();
         for (var i = 0; i < 10; i++) {
             $("#table_division_delivery_data").append(dlog_placeholder_row);
@@ -24,15 +24,14 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=20&division=only",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            deliverylist = data.response.list;
-            total_pages = data.response.total_pages;
+            deliverylist = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < deliverylist.length; i++) {
@@ -71,14 +70,13 @@ async function LoadDivisionInfo(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/division",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            info = data.response;
+            info = data;
 
             $("#division-summary-list").children().remove();
             for (var i = 0; i < info.length; i++) {
@@ -113,15 +111,14 @@ function GetDivisionInfo(logid) {
     LockBtn("#button-delivery-detail-division", mltr("checking"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division?logid=" + logid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid + "/division",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
             UnlockBtn("#button-delivery-detail-division");
-            if (data.error) return AjaxError(data);
 
             divisionopt = "";
             for (var i = 0; i < Object.keys(divisions).length; i++) {
@@ -130,7 +127,7 @@ function GetDivisionInfo(logid) {
             if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">${mltr("no_division_found")}</span>`);
 
             info = ``;
-            if (data.response.status == "-1") {
+            if (data.status == "-1") {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
                     <option value="-1" selected>${mltr("select_division")}</option>
@@ -138,7 +135,7 @@ function GetDivisionInfo(logid) {
                 </select>`;
                 info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">${mltr("request_validation")}</button>`;
                 $("#delivery-detail-division").html(info);
-            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
+            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.status == "0") {
                 info += `
                 <p>${mltr("division_pending_validation")}</p>
                 <label for="select-division" class="form-label">${mltr("divisions")}</label>
@@ -157,16 +154,16 @@ function GetDivisionInfo(logid) {
                 <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">${mltr('reject')}</button>
                 <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">${mltr('accept')}</button>`);
                 InitModal("division_detail", modalid, top = true);
-                $("#division-" + data.response.divisionid).prop("selected", true);
+                $("#division-" + data.divisionid).prop("selected", true);
             } else {
-                if (data.response.update_message == undefined) {
-                    $("#delivery-detail-division").html(divisions[data.response.divisionid].name);
+                if (data.update_message == undefined) {
+                    $("#delivery-detail-division").html(divisions[data.divisionid].name);
                 } else {
-                    info += divisions[data.response.divisionid].name + " ";
-                    if (data.response.status == "0") info += "| " + mltr("pending_validation");
-                    else if (data.response.status == "1") info += SVG_VERIFIED;
-                    else if (data.response.status == "2") {
-                        staff = data.response.update_staff;
+                    info += divisions[data.divisionid].name + " ";
+                    if (data.status == "0") info += "| " + mltr("pending_validation");
+                    else if (data.status == "1") info += SVG_VERIFIED;
+                    else if (data.status == "2") {
+                        staff = data.update_staff;
                         staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
                         info += `| ${mltr("rejected_by")} ` + staff;
                     }
@@ -183,7 +180,7 @@ function GetDivisionInfo(logid) {
         },
         error: function (data) {
             UnlockBtn("#button-delivery-detail-division");
-            errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+            errmsg = JSON.parse(dataText).error ? JSON.parse(dataText).error : data.status + " " + data.statusText;
             $("#delivery-detail-division").html(`<span style="color:red">${errmsg}</span>`);
         }
     });
@@ -196,18 +193,14 @@ function SubmitDivisionValidationRequest(logid) {
     LockBtn("#button-request-division-validation", mltr("requesting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid + "/division/" + divisionid,
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            logid: logid
-        },
         success: async function (data) {
             UnlockBtn("#button-request-division-validation");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("request_submitted"), 5000, false);
         },
         error: function (data) {
@@ -222,7 +215,7 @@ function LoadPendingDivisionValidation() {
     page = parseInt($("#table_division_pending_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
-    
+
     $("#table_division_pending_data").empty();
     for (var i = 0; i < 5; i++) {
         $("#table_division_pending_data").append(division_pending_row);
@@ -230,21 +223,20 @@ function LoadPendingDivisionValidation() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/division/list/pending?page_size=20&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            total_pages = data.response.total_pages;
-            pending_division = data.response.list;
+            total_pages = data.total_pages;
+            pending_division = data.list;
             data = [];
 
             for (i = 0; i < pending_division.length; i++) {
                 delivery = pending_division[i];
                 user = delivery.user;
-                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 1, ${delivery.divisionid}, true)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 2, ${delivery.divisionid}, true)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 0, ${delivery.divisionid}, true)"><i class="fa-solid fa-question"></i></a>`]);
+                data.push([`${delivery.logid}`, `${divisions[delivery.divisionid].name}`, `${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 1, ${delivery.divisionid}, true)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 2, ${delivery.divisionid}, true)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 0, ${delivery.divisionid}, true)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
@@ -275,17 +267,16 @@ function UpdateDivision(logid, status, divisionid = -1, force = false) {
     if (message == undefined || message == null) message = "";
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid + "/division/" + divisionid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            logid: logid,
+        data: JSON.stringify({
             status: status,
             message: message
-        },
+        }),
         success: function (data) {
             if (status == 1) {
                 UnlockBtn("#button-division-accept");
@@ -296,8 +287,7 @@ function UpdateDivision(logid, status, divisionid = -1, force = false) {
             } else if (status == 0) {
                 UnlockBtn("#button-division-revalidate");
             }
-            if (data.error) return AjaxError(data);
-            if(!force) GetDivisionInfo(logid);
+            if (!force) GetDivisionInfo(logid);
             LoadPendingDivisionValidation();
             if (status == 1) {
                 toastNotification("success", "Success", mltr("division_delivery_accepted"), 5000, false);

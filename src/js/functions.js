@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.7)");
+    console.log("Drivers Hub: Frontend (v2.6.0 pre-release)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -86,7 +86,7 @@ $(document).ready(function () {
     $.ajax({
         url: "/languages/en.json?v2.5.70720",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
             enlang = data;
             if (language == "en") {
@@ -95,7 +95,7 @@ $(document).ready(function () {
                 $.ajax({
                     url: "/languages/" + language + ".json?v2.5.70720",
                     type: "GET",
-                    dataType: "json",
+                    contentType: "application/json", processData: false,
                     success: function (data) {
                         lang = data;
                     },
@@ -147,7 +147,7 @@ function sortDictWithValue(dict) {
 }
 
 function ParseAjaxError(data) {
-    return JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+    return JSON.parse(data.responseText).error ? JSON.parse(data.responseText).error : data.status + " " + data.statusText;
 }
 
 function AjaxError(data, no_notification = false) {

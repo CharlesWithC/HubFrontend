@@ -17,18 +17,14 @@ function SteamValidate() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/steam",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "callback": sPageURL
-        },
+        }),
         success: function (data) {
-            if (data.error){
-                $("#auth-message-content").html("Error: Invalid login");
-                return AjaxError(data);
-            }
             $("#auth-message-content").html(mltr("steam_account_updated"));
             toastNotification("success", "Success", mltr("steam_account_updated"), 5000);
             setTimeout(function () {
@@ -66,16 +62,12 @@ function AuthValidate() {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token",
             type: "PATCH",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if(data.error){
-                    $("#auth-message-content").html(ParseAjaxError(data));
-                    return AjaxError(data);
-                }
-                newtoken = data.response.token;
+                newtoken = data.token;
                 localStorage.setItem("token", newtoken);
                 authorizationHeader = {"Authorization": "Bearer " + newtoken};
                 ValidateToken();
@@ -105,17 +97,13 @@ function OAuthMFA() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
-        dataType: "json",
-        data: {
+        contentType: "application/json", processData: false,
+        data: JSON.stringify({
             token: token,
             otp: otp
-        },
+        }),
         success: function (data) {
-            if(data.error){
-                ShowTab("#signin-tab");
-                return AjaxError(data);
-            }
-            token = data.response.token;
+            token = data.token;
             localStorage.setItem("token", token);
             authorizationHeader = {"Authorization": "Bearer " + token};
             localStorage.removeItem("tipt");
@@ -139,16 +127,15 @@ function UpdateTruckersMPID() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/truckersmp",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "truckersmpid": $("#settings-user-truckersmpid").val()
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-settings-update-truckersmpid");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("truckersmp_account_updated"), 5000);
         },
         error: function (data) {
@@ -168,35 +155,30 @@ var CaptchaCallback = function (hcaptcha_response) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/password",
         type: "POST",
-        dataType: "json",
-        data: {
+        contentType: "application/json", processData: false,
+        data: JSON.stringify({
             email: email,
             password: password,
             "h-captcha-response": hcaptcha_response
-        },
+        }),
         success: function (data) {
             hcaptcha.reset();
             requireCaptcha = false;
-            if (!data.error) {
-                token = data.response.token;
-                mfa = data.response.mfa;
-                if (mfa) {
-                    localStorage.setItem("tip", token);
-                    localStorage.setItem("pending-mfa", +new Date());
-                    ShowTab("#mfa-tab");
-                } else {
-                    localStorage.setItem("token", token);
-                    authorizationHeader = {"Authorization": "Bearer " + token};
-                    ValidateToken();
-                    $(".tabs").removeClass("loaded");
-                    toastNotification("success", "Success", mltr("welcome_back"), 5000);
-                    setTimeout(function () {
-                        ShowTab("#overview-tab");
-                    }, 1000);
-                }
+            token = data.token;
+            mfa = data.mfa;
+            if (mfa) {
+                localStorage.setItem("tip", token);
+                localStorage.setItem("pending-mfa", +new Date());
+                ShowTab("#mfa-tab");
             } else {
-                AjaxError(data);
-                ShowTab("#signin-tab");
+                localStorage.setItem("token", token);
+                authorizationHeader = {"Authorization": "Bearer " + token};
+                ValidateToken();
+                $(".tabs").removeClass("loaded");
+                toastNotification("success", "Success", mltr("welcome_back"), 5000);
+                setTimeout(function () {
+                    ShowTab("#overview-tab");
+                }, 1000);
             }
         },
         error: function (data) {
@@ -243,18 +225,17 @@ function MFAVerify() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             token: token,
             otp: otp
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-mfa-verify");
-            if (data.error == true) return AjaxError(data);
-            newtoken = data.response.token;
+            newtoken = data.token;
             localStorage.setItem("token", newtoken);
             authorizationHeader = {"Authorization": "Bearer " + newtoken};
             localStorage.removeItem("tip");

@@ -4,15 +4,19 @@ window.autofocus = {}
 
 function LoadDriverLeaderStatistics() {
     function AjaxLDLS(start, end, dottag) {
+        let timelimit = "";
+        if (start != -1 && end != -1) {
+            timelimit = "&start_time=" + start + "&end_time=" + end;
+        }
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1&point_types=distance",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?&page=1&page_size=1&point_types=distance" + timelimit,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                users = data.response.list;
+                users = data.list;
                 dottuser = users[0];
                 discordid = dottuser.user.discordid;
                 avatar = GetAvatarSrc(discordid, dottuser.user.avatar);
@@ -109,24 +113,27 @@ function LoadLeaderboard(noplaceholder = false) {
     }
     users = users.join(",");
 
+    let timelimit = "";
+    if (start_time != -1 && end_time != -1) {
+        timelimit = "&start_time=" + start_time + "&end_time=" + end_time;
+    }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
+        url: api_host + "/" + dhabbr + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&game=" + game + "&point_types=" + limittype + "&userids=" + users + timelimit,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-leaderboard-options-update");
-            if (data.error) return AjaxError(data);
 
-            leaderboard = data.response.list;
-            total_pages = data.response.total_pages;
+            leaderboard = data.list;
+            total_pages = data.total_pages;
             data = [];
             for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
                 trstyle = "<tr_style></tr_style>";
-                if(user.user.userid == localStorage.getItem("userid")) trstyle = "<tr_style>background-color:#444;</tr_style>";
+                if (user.user.userid == localStorage.getItem("userid")) trstyle = "<tr_style>background-color:#444;</tr_style>";
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio));
                 data.push([trstyle, `${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
             }
@@ -173,6 +180,10 @@ function LoadDeliveryList(noplaceholder = false) {
         start_time = +new Date($("#delivery-log-start-time").val()) / 1000;
         end_time = +new Date($("#delivery-log-end-time").val()) / 1000 + 86400;
     }
+    let timelimit = "";
+    if (start_time != -1 && end_time != -1) {
+        timelimit = "&start_time=" + start_time + "&end_time=" + end_time;
+    }
 
     speedlimit = parseInt($("#delivery-log-speed-limit").val());
     if (!isNumber(speedlimit)) speedlimit = 0; // make sure speedlimit is valid
@@ -206,16 +217,15 @@ function LoadDeliveryList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid + timelimit,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: function (data) {
             UnlockBtn("#button-delivery-log-options-update");
-            if (data.error) return AjaxError(data);
 
-            deliverylist = data.response.list;
-            total_pages = data.response.total_pages;
+            deliverylist = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < deliverylist.length; i++) {
@@ -234,7 +244,7 @@ function LoadDeliveryList(noplaceholder = false) {
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
                 bgclr = "";
-                if(user.userid == localStorage.getItem("userid")) bgclr = "background-color:#444;";
+                if (user.userid == localStorage.getItem("userid")) bgclr = "background-color:#444;";
                 data.push([`<tr_style>color:${color};${bgclr}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
@@ -271,19 +281,18 @@ function DeliveryLogExport() {
         end_time = +new Date($("#delivery-log-export-end-time").val()) / 1000 + 86400;
     }
     LockBtn("#button-delivery-log-export", mltr("exporting"));
+    let timelimit = "";
+    if (start != -1 && end != -1) {
+        timelimit = "start_time=" + start + "&end_time=" + end;
+    }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/export",
+        url: api_host + "/" + dhabbr + "/dlog/export?" + timelimit,
         type: "GET",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            start_time: start_time,
-            end_time: end_time
-        },
         success: function (data) {
             UnlockBtn("#button-delivery-log-export");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("delivery_log_exported"), 5000);
             FileOutput("export.csv", data);
         },
@@ -490,33 +499,30 @@ function ShowDeliveryDetail(logid) {
 
     document.title = mltr("delivery") + " #" + logid + " - " + company_name;
 
+    if (!isNumber(logid)) return;
+
     curlogid = logid;
     window.autofocus["dmap"] = -2;
     rri = 0;
     rrspeed = 10;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog?logid=" + String(logid),
+        url: api_host + "/" + dhabbr + "/dlog/" + String(logid),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: async function (data) {
-            if (data.error) {
-                ShowTab("#delivery-tab", "#button-delivery-tab");
-                return AjaxError(data);
-            }
-
             window.history.pushState("", "", '/delivery/' + logid);
 
-            d = data.response.dlog;
+            d = data;
             currentDeliveryLog = d;
             user = d.user;
             distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
             delete_dlog = "";
-            while(1){
-                if(userPermLoaded) break;
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
-            if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
+            if (userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")) {
                 delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${convertQuotation1(user.name)}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
             }
             $("#delivery-detail-title").html(`${mltr("delivery")} #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
@@ -608,7 +614,7 @@ function ShowDeliveryDetail(logid) {
                     GenTimelineItem(e, i, mltr('train'), `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "collision") {
                     damage = meta.wear_engine + meta.wear_chassis + meta.wear_transmission + meta.wear_cabin + meta.wear_wheels;
-                    GenTimelineItem(e, i, mltr('collision'), `${mltr("truck_damage")}: ${(damage*100).toFixed(2)}%`);
+                    GenTimelineItem(e, i, mltr('collision'), `${mltr("truck_damage")}: ${(damage * 100).toFixed(2)}%`);
                 } else if (e.type == "repair") {
                     GenTimelineItem(e, i, mltr('repair'), mltr('truck_repaired'));
                 } else if (e.type == "refuel") {
@@ -619,7 +625,7 @@ function ShowDeliveryDetail(logid) {
                 } else if (e.type == "speeding") {
                     speed = TSeparator(parseInt(meta.max_speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                     speed_limit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
-                    GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("duration")}: ${meta.end-meta.start} sec<br><i>${mltr("not_fined")}</i>`);
+                    GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("duration")}: ${meta.end - meta.start} sec<br><i>${mltr("not_fined")}</i>`);
                 }
             }
             new SimpleBar($("#delivery-detail-timeline-div")[0]);
@@ -632,9 +638,9 @@ function ShowDeliveryDetail(logid) {
                 scrollTop: 0
             }, "fast");
 
-            dt = getDateTime(data.response.timestamp * 1000);
+            dt = getDateTime(data.timestamp * 1000);
 
-            telemetry = data.response.dlog.telemetry.split(";");
+            telemetry = data.telemetry.split(";");
             basic = telemetry[0].split(",");
             tver = 1;
             if (basic[0].startsWith("v2")) tver = 2;
@@ -743,7 +749,7 @@ function ShowDeliveryDetail(logid) {
             $("#dmap").children().remove();
             window.dn = {};
             window.mapcenter["dmap"] = undefined;
-            if (game == 1 && (mods == "promod" || JSON.stringify(data.response).toLowerCase().indexOf("promod") != -1)) {
+            if (game == 1 && (mods == "promod" || JSON.stringify(data).toLowerCase().indexOf("promod") != -1)) {
                 LoadETS2PMap("dmap");
             } else if (game == 1) { // ets2
                 LoadETS2Map("dmap");
@@ -801,20 +807,19 @@ function DeleteDeliveryShow(name, logid) {
     InitModal("delete_delivery", modalid);
 }
 
-function DeleteDelivery(logid){
+function DeleteDelivery(logid) {
     LockBtn("#button-delete-delivery", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog?logid="+logid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-delete-delivery");
-            if (data.error) return AjaxError(data);
-            LoadDeliveryList(noplaceholder=true);
+            LoadDeliveryList(noplaceholder = true);
             toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
             DestroyModal("delete_delivery");
         },

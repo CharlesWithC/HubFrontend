@@ -22,15 +22,14 @@ async function LoadChallenge(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge/list?page=" + page+"&order_by=end_time&order=desc",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            if (data.error) return AjaxError(data);
             
-            challengeList = data.response.list;
-            total_pages = data.response.total_pages;
+            challengeList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             while(1){
@@ -187,7 +186,6 @@ function CreateChallenge() {
         s = rolest[i];
         roles.push(s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1));
     }
-    roles = roles.join(",");
     required_roles = roles;
     required_distance = $("#challenge-new-required-distance").val();
     reward_points = $("#challenge-new-reward-points").val();
@@ -222,11 +220,11 @@ function CreateChallenge() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "start_time": start_time,
@@ -237,11 +235,10 @@ function CreateChallenge() {
             "required_distance": required_distance,
             "reward_points": reward_points,
             "public_details": public_details,
-            "job_requirements": JSON.stringify(jobreqd)
-        },
+            "job_requirements": jobreqd
+        }),
         success: function (data) {
             UnlockBtn("#button-challenge-new-create");
-            if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("challenge_created"), 5000, false);
         },
@@ -254,14 +251,14 @@ function CreateChallenge() {
 
 function EditChallengeShow(challengeid){
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/"+challengeid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            d = data.response.challenge;
+            d = data.challenge;
             $("#challenge-edit").show();
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);
@@ -322,7 +319,6 @@ function EditChallenge(challengeid) {
         s = rolest[i];
         roles.push(s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1));
     }
-    roles = roles.join(",");
     required_roles = roles;
     required_distance = $("#challenge-edit-required-distance").val();
     reward_points = $("#challenge-edit-reward-points").val();
@@ -355,13 +351,13 @@ function EditChallenge(challengeid) {
     
     LockBtn("#button-challenge-edit-create", mltr("creating"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/"+challengeid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "start_time": start_time,
@@ -372,11 +368,10 @@ function EditChallenge(challengeid) {
             "required_distance": required_distance,
             "reward_points": reward_points,
             "public_details": public_details,
-            "job_requirements": JSON.stringify(jobreqd)
-        },
+            "job_requirements": jobreq
+        }),
         success: function (data) {
             UnlockBtn("#button-challenge-edit");
-            if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("challenge_edited"), 5000, false);
         },
@@ -396,15 +391,14 @@ function DeleteChallengeShow(challengeid, title){
 function DeleteChallenge(challengeid){
     LockBtn("#button-challenge-delete-"+challengeid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/" + challengeid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-challenge-delete-"+challengeid);
-            if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("challenge_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_challenge")) DestroyModal("delete_challenge");
@@ -435,18 +429,14 @@ function AddChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/" + challengeid + "/delivery/" + logid,
         type: "PUT",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
-            "logid": logid
-        },
         success: function (data) {
             UnlockBtn("#button-challenge-add-delivery");
-            if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("delivery_added"), 5000, false);
         },
@@ -462,15 +452,14 @@ function DeleteChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid+"&logid="+logid,
+        url: api_host + "/" + dhabbr + "/challenge/" + challengeid + "/delivery/" + logid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-challenge-delete-delivery");
-            if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
         },

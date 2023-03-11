@@ -35,7 +35,7 @@ function LoadDownloads(noplaceholder = false){
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads/list?page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
@@ -47,7 +47,7 @@ function LoadDownloads(noplaceholder = false){
             if(userPerm.includes("downloads") || userPerm.includes("admin")){
                 $("#downloads-new").show();
             }
-            downloadslist = data.response.list;
+            downloadslist = data.list;
             content = "";
             for (i = 0; i < downloadslist.length; i++) {
                 if(i % 2 == 0){
@@ -91,23 +91,22 @@ function LoadDownloads(noplaceholder = false){
             content += `</div>`;
             $("#downloads").children().remove();
             $("#downloads").append(content);
-            UpdatePaginate("#downloads", data.response.total_pages, "LoadDownloads();");
+            UpdatePaginate("#downloads", data.total_pages, "LoadDownloads();");
         }
     });
 }
 
 function DownloadsRedirect(downloadsid){
     $.ajax({
-        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads/" + downloadsid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
-            if(data.error) return AjaxError(data);
-            window.location.href = api_host + "/" + dhabbr + "/downloads/" + data.response.downloads.secret;
+            window.location.href = api_host + "/" + dhabbr + "/downloads/redirect/" + data.secret;
         },
         error: function (data){
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
@@ -126,19 +125,18 @@ function CreateDownloads(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "link": link,
             "orderid": orderid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-downloads-new-create");
-            if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_added"), 5000, false);
         },
@@ -165,21 +163,20 @@ function EditDownloads(downloadsid){
 
     LockBtn(`#button-downloads-edit-${downloadsid}-save`, mltr("editing"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads/"+downloadsid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "link": link,
             "orderid": orderid
-        },
+        }),
         success: function (data) {
             UnlockBtn(`#button-downloads-edit-${downloadsid}-save`);
-            if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_edited"), 5000, false);
         },
@@ -200,15 +197,14 @@ function DeleteDownloadsShow(downloadsid){
 function DeleteDownloads(downloadsid){
     LockBtn("#button-downloads-delete-"+downloadsid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads/" + downloadsid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-downloads-delete-"+downloadsid);
-            if (data.error) AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_downloads")) DestroyModal("delete_downloads");

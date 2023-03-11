@@ -50,11 +50,11 @@
             $.ajax({
                 url: api_host + "/" + dhabbr,
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json", processData: false,
                 success: function (data) {
                     $("#api_status").html("Operational");
                     $("#api_status").css("color", "green");
-                    $("#api_version").html(data.response.version);
+                    $("#api_version").html(data.version);
                     $("#message").html("API is working fine. If the pages don't load, there might be an issue with the code of frontend.")
                 }, error: function (data) {
                     if(data.status == 502){

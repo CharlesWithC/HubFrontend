@@ -4,16 +4,15 @@ function UpdateBio() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/bio",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "bio": simplemde["#settings-bio"].value()
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-settings-bio-save");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success!", mltr("about_me_saved"), 5000, false);
         },
         error: function (data) {
@@ -38,21 +37,20 @@ function GenerateApplicationToken(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: $("#application-token-app-name").val(),
                 otp: otp,
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-generate-application-token");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(data.response.token);
-                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
+                $("#settings-application-token").html(data.token);
+                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.token}")`);
                 $("#application-token-new").show();
                 toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
@@ -74,18 +72,17 @@ function GenerateApplicationToken(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: $("#application-token-app-name").val()
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-generate-application-token");
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(data.response.token);
-                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
+                $("#settings-application-token").html(data.token);
+                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.token}")`);
                 $("#application-token-new").show();
                 toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
@@ -112,19 +109,18 @@ function UpdatePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 "password": $("#settings-password").val(),
                 otp: otp
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-password-update");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
                 toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
@@ -145,16 +141,15 @@ function UpdatePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 "password": $("#settings-password").val()
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-password-update");
-                if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
                 toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
@@ -181,18 +176,17 @@ function DisablePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 otp: otp
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-password-disable");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
                 toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
@@ -212,13 +206,12 @@ function DisablePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
                 UnlockBtn("#button-settings-password-disable");
-                if (data.error) return AjaxError(data);
                 toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
@@ -247,17 +240,16 @@ function DisableMFA() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/mfa",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             otp: otp
-        },
+        }),
         success: function (data) {
             ShowTab("#user-settings-tab", "from-mfa");
             mfafunc = null;
-            if (data.error) return AjaxError(data);
             $("#button-settings-mfa-disable").hide();
             $("#button-settings-mfa-enable").show();
             mfaenabled = false;
@@ -292,17 +284,16 @@ function EnableMFA() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/mfa",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             secret: mfasecret,
             otp: otp
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-enable-mfa");
-            if (data.error) AjaxError(data);
             $("#button-settings-mfa-disable").show();
             $("#button-settings-mfa-enable").hide();
             mfaenabled = true;
@@ -336,17 +327,16 @@ function UserResign() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/resign",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             otp: otp
-        },
+        }),
         success: function (data) {
             ShowTab("#user-settings-tab", "from-mfa");
             mfafunc = null;
-            if (data.error) return AjaxError(data);
             modalid = ShowModal(mltr('you_have_left_the_company'), mltr('you_have_left_the_company_note'));
         },
         error: function (data) {
@@ -361,7 +351,7 @@ function LoadNotificationSettings() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/settings",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
@@ -376,15 +366,15 @@ function LoadNotificationSettings() {
             $("#notifications-division").removeAttr("disabled");
             $("#notifications-event").removeAttr("disabled");
 
-            $("#notifications-drivershub").prop("checked", data.response.drivershub);
-            $("#notifications-discord").prop("checked", data.response.discord);
-            $("#notifications-login").prop("checked", data.response.login);
-            $("#notifications-dlog").prop("checked", data.response.dlog);
-            $("#notifications-member").prop("checked", data.response.member);
-            $("#notifications-application").prop("checked", data.response.application);
-            $("#notifications-challenge").prop("checked", data.response.challenge);
-            $("#notifications-division").prop("checked", data.response.division);
-            $("#notifications-event").prop("checked", data.response.event);
+            $("#notifications-drivershub").prop("checked", data.drivershub);
+            $("#notifications-discord").prop("checked", data.discord);
+            $("#notifications-login").prop("checked", data.login);
+            $("#notifications-dlog").prop("checked", data.dlog);
+            $("#notifications-member").prop("checked", data.member);
+            $("#notifications-application").prop("checked", data.application);
+            $("#notifications-challenge").prop("checked", data.challenge);
+            $("#notifications-division").prop("checked", data.division);
+            $("#notifications-event").prop("checked", data.event);
         }
     })
 }
@@ -393,12 +383,11 @@ function EnableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_enabled')}!`, 5000);
         }, error: function (data) {
             AjaxError(data);
@@ -410,12 +399,11 @@ function DisableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_disabled')}!`, 5000);
         }, error: function (data) {
             AjaxError(data);
@@ -439,12 +427,12 @@ function GetSessionList(page = 1) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/list?page_size=250&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            sessions = data.response.list;
+            sessions = data.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
                     opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
@@ -467,7 +455,7 @@ function GetSessionList(page = 1) {
                     <td>${opbtn}</td>
                 </tr>`);
             }
-            if (parseInt(data.response.total_pages) > page) {
+            if (parseInt(data.total_pages) > page) {
                 GetSessionList(page + 1);
             } else {
                 gslWorking = false;
@@ -483,12 +471,12 @@ function GetApplicationTokenList(page = 1) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/application/list?page_size=250&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            sessions = data.response.list;
+            sessions = data.list;
             for (var i = 0; i < sessions.length; i++) {
                 opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
 
@@ -504,7 +492,7 @@ function GetApplicationTokenList(page = 1) {
                     <td>${opbtn}</td>
                 </tr>`);
             }
-            if (parseInt(data.response.total_pages) > page) {
+            if (parseInt(data.total_pages) > page) {
                 GetApplicationTokenList(page + 1);
             } else {
                 gatlWorking = false;
@@ -547,15 +535,14 @@ function RevokeToken(hsh) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "hash": hsh
-        },
+        }),
         success: function (data) {
-            if (data.error) return AjaxError(data);
             LoadUserSessions(noplaceholder = true);
             toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
         },
@@ -576,15 +563,14 @@ function RevokeApplicationToken(hsh) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/application",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "hash": hsh
-        },
+        }),
         success: function (data) {
-            if (data.error) return AjaxError(data);
             LoadUserSessions(noplaceholder = true);
             toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
         },
@@ -621,16 +607,15 @@ function LoadUserList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/list?page=" + page + "&page_size=15&name=" + name,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-user-list-search");
-            if (data.error) return AjaxError(data);
 
-            userList = data.response.list;
-            total_pages = data.response.total_pages;
+            userList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < userList.length; i++) {
@@ -639,7 +624,7 @@ function LoadUserList(noplaceholder = false) {
                 banbtntxt = "Ban";
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
+                if (user.ban != null) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if (userPerm.includes("hrm") || userPerm.includes("admin")) {
@@ -695,14 +680,13 @@ function ShowUserDetail(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            d = data.response.user;
+            d = data;
             info = "";
             info += GenTableRow(mltr("name"), d.name);
             info += GenTableRow(mltr("email"), d.email);
@@ -732,18 +716,17 @@ function AcceptAsMember(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member",
         type: "PUT",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-accept-as-member");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
-            toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.response.userid, 5000, false);
+            toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.userid, 5000, false);
             DestroyModal("accept_as_member");
         },
         error: function (data) {
@@ -769,17 +752,16 @@ function UpdateDiscord(old_discord_id) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/discord",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             old_discord_id: old_discord_id,
             new_discord_id: new_discord_id
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-update-discord");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_discord_id_has_been_updated"), 5000, false);
             DestroyModal("update_discord");
@@ -795,13 +777,12 @@ function DisableUserMFAShow(discordid, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data)
-            mfa = data.response.user.mfa;
+            mfa = data.mfa;
             if (!mfa) {
                 return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
@@ -820,13 +801,12 @@ function StaffDisableMFA(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/mfa?discordid=" + discordid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-staff-disable-mfa");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("users_mfa_disabled"), 5000, false);
             DestroyModal("disable_mfa");
         },
@@ -848,16 +828,15 @@ function DeleteConnections(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/connections",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-delete-connections");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_account_connections_unbound"), 5000, false);
             DestroyModal("account_connections");
@@ -892,18 +871,17 @@ function BanUser(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/ban",
         type: "PUT",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid,
             expire: expire,
             reason: reason
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-ban-user");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_banned"), 5000, false);
             DestroyModal("ban_user");
@@ -926,16 +904,15 @@ function UnbanUser(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/ban",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-unban-user");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_unbanned"), 5000, false);
             DestroyModal("unban_user");
@@ -958,13 +935,12 @@ function DeleteUser(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-delete-user");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_deleted"), 5000, false);
             DestroyModal("delete_user");
@@ -987,13 +963,12 @@ function DeleteAccount(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-delete-account");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("account_deleted_goodbye"), 5000, false);
             Logout();
             DestroyModal("delete_account");
@@ -1009,13 +984,12 @@ function LoadNotification() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
-            d = data.response.list;
+            d = data.list;
             $("#notification-dropdown").children().remove();
             for (i = 0; i < d.length; i++) {
                 style = "";
@@ -1032,13 +1006,12 @@ function LoadNotification() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list?status=0",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
-            cnt = data.response.total_items;
+            cnt = data.total_items;
             if (cnt > 0 && cnt <= 99) {
                 $("#notification-pop").show();
                 $("#unread-notification").html(cnt);
@@ -1069,15 +1042,14 @@ function LoadNotificationList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list?page_size=30&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            if (data.error) return AjaxError(data);
 
-            notificationList = data.response.list;
-            total_pages = data.response.total_pages;
+            notificationList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < notificationList.length; i++) {
@@ -1099,13 +1071,13 @@ function NotificationsMarkAllAsRead() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "read": "true"
-        },
+        }),
         success: function (data) {
             $("#notification-pop").hide();
             $("#unread-notification").html("");
@@ -1121,7 +1093,7 @@ function HandleOAuth() {
         $.ajax({
             url: `https://${app_id}.apps.chub.page/info`,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             success: function (data) {
                 oauth_app_name = data.name;
                 if (oauth_callback_url.host != data.callback_domain) {
@@ -1169,21 +1141,20 @@ function OAuthAuthorize(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: oauth_app_name,
                 otp: otp,
-            },
+            }),
             success: function (data) {
                 ShowTab("#oauth-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
                 let searchParams = new URLSearchParams(oauth_callback_url.search);
                 searchParams.set('discordid', localStorage.getItem("discordid"));
-                searchParams.set('token', data.response.token);
+                searchParams.set('token', data.token);
                 oauth_callback_url.search = searchParams.toString();
                 window.location.href = oauth_callback_url.toString();
             },
@@ -1205,18 +1176,17 @@ function OAuthAuthorize(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: oauth_app_name
-            },
+            }),
             success: function (data) {
-                if (data.error) return AjaxError(data);
                 let searchParams = new URLSearchParams(oauth_callback_url.search);
                 searchParams.set('discordid', localStorage.getItem("discordid"));
-                searchParams.set('token', data.response.token);
+                searchParams.set('token', data.token);
                 oauth_callback_url.search = searchParams.toString();
                 window.location.href = oauth_callback_url.toString();
             },

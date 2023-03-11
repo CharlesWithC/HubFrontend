@@ -30,16 +30,15 @@ function LoadAuditLog(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-audit-log-staff-search");
-            if (data.error) return AjaxError(data);
 
-            auditLog = data.response.list;
-            total_pages = data.response.total_pages;
+            auditLog = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < auditLog.length; i++) {
@@ -68,15 +67,14 @@ function LoadConfiguration() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/config",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            configData = data.response.config;
-            backupConfig = data.response.backup;
+            configData = data.config;
+            backupConfig = data.backup;
 
             $("#json-config").val(JSON.stringify(configData, null, 4,
                 (_, value) =>
@@ -92,9 +90,8 @@ function LoadConfiguration() {
     $.ajax({
         url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
-            if (data.error) return AjaxError(data);
             webConfigData = data.response.config;
             $("#web-name").val(webConfigData.name);
             $("#web-distance-unit-"+webConfigData.distance_unit).prop("checked", true);
@@ -166,20 +163,19 @@ function UpdateConfig() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/config",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             config: JSON.stringify(config,
                 (_, value) =>
                 typeof value === 'number' && value > 1e10 ?
                 BigInt(value) :
                 value)
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-save-config");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("config_updated_reload_api_to_make_it_take_effect"), 5000, false);
         },
         error: function (data) {
@@ -206,17 +202,16 @@ function ReloadServer() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/restart",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             otp: otp
-        },
+        }),
         success: function (data) {
             reloadAPIMFA = false;
             ShowTab("#config-tab", "#button-config-tab");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("api_reloading"), 5000, false);
         },
         error: function (data) {
@@ -253,33 +248,28 @@ function UpdateWebConfig() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/tip",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            if (data.error) {
-                UnlockBtn("#button-save-web-config");
-                return AjaxError(data);
-            }
-            tipt = data.response.token;
+            tipt = data.token;
             $.ajax({
                 url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
                 type: "PATCH",
-                dataType: "json",
+                contentType: "application/json",
                 headers: {
                     "Authorization": "TemporaryIdentityProof " + tipt
                 },
-                data: {
+                data: JSON.stringify({
                     config: JSON.stringify({"name": $("#web-name").val(), "distance_unit": $("#web-distance-unit").find(":selected").attr("value"), "navio_company_id": $("#web-navio-company-id").val(), "slogan": $("#web-slogan").val(), "color": $("#web-color").val()}),
                     logo_url: $("#web-logo-download-link").val(),
                     banner_url: $("#web-banner-download-link").val(),
                     application: custom_application,
                     style: custom_style
-                },
+                }),
                 success: function (data) {
                     UnlockBtn("#button-save-web-config");
-                    if (data.error) return AjaxError(data);
                     toastNotification("success", "Success", mltr("web_config_updated"), 5000, false);
                 },
                 error: function (data) {
@@ -300,13 +290,12 @@ function ActivateTrackSim(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/tracksim/setup",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-active-tracksim");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", "Success! Please check your email for further instructions sent by TrackSim.", 5000, false);
         },
         error: function (data) {

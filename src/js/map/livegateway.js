@@ -26,16 +26,16 @@ if (distance_unit == "imperial") {
 }
 
 function UpdateSteam() {
+    // TODO Recursively fetch all members
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list?page_size=250",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return;
-            l = data.response.list;
+            l = data.list;
             for (var i = 0; i < l.length; i++) {
                 membersteam[l[i].steamid] = l[i].name;
                 memberuserid[l[i].steamid] = l[i].userid;

@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.5.7)");
+    console.log("Drivers Hub: Frontend (v2.6.0 pre-release)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -86,7 +86,7 @@ $(document).ready(function () {
     $.ajax({
         url: "/languages/en.json?v2.5.70720",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
             enlang = data;
             if (language == "en") {
@@ -95,7 +95,7 @@ $(document).ready(function () {
                 $.ajax({
                     url: "/languages/" + language + ".json?v2.5.70720",
                     type: "GET",
-                    dataType: "json",
+                    contentType: "application/json", processData: false,
                     success: function (data) {
                         lang = data;
                     },
@@ -147,7 +147,7 @@ function sortDictWithValue(dict) {
 }
 
 function ParseAjaxError(data) {
-    return JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+    return JSON.parse(data.responseText).error ? JSON.parse(data.responseText).error : data.status + " " + data.statusText;
 }
 
 function AjaxError(data, no_notification = false) {
@@ -1016,16 +1016,15 @@ function LoadAuditLog(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-audit-log-staff-search");
-            if (data.error) return AjaxError(data);
 
-            auditLog = data.response.list;
-            total_pages = data.response.total_pages;
+            auditLog = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < auditLog.length; i++) {
@@ -1054,15 +1053,14 @@ function LoadConfiguration() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/config",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            configData = data.response.config;
-            backupConfig = data.response.backup;
+            configData = data.config;
+            backupConfig = data.backup;
 
             $("#json-config").val(JSON.stringify(configData, null, 4,
                 (_, value) =>
@@ -1078,9 +1076,8 @@ function LoadConfiguration() {
     $.ajax({
         url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
-            if (data.error) return AjaxError(data);
             webConfigData = data.response.config;
             $("#web-name").val(webConfigData.name);
             $("#web-distance-unit-"+webConfigData.distance_unit).prop("checked", true);
@@ -1152,20 +1149,19 @@ function UpdateConfig() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/config",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             config: JSON.stringify(config,
                 (_, value) =>
                 typeof value === 'number' && value > 1e10 ?
                 BigInt(value) :
                 value)
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-save-config");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("config_updated_reload_api_to_make_it_take_effect"), 5000, false);
         },
         error: function (data) {
@@ -1192,17 +1188,16 @@ function ReloadServer() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/restart",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             otp: otp
-        },
+        }),
         success: function (data) {
             reloadAPIMFA = false;
             ShowTab("#config-tab", "#button-config-tab");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("api_reloading"), 5000, false);
         },
         error: function (data) {
@@ -1239,33 +1234,28 @@ function UpdateWebConfig() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/tip",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            if (data.error) {
-                UnlockBtn("#button-save-web-config");
-                return AjaxError(data);
-            }
-            tipt = data.response.token;
+            tipt = data.token;
             $.ajax({
                 url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
                 type: "PATCH",
-                dataType: "json",
+                contentType: "application/json",
                 headers: {
                     "Authorization": "TemporaryIdentityProof " + tipt
                 },
-                data: {
+                data: JSON.stringify({
                     config: JSON.stringify({"name": $("#web-name").val(), "distance_unit": $("#web-distance-unit").find(":selected").attr("value"), "navio_company_id": $("#web-navio-company-id").val(), "slogan": $("#web-slogan").val(), "color": $("#web-color").val()}),
                     logo_url: $("#web-logo-download-link").val(),
                     banner_url: $("#web-banner-download-link").val(),
                     application: custom_application,
                     style: custom_style
-                },
+                }),
                 success: function (data) {
                     UnlockBtn("#button-save-web-config");
-                    if (data.error) return AjaxError(data);
                     toastNotification("success", "Success", mltr("web_config_updated"), 5000, false);
                 },
                 error: function (data) {
@@ -1286,13 +1276,12 @@ function ActivateTrackSim(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/tracksim/setup",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-active-tracksim");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", "Success! Please check your email for further instructions sent by TrackSim.", 5000, false);
         },
         error: function (data) {
@@ -1307,15 +1296,19 @@ window.autofocus = {}
 
 function LoadDriverLeaderStatistics() {
     function AjaxLDLS(start, end, dottag) {
+        let timelimit = "";
+        if (start != -1 && end != -1) {
+            timelimit = "&start_time=" + start + "&end_time=" + end;
+        }
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + start + "&end_time=" + end + "&page=1&page_size=1&point_types=distance",
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?&page=1&page_size=1&point_types=distance" + timelimit,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                users = data.response.list;
+                users = data.list;
                 dottuser = users[0];
                 discordid = dottuser.user.discordid;
                 avatar = GetAvatarSrc(discordid, dottuser.user.avatar);
@@ -1412,24 +1405,27 @@ function LoadLeaderboard(noplaceholder = false) {
     }
     users = users.join(",");
 
+    let timelimit = "";
+    if (start_time != -1 && end_time != -1) {
+        timelimit = "&start_time=" + start_time + "&end_time=" + end_time;
+    }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&point_types=" + limittype + "&userids=" + users,
+        url: api_host + "/" + dhabbr + "/dlog/leaderboard?page=" + page + "&page_size=" + page_size + "&speed_limit=" + parseInt(speedlimit) + "&game=" + game + "&point_types=" + limittype + "&userids=" + users + timelimit,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-leaderboard-options-update");
-            if (data.error) return AjaxError(data);
 
-            leaderboard = data.response.list;
-            total_pages = data.response.total_pages;
+            leaderboard = data.list;
+            total_pages = data.total_pages;
             data = [];
             for (i = 0; i < leaderboard.length; i++) {
                 user = leaderboard[i];
                 trstyle = "<tr_style></tr_style>";
-                if(user.user.userid == localStorage.getItem("userid")) trstyle = "<tr_style>background-color:#444;</tr_style>";
+                if (user.user.userid == localStorage.getItem("userid")) trstyle = "<tr_style>background-color:#444;</tr_style>";
                 distance = TSeparator(parseInt(user.points.distance * distance_ratio));
                 data.push([trstyle, `${TSeparator(user.points.rank)}`, `${GetAvatar(user.user.userid, user.user.name, user.user.discordid, user.user.avatar)}`, `${point2rank(parseInt(user.points.total_no_limit))} (#${TSeparator(user.points.rank_no_limit)})`, `${distance}`, `${TSeparator(user.points.challenge)}`, `${TSeparator(user.points.event)}`, `${TSeparator(user.points.division)}`, `${TSeparator(user.points.myth)}`, `${TSeparator(user.points.total)}`]);
             }
@@ -1476,6 +1472,10 @@ function LoadDeliveryList(noplaceholder = false) {
         start_time = +new Date($("#delivery-log-start-time").val()) / 1000;
         end_time = +new Date($("#delivery-log-end-time").val()) / 1000 + 86400;
     }
+    let timelimit = "";
+    if (start_time != -1 && end_time != -1) {
+        timelimit = "&start_time=" + start_time + "&end_time=" + end_time;
+    }
 
     speedlimit = parseInt($("#delivery-log-speed-limit").val());
     if (!isNumber(speedlimit)) speedlimit = 0; // make sure speedlimit is valid
@@ -1509,16 +1509,15 @@ function LoadDeliveryList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&start_time=" + start_time + "&end_time=" + end_time + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid,
+        url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&speed_limit=" + parseInt(speedlimit) + "&game=" + game + "&page_size=" + page_size + "&division=" + division + "&challenge=" + challenge + "&status=" + status + uid + timelimit,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: function (data) {
             UnlockBtn("#button-delivery-log-options-update");
-            if (data.error) return AjaxError(data);
 
-            deliverylist = data.response.list;
-            total_pages = data.response.total_pages;
+            deliverylist = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < deliverylist.length; i++) {
@@ -1537,7 +1536,7 @@ function LoadDeliveryList(noplaceholder = false) {
                 dloguser = GetAvatar(user.userid, user.name, user.discordid, user.avatar);
                 if ($("#delivery-log-userid").val() == localStorage.getItem("userid")) dloguser = "Me";
                 bgclr = "";
-                if(user.userid == localStorage.getItem("userid")) bgclr = "background-color:#444;";
+                if (user.userid == localStorage.getItem("userid")) bgclr = "background-color:#444;";
                 data.push([`<tr_style>color:${color};${bgclr}</tr_style>`, `${delivery.logid} ${dextra}`, `${dloguser}`, `${delivery.source_company}, ${delivery.source_city}`, `${delivery.destination_company}, ${delivery.destination_city}`, `${distance}${distance_unit_txt}`, `${delivery.cargo} (${cargo_mass})`, `${unittxt}${profit}`, `<a class="clickable" onclick="ShowDeliveryDetail('${delivery.logid}')"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
@@ -1574,19 +1573,18 @@ function DeliveryLogExport() {
         end_time = +new Date($("#delivery-log-export-end-time").val()) / 1000 + 86400;
     }
     LockBtn("#button-delivery-log-export", mltr("exporting"));
+    let timelimit = "";
+    if (start != -1 && end != -1) {
+        timelimit = "start_time=" + start + "&end_time=" + end;
+    }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/export",
+        url: api_host + "/" + dhabbr + "/dlog/export?" + timelimit,
         type: "GET",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            start_time: start_time,
-            end_time: end_time
-        },
         success: function (data) {
             UnlockBtn("#button-delivery-log-export");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("delivery_log_exported"), 5000);
             FileOutput("export.csv", data);
         },
@@ -1793,33 +1791,30 @@ function ShowDeliveryDetail(logid) {
 
     document.title = mltr("delivery") + " #" + logid + " - " + company_name;
 
+    if (!isNumber(logid)) return;
+
     curlogid = logid;
     window.autofocus["dmap"] = -2;
     rri = 0;
     rrspeed = 10;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog?logid=" + String(logid),
+        url: api_host + "/" + dhabbr + "/dlog/" + String(logid),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: async function (data) {
-            if (data.error) {
-                ShowTab("#delivery-tab", "#button-delivery-tab");
-                return AjaxError(data);
-            }
-
             window.history.pushState("", "", '/delivery/' + logid);
 
-            d = data.response.dlog;
+            d = data;
             currentDeliveryLog = d;
             user = d.user;
             distance = TSeparator(parseInt(d.distance * distance_ratio)) + distance_unit_txt;
             delete_dlog = "";
-            while(1){
-                if(userPermLoaded) break;
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
-            if(userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")){
+            if (userPerm.includes("hrm") || userPerm.includes("delete_dlog") || userPerm.includes("admin")) {
                 delete_dlog = `<a class="clickable" onclick="DeleteDeliveryShow('${convertQuotation1(user.name)}', '${logid}')"><span class="rect-20" style="color:red"><i class="fa-solid fa-trash"></i></span></a>`;
             }
             $("#delivery-detail-title").html(`${mltr("delivery")} #${logid} <a class="clickable" onclick="MoreDeliveryDetail()"><span class="rect-20"><i class="fa-solid fa-circle-info"></i></span></a> ${delete_dlog}`);
@@ -1911,7 +1906,7 @@ function ShowDeliveryDetail(logid) {
                     GenTimelineItem(e, i, mltr('train'), `${meta.source_name} -> ${meta.target_name}<br>Paid ${punit}${TSeparator(meta.cost)}`);
                 } else if (e.type == "collision") {
                     damage = meta.wear_engine + meta.wear_chassis + meta.wear_transmission + meta.wear_cabin + meta.wear_wheels;
-                    GenTimelineItem(e, i, mltr('collision'), `${mltr("truck_damage")}: ${(damage*100).toFixed(2)}%`);
+                    GenTimelineItem(e, i, mltr('collision'), `${mltr("truck_damage")}: ${(damage * 100).toFixed(2)}%`);
                 } else if (e.type == "repair") {
                     GenTimelineItem(e, i, mltr('repair'), mltr('truck_repaired'));
                 } else if (e.type == "refuel") {
@@ -1922,7 +1917,7 @@ function ShowDeliveryDetail(logid) {
                 } else if (e.type == "speeding") {
                     speed = TSeparator(parseInt(meta.max_speed * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
                     speed_limit = TSeparator(parseInt(meta.speed_limit * 3.6 * distance_ratio)) + distance_unit_txt + "/h";
-                    GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("duration")}: ${meta.end-meta.start} sec<br><i>${mltr("not_fined")}</i>`);
+                    GenTimelineItem(e, i, mltr('speeding'), `${mltr("speed")}: ${speed} | ${mltr("limit")}: ${speed_limit}<br>${mltr("duration")}: ${meta.end - meta.start} sec<br><i>${mltr("not_fined")}</i>`);
                 }
             }
             new SimpleBar($("#delivery-detail-timeline-div")[0]);
@@ -1935,9 +1930,9 @@ function ShowDeliveryDetail(logid) {
                 scrollTop: 0
             }, "fast");
 
-            dt = getDateTime(data.response.timestamp * 1000);
+            dt = getDateTime(data.timestamp * 1000);
 
-            telemetry = data.response.dlog.telemetry.split(";");
+            telemetry = data.telemetry.split(";");
             basic = telemetry[0].split(",");
             tver = 1;
             if (basic[0].startsWith("v2")) tver = 2;
@@ -2046,7 +2041,7 @@ function ShowDeliveryDetail(logid) {
             $("#dmap").children().remove();
             window.dn = {};
             window.mapcenter["dmap"] = undefined;
-            if (game == 1 && (mods == "promod" || JSON.stringify(data.response).toLowerCase().indexOf("promod") != -1)) {
+            if (game == 1 && (mods == "promod" || JSON.stringify(data).toLowerCase().indexOf("promod") != -1)) {
                 LoadETS2PMap("dmap");
             } else if (game == 1) { // ets2
                 LoadETS2Map("dmap");
@@ -2104,20 +2099,19 @@ function DeleteDeliveryShow(name, logid) {
     InitModal("delete_delivery", modalid);
 }
 
-function DeleteDelivery(logid){
+function DeleteDelivery(logid) {
     LockBtn("#button-delete-delivery", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog?logid="+logid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-delete-delivery");
-            if (data.error) return AjaxError(data);
-            LoadDeliveryList(noplaceholder=true);
+            LoadDeliveryList(noplaceholder = true);
             toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
             DestroyModal("delete_delivery");
         },
@@ -2299,20 +2293,20 @@ function MoreDeliveryDetail() {
     modalid = ShowModal(mltr('delivery_log'), info);
     InitModal("delivery_log_detail", modalid);
 }
-function LoadXOfTheMonth(){
-    if($("#member-tab-left").is(":visible")) return;
-    if(perms.driver_of_the_month != undefined){
+function LoadXOfTheMonth() {
+    if ($("#member-tab-left").is(":visible")) return;
+    if (perms.driver_of_the_month != undefined) {
         dotm_role = perms.driver_of_the_month[0];
-        
+
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/list?page=1&page_size=1&roles=" + dotm_role,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                d = data.response.list;
+                d = data.list;
                 user = d[0];
                 userid = user.userid;
                 name = user.name;
@@ -2326,18 +2320,18 @@ function LoadXOfTheMonth(){
             }
         })
     }
-    if(perms.staff_of_the_month != undefined){
+    if (perms.staff_of_the_month != undefined) {
         sotm_role = perms.staff_of_the_month[0];
-        
+
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/list?page=1&page_size=1&roles=" + sotm_role,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                d = data.response.list;
+                d = data.list;
                 user = d[0];
                 userid = user.userid;
                 name = user.name;
@@ -2369,30 +2363,29 @@ function LoadMemberList(noplaceholder = false) {
 
     search_name = $("#input-member-search").val();
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_member_list_data").empty();
-        for(var i = 0 ; i < 10 ; i++){
+        for (var i = 0; i < 10; i++) {
             $("#table_member_list_data").append(member_list_placeholder_row);
         }
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name + "&roles="+filter_roles.join(","),
+        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name + "&roles=" + filter_roles.join(","),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
             UnlockBtn("#button-member-list-search");
-            if (data.error) return AjaxError(data);
-            while(1){
-                if(userPermLoaded) break;
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
 
-            memberList = data.response.list;
-            total_pages = data.response.total_pages;
+            memberList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < memberList.length; i++) {
@@ -2412,7 +2405,7 @@ function LoadMemberList(noplaceholder = false) {
                     avatar = logob64;
                 }
                 userop = ``;
-                if(userPerm.includes("hrm") || userPerm.includes("admin")){
+                if (userPerm.includes("hrm") || userPerm.includes("admin")) {
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         ${mltr('manage')}
@@ -2429,7 +2422,7 @@ function LoadMemberList(noplaceholder = false) {
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >${mltr('dismiss')}</a></li>
                     </ul>
                 </div>`;
-                } else if(userPerm.includes("hr")){
+                } else if (userPerm.includes("hr")) {
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         ${mltr('manage')}
@@ -2442,7 +2435,7 @@ function LoadMemberList(noplaceholder = false) {
                         <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
                 </div>`;
-                } else if(userPerm.includes(`division`)){
+                } else if (userPerm.includes(`division`)) {
                     userop = `<div class="dropdown">
                     <a class="dropdown-toggle clickable" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         ${mltr('manage')}
@@ -2464,18 +2457,18 @@ function LoadMemberList(noplaceholder = false) {
     })
 }
 
-function FilterRolesShow(){
+function FilterRolesShow() {
     roled = `
     <div>
         <label class="form-label">${mltr('roles')}</label>
         <br>
     </div>`;
-    
+
     roleids = Object.keys(rolelist);
     for (var i = 0; i < roleids.length; i++) {
-        if(i>0&&i%2==0) roled += "<br>";
+        if (i > 0 && i % 2 == 0) roled += "<br>";
         checked = "";
-        if(filter_roles.includes(roleids[i])) checked = "checked";
+        if (filter_roles.includes(roleids[i])) checked = "checked";
         roled += `
         <div class="form-check mb-2" style="width:49.5%;display:inline-block">
             <input class="form-check-input" type="checkbox" value="" id="filter-roles-${roleids[i]}" name="filter-roles" ${checked}>
@@ -2484,11 +2477,11 @@ function FilterRolesShow(){
             </label>
         </div>`;
     }
-    
+
     modalid = ShowModal(mltr("filter_by_roles"), roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button type="button" class="btn btn-primary" onclick="FilterRoles();LoadMemberList(true)" data-bs-dismiss="modal">${mltr("confirm")}</button>`);
     InitModal("filter_roles", modalid);
-    
-    $('input[name="filter-roles"]').on('change', function() {
+
+    $('input[name="filter-roles"]').on('change', function () {
         var numChecked = $('input[name="filter-roles"]:checked').length;
         if (numChecked >= 5) {
             $('input[name="filter-roles"]').prop('disabled', true);
@@ -2499,25 +2492,24 @@ function FilterRolesShow(){
     });
 }
 
-function FilterRoles(){
+function FilterRoles() {
     checked = $('input[name="filter-roles"]:checked');
     filter_roles = [];
-    for(var i = 0 ; i < checked.length ; i ++){
-        filter_roles.push($(checked[i]).attr("id").replaceAll("filter-roles-",""));
+    for (var i = 0; i < checked.length; i++) {
+        filter_roles.push($(checked[i]).attr("id").replaceAll("filter-roles-", ""));
     }
 }
 
-function EditRolesShow(uid){
+function EditRolesShow(uid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?userid=" + uid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
-            d = data.response.user;
+            d = data;
             roles = d.roles;
 
             roled = `
@@ -2525,24 +2517,24 @@ function EditRolesShow(uid){
                 <label class="form-label">${mltr('roles')}</label>
                 <br>
             </div>`;
-            
+
             roleids = Object.keys(rolelist);
-            if(!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin"))&&userPerm.includes("division")){
+            if (!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin")) && userPerm.includes("division")) {
                 division_roles = [];
                 divisions_ids = Object.keys(divisions);
-                for(var i = 0 ; i < divisions_ids.length ; i++){
+                for (var i = 0; i < divisions_ids.length; i++) {
                     division_roles.push(divisions[divisions_ids[i]].role_id);
                 }
             }
             for (var i = 0; i < roleids.length; i++) {
-                if(i>0&&i%2==0) roled += "<br>";
+                if (i > 0 && i % 2 == 0) roled += "<br>";
                 checked = "";
-                if(roles.includes(roleids[i])) checked = "checked";
+                if (roles.includes(roleids[i])) checked = "checked";
                 disabled = "";
                 if (parseInt(roleids[i]) <= parseInt(highestroleid))
                     disabled = "disabled";
-                if(!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin"))&&userPerm.includes("division")){
-                    if(!division_roles.includes(roleids[i])) disabled="disabled";
+                if (!(userPerm.includes("hr") || userPerm.includes("hrm") || userPerm.includes("admin")) && userPerm.includes("division")) {
+                    if (!division_roles.includes(roleids[i])) disabled = "disabled";
                 }
                 roled += `
                 <div class="form-check mb-2" style="width:49.5%;display:inline-block">
@@ -2552,7 +2544,7 @@ function EditRolesShow(uid){
                     </label>
                 </div>`;
             }
-            
+
             modalid = ShowModal(`${d.name} (${d.userid})`, roled, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-edit-roles" type="button" class="btn btn-primary" onclick="EditRoles(${d.userid});">${mltr("update")}</button>`);
             InitModal("edit_roles", modalid);
         },
@@ -2574,17 +2566,16 @@ function EditRoles(uid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/roles",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "userid": uid,
             "roles": roles.join(",")
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-edit-roles");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success!", mltr("member_roles_updated"), 5000, false);
         },
         error: function (data) {
@@ -2594,7 +2585,7 @@ function EditRoles(uid) {
     });
 }
 
-function EditPointsShow(uid, name){
+function EditPointsShow(uid, name) {
     div = `
     <label class="form-label">${mltr('points')}</label>
     <div class="input-group mb-2">
@@ -2616,22 +2607,21 @@ function EditPoints(uid) {
     mythpoint = $("#edit-points-myth").val();
     if (!isNumber(distance)) distance = 0;
     if (!isNumber(mythpoint)) mythpoint = 0;
-    
+
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/point",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "userid": uid,
             "distance": distance,
             "mythpoint": mythpoint,
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-edit-points");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success!", mltr("member_points_updated"), 5000, false);
         },
         error: function (data) {
@@ -2641,26 +2631,25 @@ function EditPoints(uid) {
     });
 }
 
-function DismissMemberShow(uid, name){
-    if(uid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
+function DismissMemberShow(uid, name) {
+    if (uid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
     modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${uid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">${mltr('dismiss')}</button>`);
     InitModal("dismiss_member", modalid);
 }
 
-function DismissMember(uid){
+function DismissMember(uid) {
     LockBtn("#button-dismiss-member", mltr("dismissing"));
-    
+
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-dismiss-member");
-            if (data.error) return AjaxError(data);
-            LoadMemberList(noplaceholder=true);
+            LoadMemberList(noplaceholder = true);
             toastNotification("success", "Success", mltr("member_dismissed"), 5000, false);
         },
         error: function (data) {
@@ -2670,11 +2659,11 @@ function DismissMember(uid){
     });
 }
 
-function LoadRanking(){
+function LoadRanking() {
     $("#ranking-tab").children().remove();
-    for(var i = 0 ; i < 3 ; i++){
+    for (var i = 0; i < 3; i++) {
         t = `<div class="row">`;
-        for(var j = 0 ; j < 3 ; j++){
+        for (var j = 0; j < 3; j++) {
             t += GenCard(`<span class="placeholder" style="width:150px"></span>`, `<span class="placeholder" style="width:100px"></span>`);
         }
         t += `</div>`;
@@ -2683,16 +2672,15 @@ function LoadRanking(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + localStorage.getItem("userid"),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            if (data.error) AjaxError(data);
             t = `<div class="row">`;
             $("#ranking-tab").children().remove();
-            if(data.response.list.length != 0){
-                d = data.response.list[0];
+            if (data.list.length != 0) {
+                d = data.list[0];
                 rank = point2rank(d.points.total_no_limit);
                 t += GenCard(mltr('my_points'), TSeparator(d.points.total_no_limit) + " - " + rank + `
                 <button id="button-rankings-role" type="button" class="btn btn-sm btn-primary button-rankings-role" onclick="GetDiscordRankRole();" style="float:right">${mltr('get_discord_role')}</button>`);
@@ -2700,71 +2688,70 @@ function LoadRanking(){
                 t += GenCard(mltr('my_points'), mltr("you_are_not_a_driver"));
             }
             k = Object.keys(RANKING);
-            for(var i = 0 ; i < Math.min(k.length, 2) ; i++){
+            for (var i = 0; i < Math.min(k.length, 2); i++) {
                 t += GenCard(`<span style="color:${RANKCLR[k[i]]}"> ${RANKING[k[i]]}</span>`, `${TSeparator(k[i])} Points`);
             }
             t += `</div>`;
-            if(t.length>2){
-                for(var i = 2, j = 2; i < k.length ; i = j){
+            if (t.length > 2) {
+                for (var i = 2, j = 2; i < k.length; i = j) {
                     t += `<div class="row">`;
-                    for(j = i ; j < Math.min(k.length, i + 3) ; j++){
+                    for (j = i; j < Math.min(k.length, i + 3); j++) {
                         t += GenCard(`<span style="color:${RANKCLR[k[j]]}"> ${RANKING[k[j]]}</span>`, `${TSeparator(k[j])} Points`);
                     }
                     t += `</div>`;
                 }
             }
             $("#ranking-tab").append(t);
-        }, error: function(data){
+        }, error: function (data) {
             AjaxError(data);
         }
     });
 }
 
-function getActivityName(name){
-    if(name.startsWith("dlog_")) return mltr("viewing_delivery_log") + " #" + name.split("_")[1];
-    else if(name == "dlog") return mltr("viewing_delivery_logs");
-    else if(name == "index") return mltr("viewing_drivers_hub_index");
-    else if(name == "leaderboard") return mltr("viewing_leaderboard");
-    else if(name == "member") return mltr("viewing_members");
-    else if(name.includes("member_")) return mltr("viewing_profile") + ": " + allmembers[name.split("_")[1]];
-    else if(name == "announcement") return mltr("viewing_announcements");
-    else if(name == "application") return mltr("viewing_appliactions");
-    else if(name == "challenge") return mltr("viewing_challenges");
-    else if(name == "division") return mltr("viewing_divisions");
-    else if(name == "downloads") return mltr("viewing_downloads");
-    else if(name == "event") return mltr("viewing_events");
+function getActivityName(name) {
+    if (name.startsWith("dlog_")) return mltr("viewing_delivery_log") + " #" + name.split("_")[1];
+    else if (name == "dlog") return mltr("viewing_delivery_logs");
+    else if (name == "index") return mltr("viewing_drivers_hub_index");
+    else if (name == "leaderboard") return mltr("viewing_leaderboard");
+    else if (name == "member") return mltr("viewing_members");
+    else if (name.includes("member_")) return mltr("viewing_profile") + ": " + allmembers[name.split("_")[1]];
+    else if (name == "announcement") return mltr("viewing_announcements");
+    else if (name == "application") return mltr("viewing_appliactions");
+    else if (name == "challenge") return mltr("viewing_challenges");
+    else if (name == "division") return mltr("viewing_divisions");
+    else if (name == "downloads") return mltr("viewing_downloads");
+    else if (name == "event") return mltr("viewing_events");
     else return "/";
 }
 
-function getActitivyUrl(name){
-    if(name.startsWith("dlog_")) return "/delivery/"+name.split("_")[1];
-    else if(name == "dlog") return "/delivery";
-    else if(name == "index") return "/";
-    else if(name == "leaderboard") return "/leaderboard";
-    else if(name == "member") return "/member";
-    else if(name.includes("member_")) return "/member/"+name.split("_")[1];
-    else if(name == "announcement") return "/announcement";
-    else if(name == "application") return "/application/my";
-    else if(name == "challenge") return "/challenge";
-    else if(name == "division") return "/division";
-    else if(name == "downloads") return "/downloads";
-    else if(name == "event") return "/event";
+function getActitivyUrl(name) {
+    if (name.startsWith("dlog_")) return "/delivery/" + name.split("_")[1];
+    else if (name == "dlog") return "/delivery";
+    else if (name == "index") return "/";
+    else if (name == "leaderboard") return "/leaderboard";
+    else if (name == "member") return "/member";
+    else if (name.includes("member_")) return "/member/" + name.split("_")[1];
+    else if (name == "announcement") return "/announcement";
+    else if (name == "application") return "/application/my";
+    else if (name == "challenge") return "/challenge";
+    else if (name == "division") return "/division";
+    else if (name == "downloads") return "/downloads";
+    else if (name == "event") return "/event";
     else return "/";
 }
 
-function UpdateProfile(discordid){
+function UpdateProfile(discordid) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/profile?discordid="+discordid,
+        url: api_host + "/" + dhabbr + "/user/profile?discordid=" + discordid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
-            if(curtab == "#user-delivery-tab") LoadUserProfile(profile_userid);
-            if(curtab == "#member-tab") LoadMemberList(noplaceholder = true);
-            if(curtab == "#manage-user-tab") LoadUserList(noplaceholder = true);
+            if (curtab == "#user-delivery-tab") LoadUserProfile(profile_userid);
+            if (curtab == "#member-tab") LoadMemberList(noplaceholder = true);
+            if (curtab == "#manage-user-tab") LoadUserList(noplaceholder = true);
         },
         error: function (data) {
             AjaxError(data);
@@ -2814,7 +2801,7 @@ function LoadUserProfile(userid) {
         <div id="profile-text-statistics"></div>
     </div>
     </div>`;
-    
+
     $("#user-statistics").html(user_statistics_placeholder);
     $("#user-statistics-chart-select").change(function () {
         chartscale = parseInt($(this).val());
@@ -2832,67 +2819,63 @@ function LoadUserProfile(userid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?userid=" + String(userid),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            if (data.error) {
-                ShowTab("#overview-tab", "#button-overview-tab");
-                return AjaxError(data);
-            }
-
             ShowTab("#user-delivery-tab", userid);
 
-            d = data.response.user;
-            
+            d = data;
+
             document.title = d.name + " - " + company_name;
 
             account_info = "<table>";
             account_info += GenTableRow(mltr("id"), d.userid);
             if (d.email != undefined && d.email != "") {
                 account_info += GenTableRow(mltr("email"), d.email);
-            } 
+            }
             account_info += GenTableRow(mltr("discord"), d.discordid);
             account_info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
             account_info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
             account_info += GenTableRow(mltr("joined_at"), getDateTime(d.join_timestamp * 1000));
-            
+
             roles = d.roles;
             rtxt = "";
             for (var i = 0; i < roles.length; i++) {
                 color = dhcolor;
-                if(rolecolor[roles[i]] != undefined) color = rolecolor[roles[i]];
+                if (rolecolor[roles[i]] != undefined) color = rolecolor[roles[i]];
                 fcolor = foregroundColorOf(color);
                 rtxt += `<span class='badge' style='background-color:${color};color:${fcolor}'>` + rolelist[roles[i]] + "</span> ";
             }
             rtxt = rtxt.substring(0, rtxt.length - 2);
-            
-            if(d.roles.length == 1) account_info += GenTableRow(mltr("role"), rtxt);
+
+            if (d.roles.length == 1) account_info += GenTableRow(mltr("role"), rtxt);
             else account_info += GenTableRow(mltr("roles"), rtxt);
-            
+
             account_info += GenTableRow("&nbsp;", "&nbsp;");
-            activity_url = getActitivyUrl(d.activity.name);
-            if(d.activity.name == "offline"){
-                if(d.activity.last_seen != -1)
-                    account_info += GenTableRow(mltr("status"), mltr("offline") + " - " + mltr("last_seen") + " " + timeAgo(new Date(d.activity.last_seen*1000)));
+            if (d.activity == null) d.activity = { "status": "unknown", "last_seen": "0" };
+            activity_url = getActitivyUrl(d.activity.status);
+            if (d.activity.status == "offline") {
+                if (d.activity.last_seen != -1)
+                    account_info += GenTableRow(mltr("status"), mltr("offline") + " - " + mltr("last_seen") + " " + timeAgo(new Date(d.activity.last_seen * 1000)));
                 else
                     account_info += GenTableRow(mltr("status"), mltr("offline"));
             }
-            else if(d.activity.name == "online") account_info += GenTableRow(mltr("status"), mltr("online"));
-            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${getActivityName(d.activity.name)}</a>`);
+            else if (d.activity.status == "online") account_info += GenTableRow(mltr("status"), mltr("online"));
+            else account_info += GenTableRow(mltr("activity"), `<a class="clickable" onclick='window.history.pushState("", "", "${activity_url}");PathDetect()'>${getActivityName(d.activity.status)}</a>`);
 
             account_info += "</table>";
 
             $("#user-account-info").html(account_info);
-            
+
             extra = "";
-            
-            while(1){
-                if(userPermLoaded) break;
+
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
-            if(userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")){
+            if (userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")) {
                 extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateProfile('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
             }
 
@@ -2900,7 +2883,7 @@ function LoadUserProfile(userid) {
             profile_info += `<h1 style='font-size:40px'><b>${d.name}</b> ${extra}</h1>`;
             profile_info += "" + marked.parse(d.bio).replaceAll("<img ", "<img style='width:100%;' ");
             $("#profile-info").html(profile_info);
-            
+
             avatar = GetAvatarSrc(d.discordid, d.avatar);
             $("#profile-avatar").attr("src", avatar);
 
@@ -2908,59 +2891,55 @@ function LoadUserProfile(userid) {
             $.ajax({
                 url: api_host + "/" + dhabbr + "/dlog/statistics/summary?userid=" + String(userid),
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json", processData: false,
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    if (!data.error) {
-                        d = data.response;
-                        info = "";
-                        info += `<b>${mltr('jobs')}</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
-                        info += `<b>${mltr('including_cancelled_jobs')}</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
+                    d = data;
+                    info = "";
+                    info += `<b>${mltr('jobs')}</b>: ${TSeparator(d.job.all.sum.tot)} (${TSeparator(d.job.all.ets2.tot)} + ${TSeparator(d.job.all.ats.tot)})<br>`;
+                    info += `<b>${mltr('including_cancelled_jobs')}</b>: ${TSeparator(d.job.cancelled.sum.tot)}<br>`;
 
-                        dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
-                        dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
-                        dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
-                        info += `<b>${mltr('distance')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
+                    dtot = TSeparator(d.distance.all.sum.tot * distance_ratio) + distance_unit_txt;
+                    dets2 = TSeparator(d.distance.all.ets2.tot * distance_ratio) + distance_unit_txt;
+                    dats = TSeparator(d.distance.all.ats.tot * distance_ratio) + distance_unit_txt;
+                    info += `<b>${mltr('distance')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
 
-                        dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
-                        dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
-                        dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
-                        info += `<b>${mltr('fuel')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
+                    dtot = TSeparator(d.fuel.all.sum.tot * fuel_ratio) + fuel_unit_txt;
+                    dets2 = TSeparator(d.fuel.all.ets2.tot * fuel_ratio) + fuel_unit_txt;
+                    dats = TSeparator(d.fuel.all.ats.tot * fuel_ratio) + fuel_unit_txt;
+                    info += `<b>${mltr('fuel')}</b>: ${dtot} (${dets2} + ${dats})<br>`;
 
-                        info += `<b>${mltr('profit')}</b>: €` + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
-                        info += `<b>${mltr('including_cancellation_penalty')}</b>: -€` + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
+                    info += `<b>${mltr('profit')}</b>: €` + TSeparator(d.profit.all.tot.euro) + " + $" + TSeparator(d.profit.all.tot.dollar) + "<br>";
+                    info += `<b>${mltr('including_cancellation_penalty')}</b>: -€` + TSeparator(-d.profit.cancelled.tot.euro) + " - $" + TSeparator(-d.profit.cancelled.tot.dollar) + "";
 
-                        $("#profile-text-statistics").html(info);
+                    $("#profile-text-statistics").html(info);
 
-                        $.ajax({
-                            url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
-                            type: "GET",
-                            dataType: "json",
-                            headers: {
-                                "Authorization": "Bearer " + localStorage.getItem("token")
-                            },
-                            success: async function (data) {
-                                if (!data.error) {
-                                    info += "<hr>";
-                                    d = data.response.list[0];
-                                    if(d != undefined){
-                                        info += `<b>${mltr('points')}</b><br>`;
-                                        info += `<b>${mltr('distance')}</b>: ${d.points.distance}<br>`;
-                                        info += `<b>${mltr('challenge')}</b>: ${d.points.challenge}<br>`;
-                                        info += `<b>${mltr('event')}</b>: ${d.points.event}<br>`;
-                                        info += `<b>${mltr('division')}</b>: ${d.points.division}<br>`;
-                                        info += `<b>${mltr('myth')}</b>: ${d.points.myth}<br>`;
-                                        info += `<b>${mltr('total')}: ${d.points.total_no_limit}</b><br>`;
-                                        info += `<b>${mltr('rank')}: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
-                                    }
-                                    info += `</p>`;
-                                    $("#profile-text-statistics").html(info);
-                                }
+                    $.ajax({
+                        url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
+                        type: "GET",
+                        contentType: "application/json", processData: false,
+                        headers: {
+                            "Authorization": "Bearer " + localStorage.getItem("token")
+                        },
+                        success: async function (data) {
+                            info += "<hr>";
+                            d = data.list[0];
+                            if (d != undefined) {
+                                info += `<b>${mltr('points')}</b><br>`;
+                                info += `<b>${mltr('distance')}</b>: ${d.points.distance}<br>`;
+                                info += `<b>${mltr('challenge')}</b>: ${d.points.challenge}<br>`;
+                                info += `<b>${mltr('event')}</b>: ${d.points.event}<br>`;
+                                info += `<b>${mltr('division')}</b>: ${d.points.division}<br>`;
+                                info += `<b>${mltr('myth')}</b>: ${d.points.myth}<br>`;
+                                info += `<b>${mltr('total')}: ${d.points.total_no_limit}</b><br>`;
+                                info += `<b>${mltr('rank')}: #${d.points.rank_no_limit} (${point2rank(d.points.total_no_limit)})</b><br>`;
                             }
-                        });
-                    }
+                            info += `</p>`;
+                            $("#profile-text-statistics").html(info);
+                        }
+                    });
                 },
                 error: function (data) {
                     AjaxError(data, no_notification = true);
@@ -2980,15 +2959,14 @@ function GetDiscordRankRole() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/roles/rank",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn(".button-rankings-role");
-            if (data.error) return AjaxError(data);
-            else return toastNotification("success", "Success", mltr("discord_role_assigned"), 5000, false);
-        },
+            toastNotification("success", "Success", mltr("discord_role_assigned"), 5000, false);
+    },
         error: function (data) {
             UnlockBtn(".button-rankings-role");
             AjaxError(data);
@@ -3012,27 +2990,28 @@ async function LoadChart(userid = -1) {
     ranges = RANGES[chartscale];
     interval = INTERVAL[chartscale];
     pref = "s";
-    if (userid != -1) pref = "user-s";
+    userlimit = "";
+    if (userid != -1) pref = "user-s", userlimit = "&userid=" + userid;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?ranges=" + ranges + "&interval=" + interval + "&sum_up=" + addup + "&userid=" + userid,
+        url: api_host + "/" + dhabbr + "/dlog/statistics/chart?ranges=" + ranges + "&interval=" + interval + "&sum_up=" + addup + userlimit,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            while(1){
-                try{
+            while (1) {
+                try {
                     Chart;
                     break;
                 } catch {
                     await sleep(100);
                 }
             }
-            
+
             Chart.defaults.color = "white";
-            
-            d = data.response;
+
+            d = data;
             const ctx = document.getElementById(pref + 'tatistics-chart').getContext('2d');
             labels = [];
             distance = [];
@@ -3105,7 +3084,7 @@ async function LoadChart(userid = -1) {
                         backgroundColor: "pink",
                         xAxisID: 'x1',
                         yAxisID: 'y1'
-                    }, ]
+                    },]
                 },
                 showTooltips: true,
                 options: {
@@ -3159,9 +3138,9 @@ function refreshStats() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
-            d = data.response;
+            d = data;
             drivers = TSeparator(d.driver.tot);
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
@@ -3198,7 +3177,7 @@ function LoadStats(basic = false, noplaceholder = false) {
         $.ajax({
             url: api_host + "/" + dhabbr,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             }
@@ -3211,9 +3190,9 @@ function LoadStats(basic = false, noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + stats_start_time + "&end_time=" + stats_end_time,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
-            d = data.response;
+            d = data;
             drivers = TSeparator(d.driver.tot);
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
@@ -3249,9 +3228,9 @@ function LoadStats(basic = false, noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/statistics/summary?start_time=" + start_time + "&end_time=" + end_time,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         success: function (data) {
-            d = data.response;
+            d = data;
             drivers = TSeparator(d.driver.tot);
             newdrivers = TSeparator(d.driver.new);
             jobs = TSeparator(d.job.all.sum.tot);
@@ -3275,15 +3254,14 @@ function LoadStats(basic = false, noplaceholder = false) {
         date = new Date();
         firstSecondOfMonthTimestamp = new Date(date.getFullYear(), date.getMonth(), 1).getTime();
         $.ajax({
-            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time="+parseInt(firstSecondOfMonthTimestamp/1000)+"&end_time="+parseInt(+new Date()/1000),
+            url: api_host + "/" + dhabbr + "/dlog/leaderboard?start_time=" + parseInt(firstSecondOfMonthTimestamp / 1000) + "&end_time=" + parseInt(+new Date() / 1000),
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                users = data.response.list;
+                users = data.list;
                 $("#table_mini_leaderboard_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
@@ -3312,13 +3290,12 @@ function LoadStats(basic = false, noplaceholder = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=join_timestamp&order=desc",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                users = data.response.list;
+                users = data.list;
                 $("#table_new_driver_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
@@ -3348,13 +3325,12 @@ function LoadStats(basic = false, noplaceholder = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/list?page=1&order_by=last_seen&order=desc",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if (data.error) return toastNotification("error", "Error", data.descriptor, 5000, false);
-                users = data.response.list;
+                users = data.list;
                 $("#table_recent_visitors_data").empty();
                 for (var i = 0; i < Math.min(users.length, 5); i++) {
                     user = users[i];
@@ -3388,16 +3364,15 @@ function UpdateBio() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/bio",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "bio": simplemde["#settings-bio"].value()
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-settings-bio-save");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success!", mltr("about_me_saved"), 5000, false);
         },
         error: function (data) {
@@ -3422,21 +3397,20 @@ function GenerateApplicationToken(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: $("#application-token-app-name").val(),
                 otp: otp,
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-generate-application-token");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(data.response.token);
-                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
+                $("#settings-application-token").html(data.token);
+                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.token}")`);
                 $("#application-token-new").show();
                 toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
@@ -3458,18 +3432,17 @@ function GenerateApplicationToken(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: $("#application-token-app-name").val()
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-generate-application-token");
-                if (data.error) return AjaxError(data);
-                $("#settings-application-token").html(data.response.token);
-                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.response.token}")`);
+                $("#settings-application-token").html(data.token);
+                $("#button-application-token-copy").attr("onclick", `CopyButton("#button-application-token-copy", "${data.token}")`);
                 $("#application-token-new").show();
                 toastNotification("success", "Success", mltr("application_token_generated"), 5000, false);
             },
@@ -3496,19 +3469,18 @@ function UpdatePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 "password": $("#settings-password").val(),
                 otp: otp
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-password-update");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
                 toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
@@ -3529,16 +3501,15 @@ function UpdatePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "PATCH",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 "password": $("#settings-password").val()
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-password-update");
-                if (data.error) return AjaxError(data);
                 $("#settings-password").val("");
                 toastNotification("success", "Success", mltr("password_updated"), 5000, false);
             },
@@ -3565,18 +3536,17 @@ function DisablePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 otp: otp
-            },
+            }),
             success: function (data) {
                 UnlockBtn("#button-settings-password-disable");
                 ShowTab("#user-settings-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
                 toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
@@ -3596,13 +3566,12 @@ function DisablePassword(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/user/password",
             type: "DELETE",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
                 UnlockBtn("#button-settings-password-disable");
-                if (data.error) return AjaxError(data);
                 toastNotification("success", "Success", mltr("password_login_disabled"), 5000, false);
             },
             error: function (data) {
@@ -3631,17 +3600,16 @@ function DisableMFA() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/mfa",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             otp: otp
-        },
+        }),
         success: function (data) {
             ShowTab("#user-settings-tab", "from-mfa");
             mfafunc = null;
-            if (data.error) return AjaxError(data);
             $("#button-settings-mfa-disable").hide();
             $("#button-settings-mfa-enable").show();
             mfaenabled = false;
@@ -3676,17 +3644,16 @@ function EnableMFA() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/mfa",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             secret: mfasecret,
             otp: otp
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-enable-mfa");
-            if (data.error) AjaxError(data);
             $("#button-settings-mfa-disable").show();
             $("#button-settings-mfa-enable").hide();
             mfaenabled = true;
@@ -3720,17 +3687,16 @@ function UserResign() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/resign",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             otp: otp
-        },
+        }),
         success: function (data) {
             ShowTab("#user-settings-tab", "from-mfa");
             mfafunc = null;
-            if (data.error) return AjaxError(data);
             modalid = ShowModal(mltr('you_have_left_the_company'), mltr('you_have_left_the_company_note'));
         },
         error: function (data) {
@@ -3745,7 +3711,7 @@ function LoadNotificationSettings() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/settings",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
@@ -3760,15 +3726,15 @@ function LoadNotificationSettings() {
             $("#notifications-division").removeAttr("disabled");
             $("#notifications-event").removeAttr("disabled");
 
-            $("#notifications-drivershub").prop("checked", data.response.drivershub);
-            $("#notifications-discord").prop("checked", data.response.discord);
-            $("#notifications-login").prop("checked", data.response.login);
-            $("#notifications-dlog").prop("checked", data.response.dlog);
-            $("#notifications-member").prop("checked", data.response.member);
-            $("#notifications-application").prop("checked", data.response.application);
-            $("#notifications-challenge").prop("checked", data.response.challenge);
-            $("#notifications-division").prop("checked", data.response.division);
-            $("#notifications-event").prop("checked", data.response.event);
+            $("#notifications-drivershub").prop("checked", data.drivershub);
+            $("#notifications-discord").prop("checked", data.discord);
+            $("#notifications-login").prop("checked", data.login);
+            $("#notifications-dlog").prop("checked", data.dlog);
+            $("#notifications-member").prop("checked", data.member);
+            $("#notifications-application").prop("checked", data.application);
+            $("#notifications-challenge").prop("checked", data.challenge);
+            $("#notifications-division").prop("checked", data.division);
+            $("#notifications-event").prop("checked", data.event);
         }
     })
 }
@@ -3777,12 +3743,11 @@ function EnableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_enabled')}!`, 5000);
         }, error: function (data) {
             AjaxError(data);
@@ -3794,12 +3759,11 @@ function DisableNotification(item, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", name + ` ${mltr('notification_disabled')}!`, 5000);
         }, error: function (data) {
             AjaxError(data);
@@ -3823,12 +3787,12 @@ function GetSessionList(page = 1) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/list?page_size=250&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            sessions = data.response.list;
+            sessions = data.list;
             for (var i = 0; i < sessions.length; i++) {
                 if (sha256(localStorage.getItem("token")) != sessions[i].hash)
                     opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
@@ -3851,7 +3815,7 @@ function GetSessionList(page = 1) {
                     <td>${opbtn}</td>
                 </tr>`);
             }
-            if (parseInt(data.response.total_pages) > page) {
+            if (parseInt(data.total_pages) > page) {
                 GetSessionList(page + 1);
             } else {
                 gslWorking = false;
@@ -3867,12 +3831,12 @@ function GetApplicationTokenList(page = 1) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/application/list?page_size=250&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            sessions = data.response.list;
+            sessions = data.list;
             for (var i = 0; i < sessions.length; i++) {
                 opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
 
@@ -3888,7 +3852,7 @@ function GetApplicationTokenList(page = 1) {
                     <td>${opbtn}</td>
                 </tr>`);
             }
-            if (parseInt(data.response.total_pages) > page) {
+            if (parseInt(data.total_pages) > page) {
                 GetApplicationTokenList(page + 1);
             } else {
                 gatlWorking = false;
@@ -3931,15 +3895,14 @@ function RevokeToken(hsh) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "hash": hsh
-        },
+        }),
         success: function (data) {
-            if (data.error) return AjaxError(data);
             LoadUserSessions(noplaceholder = true);
             toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
         },
@@ -3960,15 +3923,14 @@ function RevokeApplicationToken(hsh) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/application",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "hash": hsh
-        },
+        }),
         success: function (data) {
-            if (data.error) return AjaxError(data);
             LoadUserSessions(noplaceholder = true);
             toastNotification("success", "Success", mltr("token_revoked"), 5000, false);
         },
@@ -4005,16 +3967,15 @@ function LoadUserList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/list?page=" + page + "&page_size=15&name=" + name,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-user-list-search");
-            if (data.error) return AjaxError(data);
 
-            userList = data.response.list;
-            total_pages = data.response.total_pages;
+            userList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < userList.length; i++) {
@@ -4023,7 +3984,7 @@ function LoadUserList(noplaceholder = false) {
                 banbtntxt = "Ban";
                 bantxt2 = "";
                 color = "";
-                if (user.ban.is_banned) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
+                if (user.ban != null) color = "grey", bantxt = mltr("unban"), banbtntxt = "Unban", bantxt2 = "(" + mltr("banned") + ")", bannedUserList[user.discordid] = user.ban.reason;
 
                 userop = "";
                 if (userPerm.includes("hrm") || userPerm.includes("admin")) {
@@ -4079,14 +4040,13 @@ function ShowUserDetail(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            d = data.response.user;
+            d = data;
             info = "";
             info += GenTableRow(mltr("name"), d.name);
             info += GenTableRow(mltr("email"), d.email);
@@ -4116,18 +4076,17 @@ function AcceptAsMember(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member",
         type: "PUT",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-accept-as-member");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
-            toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.response.userid, 5000, false);
+            toastNotification("success", "Success", mltr("user_accepted_as_member_user_id_") + data.userid, 5000, false);
             DestroyModal("accept_as_member");
         },
         error: function (data) {
@@ -4153,17 +4112,16 @@ function UpdateDiscord(old_discord_id) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/discord",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             old_discord_id: old_discord_id,
             new_discord_id: new_discord_id
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-update-discord");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_discord_id_has_been_updated"), 5000, false);
             DestroyModal("update_discord");
@@ -4179,13 +4137,12 @@ function DisableUserMFAShow(discordid, name) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data)
-            mfa = data.response.user.mfa;
+            mfa = data.mfa;
             if (!mfa) {
                 return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
@@ -4204,13 +4161,12 @@ function StaffDisableMFA(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/mfa?discordid=" + discordid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-staff-disable-mfa");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("users_mfa_disabled"), 5000, false);
             DestroyModal("disable_mfa");
         },
@@ -4232,16 +4188,15 @@ function DeleteConnections(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/connections",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-delete-connections");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("users_account_connections_unbound"), 5000, false);
             DestroyModal("account_connections");
@@ -4276,18 +4231,17 @@ function BanUser(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/ban",
         type: "PUT",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid,
             expire: expire,
             reason: reason
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-ban-user");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_banned"), 5000, false);
             DestroyModal("ban_user");
@@ -4310,16 +4264,15 @@ function UnbanUser(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/ban",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             discordid: discordid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-unban-user");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_unbanned"), 5000, false);
             DestroyModal("unban_user");
@@ -4342,13 +4295,12 @@ function DeleteUser(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-delete-user");
-            if (data.error) return AjaxError(data);
             LoadUserList(noplaceholder = true);
             toastNotification("success", "Success", mltr("user_deleted"), 5000, false);
             DestroyModal("delete_user");
@@ -4371,13 +4323,12 @@ function DeleteAccount(discordid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
             UnlockBtn("#button-delete-account");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("account_deleted_goodbye"), 5000, false);
             Logout();
             DestroyModal("delete_account");
@@ -4393,13 +4344,12 @@ function LoadNotification() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
-            d = data.response.list;
+            d = data.list;
             $("#notification-dropdown").children().remove();
             for (i = 0; i < d.length; i++) {
                 style = "";
@@ -4416,13 +4366,12 @@ function LoadNotification() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list?status=0",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
-            cnt = data.response.total_items;
+            cnt = data.total_items;
             if (cnt > 0 && cnt <= 99) {
                 $("#notification-pop").show();
                 $("#unread-notification").html(cnt);
@@ -4453,15 +4402,14 @@ function LoadNotificationList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/list?page_size=30&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            if (data.error) return AjaxError(data);
 
-            notificationList = data.response.list;
-            total_pages = data.response.total_pages;
+            notificationList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < notificationList.length; i++) {
@@ -4483,13 +4431,13 @@ function NotificationsMarkAllAsRead() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "read": "true"
-        },
+        }),
         success: function (data) {
             $("#notification-pop").hide();
             $("#unread-notification").html("");
@@ -4505,7 +4453,7 @@ function HandleOAuth() {
         $.ajax({
             url: `https://${app_id}.apps.chub.page/info`,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             success: function (data) {
                 oauth_app_name = data.name;
                 if (oauth_callback_url.host != data.callback_domain) {
@@ -4553,21 +4501,20 @@ function OAuthAuthorize(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: oauth_app_name,
                 otp: otp,
-            },
+            }),
             success: function (data) {
                 ShowTab("#oauth-tab", "from-mfa");
                 mfafunc = null;
-                if (data.error) return AjaxError(data);
                 let searchParams = new URLSearchParams(oauth_callback_url.search);
                 searchParams.set('discordid', localStorage.getItem("discordid"));
-                searchParams.set('token', data.response.token);
+                searchParams.set('token', data.token);
                 oauth_callback_url.search = searchParams.toString();
                 window.location.href = oauth_callback_url.toString();
             },
@@ -4589,18 +4536,17 @@ function OAuthAuthorize(firstop = false) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token/application",
             type: "POST",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 app_name: oauth_app_name
-            },
+            }),
             success: function (data) {
-                if (data.error) return AjaxError(data);
                 let searchParams = new URLSearchParams(oauth_callback_url.search);
                 searchParams.set('discordid', localStorage.getItem("discordid"));
-                searchParams.set('token', data.response.token);
+                searchParams.set('token', data.token);
                 oauth_callback_url.search = searchParams.toString();
                 window.location.href = oauth_callback_url.toString();
             },
@@ -4639,16 +4585,16 @@ if (distance_unit == "imperial") {
 }
 
 function UpdateSteam() {
+    // TODO Recursively fetch all members
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list?page_size=250",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return;
-            l = data.response.list;
+            l = data.list;
             for (var i = 0; i < l.length; i++) {
                 membersteam[l[i].steamid] = l[i].name;
                 memberuserid[l[i].steamid] = l[i].userid;
@@ -4980,7 +4926,7 @@ function LoadAnnouncement(noplaceholder = false){
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: async function (data) {
             while(1){
@@ -4990,7 +4936,7 @@ function LoadAnnouncement(noplaceholder = false){
             if(userPerm.includes("announcement") || userPerm.includes("admin")){
                 $("#announcement-new").show();
             }
-            announcements = data.response.list;
+            announcements = data.list;
             content = "";
             for (i = 0; i < announcements.length; i++) {
                 if(i % 2 == 0){
@@ -5065,7 +5011,7 @@ function LoadAnnouncement(noplaceholder = false){
             content += `</div>`;
             $("#announcements").children().remove();
             $("#announcements").append(content);
-            UpdatePaginate("#announcements", data.response.total_pages, "LoadAnnouncement();");
+            UpdatePaginate("#announcements", data.total_pages, "LoadAnnouncement();");
         }
     });
 }
@@ -5096,21 +5042,20 @@ function PostAnnouncement(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
             "channelid": discord_channelid,
             "discord_message_content": discord_message
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-announcement-new-post");
-            if (data.error) AjaxError(data);
             toastNotification("success", "Success", mltr("announcement_posted"), 5000, false);
             LoadAnnouncement(noplaceholder = false);
         },
@@ -5134,23 +5079,22 @@ function EditAnnouncement(announcementid){
     }
     LockBtn("#button-announcement-edit-"+announcementid+"-save", mltr("saving"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/announcement?announcementid="+announcementid,
+        url: api_host + "/" + dhabbr + "/announcement/"+announcementid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
             "channelid": discord_channelid,
             "discord_message_content": discord_message
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
-            if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("edit_saved"), 5000, false);
         },
@@ -5171,15 +5115,14 @@ function DeleteAnnouncementShow(announcementid){
 function DeleteAnnouncement(announcementid){
     LockBtn("#button-announcement-delete-"+announcementid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/announcement?announcementid=" + announcementid,
+        url: api_host + "/" + dhabbr + "/announcement/" + announcementid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-announcement-delete-"+announcementid);
-            if (data.error) AjaxError(data);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("announcement_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
@@ -5191,11 +5134,11 @@ function DeleteAnnouncement(announcementid){
     });
 }
 applicationQuestions = {}
-function PreserveApplicationQuestion(){
-    for(var apptype = 1; apptype <= 100; apptype++){
-        for(var i = 1 ; i <= 100 ; i++){
-            if($("#application" + apptype + "Question" + i).length != 0){
-                question = $("#application" + apptype + "Question" + i).html().replaceAll("\n"," ").replaceAll("  "," ");
+function PreserveApplicationQuestion() {
+    for (var apptype = 1; apptype <= 100; apptype++) {
+        for (var i = 1; i <= 100; i++) {
+            if ($("#application" + apptype + "Question" + i).length != 0) {
+                question = $("#application" + apptype + "Question" + i).html().replaceAll("\n", " ").replaceAll("  ", " ");
                 applicationQuestions["#application" + apptype + "Question" + i] = question;
             } else {
                 continue;
@@ -5204,20 +5147,19 @@ function PreserveApplicationQuestion(){
     }
 }
 
-function UpdatePendingApplicationBadge(){
+function UpdatePendingApplicationBadge() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/list?page=1&page_size=1&status=0&application_type=0&all_user=1",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            count = data.response.total_items;
+            count = data.total_items;
             $("#pending-application-badge").remove();
-            if(count > 0){
+            if (count > 0) {
                 $("#button-all-application-tab").append(`<span class='badge' id="pending-application-badge" style="background-color:red">${count}</span>`);
             }
         },
@@ -5240,9 +5182,9 @@ my_application_placeholder_row = `
 function LoadUserApplicationList(noplaceholder = false) {
     InitPaginate("#table_my_application", "LoadUserApplicationList();");
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_my_application_data").children().remove();
-        for(var i = 0 ; i < 15 ; i ++){
+        for (var i = 0; i < 15; i++) {
             $("#table_my_application_data").append(my_application_placeholder_row);
         }
     }
@@ -5253,26 +5195,25 @@ function LoadUserApplicationList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/list?page=" + page + "&page_size=15&application_type=0",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
             STATUS = [mltr("pending"), mltr("accepted"), mltr("declined")];
 
-            applicationList = data.response.list;
-            total_pages = data.response.total_pages;
+            applicationList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                if(apptype == undefined) apptype = mltr("unknown");
+                if (apptype == undefined) apptype = mltr("unknown");
                 submit_time = getDateTime(application.submit_timestamp * 1000);
                 update_time = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0)  closedat = "/";
+                if (application.update_timestamp == 0) closedat = "/";
                 status = STATUS[application.status];
                 staff = application.last_update_staff;
 
@@ -5280,7 +5221,7 @@ function LoadUserApplicationList(noplaceholder = false) {
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
 
-                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})"><i class="fa-solid fa-folder-open"></i></a>`]);
+                data.push([`${application.applicationid}`, `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar), `<a id="button-my-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid})"><i class="fa-solid fa-folder-open"></i></a>`]);
             }
 
             PushTable("#table_my_application", data, total_pages, "LoadUserApplicationList();");
@@ -5305,9 +5246,9 @@ all_application_placeholder_row = `
 async function LoadAllApplicationList(noplaceholder = false) {
     InitPaginate("#table_all_application", "LoadAllApplicationList();");
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_all_application_data").children().remove();
-        for(var i = 0 ; i < 15 ; i ++){
+        for (var i = 0; i < 15; i++) {
             $("#table_all_application_data").append(all_application_placeholder_row);
         }
     }
@@ -5318,26 +5259,25 @@ async function LoadAllApplicationList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/list?page=" + page + "&page_size=15&application_type=0&all_user=1",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
             STATUS = [mltr("pending"), mltr("accepted"), mltr("declined")];
 
-            applicationList = data.response.list;
-            total_pages = data.response.total_pages;
+            applicationList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < applicationList.length; i++) {
                 application = applicationList[i];
                 apptype = applicationTypes[application.application_type];
-                if(apptype == undefined) apptype = mltr("unknown");
+                if (apptype == undefined) apptype = mltr("unknown");
                 submit_time = getDateTime(application.submit_timestamp * 1000);
                 update_time = getDateTime(application.update_timestamp * 1000);
-                if (application.update_timestamp == 0)  closedat = "/";
+                if (application.update_timestamp == 0) closedat = "/";
                 status = STATUS[application.status];
                 creator = application.creator;
                 staff = application.last_update_staff;
@@ -5345,8 +5285,8 @@ async function LoadAllApplicationList(noplaceholder = false) {
                 color = "lightblue";
                 if (application.status == 1) color = "lightgreen";
                 if (application.status == 2) color = "red";
-                
-                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar),`<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 1)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 2)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 0)"><i class="fa-solid fa-question"></i></a>`]);
+
+                data.push([`${application.applicationid}`, GetAvatar(creator.userid, creator.name, creator.discordid, creator.avatar), `${apptype}`, `<span style="color:${color}">${status}</span>`, `${submit_time}`, `${submit_time}`, GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar), `<a id="button-all-application-${application.applicationid}" class="clickable" onclick="GetApplicationDetail(${application.applicationid}, true)"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 1)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 2)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="ForceUpdateApplicationStatus(${application.applicationid}, 0)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_all_application", data, total_pages, "LoadAllApplicationList();");
@@ -5356,11 +5296,11 @@ async function LoadAllApplicationList(noplaceholder = false) {
         }
     });
 
-    while(1){
-        if(userPermLoaded) break;
+    while (1) {
+        if (userPermLoaded) break;
         await sleep(100);
     }
-    if(userPerm.includes("hrm") || userPerm.includes("admin")){
+    if (userPerm.includes("hrm") || userPerm.includes("admin")) {
         $("#all-application-right-wrapper").show();
     }
 }
@@ -5368,54 +5308,46 @@ async function LoadAllApplicationList(noplaceholder = false) {
 function GetApplicationDetail(applicationid, staffmode = false) {
     LockBtn("#button-my-application-" + applicationid, mltr("loading"));
     LockBtn("#button-all-application-" + applicationid, mltr("loading"));
-    
+
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/application?applicationid=" + applicationid,
+        url: api_host + "/" + dhabbr + "/application/" + applicationid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error){
-                UnlockBtn("#button-my-application-" + applicationid);
-                UnlockBtn("#button-all-application-" + applicationid);
-                return AjaxError(data);
-            }
-
-            d = data.response.application.detail;
-            discordid = data.response.application.creator.discordid;
+            d = data.application;
+            discordid = data.creator.discordid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastNotification("error", "Error", mltr("application_has_no_data"), 5000, false);
-                
-            apptype = applicationTypes[data.response.application_type];
+
+            apptype = applicationTypes[data.application_type];
             ret = "";
-            for (i = 0; i < keys.length; i++){
+            for (i = 0; i < keys.length; i++) {
                 ret += `<p class="mb-1"><b>${keys[i]}</b></p><p>${d[keys[i]]}</p>`;
             }
 
             $.ajax({
                 url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json", processData: false,
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: function (data) {
                     info = "";
-                    if (!data.error) {
-                        d = data.response.user;
-                        info += GenTableRow(mltr("name"), d.name);
-                        info += GenTableRow(mltr("email"), d.email);
-                        info += GenTableRow(mltr("discord"), discordid);
-                        info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
-                        info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
-                    }
+                    d = data;
+                    info += GenTableRow(mltr("name"), d.name);
+                    info += GenTableRow(mltr("email"), d.email);
+                    info += GenTableRow(mltr("discord"), discordid);
+                    info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
+                    info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
                     bottom = "";
                     if (!staffmode) {
                         bottom = `
@@ -5450,8 +5382,37 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             });
         },
         error: function (data) {
-            UnlockBtn("#button-my-application-" + applicationid);
+            info = "";
+            bottom = "";
+            if (!staffmode) {
+                bottom = `
+                    <label for="application-new-message" class="form-label">${mltr("message")}</label>
+                    <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                        <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="${mltr("message_placeholder")}" style="height:160px"></textarea>
+                    </div>`;
+                modalid = ShowModal(mltr("application") + " #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-application-new-message" type="button" class="btn btn-primary" onclick="AddMessageToApplication(${applicationid});">${mltr("update")}</button>`);
+                InitModal("my_application_detail", modalid);
+            } else {
+                bottom = `
+                    <label for="application-new-message" class="form-label">${mltr("message")}</label>
+                    <div class="input-group mb-3" style="height:calc(100% - 160px)">
+                        <textarea type="text" class="form-control bg-dark text-white" id="application-new-message" placeholder="${mltr("message_placeholder")}" style="height:160px"></textarea>
+                    </div>
+
+                    <label for="application-new-status" class="form-label">${mltr("status")}</label>
+                    <div class="mb-3">
+                        <select class="form-select bg-dark text-white" id="application-new-status">
+                            <option selected>${mltr("select_one_from_the_list")}</option>
+                            <option value="0">${mltr("pending")}</option>
+                            <option value="1">${mltr("accepted")}</option>
+                            <option value="2">${mltr("declined")}</option>
+                        </select>
+                    </div>`;
+                modalid = ShowModal(mltr("application") + " #" + applicationid, `<div><table>${info}</table></div><br><div>${ret}</div><hr>${bottom}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button><button id="button-application-update-status" type="button" class="btn btn-primary" onclick="UpdateApplicationStatus(${applicationid});">${mltr("update")}</button>`);
+                InitModal("all_application_detail", modalid);
+            }
             UnlockBtn("#button-all-application-" + applicationid);
+            UnlockBtn("#button-my-application-" + applicationid);
             AjaxError(data);
         }
     })
@@ -5463,17 +5424,16 @@ function AddMessageToApplication(applicationid) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/application",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "applicationid": applicationid,
             "message": message
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-application-new-message");
-            if (data.error) return AjaxError(data);
             GetApplicationDetail(applicationid);
             toastNotification("success", "Success!", mltr("message_added"), 5000, false);
         },
@@ -5484,21 +5444,19 @@ function AddMessageToApplication(applicationid) {
     });
 }
 
-function ForceUpdateApplicationStatus(applicationid, appstatus){
+function ForceUpdateApplicationStatus(applicationid, appstatus) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/application/status",
+        url: api_host + "/" + dhabbr + `/application/${applicationid}/status`,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            "applicationid": applicationid,
+        data: JSON.stringify({
             "status": appstatus,
             "message": ""
-        },
+        }),
         success: function (data) {
-            if (data.error) return AjaxError(data);
             LoadAllApplicationList();
             toastNotification("success", "Success", mltr("application_status_updated"), 5000, false);
         },
@@ -5510,26 +5468,24 @@ function ForceUpdateApplicationStatus(applicationid, appstatus){
 
 function UpdateApplicationStatus(applicationid) {
     appstatus = parseInt($("#application-new-status").find(":selected").val());
-    if(!isNumber(appstatus)) return toastNotification("error", "Error", mltr("invalid_application_status"))
+    if (!isNumber(appstatus)) return toastNotification("error", "Error", mltr("invalid_application_status"))
     message = $("#application-new-message").val();
 
     LockBtn("#button-application-update-status", mltr("updating"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/application/status",
+        url: api_host + "/" + dhabbr + `/application/${applicationid}/status`,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            "applicationid": applicationid,
+        data: JSON.stringify({
             "status": appstatus,
             "message": message
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-application-update-status");
-            if (data.error) return AjaxError(data);
             LoadAllApplicationList();
             toastNotification("success", "Success", mltr("application_status_updated"), 5000, false);
         },
@@ -5547,25 +5503,25 @@ function SubmitApplication() {
     apptype = parseInt($("#application-type").find(":selected").attr("value"));
     data = {};
     err = false;
-    for(var i = 1 ; i <= 100 ; i++){
-        if($("#application" + apptype + "Question" + i).length != 0){
+    for (var i = 1; i <= 100; i++) {
+        if ($("#application" + apptype + "Question" + i).length != 0) {
             question = applicationQuestions["#application" + apptype + "Question" + i];
             answerid = "application" + apptype + "Answer" + i;
-            if($("#" + answerid).length != 0){ // can find by id => text input / textarea / select
-                if(!$("#" + answerid).is(':visible')) continue;
+            if ($("#" + answerid).length != 0) { // can find by id => text input / textarea / select
+                if (!$("#" + answerid).is(':visible')) continue;
                 data[question] = $("#" + answerid).val();
                 min_length = $("#" + answerid).attr("min-length");
-                if(isNumber(min_length)){
-                    if(data[question] != "" && data[question].length < Number(min_length)){
+                if (isNumber(min_length)) {
+                    if (data[question] != "" && data[question].length < Number(min_length)) {
                         $($("#" + answerid).parent()).after(`<p style='color:red' class='application-error'>This field must contain at least ${min_length} characters.</p>`);
                         err = true;
                     }
                 }
-            } else if($("input[name='"+answerid+"']").length != 0){ // can find by name => radio / checkbox
-                if(!$("input[name='"+answerid+"']").is(':visible')) continue;
+            } else if ($("input[name='" + answerid + "']").length != 0) { // can find by name => radio / checkbox
+                if (!$("input[name='" + answerid + "']").is(':visible')) continue;
                 answer = [];
-                answert = $("input[name='"+answerid+"']:checked");
-                for(var j = 0 ; j < answert.length ; j++){
+                answert = $("input[name='" + answerid + "']:checked");
+                for (var j = 0; j < answert.length; j++) {
                     answer.push(answert[j].value);
                 }
                 answer = answer.join(", ");
@@ -5573,7 +5529,7 @@ function SubmitApplication() {
             } else {
                 data[question] = "*" + mltr("error_invalid_application_question") + "*";
             }
-            if(data[question] == ""){
+            if (data[question] == "") {
                 $($("#" + answerid).parent()).after(`<p style='color:red' class='application-error'>This field must not be empty.</p>`);
                 err = true;
             }
@@ -5581,7 +5537,7 @@ function SubmitApplication() {
             continue;
         }
     }
-    if(err){
+    if (err) {
         UnlockBtn("#button-submit-application");
         return;
     }
@@ -5590,20 +5546,19 @@ function SubmitApplication() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/application",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "application_type": apptype,
             "data": data
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-submit-application");
-            if(data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("application_submitted"), 5000, false);
 
-            if($("#check-application-enable-notification").prop("checked") == true){
+            if ($("#check-application-enable-notification").prop("checked") == true) {
                 EnableNotification("discord", mltr("discord"));
                 EnableNotification("application", mltr("application"));
             }
@@ -5615,7 +5570,7 @@ function SubmitApplication() {
     });
 }
 
-function UpdateStaffPositionsShow(){
+function UpdateStaffPositionsShow() {
     content = `
     <div>
         <label class="form-label">Positions</label>
@@ -5636,16 +5591,15 @@ function UpdateStaffPositions() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/positions",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "positions": positionstxt
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-update-staff-positions");
-            if (data.error) return AjaxError(data);
             positions = positionstxt.split(",");
             localStorage.setItem("positions", JSON.stringify(positions));
             toastNotification("success", "Success!", mltr("staff_positions_updated"), 5000, false);
@@ -5680,15 +5634,14 @@ async function LoadChallenge(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge/list?page=" + page+"&order_by=end_time&order=desc",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
-            if (data.error) return AjaxError(data);
             
-            challengeList = data.response.list;
-            total_pages = data.response.total_pages;
+            challengeList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             while(1){
@@ -5845,7 +5798,6 @@ function CreateChallenge() {
         s = rolest[i];
         roles.push(s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1));
     }
-    roles = roles.join(",");
     required_roles = roles;
     required_distance = $("#challenge-new-required-distance").val();
     reward_points = $("#challenge-new-reward-points").val();
@@ -5880,11 +5832,11 @@ function CreateChallenge() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/challenge",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "start_time": start_time,
@@ -5895,11 +5847,10 @@ function CreateChallenge() {
             "required_distance": required_distance,
             "reward_points": reward_points,
             "public_details": public_details,
-            "job_requirements": JSON.stringify(jobreqd)
-        },
+            "job_requirements": jobreqd
+        }),
         success: function (data) {
             UnlockBtn("#button-challenge-new-create");
-            if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("challenge_created"), 5000, false);
         },
@@ -5912,14 +5863,14 @@ function CreateChallenge() {
 
 function EditChallengeShow(challengeid){
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/"+challengeid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            d = data.response.challenge;
+            d = data.challenge;
             $("#challenge-edit").show();
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);
@@ -5980,7 +5931,6 @@ function EditChallenge(challengeid) {
         s = rolest[i];
         roles.push(s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1));
     }
-    roles = roles.join(",");
     required_roles = roles;
     required_distance = $("#challenge-edit-required-distance").val();
     reward_points = $("#challenge-edit-reward-points").val();
@@ -6013,13 +5963,13 @@ function EditChallenge(challengeid) {
     
     LockBtn("#button-challenge-edit-create", mltr("creating"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge?challengeid="+challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/"+challengeid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "start_time": start_time,
@@ -6030,11 +5980,10 @@ function EditChallenge(challengeid) {
             "required_distance": required_distance,
             "reward_points": reward_points,
             "public_details": public_details,
-            "job_requirements": JSON.stringify(jobreqd)
-        },
+            "job_requirements": jobreq
+        }),
         success: function (data) {
             UnlockBtn("#button-challenge-edit");
-            if (data.error) return AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("challenge_edited"), 5000, false);
         },
@@ -6054,15 +6003,14 @@ function DeleteChallengeShow(challengeid, title){
 function DeleteChallenge(challengeid){
     LockBtn("#button-challenge-delete-"+challengeid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/" + challengeid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-challenge-delete-"+challengeid);
-            if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("challenge_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_challenge")) DestroyModal("delete_challenge");
@@ -6093,18 +6041,14 @@ function AddChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid,
+        url: api_host + "/" + dhabbr + "/challenge/" + challengeid + "/delivery/" + logid,
         type: "PUT",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
-            "logid": logid
-        },
         success: function (data) {
             UnlockBtn("#button-challenge-add-delivery");
-            if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("delivery_added"), 5000, false);
         },
@@ -6120,15 +6064,14 @@ function DeleteChallengeDelivery(){
     challengeid = $("#challenge-challenge-id").val();
     logid = $("#challenge-dlog-id").val();
     $.ajax({
-        url: api_host + "/" + dhabbr + "/challenge/delivery?challengeid=" + challengeid+"&logid="+logid,
+        url: api_host + "/" + dhabbr + "/challenge/" + challengeid + "/delivery/" + logid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-challenge-delete-delivery");
-            if (data.error) AjaxError(data);
             LoadChallenge(noplaceholder = true);
             toastNotification("success", "Success", mltr("delivery_deleted"), 5000, false);
         },
@@ -6152,7 +6095,7 @@ division_pending_row = `<tr>
 </tr>`;
 
 function LoadDivisionDeliveryList(noplaceholder = false) {
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_division_delivery_data").empty();
         for (var i = 0; i < 10; i++) {
             $("#table_division_delivery_data").append(dlog_placeholder_row);
@@ -6164,15 +6107,14 @@ function LoadDivisionDeliveryList(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/dlog/list?page=" + page + "&page_size=20&division=only",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            deliverylist = data.response.list;
-            total_pages = data.response.total_pages;
+            deliverylist = data.list;
+            total_pages = data.total_pages;
             data = [];
 
             for (i = 0; i < deliverylist.length; i++) {
@@ -6211,14 +6153,13 @@ async function LoadDivisionInfo(noplaceholder = false) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/division",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            info = data.response;
+            info = data;
 
             $("#division-summary-list").children().remove();
             for (var i = 0; i < info.length; i++) {
@@ -6253,15 +6194,14 @@ function GetDivisionInfo(logid) {
     LockBtn("#button-delivery-detail-division", mltr("checking"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division?logid=" + logid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid + "/division",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: async function (data) {
             UnlockBtn("#button-delivery-detail-division");
-            if (data.error) return AjaxError(data);
 
             divisionopt = "";
             for (var i = 0; i < Object.keys(divisions).length; i++) {
@@ -6270,7 +6210,7 @@ function GetDivisionInfo(logid) {
             if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">${mltr("no_division_found")}</span>`);
 
             info = ``;
-            if (data.response.status == "-1") {
+            if (data.status == "-1") {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
                     <option value="-1" selected>${mltr("select_division")}</option>
@@ -6278,7 +6218,7 @@ function GetDivisionInfo(logid) {
                 </select>`;
                 info += `<button id="button-request-division-validation" type="button" class="btn btn-primary"  onclick="SubmitDivisionValidationRequest(${logid});">${mltr("request_validation")}</button>`;
                 $("#delivery-detail-division").html(info);
-            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.response.status == "0") {
+            } else if ((userPerm.includes("division") || userPerm.includes("admin")) && data.status == "0") {
                 info += `
                 <p>${mltr("division_pending_validation")}</p>
                 <label for="select-division" class="form-label">${mltr("divisions")}</label>
@@ -6297,16 +6237,16 @@ function GetDivisionInfo(logid) {
                 <button id="button-division-danger" type="button" class="btn btn-danger" onclick="UpdateDivision(${logid}, 2);">${mltr('reject')}</button>
                 <button id="button-division-accept" type="button" class="btn btn-success" onclick="UpdateDivision(${logid}, 1);">${mltr('accept')}</button>`);
                 InitModal("division_detail", modalid, top = true);
-                $("#division-" + data.response.divisionid).prop("selected", true);
+                $("#division-" + data.divisionid).prop("selected", true);
             } else {
-                if (data.response.update_message == undefined) {
-                    $("#delivery-detail-division").html(divisions[data.response.divisionid].name);
+                if (data.update_message == undefined) {
+                    $("#delivery-detail-division").html(divisions[data.divisionid].name);
                 } else {
-                    info += divisions[data.response.divisionid].name + " ";
-                    if (data.response.status == "0") info += "| " + mltr("pending_validation");
-                    else if (data.response.status == "1") info += SVG_VERIFIED;
-                    else if (data.response.status == "2") {
-                        staff = data.response.update_staff;
+                    info += divisions[data.divisionid].name + " ";
+                    if (data.status == "0") info += "| " + mltr("pending_validation");
+                    else if (data.status == "1") info += SVG_VERIFIED;
+                    else if (data.status == "2") {
+                        staff = data.update_staff;
                         staff = GetAvatar(staff.userid, staff.name, staff.discordid, staff.avatar);
                         info += `| ${mltr("rejected_by")} ` + staff;
                     }
@@ -6323,7 +6263,7 @@ function GetDivisionInfo(logid) {
         },
         error: function (data) {
             UnlockBtn("#button-delivery-detail-division");
-            errmsg = JSON.parse(data.responseText).descriptor ? JSON.parse(data.responseText).descriptor : data.status + " " + data.statusText;
+            errmsg = JSON.parse(dataText).error ? JSON.parse(dataText).error : data.status + " " + data.statusText;
             $("#delivery-detail-division").html(`<span style="color:red">${errmsg}</span>`);
         }
     });
@@ -6336,18 +6276,14 @@ function SubmitDivisionValidationRequest(logid) {
     LockBtn("#button-request-division-validation", mltr("requesting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid + "/division/" + divisionid,
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            logid: logid
-        },
         success: async function (data) {
             UnlockBtn("#button-request-division-validation");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("request_submitted"), 5000, false);
         },
         error: function (data) {
@@ -6362,7 +6298,7 @@ function LoadPendingDivisionValidation() {
     page = parseInt($("#table_division_pending_page_input").val())
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
-    
+
     $("#table_division_pending_data").empty();
     for (var i = 0; i < 5; i++) {
         $("#table_division_pending_data").append(division_pending_row);
@@ -6370,21 +6306,20 @@ function LoadPendingDivisionValidation() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/division/list/pending?page_size=20&page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
 
-            total_pages = data.response.total_pages;
-            pending_division = data.response.list;
+            total_pages = data.total_pages;
+            pending_division = data.list;
             data = [];
 
             for (i = 0; i < pending_division.length; i++) {
                 delivery = pending_division[i];
                 user = delivery.user;
-                data.push([`${delivery.logid}`,`${divisions[delivery.divisionid].name}`,`${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`,`<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 1, ${delivery.divisionid}, true)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 2, ${delivery.divisionid}, true)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 0, ${delivery.divisionid}, true)"><i class="fa-solid fa-question"></i></a>`]);
+                data.push([`${delivery.logid}`, `${divisions[delivery.divisionid].name}`, `${GetAvatar(user.userid, user.name, user.discordid, user.avatar)}`, `<a class="clickable" onclick="ShowDeliveryDetail(${delivery.logid})"><i class="fa-solid fa-folder-open"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 1, ${delivery.divisionid}, true)"><i class="fa-solid fa-check"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 2, ${delivery.divisionid}, true)"><i class="fa-solid fa-xmark"></i></a>&nbsp;&nbsp;<a class="clickable" onclick="UpdateDivision(${delivery.logid}, 0, ${delivery.divisionid}, true)"><i class="fa-solid fa-question"></i></a>`]);
             }
 
             PushTable("#table_division_pending", data, total_pages, "LoadPendingDivisionValidation();");
@@ -6415,17 +6350,16 @@ function UpdateDivision(logid, status, divisionid = -1, force = false) {
     if (message == undefined || message == null) message = "";
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/division?divisionid=" + divisionid,
+        url: api_host + "/" + dhabbr + "/dlog/" + logid + "/division/" + divisionid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
-            logid: logid,
+        data: JSON.stringify({
             status: status,
             message: message
-        },
+        }),
         success: function (data) {
             if (status == 1) {
                 UnlockBtn("#button-division-accept");
@@ -6436,8 +6370,7 @@ function UpdateDivision(logid, status, divisionid = -1, force = false) {
             } else if (status == 0) {
                 UnlockBtn("#button-division-revalidate");
             }
-            if (data.error) return AjaxError(data);
-            if(!force) GetDivisionInfo(logid);
+            if (!force) GetDivisionInfo(logid);
             LoadPendingDivisionValidation();
             if (status == 1) {
                 toastNotification("success", "Success", mltr("division_delivery_accepted"), 5000, false);
@@ -6498,7 +6431,7 @@ function LoadDownloads(noplaceholder = false){
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads/list?page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
@@ -6510,7 +6443,7 @@ function LoadDownloads(noplaceholder = false){
             if(userPerm.includes("downloads") || userPerm.includes("admin")){
                 $("#downloads-new").show();
             }
-            downloadslist = data.response.list;
+            downloadslist = data.list;
             content = "";
             for (i = 0; i < downloadslist.length; i++) {
                 if(i % 2 == 0){
@@ -6554,23 +6487,22 @@ function LoadDownloads(noplaceholder = false){
             content += `</div>`;
             $("#downloads").children().remove();
             $("#downloads").append(content);
-            UpdatePaginate("#downloads", data.response.total_pages, "LoadDownloads();");
+            UpdatePaginate("#downloads", data.total_pages, "LoadDownloads();");
         }
     });
 }
 
 function DownloadsRedirect(downloadsid){
     $.ajax({
-        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads/" + downloadsid,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
-            if(data.error) return AjaxError(data);
-            window.location.href = api_host + "/" + dhabbr + "/downloads/" + data.response.downloads.secret;
+            window.location.href = api_host + "/" + dhabbr + "/downloads/redirect/" + data.secret;
         },
         error: function (data){
             UnlockBtn("#button-downloads-redirect-"+downloadsid);
@@ -6589,19 +6521,18 @@ function CreateDownloads(){
     $.ajax({
         url: api_host + "/" + dhabbr + "/downloads",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "link": link,
             "orderid": orderid
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-downloads-new-create");
-            if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_added"), 5000, false);
         },
@@ -6628,21 +6559,20 @@ function EditDownloads(downloadsid){
 
     LockBtn(`#button-downloads-edit-${downloadsid}-save`, mltr("editing"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/downloads?downloadsid="+downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads/"+downloadsid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "link": link,
             "orderid": orderid
-        },
+        }),
         success: function (data) {
             UnlockBtn(`#button-downloads-edit-${downloadsid}-save`);
-            if (data.error) return AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_edited"), 5000, false);
         },
@@ -6663,15 +6593,14 @@ function DeleteDownloadsShow(downloadsid){
 function DeleteDownloads(downloadsid){
     LockBtn("#button-downloads-delete-"+downloadsid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/downloads?downloadsid=" + downloadsid,
+        url: api_host + "/" + dhabbr + "/downloads/" + downloadsid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
             UnlockBtn("#button-downloads-delete-"+downloadsid);
-            if (data.error) AjaxError(data);
             LoadDownloads(noplaceholder = true);
             toastNotification("success", "Success", mltr("downloadable_item_deleted"), 5000, false);
             if(Object.keys(modals).includes("delete_downloads")) DestroyModal("delete_downloads");
@@ -6696,27 +6625,27 @@ event_placerholder_row = `
 </tr>`;
 
 async function LoadEvent(noplaceholder = false) {
+    // TODO Recursively fetch all events 
     if (eventsCalendar == undefined || force) {
         $.ajax({
-            url: api_host + "/" + dhabbr + "/event/all",
+            url: api_host + "/" + dhabbr + "/event/list",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: authorizationHeader,
             success: async function (data) {
-                if (data.error) return AjaxError(data.response);
-                d = data.response.list;
+                d = data.list;
                 var eventlist = [];
                 offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
                 for (var i = 0; i < d.length; i++) {
                     eventlist.push({
                         "title": d[i].title,
                         "url": "/event/" + d[i].eventid,
-                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().slice(0,-1).substring(0, 10)
+                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().slice(0, -1).substring(0, 10)
                     })
                 }
 
-                while(1){
-                    try{
+                while (1) {
+                    try {
                         FullCalendar;
                         break;
                     } catch {
@@ -6750,29 +6679,28 @@ async function LoadEvent(noplaceholder = false) {
     InitPaginate("#table_event_list", "LoadEvent();");
     page = parseInt($("#table_event_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#table_event_list_data").empty();
-        for(var i = 0 ; i < 10 ; i++){
+        for (var i = 0; i < 10; i++) {
             $("#table_event_list_data").append(event_placerholder_row);
         }
     }
     $.ajax({
         url: api_host + "/" + dhabbr + "/event/list?page=" + page,
         type: "GET",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: authorizationHeader,
         success: async function (data) {
-            if (data.error) return AjaxError(data);
-            
-            eventList = data.response.list;
-            total_pages = data.response.total_pages;
+
+            eventList = data.list;
+            total_pages = data.total_pages;
             data = [];
 
-            while(1){
-                if(userPermLoaded) break;
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
-            if(userPerm.includes("event") || userPerm.includes("admin")){
+            if (userPerm.includes("event") || userPerm.includes("admin")) {
                 $("#event-new").show();
             }
 
@@ -6791,11 +6719,11 @@ async function LoadEvent(noplaceholder = false) {
                 votecnt = event.votes.length;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
-                
-                extra = "";
-                if(userPerm.includes("event") || userPerm.includes("admin")){ extra = `<a id="button-event-edit-show-${event.eventid}" class="clickable" onclick="EditEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-event-delete-show-${event.eventid}" class="clickable" onclick="DeleteEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`;}
 
-                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${pvt} ${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",",",<br>")}`, `${dt.replaceAll(",",",<br>")}`, `${votecnt}`, extra]);
+                extra = "";
+                if (userPerm.includes("event") || userPerm.includes("admin")) { extra = `<a id="button-event-edit-show-${event.eventid}" class="clickable" onclick="EditEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-event-delete-show-${event.eventid}" class="clickable" onclick="DeleteEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`; }
+
+                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${pvt} ${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",", ",<br>")}`, `${dt.replaceAll(",", ",<br>")}`, `${votecnt}`, extra]);
             }
 
             PushTable("#table_event_list", data, total_pages, "LoadEvent();");
@@ -6804,11 +6732,11 @@ async function LoadEvent(noplaceholder = false) {
             AjaxError(data);
         }
     });
-    while(1){
-        if(userPermLoaded) break;
+    while (1) {
+        if (userPermLoaded) break;
         await sleep(100);
     }
-    if(userPerm.includes("event") || userPerm.includes("admin")){
+    if (userPerm.includes("event") || userPerm.includes("admin")) {
         $("#event-new").show();
     }
 }
@@ -6816,13 +6744,12 @@ async function LoadEvent(noplaceholder = false) {
 async function ShowEventDetail(eventid, reload = false) {
     if (Object.keys(allevents).indexOf(String(eventid)) == -1 || reload) {
         $.ajax({
-            url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
+            url: api_host + "/" + dhabbr + "/event/" + eventid,
             type: "GET",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: authorizationHeader,
             success: function (data) {
-                if (data.error) return AjaxError(data);
-                allevents[eventid] = data.response.event;
+                allevents[eventid] = data;
                 ShowEventDetail(eventid);
             },
             error: function (data) {
@@ -6849,12 +6776,12 @@ async function ShowEventDetail(eventid, reload = false) {
     }
     attendee = attendee.substr(0, attendee.length - 2);
     attendeeop = "";
-    if(userPerm.includes("event") || userPerm.includes("admin")){
+    if (userPerm.includes("event") || userPerm.includes("admin")) {
         attendeeop = `<a style="cursor:pointer;color:grey" onclick="EditAttendeeShow(${event.eventid})">Edit</a>`;
     }
 
     distance = "&nbsp;";
-    if(event.distance != "") distance = event.distance;
+    if (event.distance != "") distance = event.distance;
     info = `
     <div class="row w-100">
         <div class="col-5 m-auto" style="text-align:center">
@@ -6869,39 +6796,41 @@ async function ShowEventDetail(eventid, reload = false) {
             <p style="font-size:25px;"><b>${event.destination}</b></p>
         </div>
     </div>`;
-    function GenTableRow(key, val){
+    function GenTableRow(key, val) {
         return `<tr><td style="min-width:120px"><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     info += "<table style='width:100%'><tbody>";
-    if(event.link != ""){
+    if (event.link != "") {
         info += GenTableRow(mltr("link"), `<a href="${event.link}" target="_blank">${event.link}</a>`);
     }
     info += GenTableRow(mltr("meetup"), getDateTime(event.meetup_timestamp * 1000));
     info += GenTableRow(mltr("departure"), getDateTime(event.departure_timestamp * 1000));
-    if(userid != null && userid != -1){
+    if (userid != null && userid != -1) {
         info += GenTableRow(mltr("points"), parseInt(event.points));
         info += GenTableRow(`${mltr("voters")} ${voteop}`, vote);
         info += GenTableRow(`${mltr("attendees")} ${attendeeop}`, attendee);
     }
 
     info += "</tbody></table>"
-    info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + marked.parse(event.description).replaceAll("<img","<img style='width:100%' ") + "</p></div>";
+    info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + marked.parse(event.description).replaceAll("<img", "<img style='width:100%' ") + "</p></div>";
     event_ics = ics();
-	event_ics.addEvent(event.title, event.link + "\n" + event.description, event.departure + " - " + event.destination, new Date(event.meetup_timestamp * 1000), new Date(event.departure_timestamp * 1000));
+    event_ics.addEvent(event.title, event.link + "\n" + event.description, event.departure + " - " + event.destination, new Date(event.meetup_timestamp * 1000), new Date(event.departure_timestamp * 1000));
     modalid = ShowModal(event.title, info, `<button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="event_ics.download();">${mltr("export")} (.ics)</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("close")}</button>`);
     InitModal("event_detail", modalid);
 }
 
 function VoteEvent(eventid, resp) {
+    let method = "";
+    if (resp == "Voted") method = "PUT";
+    else if (resp == "Unvoted") method = "DELETE";
     $.ajax({
-        url: api_host + "/" + dhabbr + "/event/vote?eventid=" + eventid,
-        type: "PATCH",
-        dataType: "json",
+        url: api_host + "/" + dhabbr + "/event/" + eventid + "/vote",
+        type: method,
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return AjaxError(data);
             ShowEventDetail(eventid, reload = true)
             toastNotification("success", "Success", resp, 5000, false);
         },
@@ -6911,26 +6840,26 @@ function VoteEvent(eventid, resp) {
     });
 }
 
-function CreateEvent(){
+function CreateEvent() {
     title = $("#event-new-title").val();
     description = simplemde["#event-new-description"].value();
     truckersmp_link = $("#event-new-truckersmp-link").val();
     departure = $("#event-new-departure").val();
     destination = $("#event-new-destination").val();
     distance = $("#event-new-distance").val();
-    meetup_timestamp = +new Date($("#event-new-meetup-time").val())/1000;
-    departure_timestamp = +new Date($("#event-new-departure-time").val())/1000;
+    meetup_timestamp = +new Date($("#event-new-meetup-time").val()) / 1000;
+    departure_timestamp = +new Date($("#event-new-departure-time").val()) / 1000;
     is_private = $("#event-visibility-private").is(":checked");
 
     LockBtn("#button-event-new-create", mltr("creating"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/event",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "link": truckersmp_link,
@@ -6940,10 +6869,9 @@ function CreateEvent(){
             "meetup_timestamp": meetup_timestamp,
             "departure_timestamp": departure_timestamp,
             "is_private": is_private
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-event-new-create");
-            if (data.error) return AjaxError(data);
             LoadEvent(force = true);
             toastNotification("success", "Success", mltr("event_created"), 5000, false);
         },
@@ -6954,7 +6882,7 @@ function CreateEvent(){
     });
 }
 
-function EditEventShow(eventid){
+function EditEventShow(eventid) {
     e = allevents[eventid];
     title = e.title;
     description = e.description;
@@ -6973,14 +6901,14 @@ function EditEventShow(eventid){
     $("#event-edit-departure").val(departure);
     $("#event-edit-destination").val(destination);
     $("#event-edit-distance").val(distance);
-    $("#event-edit-meetup-time").val(new Date(parseInt(meetup_timestamp)*1000).toISOString().slice(0,-1).slice(0,-1));
-    $("#event-edit-departure-time").val(new Date(parseInt(departure_timestamp)*1000).toISOString().slice(0,-1).slice(0,-1));
-    if(is_private) $("#event-edit-visibility-private").prop("checked", true);
+    $("#event-edit-meetup-time").val(new Date(parseInt(meetup_timestamp) * 1000).toISOString().slice(0, -1).slice(0, -1));
+    $("#event-edit-departure-time").val(new Date(parseInt(departure_timestamp) * 1000).toISOString().slice(0, -1).slice(0, -1));
+    if (is_private) $("#event-edit-visibility-private").prop("checked", true);
     else $("#event-edit-visibility-public").prop("checked", true);
     $("#event-edit").show();
 }
 
-function EditEvent(){
+function EditEvent() {
     LockBtn("#button-event-edit", mltr("editing"));
     eventid = $("#event-edit-id").val();
     title = $("#event-edit-title").val();
@@ -6989,17 +6917,17 @@ function EditEvent(){
     departure = $("#event-edit-departure").val();
     destination = $("#event-edit-destination").val();
     distance = $("#event-edit-distance").val();
-    meetup_timestamp = +new Date($("#event-edit-meetup-time").val())/1000;
-    departure_timestamp = +new Date($("#event-edit-departure-time").val())/1000;
+    meetup_timestamp = +new Date($("#event-edit-meetup-time").val()) / 1000;
+    departure_timestamp = +new Date($("#event-edit-departure-time").val()) / 1000;
     is_private = $("#event-edit-visibility-private").is(":checked");
     $.ajax({
-        url: api_host + "/" + dhabbr + "/event?eventid="+eventid,
+        url: api_host + "/" + dhabbr + "/event/" + eventid,
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             "title": title,
             "description": description,
             "link": truckersmp_link,
@@ -7009,10 +6937,9 @@ function EditEvent(){
             "meetup_timestamp": meetup_timestamp,
             "departure_timestamp": departure_timestamp,
             "is_private": is_private
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-event-edit");
-            if (data.error) return AjaxError(data);
             LoadEvent(force = true);
             toastNotification("success", "Success", mltr("event_edited"), 5000, false);
         },
@@ -7023,37 +6950,36 @@ function EditEvent(){
     });
 }
 
-function DeleteEventShow(eventid){
-    if(shiftdown) return DeleteEvent(eventid);
+function DeleteEventShow(eventid) {
+    if (shiftdown) return DeleteEvent(eventid);
     title = allevents[eventid].title;
     modalid = ShowModal(mltr("delete_event"), `<p>${mltr("delete_event_note")}</p><p><i>${title}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-event-delete-${eventid}" type="button" class="btn btn-danger" onclick="DeleteEvent(${eventid});">${mltr("delete")}</button>`);
     InitModal("delete_event", modalid);
 }
 
-function DeleteEvent(eventid){
-    LockBtn("#button-event-delete-"+eventid, mltr("deleting"));
+function DeleteEvent(eventid) {
+    LockBtn("#button-event-delete-" + eventid, mltr("deleting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/event?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event/" + eventid,
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            UnlockBtn("#button-event-delete-"+eventid);
-            if (data.error) AjaxError(data);
+            UnlockBtn("#button-event-delete-" + eventid);
             LoadEvent(noplaceholder = true);
             toastNotification("success", "Success", mltr("event_deleted"), 5000, false);
-            if(Object.keys(modals).includes("delete_event")) DestroyModal("delete_event");
+            if (Object.keys(modals).includes("delete_event")) DestroyModal("delete_event");
         },
         error: function (data) {
-            UnlockBtn("#button-event-delete-"+eventid);
+            UnlockBtn("#button-event-delete-" + eventid);
             AjaxError(data);
         }
     });
 }
 
-function EditAttendeeShow(eventid){
+function EditAttendeeShow(eventid) {
     modalid = ShowModal(mltr("edit_event_point__attendee"), `
     <p>#${eventid} | ${allevents[eventid].title}</p>
     <label for="event-edit-point" class="form-label">${mltr("event_points")}</label>
@@ -7064,56 +6990,54 @@ function EditAttendeeShow(eventid){
     <div class="input-group mb-3">
         <input type='text' id="event-edit-attendee" placeholder="${mltr("select_members_from_list")}" class="form-control bg-dark text-white flexdatalist" list="all-member-datalist" data-min-length='1' multiple='' data-selection-required='1'></input>
     </div>
-    <p id="event-edit-message"></p>`, 
-    `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button>
+    <p id="event-edit-message"></p>`,
+        `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button>
     <button id="button-event-edit-attendee" type="button" class="btn btn-primary" onclick="EditEventAttendee(${eventid});">${mltr("edit")}</button>`);
-    InitModal("edit_event_attendee", modalid, top=true);
+    InitModal("edit_event_attendee", modalid, top = true);
     $('#event-edit-attendee').flexdatalist({
         selectionRequired: 1,
         minLength: 1
     });
     attendees = allevents[eventid].attendees;
     attendeestxt = "";
-    for(var i = 0 ; i < attendees.length ; i++){
+    for (var i = 0; i < attendees.length; i++) {
         attendeestxt += `${attendees[i].name} (${attendees[i].userid}),`;
     }
-    attendeestxt = attendeestxt.slice(0,-1);
+    attendeestxt = attendeestxt.slice(0, -1);
     $("#event-edit-point").val(allevents[eventid].points);
     $("#event-edit-attendee").val(attendeestxt);
 }
 
 function EditEventAttendee(eventid) {
     points = $("#event-edit-point").val();
-    if(!isNumber(points)){
+    if (!isNumber(points)) {
         return toastNotification("error", "Error", mltr("invalid_event_point"), 5000);
     }
     attendeestxt = $("#event-edit-attendee").val();
     attendeest = attendeestxt.split(",");
     attendees = [];
-    for(var i = 0 ; i < attendeest.length ; i++){
+    for (var i = 0; i < attendeest.length; i++) {
         s = attendeest[i];
-        attendees.push(s.substr(s.lastIndexOf("(")+1,s.lastIndexOf(")")-s.lastIndexOf("(")-1));
+        attendees.push(s.substr(s.lastIndexOf("(") + 1, s.lastIndexOf(")") - s.lastIndexOf("(") - 1));
     }
-    attendees = attendees.join(",");
 
     LockBtn("#button-event-edit-attendee", mltr("editing"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/event/attendee?eventid=" + eventid,
+        url: api_host + "/" + dhabbr + "/event/" + eventid + "/attendees",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "attendees": attendees,
             "points": points
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-event-edit-attendee");
-            if (data.error) return AjaxError(data);
             LoadEvent(noplaceholder = true);
-            $("#event-edit-message").html("<br>" + marked.parse(data.response.message).replaceAll("\n","<br>"));
+            $("#event-edit-message").html("<br>" + marked.parse(data.message).replaceAll("\n", "<br>"));
             toastNotification("success", "Sucess", mltr("event_point__attendee_updated"), 5000);
         },
         error: function (data) {
@@ -7141,18 +7065,14 @@ function SteamValidate() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/steam",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "callback": sPageURL
-        },
+        }),
         success: function (data) {
-            if (data.error){
-                $("#auth-message-content").html("Error: Invalid login");
-                return AjaxError(data);
-            }
             $("#auth-message-content").html(mltr("steam_account_updated"));
             toastNotification("success", "Success", mltr("steam_account_updated"), 5000);
             setTimeout(function () {
@@ -7190,16 +7110,12 @@ function AuthValidate() {
         $.ajax({
             url: api_host + "/" + dhabbr + "/token",
             type: "PATCH",
-            dataType: "json",
+            contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + token
             },
             success: function (data) {
-                if(data.error){
-                    $("#auth-message-content").html(ParseAjaxError(data));
-                    return AjaxError(data);
-                }
-                newtoken = data.response.token;
+                newtoken = data.token;
                 localStorage.setItem("token", newtoken);
                 authorizationHeader = {"Authorization": "Bearer " + newtoken};
                 ValidateToken();
@@ -7229,17 +7145,13 @@ function OAuthMFA() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
-        dataType: "json",
-        data: {
+        contentType: "application/json", processData: false,
+        data: JSON.stringify({
             token: token,
             otp: otp
-        },
+        }),
         success: function (data) {
-            if(data.error){
-                ShowTab("#signin-tab");
-                return AjaxError(data);
-            }
-            token = data.response.token;
+            token = data.token;
             localStorage.setItem("token", token);
             authorizationHeader = {"Authorization": "Bearer " + token};
             localStorage.removeItem("tipt");
@@ -7263,16 +7175,15 @@ function UpdateTruckersMPID() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user/truckersmp",
         type: "PATCH",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: {
+        data: JSON.stringify({
             "truckersmpid": $("#settings-user-truckersmpid").val()
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-settings-update-truckersmpid");
-            if (data.error) return AjaxError(data);
             toastNotification("success", "Success", mltr("truckersmp_account_updated"), 5000);
         },
         error: function (data) {
@@ -7292,35 +7203,30 @@ var CaptchaCallback = function (hcaptcha_response) {
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/password",
         type: "POST",
-        dataType: "json",
-        data: {
+        contentType: "application/json", processData: false,
+        data: JSON.stringify({
             email: email,
             password: password,
             "h-captcha-response": hcaptcha_response
-        },
+        }),
         success: function (data) {
             hcaptcha.reset();
             requireCaptcha = false;
-            if (!data.error) {
-                token = data.response.token;
-                mfa = data.response.mfa;
-                if (mfa) {
-                    localStorage.setItem("tip", token);
-                    localStorage.setItem("pending-mfa", +new Date());
-                    ShowTab("#mfa-tab");
-                } else {
-                    localStorage.setItem("token", token);
-                    authorizationHeader = {"Authorization": "Bearer " + token};
-                    ValidateToken();
-                    $(".tabs").removeClass("loaded");
-                    toastNotification("success", "Success", mltr("welcome_back"), 5000);
-                    setTimeout(function () {
-                        ShowTab("#overview-tab");
-                    }, 1000);
-                }
+            token = data.token;
+            mfa = data.mfa;
+            if (mfa) {
+                localStorage.setItem("tip", token);
+                localStorage.setItem("pending-mfa", +new Date());
+                ShowTab("#mfa-tab");
             } else {
-                AjaxError(data);
-                ShowTab("#signin-tab");
+                localStorage.setItem("token", token);
+                authorizationHeader = {"Authorization": "Bearer " + token};
+                ValidateToken();
+                $(".tabs").removeClass("loaded");
+                toastNotification("success", "Success", mltr("welcome_back"), 5000);
+                setTimeout(function () {
+                    ShowTab("#overview-tab");
+                }, 1000);
             }
         },
         error: function (data) {
@@ -7367,18 +7273,17 @@ function MFAVerify() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/auth/mfa",
         type: "POST",
-        dataType: "json",
+        contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + token
         },
-        data: {
+        data: JSON.stringify({
             token: token,
             otp: otp
-        },
+        }),
         success: function (data) {
             UnlockBtn("#button-mfa-verify");
-            if (data.error == true) return AjaxError(data);
-            newtoken = data.response.token;
+            newtoken = data.token;
             localStorage.setItem("token", newtoken);
             authorizationHeader = {"Authorization": "Bearer " + newtoken};
             localStorage.removeItem("tip");
@@ -7475,19 +7380,11 @@ function Load2022Wrapped() {
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            data: {
+            data: JSON.stringify({
                 start_time: 1640995200,
                 end_time: 1672531199
-            },
+            }),
             success: function (data) {
-                if (data.error) {
-                    if (w22dlog == null) {
-                        console.warn("Failed to export delivery log, unable to activate 2022 wrapped.");
-                    } else {
-                        console.warn("Failed to export delivery log, using last export cache.");
-                    }
-                    return;
-                }
                 w22dlog = data;
                 localStorage.setItem("dlog-export-cache", w22dlog);
                 localStorage.setItem("dlog-export-cache-time", +new Date());
@@ -7924,16 +7821,16 @@ function InitLeaderboardTimeRange() {
 }
 
 function InitSearchByName() {
+    // TODO Recursively fetch all members
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list/all",
+        url: api_host + "/" + dhabbr + "/member/list?page_size=250",
         type: "GET",
         dataType: "json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            if (data.error) return;
-            l = data.response.list;
+            l = data.list;
             for (var i = 0; i < l.length; i++) {
                 allmembers[l[i].userid] = l[i].name;
                 $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
@@ -8324,7 +8221,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                positions = data.response;
+                positions = data;
                 localStorage.setItem("positions", JSON.stringify(positions));
             }
         });
@@ -8333,7 +8230,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                roles = data.response;
+                roles = data;
                 rolelist = {};
                 rolecolor = {};
                 for (var i = 0; i < roles.length; i++) {
@@ -8349,7 +8246,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                d = data.response;
+                d = data;
                 applicationTypes = {};
                 for (var i = 0; i < d.length; i++)
                     applicationTypes[parseInt(d[i].applicationid)] = d[i].name;
@@ -8361,7 +8258,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                perms = data.response;
+                perms = data;
                 localStorage.setItem("perms", JSON.stringify(perms));
             }
         });
@@ -8370,7 +8267,7 @@ function LoadCache(force) {
             type: "GET",
             dataType: "json",
             success: function (data) {
-                d = data.response;
+                d = data;
                 RANKING = {};
                 RANKCLR = {};
                 for (i = 0; i < d.length; i++) {
@@ -8390,7 +8287,7 @@ function LoadCache(force) {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
             success: function (data) {
-                d = data.response;
+                d = data;
                 divisions = {};
                 for (i = 0; i < d.length; i++) {
                     divisions[d[i].id] = d[i];
@@ -8560,18 +8457,11 @@ function ValidateToken() {
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            if (data.error) {
-                // Invalid token, log out
-                localStorage.removeItem("token");
-                ShowTab("#signin-tab", "#button-signin-tab");
-                return;
-            }
-
             $("#button-user-profile").attr("data-bs-toggle", "dropdown");
             $("#user-profile-dropdown").css("display", "");
 
             // User Information
-            user = data.response.user;
+            user = data;
             localStorage.setItem("roles", JSON.stringify(user.roles));
             localStorage.setItem("name", user.name.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, ''));
             localStorage.setItem("avatar", user.avatar);
@@ -8649,11 +8539,13 @@ function ValidateToken() {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    if (!data.error && data.response.list.length == 1) {
-                        user_distance = data.response.list[0].points.distance;
+                    if (data.list.length == 1) {
+                        user_distance = data.list[0].points.distance;
                     } else {
                         user_distance = 0;
                     }
+                }, error: function () {
+                    user_distance = 0;
                 }
             });
 
@@ -8665,7 +8557,7 @@ function ValidateToken() {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
                 success: async function (data) {
-                    user_language = data.response.language;
+                    user_language = data.language;
                     $("#api-language-" + user_language).prop("selected", true);
                     localStorage.setItem("language", user_language);
                     if (getCookie("language") && getCookie("language") != user_language) {
@@ -8692,7 +8584,7 @@ function InitLanguage() {
         type: "GET",
         dataType: "json",
         success: function (data) {
-            languages = data.response.supported;
+            languages = data.supported;
             for (var i = 0; i < languages.length; i++) {
                 $("#api-language").append(`<option id="api-language-${languages[i]}" value="${languages[i]}">${LANG_CODE[languages[i]]}</option>`);
             }
@@ -8706,11 +8598,10 @@ function InitLanguage() {
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token")
                     },
-                    data: {
+                    data: JSON.stringify({
                         language: user_language
-                    },
+                    }),
                     success: function (data) {
-                        if (data.error) return AjaxError(data);
                         setCookie("language", user_language);
                         localStorage.setItem("language", user_language);
                         toastNotification("success", "Success", "Language Updated to: " + LANG_CODE[user_language], 5000);
