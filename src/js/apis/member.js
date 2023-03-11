@@ -95,7 +95,7 @@ function LoadMemberList(noplaceholder = false) {
 
             for (i = 0; i < memberList.length; i++) {
                 user = memberList[i];
-                userid = user.userid;
+                let userid = user.userid;
                 name = user.name;
                 discordid = user.discordid;
                 avatar = user.avatar;
@@ -336,17 +336,17 @@ function EditPoints(uid) {
     });
 }
 
-function DismissMemberShow(uid, name) {
-    if (uid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
-    modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${uid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">${mltr('dismiss')}</button>`);
+function DismissMemberShow(userid, name) {
+    if (userid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
+    modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${userid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${userid});">${mltr('dismiss')}</button>`);
     InitModal("dismiss_member", modalid);
 }
 
-function DismissMember(uid) {
+function DismissMember(userid) {
     LockBtn("#button-dismiss-member", mltr("dismissing"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/member/dismiss/" + userid,
         type: "POST",
         contentType: "application/json", processData: false,
         headers: {

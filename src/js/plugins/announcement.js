@@ -15,40 +15,41 @@ announcement_placeholder_row = `<div class="row">
 </div>
 </div>`;
 
-function LoadAnnouncement(noplaceholder = false){
+function LoadAnnouncement(noplaceholder = false) {
     InitPaginate("#announcements", "LoadAnnouncement()");
     $("#announcement-tab .page-item").addClass("disabled");
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#announcements").children().remove();
-        for(i = 0 ; i < 5 ; i++){
+        for (i = 0; i < 5; i++) {
             $("#announcements").append(announcement_placeholder_row);
         }
     }
 
     page = parseInt($("#announcements_page_input").val());
 
-    if(userPerm.includes("announcement") || userPerm.includes("admin")){
+    if (userPerm.includes("announcement") || userPerm.includes("admin")) {
         $("#announcement-new").show();
     }
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
-        contentType: "application/json", processData: false,
+        contentType: "application/json", 
+        processData: false,
         headers: authorizationHeader,
         success: async function (data) {
-            while(1){
-                if(userPermLoaded) break;
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
-            if(userPerm.includes("announcement") || userPerm.includes("admin")){
+            if (userPerm.includes("announcement") || userPerm.includes("admin")) {
                 $("#announcement-new").show();
             }
             announcements = data.list;
             content = "";
             for (i = 0; i < announcements.length; i++) {
-                if(i % 2 == 0){
-                    if(i != 0) content += `</div>`;
+                if (i % 2 == 0) {
+                    if (i != 0) content += `</div>`;
                     content += `<div class="row">`;
                 }
                 announcement = announcements[i];
@@ -58,20 +59,20 @@ function LoadAnnouncement(noplaceholder = false){
                 announcement_control_title_style = "";
                 announcement_control_top = "";
                 announcement_control_bottom = "";
-                if(userPerm.includes("announcement") || userPerm.includes("admin")){
+                if (userPerm.includes("announcement") || userPerm.includes("admin")) {
                     announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
                     announcement_control_title_style = `width:calc(100% - 70px)`;
                     announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
                     public_checked = "";
                     private_checked = "";
-                    if(announcement.is_private == true) private_checked = "checked";
+                    if (announcement.is_private == true) private_checked = "checked";
                     else public_checked = "checked";
                     type_checked = [];
-                    for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
+                    for (var j = 0; j < parseInt(announcement.announcement_type); j++) {
                         type_checked.push("");
                     }
                     type_checked.push("selected");
-                    for(var j = 0 ; j < 4 ; j++){
+                    for (var j = 0; j < 4; j++) {
                         type_checked.push("");
                     }
                     announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
@@ -124,7 +125,7 @@ function LoadAnnouncement(noplaceholder = false){
     });
 }
 
-function EditAnnouncementToggle(announcementid){
+function EditAnnouncementToggle(announcementid) {
     $(`#announcement-edit-${announcementid}-bottom-div`).css("height", ($(`#announcement-display-${announcementid}-content`).height()) + "px");
     $(`#announcement-edit-${announcementid}-bottom-div`).toggle();
     $(`#announcement-edit-${announcementid}-title`).toggle();
@@ -132,17 +133,17 @@ function EditAnnouncementToggle(announcementid){
     $(`#announcement-display-${announcementid}-title`).toggle();
 }
 
-function PostAnnouncement(){
+function PostAnnouncement() {
     title = $("#announcement-new-title").val();
     content = simplemde["#announcement-new-content"].value();
     anntype = $("#announcement-new-type").find(":selected").val();
-    if(!isNumber(anntype)){
+    if (!isNumber(anntype)) {
         return toastNotification("warning", "Warning", mltr("please_select_an_announcement_type"), 3000);
     }
     is_private = $("#announcement-visibility-private").is(":checked");
     discord_channelid = $("#announcement-new-discord-channel").val();
     discord_message = $("#announcement-new-discord-message").val();
-    if(!isNumber(discord_channelid)){
+    if (!isNumber(discord_channelid)) {
         discord_channelid = 0;
         discord_message = "";
     }
@@ -159,7 +160,7 @@ function PostAnnouncement(){
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
-            "channelid": discord_channelid,
+            "discord_channel_id": discord_channelid,
             "discord_message_content": discord_message
         }),
         success: function (data) {
@@ -174,20 +175,20 @@ function PostAnnouncement(){
     });
 }
 
-function EditAnnouncement(announcementid){
-    title = $("#announcement-edit-"+announcementid+"-title").val();
-    content = $("#announcement-edit-"+announcementid+"-content").val();
-    anntype = $("#announcement-edit-"+announcementid+"-type").find(":selected").val();
-    is_private = $("#announcement-edit-"+announcementid+"-visibility-private").is(":checked");
-    discord_channelid = $("#announcement-edit-"+announcementid+"-discord-channel").val();
-    discord_message = $("#announcement-edit-"+announcementid+"-discord-message").val();
-    if(!isNumber(discord_channelid)){
+function EditAnnouncement(announcementid) {
+    title = $("#announcement-edit-" + announcementid + "-title").val();
+    content = $("#announcement-edit-" + announcementid + "-content").val();
+    anntype = $("#announcement-edit-" + announcementid + "-type").find(":selected").val();
+    is_private = $("#announcement-edit-" + announcementid + "-visibility-private").is(":checked");
+    discord_channelid = $("#announcement-edit-" + announcementid + "-discord-channel").val();
+    discord_message = $("#announcement-edit-" + announcementid + "-discord-message").val();
+    if (!isNumber(discord_channelid)) {
         discord_channelid = 0;
         discord_message = "";
     }
-    LockBtn("#button-announcement-edit-"+announcementid+"-save", mltr("saving"));
+    LockBtn("#button-announcement-edit-" + announcementid + "-save", mltr("saving"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/announcement/"+announcementid,
+        url: api_host + "/" + dhabbr + "/announcement/" + announcementid,
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
@@ -198,30 +199,30 @@ function EditAnnouncement(announcementid){
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
-            "channelid": discord_channelid,
+            "discord_channel_id": discord_channelid,
             "discord_message_content": discord_message
         }),
         success: function (data) {
-            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            UnlockBtn("#button-announcement-edit-" + announcementid + "-save");
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("edit_saved"), 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            UnlockBtn("#button-announcement-edit-" + announcementid + "-save");
             AjaxError(data);
         }
     });
 }
 
-function DeleteAnnouncementShow(announcementid){
-    if(shiftdown) return DeleteAnnouncement(announcementid);
-    content = $("#announcement-display-"+announcementid+"-title").html();
+function DeleteAnnouncementShow(announcementid) {
+    if (shiftdown) return DeleteAnnouncement(announcementid);
+    content = $("#announcement-display-" + announcementid + "-title").html();
     modalid = ShowModal(mltr("delete_announcement"), `<p>${mltr("delete_announcement_note")}</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">${mltr("delete")}</button>`);
     InitModal("delete_announcement", modalid);
 }
 
-function DeleteAnnouncement(announcementid){
-    LockBtn("#button-announcement-delete-"+announcementid, mltr("deleting"));
+function DeleteAnnouncement(announcementid) {
+    LockBtn("#button-announcement-delete-" + announcementid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement/" + announcementid,
         type: "DELETE",
@@ -230,13 +231,13 @@ function DeleteAnnouncement(announcementid){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            UnlockBtn("#button-announcement-delete-"+announcementid);
+            UnlockBtn("#button-announcement-delete-" + announcementid);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("announcement_deleted"), 5000, false);
-            if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
+            if (Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
         },
         error: function (data) {
-            UnlockBtn("#button-announcement-delete-"+announcementid);
+            UnlockBtn("#button-announcement-delete-" + announcementid);
             AjaxError(data);
         }
     });

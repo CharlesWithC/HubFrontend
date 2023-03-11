@@ -1154,11 +1154,7 @@ function UpdateConfig() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            config: JSON.stringify(config,
-                (_, value) =>
-                typeof value === 'number' && value > 1e10 ?
-                BigInt(value) :
-                value)
+            config: config
         }),
         success: function (data) {
             UnlockBtn("#button-save-config");
@@ -2631,17 +2627,17 @@ function EditPoints(uid) {
     });
 }
 
-function DismissMemberShow(uid, name) {
-    if (uid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
-    modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${uid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${uid});">${mltr('dismiss')}</button>`);
+function DismissMemberShow(userid, name) {
+    if (userid == localStorage.getItem("userid")) return toastNotification("error", "Error", mltr("you_cannot_dismiss_yourself"), 5000);
+    modalid = ShowModal(mltr('dismiss_member'), `<p>${mltr('dismiss_member_note_1')}</p><p><i>${name} (${mltr('user_id')}: ${userid})</i></p><br><p>${mltr("dismiss_member_note_2")}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-dismiss-member" type="button" class="btn btn-danger" onclick="DismissMember(${userid});">${mltr('dismiss')}</button>`);
     InitModal("dismiss_member", modalid);
 }
 
-function DismissMember(uid) {
+function DismissMember(userid) {
     LockBtn("#button-dismiss-member", mltr("dismissing"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/dismiss?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/member/dismiss/" + userid,
         type: "POST",
         contentType: "application/json", processData: false,
         headers: {
@@ -3736,7 +3732,7 @@ function LoadNotificationSettings() {
             $("#notifications-division").prop("checked", data.division);
             $("#notifications-event").prop("checked", data.event);
         }
-    })
+    });
 }
 
 function EnableNotification(item, name) {
@@ -3752,7 +3748,7 @@ function EnableNotification(item, name) {
         }, error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 function DisableNotification(item, name) {
@@ -3768,7 +3764,7 @@ function DisableNotification(item, name) {
         }, error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 user_session_placeholder_row = `
@@ -3821,7 +3817,7 @@ function GetSessionList(page = 1) {
                 gslWorking = false;
             }
         }
-    })
+    });
 }
 appSession = [];
 gatlWorking = false;
@@ -3841,7 +3837,7 @@ function GetApplicationTokenList(page = 1) {
                 opbtn = `<button id="button-revoke-token-${sessions[i].hash}" type="button" class="btn btn-sm btn-danger" onclick="RevokeApplicationToken('${sessions[i].hash}')">${mltr('revoke')}</button>`;
 
                 browser_icon = `<i class="fa-solid fa-link"></i>`;
-                if (sessions[i].app_name.toLowerCase().includes("bot")) browser_icon = `<i class="fa-solid fa-robot"></i>`
+                if (sessions[i].app_name.toLowerCase().includes("bot")) browser_icon = `<i class="fa-solid fa-robot"></i>`;
 
                 appSession.push(`<tr>
                     <td>${browser_icon}</td>
@@ -3858,7 +3854,7 @@ function GetApplicationTokenList(page = 1) {
                 gatlWorking = false;
             }
         }
-    })
+    });
 }
 
 async function LoadUserSessions(noplaceholder = false) {
@@ -3890,7 +3886,7 @@ function RevokeToken(hsh) {
         return;
     }
 
-    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"))
+    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/hash",
@@ -3909,7 +3905,7 @@ function RevokeToken(hsh) {
         error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 function RevokeApplicationToken(hsh) {
@@ -3918,7 +3914,7 @@ function RevokeApplicationToken(hsh) {
         return;
     }
 
-    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"))
+    LockBtn("#button-revoke-token-" + hsh, mltr("revoking"));
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/token/application",
@@ -3937,7 +3933,7 @@ function RevokeApplicationToken(hsh) {
         error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 bannedUserList = {};
@@ -3951,7 +3947,7 @@ user_placeholder_row = `
 
 function LoadUserList(noplaceholder = false) {
     InitPaginate("#table_pending_user_list", "LoadUserList();");
-    page = parseInt($("#table_pending_user_list_page_input").val())
+    page = parseInt($("#table_pending_user_list_page_input").val());
     if (page == "" || page == undefined || page <= 0 || page == NaN) page = 1;
 
     if (!noplaceholder) {
@@ -3995,15 +3991,15 @@ function LoadUserList(noplaceholder = false) {
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.uid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteUserShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('delete')}</a></li>
                         </ul>
                     </div>`;
                 } else if (userPerm.includes("hr")) {
@@ -4021,7 +4017,7 @@ function LoadUserList(noplaceholder = false) {
                     </div>`;
                 }
 
-                data.push([`<span style='color:${color}'>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)} ${bantxt2}</span>`, `<span style='color:${color}'>${user.discordid}</span>`, userop]);
+                data.push([`<span style='color:${color}'>${user.uid}</span>`, `<span style='color:${color}'>${GetAvatar(user.userid, user.name, user.discordid, user.avatar)} ${bantxt2}</span>`, `<span style='color:${color}'>${user.discordid}</span>`, userop]);
             }
 
             PushTable("#table_pending_user_list", data, total_pages, "LoadUserList();");
@@ -4030,7 +4026,7 @@ function LoadUserList(noplaceholder = false) {
             UnlockBtn("#button-user-list-search");
             AjaxError(data);
         }
-    })
+    });
 }
 
 function ShowUserDetail(discordid) {
@@ -4048,6 +4044,7 @@ function ShowUserDetail(discordid) {
 
             d = data;
             info = "";
+            info += GenTableRow("UID", d.uid);
             info += GenTableRow(mltr("name"), d.name);
             info += GenTableRow(mltr("email"), d.email);
             info += GenTableRow(mltr("discord"), discordid);
@@ -4066,12 +4063,12 @@ function ShowUserDetail(discordid) {
     });
 }
 
-function AcceptAsMemberShow(discordid, name) {
-    modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${discordid}');">${mltr('accept')}</button>`);
+function AcceptAsMemberShow(uid, name) {
+    modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${uid}');">${mltr('accept')}</button>`);
     InitModal("accept_as_member", modalid);
 }
 
-function AcceptAsMember(discordid) {
+function AcceptAsMember(uid) {
     LockBtn("#button-accept-as-member", mltr("accepting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/member",
@@ -4081,7 +4078,7 @@ function AcceptAsMember(discordid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            discordid: discordid
+            uid: uid
         }),
         success: function (data) {
             UnlockBtn("#button-accept-as-member");
@@ -4093,7 +4090,7 @@ function AcceptAsMember(discordid) {
             UnlockBtn("#button-accept-as-member");
             AjaxError(data);
         }
-    })
+    });
 }
 
 function UpdateDiscordShow(discordid, name) {
@@ -4130,12 +4127,12 @@ function UpdateDiscord(old_discord_id) {
             UnlockBtn("#button-update-discord");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function DisableUserMFAShow(discordid, name) {
+function DisableUserMFAShow(uid, name) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
+        url: api_host + "/" + dhabbr + "/user?uid=" + uid,
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -4146,20 +4143,20 @@ function DisableUserMFAShow(discordid, name) {
             if (!mfa) {
                 return toastNotification("error", "Error", mltr("user_hasnt_enabled_mfa"), 5000);
             }
-            modalid = ShowModal(mltr('disable_mfa'), `<p>${mltr('disable_mfa_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('disable_mfa_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${discordid}');">${mltr('disable')}</button>`);
+            modalid = ShowModal(mltr('disable_mfa'), `<p>${mltr('disable_mfa_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('disable_mfa_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-staff-disable-mfa" type="button" class="btn btn-danger" onclick="StaffDisableMFA('${uid}');">${mltr('disable')}</button>`);
             InitModal("disable_mfa", modalid);
         },
         error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
-function StaffDisableMFA(discordid) {
+function StaffDisableMFA(uid) {
     LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/mfa?discordid=" + discordid,
+        url: api_host + "/" + dhabbr + "/user/mfa?uid=" + uid,
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
@@ -4174,27 +4171,24 @@ function StaffDisableMFA(discordid) {
             UnlockBtn("#button-staff-disable-mfa");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function DeleteConnectionsShow(discordid, name) {
-    modalid = ShowModal(mltr('delete_connections'), `<p>${mltr('delete_connections_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_connections_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${discordid}');">${mltr('delete')}</button>`);
+function DeleteConnectionsShow(uid, name) {
+    modalid = ShowModal(mltr('delete_connections'), `<p>${mltr('delete_connections_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('delete_connections_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-connections" type="button" class="btn btn-primary" onclick="DeleteConnections('${uid}');">${mltr('delete')}</button>`);
     InitModal("account_connections", modalid);
 }
 
-function DeleteConnections(discordid) {
+function DeleteConnections(uid) {
     LockBtn("#button-delete-connections", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/connections",
+        url: api_host + "/" + dhabbr + "/user/connections?uid=" + uid,
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: JSON.stringify({
-            discordid: discordid
-        }),
         success: function (data) {
             UnlockBtn("#button-delete-connections");
             LoadUserList(noplaceholder = true);
@@ -4205,22 +4199,22 @@ function DeleteConnections(discordid) {
             UnlockBtn("#button-delete-connections");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function BanShow(discordid, name) {
-    modalid = ShowModal(mltr('ban_user'), `<p>${mltr('ban_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('ban_user_note_2')}</p><br><label for="new-discord-id" class="form-label">${mltr('ban_until')}</label>
+function BanShow(uid, name) {
+    modalid = ShowModal(mltr('ban_user'), `<p>${mltr('ban_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('ban_user_note_2')}</p><br><label for="new-discord-id" class="form-label">${mltr('ban_until')}</label>
     <div class="input-group mb-3">
         <input type="date" class="form-control bg-dark text-white" id="ban-until">
     </div>
     <label for="ban-reason" class="form-label">${mltr('reason')}</label>
     <div class="input-group mb-3" style="height:calc(100% - 160px)">
         <textarea type="text" class="form-control bg-dark text-white" id="ban-reason" placeholder="" rows="3"></textarea>
-    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${discordid}');">${mltr('ban')}</button>`);
+    </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-ban-user" type="button" class="btn btn-danger" onclick="BanUser('${uid}');">${mltr('ban')}</button>`);
     InitModal("ban_user", modalid);
 }
 
-function BanUser(discordid) {
+function BanUser(uid) {
     LockBtn("#button-ban-user", mltr("banning"));
 
     expire = -1;
@@ -4236,7 +4230,7 @@ function BanUser(discordid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            discordid: discordid,
+            uid: uid,
             expire: expire,
             reason: reason
         }),
@@ -4250,15 +4244,15 @@ function BanUser(discordid) {
             UnlockBtn("#button-ban-user");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function UnbanShow(discordid, name) {
-    modalid = ShowModal(mltr('unban_user'), `<p>${mltr('unban_user_note')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${discordid}');">${mltr('unban')}</button>`);
+function UnbanShow(uid, name) {
+    modalid = ShowModal(mltr('unban_user'), `<p>${mltr('unban_user_note')}</p><p><i>${name} (${mltr('discord_id')}: ${uid})</i></p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-unban-user" type="button" class="btn btn-success" onclick="UnbanUser('${uid}');">${mltr('unban')}</button>`);
     InitModal("unban_user", modalid);
 }
 
-function UnbanUser(discordid) {
+function UnbanUser(uid) {
     LockBtn("#button-unban-user", mltr("unbanning"));
 
     $.ajax({
@@ -4269,7 +4263,7 @@ function UnbanUser(discordid) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            discordid: discordid
+            "uid": uid,
         }),
         success: function (data) {
             UnlockBtn("#button-unban-user");
@@ -4281,19 +4275,19 @@ function UnbanUser(discordid) {
             UnlockBtn("#button-unban-user");
             AjaxError(data);
         }
-    })
+    });
 }
 
-function DeleteUserShow(discordid, name) {
-    modalid = ShowModal(mltr('delete_user'), `<p>${mltr('delete_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><p>${mltr('delete_user_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${discordid}');">${mltr('delete')}</button>`);
+function DeleteUserShow(uid, name) {
+    modalid = ShowModal(mltr('delete_user'), `<p>${mltr('delete_user_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('delete_user_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-user" type="button" class="btn btn-danger" onclick="DeleteUser('${uid}');">${mltr('delete')}</button>`);
     InitModal("delete_user", modalid);
 }
 
-function DeleteUser(discordid) {
+function DeleteUser(uid) {
     LockBtn("#button-delete-user", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid=" + discordid,
+        url: api_host + "/" + dhabbr + "/user?uid=" + uid,
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
@@ -4309,7 +4303,7 @@ function DeleteUser(discordid) {
             UnlockBtn("#button-delete-user");
             AjaxError(data);
         }
-    })
+    });
 }
 
 function DeleteAccountShow() {
@@ -4337,7 +4331,7 @@ function DeleteAccount(discordid) {
             UnlockBtn("#button-delete-account");
             AjaxError(data);
         }
-    })
+    });
 }
 
 function LoadNotification() {
@@ -4353,7 +4347,7 @@ function LoadNotification() {
             $("#notification-dropdown").children().remove();
             for (i = 0; i < d.length; i++) {
                 style = "";
-                if (d[i].read) style = "color:grey"
+                if (d[i].read) style = "color:grey";
                 $("#notification-dropdown").append(`
                 <div>
                     <p style="margin-bottom:0px;${style}">${marked.parse(d[i].content).replaceAll("\n", "<br>").replaceAll("<p>", "").replaceAll("</p>", "").slice(0, -1)}</p>
@@ -4467,7 +4461,7 @@ function HandleOAuth() {
                     extra = `<br><br><span style='font-size:12px;color:grey'><b>${data.name}</b> is created by a 3rd-party developer. CHub is not affiliated with <b>${data.name}</b>.`;
                 } else {
                     extra = `<br><br><span style='font-size:12px;color:grey'><b>${data.name}</b> is an official application created by CHub.`;
-                    badge = `<span class="badge text-bg-primary" style="position:relative;font-size:12px;top:-6px;margin-left:10px;">Official</span>`
+                    badge = `<span class="badge text-bg-primary" style="position:relative;font-size:12px;top:-6px;margin-left:10px;">Official</span>`;
                 }
                 $("#oauth-control-div").show();
                 $("#oauth-message-title").html(`${data.name}${badge}`);
@@ -4907,40 +4901,41 @@ announcement_placeholder_row = `<div class="row">
 </div>
 </div>`;
 
-function LoadAnnouncement(noplaceholder = false){
+function LoadAnnouncement(noplaceholder = false) {
     InitPaginate("#announcements", "LoadAnnouncement()");
     $("#announcement-tab .page-item").addClass("disabled");
 
-    if(!noplaceholder){
+    if (!noplaceholder) {
         $("#announcements").children().remove();
-        for(i = 0 ; i < 5 ; i++){
+        for (i = 0; i < 5; i++) {
             $("#announcements").append(announcement_placeholder_row);
         }
     }
 
     page = parseInt($("#announcements_page_input").val());
 
-    if(userPerm.includes("announcement") || userPerm.includes("admin")){
+    if (userPerm.includes("announcement") || userPerm.includes("admin")) {
         $("#announcement-new").show();
     }
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement/list?page=" + page,
         type: "GET",
-        contentType: "application/json", processData: false,
+        contentType: "application/json", 
+        processData: false,
         headers: authorizationHeader,
         success: async function (data) {
-            while(1){
-                if(userPermLoaded) break;
+            while (1) {
+                if (userPermLoaded) break;
                 await sleep(100);
             }
-            if(userPerm.includes("announcement") || userPerm.includes("admin")){
+            if (userPerm.includes("announcement") || userPerm.includes("admin")) {
                 $("#announcement-new").show();
             }
             announcements = data.list;
             content = "";
             for (i = 0; i < announcements.length; i++) {
-                if(i % 2 == 0){
-                    if(i != 0) content += `</div>`;
+                if (i % 2 == 0) {
+                    if (i != 0) content += `</div>`;
                     content += `<div class="row">`;
                 }
                 announcement = announcements[i];
@@ -4950,20 +4945,20 @@ function LoadAnnouncement(noplaceholder = false){
                 announcement_control_title_style = "";
                 announcement_control_top = "";
                 announcement_control_bottom = "";
-                if(userPerm.includes("announcement") || userPerm.includes("admin")){
+                if (userPerm.includes("announcement") || userPerm.includes("admin")) {
                     announcement_control = `<div style="float:right"><a style="cursor:pointer" onclick="EditAnnouncementToggle(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a style="cursor:pointer" onclick="DeleteAnnouncementShow(${announcement.announcementid})"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a></div>`;
                     announcement_control_title_style = `width:calc(100% - 70px)`;
                     announcement_control_top = `<input type="text" class="form-control bg-dark text-white" id="announcement-edit-${announcement.announcementid}-title" placeholder="A short and nice title" value="${announcement.title}" style="display:none;width:100%;">`;
                     public_checked = "";
                     private_checked = "";
-                    if(announcement.is_private == true) private_checked = "checked";
+                    if (announcement.is_private == true) private_checked = "checked";
                     else public_checked = "checked";
                     type_checked = [];
-                    for(var j = 0 ; j < parseInt(announcement.announcement_type) ; j++){
+                    for (var j = 0; j < parseInt(announcement.announcement_type); j++) {
                         type_checked.push("");
                     }
                     type_checked.push("selected");
-                    for(var j = 0 ; j < 4 ; j++){
+                    for (var j = 0; j < 4; j++) {
                         type_checked.push("");
                     }
                     announcement_control_bottom = `<div id="announcement-edit-${announcement.announcementid}-bottom-div" style="display:none;"><div class="input-group mb-3" style="height:calc(100% + 50px)">
@@ -5016,7 +5011,7 @@ function LoadAnnouncement(noplaceholder = false){
     });
 }
 
-function EditAnnouncementToggle(announcementid){
+function EditAnnouncementToggle(announcementid) {
     $(`#announcement-edit-${announcementid}-bottom-div`).css("height", ($(`#announcement-display-${announcementid}-content`).height()) + "px");
     $(`#announcement-edit-${announcementid}-bottom-div`).toggle();
     $(`#announcement-edit-${announcementid}-title`).toggle();
@@ -5024,17 +5019,17 @@ function EditAnnouncementToggle(announcementid){
     $(`#announcement-display-${announcementid}-title`).toggle();
 }
 
-function PostAnnouncement(){
+function PostAnnouncement() {
     title = $("#announcement-new-title").val();
     content = simplemde["#announcement-new-content"].value();
     anntype = $("#announcement-new-type").find(":selected").val();
-    if(!isNumber(anntype)){
+    if (!isNumber(anntype)) {
         return toastNotification("warning", "Warning", mltr("please_select_an_announcement_type"), 3000);
     }
     is_private = $("#announcement-visibility-private").is(":checked");
     discord_channelid = $("#announcement-new-discord-channel").val();
     discord_message = $("#announcement-new-discord-message").val();
-    if(!isNumber(discord_channelid)){
+    if (!isNumber(discord_channelid)) {
         discord_channelid = 0;
         discord_message = "";
     }
@@ -5051,7 +5046,7 @@ function PostAnnouncement(){
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
-            "channelid": discord_channelid,
+            "discord_channel_id": discord_channelid,
             "discord_message_content": discord_message
         }),
         success: function (data) {
@@ -5066,20 +5061,20 @@ function PostAnnouncement(){
     });
 }
 
-function EditAnnouncement(announcementid){
-    title = $("#announcement-edit-"+announcementid+"-title").val();
-    content = $("#announcement-edit-"+announcementid+"-content").val();
-    anntype = $("#announcement-edit-"+announcementid+"-type").find(":selected").val();
-    is_private = $("#announcement-edit-"+announcementid+"-visibility-private").is(":checked");
-    discord_channelid = $("#announcement-edit-"+announcementid+"-discord-channel").val();
-    discord_message = $("#announcement-edit-"+announcementid+"-discord-message").val();
-    if(!isNumber(discord_channelid)){
+function EditAnnouncement(announcementid) {
+    title = $("#announcement-edit-" + announcementid + "-title").val();
+    content = $("#announcement-edit-" + announcementid + "-content").val();
+    anntype = $("#announcement-edit-" + announcementid + "-type").find(":selected").val();
+    is_private = $("#announcement-edit-" + announcementid + "-visibility-private").is(":checked");
+    discord_channelid = $("#announcement-edit-" + announcementid + "-discord-channel").val();
+    discord_message = $("#announcement-edit-" + announcementid + "-discord-message").val();
+    if (!isNumber(discord_channelid)) {
         discord_channelid = 0;
         discord_message = "";
     }
-    LockBtn("#button-announcement-edit-"+announcementid+"-save", mltr("saving"));
+    LockBtn("#button-announcement-edit-" + announcementid + "-save", mltr("saving"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/announcement/"+announcementid,
+        url: api_host + "/" + dhabbr + "/announcement/" + announcementid,
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
@@ -5090,30 +5085,30 @@ function EditAnnouncement(announcementid){
             "content": content,
             "announcement_type": anntype,
             "is_private": is_private,
-            "channelid": discord_channelid,
+            "discord_channel_id": discord_channelid,
             "discord_message_content": discord_message
         }),
         success: function (data) {
-            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            UnlockBtn("#button-announcement-edit-" + announcementid + "-save");
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("edit_saved"), 5000, false);
         },
         error: function (data) {
-            UnlockBtn("#button-announcement-edit-"+announcementid+"-save");
+            UnlockBtn("#button-announcement-edit-" + announcementid + "-save");
             AjaxError(data);
         }
     });
 }
 
-function DeleteAnnouncementShow(announcementid){
-    if(shiftdown) return DeleteAnnouncement(announcementid);
-    content = $("#announcement-display-"+announcementid+"-title").html();
+function DeleteAnnouncementShow(announcementid) {
+    if (shiftdown) return DeleteAnnouncement(announcementid);
+    content = $("#announcement-display-" + announcementid + "-title").html();
     modalid = ShowModal(mltr("delete_announcement"), `<p>${mltr("delete_announcement_note")}</p><p><i>${content}</i></p><br><p style="color:#aaa"><span style="color:lightgreen">${mltr("delete_protip")}`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr("cancel")}</button><button id="button-announcement-delete-${announcementid}" type="button" class="btn btn-danger" onclick="DeleteAnnouncement(${announcementid});">${mltr("delete")}</button>`);
     InitModal("delete_announcement", modalid);
 }
 
-function DeleteAnnouncement(announcementid){
-    LockBtn("#button-announcement-delete-"+announcementid, mltr("deleting"));
+function DeleteAnnouncement(announcementid) {
+    LockBtn("#button-announcement-delete-" + announcementid, mltr("deleting"));
     $.ajax({
         url: api_host + "/" + dhabbr + "/announcement/" + announcementid,
         type: "DELETE",
@@ -5122,13 +5117,13 @@ function DeleteAnnouncement(announcementid){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            UnlockBtn("#button-announcement-delete-"+announcementid);
+            UnlockBtn("#button-announcement-delete-" + announcementid);
             LoadAnnouncement(noplaceholder = false);
             toastNotification("success", "Success", mltr("announcement_deleted"), 5000, false);
-            if(Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
+            if (Object.keys(modals).includes("delete_announcement")) DestroyModal("delete_announcement");
         },
         error: function (data) {
-            UnlockBtn("#button-announcement-delete-"+announcementid);
+            UnlockBtn("#button-announcement-delete-" + announcementid);
             AjaxError(data);
         }
     });
@@ -5541,7 +5536,6 @@ function SubmitApplication() {
         UnlockBtn("#button-submit-application");
         return;
     }
-    data = JSON.stringify(data);
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/application",
@@ -5552,7 +5546,7 @@ function SubmitApplication() {
         },
         data: JSON.stringify({
             "application_type": apptype,
-            "data": data
+            "application": data
         }),
         success: function (data) {
             UnlockBtn("#button-submit-application");
@@ -5980,7 +5974,7 @@ function EditChallenge(challengeid) {
             "required_distance": required_distance,
             "reward_points": reward_points,
             "public_details": public_details,
-            "job_requirements": jobreq
+            "job_requirements": jobreqd
         }),
         success: function (data) {
             UnlockBtn("#button-challenge-edit");
@@ -7358,7 +7352,7 @@ function TSRUpdate() {
     $.ajax({
         url: "https://truckstopradio.co.uk/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
             $("#tsr-song").html(data.song.title);
             $("#tsr-artist").html(data.song.artist);
@@ -7615,7 +7609,7 @@ function Logout() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + token
         }
@@ -7825,7 +7819,7 @@ function InitSearchByName() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/list?page_size=250",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
@@ -8204,7 +8198,7 @@ function LoadCache(force) {
     $.ajax({
         url: "https://config.chub.page/roles",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
             specialRoles = data.response;
             localStorage.setItem("special-roles", JSON.stringify(specialRoles));
@@ -8219,7 +8213,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/application/positions",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 positions = data;
                 localStorage.setItem("positions", JSON.stringify(positions));
@@ -8228,7 +8222,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/roles",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 roles = data;
                 rolelist = {};
@@ -8244,7 +8238,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/application/types",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 d = data;
                 applicationTypes = {};
@@ -8256,7 +8250,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/perms",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 perms = data;
                 localStorage.setItem("perms", JSON.stringify(perms));
@@ -8265,7 +8259,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/ranks",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 d = data;
                 RANKING = {};
@@ -8282,7 +8276,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/division/list",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
@@ -8452,7 +8446,7 @@ function ValidateToken() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + token
         },
@@ -8534,7 +8528,7 @@ function ValidateToken() {
             $.ajax({
                 url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
@@ -8552,7 +8546,7 @@ function ValidateToken() {
             $.ajax({
                 url: api_host + "/" + dhabbr + "/user/language",
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
@@ -8582,7 +8576,7 @@ function InitLanguage() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/languages",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
             languages = data.supported;
             for (var i = 0; i < languages.length; i++) {
@@ -8594,7 +8588,7 @@ function InitLanguage() {
                 $.ajax({
                     url: api_host + "/" + dhabbr + "/user/language",
                     type: "PATCH",
-                    dataType: "json",
+                    contentType: "application/json",
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token")
                     },

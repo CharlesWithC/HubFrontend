@@ -168,11 +168,7 @@ function UpdateConfig() {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            config: JSON.stringify(config,
-                (_, value) =>
-                typeof value === 'number' && value > 1e10 ?
-                BigInt(value) :
-                value)
+            config: config
         }),
         success: function (data) {
             UnlockBtn("#button-save-config");

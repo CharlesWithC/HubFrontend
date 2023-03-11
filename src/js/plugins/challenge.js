@@ -368,7 +368,7 @@ function EditChallenge(challengeid) {
             "required_distance": required_distance,
             "reward_points": reward_points,
             "public_details": public_details,
-            "job_requirements": jobreq
+            "job_requirements": jobreqd
         }),
         success: function (data) {
             UnlockBtn("#button-challenge-edit");

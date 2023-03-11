@@ -55,7 +55,7 @@ function TSRUpdate() {
     $.ajax({
         url: "https://truckstopradio.co.uk/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
             $("#tsr-song").html(data.song.title);
             $("#tsr-artist").html(data.song.artist);
@@ -312,7 +312,7 @@ function Logout() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/token",
         type: "DELETE",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + token
         }
@@ -522,7 +522,7 @@ function InitSearchByName() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/member/list?page_size=250",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
@@ -901,7 +901,7 @@ function LoadCache(force) {
     $.ajax({
         url: "https://config.chub.page/roles",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
             specialRoles = data.response;
             localStorage.setItem("special-roles", JSON.stringify(specialRoles));
@@ -916,7 +916,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/application/positions",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 positions = data;
                 localStorage.setItem("positions", JSON.stringify(positions));
@@ -925,7 +925,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/roles",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 roles = data;
                 rolelist = {};
@@ -941,7 +941,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/application/types",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 d = data;
                 applicationTypes = {};
@@ -953,7 +953,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/perms",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 perms = data;
                 localStorage.setItem("perms", JSON.stringify(perms));
@@ -962,7 +962,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/member/ranks",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             success: function (data) {
                 d = data;
                 RANKING = {};
@@ -979,7 +979,7 @@ function LoadCache(force) {
         $.ajax({
             url: api_host + "/" + dhabbr + "/division/list",
             type: "GET",
-            dataType: "json",
+            contentType: "application/json",
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
@@ -1149,7 +1149,7 @@ function ValidateToken() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/user",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         headers: {
             "Authorization": "Bearer " + token
         },
@@ -1231,7 +1231,7 @@ function ValidateToken() {
             $.ajax({
                 url: api_host + "/" + dhabbr + "/dlog/leaderboard?point_types=distance,challenge,event,division,myth&userids=" + String(userid),
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
@@ -1249,7 +1249,7 @@ function ValidateToken() {
             $.ajax({
                 url: api_host + "/" + dhabbr + "/user/language",
                 type: "GET",
-                dataType: "json",
+                contentType: "application/json",
                 headers: {
                     "Authorization": "Bearer " + localStorage.getItem("token")
                 },
@@ -1279,7 +1279,7 @@ function InitLanguage() {
     $.ajax({
         url: api_host + "/" + dhabbr + "/languages",
         type: "GET",
-        dataType: "json",
+        contentType: "application/json",
         success: function (data) {
             languages = data.supported;
             for (var i = 0; i < languages.length; i++) {
@@ -1291,7 +1291,7 @@ function InitLanguage() {
                 $.ajax({
                     url: api_host + "/" + dhabbr + "/user/language",
                     type: "PATCH",
-                    dataType: "json",
+                    contentType: "application/json",
                     headers: {
                         "Authorization": "Bearer " + localStorage.getItem("token")
                     },

@@ -130,7 +130,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/f8456321fbea9fdd.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/b3c6f2349da19827.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -2031,6 +2031,7 @@
                     <table class="w-100" style="line-height:30px">
                         <thead id="table_pending_user_list_head">
                             <tr>
+                                <th scope="col">UID</th>
                                 <th scope="col"><?php echo mltr("name"); ?></th>
                                 <th scope="col"><?php echo mltr("discord"); ?></th>
                             </tr>

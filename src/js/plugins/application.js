@@ -406,7 +406,6 @@ function SubmitApplication() {
         UnlockBtn("#button-submit-application");
         return;
     }
-    data = JSON.stringify(data);
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/application",
@@ -417,7 +416,7 @@ function SubmitApplication() {
         },
         data: JSON.stringify({
             "application_type": apptype,
-            "data": data
+            "application": data
         }),
         success: function (data) {
             UnlockBtn("#button-submit-application");
