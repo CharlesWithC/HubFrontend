@@ -1,4 +1,4 @@
-applicationQuestions = {}
+applicationQuestions = {};
 function PreserveApplicationQuestion() {
     for (var apptype = 1; apptype <= 100; apptype++) {
         for (var i = 1; i <= 100; i++) {
@@ -31,7 +31,7 @@ function UpdatePendingApplicationBadge() {
         error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 my_application_placeholder_row = `
@@ -94,7 +94,7 @@ function LoadUserApplicationList(noplaceholder = false) {
         error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 all_application_placeholder_row = `
@@ -280,21 +280,20 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             UnlockBtn("#button-my-application-" + applicationid);
             AjaxError(data);
         }
-    })
+    });
 }
 
 function AddMessageToApplication(applicationid) {
     message = $("#application-new-message").val();
     LockBtn("#button-application-new-message", mltr("updating"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/application",
+        url: api_host + "/" + dhabbr + "/application/" + applicationid,
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            "applicationid": applicationid,
             "message": message
         }),
         success: function (data) {
@@ -328,12 +327,12 @@ function ForceUpdateApplicationStatus(applicationid, appstatus) {
         error: function (data) {
             AjaxError(data);
         }
-    })
+    });
 }
 
 function UpdateApplicationStatus(applicationid) {
     appstatus = parseInt($("#application-new-status").find(":selected").val());
-    if (!isNumber(appstatus)) return toastNotification("error", "Error", mltr("invalid_application_status"))
+    if (!isNumber(appstatus)) return toastNotification("error", "Error", mltr("invalid_application_status"));
     message = $("#application-new-message").val();
 
     LockBtn("#button-application-update-status", mltr("updating"));
@@ -358,7 +357,7 @@ function UpdateApplicationStatus(applicationid) {
             UnlockBtn("#button-application-update-status");
             AjaxError(data);
         }
-    })
+    });
 }
 
 function SubmitApplication() {
@@ -472,5 +471,5 @@ function UpdateStaffPositions() {
             UnlockBtn("#button-update-staff-positions");
             AjaxError(data);
         }
-    })
+    });
 }

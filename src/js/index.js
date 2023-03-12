@@ -93,7 +93,7 @@ function Load2022Wrapped() {
                     console.warn("Failed to export delivery log, using last export cache.");
                 }
             }
-        })
+        });
     }
     if (w22dlog == null) return;
     w22data = CSVToArray(w22dlog);
@@ -338,7 +338,7 @@ function Logout() {
 }
 
 simplebarINIT = ["#sidebar", "#table_mini_leaderboard", "#table_new_driver", "#table_online_driver", "#table_delivery_log", "#table_division_delivery", "#table_leaderboard", "#table_my_application", "#notification-dropdown-wrapper"];
-simplemde = { "#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined }
+simplemde = { "#settings-bio": undefined, "#announcement-new-content": undefined, "#downloads-new-description": undefined, "#downloads-edit-description": undefined, "#challenge-new-description": undefined, "#challenge-edit-description": undefined, "#event-new-description": undefined, "#event-edit-description": undefined };
 // tooltipINIT = ["#api-hex-color-tooltip", "#api-logo-link-tooltip", "#api-require-truckersmp-tooltip", "#api-privacy-tooltip", "#api-in-guild-check-tooltip", "#api-delivery-log-channel-id-tooltip"];
 tooltipINIT = [];
 async function InitDefaultValues() {
@@ -517,21 +517,43 @@ function InitLeaderboardTimeRange() {
     $("#lbend").val(date.toISOString().slice(0, -1).substring(0, 10));
 }
 
+function fetchAllUsers(page = 1) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: api_host + "/" + dhabbr + "/member/list?page_size=250&page=" + page,
+            type: "GET",
+            contentType: "application/json",
+            processData: false,
+            headers: authorizationHeader,
+            success: async function (data) {
+                l = data.list;
+
+                for (var i = 0; i < l.length; i++) {
+                    allmembers[l[i].userid] = l[i].name;
+                    $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
+                }
+
+                if (page < data.total_pages) {
+                    fetchAllUsers(page + 1)
+                        .then(resolve)
+                        .catch(reject);
+                } else {
+                    resolve();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error(
+                    "Error fetching users from page " + page + ": " + errorThrown
+                );
+                reject(errorThrown);
+            },
+        });
+    });
+}
+
 function InitSearchByName() {
-    // TODO Recursively fetch all members
-    $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list?page_size=250",
-        type: "GET",
-        contentType: "application/json",
-        headers: {
-            "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        success: function (data) {
-            l = data.list;
-            for (var i = 0; i < l.length; i++) {
-                allmembers[l[i].userid] = l[i].name;
-                $("#all-member-datalist").append(`<option value="${l[i].name} (${l[i].userid})">${l[i].name} (${l[i].userid})</option>`);
-            }
+    fetchAllUsers()
+        .then(() => {
             $(".search-name").flexdatalist({
                 selectionRequired: true,
                 minLength: 1
@@ -540,8 +562,10 @@ function InitSearchByName() {
                 selectionRequired: 1,
                 minLength: 1
             });
-        }
-    });
+        })
+        .catch((error) => {
+            console.error("Error fetching users: " + error);
+        });
 }
 
 eventsCalendar = undefined;
@@ -586,8 +610,8 @@ async function ShowTab(tabname, btnname) {
         document.title = mltr("member") + " - " + company_name;
         $("#UserBanner").show();
         $("#UserBanner").attr("src", "https://" + window.location.hostname + "/banner/" + userid);
-        $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`)
-        $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`)
+        $("#UserBanner").attr("onclick", `CopyBannerURL("${userid}");`);
+        $("#UserBanner").attr("oncontextmenu", `CopyBannerURL("${userid}");`);
         LoadUserProfile(userid);
     }
     if (tabname == "#notification-tab") {
@@ -909,7 +933,7 @@ function LoadCache(force) {
     });
 
     cacheExpire = parseInt(localStorage.getItem("cache-expire"));
-    if (!(rolelist != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined && RANKING != undefined && RANKCLR != undefined))
+    if (!(rolelist != undefined && perms != null && perms != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && divisions != undefined && RANKING != undefined && RANKCLR != undefined))
         cacheExpire = 0;
     if (!isNumber(cacheExpire)) cacheExpire = 0;
     if (cacheExpire <= +new Date()) {
@@ -1182,7 +1206,7 @@ function ValidateToken() {
                 $("#button-member-tab").show();
             }
             roles = user.roles.sort(function (a, b) {
-                return a - b
+                return a - b;
             });
             highestrole = rolelist[roles[0]];
             if (highestrole == undefined) highestrole = "Unknown Role";
@@ -1423,7 +1447,7 @@ $(document).ready(async function () {
         perms = SafeParse(localStorage.getItem("perms"));
         positions = SafeParse(localStorage.getItem("positions"));
         applicationTypes = SafeParse(localStorage.getItem("application-types"));
-        if (rolelist != undefined && rolecolor != null && perms != null && perms.admin != undefined && positions != undefined && applicationTypes != undefined && specialRoles != undefined) break;
+        if (rolelist != undefined && rolecolor != null && perms != null && perms != undefined && perms.admin != undefined && positions != undefined && applicationTypes != undefined && specialRoles != undefined) break;
         await sleep(100);
     }
     roleids = Object.keys(rolelist);

@@ -77,7 +77,7 @@ async function LoadChallenge(noplaceholder = false) {
                 if(!roleok || parseInt(user_distance) < parseInt(challenge.required_distance))
                     badge_status += `&nbsp;&nbsp;<span class="badge text-bg-secondary">${mltr("not_qualified")}</span>`;
 
-                data.push([`<a class="clickable" onclick="ShowChallengeDetail('${challenge.challengeid}')">${challenge.title}</a>`, `${challenge_type}`, `${challenge.reward_points}`, `${progress}`, `${badge_status}`, extra]);
+                data.push([`<a class="clickable" onclick="ShowChallengeDetail('${challenge.challengeid}', reload = true)">${challenge.title}</a>`, `${challenge_type}`, `${challenge.reward_points}`, `${progress}`, `${badge_status}`, extra]);
             }
 
             PushTable("#table_challenge_list", data, total_pages, "LoadChallenge();");
@@ -88,7 +88,24 @@ async function LoadChallenge(noplaceholder = false) {
     });
 }
 
-function ShowChallengeDetail(challengeid){
+function ShowChallengeDetail(challengeid, reload = false){
+    if (Object.keys(allchallenges).indexOf(String(challengeid)) == -1 || (allchallenges[challengeid].reloaded == undefined || allchallenges[challengeid].reloaded < +new Date() - 60000) && reload) {
+        $.ajax({
+            url: api_host + "/" + dhabbr + "/challenge/" + challengeid,
+            type: "GET",
+            contentType: "application/json", processData: false,
+            headers: authorizationHeader,
+            success: function (data) {
+                allchallenges[challengeid] = data;
+                allchallenges[challengeid].reloaded = new Date();
+                ShowChallengeDetail(challengeid);
+            },
+            error: function (data) {
+                return AjaxError(data);
+            }
+        });
+        return;
+    }
     challenge = allchallenges[challengeid];
     function GenTableRow(key, val){
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
@@ -148,17 +165,17 @@ function ShowChallengeDetail(challengeid){
     completed_user_info = {};
     completed_user_point = {};
     for (var i = 0; i < challenge.completed.length; i++) {
-        if(completed_users_cnt[challenge.completed[i].userid] == undefined) completed_users_cnt[challenge.completed[i].userid] = 1;
-        else completed_users_cnt[challenge.completed[i].userid] += 1;
-        completed_user_info[challenge.completed[i].userid] = challenge.completed[i];
-        completed_user_point[challenge.completed[i].userid] = parseInt(challenge.completed[i].points);
+        if(completed_users_cnt[challenge.completed[i].user.userid] == undefined) completed_users_cnt[challenge.completed[i].user.userid] = 1;
+        else completed_users_cnt[challenge.completed[i].user.userid] += 1;
+        completed_user_info[challenge.completed[i].user.userid] = challenge.completed[i];
+        completed_user_point[challenge.completed[i].user.userid] = parseInt(challenge.completed[i].points);
     }
     d = sortDictWithValue(completed_user_point);
     for (var i = 0; i < d.length; i++) {
         extrainfo = "";
         if(challenge.challenge_type == 2) extrainfo = ` <span class="badge text-bg-secondary">${completed_user_info[d[i][0]].points} Points</span>`;
         else if(challenge.challenge_type == 3) extrainfo = ` <span class="badge text-bg-secondary">x${completed_users_cnt[d[i][0]]}</span>`;
-        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${d[i][0]})">${completed_user_info[d[i][0]].name}${extrainfo}</a>, `;
+        completed_users += `<a style="cursor:pointer" onclick="LoadUserProfile(${d[i][0]})">${completed_user_info[d[i][0]].user.name}${extrainfo}</a>, `;
     }
     completed_users = completed_users.substr(0, completed_users.length - 2);
 

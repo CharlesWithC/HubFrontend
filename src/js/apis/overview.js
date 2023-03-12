@@ -363,7 +363,10 @@ function LoadStats(basic = false, noplaceholder = false) {
                     name = user.name;
                     discordid = user.discordid;
                     avatar = user.avatar;
-                    last_seen = timeAgo(new Date(user.activity.last_seen * 1000));
+                    last_seen = "Never";
+                    if(user.activity != null){
+                        last_seen = timeAgo(new Date(user.activity.last_seen * 1000));
+                    }
                     if (avatar != null) {
                         if (avatar.startsWith("a_"))
                             src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";

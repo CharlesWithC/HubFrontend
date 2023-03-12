@@ -119,7 +119,6 @@ function GetDivisionInfo(logid) {
         },
         success: async function (data) {
             UnlockBtn("#button-delivery-detail-division");
-
             divisionopt = "";
             for (var i = 0; i < Object.keys(divisions).length; i++) {
                 divisionopt += `<option value="${divisions[Object.keys(divisions)[i]].id}" id="division-${divisions[Object.keys(divisions)[i]].id}">${divisions[Object.keys(divisions)[i]].name}</option>`;
@@ -127,7 +126,7 @@ function GetDivisionInfo(logid) {
             if (divisionopt == "") return $("#delivery-detail-division").html(`<span style="color:red">${mltr("no_division_found")}</span>`);
 
             info = ``;
-            if (data.status == "-1") {
+            if (data.status == null) {
                 info += `
                 <select class="form-select bg-dark text-white" id="select-division">
                     <option value="-1" selected>${mltr("select_division")}</option>

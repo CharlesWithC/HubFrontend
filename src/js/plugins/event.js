@@ -1,4 +1,44 @@
-allevents = {};
+var allevents = {};
+var eventlist = [];
+var eventCalendarOnload = false;
+
+function fetchAllEvents(page = 1) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: api_host + "/" + dhabbr + "/event/list?page_size=250&page=" + page,
+            type: "GET",
+            contentType: "application/json",
+            processData: false,
+            headers: authorizationHeader,
+            success: async function (data) {
+                d = data.list;
+
+                offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
+                for (var i = 0; i < d.length; i++) {
+                    eventlist.push({
+                        "title": d[i].title,
+                        "url": "/event/" + d[i].eventid,
+                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().slice(0, -1).substring(0, 10)
+                    });
+                }
+
+                if (page < data.total_pages) {
+                    fetchAllEvents(page + 1)
+                        .then(resolve)
+                        .catch(reject);
+                } else {
+                    resolve();
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error(
+                    "Error fetching events from page " + page + ": " + errorThrown
+                );
+                reject(errorThrown);
+            },
+        });
+    });
+}
 
 event_placerholder_row = `
 <tr>
@@ -13,33 +53,10 @@ event_placerholder_row = `
 
 async function LoadEvent(noplaceholder = false) {
     // TODO Recursively fetch all events 
-    if (eventsCalendar == undefined || force) {
-        $.ajax({
-            url: api_host + "/" + dhabbr + "/event/list",
-            type: "GET",
-            contentType: "application/json", processData: false,
-            headers: authorizationHeader,
-            success: async function (data) {
-                d = data.list;
-                var eventlist = [];
-                offset = (+new Date().getTimezoneOffset()) * 60 * 1000;
-                for (var i = 0; i < d.length; i++) {
-                    eventlist.push({
-                        "title": d[i].title,
-                        "url": "/event/" + d[i].eventid,
-                        "start": new Date(d[i].meetup_timestamp * 1000 - offset).toISOString().slice(0, -1).substring(0, 10)
-                    })
-                }
-
-                while (1) {
-                    try {
-                        FullCalendar;
-                        break;
-                    } catch {
-                        await sleep(100);
-                    }
-                }
-
+    if (!eventCalendarOnload) {
+        eventCalendarOnload = true;
+        fetchAllEvents()
+            .then(() => {
                 var eventsCalendarEl = document.getElementById('events-calendar');
                 var eventsCalendar = new FullCalendar.Calendar(eventsCalendarEl, {
                     initialView: 'dayGridMonth',
@@ -50,17 +67,16 @@ async function LoadEvent(noplaceholder = false) {
                     eventClick: function (info) {
                         info.jsEvent.preventDefault();
                         eventid = info.event.url.split("/")[2];
-                        ShowEventDetail(eventid);
+                        ShowEventDetail(eventid, reload = true);
                     },
                     events: eventlist,
                     height: 'auto'
                 });
                 eventsCalendar.render();
-            },
-            error: function (data) {
-                AjaxError(data);
-            }
-        })
+            })
+            .catch((error) => {
+                console.error("Error fetching events: " + error);
+            });
     }
 
     InitPaginate("#table_event_list", "LoadEvent();");
@@ -99,18 +115,18 @@ async function LoadEvent(noplaceholder = false) {
                 now = +new Date();
                 style = "";
                 if (now >= meetup_timestamp - 1000 * 60 * 60 * 6) style = "color:lightblue";
-                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) style = "color:lightgreen"
+                if (now >= meetup_timestamp && now <= departure_timestamp + 1000 * 60 * 30) style = "color:lightgreen";
                 if (now > departure_timestamp + 1000 * 60 * 30) style = "color:grey";
                 mt = getDateTime(meetup_timestamp);
                 dt = getDateTime(departure_timestamp);
-                votecnt = event.votes.length;
+                votecnt = event.votes;
                 pvt = "";
                 if (event.is_private) pvt = SVG_LOCKED;
 
                 extra = "";
                 if (userPerm.includes("event") || userPerm.includes("admin")) { extra = `<a id="button-event-edit-show-${event.eventid}" class="clickable" onclick="EditEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-pen-to-square"></i></span></a><a id="button-event-delete-show-${event.eventid}" class="clickable" onclick="DeleteEventShow(${event.eventid});"><span class="rect-20"><i class="fa-solid fa-trash" style="color:red"></i></span></a>`; }
 
-                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}')">${pvt} ${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",", ",<br>")}`, `${dt.replaceAll(",", ",<br>")}`, `${votecnt}`, extra]);
+                data.push([`<tr_style>${style}</tr_style>`, `<a class="clickable" onclick="ShowEventDetail('${event.eventid}', reload = true)">${pvt} ${event.title}</a>`, `${event.departure}`, `${event.destination}`, `${event.distance}`, `${mt.replaceAll(",", ",<br>")}`, `${dt.replaceAll(",", ",<br>")}`, `${votecnt}`, extra]);
             }
 
             PushTable("#table_event_list", data, total_pages, "LoadEvent();");
@@ -198,7 +214,7 @@ async function ShowEventDetail(eventid, reload = false) {
         info += GenTableRow(`${mltr("attendees")} ${attendeeop}`, attendee);
     }
 
-    info += "</tbody></table>"
+    info += "</tbody></table>";
     info += "<div class='w-100 mt-2' style='overflow:scroll'><p>" + marked.parse(event.description).replaceAll("<img", "<img style='width:100%' ") + "</p></div>";
     event_ics = ics();
     event_ics.addEvent(event.title, event.link + "\n" + event.description, event.departure + " - " + event.destination, new Date(event.meetup_timestamp * 1000), new Date(event.departure_timestamp * 1000));
@@ -218,7 +234,7 @@ function VoteEvent(eventid, resp) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            ShowEventDetail(eventid, reload = true)
+            ShowEventDetail(eventid, reload = true);
             toastNotification("success", "Success", resp, 5000, false);
         },
         error: function (data) {
@@ -431,5 +447,5 @@ function EditEventAttendee(eventid) {
             UnlockBtn("#button-event-edit-attendee");
             AjaxError(data);
         }
-    })
+    });
 }

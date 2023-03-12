@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.6.2**  
+Bug fixes on compatability  
+
 **v2.6.1**  
 Updated to be mostly compatible with API v2.1.0  
 
