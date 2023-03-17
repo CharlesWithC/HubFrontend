@@ -654,9 +654,9 @@ function LoadUserList(noplaceholder = false) {
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.uid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
                         </ul>
                     </div>`;
                 }

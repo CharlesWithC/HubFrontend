@@ -449,7 +449,7 @@ function UpdateStaffPositionsShow() {
 
 function UpdateStaffPositions() {
     LockBtn("#button-update-staff-positions", mltr("updating"));
-    positionstxt = $("#application-staff-positions").val();
+    positionstxt = $("#application-staff-positions").val().split(",");
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/positions",
@@ -463,7 +463,7 @@ function UpdateStaffPositions() {
         }),
         success: function (data) {
             UnlockBtn("#button-update-staff-positions");
-            positions = positionstxt.split(",");
+            positions = positionstxt;
             localStorage.setItem("positions", JSON.stringify(positions));
             toastNotification("success", "Success!", mltr("staff_positions_updated"), 5000, false);
         },

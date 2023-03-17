@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.6.3**  
+Bug fixes on compatability  
+
 **v2.6.2**  
 Bug fixes on compatability  
 

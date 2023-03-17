@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.6.2)");
+    console.log("Drivers Hub: Frontend (v2.6.3)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -2523,6 +2523,7 @@ function EditRolesShow(uid) {
                 }
             }
             for (var i = 0; i < roleids.length; i++) {
+                roleids[i] = parseInt(roleids[i]);
                 if (i > 0 && i % 2 == 0) roled += "<br>";
                 checked = "";
                 if (roles.includes(roleids[i])) checked = "checked";
@@ -2568,7 +2569,7 @@ function EditRoles(uid) {
         },
         data: JSON.stringify({
             "userid": uid,
-            "roles": roles.join(",")
+            "roles": roles
         }),
         success: function (data) {
             UnlockBtn("#button-edit-roles");
@@ -4013,9 +4014,9 @@ function LoadUserList(noplaceholder = false) {
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.discordid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
+                            <li><a class="dropdown-item clickable" style="color:red" onclick="${banbtntxt}Show('${user.uid}', '${convertQuotation1(user.name)}')">${bantxt}</a></li>
                         </ul>
                     </div>`;
                 }
@@ -5582,7 +5583,7 @@ function UpdateStaffPositionsShow() {
 
 function UpdateStaffPositions() {
     LockBtn("#button-update-staff-positions", mltr("updating"));
-    positionstxt = $("#application-staff-positions").val();
+    positionstxt = $("#application-staff-positions").val().split(",");
 
     $.ajax({
         url: api_host + "/" + dhabbr + "/application/positions",
@@ -5596,7 +5597,7 @@ function UpdateStaffPositions() {
         }),
         success: function (data) {
             UnlockBtn("#button-update-staff-positions");
-            positions = positionstxt.split(",");
+            positions = positionstxt;
             localStorage.setItem("positions", JSON.stringify(positions));
             toastNotification("success", "Success!", mltr("staff_positions_updated"), 5000, false);
         },
@@ -5883,7 +5884,7 @@ function EditChallengeShow(challengeid){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            d = data.challenge;
+            d = data;
             $("#challenge-edit").show();
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);

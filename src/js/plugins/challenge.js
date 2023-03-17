@@ -275,7 +275,7 @@ function EditChallengeShow(challengeid){
             "Authorization": "Bearer " + token
         },
         success: function (data) {
-            d = data.challenge;
+            d = data;
             $("#challenge-edit").show();
             $("#challenge-edit-id-span").html(challengeid);
             $("#button-challenge-edit").attr("onclick", `EditChallenge(${challengeid})`);

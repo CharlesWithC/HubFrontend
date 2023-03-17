@@ -232,6 +232,7 @@ function EditRolesShow(uid) {
                 }
             }
             for (var i = 0; i < roleids.length; i++) {
+                roleids[i] = parseInt(roleids[i]);
                 if (i > 0 && i % 2 == 0) roled += "<br>";
                 checked = "";
                 if (roles.includes(roleids[i])) checked = "checked";
@@ -277,7 +278,7 @@ function EditRoles(uid) {
         },
         data: JSON.stringify({
             "userid": uid,
-            "roles": roles.join(",")
+            "roles": roles
         }),
         success: function (data) {
             UnlockBtn("#button-edit-roles");
