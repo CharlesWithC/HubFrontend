@@ -186,8 +186,8 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         success: function (data) {
-            d = data.application;
-            discordid = data.creator.discordid;
+            let d = data.application;
+            let uid = data.creator.uid;
             keys = Object.keys(d);
             if (keys.length == 0)
                 return toastNotification("error", "Error", mltr("application_has_no_data"), 5000, false);
@@ -199,7 +199,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             }
 
             $.ajax({
-                url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
+                url: api_host + "/" + dhabbr + "/user/profile?discordid=" + String(uid),
                 type: "GET",
                 contentType: "application/json", processData: false,
                 headers: {
@@ -210,7 +210,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
                     d = data;
                     info += GenTableRow(mltr("name"), d.name);
                     info += GenTableRow(mltr("email"), d.email);
-                    info += GenTableRow(mltr("discord"), discordid);
+                    info += GenTableRow(mltr("discord"), uid);
                     info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
                     info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
                     bottom = "";

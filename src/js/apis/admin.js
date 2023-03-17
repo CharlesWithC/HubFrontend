@@ -28,7 +28,7 @@ function LoadAuditLog(noplaceholder = false) {
     LockBtn("#button-audit-log-staff-search", "...");
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/audit?page=" + page + "&operation=" + operation + "&staff_userid=" + staff_userid,
+        url: api_host + "/" + dhabbr + "/audit/list?page=" + page + "&query=" + operation + "&staff_userid=" + staff_userid,
         type: "GET",
         contentType: "application/json",
         headers: {
@@ -242,7 +242,7 @@ function UpdateWebConfig() {
     tipt = "";
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/tip",
+        url: api_host + "/" + dhabbr + "/auth/ticket",
         type: "POST",
         contentType: "application/json",
         headers: {

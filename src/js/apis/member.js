@@ -76,7 +76,7 @@ function LoadMemberList(noplaceholder = false) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&name=" + search_name + "&roles=" + filter_roles.join(","),
+        url: api_host + "/" + dhabbr + "/member/list?page=" + page + "&order_by=highest_role&order=desc&query=" + search_name + "&roles=" + filter_roles.join(","),
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -118,11 +118,11 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.uid}')">${mltr('refresh_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${discordid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${discordid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
-                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${discordid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
+                        <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" >${mltr('dismiss')}</a></li>
                     </ul>
@@ -135,7 +135,7 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.uid}')">${mltr('refresh_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
@@ -205,9 +205,9 @@ function FilterRoles() {
     }
 }
 
-function EditRolesShow(uid) {
+function EditRolesShow(userid) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?userid=" + uid,
+        url: api_host + "/" + dhabbr + "/user/profile?userid=" + userid,
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -260,7 +260,7 @@ function EditRolesShow(uid) {
     });
 }
 
-function EditRoles(uid) {
+function EditRoles(userid) {
     LockBtn("#button-edit-roles", mltr("updating"));
 
     d = $('input[name="edit-roles"]:checked');
@@ -270,14 +270,13 @@ function EditRoles(uid) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/roles",
+        url: api_host + "/" + dhabbr + "/member/" + userid + "/roles",
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            "userid": uid,
             "roles": roles
         }),
         success: function (data) {
@@ -291,7 +290,7 @@ function EditRoles(uid) {
     });
 }
 
-function EditPointsShow(uid, name) {
+function EditPointsShow(userid, name) {
     div = `
     <label class="form-label">${mltr('points')}</label>
     <div class="input-group mb-2">
@@ -302,11 +301,11 @@ function EditPointsShow(uid, name) {
         <span class="input-group-text" id="edit-points-myth-label">${mltr('myth')}</span>
         <input type="number" class="form-control bg-dark text-white" id="edit-points-myth" placeholder="0" aria-describedby="edit-points-myth-label">
     </div>`;
-    modalid = ShowModal(`${name} (${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${uid});">${mltr('update')}</button>`);
+    modalid = ShowModal(`${name} (${userid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-edit-points" type="button" class="btn btn-primary" onclick="EditPoints(${userid});">${mltr('update')}</button>`);
     InitModal("edit_points", modalid);
 }
 
-function EditPoints(uid) {
+function EditPoints(userid) {
     LockBtn("#button-edit-points");
 
     distance = $("#edit-points-distance").val();
@@ -315,14 +314,13 @@ function EditPoints(uid) {
     if (!isNumber(mythpoint)) mythpoint = 0;
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/point",
+        url: api_host + "/" + dhabbr + "/member/ " + userid + "/points",
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            "userid": uid,
             "distance": distance,
             "mythpoint": mythpoint,
         }),
@@ -347,7 +345,7 @@ function DismissMember(userid) {
     LockBtn("#button-dismiss-member", mltr("dismissing"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member/dismiss/" + userid,
+        url: api_host + "/" + dhabbr + "/member/" + userid + "/dismiss",
         type: "POST",
         contentType: "application/json", processData: false,
         headers: {
@@ -446,9 +444,9 @@ function getActitivyUrl(name) {
     else return "/";
 }
 
-function UpdateProfile(discordid) {
+function UpdateProfile(uid) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/profile?discordid=" + discordid,
+        url: api_host + "/" + dhabbr + "/user/profile?uid=" + uid,
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
@@ -523,7 +521,7 @@ function LoadUserProfile(userid) {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?userid=" + String(userid),
+        url: api_host + "/" + dhabbr + "/user/profile?userid=" + String(userid),
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -582,7 +580,7 @@ function LoadUserProfile(userid) {
                 await sleep(100);
             }
             if (userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")) {
-                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateProfile('${d.discordid}');"><i class="fa-solid fa-rotate"></i></button>`;
+                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateProfile('${d.uid}');"><i class="fa-solid fa-rotate"></i></button>`;
             }
 
             profile_info = "";

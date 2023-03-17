@@ -1171,7 +1171,7 @@ function ValidateToken() {
 
     // Validate token and get user information
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user",
+        url: api_host + "/" + dhabbr + "/user/profile",
         type: "GET",
         contentType: "application/json",
         headers: {
@@ -1188,6 +1188,7 @@ function ValidateToken() {
             localStorage.setItem("avatar", user.avatar);
             localStorage.setItem("discordid", user.discordid);
             localStorage.setItem("userid", user.userid);
+            localStorage.setItem("uid", user.uid);
 
             userid = user.userid;
 

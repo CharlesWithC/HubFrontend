@@ -174,8 +174,8 @@ function DisablePassword(firstop = false) {
         }
 
         $.ajax({
-            url: api_host + "/" + dhabbr + "/user/password",
-            type: "DELETE",
+            url: api_host + "/" + dhabbr + "/user/password/disable",
+            type: "POST",
             contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
@@ -204,8 +204,8 @@ function DisablePassword(firstop = false) {
         });
     } else {
         $.ajax({
-            url: api_host + "/" + dhabbr + "/user/password",
-            type: "DELETE",
+            url: api_host + "/" + dhabbr + "/user/password/disable",
+            type: "POST",
             contentType: "application/json", processData: false,
             headers: {
                 "Authorization": "Bearer " + localStorage.getItem("token")
@@ -238,8 +238,8 @@ function DisableMFA() {
     }
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/mfa",
-        type: "DELETE",
+        url: api_host + "/" + dhabbr + "/user/mfa/disable",
+        type: "POST",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -381,7 +381,7 @@ function LoadNotificationSettings() {
 
 function EnableNotification(item, name) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/notification/" + item + "/enable",
+        url: api_host + "/" + dhabbr + "/user/notification/settings/" + item + "/enable",
         type: "POST",
         contentType: "application/json", processData: false,
         headers: {
@@ -397,7 +397,7 @@ function EnableNotification(item, name) {
 
 function DisableNotification(item, name) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/notification/" + item + "/disable",
+        url: api_host + "/" + dhabbr + "/user/notification/settings/" + item + "/disable",
         type: "POST",
         contentType: "application/json", processData: false,
         headers: {
@@ -605,7 +605,7 @@ function LoadUserList(noplaceholder = false) {
     LockBtn("#button-user-list-search", "...");
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/list?page=" + page + "&page_size=15&name=" + name,
+        url: api_host + "/" + dhabbr + "/user/list?page=" + page + "&page_size=15&query=" + name,
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -633,11 +633,11 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.uid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.discordid}')">${mltr('refresh_profile')}</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.uid}')">${mltr('refresh_profile')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.uid}', '${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DeleteConnectionsShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('delete_connections')}</a></li>
@@ -652,7 +652,7 @@ function LoadUserList(noplaceholder = false) {
                             Manage
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.discordid}')">${mltr("show_details")}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.uid}')">${mltr("show_details")}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -673,12 +673,12 @@ function LoadUserList(noplaceholder = false) {
     });
 }
 
-function ShowUserDetail(discordid) {
+function ShowUserDetail(uid) {
     function GenTableRow(key, val) {
         return `<tr><td><b>${key}</b></td><td>${val}</td></tr>\n`;
     }
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?discordid=" + String(discordid),
+        url: api_host + "/" + dhabbr + "/user/profile?uid=" + String(uid),
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -691,11 +691,11 @@ function ShowUserDetail(discordid) {
             info += GenTableRow("UID", d.uid);
             info += GenTableRow(mltr("name"), d.name);
             info += GenTableRow(mltr("email"), d.email);
-            info += GenTableRow(mltr("discord"), discordid);
+            info += GenTableRow(mltr("discord"), d.discordid);
             info += GenTableRow(mltr("truckersmp"), `<a href='https://truckersmp.com/user/${d.truckersmpid}'>${d.truckersmpid}</a>`);
             info += GenTableRow(mltr("steam"), `<a href='https://steamcommunity.com/profiles/${d.steamid}'>${d.steamid}</a>`);
-            if (Object.keys(bannedUserList).indexOf(discordid) != -1) {
-                info += GenTableRow(mltr("ban_reason"), bannedUserList[discordid]);
+            if (Object.keys(bannedUserList).indexOf(uid) != -1) {
+                info += GenTableRow(mltr("ban_reason"), bannedUserList[uid]);
             }
 
             modalid = ShowModal(d.name, `<table>${info}</table>`);
@@ -708,22 +708,19 @@ function ShowUserDetail(discordid) {
 }
 
 function AcceptAsMemberShow(uid, name) {
-    modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (>${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${uid}');">${mltr('accept')}</button>`);
+    modalid = ShowModal(mltr('accept_as_member'), `<p>${mltr('accept_as_member_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${uid})</i></p><br><p>${mltr('accept_as_member_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-accept-as-member" type="button" class="btn btn-primary" onclick="AcceptAsMember('${uid}');">${mltr('accept')}</button>`);
     InitModal("accept_as_member", modalid);
 }
 
 function AcceptAsMember(uid) {
     LockBtn("#button-accept-as-member", mltr("accepting"));
     $.ajax({
-        url: api_host + "/" + dhabbr + "/member",
-        type: "PUT",
+        url: api_host + "/" + dhabbr + "/user/" + uid + "/accept",
+        type: "POST",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: JSON.stringify({
-            uid: uid
-        }),
         success: function (data) {
             UnlockBtn("#button-accept-as-member");
             LoadUserList(noplaceholder = true);
@@ -737,29 +734,28 @@ function AcceptAsMember(uid) {
     });
 }
 
-function UpdateDiscordShow(discordid, name) {
+function UpdateDiscordShow(uid, discordid, name) {
     modalid = ShowModal(mltr('update_discord_id'), `<p>${mltr('update_discord_id_note_1')}</p><p><i>${name} (${mltr('discord_id')}: ${discordid})</i></p><br><label for="new-discord-id" class="form-label">${mltr('new_discord_id')}</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="new-discord-id" placeholder="">
-    </div><br><p>${mltr('update_discord_id_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${discordid}');">${mltr('update')}</button>`);
+    </div><br><p>${mltr('update_discord_id_note_2')}</p>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-update-discord" type="button" class="btn btn-primary" onclick="UpdateDiscord('${uid}');">${mltr('update')}</button>`);
     InitModal("update_discord", modalid);
 }
 
-function UpdateDiscord(old_discord_id) {
+function UpdateDiscord(uid) {
     LockBtn("#button-update-discord", mltr("updating"));
 
     new_discord_id = $("#new-discord-id").val();
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/discord",
+        url: api_host + "/" + dhabbr + "/user/" + uid + "/discord",
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
         data: JSON.stringify({
-            old_discord_id: old_discord_id,
-            new_discord_id: new_discord_id
+            discordid: new_discord_id
         }),
         success: function (data) {
             UnlockBtn("#button-update-discord");
@@ -776,7 +772,7 @@ function UpdateDiscord(old_discord_id) {
 
 function DisableUserMFAShow(uid, name) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?uid=" + uid,
+        url: api_host + "/" + dhabbr + "/user/profile?uid=" + uid,
         type: "GET",
         contentType: "application/json", processData: false,
         headers: {
@@ -800,8 +796,8 @@ function StaffDisableMFA(uid) {
     LockBtn("#button-staff-disable-mfa", mltr("disabling"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/mfa?uid=" + uid,
-        type: "DELETE",
+        url: api_host + "/" + dhabbr + "/user/mfa/disable?uid=" + uid,
+        type: "POST",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
@@ -827,7 +823,7 @@ function DeleteConnections(uid) {
     LockBtn("#button-delete-connections", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/connections?uid=" + uid,
+        url: api_host + "/" + dhabbr + "/user/" + uid + "/connections",
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
@@ -867,7 +863,7 @@ function BanUser(uid) {
     reason = $("#ban-reason").val();
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/ban",
+        url: api_host + "/" + dhabbr + "/user/" + uid + "/ban",
         type: "PUT",
         contentType: "application/json", processData: false,
         headers: {
@@ -900,15 +896,12 @@ function UnbanUser(uid) {
     LockBtn("#button-unban-user", mltr("unbanning"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/ban",
+        url: api_host + "/" + dhabbr + "/user/" + uid + "/ban",
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: JSON.stringify({
-            "uid": uid,
-        }),
         success: function (data) {
             UnlockBtn("#button-unban-user");
             LoadUserList(noplaceholder = true);
@@ -931,7 +924,7 @@ function DeleteUser(uid) {
     LockBtn("#button-delete-user", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user?uid=" + uid,
+        url: api_host + "/" + dhabbr + "/user/" + uid,
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
@@ -951,15 +944,16 @@ function DeleteUser(uid) {
 }
 
 function DeleteAccountShow() {
-    modalid = ShowModal(mltr('delete_account'), mltr('delete_account_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount();">${mltr('delete')}</button>`);
+    uid = localStorage.getItem("uid");
+    modalid = ShowModal(mltr('delete_account'), mltr('delete_account_note'), `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-delete-account" type="button" class="btn btn-danger" onclick="DeleteAccount(${uid});">${mltr('delete')}</button>`);
     InitModal("delete_account", modalid);
 }
 
-function DeleteAccount(discordid) {
+function DeleteAccount(uid) {
     LockBtn("#button-delete-account", mltr("deleting"));
 
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user",
+        url: api_host + "/" + dhabbr + "/user/" + uid,
         type: "DELETE",
         contentType: "application/json", processData: false,
         headers: {
@@ -1067,15 +1061,12 @@ function LoadNotificationList(noplaceholder = false) {
 function NotificationsMarkAllAsRead() {
     if ($("#unread-notification").html() == "") return;
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/notification/status?notificationids=all",
+        url: api_host + "/" + dhabbr + "/user/notification/all/status/1",
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
             "Authorization": "Bearer " + localStorage.getItem("token")
         },
-        data: JSON.stringify({
-            "read": "true"
-        }),
         success: function (data) {
             $("#notification-pop").hide();
             $("#unread-notification").html("");
