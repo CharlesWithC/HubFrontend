@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.6.6**  
+Added update custom profile
+
 **v2.6.5**  
 Updated to be compatible with API v2.1.5  
 

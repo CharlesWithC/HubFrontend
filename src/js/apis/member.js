@@ -111,7 +111,8 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr("roles")}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr("points")}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.uid}')">${mltr('refresh_profile')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="SyncDiscordProfile('${user.uid}')">${mltr('sync_discord_profile')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateCustomProfileShow('${user.uid}', '${convertQuotation1(user.name)}', '${user.userid}', '${convertQuotation1(user.avatar)}')">${mltr('update_custom_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
                         <li><a class="dropdown-item clickable" style="color:red" onclick="UpdateDiscordShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('update_discord_id')}</a></li>
@@ -128,7 +129,8 @@ function LoadMemberList(noplaceholder = false) {
                     <ul class="dropdown-menu dropdown-menu-dark">
                         <li><a class="dropdown-item clickable" onclick="EditRolesShow(${userid})">${mltr('roles')}</a></li>
                         <li><a class="dropdown-item clickable" onclick="EditPointsShow(${userid}, '${convertQuotation1(name)}')">${mltr('points')}</a></li>
-                        <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.uid}')">${mltr('refresh_profile')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="SyncDiscordProfile('${user.uid}')">${mltr('sync_discord_profile')}</a></li>
+                        <li><a class="dropdown-item clickable" onclick="UpdateCustomProfileShow('${user.uid}', '${convertQuotation1(user.name)}', '${user.userid}', '${convertQuotation1(user.avatar)}')">${mltr('update_custom_profile')}</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item clickable" onclick="DismissMemberShow(${userid}, '${convertQuotation1(name)}')" style="color:red">${mltr('dismiss')}</a></li>
                     </ul>
@@ -437,9 +439,9 @@ function getActitivyUrl(name) {
     else return "/";
 }
 
-function UpdateProfile(uid) {
+function SyncDiscordProfile(uid) {
     $.ajax({
-        url: api_host + "/" + dhabbr + "/user/profile?uid=" + uid,
+        url: api_host + "/" + dhabbr + "/user/profile?sync_to_discord=true&uid=" + uid,
         type: "PATCH",
         contentType: "application/json", processData: false,
         headers: {
@@ -573,7 +575,7 @@ function LoadUserProfile(userid) {
                 await sleep(100);
             }
             if (userPerm.includes("hrm") || userPerm.includes("admin") || userPerm.includes("patch_username") || d.userid == localStorage.getItem("userid")) {
-                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateProfile('${d.uid}');"><i class="fa-solid fa-rotate"></i></button>`;
+                extra = `<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="SyncDiscordProfile('${d.uid}');"><i class="fa-solid fa-rotate"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-primary" style="position:relative;top:-3px;" onclick="UpdateCustomProfileShow('${d.uid}', '${convertQuotation1(d.name)}', '${d.userid}', '${convertQuotation1(d.avatar)}');"><i class="fa-solid fa-pen"></i></button>`;
             }
 
             profile_info = "";

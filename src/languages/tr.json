@@ -421,7 +421,7 @@
     "discord_id": "Discord Kimliği (ID)",
     "accept_as_member_note_2": "İlgili kullanıcı otomatik olarak Navio / TrackSim şirketine eklenecek (Driver rolü verildiğinde) ve Discord üzerinde Sürücü Merkezi botu aracılığıyla kabul edildiğine dair bir Direkt Mesaj (DM) alacak.",
     "accept": "Kabul Et",
-    "refresh_profile": "Refresh Profile",
+    "sync_discord_profile": "Sync to Discord Profile",
     "update_discord_id": "Discord Kimliğini (ID) Güncelle",
     "update_discord_id_note_1": "Aşağıda belirtilen kullanıcı için Discord Kimliğini (ID) güncelliyorsunuz:",
     "new_discord_id": "Yeni Discord Kimliği (ID)",

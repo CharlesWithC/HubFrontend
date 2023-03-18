@@ -634,9 +634,10 @@ function LoadUserList(noplaceholder = false) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.uid}')">${mltr("show_details")}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="SyncDiscordProfile('${user.uid}')">${mltr('sync_discord_profile')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateCustomProfileShow('${user.uid}', '${convertQuotation1(user.name)}', '${user.userid}', '${convertQuotation1(user.avatar)}')">${mltr('update_custom_profile')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
-                            <li><a class="dropdown-item clickable" onclick="UpdateProfile('${user.uid}')">${mltr('refresh_profile')}</a></li>
                             <li><a class="dropdown-item clickable" onclick="UpdateDiscordShow('${user.uid}', '${user.discordid}', '${convertQuotation1(user.name)}')">${mltr('update_discord_id')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" style="color:red" onclick="DisableUserMFAShow('${user.uid}', '${convertQuotation1(name)}')">${mltr('disable_mfa')}</a></li>
@@ -653,6 +654,8 @@ function LoadUserList(noplaceholder = false) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item clickable" onclick="ShowUserDetail('${user.uid}')">${mltr("show_details")}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="SyncDiscordProfile('${user.uid}')">${mltr('sync_discord_profile')}</a></li>
+                            <li><a class="dropdown-item clickable" onclick="UpdateCustomProfileShow('${user.uid}', '${convertQuotation1(user.name)}', '${user.userid}', '${convertQuotation1(user.avatar)}')">${mltr('update_custom_profile')}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item clickable" onclick="AcceptAsMemberShow('${user.uid}', '${convertQuotation1(user.name)}')">${mltr('accept_as_member')}</a></li>
                             <li><hr class="dropdown-divider"></li>
@@ -1185,4 +1188,50 @@ function OAuthAuthorize(firstop = false) {
             }
         });
     }
+}
+
+function UpdateCustomProfileShow(uid, name, userid, avatar) {
+    div = `
+    <label class="form-label">${mltr('update_custom_profile')}</label>
+    <div class="input-group mb-2">
+        <span class="input-group-text" id="update-profile-name-label">${mltr('name')}</span>
+        <input type="text" class="form-control bg-dark text-white" id="update-profile-name" aria-describedby="update-profile-name-label" value="${convertQuotation2(name)}">
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="update-profile-avatar-label">${mltr('avatar_url')}</span>
+        <input type="text" class="form-control bg-dark text-white" id="update-profile-avatar"aria-describedby="update-profile-avatar-label" value="${convertQuotation2(avatar)}">
+    </div>`;
+    modalid = ShowModal(`${name} (UID: ${uid})`, div, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button id="button-update-custom-profile" type="button" class="btn btn-primary" onclick="UpdateCustomProfile(${uid}, ${userid});">${mltr('update')}</button>`);
+    InitModal("update_custom_profile", modalid);
+}
+
+function UpdateCustomProfile(uid, userid) {
+    LockBtn("#button-update-custom-profile");
+
+    let name = $("#update-profile-name").val();
+    let avatar = $("#update-profile-avatar").val();
+
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/profile?uid=" + uid,
+        type: "PATCH",
+        contentType: "application/json", processData: false,
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: JSON.stringify({
+            "name": name,
+            "avatar": avatar,
+        }),
+        success: function (data) {
+            UnlockBtn("#button-update-custom-profile");
+            toastNotification("success", "Success!", mltr("custom_profile_updated"), 5000, false);
+            if(curtab == "#manage-user-tab") LoadUserList(true);
+            else if(curtab == "#member-tab") LoadMemberList(true);
+            else if(curtab == "#user-delivery-tab") LoadUserProfile(userid);
+        },
+        error: function (data) {
+            UnlockBtn("#button-update-custom-profile");
+            AjaxError(data);
+        }
+    });
 }

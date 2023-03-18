@@ -422,7 +422,7 @@
     "discord_id": "Discord ID",
     "accept_as_member_note_2": "They will be automatically added to Navio / TrackSim company and receive a Direct Message in Discord from Drivers Hub Bot regarding that they have been accepted.",
     "accept": "Accept",
-    "refresh_profile": "Refresh Profile",
+    "sync_discord_profile": "Sync to Discord Profile",
     "update_discord_id": "Update Discord ID",
     "update_discord_id_note_1": "You are updating Discord ID for:",
     "new_discord_id": "New Discord ID",
@@ -590,5 +590,8 @@
     "confirm": "Confirm",
     "banned": "Banned",
     "filter_by_roles": "Filter by Roles",
-    "activate_tracksim": "Activate TrackSim"
+    "activate_tracksim": "Activate TrackSim",
+    "update_custom_profile": "Update Custom Profile",
+    "avatar_url": "Avatar URL",
+    "custom_profile_updated": "Custom Profile Updated!"
 }

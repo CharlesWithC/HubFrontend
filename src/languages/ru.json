@@ -421,7 +421,7 @@
     "discord_id": "ID Discord",
     "accept_as_member_note_2": "Они будут автоматически добавлены в компанию Navio / TrackSim и получат прямое сообщение в Discord от Drivers Hub Bot о том, что они были приняты.",
     "accept": "Принять",
-    "refresh_profile": "Refresh Profile",
+    "sync_discord_profile": "Sync to Discord Profile",
     "update_discord_id": "Обновлен ID Discord",
     "update_discord_id_note_1": "Вы обновляете Discord ID для:",
     "new_discord_id": "Новый ID Discord",
