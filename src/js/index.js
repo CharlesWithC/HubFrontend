@@ -1229,8 +1229,9 @@ function ValidateToken() {
                 $("#button-settings-mfa-enable").show();
             }
 
-            $("#settings-user-truckersmpid").val(user.truckersmpid);
-            $("#settings-user-steamid").val(user.steamid);
+            if(user.truckersmpid != null) $("#settings-user-truckersmpid").val(user.truckersmpid);
+            if(user.steamid != null) $("#settings-user-steamid").val(user.steamid);
+            if(user.discordid != null) $("#settings-user-discordid").val(user.discordid);
 
             UpdateRolesOnDisplay();
             LoadNotification();
@@ -1389,6 +1390,8 @@ async function PathDetect() {
         window.location.href = "https://cdn.chub.page/assets/" + dhabbr + "/" + filename;
     } else if (p.startsWith("/steamcallback")) {
         SteamValidate();
+    } else if (p.startsWith("/connectDiscord")) {
+        DiscordValidate();
     } else if (p.startsWith("/auth")) {
         AuthValidate();
     } else if (p.startsWith("/oauth")) {

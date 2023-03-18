@@ -130,7 +130,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/0d0b8e2a916829a2.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/84d28ae49ded3fe0.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -547,7 +547,7 @@
                         <p class="mb-0"><?php echo mltr("alternative_sign_in"); ?></p>
                         <button id="signin-discord" type="button" class="btn btn-secondary w-100 m-1" onclick="DiscordSignIn();"><span class="rect-20"><i class="fa-brands fa-discord"></i></span> <?php echo mltr("discord"); ?></button>
                         <button id="signin-steam" type="button" class="btn btn-secondary w-100 m-1" onclick="SteamSignIn();"><span class="rect-20"><i class="fa-brands fa-steam"></i></span> <?php echo mltr("steam"); ?></button>
-                        <p style="font-size:12px"><?php echo mltr("register_note"); ?></p>
+                        <p style="font-size:12px"><s><?php echo mltr("register_note"); ?></s></p>
                     </div>
                 </div>
             </div>
@@ -2438,19 +2438,26 @@
                         <hr>
                         <label class="form-label" style="width:100%"><?php echo mltr("account_connections"); ?></label>
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <label for="settings-user-truckersmpid" class="form-label"><?php echo mltr("truckersmp"); ?></label>
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control bg-dark text-white" id="settings-user-truckersmpid" placeholder="/">
                                 </div>
                                 <button id="button-settings-update-truckersmpid" type="button" class="btn btn-primary" style="float:right" onclick="UpdateTruckersMPID();"><?php echo mltr("update"); ?></button>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
                                 <label for="settings-user-steamid" class="form-label"><?php echo mltr("steam"); ?></label>
                                 <div class="input-group mb-3">
                                     <input type="text" class="form-control bg-dark disabled" id="settings-user-steamid" placeholder="/" disabled style="color:#aaa">
                                 </div>
                                 <button id="button-settings-update-steamid" type="button" class="btn btn-primary" style="float:right" onclick="UpdateSteamID();"><?php echo mltr("update"); ?></button>
+                            </div>
+                            <div class="col-4">
+                                <label for="settings-user-discordid" class="form-label"><?php echo mltr("discord"); ?></label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control bg-dark disabled" id="settings-user-discordid" placeholder="/" disabled style="color:#aaa">
+                                </div>
+                                <button id="button-settings-update-discordid" type="button" class="btn btn-primary" style="float:right" onclick="UpdateDiscordID();"><?php echo mltr("update"); ?></button>
                             </div>
                         </div>
                         <hr>

@@ -77,14 +77,14 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.6.6)");
+    console.log("Drivers Hub: Frontend (v2.7.0)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?v2.6.6",
+        url: "/languages/en.json?v2.7.0",
         type: "GET",
         contentType: "application/json", processData: false,
         success: function (data) {
@@ -7124,6 +7124,35 @@ function SteamValidate() {
     });
 }
 
+function DiscordValidate() {
+    $("#auth-message-title").html("Account Connection");
+    $("#auth-message-content").html("Validating Discord login ...");
+    ShowTab("#auth-message-tab");
+    let code = getUrlParameter("code");
+    $.ajax({
+        url: api_host + "/" + dhabbr + "/user/discord",
+        type: "PATCH",
+        contentType: "application/json", processData: false,
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        data: JSON.stringify({
+            "code": code
+        }),
+        success: function (data) {
+            $("#auth-message-content").html("Discord Account Updated");
+            toastNotification("success", "Success", "Discord Account Updated", 5000);
+            setTimeout(function () {
+                ShowTab("#settings-tab");
+            }, 1000);
+        },
+        error: function (data) {
+            $("#auth-message-content").html(data.error);
+            AjaxError(data);
+        }
+    });
+}
+
 function AuthValidate() {
     $("#auth-message-title").html("OAuth");
     $("#auth-message-content").html("Validating login ...");
@@ -7233,6 +7262,10 @@ function UpdateTruckersMPID() {
 
 function UpdateSteamID() {
     window.location.href = api_host + "/" + dhabbr + "/auth/steam/redirect?connect_account=true";
+}
+
+function UpdateDiscordID() {
+    window.location.href = api_host + "/" + dhabbr + "/auth/discord/redirect?connect_account=true";
 }
 
 var CaptchaCallback = function (hcaptcha_response) {
@@ -8570,8 +8603,9 @@ function ValidateToken() {
                 $("#button-settings-mfa-enable").show();
             }
 
-            $("#settings-user-truckersmpid").val(user.truckersmpid);
-            $("#settings-user-steamid").val(user.steamid);
+            if(user.truckersmpid != null) $("#settings-user-truckersmpid").val(user.truckersmpid);
+            if(user.steamid != null) $("#settings-user-steamid").val(user.steamid);
+            if(user.discordid != null) $("#settings-user-discordid").val(user.discordid);
 
             UpdateRolesOnDisplay();
             LoadNotification();
@@ -8730,6 +8764,8 @@ async function PathDetect() {
         window.location.href = "https://cdn.chub.page/assets/" + dhabbr + "/" + filename;
     } else if (p.startsWith("/steamcallback")) {
         SteamValidate();
+    } else if (p.startsWith("/connectDiscord")) {
+        DiscordValidate();
     } else if (p.startsWith("/auth")) {
         AuthValidate();
     } else if (p.startsWith("/oauth")) {

@@ -1,5 +1,9 @@
 # Changelog
 
+**v2.7.0**  
+1.Added Steam Sign Up  
+2.Added Connect Discord  
+
 **v2.6.6**  
 Added update custom profile
 
