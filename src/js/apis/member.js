@@ -101,14 +101,7 @@ function LoadMemberList(noplaceholder = false) {
                 avatar = user.avatar;
                 cur_highestrole = rolelist[user.roles[0]];
                 if (cur_highestrole == undefined) cur_highestrole = "/";
-                if (avatar != null) {
-                    if (avatar.startsWith("a_"))
-                        src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                    else
-                        src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-                } else {
-                    avatar = logob64;
-                }
+                if (avatar == null) avatar = logob64;
                 userop = ``;
                 if (userPerm.includes("hrm") || userPerm.includes("admin")) {
                     userop = `<div class="dropdown">
@@ -150,7 +143,7 @@ function LoadMemberList(noplaceholder = false) {
                     </ul>
                 </div>`;
                 }
-                data.push([`<img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">`, `<a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
+                data.push([`<img src='${avatar}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);">`, `<a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a>`, `${cur_highestrole}`, userop]);
             }
 
             PushTable("#table_member_list", data, total_pages, "LoadMemberList();");

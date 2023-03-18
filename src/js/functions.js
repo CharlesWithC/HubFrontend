@@ -77,7 +77,7 @@ $(document).ready(function () {
 /_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/ 
                                                          `
     console.log(drivershub);
-    console.log("Drivers Hub: Frontend (v2.6.4)");
+    console.log("Drivers Hub: Frontend (v2.6.5)");
     console.log('An official client side solution of "Drivers Hub: Backend" (© CharlesWithC)');
     console.log('CHub Website: https://drivershub.charlws.com/');
     console.log('Discord: https://discord.gg/KRFsymnVKm');
@@ -219,12 +219,8 @@ function GetSpecialColorStyle(discordid) {
 
 function GetAvatarSrc(discordid, avatarid) {
     if (avatarid != null) {
-        if (avatarid.startsWith("a_"))
-            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".gif";
-        else
-            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatarid + ".png";
+        return avatarid;
     } else src = logob64;
-    return src;
 }
 
 function GetAvatarImg(src, userid, name) {

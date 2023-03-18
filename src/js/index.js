@@ -1122,10 +1122,7 @@ function PreValidateToken() {
     $("#sidebar-username").html(name);
     $("#sidebar-userid").html("#" + userid);
     $("#sidebar-banner").attr("src", api_host + "/" + dhabbr + "/member/banner?userid=" + userid);
-    if (avatar.startsWith("a_"))
-        $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
-    else
-        $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
+    $("#sidebar-avatar").attr("src", avatar);
     $("#sidebar-role").html(highestrole);
 
     ShowStaffTabs();
@@ -1223,10 +1220,7 @@ function ValidateToken() {
             $("#sidebar-bio").html(user.bio);
             simplemde["#settings-bio"].value(user.bio);
             $("#sidebar-banner").attr("src", api_host + "/" + dhabbr + "/member/banner?userid=" + userid);
-            if (avatar.startsWith("a_"))
-                $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif");
-            else
-                $("#sidebar-avatar").attr("src", "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png");
+            $("#sidebar-avatar").attr("src", avatar);
 
             mfaenabled = user.mfa;
             if (mfaenabled) {

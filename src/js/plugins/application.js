@@ -199,7 +199,7 @@ function GetApplicationDetail(applicationid, staffmode = false) {
             }
 
             $.ajax({
-                url: api_host + "/" + dhabbr + "/user/profile?discordid=" + String(uid),
+                url: api_host + "/" + dhabbr + "/user/profile?uid=" + String(uid),
                 type: "GET",
                 contentType: "application/json", processData: false,
                 headers: {

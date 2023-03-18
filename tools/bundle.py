@@ -51,23 +51,23 @@ dfs("src/js")
 hsh = hashlib.sha256(bundle.encode()).hexdigest()[:16]
 
 if addprefix:
-    hsh = hsh[:-3] + ".nighty"
+    hsh = hsh[:-3] + ".nightly"
 
 if not genonly:
-    # f = open(f"src/nighty.php","r").read()
+    # f = open(f"src/nightly.php","r").read()
     # t = f.split("\n")
     # for tt in t:
     #     if f'id="{eid}"' in tt:
     #         cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
     #         f = f.replace(cur, hsh + ".js")
-    # open(f"src/nighty.php","w").write(f)
-    f = open(f"src/nighty.php","r",encoding="utf-8").read()
+    # open(f"src/nightly.php","w").write(f)
+    f = open(f"src/nightly.php","r",encoding="utf-8").read()
     t = f.split("\n")
     for tt in t:
         if f'id="{eid}"' in tt:
             cur = tt.split("bundles/")[1].split(".js")[0] + ".js"
             f = f.replace(cur, hsh + ".js")
-    open(f"src/nighty.php","w",encoding="utf-8").write(f)
+    open(f"src/nightly.php","w",encoding="utf-8").write(f)
     try:
         os.remove("src/js/bundles/" + cur)
     except:
@@ -76,4 +76,4 @@ if not genonly:
 open(f"src/js/bundles/{hsh}.js","w",encoding="utf-8").write(bundle)
 
 if addprefix and not prevent_recurse:
-    os.system("python ./tools/nighty_release.py")
+    os.system("python ./tools/nightly_release.py")

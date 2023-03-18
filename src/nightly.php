@@ -130,7 +130,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/37f08f19aa54b711.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/a4e0272e393489fa.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -2546,7 +2546,7 @@
         <section id="footer">
             <hr style="border:1px solid #777;margin-bottom:8px">
             <div style="width:49.5%;text-align:left;display:inline-block">
-                &copy 2023 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;(Nighty Release)
+                &copy 2023 <a href="https://charlws.com" target="_blank">CharlesWithC</a>&nbsp;&nbsp;(Nightly Release)
             </div>
             <div style="width:49.5%;text-align:right;display:inline-block">
                 <a href="https://drivershub.charlws.com/" target="_blank">CHub</a>

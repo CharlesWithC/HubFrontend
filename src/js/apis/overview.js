@@ -295,17 +295,10 @@ function LoadStats(basic = false, noplaceholder = false) {
                     discordid = user.user.discordid;
                     avatar = user.user.avatar;
                     totalpnt = TSeparator(parseInt(user.points.total));
-                    if (avatar != null) {
-                        if (avatar.startsWith("a_"))
-                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                        else
-                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-                    } else {
-                        avatar = logob64;
-                    }
+                    if (avatar == null) avatar = logob64;
                     $("#table_mini_leaderboard_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
+                <img src='${avatar}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
             <td><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${totalpnt}</td>
             </tr>`);
@@ -330,17 +323,10 @@ function LoadStats(basic = false, noplaceholder = false) {
                     avatar = user.avatar;
                     dt = new Date(user.join_timestamp * 1000);
                     joindt = MONTH_ABBR[dt.getMonth()] + " " + OrdinalSuffix(dt.getDate());
-                    if (avatar != null) {
-                        if (avatar.startsWith("a_"))
-                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                        else
-                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-                    } else {
-                        avatar = logob64;
-                    }
+                    if (avatar == null) avatar = logob64;
                     $("#table_new_driver_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
+                <img src='${avatar}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
                 <td><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${joindt}</td>
             </tr>`);
@@ -367,17 +353,10 @@ function LoadStats(basic = false, noplaceholder = false) {
                     if(user.activity != null){
                         last_seen = timeAgo(new Date(user.activity.last_seen * 1000));
                     }
-                    if (avatar != null) {
-                        if (avatar.startsWith("a_"))
-                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".gif";
-                        else
-                            src = "https://cdn.discordapp.com/avatars/" + discordid + "/" + avatar + ".png";
-                    } else {
-                        avatar = logob64;
-                    }
+                    if (avatar == null) avatar = logob64;
                     $("#table_recent_visitors_data").append(`<tr>
               <td>
-                <img src='${src}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
+                <img src='${avatar}' width="40px" height="40px" style="display:inline;border-radius:100%" onerror="if($(this).attr('src')!=logob64) $(this).attr('src',logob64);"></td>
                 <td><a style="cursor: pointer;${GetSpecialColorStyle(discordid)}" onclick="LoadUserProfile(${userid})">${name}</a></td>
               <td>${last_seen}</td>
             </tr>`);

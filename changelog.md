@@ -1,5 +1,8 @@
 # Changelog
 
+**v2.6.5**  
+Updated to be compatible with API v2.1.5  
+
 **v2.6.4**  
 Updated to be compatible with API v2.1.4  
 
@@ -68,7 +71,7 @@ Updated to be mostly compatible with API v2.0.0
 6.Added refresh username button  
 
 **v2.4.6**  
-0.Added nighty release  
+0.Added nightly release  
 1.Fixed the bug that dropup banner does not display on regular / premium plan  
 2.Fixed the bug that `'` in string breaks html element  
 3.Fixed event description cannot be loaded when editing  
