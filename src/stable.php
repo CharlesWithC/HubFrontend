@@ -130,7 +130,7 @@
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/noty.css" />
     <link rel="stylesheet" href="https://cdn.chub.page/assets/noty/themes/mint.css" />
 
-    <script id="bundle" src="https://cdn.chub.page/js/bundles/84d28ae49ded3fe0.js"></script>
+    <script id="bundle" src="https://cdn.chub.page/js/bundles/177e6d57cf39e18f.js"></script>
 
     <link rel="stylesheet" href="https://cdn.chub.page/assets/opensans/css/opensans.css">
     <link href="https://cdn.chub.page/assets/fontawesome/css/fontawesome.min.css" rel="stylesheet">
@@ -732,8 +732,6 @@
                             <img id="tsr-graphic" src="https://truckstopradio.co.uk/img/autodj.png" height="100px"></img>
                         </div>
                     </div>
-                    <?php if ($_SERVER['HTTP_CF_CONNECTING_IP'] === 'FR' && config["api_host"] != "https://drivershub.charlws.com") {
-                        echo'<div class="shadow m-3 bg-dark rounded col row" id="ccot-card"><a href="https://truckersmp.com/events/9994" target="_blank" style="padding:0"><img src="https://static.truckersmp.com/images/event/cover/9994.1674582834.jpeg" style="width:100%;padding:0;border-radius:5px;"></a></div>';} ?>
                     <div class="shadow p-3 m-3 bg-dark rounded col">
                         <h5><strong><span class="rect-20"><i class="fa-solid fa-ranking-star"></i></span> <?php echo mltr("leaderboard"); ?></strong></h5>
                         <div id="table_mini_leaderboard">

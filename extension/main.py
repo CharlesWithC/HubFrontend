@@ -48,18 +48,18 @@ async def getRoles():
     if time.time() - rolesLU >= 300:
         rolesLU = time.time()
         updateRolesCache()
-    return {"error": False, "response": rolesCache}
+    return rolesCache
     
 @app.get("/{abbr}/config")
 async def getConfig(abbr: str, domain: str, request: Request, response: Response):
     if not os.path.exists(f"/var/hub/config/{domain}.json"):
         response.status_code = 400
-        return {"error": True, "descriptor": "Invalid domain"}
+        return {"error": "Invalid domain"}
         
     config = json.loads(open(f"/var/hub/config/{domain}.json","r").read())
     if config["abbr"] != abbr:
         response.status_code = 400
-        return {"error": True, "descriptor": "Invalid domain"}
+        return {"error": "Invalid domain"}
 
     application = ""
     if os.path.exists("/var/hub/cdn/assets/" + abbr + "/application.html"):
@@ -69,7 +69,7 @@ async def getConfig(abbr: str, domain: str, request: Request, response: Response
     if os.path.exists("/var/hub/cdn/assets/" + abbr + "/style.css"):
         style = open("/var/hub/cdn/assets/" + abbr + "/style.css", "r").read()
 
-    return {"error": False, "response": {"config": config, "application": application, "style": style}}
+    return {"config": config, "application": application, "style": style}
 
 @app.patch("/{abbr}/config")
 async def patchConfig(abbr: str, domain: str, api_host: str, request: Request, \
@@ -77,61 +77,61 @@ async def patchConfig(abbr: str, domain: str, api_host: str, request: Request, \
     # Validate domain
     if not os.path.exists(f"/var/hub/config/{domain}.json"):
         response.status_code = 400
-        return {"error": True, "descriptor": "Invalid domain"}
+        return {"error": "Invalid domain"}
 
     config = json.loads(open(f"/var/hub/config/{domain}.json","r").read())
     if config["abbr"] != abbr:
         response.status_code = 400
-        return {"error": True, "descriptor": "Invalid domain"}
+        return {"error": "Invalid domain"}
 
     # Authorization
     if authorization is None:
         response.status_code = 401
-        return {"error": True, "descriptor": "No authorization header"}
+        return {"error": "No authorization header"}
     if len(authorization.split(" ")) != 2:
         response.status_code = 401
-        return {"error": True, "descriptor": "Invalid authorization header"}
+        return {"error": "Invalid authorization header"}
 
     tokentype = authorization.split(" ")[0]
-    if tokentype != "TemporaryIdentityProof":
+    if tokentype != "Ticket":
         response.status_code = 401
-        return {"error": True, "descriptor": "Only TemporaryIdentityProof authorization method is allowed!"}
+        return {"error": "Only Ticket authorization method is allowed!"}
     token = authorization.split(" ")[1]
 
     if not api_host.endswith("charlws.com"):
-        return {"error": True, "descriptor": "Invalid API Domain"}
+        return {"error": "Invalid API Domain"}
 
     ok = False
     try:
-        r = requests.get(f"{api_host}/{abbr}/user/tip?token="+token, timeout = 3)
+        r = requests.get(f"{api_host}/{abbr}/auth/ticket?token="+token, timeout = 3)
         if r.status_code != 200:
             response.status_code = r.status_code
-            return {"error": True, "descriptor": json.loads(r.text)["descriptor"]}
+            return {"error": json.loads(r.text)["descriptor"]}
         resp = json.loads(r.text)
-        roles = resp["response"]["user"]["roles"]
+        roles = resp["user"]["roles"]
 
         r = requests.get(f"{api_host}/{abbr}/member/perms", timeout = 3)
         if r.status_code != 200:
             response.status_code = r.status_code
-            return {"error": True, "descriptor": json.loads(r.text)["descriptor"]}
+            return {"error": json.loads(r.text)["descriptor"]}
         resp = json.loads(r.text)
-        perms = resp["response"]
+        perms = resp
         if not "admin" in perms:
             response.status_code = 503
-            return {"error": True, "descriptor": "Invalid API permission configuration"}
+            return {"error": "Invalid API permission configuration"}
 
         for role in perms["admin"]:
-            if str(role) in roles:
+            if int(role) in roles:
                 ok = True
     except:
         response.status_code = 503
-        return {"error": True, "descriptor": "API Unavailable"}
+        return {"error": "API Unavailable"}
 
     if not ok:
         response.status_code = 401
-        return {"error": True, "descriptor": "Unauthorized"}
+        return {"error": "Unauthorized"}
 
-    form = await request.form()
+    form = await request.json()
     headers={
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0'
     }
@@ -143,7 +143,7 @@ async def patchConfig(abbr: str, domain: str, api_host: str, request: Request, \
         if logo_url != "":
             f = urllib.request.urlopen(urllib.request.Request(logo_url, headers = headers))
             if f.length / 1024 > 1024:
-                return {"error": True, "descriptor": "Maximum size of logo is 1 MB"}
+                return {"error": "Maximum size of logo is 1 MB"}
             os.system(f"wget --quiet -O /var/hub/cdn/assets/{abbr}/logo.png {logo_url}")
             logo_key = str(uuid.uuid4())[:8]
     except:
@@ -153,7 +153,7 @@ async def patchConfig(abbr: str, domain: str, api_host: str, request: Request, \
         if banner_url != "":
             f = urllib.request.urlopen(urllib.request.Request(banner_url, headers = headers))
             if f.length / 1024 > 1024:
-                return {"error": True, "descriptor": "Maximum size of banner is 1 MB"}
+                return {"error": "Maximum size of banner is 1 MB"}
             os.system(f"wget --quiet -O /var/hub/cdn/assets/{abbr}/banner.png {banner_url}")
             banner_key = str(uuid.uuid4())[:8]
     except:

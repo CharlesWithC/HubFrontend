@@ -92,7 +92,7 @@ function LoadConfiguration() {
         type: "GET",
         contentType: "application/json",
         success: function (data) {
-            webConfigData = data.response.config;
+            webConfigData = data.config;
             $("#web-name").val(webConfigData.name);
             $("#web-distance-unit-"+webConfigData.distance_unit).prop("checked", true);
             $("#web-navio-company-id").val(webConfigData.navio_company_id);
@@ -253,9 +253,9 @@ function UpdateWebConfig() {
             $.ajax({
                 url: "https://config.chub.page/" + dhabbr + "/config?domain=" + window.location.hostname + "&api_host=" + api_host,
                 type: "PATCH",
-                contentType: "application/json",
+                contentType: "application/json", processData: false,
                 headers: {
-                    "Authorization": "TemporaryIdentityProof " + tipt
+                    "Authorization": "Ticket " + tipt
                 },
                 data: JSON.stringify({
                     config: JSON.stringify({"name": $("#web-name").val(), "distance_unit": $("#web-distance-unit").find(":selected").attr("value"), "navio_company_id": $("#web-navio-company-id").val(), "slogan": $("#web-slogan").val(), "color": $("#web-color").val()}),
