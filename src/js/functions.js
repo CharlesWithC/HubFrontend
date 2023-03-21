@@ -84,7 +84,7 @@ $(document).ready(function () {
     console.log("Copyright © 2023 CharlesWithC All rights reserved.");
 
     $.ajax({
-        url: "/languages/en.json?v2.7.0",
+        url: "/languages/en.json?v2.7.0.0325",
         type: "GET",
         contentType: "application/json", processData: false,
         success: function (data) {
@@ -93,7 +93,7 @@ $(document).ready(function () {
                 lang = enlang;
             } else {
                 $.ajax({
-                    url: "/languages/" + language + ".json?v2.5.70720",
+                    url: "/languages/" + language + ".json?v2.7.0.0325",
                     type: "GET",
                     contentType: "application/json", processData: false,
                     success: function (data) {

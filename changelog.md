@@ -3,7 +3,8 @@
 **v2.7.0**  
 1.Added Steam Sign Up  
 2.Added Connect Discord  
-3.Fixed extension  
+3.Added QRCode when enabling MFA  
+4.Fixed extension  
 
 **v2.6.6**  
 Added update custom profile

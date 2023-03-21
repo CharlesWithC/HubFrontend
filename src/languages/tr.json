@@ -411,7 +411,6 @@
     "disable_mfa": "MFA'yı [Çok Faktörlü Kimlik Doğrulama] devre dışı bırak",
     "disable_mfa_note": "<p>MFA'yı [Çok Faktörlü Kimlik Doğrulama] devre dışı bırakmak istediğinizden emin misiniz?</p><p>MFA olmadan oturum açabilecek veya sudo moduna (varsayılan güvenlik önlemleri) girebileceksiniz. Bu, hesabınızı riske atabilir.</p>",
     "enable_mfa": "MFA'yı [Çok Faktörlü Kimlik Doğrulama] etkinleştir",
-    "enable_mfa_note": "Lütfen Authy veya Google Authenticator gibi TOTP'yi [Zaman Tabanlı Tek Seferlik Şifre] destekleyen bir MFA [Çok Faktörlü Kimlik Doğrulama] uygulaması indirin. Uygulamaya gizli kodu yazın ve oluşturulan TOTP'yi giriş kutusuna girin.",
     "secret": "Gizli Kod",
     "resign": "Şirketten ayrıl",
     "you_have_left_the_company": "Şirketten ayrıldınız",

@@ -411,7 +411,6 @@
     "disable_mfa": "Deshabilitar MFA",
     "disable_mfa_note": "<p>¿Está seguro de que desea deshabilitar MFA?</p><p>Podrá iniciar sesión o ingresar al modo sudo sin MFA. Esto puede poner en riesgo su cuenta.</p>",
     "enable_mfa": "Habilitar MFA",
-    "enable_mfa_note": "Descargue una aplicación MFA que admita TOTP como Authy, Google Authenticator. Escriba la clave en la aplicación e ingrese el TOTP generado en el cuadro de entrada.",
     "secret": "Clave",
     "resign": "Renunciar",
     "you_have_left_the_company": "Has dejado la empresa",

@@ -412,7 +412,7 @@
     "disable_mfa": "Disable MFA",
     "disable_mfa_note": "<p>Are you sure you want to disable MFA?</p><p>You will be able to login or enter sudo mode without MFA. This can put your account at risk.</p>",
     "enable_mfa": "Enable MFA",
-    "enable_mfa_note": "Please download a MFA application that supports TOTP like Authy, Google Authenticator. Type in the secret in the app and enter the generated TOTP in the input box.",
+    "enable_mfa_note": "Please download a MFA application that supports TOTP like Authy, Google Authenticator. Then scan the QR Code below to add an account, or enter the code manually: ",
     "secret": "Secret",
     "resign": "Resign",
     "you_have_left_the_company": "You have left the company",

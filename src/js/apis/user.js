@@ -266,12 +266,14 @@ function DisableMFA() {
 mfasecret = "";
 function EnableMFAShow() {
     mfasecret = RandomB32String(16);
-    modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')}</p><p>${mltr('secret')}: <b>${mfasecret}</b></p>
+    modalid = ShowModal(mltr('enable_mfa'), `<p>${mltr('enable_mfa_note')} <b>${mfasecret}</b></p><div id="mfa-qrcode"></div></p>
     <label for="mfa-enable-otp" class="form-label">${mltr('otp')}</label>
     <div class="input-group mb-3">
         <input type="text" class="form-control bg-dark text-white" id="mfa-enable-otp" placeholder="000 000">
     </div>`, `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${mltr('cancel')}</button><button id="button-enable-mfa" type="button" class="btn btn-primary" onclick="EnableMFA();">${mltr('enable')}</button>`);
     InitModal("enable_mfa", modalid);
+    setTimeout(function(){new QRCode(document.getElementById("mfa-qrcode"), `otpauth://totp/AccountName?secret=${mfasecret}&issuer=${company_name} Drivers Hub&image=https://cdn.chub.page/assets/${dhabbr}/logo.png?${logo_key}
+    `);}, 100);
 }
 
 function EnableMFA() {
