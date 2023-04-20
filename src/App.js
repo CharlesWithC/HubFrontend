@@ -1,30 +1,20 @@
 import './App.css';
-import './functions/config';
-import { loadConfig } from './functions/config';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Loader from './pages/loader';
+var vars = require('./variables');
 
 function App() {
-  const [abbr, setAbbr] = useState("N/A");
+  const [, setRerender] = useState(false);
 
-  useEffect(() => {
-    async function fetchAbbr(){
-      const abbr = (await loadConfig("atm", "hub.atmvtc.com")).config.abbr;
-      setAbbr(abbr);
-    }
-    fetchAbbr();
-  }, [])
+  const runRerender = () => {
+    setTimeout(function(){setRerender(true);}, 500);
+  };
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={process.env.PUBLIC_URL + '/logo.png'} className="App-logo" alt="logo" />
-        <p>
-          This is a new start.
-          Drivers Hub Abbreviation: {abbr}
-        </p>
-      </header>
-    </div>
-  );
+  if(vars.dhconfig == null){
+    return <Loader onLoaderLoaded={runRerender} />;
+  } else {
+    return <div><p>Succeed!</p></div>;
+  }
 }
 
 export default App;
