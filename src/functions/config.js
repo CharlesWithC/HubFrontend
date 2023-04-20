@@ -4,7 +4,7 @@
 import axios from "axios";
 
 export const loadConfig = async (abbr, domain) => {
-    const url = `https://config.chub.page/${abbr}/config?domain=${domain}`;
+    const url = `https://config.chub.page/config?domain=${domain}`;
     const resp = (await axios.get(url)).data;
     return resp;
 }

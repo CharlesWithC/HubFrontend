@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import './functions/config';
 import { loadConfig } from './functions/config';
@@ -18,7 +17,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        <img src={process.env.PUBLIC_URL + '/logo.png'} className="App-logo" alt="logo" />
         <p>
           This is a new start.
           Drivers Hub Abbreviation: {abbr}
