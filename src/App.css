@@ -1,54 +1,32 @@
+body {
+  font-family: OpenSans, sans-serif;
+}
+
 .loader {
-  height: 20vmin;
+  width: 100px;
+  height: 100px;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .loader {
-    display: inline-block;
-    animation: spin 2s ease-in-out infinite;
+  .loader-animated {
+    animation: loader 1s infinite;
   }
 
-  @keyframes spin {
+  @keyframes loader {
     0% {
-      transform: rotate(0deg);
-    }
-
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  .loader.paused {
-    animation-play-state: paused;
-  }
-
-  .loader.paused::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    animation: pulse 4s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0% {
-      transform: scale(0);
+      transform: scale(1);
       opacity: 1;
     }
 
     50% {
+      transform: scale(1.2);
       opacity: 0.5;
     }
 
     100% {
-      transform: scale(1.5);
-      opacity: 0;
+      transform: scale(1);
+      opacity: 1;
     }
   }
 }

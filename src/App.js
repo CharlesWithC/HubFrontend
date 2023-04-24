@@ -9,7 +9,7 @@ function App() {
   const runRerender = () => {
     setTimeout(function(){setRerender(true);}, 500);
   };
-
+  
   if(vars.dhconfig == null){
     return <Loader onLoaderLoaded={runRerender} />;
   } else {
