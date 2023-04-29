@@ -113,8 +113,6 @@ function Loader({ onLoaderLoaded }) {
                 <title>{title}</title>
                 {logoSrc && <link rel="icon" href={logoSrc} type="image/x-icon" />}
                 {logoSrc && <link rel="apple-touch-icon" href={logoSrc} />}
-                {!logoSrc && <link rel="icon" href="/favicon.ico" />}
-                {!logoSrc && <link rel="apple-touch-icon" href="/favicon.ico" />}
             </Helmet>
             {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt=""/>}
             <p>

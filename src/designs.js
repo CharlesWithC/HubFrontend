@@ -1,5 +1,8 @@
 export function getDesignTokens(mode) {
     return {
+        typography: {
+            fontFamily: 'Open Sans, sans-serif',
+        },
         palette: {
             mode,
             ...(mode === 'light'

@@ -7,22 +7,34 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 var vars = require('../variables');
 
 function SideBar(props) {
     const [mobileOpen, setMobileOpen] = useState(false);
-
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
 
     const [selectedIndex, setSelectedIndex] = useState(0);
-
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
+    };
+
+    const [bannerHeight, setLogoHeight] = useState(0);
+    useEffect(() => {
+        const banner = document.getElementsByClassName("sidebar-banner")[0];
+        if (banner) {
+            setLogoHeight(banner.offsetHeight);
+        }
+    }, []);
+    const simpleBarStyle = {
+        maxHeight: `calc(100vh - ${bannerHeight + 100}px)`,
+        height: `calc(100vh - ${bannerHeight + 100}px)`,
     };
 
     const plugins = vars.dhconfig.plugins;
@@ -69,7 +81,7 @@ function SideBar(props) {
             component="nav"
             sx={{
                 width: { sm: props.width },
-                flexShrink: { sm: 0 }
+                flexShrink: { sm: 0 },
             }}
             aria-label="sidebar"
         >
@@ -89,12 +101,19 @@ function SideBar(props) {
                     '& .MuiDrawer-paper': { boxSizing: 'border-box', width: props.width },
                 }}
             >
-                <List key="0">
-                    <ListItem key={`navbtn-banner`} disablePadding>
-                        <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
-                    </ListItem>
-                </List>
-                {sidebar}
+                <div style={{ overflow: "hidden" }}>
+                    <List key="0">
+                        <ListItem key={`navbtn-banner`} disablePadding>
+                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
+                        </ListItem>
+                    </List>
+                    <SimpleBar style={simpleBarStyle}>
+                        {sidebar}
+                    </SimpleBar>
+                    <div>
+                        <p style={{textAlign: "center"}}>User Profile Placeholder</p>
+                    </div>
+                </div>
             </Drawer>
             <Drawer
                 variant="permanent"
@@ -103,15 +122,23 @@ function SideBar(props) {
                     color: "#ffffff",
                     display: { xs: 'none', sm: 'block' },
                     '& .MuiDrawer-paper': { boxSizing: 'border-box', width: props.width },
+                    overflow: "hidden",
                 }}
                 open
             >
-                <List key="0">
-                    <ListItem key={`navbtn-banner`} disablePadding>
-                        <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
-                    </ListItem>
-                </List>
-                {sidebar}
+                <div style={{ overflow: "hidden" }}>
+                    <List key="0">
+                        <ListItem key={`navbtn-banner`} disablePadding>
+                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
+                        </ListItem>
+                    </List>
+                    <SimpleBar style={simpleBarStyle}>
+                        {sidebar}
+                    </SimpleBar>
+                    <div>
+                        <p style={{textAlign: "center"}}>User Profile Placeholder</p>
+                    </div>
+                </div>
             </Drawer>
         </Box>
     );
