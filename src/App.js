@@ -1,20 +1,38 @@
 import './App.css';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from "@mui/material/CssBaseline";
+
+import { getDesignTokens } from './designs';
 import Loader from './pages/loader';
+import SideBar from './pages/sidebar';
 var vars = require('./variables');
 
 function App() {
-  const [, setRerender] = useState(false);
+    const [, setRerender] = useState(false);
 
-  const runRerender = () => {
-    setTimeout(function(){setRerender(true);}, 500);
-  };
-  
-  if(vars.dhconfig == null){
-    return <Loader onLoaderLoaded={runRerender} />;
-  } else {
-    return <div><p>Succeed!</p></div>;
-  }
+    const runRerender = () => {
+        setTimeout(function () { setRerender(true); }, 500);
+    };
+
+    let ret = undefined;
+
+    if (vars.dhconfig == null) {
+        ret = <Loader onLoaderLoaded={runRerender} />;
+    } else {
+        ret = <SideBar width={260}></SideBar>;
+    }
+
+    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+    const themeMode = prefersDarkMode ? 'dark' : 'light';
+    const theme = useMemo(
+        () =>
+            createTheme(getDesignTokens(themeMode), themeMode),
+        [themeMode],
+    );
+
+    return (<ThemeProvider theme={theme}><CssBaseline />{ret}</ThemeProvider>);
 }
 
 export default App;

@@ -8,6 +8,11 @@ body {
   pointer-events: none;
 }
 
+.sidebar-banner {
+  width: calc(100% - 20px);
+  margin: 10px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .loader-animated {
     animation: loader 1s infinite;
@@ -33,12 +38,10 @@ body {
 
 .loading-div {
   text-align: center;
-  background-color: #252525;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }

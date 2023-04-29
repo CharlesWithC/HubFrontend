@@ -7,6 +7,9 @@ exports.dhapplication = dhapplication;
 exports.dhstyle = dhstyle;
 exports.dhpath = dhpath;
 
+var isLoggedIn = true; // TODO
+exports.isLoggedIn = isLoggedIn;
+
 // CHub
 var specialRoles = {};
 exports.specialRoles = specialRoles;

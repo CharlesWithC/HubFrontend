@@ -101,7 +101,7 @@ function Loader({ onLoaderLoaded }) {
                 setLoaderAnimation(false);
                 console.error("An error occurred when loading configuration!");
                 console.error(error);
-                setLoadMessage("An error occurred when loading configuration, check F12 Console for more info.");
+                setLoadMessage("Error occurred! Check F12 for more info.");
             }
         }
         doLoad();
