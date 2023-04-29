@@ -18,7 +18,7 @@ axiosRetry(axios, {
 
 var vars = require('../variables');
 
-const domain = "hub.lsavtc.com"; // use window.location.hostname
+const domain = "hub.atmvtc.com"; // use window.location.hostname
 
 // TODO Consider returning the assets links in config.chub.page rather than directly using cdn.chub.page (static)
 // Also TODO, rename navio_company_id to tracker_company_id
