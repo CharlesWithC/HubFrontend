@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import { getDesignTokens } from './designs';
 import Loader from './pages/loader';
+import TopBar from './pages/topbar';
 import SideBar from './pages/sidebar';
 var vars = require('./variables');
 
@@ -21,7 +22,7 @@ function App() {
     if (vars.dhconfig == null) {
         ret = <Loader onLoaderLoaded={runRerender} />;
     } else {
-        ret = <SideBar width={260}></SideBar>;
+        ret = <div><TopBar sidebarWidth={260}></TopBar><SideBar width={260}></SideBar></div>;
     }
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
