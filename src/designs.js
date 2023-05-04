@@ -50,6 +50,15 @@ export function getDesignTokens(mode) {
                     },
                 },
             },
+            MuiToolbar: {
+                styleOverrides: {
+                    root: {
+                        '& .user-profile:hover': {
+                            backgroundColor: '#3F4248',
+                        },
+                    },
+                },
+            }
         },
     };
 };

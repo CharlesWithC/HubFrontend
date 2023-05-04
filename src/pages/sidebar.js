@@ -33,8 +33,8 @@ function SideBar(props) {
         }
     }, []);
     const simpleBarStyle = {
-        maxHeight: `calc(100vh - ${(bannerHeight + 100)}px)`,
-        height: `calc(100vh - ${(bannerHeight + 100)}px)`,
+        maxHeight: `calc(100vh - ${(bannerHeight + 40)}px)`,
+        height: `calc(100vh - ${(bannerHeight + 40)}px)`,
     };
 
     const plugins = vars.dhconfig.plugins;
@@ -110,9 +110,6 @@ function SideBar(props) {
                     <SimpleBar style={simpleBarStyle}>
                         {sidebar}
                     </SimpleBar>
-                    <div style={{height: "100px", minHeight: "100px"}}>
-                        <p style={{textAlign: "center"}}>User Profile Placeholder</p>
-                    </div>
                 </div>
             </Drawer>
             <Drawer
@@ -135,9 +132,6 @@ function SideBar(props) {
                     <SimpleBar style={simpleBarStyle}>
                         {sidebar}
                     </SimpleBar>
-                    <div style={{height: "100px", minHeight: "100px"}}>
-                        <p style={{textAlign: "center"}}>User Profile Placeholder</p>
-                    </div>
                 </div>
             </Drawer>
         </Box>
