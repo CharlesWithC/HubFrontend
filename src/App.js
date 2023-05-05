@@ -5,9 +5,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 
 import { getDesignTokens } from './designs';
-import Loader from './pages/loader';
-import TopBar from './pages/topbar';
-import SideBar from './pages/sidebar';
+import Loader from './components/loader';
+import TopBar from './components/topbar';
+import SideBar from './components/sidebar';
 var vars = require('./variables');
 
 function App() {
