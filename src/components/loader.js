@@ -44,53 +44,68 @@ function Loader({ onLoaderLoaded }) {
                 setLoadMessage(`Loading`);
 
                 // load cache
-                const specialRolesResp = await axios({ url: "https://config.chub.page/roles" });
-                if (specialRolesResp.status === 200) {
-                    vars.specialRoles = specialRolesResp.data;
-                }
+                const makeRequests = async (urls) => {
+                    try {
+                        const responses = await Promise.all(
+                            urls.map((url) =>
+                                axios({
+                                    url,
+                                })
+                            )
+                        );
+                        return responses.map((response) => response.data);
+                    } catch (error) {
+                        // handle error
+                    }
+                };
 
-                const configResp = await axios({ url: `${vars.dhpath}/config` });
-                if (configResp.status === 200) {
-                    vars.discordClientID = configResp.data.config.discord_client_id;
-                }
+                const firstBatchUrls = [
+                    "https://config.chub.page/roles",
+                    `${vars.dhpath}/config`,
+                    `${vars.dhpath}/member/roles`,
+                    `${vars.dhpath}/member/perms`,
+                ];
 
-                const memberRolesResp = await axios({ url: `${vars.dhpath}/member/roles` });
-                if (memberRolesResp.status === 200) {
-                    let roles = memberRolesResp.data;
+                const secondBatchUrls = [
+                    `${vars.dhpath}/member/ranks`,
+                    `${vars.dhpath}/applications/positions`,
+                    `${vars.dhpath}/applications/types`,
+                    `${vars.dhpath}/divisions/list`,
+                ];
+
+                const [specialRoles, config, memberRoles, memberPerms] = await makeRequests(firstBatchUrls);
+                if (specialRoles) {
+                    vars.specialRoles = specialRoles;
+                }
+                if (config) {
+                    vars.discordClientID = config.config.discord_client_id;
+                }
+                if (memberRoles) {
+                    let roles = memberRoles;
                     for (let i = 0; i < roles.length; i++) {
                         vars.roles[roles[i].id] = roles[i];
                     }
                 }
-
-                const memberPermsResp = await axios({ url: `${vars.dhpath}/member/perms` });
-                if (memberPermsResp.status === 200) {
-                    vars.perms = memberPermsResp.data;
+                if (memberPerms) {
+                    vars.perms = memberPerms;
                 }
 
-                const memberRanksResp = await axios({ url: `${vars.dhpath}/member/ranks` });
-                if (memberRanksResp.status === 200) {
-                    let ranks = memberRanksResp.data;
+                const [memberRanks, applicationPositions, applicationTypes, divisions] = await makeRequests(secondBatchUrls);
+                if (memberRanks) {
+                    let ranks = memberRanks;
                     for (let i = 0; i < ranks.length; i++) {
                         vars.ranks[ranks[i].points] = ranks[i];
                     }
                 }
-
-                const applicationPositionsResp = await axios({ url: `${vars.dhpath}/applications/positions` });
-                if (applicationPositionsResp.status === 200) {
-                    vars.applicationPositions = applicationPositionsResp.data;
+                if (applicationPositions) {
+                    vars.applicationPositions = applicationPositions;
                 }
-
-                const applicationTypesResp = await axios({ url: `${vars.dhpath}/applications/types` });
-                if (applicationTypesResp.status === 200) {
-                    let applicationTypes = applicationTypesResp.data;
+                if (applicationTypes) {
                     for (let i = 0; i < applicationTypes.length; i++) {
                         vars.applicationTypes[applicationTypes[i].id] = applicationTypes[i];
                     }
                 }
-
-                const divisionsResp = await axios({ url: `${vars.dhpath}/divisions/list` });
-                if (divisionsResp.status === 200) {
-                    let divisions = divisionsResp.data;
+                if (divisions) {
                     for (let i = 0; i < divisions.length; i++) {
                         vars.divisions[divisions[i].id] = divisions[i];
                     }
@@ -114,7 +129,7 @@ function Loader({ onLoaderLoaded }) {
                 {logoSrc && <link rel="icon" href={logoSrc} type="image/x-icon" />}
                 {logoSrc && <link rel="apple-touch-icon" href={logoSrc} />}
             </Helmet>
-            {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt=""/>}
+            {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" />}
             <p>
                 {loadMessage}
             </p>
