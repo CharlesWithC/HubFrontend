@@ -2,7 +2,7 @@
 import { loadConfig } from '../functions/config';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 
 const axiosRetry = require('axios-retry');
 axiosRetry(axios, {
@@ -124,11 +124,13 @@ function Loader({ onLoaderLoaded }) {
 
     return (
         <div className="loading-div">
-            <Helmet>
-                <title>{title}</title>
-                {logoSrc && <link rel="icon" href={logoSrc} type="image/x-icon" />}
-                {logoSrc && <link rel="apple-touch-icon" href={logoSrc} />}
-            </Helmet>
+            <HelmetProvider>
+                <Helmet>
+                    <title>{title}</title>
+                    {logoSrc && <link rel="icon" href={logoSrc} type="image/x-icon" />}
+                    {logoSrc && <link rel="apple-touch-icon" href={logoSrc} />}
+                </Helmet>
+            </HelmetProvider>
             {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" />}
             <p>
                 {loadMessage}

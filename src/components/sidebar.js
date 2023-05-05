@@ -57,7 +57,7 @@ function SideBar(props) {
                 <div>
                     <List key={`navlist-${subIndex}`} sx={{ margin: "0px 10px 0 10px" }}>
                         {subMenu.map((menuID, btnIndex) => (
-                            <ListItem key={`navbtn-${menuID}`} disablePadding>
+                            <ListItem key={`navbtn-${menuID}-${btnIndex}`} disablePadding>
                                 <ListItemButton selected={selectedIndex === subIndex * 10 + btnIndex}
                                     onClick={(event) => handleListItemClick(event, subIndex * 10 + btnIndex)}>
                                     <ListItemIcon sx={{ minWidth: "40px" }}>
