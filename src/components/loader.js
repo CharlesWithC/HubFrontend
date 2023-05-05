@@ -27,7 +27,13 @@ function Loader({ onLoaderLoaded }) {
     const [animateLoader, setLoaderAnimation] = useState(true);
     const [logoSrc, setLogoSrc] = useState(null);
     const [title, setTitle] = useState("Drivers Hub");
-    const [loadMessage, setLoadMessage] = useState("");
+    const [loadMessage, setLoadMessage] = useState("Loading");
+
+    if (localStorage.getItem("preload-title") != null && localStorage.getItem("preload-icon") != null 
+            && title === "Drivers Hub" && logoSrc === null) {
+        setTitle(localStorage.getItem("preload-title"));
+        setLogoSrc(localStorage.getItem("preload-icon"));
+    }
 
     useEffect(() => {
         async function doLoad() {
@@ -42,6 +48,9 @@ function Loader({ onLoaderLoaded }) {
                 setTitle(vars.dhconfig.name);
                 setLogoSrc(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
                 setLoadMessage(`Loading`);
+
+                localStorage.setItem("preload-title", vars.dhconfig.name);
+                localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
 
                 // load cache
                 const makeRequests = async (urls) => {
@@ -110,7 +119,6 @@ function Loader({ onLoaderLoaded }) {
                         vars.divisions[divisions[i].id] = divisions[i];
                     }
                 }
-
                 onLoaderLoaded();
             } catch (error) {
                 setLoaderAnimation(false);

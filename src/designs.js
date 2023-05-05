@@ -4,8 +4,7 @@ export function getDesignTokens(mode) {
             fontFamily: 'Open Sans, sans-serif',
         },
         palette: {
-            mode,
-            ...(mode === 'light'
+            mode, ...(mode === 'light'
                 ? {
                     // palette values for light mode
                     primary: {
@@ -35,30 +34,40 @@ export function getDesignTokens(mode) {
                     },
                 }),
         }, components: {
-            MuiListItemButton: {
-                styleOverrides: {
-                    root: {
-                        borderRadius: '5px',
-                        minHeight: '40px',
-                        maxHeight: '40px',
-                        '&.Mui-selected': {
-                            backgroundColor: '#3F4248',
-                        },
-                        '&.Mui-selected:hover': {
-                            backgroundColor: '#3F4248',
-                        },
-                    },
-                },
-            },
-            MuiToolbar: {
-                styleOverrides: {
-                    root: {
-                        '& .user-profile:hover': {
-                            backgroundColor: '#3F4248',
+            mode, ...(mode === 'light'
+                ? {} : {
+                    MuiListItemButton: {
+                        styleOverrides: {
+                            root: {
+                                borderRadius: '5px',
+                                minHeight: '40px',
+                                maxHeight: '40px',
+                                '&.Mui-selected': {
+                                    backgroundColor: '#3F4248',
+                                },
+                                '&.Mui-selected:hover': {
+                                    backgroundColor: '#3F4248',
+                                },
+                            },
                         },
                     },
-                },
-            }
+                    MuiCard: {
+                        styleOverrides: {
+                            root: {
+                                backgroundColor: '#111214',
+                            }
+                        }
+                    },
+                    MuiToolbar: {
+                        styleOverrides: {
+                            root: {
+                                '& .user-profile:hover': {
+                                    backgroundColor: '#3F4248',
+                                },
+                            },
+                        },
+                    }
+                })
         },
     };
 };
