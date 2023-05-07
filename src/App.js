@@ -9,6 +9,7 @@ import Home from './routes/home';
 import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
 import SteamAuth from './routes/auth/steamAuth';
+import MfaAuth from './routes/auth/mfaAuth';
 import Loader from './components/loader';
 import Redirect from './components/redirect'
 import { getDesignTokens } from './designs';
@@ -51,6 +52,7 @@ function App() {
                         <Route path="/discord-redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.hostname}%2Fdiscord-auth&response_type=code&scope=identify email role_connections.write`} />} />
                         <Route path="/steam-auth" element={<SteamAuth />} />
                         <Route path="/steam-redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
+                        <Route path="/mfa" element={<MfaAuth />} />
                     </Routes>
                 </ThemeProvider>
             </BrowserRouter>
