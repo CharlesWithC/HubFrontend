@@ -6,8 +6,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './routes/home';
-import Auth from './routes/auth';
+import TokenAuth from './routes/auth/tokenAuth';
+import DiscordAuth from './routes/auth/discordAuth';
+import SteamAuth from './routes/auth/steamAuth';
 import Loader from './components/loader';
+import Redirect from './components/redirect'
 import { getDesignTokens } from './designs';
 
 var vars = require('./variables');
@@ -27,13 +30,15 @@ function App() {
         setTimeout(function () { setRerender(true); }, 500);
     };
 
+    const protocol = window.location.protocol.replace(":", "");
+
     if (vars.dhconfig == null) {
         return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Loader onLoaderLoaded={runRerender} />
-        </ThemeProvider>)
-        ;
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Loader onLoaderLoaded={runRerender} />
+            </ThemeProvider>)
+            ;
     } else {
         return (
             <BrowserRouter>
@@ -41,7 +46,11 @@ function App() {
                     <CssBaseline />
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/auth" element={<TokenAuth />} />
+                        <Route path="/discord-auth" element={<DiscordAuth />} />
+                        <Route path="/discord-redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.hostname}%2Fdiscord-auth&response_type=code&scope=identify email role_connections.write`} />} />
+                        <Route path="/steam-auth" element={<SteamAuth />} />
+                        <Route path="/steam-redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.hostname}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
                     </Routes>
                 </ThemeProvider>
             </BrowserRouter>

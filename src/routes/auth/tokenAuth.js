@@ -16,9 +16,9 @@ axiosRetry(axios, {
     },
 });
 
-var vars = require('../variables');
+var vars = require('../../variables');
 
-function Auth() {
+function TokenAuth() {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -35,17 +35,24 @@ function Auth() {
                 if (resp.status === 200) {
                     localStorage.setItem("token", resp.data.token);
                     setMessage("You are authorized 🎉");
+                    vars.isLoggedIn = true;
                 } else if (resp.status === 401) {
                     setMessage("Invalid token ❌");
                 } else {
-                    setMessage(resp.error);
+                    setMessage(resp.data.error);
                 }
             } catch (error) {
                 console.error(error);
                 setMessage("Error occurred! Check F12 for more info.");
             }
         }
-        validateToken();
+        if(token === null || token.length !== 36){
+            setContinue(true);
+            setMessage("Invalid token ❌");
+            return;
+        } else {
+            validateToken();
+        }
     }, [token]);
 
     function handleContinue() {
@@ -53,7 +60,7 @@ function Auth() {
     }
 
     return (
-        <Card sx={{ width: 300, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <Card sx={{ width: 350, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <CardContent>
                 <h2>Authorization</h2>
                 <p>{message}</p>
@@ -66,4 +73,4 @@ function Auth() {
     );
 }
 
-export default Auth;
+export default TokenAuth;

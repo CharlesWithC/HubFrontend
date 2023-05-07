@@ -7,7 +7,7 @@ exports.dhapplication = dhapplication;
 exports.dhstyle = dhstyle;
 exports.dhpath = dhpath;
 
-var isLoggedIn = true; // TODO
+var isLoggedIn = false;
 exports.isLoggedIn = isLoggedIn;
 
 // CHub
