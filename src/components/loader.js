@@ -19,7 +19,7 @@ axiosRetry(axios, {
 
 var vars = require('../variables');
 
-const domain = "hub.atmvtc.com"; // use window.location.hostname
+var domain = "hub.atmvtc.com"; // use window.location.host
 
 // TODO Consider returning the assets links in config.chub.page rather than directly using cdn.chub.page (static)
 // Also TODO, rename navio_company_id to tracker_company_id
@@ -34,6 +34,11 @@ function Loader({ onLoaderLoaded }) {
         && title === "Drivers Hub" && logoSrc === null) {
         setTitle(localStorage.getItem("preload-title"));
         setLogoSrc(localStorage.getItem("preload-icon"));
+    }
+
+    const searchParams = new URLSearchParams(window.location.search);
+    if(searchParams.get("domain") !== null){
+        domain = searchParams.get("domain");
     }
 
     useEffect(() => {
@@ -118,7 +123,7 @@ function Loader({ onLoaderLoaded }) {
                 onLoaderLoaded();
             } catch (error) {
                 setLoaderAnimation(false);
-                console.error("An error occurred when loading configuration!");
+                console.error("An error occurred when initializing!");
                 console.error(error);
                 setLoadMessage("Error occurred! Check F12 for more info.");
             }

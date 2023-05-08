@@ -12,6 +12,8 @@ exports.isLoggedIn = isLoggedIn;
 
 var userInfo = {};
 exports.userInfo = userInfo;
+var userPerm = [];
+exports.userPerm = userPerm;
 
 var userBanner = {name: "CharlesWithC", role: "Dragon", avatar: "https://charlws.com/me.gif"};
 exports.userBanner = userBanner;

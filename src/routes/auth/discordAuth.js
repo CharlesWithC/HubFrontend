@@ -33,7 +33,7 @@ function DiscordAuth() {
     useEffect(() => {
         async function validateDiscordAuth() {
             try {
-                let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.hostname}/discord-auth` }, method: `GET` });
+                let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/discord-auth` }, method: `GET` });
                 if (resp.status === 200) {
                     if (resp.data.mfa === false) {
                         localStorage.setItem("token", resp.data.token);

@@ -43,13 +43,36 @@ function SideBar(props) {
     const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "pending_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
 
     let menu = [];
+    let toRemove = [];
 
     if (!vars.isLoggedIn) {
         menu = [["overview", "announcement"], ["live_map", "delivery", "event"]];
     } else {
         menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "economy", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["pending_user", "audit_log", "configuration"]];
+        if (!vars.userPerm.includes("admin")) {
+            if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
+                toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "pending_user", "audit_log", "configuration"];
+            }
+            if (!vars.userPerm.includes("config") && !vars.userPerm.includes("reload_config") && !vars.userPerm.includes("restart")) {
+                toRemove.push("configuration");
+            } else {
+                toRemove = toRemove.filter(item => item !== "configuration");
+            }
+            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("manage_profile") && !vars.userPerm.includes("get_pending_user_list") && !vars.userPerm.includes("ban_user") && !vars.userPerm.includes("disable_user_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_user")) {
+                toRemove.push("pending_user");
+            } else {
+                toRemove = toRemove.filter(item => item !== "pending_user");
+            }
+            if (!vars.userPerm.includes("audit")) {
+                toRemove.push("audit_log");
+            } else {
+                toRemove = toRemove.filter(item => item !== "audit_log");
+            }
+        }
     }
     menu = menu.map(subMenu => subMenu.filter(item => (!allPlugins.includes(item)) || (plugins.includes(item) && allPlugins.includes(item))));
+    menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
+    menu = menu.filter(subMenu => subMenu.length > 0);
 
     const sidebar = (
         <div>
