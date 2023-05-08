@@ -2,6 +2,7 @@ import { Button, Card, CardActions, CardContent } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FetchProfile } from '../../functions';
 axios.defaults.validateStatus = (status) => status < 600;
 
 const axiosRetry = require('axios-retry');
@@ -33,24 +34,25 @@ function DiscordAuth() {
         async function validateDiscordAuth() {
             try {
                 let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.hostname}/discord-auth` }, method: `GET` });
-                setContinue(true);
                 if (resp.status === 200) {
-                    if(resp.data.mfa === false){
+                    if (resp.data.mfa === false) {
                         localStorage.setItem("token", resp.data.token);
                         setMessage("You are authorized 🎉");
-                        vars.isLoggedIn = true;
-                    } else{
+                        await FetchProfile();
+                        setContinue(true);
+                    } else {
                         navigate("/mfa?token=" + resp.data.token);
                         setMessage("MFA OTP Required 🔑");
                     }
                 } else {
+                    setContinue(true);
                     setMessage("❌ " + resp.data.error);
                 }
             } catch (error) {
                 console.error(error);
                 setMessage("Error occurred! Check F12 for more info.");
             }
-        }if (discordErrorDescription !== null) {
+        } if (discordErrorDescription !== null) {
             setContinue(true);
             setMessage(`❌ Discord Error: ${discordErrorDescription}`);
             return;
@@ -58,7 +60,7 @@ function DiscordAuth() {
             setContinue(true);
             setMessage(`❌ Discord Error: ${discordError}`);
             return;
-        } else if(discordCode === null){
+        } else if (discordCode === null) {
             navigate("/discord-redirect");
             return;
         } else {

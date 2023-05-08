@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardActions, Button } from '@mui/material';
 import axios from 'axios';
+import { FetchProfile } from '../../functions';
 axios.defaults.validateStatus = (status) => status < 600;
 
 const axiosRetry = require('axios-retry');
@@ -31,15 +32,17 @@ function TokenAuth() {
         async function validateToken() {
             try {
                 let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${token}` }, method: `PATCH` });
-                setContinue(true);
                 if (resp.status === 200) {
                     localStorage.setItem("token", resp.data.token);
                     setMessage("You are authorized 🎉");
-                    vars.isLoggedIn = true;
+                    await FetchProfile();
+                    setContinue(true);
                 } else if (resp.status === 401) {
                     setMessage("Invalid token ❌");
+                    setContinue(true);
                 } else {
                     setMessage(resp.data.error);
+                    setContinue(true);
                 }
             } catch (error) {
                 console.error(error);

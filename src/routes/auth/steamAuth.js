@@ -4,6 +4,7 @@ import { Button, Card, CardActions, CardContent } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FetchProfile } from '../../functions';
 axios.defaults.validateStatus = (status) => status < 600;
 
 const axiosRetry = require('axios-retry');
@@ -31,17 +32,18 @@ function SteamAuth() {
         async function validateSteamAuth() {
             try {
                 let resp = await axios({ url: `${vars.dhpath}/auth/steam/callback` + location.search, method: `GET` });
-                setContinue(true);
                 if (resp.status === 200) {
                     if (resp.data.mfa === false) {
                         localStorage.setItem("token", resp.data.token);
                         setMessage("You are authorized 🎉");
-                        vars.isLoggedIn = true;
+                        await FetchProfile();
+                        setContinue(true);
                     } else {
                         navigate("/mfa?token=" + resp.data.token);
                         setMessage("MFA OTP Required 🔑");
                     }
                 } else {
+                    setContinue(true);
                     setMessage("❌ " + resp.data.error);
                 }
             } catch (error) {

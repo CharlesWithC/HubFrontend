@@ -10,6 +10,12 @@ exports.dhpath = dhpath;
 var isLoggedIn = false;
 exports.isLoggedIn = isLoggedIn;
 
+var userInfo = {};
+exports.userInfo = userInfo;
+
+var userBanner = {name: "CharlesWithC", role: "Dragon", avatar: "https://charlws.com/me.gif"};
+exports.userBanner = userBanner;
+
 // CHub
 var specialRoles = {};
 exports.specialRoles = specialRoles;

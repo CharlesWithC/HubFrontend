@@ -3,6 +3,7 @@ import { loadConfig } from '../functions/config';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
+import { FetchProfile } from '../functions';
 
 const axiosRetry = require('axios-retry');
 axiosRetry(axios, {
@@ -29,8 +30,8 @@ function Loader({ onLoaderLoaded }) {
     const [title, setTitle] = useState("Drivers Hub");
     const [loadMessage, setLoadMessage] = useState("Loading");
 
-    if (localStorage.getItem("preload-title") != null && localStorage.getItem("preload-icon") != null 
-            && title === "Drivers Hub" && logoSrc === null) {
+    if (localStorage.getItem("preload-title") != null && localStorage.getItem("preload-icon") != null
+        && title === "Drivers Hub" && logoSrc === null) {
         setTitle(localStorage.getItem("preload-title"));
         setLogoSrc(localStorage.getItem("preload-icon"));
     }
@@ -54,35 +55,28 @@ function Loader({ onLoaderLoaded }) {
 
                 // load cache
                 const makeRequests = async (urls) => {
-                    try {
-                        const responses = await Promise.all(
-                            urls.map((url) =>
-                                axios({
-                                    url,
-                                })
-                            )
-                        );
-                        return responses.map((response) => response.data);
-                    } catch (error) {
-                        // handle error
-                    }
+                    const responses = await Promise.all(
+                        urls.map((url) =>
+                            axios({
+                                url,
+                            })
+                        )
+                    );
+                    return responses.map((response) => response.data);
                 };
 
-                const firstBatchUrls = [
+                var urlsBatch = [
                     "https://config.chub.page/roles",
                     `${vars.dhpath}/config`,
                     `${vars.dhpath}/member/roles`,
                     `${vars.dhpath}/member/perms`,
-                ];
-
-                const secondBatchUrls = [
                     `${vars.dhpath}/member/ranks`,
                     `${vars.dhpath}/applications/positions`,
                     `${vars.dhpath}/applications/types`,
                     `${vars.dhpath}/divisions/list`,
                 ];
 
-                const [specialRoles, config, memberRoles, memberPerms] = await makeRequests(firstBatchUrls);
+                const [specialRoles, config, memberRoles, memberPerms, memberRanks, applicationPositions, applicationTypes, divisions] = await makeRequests(urlsBatch);
                 if (specialRoles) {
                     vars.specialRoles = specialRoles;
                 }
@@ -99,7 +93,6 @@ function Loader({ onLoaderLoaded }) {
                     vars.perms = memberPerms;
                 }
 
-                const [memberRanks, applicationPositions, applicationTypes, divisions] = await makeRequests(secondBatchUrls);
                 if (memberRanks) {
                     let ranks = memberRanks;
                     for (let i = 0; i < ranks.length; i++) {
@@ -119,6 +112,9 @@ function Loader({ onLoaderLoaded }) {
                         vars.divisions[divisions[i].id] = divisions[i];
                     }
                 }
+
+                await FetchProfile();
+
                 onLoaderLoaded();
             } catch (error) {
                 setLoaderAnimation(false);

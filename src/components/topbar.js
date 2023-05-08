@@ -11,6 +11,8 @@ import Menu from '@mui/material/Menu';
 import { NotificationsRounded, AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 import PropTypes from 'prop-types';
 
+var vars = require("../variables");
+
 function TopBar(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
@@ -60,11 +62,11 @@ function TopBar(props) {
                     </Typography>
                     <div className="user-profile" onClick={handleProfileMenuOpen}>
                         <div className="user-info">
-                            <div className="user-name">CharlesWithC</div>
-                            <div className="user-role">Dragon</div>
+                            <div className="user-name">{vars.userBanner.name}</div>
+                            <div className="user-role">{vars.userBanner.role}</div>
                         </div>
                         <div className="user-avatar">
-                            <img src="https://charlws.com/me.gif" alt="User Avatar" />
+                            <img src={vars.userBanner.avatar} alt="User Avatar" />
                         </div>
                     </div>
                     {dropdownButtons}

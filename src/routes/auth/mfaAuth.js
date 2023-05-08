@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import axios from 'axios';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FetchProfile } from '../../functions';
 axios.defaults.validateStatus = (status) => status < 600;
 
 const axiosRetry = require('axios-retry');
@@ -43,7 +44,7 @@ function MfaAuth() {
                 setOtpText("You are authorized 🎉");
                 setAllowVerify(false);
                 setOtpReadOnly(true);
-                vars.isLoggedIn = true;
+                await FetchProfile();
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);

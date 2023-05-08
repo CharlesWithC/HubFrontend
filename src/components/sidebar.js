@@ -54,8 +54,8 @@ function SideBar(props) {
     const sidebar = (
         <div>
             {menu.map((subMenu, subIndex) => (
-                <div>
-                    <List key={`navlist-${subIndex}`} sx={{ margin: "0px 10px 0 10px" }}>
+                <div key={`navlist-${subIndex}`}>
+                    <List sx={{ margin: "0px 10px 0 10px" }}>
                         {subMenu.map((menuID, btnIndex) => (
                             <ListItem key={`navbtn-${menuID}-${btnIndex}`} disablePadding>
                                 <ListItemButton selected={selectedIndex === subIndex * 10 + btnIndex}
