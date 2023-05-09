@@ -3,9 +3,9 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FetchProfile } from '../../functions';
-axios.defaults.validateStatus = (status) => status < 600;
 
 const axiosRetry = require('axios-retry');
+axios.defaults.validateStatus = (status) => status < 600;
 axiosRetry(axios, {
     retries: 3,
     retryDelay: (retryCount) => {
@@ -40,6 +40,7 @@ function DiscordAuth() {
                         setMessage("You are authorized 🎉");
                         await FetchProfile();
                         setContinue(true);
+                        setTimeout(function () { navigate('/'); }, 500);
                     } else {
                         navigate("/mfa?token=" + resp.data.token);
                         setMessage("MFA OTP Required 🔑");

@@ -37,6 +37,17 @@ function SideBar(props) {
         height: `calc(100vh - ${(bannerHeight + 40)}px)`,
     };
 
+    const [reload, setReload] = useState(+new Date());
+    useEffect(() => {
+        const handleReloadEvent = () => {
+            setReload(+new Date());
+        };
+        window.addEventListener("reloadSideBar", handleReloadEvent);
+        return () => {
+            window.removeEventListener("reloadSideBar", handleReloadEvent);
+        };
+    }, [reload]);
+
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event"];
     const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Live Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "pending_user": "Pending Users", "audit_log": "Audit Log", "configuration": "Configuration" };
@@ -107,6 +118,7 @@ function SideBar(props) {
                 flexShrink: { sm: 0 },
             }}
             aria-label="sidebar"
+            do-reload={reload}
         >
             {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
             <Drawer

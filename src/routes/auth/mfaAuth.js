@@ -6,9 +6,9 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FetchProfile } from '../../functions';
-axios.defaults.validateStatus = (status) => status < 600;
 
 const axiosRetry = require('axios-retry');
+axios.defaults.validateStatus = (status) => status < 600;
 axiosRetry(axios, {
     retries: 3,
     retryDelay: (retryCount) => {
