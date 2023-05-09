@@ -1,19 +1,11 @@
 import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import Menu from '@mui/material/Menu';
-import { NotificationsRounded, AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
+import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
-import { Snackbar, Alert } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress } from "@mui/material";
+import { NotificationsRounded, AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
+
 import { FetchProfile } from "../functions";
-import { useState } from "react";
-import LinearProgress from '@mui/material/LinearProgress';
+import NotificationsPopover from './notifications';
 
 import axios from 'axios';
 const axiosRetry = require('axios-retry');
@@ -33,9 +25,9 @@ var vars = require("../variables");
 
 function TopBar(props) {
     const [loading, setLoading] = useState(false);
+
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
     const handleCloseSnackbar = () => {
         setSnackbarContent("");
     };
@@ -48,6 +40,21 @@ function TopBar(props) {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
+    
+    useEffect(() => {
+        const handleLoadingStartEvent = () => {
+            setLoading(true);
+        };
+        const handleLoadingEndEvent = () => {
+            setLoading(false);
+        };
+        window.addEventListener("loadingStart", handleLoadingStartEvent);
+        window.addEventListener("loadingEnd", handleLoadingEndEvent);
+        return () => {
+            window.removeEventListener("loadingStart", handleLoadingStartEvent);
+            window.removeEventListener("loadingEnd", handleLoadingEndEvent);
+        };
+    }, []);
 
     async function logout() {
         const bearerToken = localStorage.getItem("token");
@@ -114,9 +121,7 @@ function TopBar(props) {
                     }}>
                     <Toolbar>
                         <Typography component="div" sx={{ flexGrow: 1 }}>
-                            <IconButton size="medium" color="inherit">
-                                <NotificationsRounded />
-                            </IconButton>
+                            <NotificationsPopover />
                         </Typography>
                         <div className="user-profile" onClick={handleProfileMenuOpen}>
                             <div className="user-info">

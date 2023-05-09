@@ -46,7 +46,7 @@ function SideBar(props) {
         return () => {
             window.removeEventListener("reloadSideBar", handleReloadEvent);
         };
-    }, [reload]);
+    }, []);
 
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event"];
