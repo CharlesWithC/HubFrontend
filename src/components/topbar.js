@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress } from "@mui/material";
-import { NotificationsRounded, AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
+import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 
 import { FetchProfile } from "../functions";
 import NotificationsPopover from './notifications';
@@ -104,7 +104,6 @@ function TopBar(props) {
         sx={{ top: "50px" }}
     >
         <MenuItem><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-        <MenuItem><ListItemIcon><NotificationsRounded fontSize="small" /></ListItemIcon>Notifications</MenuItem>
         <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
         <Divider />
         <MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem>
