@@ -18,7 +18,7 @@ var vars = require('./variables');
 
 function App() {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const themeMode = prefersDarkMode ? 'dark' : 'light';
+    const themeMode = vars.userSettings.theme === null ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
     const theme = useMemo(
         () =>
             createTheme(getDesignTokens(themeMode), themeMode),

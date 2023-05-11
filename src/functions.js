@@ -29,12 +29,12 @@ export async function FetchProfile() {
             vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
         } else {
             localStorage.removeItem("token");
-            vars.userBanner = { name: "CharlesWithC", role: "Dragon", avatar: "https://charlws.com/me.gif" };
+            vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" }
         }
     } else {
         vars.isLoggedIn = false;
         vars.userInfo = {};
         vars.userPerm = [];
-        vars.userBanner = { name: "CharlesWithC", role: "Dragon", avatar: "https://charlws.com/me.gif" };
+        vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" }
     }
 }

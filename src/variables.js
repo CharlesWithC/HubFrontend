@@ -15,7 +15,22 @@ exports.userInfo = userInfo;
 var userPerm = [];
 exports.userPerm = userPerm;
 
-var userBanner = {name: "CharlesWithC", role: "Dragon", avatar: "https://charlws.com/me.gif"};
+var userSettings = { "theme": null, "notificationRefresh": 30 };
+if (localStorage.getItem("client-settings") !== null) {
+    try {
+        let lsSettings = JSON.parse(localStorage.getItem("client-settings"));
+        let sKeys = Object.keys(userSettings);
+        for (let i = 0; i < sKeys.length; i++) {
+            userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+        }
+    } catch (error) {
+        console.error("Unable to parse client settings in local storage:");
+        console.error(error);
+    }
+}
+exports.userSettings = userSettings;
+
+var userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
 exports.userBanner = userBanner;
 
 // CHub

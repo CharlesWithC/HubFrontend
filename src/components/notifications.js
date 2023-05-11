@@ -25,45 +25,53 @@ const NotificationsPopover = () => {
 
     const [unread, setUnread] = useState(0);
 
-    useEffect(() => {
-        async function loadNotifications() {
-            const bearerToken = localStorage.getItem("token");
+    async function loadNotifications() {
+        const bearerToken = localStorage.getItem("token");
 
-            try {
-                const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
-                if (parseInt(resp.status / 100) === 2) {
-                    var list = [];
-                    for (let i = 0; i < resp.data.list.length; i++) {
-                        let noti = resp.data.list[i];
-                        list.push({ id: noti.notificationid, message: noti.content, timestamp: noti.timestamp, read: noti.read });
-                    }
-                    setNotifications(list);
-                } else {
-                    setSnackbarSeverity("error");
-                    setSnackbarContent(resp.error);
+        try {
+            const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            if (parseInt(resp.status / 100) === 2) {
+                var list = [];
+                for (let i = 0; i < resp.data.list.length; i++) {
+                    let noti = resp.data.list[i];
+                    list.push({ id: noti.notificationid, message: noti.content, timestamp: noti.timestamp, read: noti.read });
                 }
-            } catch (error) {
-                console.error(error);
+                setNotifications(list);
+            } else {
                 setSnackbarSeverity("error");
-                setSnackbarContent("Error occurred! Check F12 for more info.");
+                setSnackbarContent(resp.error);
             }
-
-            try {
-                const resp = await axios({ url: `${vars.dhpath}/user/notification/list?status=0`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
-                if (parseInt(resp.status / 100) === 2) {
-                    setUnread(resp.data.total_items);
-                } else {
-                    setSnackbarSeverity("error");
-                    setSnackbarContent(resp.error);
-                }
-            } catch (error) {
-                console.error(error);
-                setSnackbarSeverity("error");
-                setSnackbarContent("Error occurred! Check F12 for more info.");
-            }
+        } catch (error) {
+            console.error(error);
+            setSnackbarSeverity("error");
+            setSnackbarContent("Error occurred! Check F12 for more info.");
         }
+
+        try {
+            const resp = await axios({ url: `${vars.dhpath}/user/notification/list?status=0`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            if (parseInt(resp.status / 100) === 2) {
+                setUnread(resp.data.total_items);
+            } else {
+                setSnackbarSeverity("error");
+                setSnackbarContent(resp.error);
+            }
+        } catch (error) {
+            console.error(error);
+            setSnackbarSeverity("error");
+            setSnackbarContent("Error occurred! Check F12 for more info.");
+        }
+    }
+    useEffect(() => {
         loadNotifications();
-    }, [unread])
+    }, [unread]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            loadNotifications();
+        }, vars.userSettings.notificationRefresh * 1000);
+
+        return () => clearInterval(interval);
+    }, [])
 
     const handleAllRead = async () => {
         const bearerToken = localStorage.getItem("token");
@@ -73,7 +81,7 @@ const NotificationsPopover = () => {
 
         try {
             const resp = await axios({ url: `${vars.dhpath}/user/notification/all/status/1`, method: "PATCH", headers: { "Authorization": `Bearer ${bearerToken}` } });
-            if (parseInt(resp / 100) === 2) {
+            if (parseInt(resp.status / 100) === 2) {
                 setSnackbarSeverity("success");
                 setSnackbarContent("All notifications marked as read!");
                 setUnread(0);

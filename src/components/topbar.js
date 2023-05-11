@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import PropTypes from 'prop-types';
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress } from "@mui/material";
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
+import { Link } from 'react-router-dom';
 
 import { FetchProfile } from "../functions";
 import NotificationsPopover from './notifications';
@@ -40,7 +41,18 @@ function TopBar(props) {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
-    
+
+    const [reload, setReload] = useState(+new Date());
+    useEffect(() => {
+        const handleReloadEvent = () => {
+            setReload(+new Date());
+        };
+        window.addEventListener("reloadTopBar", handleReloadEvent);
+        return () => {
+            window.removeEventListener("reloadTopBar", handleReloadEvent);
+        };
+    }, []);
+
     useEffect(() => {
         const handleLoadingStartEvent = () => {
             setLoading(true);
@@ -87,7 +99,7 @@ function TopBar(props) {
         window.dispatchEvent(reloadSideBar);
     }
 
-    const dropdownButtons = (<Menu
+    const loggedInBtns = (<Menu
         anchorEl={anchorEl}
         anchorOrigin={{
             vertical: 'top',
@@ -110,8 +122,29 @@ function TopBar(props) {
         <Divider />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
+
+    const notLoggedInBtns = (<Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+        }}
+        id='topbar-dropdown-menu'
+        keepMounted
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+        }}
+        open={isMenuOpen}
+        onClose={handleMenuClose}
+        sx={{ top: "50px" }}
+    >
+        <Link to="/discord-redirect" ><MenuItem>Discord</MenuItem></Link>
+        <Link to="/steam-redirect"><MenuItem>Steam</MenuItem></Link>
+    </Menu>);
+
     return (
-        <div>
+        <div do-reload={reload}>
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="static"
                     sx={{
@@ -131,7 +164,8 @@ function TopBar(props) {
                                 <img src={vars.userBanner.avatar} alt="User Avatar" />
                             </div>
                         </div>
-                        {dropdownButtons}
+                        {vars.isLoggedIn && loggedInBtns}
+                        {!vars.isLoggedIn && notLoggedInBtns}
                     </Toolbar>
                 </AppBar>
                 {loading && (<LinearProgress />)}
