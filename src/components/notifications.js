@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { IconButton, Popover, List, ListItem, ListItemText, Typography, Snackbar, Alert, CircularProgress, Badge } from '@mui/material';
 import { NotificationsRounded, DoneAllRounded } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
@@ -25,11 +25,11 @@ const NotificationsPopover = () => {
 
     const [unread, setUnread] = useState(0);
 
-    async function loadNotifications() {
+    const loadNotifications = useCallback(async () => {
         const bearerToken = localStorage.getItem("token");
 
         try {
-            const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, params: { page_size: 250 }, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (parseInt(resp.status / 100) === 2) {
                 var list = [];
                 for (let i = 0; i < resp.data.list.length; i++) {
@@ -60,18 +60,34 @@ const NotificationsPopover = () => {
             setSnackbarSeverity("error");
             setSnackbarContent("Error occurred! Check F12 for more info.");
         }
-    }
+    }, []);
+
+    const handleScroll = useCallback(async () => {
+        const sbar = document.querySelector('#notifications-simplebar').querySelector('.simplebar-content-wrapper');
+        const { scrollTop, scrollHeight, clientHeight } = sbar;
+        if (scrollHeight - (scrollTop + clientHeight) <= 150) {
+            console.log("do load more notifications");
+        }
+    }, []);
+
     useEffect(() => {
         loadNotifications();
-    }, [unread]);
+    }, [unread, loadNotifications]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             loadNotifications();
         }, vars.userSettings.notificationRefresh * 1000);
+        const bindScrollListender = setInterval(() => {
+            if (document.querySelector('#notifications-simplebar') === null || document.querySelector('#notifications-simplebar').querySelector('.simplebar-content-wrapper') === null) {
+                return;
+            }
+            document.querySelector('#notifications-simplebar').querySelector('.simplebar-content-wrapper').addEventListener("scroll", handleScroll);
+            clearInterval(bindScrollListender);
+        }, 100);
 
-        return () => clearInterval(interval);
-    }, [])
+        return () => { clearInterval(interval); clearInterval(bindScrollListender); }
+    }, [loadNotifications, handleScroll])
 
     const handleAllRead = async () => {
         const bearerToken = localStorage.getItem("token");
@@ -124,7 +140,7 @@ const NotificationsPopover = () => {
                         </IconButton>
                     </ListItem>
                     {notifications !== null &&
-                        <SimpleBar style={{ maxHeight: "40vh" }}>
+                        <SimpleBar style={{ maxHeight: "40vh" }} id="notifications-simplebar">
                             {notifications.map(({ id, message, timestamp, read }) => (
                                 <ListItem key={id} sx={{ margin: 0 }}>
                                     <ListItemText primary={<ReactMarkdown>{message}</ReactMarkdown>} secondary={new Date(timestamp * 1000).toLocaleString()}
