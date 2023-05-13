@@ -62,14 +62,6 @@ const NotificationsPopover = () => {
         }
     }, []);
 
-    const handleScroll = useCallback(async () => {
-        const sbar = document.querySelector('#notifications-simplebar').querySelector('.simplebar-content-wrapper');
-        const { scrollTop, scrollHeight, clientHeight } = sbar;
-        if (scrollHeight - (scrollTop + clientHeight) <= 150) {
-            console.log("do load more notifications");
-        }
-    }, []);
-
     useEffect(() => {
         loadNotifications();
     }, [unread, loadNotifications]);
@@ -78,16 +70,9 @@ const NotificationsPopover = () => {
         const interval = setInterval(() => {
             loadNotifications();
         }, vars.userSettings.notificationRefresh * 1000);
-        const bindScrollListender = setInterval(() => {
-            if (document.querySelector('#notifications-simplebar') === null || document.querySelector('#notifications-simplebar').querySelector('.simplebar-content-wrapper') === null) {
-                return;
-            }
-            document.querySelector('#notifications-simplebar').querySelector('.simplebar-content-wrapper').addEventListener("scroll", handleScroll);
-            clearInterval(bindScrollListender);
-        }, 100);
 
-        return () => { clearInterval(interval); clearInterval(bindScrollListender); }
-    }, [loadNotifications, handleScroll])
+        return () => { clearInterval(interval); }
+    }, [loadNotifications])
 
     const handleAllRead = async () => {
         const bearerToken = localStorage.getItem("token");
@@ -117,7 +102,7 @@ const NotificationsPopover = () => {
     const open = Boolean(anchorEl);
 
     return (
-        <div>
+        <>
             <IconButton size="medium" color="inherit" onClick={handleClick}>
                 {unread >= 100 && <Badge badgeContent="99+" color="error"><NotificationsRounded /></Badge>}
                 {unread > 0 && unread < 100 && <Badge badgeContent={unread} color="error"><NotificationsRounded /></Badge>}
@@ -143,11 +128,15 @@ const NotificationsPopover = () => {
                         <SimpleBar style={{ maxHeight: "40vh" }} id="notifications-simplebar">
                             {notifications.map(({ id, message, timestamp, read }) => (
                                 <ListItem key={id} sx={{ margin: 0 }}>
-                                    <ListItemText primary={<ReactMarkdown>{message}</ReactMarkdown>} secondary={new Date(timestamp * 1000).toLocaleString()}
+                                    <ListItemText primary={<ReactMarkdown>{message}</ReactMarkdown>} secondary={timestamp !== null ? new Date(timestamp * 1000).toLocaleString() : ""}
                                         primaryTypographyProps={{ style: { color: read === true ? "grey" : null } }}
                                         secondaryTypographyProps={{ style: { color: "grey" } }} />
                                 </ListItem>
                             ))}
+                            <ListItem key="last" sx={{ margin: 0, textAlign: "center" }}>
+                                <ListItemText primary="--- Only the latest 250 notifications are shown ---"
+                                    primaryTypographyProps={{ style: { color: "grey", fontSize: "15px" } }} />
+                            </ListItem>
                         </SimpleBar>
                     }
                     {notifications === null && <div style={{ display: 'flex', justifyContent: 'center', marginBottom: "15px" }}><CircularProgress /></div>}
@@ -163,7 +152,7 @@ const NotificationsPopover = () => {
                     {snackbarContent}
                 </Alert>
             </Snackbar>
-        </div>
+        </>
     );
 };
 

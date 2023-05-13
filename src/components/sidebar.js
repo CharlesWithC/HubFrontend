@@ -33,8 +33,8 @@ function SideBar(props) {
         }
     }, []);
     const simpleBarStyle = {
-        maxHeight: `calc(100vh - ${(bannerHeight + 40)}px)`,
-        height: `calc(100vh - ${(bannerHeight + 40)}px)`,
+        maxHeight: `calc(100vh - ${(bannerHeight + 30)}px)`,
+        height: `calc(100vh - ${(bannerHeight + 30)}px)`,
     };
 
     const [reload, setReload] = useState(+new Date());
@@ -86,7 +86,7 @@ function SideBar(props) {
     menu = menu.filter(subMenu => subMenu.length > 0);
 
     const sidebar = (
-        <div>
+        <>
             {menu.map((subMenu, subIndex) => (
                 <div key={`navlist-${subIndex}`}>
                     <List sx={{ margin: "0px 10px 0 10px" }}>
@@ -105,7 +105,7 @@ function SideBar(props) {
                     {subIndex !== menu.length - 1 && <Divider key={`divider-${subIndex}`} />}
                 </div>
             ))}
-        </div>
+        </>
     );
 
     const container = window !== undefined ? () => window.document.body : undefined;

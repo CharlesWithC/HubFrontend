@@ -5,14 +5,19 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './routes/home';
 import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
 import SteamAuth from './routes/auth/steamAuth';
 import MfaAuth from './routes/auth/mfaAuth';
 import Loader from './components/loader';
-import Redirect from './components/redirect'
+import Redirect from './components/redirect';
+import UpgradeCard from './components/upgrade';
 import { getDesignTokens } from './designs';
+import SimpleBar from 'simplebar-react';
+import 'simplebar-react/dist/simplebar.min.css';
+
+import TopBar from './components/topbar';
+import SideBar from './components/sidebar';
 
 var vars = require('./variables');
 
@@ -33,6 +38,12 @@ function App() {
 
     const protocol = window.location.protocol.replace(":", "");
 
+    const path = window.location.pathname;
+    let fullScreenElement = false;
+    if (["/auth", "/discord-auth", "/discord-redirect", "/steam-auth", "/steam-redirect", "/mfa"].includes(path)) {
+        fullScreenElement = true;
+    }
+
     if (vars.dhconfig == null) {
         return (
             <ThemeProvider theme={theme}>
@@ -45,8 +56,13 @@ function App() {
             <BrowserRouter>
                 <ThemeProvider theme={theme}>
                     <CssBaseline />
+                    {!fullScreenElement &&
+                        <>
+                            <TopBar sidebarWidth={260}></TopBar>
+                            <SideBar width={260}></SideBar>
+                        </>
+                    }
                     <Routes>
-                        <Route path="/" element={<Home />} />
                         <Route path="/auth" element={<TokenAuth />} />
                         <Route path="/discord-auth" element={<DiscordAuth />} />
                         <Route path="/discord-redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fdiscord-auth&response_type=code&scope=identify email role_connections.write`} />} />
@@ -54,8 +70,18 @@ function App() {
                         <Route path="/steam-redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
                         <Route path="/mfa" element={<MfaAuth />} />
                     </Routes>
+                    {!fullScreenElement &&
+                        <div style={{ position: "relative", left: "260px", top: "80px", width: "calc(100vw - 260px)", height: "calc(100vh - 80px)", overflow: "hidden" }}>
+                            <SimpleBar style={{ padding: "20px", height: "100%" }} >
+                                <Routes>
+                                    <Route path="/" element={<></>}></Route>{/*placeholder for now, use overview instead*/}
+                                    <Route path="/upgrade" element={<><UpgradeCard /><UpgradeCard /></>}></Route>
+                                </Routes>
+                            </SimpleBar>
+                        </div>
+                    }
                 </ThemeProvider>
-            </BrowserRouter>
+            </BrowserRouter >
         );
     }
 }

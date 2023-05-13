@@ -118,7 +118,7 @@ function TopBar(props) {
         <MenuItem><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
         <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
         <Divider />
-        <MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem>
+        <MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon><Link to="/upgrade" >Upgrade</Link></MenuItem>
         <Divider />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
@@ -139,8 +139,8 @@ function TopBar(props) {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        <Link to="/discord-redirect" ><MenuItem>Discord</MenuItem></Link>
-        <Link to="/steam-redirect"><MenuItem>Steam</MenuItem></Link>
+        <MenuItem><Link to="/discord-redirect" >Discord</Link></MenuItem>
+        <MenuItem><Link to="/steam-redirect">Steam</Link></MenuItem>
     </Menu>);
 
     return (
@@ -150,6 +150,8 @@ function TopBar(props) {
                     sx={{
                         width: { sm: `calc(100% - ${props.sidebarWidth}px)` },
                         ml: { sm: `${props.sidebarWidth}px` },
+                        position: "fixed",
+                        zIndex: "100"
                     }}>
                     <Toolbar>
                         <Typography component="div" sx={{ flexGrow: 1 }}>
