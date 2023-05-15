@@ -118,7 +118,7 @@ function TopBar(props) {
         <MenuItem><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
         <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
         <Divider />
-        <MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon><Link to="/upgrade" >Upgrade</Link></MenuItem>
+        <Link to="/upgrade"><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
         <Divider />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);

@@ -2,27 +2,53 @@ import React from 'react';
 import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 
 const UpgradeCard = () => {
-    const premiumFeatures = [
-        { text: 'Exclusive content' },
-        { text: 'Early access' },
-        { text: 'Community recognition' },
-        { text: 'Custom emojis' },
+    const freeFeatures = [
+        { text: '✔️ Dark/Light theme' },
+        { text: '✔️ Regular name color' },
+        { text: '✔️ Regular support' },
+        { text: '✔️ All regular functionalities' },
     ];
 
-    const freeFeatures = [
-        { text: 'Basic content' },
-        { text: 'Limited access' },
-        { text: 'No recognition' },
-        { text: 'No custom emojis' },
+    const premiumFeatures = [
+        { text: '✔️ More themes and customizable themes' },
+        { text: '✔️ Golden name color' },
+        { text: '✔️ Special Discord role' },
+        { text: '✔️ Extra functionalities' },
     ];
+
 
     return (
-        <Grid container spacing={2} justify="center">
-            <Grid item xs={12} sm={6}>
+        <Grid container spacing={6} justifyContent="center">
+            <Grid item xs={12} sm={5}>
                 <Card>
                     <CardHeader
-                        title="Premium Features"
-                        subheader="Subscribe to our Patreon for these benefits"
+                        title="Regular User"
+                        subheader="All functions needed to use the Drivers Hub"
+                        titleTypographyProps={{ align: 'center' }}
+                        subheaderTypographyProps={{ align: 'center' }}
+                    />
+                    <CardContent>
+                        <List>
+                            {freeFeatures.map((feature) => (
+                                <ListItem key={feature.text}>
+                                    <ListItemText primary={feature.text} />
+                                </ListItem>
+                            ))}
+                        </List>
+                        <Typography variant="h5" align="center" gutterBottom>
+                            Free forever
+                        </Typography>
+                        <Button variant="outlined" color="primary" fullWidth>
+                            No action needed
+                        </Button>
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Grid item xs={12} sm={5}>
+                <Card>
+                    <CardHeader
+                        title="Patreon Subscribers"
+                        subheader="Make your profile distringuied among members"
                         titleTypographyProps={{ align: 'center' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -37,31 +63,9 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $10 per month
                         </Typography>
-                        <Button variant="contained" color="primary" fullWidth>
-                            Subscribe
-                        </Button>
-                    </CardContent>
-                </Card>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-                <Card>
-                    <CardHeader
-                        title="Free Features"
-                        subheader="Use our app with these features for free"
-                        titleTypographyProps={{ align: 'center' }}
-                        subheaderTypographyProps={{ align: 'center' }}
-                    />
-                    <CardContent>
-                        <List>
-                            {freeFeatures.map((feature) => (
-                                <ListItem key={feature.text}>
-                                    <ListItemText primary={feature.text} />
-                                </ListItem>
-                            ))}
-                        </List>
-                        <Button variant="outlined" color="primary" fullWidth>
-                            Download for Free
-                        </Button>
+                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                            Subscribe at Patreon
+                        </Button></a>
                     </CardContent>
                 </Card>
             </Grid>

@@ -11,7 +11,7 @@ import SteamAuth from './routes/auth/steamAuth';
 import MfaAuth from './routes/auth/mfaAuth';
 import Loader from './components/loader';
 import Redirect from './components/redirect';
-import UpgradeCard from './components/upgrade';
+import UpgradeCard from './routes/upgrade';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -75,7 +75,7 @@ function App() {
                             <SimpleBar style={{ padding: "20px", height: "100%" }} >
                                 <Routes>
                                     <Route path="/" element={<></>}></Route>{/*placeholder for now, use overview instead*/}
-                                    <Route path="/upgrade" element={<><UpgradeCard /><UpgradeCard /></>}></Route>
+                                    <Route path="/upgrade" element={<UpgradeCard />}></Route>
                                 </Routes>
                             </SimpleBar>
                         </div>

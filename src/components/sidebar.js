@@ -11,6 +11,7 @@ import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 var vars = require('../variables');
 
@@ -138,9 +139,9 @@ function SideBar(props) {
             >
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
-                        <ListItem key={`navbtn-banner`} disablePadding>
+                        <Link to="/"><ListItem key={`navbtn-banner`} disablePadding>
                             <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
-                        </ListItem>
+                        </ListItem></Link>
                     </List>
                     <SimpleBar style={simpleBarStyle}>
                         {sidebar}
@@ -160,9 +161,9 @@ function SideBar(props) {
             >
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
-                        <ListItem key={`navbtn-banner`} disablePadding>
+                        <Link to="/"><ListItem key={`navbtn-banner`} disablePadding>
                             <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
-                        </ListItem>
+                        </ListItem></Link>
                     </List>
                     <SimpleBar style={simpleBarStyle}>
                         {sidebar}
