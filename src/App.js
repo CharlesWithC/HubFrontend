@@ -12,6 +12,7 @@ import MfaAuth from './routes/auth/mfaAuth';
 import Loader from './components/loader';
 import Redirect from './components/redirect';
 import UpgradeCard from './routes/upgrade';
+import Overview from './routes/overview';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -74,7 +75,7 @@ function App() {
                         <div style={{ position: "relative", left: "260px", top: "80px", width: "calc(100vw - 260px)", height: "calc(100vh - 80px)", overflow: "hidden" }}>
                             <SimpleBar style={{ padding: "20px", height: "100%" }} >
                                 <Routes>
-                                    <Route path="/" element={<></>}></Route>{/*placeholder for now, use overview instead*/}
+                                    <Route path="/" element={<Overview />}></Route>
                                     <Route path="/upgrade" element={<UpgradeCard />}></Route>
                                 </Routes>
                             </SimpleBar>
