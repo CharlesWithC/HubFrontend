@@ -1,8 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
 import { Card, CardContent, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 const StatCard = () => {
+    const theme = useTheme();
+
     const chartRef = useRef(null);
 
     useEffect(() => {
@@ -20,52 +23,65 @@ const StatCard = () => {
             return Array.from({ length: inputs.count }, () => Math.random() * 100);
         };
 
+        var gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, theme.palette.text.primary + '75');
+        gradient.addColorStop(0.382, theme.palette.text.primary + '25');
+        gradient.addColorStop(0.618, theme.palette.text.primary + '10');
+
         const data = {
             labels: generateLabels(),
             datasets: [
                 {
                     label: 'Dataset',
                     data: generateData(),
-                    borderColor: 'rgba(255, 99, 132, 1)', // Red color
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Red color with transparency
                     fill: 'start',
+                    borderColor: theme.palette.text.primary,
+                    backgroundColor: gradient
                 },
             ],
         };
+
 
         const options = {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
                 x: {
-                    display: false, // Hide x-axis
+                    display: false,
                 },
                 y: {
-                    display: false, // Hide y-axis
+                    display: false,
                 },
             },
             plugins: {
                 title: {
-                    display: false, // Hide title
+                    display: false,
                 },
                 legend: {
-                    display: false, // Hide legend
+                    display: false,
                 },
                 tooltip: {
-                    enabled: false, // Disable tooltip
+                    enabled: false,
                 },
             },
             layout: {
-                padding: 0, // Remove padding
+                padding: 0,
             },
             elements: {
                 line: {
-                    tension: 0, // Set tension to 0 to remove curved lines
+                    tension: 0.5,
+                },
+                point: {
+                    radius: 0,
                 },
             },
             interaction: {
                 mode: 'index',
                 intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true,
             },
         };
 
@@ -75,12 +91,10 @@ const StatCard = () => {
             options: options,
         });
 
-        console.log("re-render");
-
         return () => {
             chart.destroy();
         };
-    }, []);
+    }, [theme.palette.text.primary]);
 
     return (
         <Card>
@@ -92,7 +106,7 @@ const StatCard = () => {
                     xxx drivers
                 </Typography>
             </CardContent>
-            <div style={{ height: '400px' }}>
+            <div style={{ height: '100%' }}>
                 <canvas ref={chartRef} style={{ height: '100%' }} />
             </div>
         </Card>

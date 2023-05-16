@@ -1,5 +1,5 @@
 import './App.css';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
@@ -37,6 +37,21 @@ function App() {
         setTimeout(function () { setRerender(true); }, 500);
     };
 
+    const [sidebarHidden, setSidebarHidden] = useState(window.innerWidth < 600);
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 600) {
+                setSidebarHidden(false);
+            } else {
+                setSidebarHidden(true);
+            }
+        };
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
+
     const protocol = window.location.protocol.replace(":", "");
 
     const path = window.location.pathname;
@@ -72,7 +87,8 @@ function App() {
                         <Route path="mfa" element={<MfaAuth />} />
                     </Routes>
                     {!fullScreenElement &&
-                        <div style={{ position: "relative", left: "260px", top: "80px", width: "calc(100vw - 260px)", height: "calc(100vh - 80px)", overflow: "hidden" }}>
+                        <div style={(!sidebarHidden && { position: "relative", left: "260px", top: "80px", width: "calc(100vw - 260px)", height: "calc(100vh - 80px)", overflow: "hidden" })
+                            || (sidebarHidden && { position: "relative", left: "0", top: "80px", width: "calc(100vw)", height: "calc(100vh - 80px)", overflow: "hidden" })}>
                             <SimpleBar style={{ padding: "20px", height: "100%" }} >
                                 <Routes>
                                     <Route path="*" element={<Overview />}></Route>
