@@ -28,6 +28,10 @@ const NotificationsPopover = () => {
     const loadNotifications = useCallback(async () => {
         const bearerToken = localStorage.getItem("token");
 
+        if (bearerToken === null) {
+            return;
+        }
+
         try {
             const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, params: { page_size: 250 }, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (parseInt(resp.status / 100) === 2) {

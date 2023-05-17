@@ -38,3 +38,24 @@ export async function FetchProfile() {
         vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" }
     }
 }
+
+export function TSep(val) {
+    return val.toLocaleString('en-US');
+}
+
+export function ConvertUnit(type, val) {
+    if (vars.userSettings.unit === "imperial") {
+        if (type === "km") {
+            val = parseInt(val * 0.621371192);
+            return TSep(val) + "mi";
+        } else if (type === "kg") {
+            val = parseInt(val * 2.20462262185);
+            return TSep(val) + "lb";
+        } else if (type === "l") {
+            val = parseInt(val * 0.26417205235815);
+            return TSep(val) + "gal";
+        }
+    } else if (vars.userSettings.unit === "metric") {
+        return TSep(val) + type;
+    }
+}

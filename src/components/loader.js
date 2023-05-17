@@ -1,10 +1,10 @@
 
 import { loadConfig } from '../functions/config';
-import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { FetchProfile } from '../functions';
 
+import axios from 'axios';
 const axiosRetry = require('axios-retry');
 axiosRetry(axios, {
     retries: 3,

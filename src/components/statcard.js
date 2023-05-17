@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-const StatCard = () => {
+const StatCard = (props) => {
+    const { title, latest, inputs } = props;
     const theme = useTheme();
 
     const chartRef = useRef(null);
@@ -11,16 +12,8 @@ const StatCard = () => {
     useEffect(() => {
         const ctx = chartRef.current.getContext('2d');
 
-        const inputs = {
-            count: 7, // Modify this value as per your requirement
-        };
-
         const generateLabels = () => {
-            return Array.from({ length: inputs.count }, (_, i) => i + 1);
-        };
-
-        const generateData = () => {
-            return Array.from({ length: inputs.count }, () => Math.random() * 100);
+            return Array.from({ length: inputs.length }, (_, i) => i + 1);
         };
 
         var gradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -33,7 +26,7 @@ const StatCard = () => {
             datasets: [
                 {
                     label: 'Dataset',
-                    data: generateData(),
+                    data: inputs,
                     fill: 'start',
                     borderColor: theme.palette.text.primary,
                     backgroundColor: gradient
@@ -94,17 +87,17 @@ const StatCard = () => {
         return () => {
             chart.destroy();
         };
-    }, [theme.palette.text.primary]);
+    }, [inputs, theme.palette.text.primary]);
 
     return (
         <Card>
             <CardContent>
-                <Typography variant="h6" component="div">
-                    Latest Stat
-                </Typography>
-                <Typography variant="body1" component="div">
-                    xxx drivers
-                </Typography>
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                    <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
+                        {title}
+                    </Typography>
+                    <Chip label={latest}></Chip>
+                </div>
             </CardContent>
             <div style={{ height: '100%' }}>
                 <canvas ref={chartRef} style={{ height: '100%' }} />
