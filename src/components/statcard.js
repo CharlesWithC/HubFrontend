@@ -4,7 +4,7 @@ import { Card, CardContent, Typography, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 const StatCard = (props) => {
-    const { title, latest, inputs } = props;
+    const { icon, title, latest, inputs } = props;
     const theme = useTheme();
 
     const chartRef = useRef(null);
@@ -44,6 +44,7 @@ const StatCard = (props) => {
                 },
                 y: {
                     display: false,
+                    suggestedMin: 0
                 },
             },
             plugins: {
@@ -93,16 +94,16 @@ const StatCard = (props) => {
         <Card>
             <CardContent>
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                    <Typography variant="h5" component="div" sx={{ flexGrow: 1 }}>
-                        {title}
+                    <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        {icon}&nbsp;&nbsp;{title}
                     </Typography>
-                    <Chip label={latest}></Chip>
+                    <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>
                 </div>
             </CardContent>
             <div style={{ height: '100%' }}>
                 <canvas ref={chartRef} style={{ height: '100%' }} />
             </div>
-        </Card>
+        </Card >
     );
 };
 

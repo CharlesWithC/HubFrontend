@@ -2,6 +2,7 @@ import StatCard from '../components/statcard';
 import { Grid } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { TSep, ConvertUnit } from '../functions';
+import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded } from '@mui/icons-material';
 
 import axios from 'axios';
 const axiosRetry = require('axios-retry');
@@ -52,10 +53,12 @@ function Overview() {
 
             let newInputs = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
 
-            for (let i = 0; i < sumUp.length; i++) {
-                newInputs.driver.push(sumUp[i].driver);
-            }
             for (let i = 0; i < noSumUp.length; i++) {
+                if (i === 0) {
+                    newInputs.driver.push(noSumUp[i].driver);
+                } else {
+                    newInputs.driver.push(newInputs.driver[i - 1] + noSumUp[i].driver);
+                }
                 newInputs.job.push(noSumUp[i].job);
                 newInputs.distance.push(noSumUp[i].distance);
                 newInputs.fuel.push(noSumUp[i].fuel);
@@ -71,22 +74,22 @@ function Overview() {
 
     return (<Grid container spacing={2}>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard title={"Drivers"} latest={TSep(latest.driver)} inputs={inputs.driver} />
+            <StatCard icon={<PermContactCalendarRounded />} title={"Drivers"} latest={TSep(latest.driver)} inputs={inputs.driver} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard title={"Jobs"} latest={TSep(latest.job)} inputs={inputs.job} />
+            <StatCard icon={<LocalShippingRounded />} title={"Jobs"} latest={TSep(latest.job)} inputs={inputs.job} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard title={"Distance"} latest={ConvertUnit("km", latest.distance)} inputs={inputs.distance} />
+            <StatCard icon={<RouteRounded />} title={"Distance"} latest={ConvertUnit("km", latest.distance)} inputs={inputs.distance} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard title={"Profit"} latest={TSep(latest.profit_euro) + "€"} inputs={inputs.profit_euro} />
+            <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} latest={TSep(latest.profit_euro) + "€"} inputs={inputs.profit_euro} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard title={"Profit"} latest={TSep(latest.profit_dollar) + "$"} inputs={inputs.profit_dollar} />
+            <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} latest={TSep(latest.profit_dollar) + "$"} inputs={inputs.profit_dollar} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard title={"Fuel"} latest={ConvertUnit("l", latest.fuel)} inputs={inputs.fuel} />
+            <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel)} inputs={inputs.fuel} />
         </Grid>
     </Grid>);
 }

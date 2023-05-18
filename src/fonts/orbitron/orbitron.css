@@ -1,0 +1,43 @@
+/* NOTE Use cdn.chub.page or similar */
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('./Orbitron-Regular.woff2') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('./Orbitron-Medium.woff2') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('./Orbitron-SemiBold.woff2') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('./Orbitron-Bold.woff2') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('./Orbitron-ExtraBold.woff2') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    src: url('./Orbitron-Black.woff2') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
