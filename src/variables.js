@@ -2,10 +2,12 @@ var dhconfig = null;
 var dhapplication = "";
 var dhstyle = "";
 var dhpath = "";
+var dhlogo = "";
 exports.dhconfig = dhconfig;
 exports.dhapplication = dhapplication;
 exports.dhstyle = dhstyle;
 exports.dhpath = dhpath;
+exports.dhlogo = dhlogo;
 
 var isLoggedIn = false;
 exports.isLoggedIn = isLoggedIn;

@@ -2,7 +2,7 @@
 import { loadConfig } from '../functions/config';
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
-import { FetchProfile } from '../functions';
+import { FetchProfile, loadImageAsBase64 } from '../functions';
 
 import axios from 'axios';
 const axiosRetry = require('axios-retry');
@@ -37,7 +37,7 @@ function Loader({ onLoaderLoaded }) {
     }
 
     const searchParams = new URLSearchParams(window.location.search);
-    if(searchParams.get("domain") !== null){
+    if (searchParams.get("domain") !== null) {
         domain = searchParams.get("domain");
     }
 
@@ -52,7 +52,8 @@ function Loader({ onLoaderLoaded }) {
                 vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
 
                 setTitle(vars.dhconfig.name);
-                setLogoSrc(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
+                vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
+                setLogoSrc(vars.dhlogo);
                 setLoadMessage(`Loading`);
 
                 localStorage.setItem("preload-title", vars.dhconfig.name);
