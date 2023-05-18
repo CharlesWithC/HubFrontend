@@ -44,6 +44,9 @@ export function TSep(val) {
 }
 
 export function ConvertUnit(type, val) {
+    if (val === undefined || val === null) {
+        return "";
+    }
     if (vars.userSettings.unit === "imperial") {
         if (type === "km") {
             val = parseInt(val * 0.621371192);
