@@ -79,7 +79,7 @@ function Overview() {
                 `${vars.dhpath}/dlog/list?page=1&page_size=1&order=desc`
             ]);
 
-            let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job, distance: chartSU[chartSU.length - 1].distance, fuel: chartSU[chartSU.length - 1].fuel, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
+            let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
             let newCharts = { driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
             let newLeaderboard = [];
             let newRecentVisitors = [];
@@ -90,9 +90,9 @@ function Overview() {
                 } else {
                     newCharts.driver.push(newCharts.driver[i - 1] + chartNSU[i].driver);
                 }
-                newCharts.job.push(chartNSU[i].job);
-                newCharts.distance.push(chartNSU[i].distance);
-                newCharts.fuel.push(chartNSU[i].fuel);
+                newCharts.job.push(chartNSU[i].job.sum);
+                newCharts.distance.push(chartNSU[i].distance.sum);
+                newCharts.fuel.push(chartNSU[i].fuel.sum);
                 newCharts.profit_euro.push(chartNSU[i].profit.euro);
                 newCharts.profit_dollar.push(chartNSU[i].profit.dollar);
             }
