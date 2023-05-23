@@ -32,6 +32,9 @@ function Announcement() {
 
     useEffect(() => {
         async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
             let url = `${vars.dhpath}/announcements/list?page_size=250`;
             if (announcements.length !== 0) {
                 url = `${vars.dhpath}/announcements/list?page_size=250&after_announcementid=${announcements[announcements.length - 1].announcementid}`;
@@ -53,8 +56,11 @@ function Announcement() {
             for (let i = 0; i < newAnns.length; i++) {
                 newAnns[i] = { ...newAnns[i], "display": "half-width" };
             }
-            
+
             setAnnouncemnts(newAnns);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
         }
         if (announcements.length === 0) {
             doLoad();

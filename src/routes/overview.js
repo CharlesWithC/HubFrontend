@@ -44,6 +44,9 @@ const Overview = () => {
 
     useEffect(() => {
         async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
             const [chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
                 {url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false},
                 {url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true&before=` + getTodayUTC() / 1000, auth: false},
@@ -95,6 +98,9 @@ const Overview = () => {
             if (ldelivery.list !== undefined) {
                 setLatestDelivery(ldelivery.list[0]);
             }
+            
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
         }
         doLoad();
     }, []);

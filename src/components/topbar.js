@@ -170,7 +170,7 @@ function TopBar(props) {
                         {!vars.isLoggedIn && notLoggedInBtns}
                     </Toolbar>
                 </AppBar>
-                {loading && (<LinearProgress />)}
+                {loading && (<LinearProgress sx={{ top: "80px", left: `${props.sidebarWidth}px`, width: `calc(100% - ${props.sidebarWidth}px)`, position: "fixed", zIndex: 101 }} />)}
             </Box>
             <Snackbar
                 open={!!snackbarContent}
