@@ -14,6 +14,7 @@ import Loader from './components/loader';
 import Redirect from './components/redirect';
 import UpgradeCard from './routes/upgrade';
 import Overview from './routes/overview';
+import Announcement from './routes/announcement';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -94,6 +95,7 @@ function App() {
                             <Route path="/mfa" element={<MfaAuth />} />
                             <Route exact path="/" element={<Overview />}></Route>
                             <Route path="/upgrade" element={<UpgradeCard />}></Route>
+                            <Route path="/announcements" element={<Announcement />}></Route>
                         </Routes>
                     </SimpleBar>
                 </div>

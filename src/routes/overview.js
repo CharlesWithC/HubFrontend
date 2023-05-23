@@ -2,7 +2,7 @@ import StatCard from '../components/statcard';
 import UserCard from '../components/usercard';
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { TSep, ConvertUnit, timeAgo } from '../functions';
+import { TSep, ConvertUnit, timeAgo, makeRequestsAuto } from '../functions';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react';
 import { memo } from 'react';
@@ -35,31 +35,6 @@ function getMonthUTC() {
 var vars = require("../variables");
 
 const Overview = () => {
-    const makeRequests = async (urls) => {
-        const responses = await Promise.all(
-            urls.map((url) =>
-                axios({
-                    url,
-                })
-            )
-        );
-        return responses.map((response) => response.data);
-    };
-
-    const makeRequestsWithAuth = async (urls) => {
-        const responses = await Promise.all(
-            urls.map((url) =>
-                axios({
-                    url,
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
-                    }
-                })
-            )
-        );
-        return responses.map((response) => response.data);
-    };
-
     const [latest, setLatest] = useState({ driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 });
     const [charts, setCharts] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
     const [leaderboard, setLeaderboard] = useState([]);
@@ -69,9 +44,13 @@ const Overview = () => {
 
     useEffect(() => {
         async function doLoad() {
-            const [chartNSU, chartSU] = await makeRequests([
-                `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000,
-                `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true&before=` + getTodayUTC() / 1000,
+            const [chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
+                {url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false},
+                {url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true&before=` + getTodayUTC() / 1000, auth: false},
+                {url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true},
+                {url: `${vars.dhpath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true},
+                {url: `${vars.dhpath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`, auth: true},
+                {url: `${vars.dhpath}/dlog/list?page=1&page_size=1&order=desc`, auth: true}
             ]);
 
             let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
@@ -92,12 +71,6 @@ const Overview = () => {
             }
             setCharts(newCharts);
 
-            const [lboard, rvisitors, nmember, ldelivery] = await makeRequestsWithAuth([
-                `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000,
-                `${vars.dhpath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`,
-                `${vars.dhpath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`,
-                `${vars.dhpath}/dlog/list?page=1&page_size=1&order=desc`
-            ]);
             if (lboard.list !== undefined) {
                 let newLeaderboard = [];
                 for (let i = 0; i < lboard.list.length; i++) {

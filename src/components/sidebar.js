@@ -87,6 +87,18 @@ function SideBar(props) {
     menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
     menu = menu.filter(subMenu => subMenu.length > 0);
 
+    let routeIndex = {};
+    for (let i = 0; i < menu.length; i++) {
+        for (let j = 0; j < menu[i].length; j++) {
+            routeIndex[menuRoute[menu[i][j]]] = i * 10 + j;
+        }
+    }
+    if (Object.keys(routeIndex).includes(window.location.pathname)) {
+        if (selectedIndex !== routeIndex[window.location.pathname]) {
+            setSelectedIndex(routeIndex[window.location.pathname]);
+        }
+    }
+
     const sidebar = (
         <>
             {menu.map((subMenu, subIndex) => (

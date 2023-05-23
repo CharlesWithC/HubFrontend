@@ -2,6 +2,61 @@
 import axios from 'axios';
 var vars = require('./variables');
 
+const axiosRetry = require('axios-retry');
+axiosRetry(axios, {
+    retries: 3,
+    retryDelay: (retryCount) => {
+        console.log(`retry attempt: ${retryCount}`);
+        return retryCount * 1000;
+    },
+    retryCondition: (error) => {
+        return error.response === undefined || error.response.status in [429, 503];
+    },
+});
+
+export const makeRequests = async (urls) => {
+    const responses = await Promise.all(
+        urls.map((url) =>
+            axios({
+                url,
+            })
+        )
+    );
+    return responses.map((response) => response.data);
+};
+
+export const makeRequestsWithAuth = async (urls) => {
+    const responses = await Promise.all(
+        urls.map((url) =>
+            axios({
+                url,
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                }
+            })
+        )
+    );
+    return responses.map((response) => response.data);
+};
+
+export const makeRequestsAuto = async (urls) => {
+    const responses = await Promise.all(
+        urls.map(({ url, auth }) => {
+            if (!auth || (auth && vars.isLoggedIn)) {
+                return axios({
+                    url,
+                    headers: auth ? {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                    } : null,
+                });
+            } else {
+                return { data: {} };
+            }
+        })
+    );
+    return responses.map((response) => response.data);
+};
+
 export async function FetchProfile() {
     const bearerToken = localStorage.getItem("token");
     if (bearerToken !== null) {
