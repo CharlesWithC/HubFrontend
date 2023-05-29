@@ -22,7 +22,7 @@ export function getDesignTokens(mode) {
                 : {
                     // palette values for dark mode
                     primary: {
-                        main: '#2F3136',
+                        main: '#2F3136'
                     },
                     background: {
                         default: '#2F3136',
@@ -30,7 +30,7 @@ export function getDesignTokens(mode) {
                     },
                     text: {
                         primary: '#fafafa',
-                        secondary: '#efefef',
+                        secondary: '#efefef'
                     },
                 }),
         }, components: {
@@ -66,7 +66,16 @@ export function getDesignTokens(mode) {
                                 },
                             },
                         },
-                    }
+                    },
+                    MuiFormLabel: {
+                        styleOverrides: {
+                            root: {
+                                '&.Mui-focused': {
+                                    color: '#bbbbbb',
+                                },
+                            },
+                        },
+                    },
                 })
         },
     };
