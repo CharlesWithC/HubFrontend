@@ -53,6 +53,7 @@ function Announcement() {
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [reloadAnnouncement, setReloadAnnouncement] = useState(false);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -81,11 +82,12 @@ function Announcement() {
         e.preventDefault();
         setSubmitLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
-        if (resp.status === 204) {
+        if (resp.status === 200) {
             setSnackbarContent("Announcement posted!");
             setSnackbarSeverity("success");
             clearModal();
             setOpen(false);
+            setReloadAnnouncement(true);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -99,9 +101,9 @@ function Announcement() {
             window.dispatchEvent(loadingStart);
 
             let url = `${vars.dhpath}/announcements/list?page_size=250`;
-            if (announcements.length !== 0) {
-                url = `${vars.dhpath}/announcements/list?page_size=250&after_announcementid=${announcements[announcements.length - 1].announcementid}`;
-            }
+            // if (announcements.length !== 0) {
+            //     url = `${vars.dhpath}/announcements/list?page_size=250&after_announcementid=${announcements[announcements.length - 1].announcementid}`;
+            // }
 
             var newAnns = [];
             if (vars.isLoggedIn) {
@@ -126,10 +128,11 @@ function Announcement() {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        if (announcements.length === 0) {
+        if (announcements.length === 0 || reloadAnnouncement) {
+            setReloadAnnouncement(false);
             doLoad();
         }
-    }, [announcements]);
+    }, [announcements, reloadAnnouncement]);
 
     return (
         <>
