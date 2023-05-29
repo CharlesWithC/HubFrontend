@@ -19,7 +19,10 @@ axiosRetry(axios, {
 
 var vars = require('../variables');
 
-var domain = "hub.atmvtc.com"; // use window.location.host
+var domain = localStorage.getItem("domain"); // use window.location.host
+if (domain === null) {
+    domain = "hub.atmvtc.com";
+}
 
 // TODO Consider returning the assets links in config.chub.page rather than directly using cdn.chub.page (static)
 // Also TODO, rename navio_company_id to tracker_company_id
@@ -39,6 +42,7 @@ function Loader({ onLoaderLoaded }) {
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get("domain") !== null) {
         domain = searchParams.get("domain");
+        localStorage.setItem("domain", domain);
     }
 
     useEffect(() => {

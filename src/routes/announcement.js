@@ -24,6 +24,11 @@ Cases
 i) Two ann without image -> 2-column grid
 ii) One ann without image + one with image -> 2-row half/full column grid
 
+TODO
+1. Speed dial - New announcement + See who can post announcements
+2. Announcement form (create + edit, use the same one)
+3. Scroll to bottom to load new announcements
+
 */
 
 
