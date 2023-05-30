@@ -1,5 +1,6 @@
 import { useEffect, useState, memo } from 'react';
-import { Grid, SpeedDial, SpeedDialIcon, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert } from '@mui/material';
+import { Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert } from '@mui/material';
+import { EditNoteRounded, RefreshRounded } from '@mui/icons-material';
 import AnnouncementCard from '../components/announcement';
 import { makeRequests, makeRequestsWithAuth } from '../functions';
 
@@ -34,8 +35,7 @@ i) Two ann without image -> 2-column grid
 ii) One ann without image + one with image -> 2-row half/full column grid
 
 TODO
-1. Edit Announcement / Create ... API
-2. Scroll to bottom to load new announcements
+1. Edit/Delete Announcement
 
 */
 
@@ -53,7 +53,9 @@ function Announcement() {
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
-    const [reloadAnnouncement, setReloadAnnouncement] = useState(false);
+    const [announcementPage, setAnnouncementPage] = useState(1);
+    const [reloadAnnouncement, setReloadAnnouncement] = useState(+new Date());
+    const [totalPages, setTotalPages] = useState(1);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -83,11 +85,11 @@ function Announcement() {
         setSubmitLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
         if (resp.status === 200) {
+            setReloadAnnouncement(+new Date());
             setSnackbarContent("Announcement posted!");
             setSnackbarSeverity("success");
             clearModal();
             setOpen(false);
-            setReloadAnnouncement(true);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -100,10 +102,7 @@ function Announcement() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let url = `${vars.dhpath}/announcements/list?page_size=250`;
-            // if (announcements.length !== 0) {
-            //     url = `${vars.dhpath}/announcements/list?page_size=250&after_announcementid=${announcements[announcements.length - 1].announcementid}`;
-            // }
+            let url = `${vars.dhpath}/announcements/list?page_size=250&page=${announcementPage}`;
 
             var newAnns = [];
             if (vars.isLoggedIn) {
@@ -111,11 +110,13 @@ function Announcement() {
                     url
                 ]);
                 newAnns = anns.list;
+                setTotalPages(anns.total_pages);
             } else {
                 const [anns] = await makeRequests([
                     url
                 ]);
                 newAnns = anns.list;
+                setTotalPages(anns.total_pages);
             }
 
             for (let i = 0; i < newAnns.length; i++) {
@@ -128,11 +129,8 @@ function Announcement() {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        if (announcements.length === 0 || reloadAnnouncement) {
-            setReloadAnnouncement(false);
-            doLoad();
-        }
-    }, [announcements, reloadAnnouncement]);
+        doLoad();
+    }, [announcementPage, reloadAnnouncement]);
 
     return (
         <>
@@ -221,11 +219,22 @@ function Announcement() {
                 </DialogActions>
             </Dialog>
             <SpeedDial
-                ariaLabel="New Announcement"
+                ariaLabel="Controls"
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
-                onClick={() => setOpen(true)}
             >
+                <SpeedDialAction
+                    key="new-announcement"
+                    icon={<EditNoteRounded />}
+                    tooltipTitle="Create a new announcement"
+                    onClick={() => setOpen(true)}
+                />
+                <SpeedDialAction
+                    key="refresh"
+                    icon={<RefreshRounded />}
+                    tooltipTitle="Refresh announcement list"
+                    onClick={() => setReloadAnnouncement(+new Date())}
+                />
             </SpeedDial>
             <Snackbar
                 open={!!snackbarContent}
