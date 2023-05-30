@@ -13,7 +13,7 @@ const UpgradeCard = () => {
         { text: '✔️ More themes and customizable themes' },
         { text: '✔️ Golden name color' },
         { text: '✔️ Special Discord role' },
-        { text: '✔️ Extra functionalities' },
+        { text: '✔️ Exclusive functionalities' },
     ];
 
 
@@ -61,7 +61,7 @@ const UpgradeCard = () => {
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            $10 per month
+                            $3 per month
                         </Typography>
                         <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
                             Subscribe at Patreon
