@@ -35,7 +35,15 @@ export function getDesignTokens(mode) {
                 }),
         }, components: {
             mode, ...(mode === 'light'
-                ? {} : {
+                ? {
+                    MuiDialogTitle: {
+                        styleOverrides: {
+                            root: {
+                                fontWeight: "800"
+                            }
+                        }
+                    }
+                } : {
                     MuiListItemButton: {
                         styleOverrides: {
                             root: {
@@ -76,6 +84,13 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
+                    MuiDialogTitle: {
+                        styleOverrides: {
+                            root: {
+                                fontWeight: "800"
+                            }
+                        }
+                    }
                 })
         },
     };

@@ -1,6 +1,6 @@
 import { useEffect, useState, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination } from '@mui/material';
-import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
+import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded } from '@mui/icons-material';
 import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
 import UserCard from '../components/usercard';
 import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm } from '../functions';
@@ -36,22 +36,65 @@ i) Two ann without image -> 2-column grid
 ii) One ann without image + one with image -> 2-row half/full column grid
 
 TODO
-1. Edit/Delete Announcement
-2. Pagination
-3. Speeddial => Switch to list view + Show who manages announcements
+1. Delete Announcement
+(LT) Speeddial => Switch to list view + Show who manages announcements
 
 */
 
-const AnnouncementCard = ({ announcement }) => {
+const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
     const icon = ICONS[announcement.announcement_type];
+
+    const showControl = onEdit !== undefined;
+
+    const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.keyCode === 16) {
+                setIsShiftPressed(true);
+            }
+        };
+
+        const handleKeyUp = (event) => {
+            if (event.keyCode === 16) {
+                setIsShiftPressed(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
+
+    const handleEdit = () => {
+        onEdit(announcement);
+    };
+
+    const handleDelete = () => {
+        onDelete(announcement, isShiftPressed);
+    }
 
     if (announcement.display === "half-width") {
         return (
             <Grid item xs={12} sm={12} md={6} lg={6} key={announcement.announcementid}>
                 <Card>
                     <CardContent>
-                        <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
+                        <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                            <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {icon}&nbsp;&nbsp;{announcement.title}
+                                </div>
+                            </Typography>
+                            {showControl && <div>
+                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                            </div>}
+                        </div>
                         <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
                     </CardContent>
                     <CardContent>
@@ -96,10 +139,10 @@ const AnnouncementCard = ({ announcement }) => {
     }
 };
 
-const AnnouncementGrid = memo(({ announcements, lastUpdate }) => (
+const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) => (
     <Grid container spacing={3}>
         {announcements.map((announcement) => (
-            <AnnouncementCard announcement={announcement} key={announcement.announcementid} />
+            <AnnouncementCard announcement={announcement} key={announcement.announcementid} onEdit={onEdit} onDelete={onDelete} />
         ))}
     </Grid>
 ), (prevProps, nextProps) => {
@@ -124,7 +167,13 @@ function Announcement() {
         setSnackbarContent("");
     };
 
-    const [open, setOpen] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState("Create Announcement");
+    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogDelete, setDialogDelete] = useState(false);
+    const [toDelete, setToDelete] = useState(null);
+
+    const [editId, setEditId] = useState(null);
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [announcementType, setAnnouncementType] = useState(0);
@@ -144,18 +193,81 @@ function Announcement() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
-        if (resp.status === 200) {
-            setReload(+new Date());
-            setSnackbarContent("Announcement posted!");
-            setSnackbarSeverity("success");
-            clearModal();
-            setOpen(false);
+        if (editId === null) {
+            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            if (resp.status === 200) {
+                setReload(+new Date());
+                setSnackbarContent("Announcement posted!");
+                setSnackbarSeverity("success");
+                clearModal();
+                setDialogOpen(false);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
         } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
+            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            if (resp.status === 204) {
+                setReload(+new Date());
+                setSnackbarContent("Announcement updated!");
+                setSnackbarSeverity("success");
+                clearModal();
+                setDialogOpen(false);
+                setEditId(null);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
         }
         setSubmitLoading(false);
+    };
+
+    const createAnnouncement = () => {
+        if (editId !== null) {
+            setEditId(null);
+            clearModal();
+        }
+        setDialogTitle("Create Announcement");
+        setDialogButton("Create");
+        setDialogOpen(true);
+    }
+
+    const editAnnouncement = (announcement) => {
+        clearModal();
+
+        setTitle(announcement.title);
+        setContent(announcement.content);
+        setAnnouncementType(announcement.announcement_type);
+        setIsPrivate(announcement.is_private);
+        setOrderId(announcement.orderid);
+        setIsPinned(announcement.is_pinned);
+
+        setEditId(announcement.announcementid);
+
+        setDialogTitle("Edit Announcement");
+        setDialogButton("Edit");
+        setDialogOpen(true);
+    }
+
+    const deleteAnnouncement = async (announcement, isShiftPressed) => {
+        if (isShiftPressed === true || announcement.confirmed === true) {
+            setSubmitLoading(true);
+            let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            if (resp.status === 204) {
+                setReload(+new Date());
+                setSnackbarContent("Announcement deleted!");
+                setSnackbarSeverity("success");
+                setDialogDelete(false);
+                setToDelete(null);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+            setSubmitLoading(false);
+        } else {
+            setDialogDelete(true);
+            setToDelete(announcement);
+        }
     };
 
     useEffect(() => {
@@ -195,14 +307,14 @@ function Announcement() {
 
     return (
         <>
-            <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} />
-            <Pagination count={totalPages} onChange={handlePagination}
-                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "50px" }} />
-            <Dialog open={open} onClose={() => setOpen(false)}>
-                <DialogTitle>Create Announcement</DialogTitle>
+            <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
+            {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
+                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "50px" }} />}
+            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+                <DialogTitle>{dialogTitle}</DialogTitle>
                 <DialogContent>
-                    <form onSubmit={handleSubmit}>
-                        <Grid container spacing={2} sx={{ marginTop: "5px" }}>
+                    <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                        <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <TextField
                                     label="Title"
@@ -277,8 +389,19 @@ function Announcement() {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setOpen(false); clearModal(); }}>Cancel</Button>
-                    <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>Create</Button>
+                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
+                    <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+                <DialogTitle>Delete Announcement</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this announcement?</Typography>
+                    <AnnouncementCard announcement={toDelete !== null ? toDelete : {}} />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
+                    <Button variant="contained" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial
@@ -289,18 +412,18 @@ function Announcement() {
                 {checkUserPerm(["admin", "announcement"]) && <SpeedDialAction
                     key="new-announcement"
                     icon={<EditNoteRounded />}
-                    tooltipTitle="Create a new announcement"
-                    onClick={() => setOpen(true)}
+                    tooltipTitle="Create"
+                    onClick={() => createAnnouncement()}
                 />}
                 <SpeedDialAction
                     key="refresh"
                     icon={<RefreshRounded />}
-                    tooltipTitle="Refresh announcement list"
+                    tooltipTitle="Refresh"
                     onClick={() => setReload(+new Date())}
                 />
             </SpeedDial>
             <Snackbar
-                open={!!snackbarContent}
+                dialogOpen={!!snackbarContent}
                 autoHideDuration={5000}
                 onClose={handleCloseSnackbar}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
