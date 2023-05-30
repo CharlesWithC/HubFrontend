@@ -1,21 +1,8 @@
-
-import { loadConfig } from '../functions/config';
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
-import { FetchProfile, loadImageAsBase64 } from '../functions';
 
-import axios from 'axios';
-const axiosRetry = require('axios-retry');
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
-        return retryCount * 1000;
-    },
-    retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
-    },
-});
+import { loadConfig } from '../functions/config';
+import { FetchProfile, loadImageAsBase64, customAxios as axios } from '../functions';
 
 var vars = require('../variables');
 
@@ -27,7 +14,7 @@ if (domain === null) {
 // TODO Consider returning the assets links in config.chub.page rather than directly using cdn.chub.page (static)
 // Also TODO, rename navio_company_id to tracker_company_id
 
-function Loader({ onLoaderLoaded }) {
+const Loader = ({ onLoaderLoaded }) => {
     const [animateLoader, setLoaderAnimation] = useState(true);
     const [logoSrc, setLogoSrc] = useState(null);
     const [title, setTitle] = useState("Drivers Hub");

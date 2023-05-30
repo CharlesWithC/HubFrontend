@@ -5,26 +5,12 @@ import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
-import { FetchProfile } from "../functions";
+import { FetchProfile, customAxios as axios } from "../functions";
 import NotificationsPopover from './notifications';
-
-import axios from 'axios';
-const axiosRetry = require('axios-retry');
-axios.defaults.validateStatus = (status) => status < 600;
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
-        return retryCount * 1000;
-    },
-    retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
-    },
-});
 
 var vars = require("../variables");
 
-function TopBar(props) {
+const TopBar = (props) => {
     const [loading, setLoading] = useState(false);
 
     const [snackbarContent, setSnackbarContent] = useState("");

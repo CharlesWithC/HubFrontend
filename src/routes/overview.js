@@ -1,24 +1,11 @@
-import StatCard from '../components/statcard';
-import UserCard from '../components/usercard';
+import { memo, useEffect, useState } from 'react';
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { TSep, ConvertUnit, timeAgo, makeRequestsAuto } from '../functions';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react';
-import { memo } from 'react';
 
-import axios from 'axios';
-const axiosRetry = require('axios-retry');
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
-        return retryCount * 1000;
-    },
-    retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
-    },
-});
+import { TSep, ConvertUnit, timeAgo, makeRequestsAuto } from '../functions';
+import StatCard from '../components/statcard';
+import UserCard from '../components/usercard';
 
 function getTodayUTC() {
     const today = new Date();
@@ -48,12 +35,12 @@ const Overview = () => {
             window.dispatchEvent(loadingStart);
 
             const [chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
-                {url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false},
-                {url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true&before=` + getTodayUTC() / 1000, auth: false},
-                {url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true},
-                {url: `${vars.dhpath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true},
-                {url: `${vars.dhpath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`, auth: true},
-                {url: `${vars.dhpath}/dlog/list?page=1&page_size=1&order=desc`, auth: true}
+                { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false },
+                { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true&before=` + getTodayUTC() / 1000, auth: false },
+                { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },
+                { url: `${vars.dhpath}/member/list?page=1&page_size=5&order_by=last_seen&order=desc`, auth: true },
+                { url: `${vars.dhpath}/member/list?page=1&page_size=1&order_by=join_timestamp&order=desc`, auth: true },
+                { url: `${vars.dhpath}/dlog/list?page=1&page_size=1&order=desc`, auth: true }
             ]);
 
             let newLatest = { driver: chartSU[chartSU.length - 1].driver, job: chartSU[chartSU.length - 1].job.sum, distance: chartSU[chartSU.length - 1].distance.sum, fuel: chartSU[chartSU.length - 1].fuel.sum, profit_euro: chartSU[chartSU.length - 1].profit.euro, profit_dollar: chartSU[chartSU.length - 1].profit.dollar };
@@ -98,7 +85,7 @@ const Overview = () => {
             if (ldelivery.list !== undefined) {
                 setLatestDelivery(ldelivery.list[0]);
             }
-            
+
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }

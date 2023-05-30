@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 
 var vars = require('../variables');
 
-function SideBar(props) {
+const SideBar = (props) => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);

@@ -1,25 +1,12 @@
-import { Button, Card, CardActions, CardContent } from '@mui/material';
-import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FetchProfile } from '../../functions';
+import { Button, Card, CardActions, CardContent } from '@mui/material';
 
-const axiosRetry = require('axios-retry');
-axios.defaults.validateStatus = (status) => status < 600;
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
-        return retryCount * 1000;
-    },
-    retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
-    },
-});
+import { FetchProfile, customAxios as axios } from '../../functions';
 
 var vars = require('../../variables');
 
-function DiscordAuth() {
+const DiscordAuth = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);

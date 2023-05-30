@@ -1,22 +1,10 @@
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded } from '@mui/icons-material';
-import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
-import UserCard from '../components/usercard';
-import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm } from '../functions';
 
-import axios from 'axios';
-const axiosRetry = require('axios-retry');
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
-        return retryCount * 1000;
-    },
-    retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
-    },
-});
+import UserCard from '../components/usercard';
+import MarkdownRenderer from '../components/markdown';
+import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios } from '../functions';
 
 // NOTE This will be editable in API v2.7.4
 const announcementTypes = [
@@ -36,7 +24,6 @@ i) Two ann without image -> 2-column grid
 ii) One ann without image + one with image -> 2-row half/full column grid
 
 TODO
-1. Delete Announcement
 (LT) Speeddial => Switch to list view + Show who manages announcements
 
 */
@@ -71,13 +58,13 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
         };
     }, []);
 
-    const handleEdit = () => {
+    const handleEdit = useCallback(() => {
         onEdit(announcement);
-    };
+    }, [announcement, onEdit]);
 
-    const handleDelete = () => {
+    const handleDelete = useCallback(() => {
         onDelete(announcement, isShiftPressed);
-    }
+    }, [announcement, isShiftPressed, onDelete]);
 
     if (announcement.display === "half-width") {
         return (
@@ -95,7 +82,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
-                        <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
+                        <Typography variant="body2"><MarkdownRenderer>{announcement.content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
                         <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
@@ -109,7 +96,11 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                 <Card>
                     <CardContent>
                         <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
-                        <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
+                        {showControl && <div>
+                            <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                            <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                        </div>}
+                        <Typography variant="body2"><MarkdownRenderer>{announcement.content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
                         <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
@@ -128,7 +119,11 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
                                 <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
-                                <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
+                                {showControl && <div>
+                                    <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                                    <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                </div>}
+                                <Typography variant="body2"><MarkdownRenderer>{announcement.content}</MarkdownRenderer></Typography>
                                 <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
                             </CardContent>
                         </Card>
@@ -153,19 +148,17 @@ function Announcement() {
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
-    const [reload, setReload] = useState(+new Date());
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
-    const handlePagination = (event, value) => {
+    const handlePagination = useCallback((event, value) => {
         setPage(value);
-    };
+    }, []);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    const handleCloseSnackbar = () => {
+    const handleCloseSnackbar = useCallback(() => {
         setSnackbarContent("");
-    };
+    }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogTitle, setDialogTitle] = useState("Create Announcement");
@@ -181,22 +174,54 @@ function Announcement() {
     const [orderId, setOrderId] = useState(0);
     const [isPinned, setIsPinned] = useState("false");
 
-    const clearModal = () => {
+    const clearModal = useCallback(() => {
         setTitle('');
         setContent('');
         setAnnouncementType(0);
         setIsPrivate(false);
         setOrderId(0);
         setIsPinned(false);
-    }
+    }, []);
 
-    const handleSubmit = async (e) => {
+    const doLoad = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
+
+        var newAnns = [];
+        if (vars.isLoggedIn) {
+            const [anns] = await makeRequestsWithAuth([
+                url
+            ]);
+            newAnns = anns.list;
+            setTotalPages(anns.total_pages);
+        } else {
+            const [anns] = await makeRequests([
+                url
+            ]);
+            newAnns = anns.list;
+            setTotalPages(anns.total_pages);
+        }
+
+        for (let i = 0; i < newAnns.length; i++) {
+            newAnns[i] = { ...newAnns[i], "display": "half-width" };
+        }
+
+        setAnnouncemnts(newAnns);
+        setLastUpdate(+new Date());
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [page]);
+
+    const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
             let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
             if (resp.status === 200) {
-                setReload(+new Date());
+                doLoad();
                 setSnackbarContent("Announcement posted!");
                 setSnackbarSeverity("success");
                 clearModal();
@@ -208,7 +233,7 @@ function Announcement() {
         } else {
             let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
             if (resp.status === 204) {
-                setReload(+new Date());
+                doLoad();
                 setSnackbarContent("Announcement updated!");
                 setSnackbarSeverity("success");
                 clearModal();
@@ -220,9 +245,9 @@ function Announcement() {
             }
         }
         setSubmitLoading(false);
-    };
+    }, [announcementType, title, content, editId, isPinned, isPrivate, orderId, clearModal, doLoad]);
 
-    const createAnnouncement = () => {
+    const createAnnouncement = useCallback(() => {
         if (editId !== null) {
             setEditId(null);
             clearModal();
@@ -230,9 +255,9 @@ function Announcement() {
         setDialogTitle("Create Announcement");
         setDialogButton("Create");
         setDialogOpen(true);
-    }
+    }, [editId, clearModal]);
 
-    const editAnnouncement = (announcement) => {
+    const editAnnouncement = useCallback((announcement) => {
         clearModal();
 
         setTitle(announcement.title);
@@ -247,14 +272,14 @@ function Announcement() {
         setDialogTitle("Edit Announcement");
         setDialogButton("Edit");
         setDialogOpen(true);
-    }
+    }, [clearModal]);
 
-    const deleteAnnouncement = async (announcement, isShiftPressed) => {
+    const deleteAnnouncement = useCallback(async (announcement, isShiftPressed) => {
         if (isShiftPressed === true || announcement.confirmed === true) {
             setSubmitLoading(true);
             let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
             if (resp.status === 204) {
-                setReload(+new Date());
+                doLoad();
                 setSnackbarContent("Announcement deleted!");
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
@@ -268,42 +293,11 @@ function Announcement() {
             setDialogDelete(true);
             setToDelete(announcement);
         }
-    };
+    }, [doLoad]);
 
     useEffect(() => {
-        async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
-
-            let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
-
-            var newAnns = [];
-            if (vars.isLoggedIn) {
-                const [anns] = await makeRequestsWithAuth([
-                    url
-                ]);
-                newAnns = anns.list;
-                setTotalPages(anns.total_pages);
-            } else {
-                const [anns] = await makeRequests([
-                    url
-                ]);
-                newAnns = anns.list;
-                setTotalPages(anns.total_pages);
-            }
-
-            for (let i = 0; i < newAnns.length; i++) {
-                newAnns[i] = { ...newAnns[i], "display": "half-width" };
-            }
-
-            setAnnouncemnts(newAnns);
-            setLastUpdate(+new Date());
-
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
-        }
         doLoad();
-    }, [page, reload]);
+    }, [doLoad]);
 
     return (
         <>
@@ -419,7 +413,7 @@ function Announcement() {
                     key="refresh"
                     icon={<RefreshRounded />}
                     tooltipTitle="Refresh"
-                    onClick={() => setReload(+new Date())}
+                    onClick={() => doLoad()}
                 />
             </SpeedDial>
             <Snackbar

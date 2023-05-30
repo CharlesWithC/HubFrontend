@@ -1,9 +1,10 @@
-
 import axios from 'axios';
+import axiosRetry from 'axios-retry';
+
 var vars = require('./variables');
 
-const axiosRetry = require('axios-retry');
-axiosRetry(axios, {
+const customAxios = axios.create();
+axiosRetry(customAxios, {
     retries: 3,
     retryDelay: (retryCount) => {
         console.log(`retry attempt: ${retryCount}`);
@@ -13,6 +14,8 @@ axiosRetry(axios, {
         return error.response === undefined || error.response.status in [429, 503];
     },
 });
+
+export { customAxios };
 
 export const makeRequests = async (urls) => {
     const responses = await Promise.all(

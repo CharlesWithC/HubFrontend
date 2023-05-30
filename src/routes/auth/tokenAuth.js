@@ -1,25 +1,12 @@
+import { Card, CardContent, CardActions, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardActions, Button } from '@mui/material';
-import axios from 'axios';
-import { FetchProfile } from '../../functions';
 
-const axiosRetry = require('axios-retry');
-axios.defaults.validateStatus = (status) => status < 600;
-axiosRetry(axios, {
-    retries: 3,
-    retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
-        return retryCount * 1000;
-    },
-    retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
-    },
-});
+import { FetchProfile, customAxios as axios } from '../../functions';
 
 var vars = require('../../variables');
 
-function TokenAuth() {
+const TokenAuth = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -50,7 +37,7 @@ function TokenAuth() {
                 setMessage("Error occurred! Check F12 for more info.");
             }
         }
-        if(token === null || token.length !== 36){
+        if (token === null || token.length !== 36) {
             setContinue(true);
             setMessage("Invalid token ❌");
             return;
