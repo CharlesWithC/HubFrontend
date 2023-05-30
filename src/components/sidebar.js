@@ -99,30 +99,28 @@ const SideBar = (props) => {
         }
     }
 
-    const sidebar = (
-        <>
-            {menu.map((subMenu, subIndex) => (
-                <div key={`navlist-${subIndex}`}>
-                    <List sx={{ margin: "0px 10px 0 10px" }}>
-                        {subMenu.map((menuID, btnIndex) => (
-                            <Link to={menuRoute[menuID]}>
-                                <ListItem key={`navbtn-${menuID}-${btnIndex}`} disablePadding>
-                                    <ListItemButton selected={selectedIndex === subIndex * 10 + btnIndex}
-                                        onClick={(event) => handleListItemClick(event, subIndex * 10 + btnIndex)}>
-                                        <ListItemIcon sx={{ minWidth: "40px" }}>
-                                            {menuIcon[menuID]}
-                                        </ListItemIcon>
-                                        <ListItemText primary={menuName[menuID]} />
-                                    </ListItemButton>
-                                </ListItem>
-                            </Link>
-                        ))}
-                    </List>
-                    {subIndex !== menu.length - 1 && <Divider key={`divider-${subIndex}`} />}
-                </div>
-            ))}
-        </>
-    );
+    const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
+        {menu.map((subMenu, subIndex) => (
+            <div key={`navlist-${subMenu}-${subIndex}`}>
+                <List sx={{ margin: "0px 10px 0 10px" }}>
+                    {subMenu.map((menuID, btnIndex) => (
+                        <Link key={`navlink-${menuID}-${btnIndex}`} to={menuRoute[menuID]}>
+                            <ListItem key={`navbtn-${menuID}-${btnIndex}`} disablePadding>
+                                <ListItemButton selected={selectedIndex === subIndex * 10 + btnIndex}
+                                    onClick={(event) => handleListItemClick(event, subIndex * 10 + btnIndex)}>
+                                    <ListItemIcon sx={{ minWidth: "40px" }}>
+                                        {menuIcon[menuID]}
+                                    </ListItemIcon>
+                                    <ListItemText primary={menuName[menuID]} />
+                                </ListItemButton>
+                            </ListItem>
+                        </Link>
+                    ))}
+                </List>
+                {subIndex !== menu.length - 1 && <Divider key={`divider-${subIndex}`} />}
+            </div>
+        ))}
+    </SimpleBar>;
 
     const container = window !== undefined ? () => window.document.body : undefined;
 
@@ -158,9 +156,7 @@ const SideBar = (props) => {
                             <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
                         </ListItem></Link>
                     </List>
-                    <SimpleBar style={simpleBarStyle}>
-                        {sidebar}
-                    </SimpleBar>
+                    {sidebar}
                 </div>
             </Drawer>
             <Drawer
@@ -180,9 +176,7 @@ const SideBar = (props) => {
                             <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
                         </ListItem></Link>
                     </List>
-                    <SimpleBar style={simpleBarStyle}>
-                        {sidebar}
-                    </SimpleBar>
+                    {sidebar}
                 </div>
             </Drawer>
         </Box>
