@@ -234,3 +234,25 @@ export function timeAgo(dateParam) {
 
     return getFormattedDate(date); // 10. January 2017. at 10:20
 }
+
+export function checkPerm(roles, perms) {
+    // any matches in perms will return true
+    for (let i = 0; i < perms.length; i++) {
+        for (let j = 0; j < vars.perms[perms[i]].length; j++) {
+            if (roles.includes(vars.perms[perms[i]][j])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function checkUserPerm(perms) {
+    // any matches in perms will return true
+    for (let i = 0; i < perms.length; i++) {
+        if (vars.userPerm.includes(perms[i])) {
+            return true;
+        }
+    }
+    return false;
+}

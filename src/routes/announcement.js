@@ -1,8 +1,9 @@
 import { useEffect, useState, memo } from 'react';
-import { Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert } from '@mui/material';
-import { EditNoteRounded, RefreshRounded } from '@mui/icons-material';
-import AnnouncementCard from '../components/announcement';
-import { makeRequests, makeRequestsWithAuth } from '../functions';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination } from '@mui/material';
+import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded } from '@mui/icons-material';
+import { ReactMarkdown } from 'react-markdown/lib/react-markdown';
+import UserCard from '../components/usercard';
+import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm } from '../functions';
 
 import axios from 'axios';
 const axiosRetry = require('axios-retry');
@@ -36,8 +37,64 @@ ii) One ann without image + one with image -> 2-row half/full column grid
 
 TODO
 1. Edit/Delete Announcement
+2. Pagination
+3. Speeddial => Switch to list view + Show who manages announcements
 
 */
+
+const AnnouncementCard = ({ announcement }) => {
+    const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
+    const icon = ICONS[announcement.announcement_type];
+
+    if (announcement.display === "half-width") {
+        return (
+            <Grid item xs={12} sm={12} md={6} lg={6} key={announcement.announcementid}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
+                        <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
+                    </CardContent>
+                    <CardContent>
+                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+        );
+    } else if (announcement.display === "full-width") {
+        return (
+            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
+                        <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
+                    </CardContent>
+                    <CardContent>
+                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                    </CardContent>
+                </Card>
+            </Grid>
+        );
+    } else if (announcement.display === "with-image") {
+        return (
+            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <img src={announcement.image} alt="Announcement" style={{ width: '100%', border: 'none' }} />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                        <Card style={{ display: 'flex', flexDirection: 'column' }}>
+                            <CardContent>
+                                <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
+                                <Typography variant="body2"><ReactMarkdown>{announcement.content}</ReactMarkdown></Typography>
+                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
+            </Grid>
+        );
+    }
+};
 
 const AnnouncementGrid = memo(({ announcements, lastUpdate }) => (
     <Grid container spacing={3}>
@@ -53,9 +110,13 @@ function Announcement() {
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
-    const [announcementPage, setAnnouncementPage] = useState(1);
-    const [reloadAnnouncement, setReloadAnnouncement] = useState(+new Date());
+    const [reload, setReload] = useState(+new Date());
+    const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+    const handlePagination = (event, value) => {
+        setPage(value);
+    };
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -85,7 +146,7 @@ function Announcement() {
         setSubmitLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
         if (resp.status === 200) {
-            setReloadAnnouncement(+new Date());
+            setReload(+new Date());
             setSnackbarContent("Announcement posted!");
             setSnackbarSeverity("success");
             clearModal();
@@ -102,7 +163,7 @@ function Announcement() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let url = `${vars.dhpath}/announcements/list?page_size=250&page=${announcementPage}`;
+            let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
 
             var newAnns = [];
             if (vars.isLoggedIn) {
@@ -130,11 +191,13 @@ function Announcement() {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [announcementPage, reloadAnnouncement]);
+    }, [page, reload]);
 
     return (
         <>
             <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} />
+            <Pagination count={totalPages} onChange={handlePagination}
+                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "50px" }} />
             <Dialog open={open} onClose={() => setOpen(false)}>
                 <DialogTitle>Create Announcement</DialogTitle>
                 <DialogContent>
@@ -223,17 +286,17 @@ function Announcement() {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                <SpeedDialAction
+                {checkUserPerm(["admin", "announcement"]) && <SpeedDialAction
                     key="new-announcement"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create a new announcement"
                     onClick={() => setOpen(true)}
-                />
+                />}
                 <SpeedDialAction
                     key="refresh"
                     icon={<RefreshRounded />}
                     tooltipTitle="Refresh announcement list"
-                    onClick={() => setReloadAnnouncement(+new Date())}
+                    onClick={() => setReload(+new Date())}
                 />
             </SpeedDial>
             <Snackbar
