@@ -14,13 +14,21 @@ axiosRetry(customAxios, {
         return error.response === undefined || error.response.status in [429, 503];
     },
 });
+customAxios.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        return error.response;
+    }
+);
 
 export { customAxios };
 
 export const makeRequests = async (urls) => {
     const responses = await Promise.all(
         urls.map((url) =>
-            axios({
+            customAxios({
                 url,
             })
         )
@@ -31,7 +39,7 @@ export const makeRequests = async (urls) => {
 export const makeRequestsWithAuth = async (urls) => {
     const responses = await Promise.all(
         urls.map((url) =>
-            axios({
+            customAxios({
                 url,
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -46,7 +54,7 @@ export const makeRequestsAuto = async (urls) => {
     const responses = await Promise.all(
         urls.map(({ url, auth }) => {
             if (!auth || (auth && vars.isLoggedIn)) {
-                return axios({
+                return customAxios({
                     url,
                     headers: auth ? {
                         Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -63,7 +71,7 @@ export const makeRequestsAuto = async (urls) => {
 export async function FetchProfile() {
     const bearerToken = localStorage.getItem("token");
     if (bearerToken !== null) {
-        const resp = await axios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
+        const resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
             vars.isLoggedIn = true;
             vars.userInfo = resp.data;
@@ -123,7 +131,7 @@ export function ConvertUnit(type, val) {
 
 export const loadImageAsBase64 = async (imageUrl) => {
     try {
-        const response = await axios.get(imageUrl, {
+        const response = await customAxios.get(imageUrl, {
             responseType: 'blob' // Set the response type to blob
         });
 

@@ -58,3 +58,6 @@ exports.applicationTypes = applicationTypes;
 
 var divisions = {};
 exports.divisions = divisions;
+
+var members = [];
+exports.members = members;

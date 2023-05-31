@@ -6,7 +6,8 @@ const MarkdownRenderer = ({ children }) => {
         return content.replace(/\n/g, '\n\n');
     };
 
-    const renderers = {
+    const components = {
+        p: ({ children }) => <span>{children}</span>,
         text: (props) => {
             return props.children?.includes('\n') ? (
                 props.children.split('\n').map((text, index) => (
@@ -23,7 +24,7 @@ const MarkdownRenderer = ({ children }) => {
 
     const preprocessedContent = preprocessContent(children);
 
-    return <ReactMarkdown renderers={renderers} children={preprocessedContent} />;
+    return <ReactMarkdown components={components} children={preprocessedContent} />;
 };
 
 export default MarkdownRenderer;

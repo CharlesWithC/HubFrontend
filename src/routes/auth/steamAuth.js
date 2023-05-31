@@ -50,7 +50,7 @@ const SteamAuth = () => {
         <Card sx={{ width: 350, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <CardContent>
                 <h2>Steam Authorization</h2>
-                <p>{message}</p>
+                <div><p>{message}</p></div>
             </CardContent>
             <CardActions>
                 <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
