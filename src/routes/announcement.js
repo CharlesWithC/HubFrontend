@@ -17,17 +17,6 @@ const announcementTypes = [
 
 var vars = require("../variables");
 
-/*
-
-Cases
-i) Two ann without image -> 2-column grid
-ii) One ann without image + one with image -> 2-row half/full column grid
-
-TODO
-(LT) Image/Banner display
-
-*/
-
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
     const icon = ICONS[announcement.announcement_type];
@@ -66,6 +55,9 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
         onDelete(announcement, isShiftPressed);
     }, [announcement, isShiftPressed, onDelete]);
 
+    const loc = announcement.display.replace("with-image-", "");
+    let content = announcement.content.replace(`[Image src="${announcement.image}" loc="${loc}"]`, "").trimStart();
+
     if (announcement.display === "half-width") {
         return (
             <Grid item xs={12} sm={12} md={6} lg={6} key={announcement.announcementid}>
@@ -82,7 +74,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{announcement.content}</MarkdownRenderer></Typography>
+                        <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
                         <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
@@ -95,12 +87,18 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
             <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
                 <Card>
                     <CardContent>
-                        <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
-                        {showControl && <div>
-                            <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                            <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                        </div>}
-                        <Typography variant="body2"><MarkdownRenderer>{announcement.content}</MarkdownRenderer></Typography>
+                        <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                            <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {icon}&nbsp;&nbsp;{announcement.title}
+                                </div>
+                            </Typography>
+                            {showControl && <div>
+                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                            </div>}
+                        </div>
+                        <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
                         <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
@@ -108,7 +106,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                 </Card>
             </Grid>
         );
-    } else if (announcement.display === "with-image") {
+    } else if (announcement.display === "with-image-left") {
         return (
             <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
                 <Grid container spacing={2}>
@@ -118,12 +116,20 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
                             <CardContent>
-                                <Typography variant="h5" sx={{ marginBottom: "10px", flexGrow: 1, display: 'flex', alignItems: "center" }}>{icon}&nbsp;&nbsp;{announcement.title}</Typography>
-                                {showControl && <div>
-                                    <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                    <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                                </div>}
-                                <Typography variant="body2"><MarkdownRenderer>{announcement.content}</MarkdownRenderer></Typography>
+                                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                                    <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            {icon}&nbsp;&nbsp;{announcement.title}
+                                        </div>
+                                    </Typography>
+                                    {showControl && <div>
+                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                    </div>}
+                                </div>
+                                <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
+                            </CardContent>
+                            <CardContent>
                                 <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
                             </CardContent>
                         </Card>
@@ -131,16 +137,88 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                 </Grid>
             </Grid>
         );
+    } else if (announcement.display === "with-image-right") {
+        return (
+            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
+                        <Card style={{ display: 'flex', flexDirection: 'column' }}>
+                            <CardContent>
+                                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                                    <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            {icon}&nbsp;&nbsp;{announcement.title}
+                                        </div>
+                                    </Typography>
+                                    {showControl && <div>
+                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                    </div>}
+                                </div>
+                                <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
+                            </CardContent>
+                            <CardContent>
+                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <img src={announcement.image} alt="Announcement" style={{ width: '100%', border: 'none' }} />
+                    </Grid>
+                </Grid>
+            </Grid>
+        );
     }
 };
 
-const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) => (
-    <Grid container spacing={3}>
-        {announcements.map((announcement) => (
-            <AnnouncementCard announcement={announcement} key={announcement.announcementid} onEdit={onEdit} onDelete={onDelete} />
-        ))}
+const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) => {
+    let halfCnt = 0;
+    return <Grid container spacing={3}>
+        {announcements.map((announcement, index) => {
+            announcement.display = 'half-width';
+
+            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(announcement.content);
+
+            console.log(`${hasImage} => ${announcement.content}`)
+
+            if (hasImage) {
+                const re = announcement.content.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                const link = re[1];
+                const loc = re[2];
+                announcement.image = link;
+                announcement.display = 'with-image-' + loc;
+                halfCnt = 0;
+            } else {
+                if (index + 1 < announcements.length) {
+                    const nextAnnouncement = announcements[index + 1];
+                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextAnnouncement.content);
+
+                    if (nextHasImage) {
+                        if (halfCnt % 2 === 1) {
+                            announcement.display = 'half-width';
+                            halfCnt += 1;
+                        } else {
+                            announcement.display = 'full-width';
+                            halfCnt = 0;
+                        }
+                    } else {
+                        announcement.display = 'half-width';
+                        halfCnt += 1;
+                    }
+                }
+            }
+
+            return (
+                <AnnouncementCard
+                    announcement={announcement}
+                    key={announcement.announcementid}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                />
+            );
+        })}
     </Grid>
-), (prevProps, nextProps) => {
+}, (prevProps, nextProps) => {
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
 
@@ -221,7 +299,7 @@ function Announcement() {
         }
 
         for (let i = 0; i < newAnns.length; i++) {
-            newAnns[i] = { ...newAnns[i], "display": "half-width" };
+            newAnns[i] = { ...newAnns[i] };
         }
 
         setAnnouncemnts(newAnns);
