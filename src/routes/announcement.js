@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
-import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded } from '@mui/icons-material';
+import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
-import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios } from '../functions';
+import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm } from '../functions';
 
 // NOTE This will be editable in API v2.7.4
 const announcementTypes = [
@@ -24,7 +24,7 @@ i) Two ann without image -> 2-column grid
 ii) One ann without image + one with image -> 2-row half/full column grid
 
 TODO
-(LT) Speeddial => Switch to list view + Show who manages announcements
+(LT) Image/Banner display
 
 */
 
@@ -144,6 +144,21 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
 
+const AnnouncementManagers = memo(() => {
+    let managers = [];
+    for (let i = 0; i < vars.members.length; i++) {
+        if (checkPerm(vars.members[i].roles, ["admin", "announcement"])) {
+            managers.push(vars.members[i]);
+        }
+    }
+
+    return <>{
+        managers.map((user) => (
+            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+        ))
+    }</>;
+})
+
 function Announcement() {
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -165,6 +180,7 @@ function Announcement() {
     const [dialogButton, setDialogButton] = useState("Create");
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
+    const [dialogManagers, setDialogManagers] = useState(false);
 
     const [editId, setEditId] = useState(null);
     const [title, setTitle] = useState('');
@@ -398,16 +414,31 @@ function Announcement() {
                     <Button variant="contained" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
+            <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+                <DialogTitle>Announcement Managers</DialogTitle>
+                <DialogContent>
+                    <AnnouncementManagers />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+                </DialogActions>
+            </Dialog>
             <SpeedDial
                 ariaLabel="Controls"
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
                 {checkUserPerm(["admin", "announcement"]) && <SpeedDialAction
-                    key="new-announcement"
+                    key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"
                     onClick={() => createAnnouncement()}
+                />}
+                {vars.userInfo.userid !== -1 && <SpeedDialAction
+                    key="managers"
+                    icon={<PeopleAltRounded />}
+                    tooltipTitle="Managers"
+                    onClick={() => setDialogManagers(true)}
                 />}
                 <SpeedDialAction
                     key="refresh"

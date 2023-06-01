@@ -48,13 +48,12 @@ function App() {
                 setSidebarHidden(true);
                 setTopbarHidden(true);
             } else {
-                setSidebarHidden(false);
+                if (window.innerWidth >= 600) {
+                    setSidebarHidden(false);
+                } else {
+                    setSidebarHidden(true);
+                }
                 setTopbarHidden(false);
-            }
-            if (window.innerWidth >= 600) {
-                setSidebarHidden(false);
-            } else {
-                setSidebarHidden(true);
             }
         };
         handle();

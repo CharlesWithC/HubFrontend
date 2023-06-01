@@ -93,6 +93,22 @@ export async function FetchProfile() {
                 }
             }
             vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
+            if (vars.userInfo.userid !== -1) {
+                // is member / fetch all members
+                let [resp] = await makeRequests([`${vars.dhpath}/member/list?page=1&page_size=250`]);
+                let totalPages = resp.total_pages;
+                vars.members = resp.list;
+                if (totalPages > 1) {
+                    let urlsBatch = [];
+                    for (let i = 2; i <= totalPages; i++) {
+                        urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
+                    }
+                    let resps = await makeRequests(urlsBatch);
+                    for (let i = 0; i < resps.length; i++) {
+                        vars.members.push(...resps[i].list);
+                    }
+                }
+            }
         } else {
             localStorage.removeItem("token");
             vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" }
