@@ -59,9 +59,9 @@ const SideBar = (props) => {
     let toRemove = [];
 
     if (!vars.isLoggedIn) {
-        menu = [["overview", "announcement"], ["live_map", "delivery", "event"]];
+        menu = [["overview", "announcement"], ["delivery", "event"]];
     } else {
-        menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "economy", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["pending_user", "audit_log", "configuration"]];
+        menu = [["overview", "announcement", "downloads"], ["delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["pending_user", "audit_log", "configuration"]];
         if (!vars.userPerm.includes("admin")) {
             if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
                 toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "pending_user", "audit_log", "configuration"];
