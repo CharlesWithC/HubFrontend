@@ -3,7 +3,8 @@ import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardConte
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react';
 
-import { TSep, ConvertUnit, timeAgo, makeRequestsAuto } from '../functions';
+import TimeAgo from '../components/timeago';
+import { TSep, ConvertUnit, makeRequestsAuto } from '../functions';
 import StatCard from '../components/statcard';
 import UserCard from '../components/usercard';
 
@@ -26,7 +27,7 @@ const Overview = () => {
     const [charts, setCharts] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
     const [leaderboard, setLeaderboard] = useState([]);
     const [recentVisitors, setRecentVisitors] = useState([]);
-    const [newestMember, setNewestMember] = useState([]);
+    const [newestMember, setNewestMember] = useState({});
     const [latestDelivery, setLatestDelivery] = useState([]);
 
     useEffect(() => {
@@ -124,7 +125,6 @@ const Overview = () => {
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                                 <UserCard size="40" user={newestMember} />
-                                --- Joined {timeAgo(newestMember.join_timestamp * 1000).toLowerCase()}
                             </Typography>
                         </div>
                     </CardContent>
@@ -205,7 +205,7 @@ const Overview = () => {
                                         {recentVisitors.map((row, idx) => {
                                             return (<TableRow key={`recent-visitors-${idx}`}>
                                                 <TableCell>{row.user}</TableCell>
-                                                <TableCell align="right">{timeAgo(row.timestamp * 1000)}</TableCell>
+                                                <TableCell align="right"><TimeAgo timestamp={row.timestamp * 1000} /></TableCell>
                                             </TableRow>);
                                         })}
                                     </TableBody>

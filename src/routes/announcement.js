@@ -4,7 +4,8 @@ import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, Che
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
-import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm } from '../functions';
+import TimeAgo from '../components/timeago';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -68,7 +69,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                         <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -92,7 +93,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                         <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -121,7 +122,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -149,7 +150,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -169,7 +170,7 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
             announcement.display = 'half-width';
 
             const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(announcement.content);
-            
+
             if (hasImage) {
                 const re = announcement.content.match(/^\[Image src="(.+)" loc="(.+)"\]/);
                 const link = re[1];

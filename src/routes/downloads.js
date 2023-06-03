@@ -4,7 +4,8 @@ import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRo
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
-import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile } from '../functions';
+import TimeAgo from '../components/timeago';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile } from '../functions';
 
 var vars = require("../variables");
 
@@ -78,7 +79,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
+                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -105,7 +106,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
+                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -137,7 +138,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
+                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -168,7 +169,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
+                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
