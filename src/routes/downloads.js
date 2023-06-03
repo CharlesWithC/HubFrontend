@@ -54,6 +54,10 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
         console.log("done");
     }, [downloadableItem, onDownload]);
 
+    if (downloadableItem.title === undefined) {
+        return <></>
+    }
+
     const loc = downloadableItem.display.replace("with-image-", "");
     let description = downloadableItem.description.replace(`[Image src="${downloadableItem.image}" loc="${loc}"]`, "").trimStart();
 

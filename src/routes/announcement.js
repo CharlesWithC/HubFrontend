@@ -47,6 +47,10 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
         onDelete(announcement, isShiftPressed);
     }, [announcement, isShiftPressed, onDelete]);
 
+    if (announcement.title === undefined) {
+        return <></>
+    }
+
     const loc = announcement.display.replace("with-image-", "");
     let content = announcement.content.replace(`[Image src="${announcement.image}" loc="${loc}"]`, "").trimStart();
 
