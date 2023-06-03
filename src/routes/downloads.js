@@ -9,6 +9,10 @@ import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios
 
 var vars = require("../variables");
 
+const STBOOL = (s) => {
+    return s === "true";
+}
+
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const showButtons = onEdit !== undefined;
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "downloads"]));
@@ -286,7 +290,7 @@ function DownloadableItem() {
         setContent('');
         setLink('');
         setOrderId(0);
-        setIsPinned(false);
+        setIsPinned("false");
     }, []);
 
     const doLoad = useCallback(async () => {
@@ -325,7 +329,7 @@ function DownloadableItem() {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Downloadable item posted!");
@@ -337,7 +341,7 @@ function DownloadableItem() {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Downloadable item updated!");
@@ -380,7 +384,7 @@ function DownloadableItem() {
         setContent(downloadableItem.description);
         setLink(downloadableItem.link);
         setOrderId(downloadableItem.orderid);
-        setIsPinned(downloadableItem.is_pinned);
+        setIsPinned(String(downloadableItem.is_pinned));
 
         setEditId(downloadableItem.downloadsid);
 

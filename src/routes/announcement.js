@@ -9,6 +9,10 @@ import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios
 
 var vars = require("../variables");
 
+const STBOOL = (s) => {
+    return s === "true";
+}
+
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
     const icon = ICONS[announcement.announcement_type.id];
@@ -307,7 +311,7 @@ function Announcement() {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Announcement posted!");
@@ -319,7 +323,7 @@ function Announcement() {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Announcement updated!");
@@ -350,7 +354,7 @@ function Announcement() {
 
         setTitle(announcement.title);
         setContent(announcement.content);
-        setAnnouncementType(announcement.announcement_type);
+        setAnnouncementType(announcement.announcement_type.id);
         setIsPrivate(announcement.is_private);
         setOrderId(announcement.orderid);
         setIsPinned(announcement.is_pinned);
