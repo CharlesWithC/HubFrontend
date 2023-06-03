@@ -283,3 +283,36 @@ export function checkUserPerm(perms) {
     }
     return false;
 }
+
+export function downloadFile(url) {
+    // Create an anchor element
+    var link = document.createElement('a');
+
+    // Set the href to the provided URL
+    link.href = url;
+
+    // Fetch the final URL after following redirects
+    fetch(link.href, { method: 'HEAD', redirect: 'follow' })
+        .then(response => {
+            // Extract the final URL
+            var finalUrl = response.url;
+
+            // Check if the final URL is a real file
+            if (/\.[^/.]+$/.test(finalUrl)) {
+                // Extract the file name from the URL
+                var fileName = finalUrl.substring(finalUrl.lastIndexOf('/') + 1);
+
+                // Set the download attribute and file name
+                link.download = fileName;
+
+                // Trigger a click event on the anchor element to initiate the download
+                link.click();
+            } else {
+                // Open the link in a new tab
+                window.open(finalUrl, '_blank');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching the file:', error);
+        });
+}

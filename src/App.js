@@ -15,6 +15,7 @@ import Redirect from './components/redirect';
 import UpgradeCard from './routes/upgrade';
 import Overview from './routes/overview';
 import Announcement from './routes/announcement';
+import Downloads from './routes/downloads';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -95,6 +96,7 @@ function App() {
                             <Route exact path="/" element={<Overview />}></Route>
                             <Route path="/upgrade" element={<UpgradeCard />}></Route>
                             <Route path="/announcements" element={<Announcement />}></Route>
+                            <Route path="/downloads" element={<Downloads />}></Route>
                         </Routes>
                     </SimpleBar>
                 </div>

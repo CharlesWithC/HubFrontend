@@ -1,20 +1,19 @@
 import { useEffect, useState, useCallback, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
-import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
+import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
-import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm } from '../functions';
+import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile } from '../functions';
 
 var vars = require("../variables");
 
-const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
-    const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
-    const icon = ICONS[announcement.announcement_type.id];
-
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "announcement"]));
+const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
+    const showButtons = onEdit !== undefined;
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "downloads"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -39,70 +38,84 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     }, []);
 
     const handleEdit = useCallback(() => {
-        onEdit(announcement);
-    }, [announcement, onEdit]);
+        onEdit(downloadableItem);
+    }, [downloadableItem, onEdit]);
 
     const handleDelete = useCallback(() => {
-        onDelete(announcement, isShiftPressed);
-    }, [announcement, isShiftPressed, onDelete]);
+        onDelete(downloadableItem, isShiftPressed);
+    }, [downloadableItem, isShiftPressed, onDelete]);
 
-    const loc = announcement.display.replace("with-image-", "");
-    let content = announcement.content.replace(`[Image src="${announcement.image}" loc="${loc}"]`, "").trimStart();
+    const handleDownload = useCallback(async () => {
+        console.log("downloading");
+        setDownloading(true);
+        await onDownload(downloadableItem);
+        setDownloading(false);
+        console.log("done");
+    }, [downloadableItem, onDownload]);
 
-    if (announcement.display === "half-width") {
+    const loc = downloadableItem.display.replace("with-image-", "");
+    let description = downloadableItem.description.replace(`[Image src="${downloadableItem.image}" loc="${loc}"]`, "").trimStart();
+
+    if (downloadableItem.display === "half-width") {
         return (
-            <Grid item xs={12} sm={12} md={6} lg={6} key={announcement.announcementid}>
+            <Grid item xs={12} sm={12} md={6} lg={6} key={downloadableItem.downloadsid}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {icon}&nbsp;&nbsp;{announcement.title}
+                                    {downloadableItem.title}
                                 </div>
                             </Typography>
-                            {showControls && <div>
+                            {(showButtons) && <div>
+                                <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                            </div>}
+                            {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                 <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
+                        <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
         );
-    } else if (announcement.display === "full-width") {
+    } else if (downloadableItem.display === "full-width") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {icon}&nbsp;&nbsp;{announcement.title}
+                                    {downloadableItem.title}
                                 </div>
                             </Typography>
-                            {showControls && <div>
+                            {(showButtons) && <div>
+                                <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                            </div>}
+                            {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                 <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
+                        <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
         );
-    } else if (announcement.display === "with-image-left") {
+    } else if (downloadableItem.display === "with-image-left") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={announcement.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
+                        <img src={downloadableItem.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -110,27 +123,30 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                                     <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {icon}&nbsp;&nbsp;{announcement.title}
+                                            {downloadableItem.title}
                                         </div>
                                     </Typography>
-                                    {showControls && <div>
+                                    {(showButtons) && <div>
+                                        <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                                    </div>}
+                                    {(showControls && showButtons) && <div>
                                         <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                         <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
-                                <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
+                                <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
             </Grid>
         );
-    } else if (announcement.display === "with-image-right") {
+    } else if (downloadableItem.display === "with-image-right") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
+            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -138,23 +154,26 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                                     <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {icon}&nbsp;&nbsp;{announcement.title}
+                                            {downloadableItem.title}
                                         </div>
                                     </Typography>
-                                    {showControls && <div>
+                                    {(showButtons) && <div>
+                                        <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                                    </div>}
+                                    {(showControls && showButtons) && <div>
                                         <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                         <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
-                                <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
+                                <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | {timeAgo(announcement.timestamp * 1000)}</Typography>
+                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && `${timeAgo(downloadableItem.timestamp * 1000)}`}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={announcement.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
+                        <img src={downloadableItem.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
             </Grid>
@@ -162,47 +181,48 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     }
 };
 
-const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) => {
+const DownloadableItemGrid = memo(({ downloadableItems, lastUpdate, onEdit, onDelete, onDownload }) => {
     let halfCnt = 0;
     return <Grid container spacing={3}>
-        {announcements.map((announcement, index) => {
-            announcement.display = 'half-width';
+        {downloadableItems.map((downloadableItem, index) => {
+            downloadableItem.display = 'half-width';
 
-            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(announcement.content);
-            
+            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(downloadableItem.description);
+
             if (hasImage) {
-                const re = announcement.content.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                const re = downloadableItem.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
                 const link = re[1];
                 const loc = re[2];
-                announcement.image = link;
-                announcement.display = 'with-image-' + loc;
+                downloadableItem.image = link;
+                downloadableItem.display = 'with-image-' + loc;
                 halfCnt = 0;
             } else {
-                if (index + 1 < announcements.length) {
-                    const nextAnnouncement = announcements[index + 1];
-                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextAnnouncement.content);
+                if (index + 1 < downloadableItems.length) {
+                    const nextDownloadableItem = downloadableItems[index + 1];
+                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextDownloadableItem.description);
 
                     if (nextHasImage) {
                         if (halfCnt % 2 === 1) {
-                            announcement.display = 'half-width';
+                            downloadableItem.display = 'half-width';
                             halfCnt += 1;
                         } else {
-                            announcement.display = 'full-width';
+                            downloadableItem.display = 'full-width';
                             halfCnt = 0;
                         }
                     } else {
-                        announcement.display = 'half-width';
+                        downloadableItem.display = 'half-width';
                         halfCnt += 1;
                     }
                 }
             }
 
             return (
-                <AnnouncementCard
-                    announcement={announcement}
-                    key={announcement.announcementid}
+                <DownloadableItemCard
+                    downloadableItem={downloadableItem}
+                    key={downloadableItem.downloadsid}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    onDownload={onDownload}
                 />
             );
         })}
@@ -211,10 +231,10 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
 
-const AnnouncementManagers = memo(() => {
+const DownloadableItemManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "announcement"])) {
+        if (checkPerm(vars.members[i].roles, ["admin", "downloads"])) {
             managers.push(vars.members[i]);
         }
     }
@@ -226,8 +246,8 @@ const AnnouncementManagers = memo(() => {
     }</>;
 })
 
-function Announcement() {
-    const [announcements, setAnnouncemnts] = useState([]);
+function DownloadableItem() {
+    const [downloadableItems, setDownloadableItems] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -243,7 +263,7 @@ function Announcement() {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Create Announcement");
+    const [dialogTitle, setDialogTitle] = useState("Create Downloadable Item");
     const [dialogButton, setDialogButton] = useState("Create");
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
@@ -251,17 +271,15 @@ function Announcement() {
 
     const [editId, setEditId] = useState(null);
     const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [announcementType, setAnnouncementType] = useState(0);
-    const [isPrivate, setIsPrivate] = useState("false");
+    const [description, setContent] = useState('');
+    const [link, setLink] = useState('');
     const [orderId, setOrderId] = useState(0);
     const [isPinned, setIsPinned] = useState("false");
 
     const clearModal = useCallback(() => {
         setTitle('');
         setContent('');
-        setAnnouncementType(0);
-        setIsPrivate(false);
+        setLink('');
         setOrderId(0);
         setIsPinned(false);
     }, []);
@@ -270,28 +288,28 @@ function Announcement() {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
+        let url = `${vars.dhpath}/downloads/list?page_size=10&page=${page}`;
 
-        var newAnns = [];
+        var newDowns = [];
         if (vars.isLoggedIn) {
             const [anns] = await makeRequestsWithAuth([
                 url
             ]);
-            newAnns = anns.list;
+            newDowns = anns.list;
             setTotalPages(anns.total_pages);
         } else {
             const [anns] = await makeRequests([
                 url
             ]);
-            newAnns = anns.list;
+            newDowns = anns.list;
             setTotalPages(anns.total_pages);
         }
 
-        for (let i = 0; i < newAnns.length; i++) {
-            newAnns[i] = { ...newAnns[i] };
+        for (let i = 0; i < newDowns.length; i++) {
+            newDowns[i] = { ...newDowns[i] };
         }
 
-        setAnnouncemnts(newAnns);
+        setDownloadableItems(newDowns);
         setLastUpdate(+new Date());
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -302,10 +320,10 @@ function Announcement() {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
             if (resp.status === 200) {
                 doLoad();
-                setSnackbarContent("Announcement posted!");
+                setSnackbarContent("Downloadable item posted!");
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -314,10 +332,10 @@ function Announcement() {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": Boolean(isPrivate), "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": Boolean(isPinned) } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Announcement updated!");
+                setSnackbarContent("Downloadable item updated!");
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -328,42 +346,51 @@ function Announcement() {
             }
         }
         setSubmitLoading(false);
-    }, [announcementType, title, content, editId, isPinned, isPrivate, orderId, clearModal, doLoad]);
+    }, [title, description, link, editId, isPinned, orderId, clearModal, doLoad]);
 
-    const createAnnouncement = useCallback(() => {
+    const doDownload = useCallback(async (downloadableItem) => {
+        let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (resp.status === 200) {
+            downloadFile(`${vars.dhpath}/downloads/redirect/${resp.data.secret}`);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, []);
+
+    const createDownloadableItem = useCallback(() => {
         if (editId !== null) {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Announcement");
+        setDialogTitle("Create Downloadable Item");
         setDialogButton("Create");
         setDialogOpen(true);
     }, [editId, clearModal]);
 
-    const editAnnouncement = useCallback((announcement) => {
+    const editDownloadableItem = useCallback((downloadableItem) => {
         clearModal();
 
-        setTitle(announcement.title);
-        setContent(announcement.content);
-        setAnnouncementType(announcement.announcement_type);
-        setIsPrivate(announcement.is_private);
-        setOrderId(announcement.orderid);
-        setIsPinned(announcement.is_pinned);
+        setTitle(downloadableItem.title);
+        setContent(downloadableItem.description);
+        setLink(downloadableItem.link);
+        setOrderId(downloadableItem.orderid);
+        setIsPinned(downloadableItem.is_pinned);
 
-        setEditId(announcement.announcementid);
+        setEditId(downloadableItem.downloadsid);
 
-        setDialogTitle("Edit Announcement");
+        setDialogTitle("Edit Downloadable Item");
         setDialogButton("Edit");
         setDialogOpen(true);
     }, [clearModal]);
 
-    const deleteAnnouncement = useCallback(async (announcement, isShiftPressed) => {
-        if (isShiftPressed === true || announcement.confirmed === true) {
+    const deleteDownloadableItem = useCallback(async (downloadableItem, isShiftPressed) => {
+        if (isShiftPressed === true || downloadableItem.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Announcement deleted!");
+                setSnackbarContent("Downloadable item deleted!");
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -374,7 +401,7 @@ function Announcement() {
             setSubmitLoading(false);
         } else {
             setDialogDelete(true);
-            setToDelete(announcement);
+            setToDelete(downloadableItem);
         }
     }, [doLoad]);
 
@@ -384,8 +411,8 @@ function Announcement() {
 
     return (
         <>
-            <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
-            {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
+            <DownloadableItemGrid downloadableItems={downloadableItems} lastUpdate={lastUpdate} onEdit={editDownloadableItem} onDelete={deleteDownloadableItem} onDownload={doDownload} />
+            {downloadableItems.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "50px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>{dialogTitle}</DialogTitle>
@@ -404,38 +431,22 @@ function Announcement() {
                                 <TextField
                                     label="Content (Markdown)"
                                     multiline
-                                    value={content}
+                                    value={description}
                                     onChange={(e) => setContent(e.target.value)}
                                     fullWidth
                                     minRows={4}
                                 />
                             </Grid>
                             <Grid item xs={12}>
+                                <TextField
+                                    label="Download Link"
+                                    value={link}
+                                    onChange={(e) => setLink(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
                                 <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <FormControl component="fieldset">
-                                            <FormLabel component="legend">Announcement Type</FormLabel>
-                                            <Select value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
-                                                {(vars.announcementTypes).map((option) => (
-                                                    <MenuItem key={option.id} value={option.id}>
-                                                        {option.name}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <FormControl component="fieldset">
-                                            <FormLabel component="legend">Visibility</FormLabel>
-                                            <RadioGroup
-                                                value={isPrivate} row
-                                                onChange={(e) => setIsPrivate(e.target.value)}
-                                            >
-                                                <FormControlLabel value="false" control={<Radio />} label="Public" />
-                                                <FormControlLabel value="true" control={<Radio />} label="Private" />
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </Grid>
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset">
                                             <FormLabel component="legend">Order ID</FormLabel>
@@ -471,20 +482,20 @@ function Announcement() {
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>Delete Announcement</DialogTitle>
+                <DialogTitle>Delete Downloadable Item</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this announcement?</Typography>
-                    <AnnouncementCard announcement={toDelete !== null ? toDelete : {}} />
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this downloadable item?</Typography>
+                    <DownloadableItemCard downloadableItem={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
-                    <Button variant="contained" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="contained" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>Announcement Managers</DialogTitle>
+                <DialogTitle>Downloads Managers</DialogTitle>
                 <DialogContent>
-                    <AnnouncementManagers />
+                    <DownloadableItemManagers />
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
@@ -495,11 +506,11 @@ function Announcement() {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["admin", "announcement"]) && <SpeedDialAction
+                {checkUserPerm(["admin", "downloads"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"
-                    onClick={() => createAnnouncement()}
+                    onClick={() => createDownloadableItem()}
                 />}
                 {vars.userInfo.userid !== -1 && <SpeedDialAction
                     key="managers"
@@ -528,4 +539,4 @@ function Announcement() {
     );
 }
 
-export default Announcement;
+export default DownloadableItem;
