@@ -6,20 +6,11 @@ import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import { timeAgo, makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm } from '../functions';
 
-// NOTE This will be editable in API v2.7.4
-const announcementTypes = [
-    { value: 0, name: 'Information' },
-    { value: 1, name: 'Event' },
-    { value: 2, name: 'Warning' },
-    { value: 3, name: 'Critical' },
-    { value: 4, name: 'Resolved' },
-];
-
 var vars = require("../variables");
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
-    const icon = ICONS[announcement.announcement_type];
+    const icon = ICONS[announcement.announcement_type.id];
 
     const showControl = onEdit !== undefined;
 
@@ -178,9 +169,7 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
             announcement.display = 'half-width';
 
             const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(announcement.content);
-
-            console.log(`${hasImage} => ${announcement.content}`)
-
+            
             if (hasImage) {
                 const re = announcement.content.match(/^\[Image src="(.+)" loc="(.+)"\]/);
                 const link = re[1];
@@ -427,8 +416,8 @@ function Announcement() {
                                         <FormControl component="fieldset">
                                             <FormLabel component="legend">Announcement Type</FormLabel>
                                             <Select value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
-                                                {announcementTypes.map((option) => (
-                                                    <MenuItem key={option.value} value={option.value}>
+                                                {(vars.announcementTypes).map((option) => (
+                                                    <MenuItem key={option.id} value={option.id}>
                                                         {option.name}
                                                     </MenuItem>
                                                 ))}

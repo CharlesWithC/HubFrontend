@@ -68,12 +68,13 @@ const Loader = ({ onLoaderLoaded }) => {
                     `${vars.dhpath}/member/roles`,
                     `${vars.dhpath}/member/perms`,
                     `${vars.dhpath}/member/ranks`,
+                    `${vars.dhpath}/announcements/types`,
                     `${vars.dhpath}/applications/positions`,
                     `${vars.dhpath}/applications/types`,
                     `${vars.dhpath}/divisions/list`,
                 ];
 
-                const [specialRoles, config, memberRoles, memberPerms, memberRanks, applicationPositions, applicationTypes, divisions] = await makeRequests(urlsBatch);
+                const [specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequests(urlsBatch);
                 if (specialRoles) {
                     vars.specialRoles = specialRoles;
                 }
@@ -89,12 +90,14 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (memberPerms) {
                     vars.perms = memberPerms;
                 }
-
                 if (memberRanks) {
                     let ranks = memberRanks;
                     for (let i = 0; i < ranks.length; i++) {
                         vars.ranks[ranks[i].points] = ranks[i];
                     }
+                }
+                if (announcementTypes) {
+                    vars.announcementTypes = announcementTypes;
                 }
                 if (applicationPositions) {
                     vars.applicationPositions = applicationPositions;

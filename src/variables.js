@@ -51,6 +51,9 @@ exports.roles = roles;
 exports.perms = perms;
 exports.ranks = ranks;
 
+var announcementTypes = [];
+exports.announcementTypes = announcementTypes;
+
 var applicationPositions = [];
 var applicationTypes = {};
 exports.applicationPositions = applicationPositions;
