@@ -19,7 +19,14 @@ customAxios.interceptors.response.use(
         return response;
     },
     (error) => {
-        return error.response;
+        const errorResponse = error.response;
+
+        if (errorResponse && (errorResponse.status === 429 || errorResponse.status === 503)) {
+            const errorMessage = `Error ${errorResponse.status}: ${errorResponse.statusText}`;
+            throw new Error(errorMessage);
+        }
+
+        return errorResponse;
     }
 );
 

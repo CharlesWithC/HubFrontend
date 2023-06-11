@@ -42,14 +42,35 @@ export function getDesignTokens(mode) {
                                 fontWeight: "800"
                             }
                         }
-                    }
+                    },
+                    MuiListItemButton: {
+                        styleOverrides: {
+                            root: {
+                                borderRadius: '5px',
+                                '&.Mui-selected': {
+                                    backgroundColor: '#afafaf',
+                                },
+                                '&.Mui-selected:hover': {
+                                    backgroundColor: '#afafaf',
+                                },
+                            },
+                        },
+                    },
+                    MuiTabs: {
+                        styleOverrides: {
+                            root: {
+                                '& .Mui-selected': {
+                                    color: '#2196f3',
+                                    textShadow: "1px 1px 2px"
+                                },
+                            },
+                        },
+                    },
                 } : {
                     MuiListItemButton: {
                         styleOverrides: {
                             root: {
                                 borderRadius: '5px',
-                                minHeight: '40px',
-                                maxHeight: '40px',
                                 '&.Mui-selected': {
                                     backgroundColor: '#3F4248',
                                 },
@@ -90,7 +111,17 @@ export function getDesignTokens(mode) {
                                 fontWeight: "800"
                             }
                         }
-                    }
+                    },
+                    MuiTabs: {
+                        styleOverrides: {
+                            root: {
+                                '& .Mui-selected': {
+                                    color: '#2196f3',
+                                    textShadow: "0 0 1px"
+                                },
+                            },
+                        },
+                    },
                 })
         },
     };

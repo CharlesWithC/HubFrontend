@@ -51,7 +51,7 @@ const SideBar = (props) => {
 
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event"];
-    const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Live Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "pending_user": "Pending Users", "audit_log": "Audit Log", "configuration": "Configuration" };
+    const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "pending_user": "Pending Users", "audit_log": "Audit Log", "configuration": "Configuration" };
     const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "pending_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
     const menuRoute = { "overview": "/", "announcement": "/announcements", "downloads": "/downloads", "live_map": "/map", "delivery": "/deliveries", "challenge": "/challenges", "division": "/divisions", "economy": "/economy", "event": "/events", "member": "/members", "leaderboard": "/leaderboard", "ranking": "/rankings", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "pending_user": "/pendingUser", "audit_log": "/auditLog", "configuration": "/config" };
 
@@ -59,9 +59,9 @@ const SideBar = (props) => {
     let toRemove = [];
 
     if (!vars.isLoggedIn) {
-        menu = [["overview", "announcement"], ["delivery", "event"]];
+        menu = [["overview", "announcement"], ["live_map", "delivery", "event"]];
     } else {
-        menu = [["overview", "announcement", "downloads"], ["delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["pending_user", "audit_log", "configuration"]];
+        menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["pending_user", "audit_log", "configuration"]];
         if (!vars.userPerm.includes("admin")) {
             if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
                 toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "pending_user", "audit_log", "configuration"];

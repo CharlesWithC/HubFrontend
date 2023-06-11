@@ -23,7 +23,9 @@ if (localStorage.getItem("client-settings") !== null) {
         let lsSettings = JSON.parse(localStorage.getItem("client-settings"));
         let sKeys = Object.keys(userSettings);
         for (let i = 0; i < sKeys.length; i++) {
-            userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+            if (Object.keys(lsSettings).includes(sKeys[i])) {
+                userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+            }
         }
         localStorage.setItem("client-settings", JSON.stringify(userSettings));
     } catch (error) {
