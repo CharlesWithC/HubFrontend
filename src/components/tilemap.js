@@ -38,9 +38,11 @@ const TileMap = ({ tilesUrl, title, style }) => {
         };
     }, [tilesUrl]);
 
-    return <div ref={mapContainerRef} style={{ width: '100%', height: '600px', background: '#484E66', ...style }}>
-        <Typography variant="body2" sx={{ position: "absolute", zIndex: 1, margin: "5px", color: "white" }}>{title}</Typography>
-    </div >;
+    return <div style={{ borderRadius: "10px", overflow: "hidden" }}>
+        <div ref={mapContainerRef} style={{ width: '100%', height: '600px', background: '#484E66', ...style }}>
+            <Typography variant="body2" sx={{ position: "absolute", zIndex: 1, margin: "5px", color: "white" }}>{title}</Typography>
+        </div >
+    </div>;
 };
 
 export default TileMap;

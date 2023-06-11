@@ -54,16 +54,16 @@ const Map = () => {
             </Tabs>
         </Box>
         <TabPanel value={tab} index={0}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Euro Truck Simulator 2 - Base Map"} style={{ borderRadius: "10px" }} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Euro Truck Simulator 2 - Base Map"} />
         </TabPanel>
         <TabPanel value={tab} index={1}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={"Euro Truck Simulator 2 - ProMods Map"} style={{ borderRadius: "10px" }} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={"Euro Truck Simulator 2 - ProMods Map"} />
         </TabPanel>
         <TabPanel value={tab} index={2}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={"American Truck Simulator - Base Map"} style={{ borderRadius: "10px" }} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={"American Truck Simulator - Base Map"} />
         </TabPanel>
         <TabPanel value={tab} index={3}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={"American Truck Simulator - ProMods Map"} style={{ borderRadius: "10px" }} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={"American Truck Simulator - ProMods Map"} />
         </TabPanel>
     </Card>
 };
