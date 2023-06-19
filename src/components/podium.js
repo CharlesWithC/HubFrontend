@@ -2,7 +2,9 @@ import React from 'react';
 import { Card, CardContent, Grid, Paper, Typography } from '@mui/material';
 import { TSep } from '../functions';
 
-const Podium = ({ title, first, second, third }) => {
+const Podium = ({ title, first, second, third, fixWidth }) => {
+    if (fixWidth === undefined) fixWidth = false;
+
     const calculateBackgroundColor = (rank) => {
         const opacity = 1 - (rank * 0.15); // Adjust the opacity based on rank
         return `rgba(128, 128, 128, ${opacity})`; // You can replace "255, 0, 0" with the desired color values
@@ -35,7 +37,7 @@ const Podium = ({ title, first, second, third }) => {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item sx={{ width: Math.max(String(parseInt((second.stat / first.stat) * 100)), 40) + "%" }}>
+                <Grid item sx={{ width: (!fixWidth ? String(parseInt((second.stat / first.stat) * 100)) : "80") + "%" }}>
                     <Paper
                         elevation={3}
                         style={{
@@ -54,7 +56,7 @@ const Podium = ({ title, first, second, third }) => {
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid item sx={{ width: Math.max(String(parseInt((third.stat / first.stat) * 100)), 40) + "%" }}>
+                <Grid item sx={{ width: (!fixWidth ? String(parseInt((third.stat / first.stat) * 100)) : "60") + "%" }}>
                     <Paper
                         elevation={3}
                         style={{

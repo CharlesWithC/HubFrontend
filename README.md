@@ -8,3 +8,4 @@ A bunch of easter eggs are kept in the project, they are hidden from the general
 *They could be kept perks for Premium Plan*  
 
 1. [announcement/downloads] Add `[Image src="{link}" loc="left|right"]` (\*case-sensitive) to the beginning of content to show an image banner for an announcement.  
+2. [(todo)statistics] Display statistics details  
