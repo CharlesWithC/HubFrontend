@@ -33,7 +33,7 @@ const Deliveries = () => {
     const [detailStats, setDetailStats] = useState({});
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
@@ -44,16 +44,23 @@ const Deliveries = () => {
             let [detailS, dlogL] = [{}, {}];
             setDlogList([]);
 
-            if (detailStats.truck === undefined) {
+            let myPage = page;
+            if (myPage === -1) {
+                myPage = 1;
+            } else {
+                myPage += 1;
+            }
+
+            if (page === -1) {
                 [detailS, dlogL] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: true },
                 ]);
 
                 setDetailStats(detailS);
             } else {
                 [dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: true },
                 ]);
             }
 
