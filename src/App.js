@@ -17,6 +17,7 @@ import Overview from './routes/overview';
 import Announcement from './routes/announcement';
 import Downloads from './routes/downloads';
 import Map from './routes/map';
+import Deliveries from './routes/delivery';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -99,6 +100,7 @@ function App() {
                             <Route path="/announcements" element={<Announcement />}></Route>
                             <Route path="/downloads" element={<Downloads />}></Route>
                             <Route path="/map" element={<Map />}></Route>
+                            <Route path="/deliveries" element={<Deliveries />}></Route>
                         </Routes>
                     </SimpleBar>
                 </div>

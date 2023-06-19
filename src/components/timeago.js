@@ -21,8 +21,8 @@ function calculate(timestamp) {
         return "Now";
     } else if (seconds < 60) {
         return `${seconds} seconds ago`;
-    } else if (seconds < 90) {
-        return "About a minute ago";
+    } else if (seconds < 120) {
+        return "1 minute ago";
     } else if (minutes < 60) {
         return `${minutes} minutes ago`;
     } else if (isToday) {

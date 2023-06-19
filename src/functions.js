@@ -234,6 +234,18 @@ export function getFormattedDate(date, prefomattedDate = false, hideYear = false
     return `${month} ${OrdinalSuffix(day)} ${year} at ${hours}:${minutes}`;
 }
 
+export function getTodayUTC() {
+    const today = new Date();
+    const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    return utcDate.getTime();
+}
+
+export function getMonthUTC() {
+    const today = new Date();
+    const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth(), 1);
+    return utcDate.getTime();
+}
+
 export function checkPerm(roles, perms) {
     // any matches in perms will return true
     for (let i = 0; i < perms.length; i++) {

@@ -4,21 +4,9 @@ import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRou
 import SimpleBar from 'simplebar-react';
 
 import TimeAgo from '../components/timeago';
-import { TSep, ConvertUnit, makeRequestsAuto } from '../functions';
+import { TSep, ConvertUnit, makeRequestsAuto, getTodayUTC, getMonthUTC } from '../functions';
 import StatCard from '../components/statcard';
 import UserCard from '../components/usercard';
-
-function getTodayUTC() {
-    const today = new Date();
-    const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-    return utcDate.getTime();
-}
-
-function getMonthUTC() {
-    const today = new Date();
-    const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth(), 1);
-    return utcDate.getTime();
-}
 
 var vars = require("../variables");
 
