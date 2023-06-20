@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress } from "@mui/material";
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
@@ -27,6 +27,32 @@ const TopBar = (props) => {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
+
+    const appBarRef = useRef(null);
+    const progressBarRef = useRef(null);
+    const [progressBarStyle, setProgressBarStyle] = useState({});
+    useEffect(() => {
+        const updateProgressBarWidth = () => {
+            const appBarElement = appBarRef.current;
+            const progressBarElement = progressBarRef.current;
+
+            if (appBarElement && progressBarElement) {
+                const appBarRect = appBarElement.getBoundingClientRect();
+                const progressBarStyle = {
+                    left: `${appBarRect.left}px`,
+                    width: `${appBarRect.width}px`,
+                };
+                setProgressBarStyle(progressBarStyle);
+            }
+        };
+
+        updateProgressBarWidth();
+
+        window.addEventListener('resize', updateProgressBarWidth);
+        return () => {
+            window.removeEventListener('resize', updateProgressBarWidth);
+        };
+    }, []);
 
     const [reload, setReload] = useState(+new Date());
     useEffect(() => {
@@ -132,7 +158,7 @@ const TopBar = (props) => {
     return (
         <div do-reload={reload}>
             <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static"
+                <AppBar ref={appBarRef} position="static"
                     sx={{
                         width: { sm: `calc(100% - ${props.sidebarWidth}px)` },
                         ml: { sm: `${props.sidebarWidth}px` },
@@ -156,7 +182,7 @@ const TopBar = (props) => {
                         {!vars.isLoggedIn && notLoggedInBtns}
                     </Toolbar>
                 </AppBar>
-                {loading && (<LinearProgress sx={{ top: "80px", left: `${props.sidebarWidth}px`, width: `calc(100% - ${props.sidebarWidth}px)`, position: "fixed", zIndex: 101 }} />)}
+                {loading && (<LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101 }} />)}
             </Box>
             <Snackbar
                 open={!!snackbarContent}

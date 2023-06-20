@@ -93,9 +93,9 @@ const SideBar = (props) => {
             routeIndex[menuRoute[menu[i][j]]] = i * 10 + j;
         }
     }
-    if (Object.keys(routeIndex).includes(window.location.pathname)) {
-        if (selectedIndex !== routeIndex[window.location.pathname]) {
-            setSelectedIndex(routeIndex[window.location.pathname]);
+    if (Object.keys(routeIndex).includes("/" + window.location.pathname.split("/")[1])) {
+        if (selectedIndex !== routeIndex["/" + window.location.pathname.split("/")[1]]) {
+            setSelectedIndex(routeIndex["/" + window.location.pathname.split("/")[1]]);
         }
     }
 
