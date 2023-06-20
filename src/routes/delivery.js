@@ -23,12 +23,6 @@ const columns = [
 
 const PROFIT_UNIT = { 1: "€", 2: "$" };
 
-// function formatID(str) {
-//     const formattedStr = str.replace('_', ' ');
-//     const capitalizedStr = formattedStr.charAt(0).toUpperCase() + formattedStr.slice(1);
-//     return capitalizedStr;
-// }
-
 const Deliveries = () => {
     const [detailStats, setDetailStats] = useState({});
     const [dlogList, setDlogList] = useState([]);
@@ -78,6 +72,10 @@ const Deliveries = () => {
         doLoad();
     }, [page, pageSize]);
 
+    function handleClick(row){
+        console.log(row);
+    }
+
     return <>
         {detailStats.truck !== undefined && <>
             <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -90,26 +88,8 @@ const Deliveries = () => {
                 <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={"Top Plate Countries"} first={{ name: detailStats.plate_country[0].name, stat: detailStats.plate_country[0].count }} second={{ name: detailStats.plate_country[1].name, stat: detailStats.plate_country[1].count }} third={{ name: detailStats.plate_country[2].name, stat: detailStats.plate_country[2].count }} fixWidth={true} />
                 </Grid>
-                {/* <Grid item xs={12} sm={12} md={6} lg={4}>
-                <Podium title={"Top Source Cities"} first={{ name: detailStats.source_city[0].name, stat: detailStats.source_city[0].count }} second={{ name: detailStats.source_city[1].name, stat: detailStats.source_city[1].count }} third={{ name: detailStats.source_city[2].name, stat: detailStats.source_city[2].count }} />
             </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
-                <Podium title={"Top Destination Cities"} first={{ name: detailStats.destination_city[0].name, stat: detailStats.destination_city[0].count }} second={{ name: detailStats.destination_city[1].name, stat: detailStats.destination_city[1].count }} third={{ name: detailStats.destination_city[2].name, stat: detailStats.destination_city[2].count }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
-                <Podium title={"Top Ferry Routes"} first={{ name: detailStats.ferry[0].name, stat: detailStats.ferry[0].count }} second={{ name: detailStats.ferry[1].name, stat: detailStats.ferry[1].count }} third={{ name: detailStats.ferry[2].name, stat: detailStats.ferry[2].count }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
-                <Podium title={"Top Source Companies"} first={{ name: detailStats.source_company[0].name, stat: detailStats.source_company[0].count }} second={{ name: detailStats.source_company[1].name, stat: detailStats.source_company[1].count }} third={{ name: detailStats.source_company[2].name, stat: detailStats.source_company[2].count }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
-                <Podium title={"Top Destination Companies"} first={{ name: detailStats.destination_company[0].name, stat: detailStats.destination_company[0].count }} second={{ name: detailStats.destination_company[1].name, stat: detailStats.destination_company[1].count }} third={{ name: detailStats.destination_company[2].name, stat: detailStats.destination_company[2].count }} />
-            </Grid>
-            <Grid item xs={12} sm={12} md={6} lg={4}>
-                <Podium title={"Top Fines"} first={{ name: formatID(detailStats.fine[0].name), stat: detailStats.fine[0].sum }} second={{ name: formatID(detailStats.fine[1].name), stat: detailStats.fine[1].sum }} third={{ name: formatID(detailStats.fine[2].name), stat: detailStats.fine[2].sum }} />
-            </Grid> */}
-            </Grid>
-            <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
+            <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
         </>
         }
     </>;

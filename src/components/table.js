@@ -1,7 +1,19 @@
 import React from 'react';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, TablePagination } from '@mui/material';
 
-const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange }) => {
+const ClickableTableRow = ({ key, rowMeta, children, onClick }) => {
+    const handleClick = () => {
+        onClick(rowMeta);
+    };
+
+    return (
+        <TableRow key={key} onClick={handleClick} hover style={{ cursor: 'pointer' }}>
+            {children}
+        </TableRow>
+    );
+};
+
+const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -29,11 +41,11 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
                     </TableHead>
                     <TableBody>
                         {data.map((row) => (
-                            <TableRow key={row.id}>
+                            <ClickableTableRow key={row.id} rowMeta={row} onClick={onRowClick}>
                                 {columns.map((column) => (
                                     <TableCell key={column.id}>{row[column.id]}</TableCell>
                                 ))}
-                            </TableRow>
+                            </ClickableTableRow>
                         ))}
                     </TableBody>
                 </Table>
