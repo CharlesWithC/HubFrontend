@@ -3,9 +3,8 @@ import { useMemo, useState, useEffect } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import { useLocation } from 'react-router-dom';
+import { useLocation, Routes, Route } from 'react-router-dom';
 
-import { Routes, Route } from 'react-router-dom';
 import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
 import SteamAuth from './routes/auth/steamAuth';
@@ -14,10 +13,11 @@ import Loader from './components/loader';
 import Redirect from './components/redirect';
 import UpgradeCard from './routes/upgrade';
 import Overview from './routes/overview';
-import Announcement from './routes/announcement';
+import Announcement from './routes/announcements';
 import Downloads from './routes/downloads';
 import Map from './routes/map';
-import Deliveries from './routes/delivery';
+import Deliveries from './routes/deliveries';
+import Delivery from './routes/delivery';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -101,6 +101,7 @@ function App() {
                             <Route path="/downloads" element={<Downloads />}></Route>
                             <Route path="/map" element={<Map />}></Route>
                             <Route path="/deliveries" element={<Deliveries />}></Route>
+                            <Route path="/deliveries/:logid" element={<Delivery />} />
                         </Routes>
                     </SimpleBar>
                 </div>
