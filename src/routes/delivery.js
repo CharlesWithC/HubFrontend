@@ -1,16 +1,110 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography } from '@mui/material';
+import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, useTheme } from '@mui/material';
+import { LocalShippingRounded, InfoRounded } from '@mui/icons-material';
 
 import UserCard from '../components/usercard';
-import { makeRequestsAuto } from '../functions';
+import ListModal from '../components/listmodal';
+import TimeAgo from '../components/timeago';
+import { makeRequestsAuto, ConvertUnit, CalcInterval } from '../functions';
+import '../App.css';
 
 var vars = require("../variables");
+
+const PROFIT_UNIT = { "eut2": "€", "ats": "$" };
+function bool2int(b) { return b ? 1 : 0; }
+const YES_NO = { 0: "No", 1: "Yes" };
+const MARKET = { "cargo_market": "Cargo Market", "freight_market": "Freight Market", "external_contracts": "External Contracts", "quick_job": "Quick Job", "external_market": "External Market" };
+const COUNTRY_FLAG = {
+    "uk": "🇬🇧",
+    "germany": "🇩🇪",
+    "france": "🇫🇷",
+    "netherlands": "🇳🇱",
+    "poland": "🇵🇱",
+    "norway": "🇳🇴",
+    "italy": "🇮🇹",
+    "lithuania": "🇱🇹",
+    "switzerland": "🇨🇭",
+    "sweden": "🇸🇪",
+    "czech": "🇨🇿",
+    "portugal": "🇵🇹",
+    "austria": "🇦🇹",
+    "denmark": "🇩🇰",
+    "finland": "🇫🇮",
+    "belgium": "🇧🇪",
+    "romania": "🇷🇴",
+    "russia": "🇷🇺",
+    "slovakia": "🇸🇰",
+    "turkey": "🇹🇷",
+    "hungary": "🇭🇺",
+    "bulgaria": "🇧🇬",
+    "latvia": "🇱🇻",
+    "estonia": "🇪🇪",
+    "ireland": "🇮🇪",
+    "croatia": "🇭🇷",
+    "greece": "🇬🇷",
+    "serbia": "🇷🇸",
+    "ukraine": "🇺🇦",
+    "slovenia": "🇸🇮",
+    "malta": "🇲🇹",
+    "andorra": "🇦🇩",
+    "macedonia": "🇲🇰",
+    "jordan": "🇯🇴",
+    "egypt": "🇪🇬",
+    "israel": "🇮🇱",
+    "montenegro": "🇲🇪",
+    "australia": "🇦🇺"
+};
+function GetCountryFlag(val) {
+    if (Object.keys(COUNTRY_FLAG).includes(val)) {
+        return COUNTRY_FLAG[val];
+    } else {
+        return val;
+    }
+}
+function GetTrailerModel(trailers) {
+    let trailerString = "";
+    for (let i = 0; i < trailers.length; i++) {
+        const trailer = trailers[i];
+        if (trailer.brand === null && trailer.name === "") trailerString += "Unknown";
+        else if (trailer.brand === null && trailer.name !== "") trailerString += trailer.name;
+        else trailerString += `${trailer.brand.name} ${trailer.name}`;
+        if (i < trailers.length - 1) {
+            trailerString += " - ";
+        }
+    }
+    return trailerString;
+}
+function GetTrailerPlate(trailers) {
+    let trailerString = "";
+    for (let i = 0; i < trailers.length; i++) {
+        const trailer = trailers[i];
+        trailerString += `${GetCountryFlag(trailer.license_plate_country.unique_id)} ${trailer.license_plate}`;
+        if (i < trailers.length - 1) {
+            trailerString += " - ";
+        }
+    }
+    return trailerString;
+}
 
 const Delivery = () => {
     const { logid } = useParams();
     const [dlog, setDlog] = useState({});
+    const [dlogDetail, setDlogDetail] = useState({});
+    const [replayProgress, setReplayProgress] = useState(0);
+
+    const [listModalItems, setListModalItems] = useState([]);
+    const [listModalOpen, setListModalOpen] = useState(false);
+
+    function handleDetail() {
+        setListModalOpen(true);
+    }
+    function handleCloseDetail() {
+        setListModalOpen(false);
+    }
+
+    const theme = useTheme();
 
     useEffect(() => {
         async function doLoad() {
@@ -21,20 +115,152 @@ const Delivery = () => {
                 { url: `${vars.dhpath}/dlog/${logid}`, auth: true },
             ]);
             setDlog(dlogD);
+            setDlogDetail(dlogD.detail.data.object);
+
+            const data = dlogD;
+            const detail = dlogD.detail.data.object;
+            const TRACKER = { "tracksim": "TrackSim", "navio": "Navio" };
+
+            let fine = 0;
+            let autoLoad = false;
+            let autoPark = false;
+            for (let i = 0; i < detail.events.length; i++) {
+                if (detail.events[i].type === "fine") {
+                    fine += detail.events[i].meta.amount;
+                }
+                if (detail.events[i].type === "job.started") {
+                    autoLoad = detail.events[i].meta.autoLoaded;
+                }
+                if (detail.events[i].type === "job.delivered") {
+                    autoPark = detail.events[i].meta.autoParked;
+                }
+            }
+
+            const lmi = [{ "name": "Log ID", "value": logid },
+            { "name": `${TRACKER[data.tracker]} ID`, "key": "id" },
+            { "name": "Time Submitted", "value": <TimeAgo timestamp={data.timestamp * 1000} /> },
+            { "name": "Time Spent", "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
+            { "name": "Status", "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>Delivered</span> : <span style={{ color: theme.palette.error.main }}>Cancelled</span> },
+            { "name": "Delivery Route", "value": data.telemetry !== "" && data.telemetry !== null ? <span style={{ color: theme.palette.success.main }}>Available</span> : <span style={{ color: theme.palette.error.main }}>Unavailable</span> },
+            { "name": "Division", "value": data.division !== null ? vars.divisions[data.division].name : "/" },
+            {},
+            { "name": "Driver", "value": <UserCard user={data.user} inline={true} /> },
+            { "name": "Truck Model", "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
+            { "name": "Truck Plate", "value": <>{GetCountryFlag(detail.truck.license_plate_country.unique_id)}&nbsp;{detail.truck.license_plate}</> },
+            { "name": "Truck Odometer", "value": <>{ConvertUnit("km", detail.truck.initial_odometer)} {'->'} {ConvertUnit("km", detail.truck.odometer)}</> },
+            { "name": "Trailer Model", "value": GetTrailerModel(detail.trailers) },
+            { "name": "Trailer Plate", "value": GetTrailerPlate(detail.trailers) },
+            {},
+            { "name": "Cargo", "value": <>{detail.cargo.name} <span style={{ color: "grey" }}>({detail.cargo.unique_id})</span></> },
+            { "name": "Cargo Mass", "value": ConvertUnit("kg", detail.cargo.mass) },
+            { "name": "Cargo Damage", "value": <span style={{ "color": detail.cargo.damage <= 0.01 ? theme.palette.success.main : (detail.cargo.damage <= 0.05 ? theme.palette.warning.main : theme.palette.error.main) }} > {(detail.cargo.damage * 100).toFixed(1)}%</span > },
+            {},
+            { "name": "Planned Distance", "value": ConvertUnit("km", detail.planned_distance) },
+            { "name": "Logged Distance", "value": ConvertUnit("km", detail.driven_distance) },
+            { "name": "Reported Distance", "value": ConvertUnit("km", detail.events[detail.events.length - 1].meta.distance) },
+            {},
+            { "name": "Source Company", "value": <>{detail.source_company.name} <span style={{ color: "grey" }}>({detail.source_company.unique_id})</span></> },
+            { "name": "Source City", "value": <>{detail.source_city.name} <span style={{ color: "grey" }}>({detail.source_city.unique_id})</span></> },
+            { "name": "Destination Company", "value": <>{detail.destination_company.name} <span style={{ color: "grey" }}>({detail.destination_company.unique_id})</span></> },
+            { "name": "Destination City", "value": <>{detail.destination_city.name} <span style={{ color: "grey" }}>({detail.destination_city.unique_id})</span></> },
+            { "name": "Fuel Used", "value": ConvertUnit("l", detail.fuel_used, 2) },
+            { "name": "Avg. Fuel", "value": ConvertUnit("l", (detail.fuel_used / detail.driven_distance * 100).toFixed(2), 2) + "/100km" },
+            { "name": "AdBlue Used", "value": ConvertUnit("l", detail.adblue_used, 2) },
+            { "name": "Max. Speed", "value": ConvertUnit("km", detail.truck.top_speed * 3.6) + "/h" },
+            { "name": "Avg. Speed", "value": ConvertUnit("km", detail.truck.average_speed * 3.6) + "/h" },
+            {},
+            { "name": "Revenue", "value": detail.events[detail.events.length - 1].meta.revenue + PROFIT_UNIT[detail.game.short_name] },
+            { "name": "Fine", "value": fine + PROFIT_UNIT[detail.game.short_name] },
+            {},
+            { "name": "Is Special Transport?", "value": YES_NO[bool2int(detail.is_special)] },
+            { "name": "Is Late?", "value": <span style={{ color: detail.is_late === false ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.is_late)]}</span> },
+            { "name": "Had Police Enabled?", "value": <span style={{ color: detail.game.had_police_enabled === true ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.game.had_police_enabled)]}</span> },
+            { "name": "Market", "value": MARKET[detail.market] },
+            { "name": "Mode", "value": detail.multiplayer === null ? "Single Player" : (detail.multiplayer === "truckersmp" ? "TruckersMP" : "SCS Convoy") },
+            { "name": "Automation", "value": <>{autoLoad ? <Chip label={"Auto Load"} sx={{ borderRadius: "5px" }}></Chip> : <></>} {autoPark ? <Chip label={"Auto Park"} sx={{ borderRadius: "5px" }}></Chip> : <></>}</>}] ;
+            setListModalItems(lmi);
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [logid]);
+    }, [logid, theme]);
 
     return (<>
-        {dlog.logid === undefined && <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="h4">Delivery #{logid}</Typography>
-        </div>}
-        {dlog.logid !== undefined && <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography variant="h4">Delivery #{logid}</Typography>
-            <Typography variant="h4"><UserCard user={dlog.user} inline={true} /></Typography>
+        {dlog.logid === undefined &&
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <LocalShippingRounded />&nbsp;&nbsp;Delivery #{logid}
+                </Typography>
+            </div>}
+        {dlog.logid !== undefined && <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <LocalShippingRounded />&nbsp;&nbsp;Delivery #{logid}&nbsp;&nbsp;
+                    <IconButton size="medium" color="inherit" onClick={handleDetail}>
+                        <InfoRounded />
+                    </IconButton>
+                </Typography>
+                <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
+            </div>
+            <div style={{ display: 'flex', marginTop: "10px" }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={3}>
+                        <Card>
+                            <CardContent style={{ textAlign: 'center' }}>
+                                <Typography variant="h6" component="div">
+                                    <b>{dlogDetail.source_company.name}</b>
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary" component="div">
+                                    {dlogDetail.source_city.name}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                            <Typography variant="body1" component="div" sx={{ marginTop: "4px" }}>
+                                {`${dlogDetail.cargo.name} (${ConvertUnit("kg", dlogDetail.cargo.mass)})`}
+                            </Typography>
+
+                            <LinearProgress
+                                variant="determinate"
+                                value={replayProgress}
+                                color="primary"
+                                sx={{
+                                    width: '90%',
+                                    margin: '4px',
+                                    '& .MuiLinearProgress-barColorPrimary': {
+                                        backgroundColor: '#2196f3',
+                                    },
+                                }}
+                            />
+
+                            <Typography variant="body2" component="div" style={{ textAlign: 'center' }}>
+                                {ConvertUnit("km", dlogDetail.driven_distance)}<br />
+                                {CalcInterval(new Date(dlogDetail.start_time), new Date(dlogDetail.stop_time))}
+                            </Typography>
+                        </div>
+                    </Grid>
+
+                    <Grid item xs={3}>
+                        <Card>
+                            <CardContent style={{ textAlign: 'center' }}>
+                                <Typography variant="h6" component="div">
+                                    <b>{dlogDetail.destination_company.name}</b>
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary" component="div">
+                                    {dlogDetail.destination_city.name}
+                                </Typography>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+
+                    <Grid item xs={1}></Grid>
+                </Grid>
+            </div>
+            {listModalItems.length !== 0 && <ListModal title={"Delivery Log"} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
         </div>}
     </>
     );

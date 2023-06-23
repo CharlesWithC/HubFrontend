@@ -182,7 +182,7 @@ const TopBar = (props) => {
                         {!vars.isLoggedIn && notLoggedInBtns}
                     </Toolbar>
                 </AppBar>
-                {loading && (<LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101 }} />)}
+                <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101, display: loading ? "block" : "none" }} />
             </Box>
             <Snackbar
                 open={!!snackbarContent}

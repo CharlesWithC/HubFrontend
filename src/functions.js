@@ -132,24 +132,43 @@ export function TSep(val) {
     return val.toLocaleString('en-US');
 }
 
-export function ConvertUnit(type, val) {
+export function ConvertUnit(type, val, decimal = 0) {
     if (val === undefined || val === null) {
         return "";
     }
     if (vars.userSettings.unit === "imperial") {
         if (type === "km") {
-            val = parseInt(val * 0.621371192);
+            val = (val * 0.621371192).toFixed(decimal);
             return TSep(val) + "mi";
         } else if (type === "kg") {
-            val = parseInt(val * 2.20462262185);
+            val = (val * 2.20462262185).toFixed(decimal);
             return TSep(val) + "lb";
         } else if (type === "l") {
-            val = parseInt(val * 0.26417205235815);
+            val = (val * 0.26417205235815).toFixed(decimal);
             return TSep(val) + "gal";
         }
     } else if (vars.userSettings.unit === "metric") {
-        return TSep(val) + type;
+        return TSep((val * 1.0).toFixed(decimal)) + type;
     }
+}
+
+export function zfill(number, width) {
+    const numberString = number.toString();
+    const paddingWidth = width - numberString.length;
+    if (paddingWidth <= 0) {
+        return numberString;
+    }
+    const paddingZeros = '0'.repeat(paddingWidth);
+    return paddingZeros + numberString;
+}
+
+export function CalcInterval(start_time, end_time) {
+    let interval = (end_time - start_time) / 1000;
+    let hours = parseInt(interval / 3600);
+    let minutes = parseInt((interval - hours * 3600) / 60);
+    let seconds = parseInt(interval - hours * 3600 - minutes * 60);
+    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) return "";
+    return `${zfill(hours, 2)}:${zfill(minutes, 2)}:${zfill(seconds, 2)}`;
 }
 
 export const loadImageAsBase64 = async (imageUrl) => {

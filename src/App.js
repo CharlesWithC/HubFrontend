@@ -85,6 +85,7 @@ function App() {
                 {!sidebarHidden &&
                     <SideBar width={260}></SideBar>
                 }
+                {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
                 <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })
                     || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
                     <SimpleBar style={{ padding: "20px", height: "100%" }} >
@@ -97,11 +98,11 @@ function App() {
                             <Route path="/mfa" element={<MfaAuth />} />
                             <Route exact path="/" element={<Overview />}></Route>
                             <Route path="/upgrade" element={<UpgradeCard />}></Route>
-                            <Route path="/announcements" element={<Announcement />}></Route>
+                            <Route path="/announcement" element={<Announcement />}></Route>
                             <Route path="/downloads" element={<Downloads />}></Route>
                             <Route path="/map" element={<Map />}></Route>
-                            <Route path="/deliveries" element={<Deliveries />}></Route>
-                            <Route path="/deliveries/:logid" element={<Delivery />} />
+                            <Route path="/delivery" element={<Deliveries />}></Route>
+                            <Route path="/delivery/:logid" element={<Delivery />} />
                         </Routes>
                     </SimpleBar>
                 </div>

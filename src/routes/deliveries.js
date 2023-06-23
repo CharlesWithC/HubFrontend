@@ -37,7 +37,6 @@ const Deliveries = () => {
             window.dispatchEvent(loadingStart);
 
             let [detailS, dlogL] = [{}, {}];
-            setDlogList([]);
 
             let myPage = page;
             if (myPage === -1) {
@@ -75,7 +74,7 @@ const Deliveries = () => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/deliveries/${data.logid}`);
+        navigate(`/delivery/${data.logid}`);
     }
 
     return <>

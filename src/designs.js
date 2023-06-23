@@ -24,6 +24,9 @@ export function getDesignTokens(mode) {
                     primary: {
                         main: '#2F3136'
                     },
+                    secondary: {
+                        main: '#212529'
+                    },
                     background: {
                         default: '#2F3136',
                         paper: '#212529',
