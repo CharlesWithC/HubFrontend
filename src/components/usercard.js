@@ -4,16 +4,21 @@ import { Link } from "react-router-dom";
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { userid, name, avatar, size, inline, useChip } = { userid: 0, name: "", avatar: "", size: "20", inline: false, useChip: false };
+    let { userid, discordid, name, avatar, size, inline, useChip } = { userid: 0, discordid: 0, name: "", avatar: "", size: "20", inline: false, useChip: false };
     if (props.user !== undefined) {
-        ({ userid, name, avatar } = props.user);
+        ({ userid, discordid, name, avatar } = props.user);
         ({ size, inline, useChip } = props);
     } else {
-        ({ userid, name, avatar, size, inline, useChip } = props);
+        ({ userid, discordid, name, avatar, size, inline, useChip } = props);
     }
 
     if (size === undefined) {
         size = "20";
+    }
+
+    let specialColor = null;
+    if (Object.keys(vars.specialRoles).includes(discordid)) {
+        specialColor = vars.specialRoles[discordid];
     }
 
     return (
@@ -31,14 +36,15 @@ const UserCard = (props) => {
                     }}
                     alt={name} />
                 &nbsp;&nbsp;
-                {name}
+                {specialColor === null && name}
+                {specialColor !== null && <span style={{ color: specialColor }}>{name}</span>}
             </>}
             {useChip && <>
                 <Chip
                     avatar={<Avatar alt={name} src={avatar} />}
                     label={name}
                     variant="outlined"
-                    sx={{ margin: "3px", cursor: "pointer" }}
+                    sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {} }}
                 />
             </>}
         </Link>
