@@ -2,7 +2,8 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, useTheme } from '@mui/material';
-import { LocalShippingRounded, InfoRounded } from '@mui/icons-material';
+import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
+import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded } from '@mui/icons-material';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
@@ -11,6 +12,10 @@ import { makeRequestsAuto, ConvertUnit, CalcInterval } from '../functions';
 import '../App.css';
 
 var vars = require("../variables");
+
+const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
+const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
+const EVENT_NAME = { "job.started": "Job Started", "job.delivered": "Job Delivered", "job.cancelled": "Job Cancelled", "fine": "Fine", "tollgate": "Toll Gate", "ferry": "Ferry", "train": "Train", "collision": "Collision", "repair": "Repair", "refuel": "Refuel", "teleport": "Teleport", "speeding": "Speeding" };
 
 const PROFIT_UNIT = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
@@ -177,7 +182,7 @@ const Delivery = () => {
             { "name": "Had Police Enabled?", "value": <span style={{ color: detail.game.had_police_enabled === true ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.game.had_police_enabled)]}</span> },
             { "name": "Market", "value": MARKET[detail.market] },
             { "name": "Mode", "value": detail.multiplayer === null ? "Single Player" : (detail.multiplayer === "truckersmp" ? "TruckersMP" : "SCS Convoy") },
-            { "name": "Automation", "value": <>{autoLoad ? <Chip label={"Auto Load"} sx={{ borderRadius: "5px" }}></Chip> : <></>} {autoPark ? <Chip label={"Auto Park"} sx={{ borderRadius: "5px" }}></Chip> : <></>}</>}] ;
+            { "name": "Automation", "value": <>{autoLoad ? <Chip label={"Auto Load"} sx={{ borderRadius: "5px" }}></Chip> : <></>} {autoPark ? <Chip label={"Auto Park"} sx={{ borderRadius: "5px" }}></Chip> : <></>}</> }];
             setListModalItems(lmi);
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -205,7 +210,7 @@ const Delivery = () => {
             </div>
             <div style={{ display: 'flex', marginTop: "10px" }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={3}>
+                    <Grid item xs={12} sm={12} md={3} lg={3}>
                         <Card>
                             <CardContent style={{ textAlign: 'center' }}>
                                 <Typography variant="h6" component="div">
@@ -218,7 +223,7 @@ const Delivery = () => {
                         </Card>
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                             <Typography variant="body1" component="div" sx={{ marginTop: "4px" }}>
                                 {`${dlogDetail.cargo.name} (${ConvertUnit("kg", dlogDetail.cargo.mass)})`}
@@ -244,7 +249,7 @@ const Delivery = () => {
                         </div>
                     </Grid>
 
-                    <Grid item xs={3}>
+                    <Grid item xs={12} sm={12} md={3} lg={3}>
                         <Card>
                             <CardContent style={{ textAlign: 'center' }}>
                                 <Typography variant="h6" component="div">
@@ -256,8 +261,41 @@ const Delivery = () => {
                             </CardContent>
                         </Card>
                     </Grid>
+                </Grid>
+            </div>
+            <div style={{ display: 'flex', marginTop: "10px" }}>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12} md={6} lg={8}>
 
-                    <Grid item xs={1}></Grid>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={4}>
+                        <Card>
+                            <CardContent style={{ textAlign: 'center' }}>
+                                <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                    <ChecklistRounded />&nbsp;&nbsp;Events
+                                </Typography>
+                            </CardContent>
+                            <Timeline position="alternate">
+                                {dlogDetail.events.map((e, idx) => (
+                                    <TimelineItem key={idx}>
+                                        <TimelineSeparator>
+                                            <TimelineConnector />
+                                            <TimelineDot variant="outlined" sx={{ color: EVENT_COLOR[e.type] }}>
+                                                {EVENT_ICON[e.type]}
+                                            </TimelineDot>
+                                            <TimelineConnector />
+                                        </TimelineSeparator>
+                                        <TimelineContent sx={{ py: '12px', px: 2 }}>
+                                            <Typography variant="h6" component="span">
+                                                {EVENT_NAME[e.type]}
+                                            </Typography>
+                                            <Typography>{CalcInterval(new Date(dlogDetail.events[0].real_time), new Date(e.real_time))}</Typography>
+                                        </TimelineContent>
+                                    </TimelineItem>
+                                ))}
+                            </Timeline>
+                        </Card>
+                    </Grid>
                 </Grid>
             </div>
             {listModalItems.length !== 0 && <ListModal title={"Delivery Log"} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
