@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, useTheme } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded } from '@mui/icons-material';
+import SimpleBar from 'simplebar-react/dist';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
@@ -16,8 +17,9 @@ var vars = require("../variables");
 const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
 const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
 const EVENT_NAME = { "job.started": "Job Started", "job.delivered": "Job Delivered", "job.cancelled": "Job Cancelled", "fine": "Fine", "tollgate": "Toll Gate", "ferry": "Ferry", "train": "Train", "collision": "Collision", "repair": "Repair", "refuel": "Refuel", "teleport": "Teleport", "speeding": "Speeding" };
+const FINE_DESC = { "crash": "Crashed a vehicle", "red_singal": "Ran a red light", "speeding_camera": "Speeding camera", "speeding": "Speeding", "wrong_way": "Wrong way", "no_lights": "No lights", "avoid_sleeping": "Fatigue driving", "avoid_weighing": "Avoided weighing", "damaged_vehicle_usage": "Damaged vehicle usage", "illegal_border_crossing": "Crossed border illegally", "illegal_trailer": "Attached illegal trailer", "avoid_inspection": "Avoided inspection", "hard_shoulder_violation": "Violated hard shoulder" };
 
-const PROFIT_UNIT = { "eut2": "€", "ats": "$" };
+const CURRENCY_UNIT = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
 const YES_NO = { 0: "No", 1: "Yes" };
 const MARKET = { "cargo_market": "Cargo Market", "freight_market": "Freight Market", "external_contracts": "External Contracts", "quick_job": "Quick Job", "external_market": "External Market" };
@@ -174,8 +176,8 @@ const Delivery = () => {
             { "name": "Max. Speed", "value": ConvertUnit("km", detail.truck.top_speed * 3.6) + "/h" },
             { "name": "Avg. Speed", "value": ConvertUnit("km", detail.truck.average_speed * 3.6) + "/h" },
             {},
-            { "name": "Revenue", "value": detail.events[detail.events.length - 1].meta.revenue + PROFIT_UNIT[detail.game.short_name] },
-            { "name": "Fine", "value": fine + PROFIT_UNIT[detail.game.short_name] },
+            { "name": "Revenue", "value": detail.events[detail.events.length - 1].meta.revenue + CURRENCY_UNIT[detail.game.short_name] },
+            { "name": "Fine", "value": fine + CURRENCY_UNIT[detail.game.short_name] },
             {},
             { "name": "Is Special Transport?", "value": YES_NO[bool2int(detail.is_special)] },
             { "name": "Is Late?", "value": <span style={{ color: detail.is_late === false ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.is_late)]}</span> },
@@ -263,37 +265,57 @@ const Delivery = () => {
                     </Grid>
                 </Grid>
             </div>
-            <div style={{ display: 'flex', marginTop: "10px" }}>
+            <div style={{ display: 'flex', marginTop: "20px" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={8}>
 
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
-                        <Card>
+                        <Card sx={{ paddingBottom: "15px" }}>
                             <CardContent style={{ textAlign: 'center' }}>
                                 <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                                     <ChecklistRounded />&nbsp;&nbsp;Events
                                 </Typography>
                             </CardContent>
-                            <Timeline position="alternate">
-                                {dlogDetail.events.map((e, idx) => (
-                                    <TimelineItem key={idx}>
-                                        <TimelineSeparator>
-                                            <TimelineConnector />
-                                            <TimelineDot variant="outlined" sx={{ color: EVENT_COLOR[e.type] }}>
-                                                {EVENT_ICON[e.type]}
-                                            </TimelineDot>
-                                            <TimelineConnector />
-                                        </TimelineSeparator>
-                                        <TimelineContent sx={{ py: '12px', px: 2 }}>
-                                            <Typography variant="h6" component="span">
-                                                {EVENT_NAME[e.type]}
-                                            </Typography>
-                                            <Typography>{CalcInterval(new Date(dlogDetail.events[0].real_time), new Date(e.real_time))}</Typography>
-                                        </TimelineContent>
-                                    </TimelineItem>
-                                ))}
-                            </Timeline>
+                            <SimpleBar style={{ minHeight: "380px", height: "50vh" }}>
+                                <Timeline position="alternate">
+                                    {dlogDetail.events.map((e, idx) => {
+                                        let desc = null;
+                                        if (e.type === "fine") {
+                                            desc = <>{FINE_DESC[e.meta.offence]}</>;
+                                            if (e.meta.offence === "speeding" || e.meta.offence === "speeding_camera") {
+                                                desc = <>{desc}<br />Speed: {ConvertUnit("km", e.meta.speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
+                                            }
+                                            desc = <>{desc}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.amount}</>;
+                                        } else if (e.type === "tollgate") {
+                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>
+                                        } else if (e.type === "ferry" || e.type === "train") {
+                                            desc = <>From {e.meta.source_name}<br />To {e.meta.target_name}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>
+                                        } else if (e.type === "refuel") {
+                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>
+                                        } else if (e.type === "speeding") {
+                                            desc = <>Max. Speed: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>
+                                        }
+                                        return (
+                                            <TimelineItem key={idx}>
+                                                <TimelineSeparator>
+                                                    <TimelineConnector />
+                                                    <TimelineDot variant="outlined" sx={{ color: EVENT_COLOR[e.type] }}>
+                                                        {EVENT_ICON[e.type]}
+                                                    </TimelineDot>
+                                                    <TimelineConnector />
+                                                </TimelineSeparator>
+                                                <TimelineContent sx={{ py: '12px', px: 2 }}>
+                                                    <Typography variant="h6" component="span">
+                                                        {EVENT_NAME[e.type]}
+                                                    </Typography>
+                                                    <Typography>{desc !== null ? <>{desc}<br /></> : <></>}<span style={{ color: "grey" }}>{CalcInterval(new Date(dlogDetail.events[0].real_time), new Date(e.real_time))}</span></Typography>
+                                                </TimelineContent>
+                                            </TimelineItem>
+                                        )
+                                    })}
+                                </Timeline>
+                            </SimpleBar>
                         </Card>
                     </Grid>
                 </Grid>
