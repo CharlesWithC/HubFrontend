@@ -40,10 +40,10 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {data.map((row) => (
-                            <ClickableTableRow key={row.id} rowMeta={row} onClick={onRowClick}>
-                                {columns.map((column) => (
-                                    <TableCell key={column.id}>{row[column.id]}</TableCell>
+                        {data.map((row, row_idx) => (
+                            <ClickableTableRow key={row_idx} rowMeta={row} onClick={onRowClick}>
+                                {columns.map((column, col_idx) => (
+                                    <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
                                 ))}
                             </ClickableTableRow>
                         ))}

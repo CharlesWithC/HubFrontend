@@ -319,3 +319,17 @@ export function downloadFile(url) {
             console.error('Error fetching the file:', error);
         });
 }
+
+export function b62decode(num62) {
+    let flag = 1;
+    if (num62.startsWith("-")) {
+        flag = -1;
+        num62 = num62.slice(1);
+    }
+    let ret = 0;
+    let l = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    for (var i = 0; i < num62.length; i++) {
+        ret += l.indexOf(num62[i]) * 62 ** (num62.length - i - 1);
+    }
+    return ret * flag;
+}

@@ -9,10 +9,13 @@ import SimpleBar from 'simplebar-react/dist';
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
 import TimeAgo from '../components/timeago';
-import { makeRequestsAuto, ConvertUnit, CalcInterval } from '../functions';
+import TileMap from '../components/tilemap';
+import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode } from '../functions';
 import '../App.css';
 
 var vars = require("../variables");
+
+// [TODO] Button to reload route
 
 const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
 const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -99,7 +102,9 @@ const Delivery = () => {
     const { logid } = useParams();
     const [dlog, setDlog] = useState({});
     const [dlogDetail, setDlogDetail] = useState({});
-    const [replayProgress, setReplayProgress] = useState(0);
+    const [dlogRoute, setDlogRoute] = useState([]);
+    const [dlogMap, setDlogMap] = useState(null);
+    // const [replayProgress, setReplayProgress] = useState(0);
 
     const [listModalItems, setListModalItems] = useState([]);
     const [listModalOpen, setListModalOpen] = useState(false);
@@ -140,6 +145,122 @@ const Delivery = () => {
                 }
                 if (detail.events[i].type === "job.delivered") {
                     autoPark = detail.events[i].meta.autoParked;
+                }
+            }
+
+            let points = [];
+            let telemetry = data.telemetry.split(";");;
+            let basic = telemetry[0].split(",");
+            let tver = 1;
+            if (basic[0].startsWith("v2")) tver = 2;
+            else if (basic[0].startsWith("v3")) tver = 3;
+            else if (basic[0].startsWith("v4")) tver = 4;
+            else if (basic[0].startsWith("v5")) tver = 5;
+            else tver = -1;
+            if (tver !== -1) {
+                basic[0] = basic[0].slice(2);
+                let game = basic[0];
+                let mods = basic[1];
+                let route = telemetry.slice(1);
+                let lastx = 0;
+                let lastz = 0;
+                if (tver <= 4) {
+                    for (let i = 0; i < route.length; i++) {
+                        if (tver === 4) {
+                            if (route[i].split(",") === 1 && route[i].startsWith("idle")) {
+                                let idlecnt = parseInt(route[i].split("e")[1]);
+                                for (let j = 0; j < idlecnt; j++) {
+                                    points.push([lastx, lastz]);
+                                }
+                                continue;
+                            }
+                        }
+                        let p = route[i].split(",");
+                        if (p.length < 2) continue;
+                        if (tver === 1) points.push([p[0], p[2]]); // x, z
+                        else if (tver === 2) points.push([b62decode(p[0]), b62decode(p[1])]);
+                        else if (tver >= 3) {
+                            let relx = b62decode(p[0]);
+                            let relz = b62decode(p[1]);
+                            points.push([lastx + relx, lastz + relz]);
+                            lastx = lastx + relx;
+                            lastz = lastz + relz;
+                        }
+                    }
+                } else if (tver === 5) {
+                    let nroute = "";
+                    for (let i = 0; i < route.length; i++) {
+                        nroute += route[i] + ";";
+                    }
+                    route = nroute;
+                    for (let i = 0, j = 0; i < route.length; i++) {
+                        let x = route[i];
+                        if (x === "^") {
+                            for (j = i + 1; j < route.length; j++) {
+                                if (route[j] === "^") {
+                                    let c = parseInt(route.substr(i + 1, j - i - 1));
+                                    for (let k = 0; k < c; k++) {
+                                        points.push([lastx, lastz]);
+                                    }
+                                    break;
+                                }
+                            }
+                            i = j;
+                        } else if (x === ";") {
+                            let cx = 0;
+                            let cz = 0;
+                            for (j = i + 1; j < route.length; j++) {
+                                if (route[j] === ",") {
+                                    cx = route.substr(i + 1, j - i - 1);
+                                    break;
+                                }
+                            }
+                            i = j;
+                            for (j = i + 1; j < route.length; j++) {
+                                if (route[j] === ";") {
+                                    cz = route.substr(i + 1, j - i - 1);
+                                    break;
+                                }
+                            }
+                            i = j;
+                            if (cx === 0 && cz === 0) {
+                                continue;
+                            }
+                            let relx = b62decode(cx);
+                            let relz = b62decode(cz);
+                            points.push([lastx + relx, lastz + relz]);
+                            lastx = lastx + relx;
+                            lastz = lastz + relz;
+                        } else {
+                            let st = "ZYXWVUTSRQPONMLKJIHGFEDCBA0abcdefghijklmnopqrstuvwxyz";
+                            if (i + 1 >= route.length) break;
+                            let z = route[i + 1];
+                            let relx = st.indexOf(x) - 26;
+                            let relz = st.indexOf(z) - 26;
+                            points.push([lastx + relx, lastz + relz]);
+                            lastx = lastx + relx;
+                            lastz = lastz + relz;
+                            i += 1;
+                        }
+                    }
+                }
+                setDlogRoute(points);
+
+                let isPromods = (mods === "promods" || JSON.stringify(data).toLowerCase().indexOf("promods") !== -1);
+                if (game === "1") {
+                    if (isPromods) {
+                        setDlogMap("https://map.charlws.com/ets2/promods/tiles");
+                    }
+                    else {
+                        setDlogMap("https://map.charlws.com/ets2/base/tiles");
+                    }
+                } else if (game === "2") {
+                    if (isPromods) {
+                        setDlogMap("https://map.charlws.com/ats/promods/tiles");
+                    }
+                    else {
+                        setDlogMap("https://map.charlws.com/ats/base/tiles");
+                    }
                 }
             }
 
@@ -233,7 +354,7 @@ const Delivery = () => {
 
                             <LinearProgress
                                 variant="determinate"
-                                value={replayProgress}
+                                value={0}
                                 color="primary"
                                 sx={{
                                     width: '90%',
@@ -268,7 +389,7 @@ const Delivery = () => {
             <div style={{ display: 'flex', marginTop: "20px" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={8}>
-
+                        {dlogMap !== null && <TileMap title={"Delivery Route"} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
                         <Card sx={{ paddingBottom: "15px" }}>
@@ -277,7 +398,7 @@ const Delivery = () => {
                                     <ChecklistRounded />&nbsp;&nbsp;Events
                                 </Typography>
                             </CardContent>
-                            <SimpleBar style={{ minHeight: "380px", height: "50vh" }}>
+                            <SimpleBar style={{ minHeight: "380px", height: "calc(100vh - 360px)" }}>
                                 <Timeline position="alternate">
                                     {dlogDetail.events.map((e, idx) => {
                                         let desc = null;

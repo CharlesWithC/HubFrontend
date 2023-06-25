@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Grid } from '@mui/material';
+import { Typography, Grid } from '@mui/material';
+import { LocalShippingRounded, WidgetsRounded, PublicRounded } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 import Podium from "../components/podium";
@@ -81,13 +82,26 @@ const Deliveries = () => {
         {detailStats.truck !== undefined && <>
             <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
                 <Grid item xs={12} sm={12} md={6} lg={4}>
-                    <Podium title={"Top Trucks"} first={{ name: detailStats.truck[0].name, stat: detailStats.truck[0].count }} second={{ name: detailStats.truck[1].name, stat: detailStats.truck[1].count }} third={{ name: detailStats.truck[2].name, stat: detailStats.truck[2].count }} fixWidth={true} />
+                    <Podium title={
+                        <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                            <LocalShippingRounded />&nbsp;&nbsp;Top Trucks
+                        </Typography>
+                    }
+                        first={{ name: detailStats.truck[0].name, stat: detailStats.truck[0].count }} second={{ name: detailStats.truck[1].name, stat: detailStats.truck[1].count }} third={{ name: detailStats.truck[2].name, stat: detailStats.truck[2].count }} fixWidth={true} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={4}>
-                    <Podium title={"Top Cargos"} first={{ name: detailStats.cargo[0].name, stat: detailStats.cargo[0].count }} second={{ name: detailStats.cargo[1].name, stat: detailStats.cargo[1].count }} third={{ name: detailStats.cargo[2].name, stat: detailStats.cargo[2].count }} fixWidth={true} />
+                    <Podium title={
+                        <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                            <WidgetsRounded />&nbsp;&nbsp;Top Cargos
+                        </Typography>
+                    } first={{ name: detailStats.cargo[0].name, stat: detailStats.cargo[0].count }} second={{ name: detailStats.cargo[1].name, stat: detailStats.cargo[1].count }} third={{ name: detailStats.cargo[2].name, stat: detailStats.cargo[2].count }} fixWidth={true} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={4}>
-                    <Podium title={"Top Plate Countries"} first={{ name: detailStats.plate_country[0].name, stat: detailStats.plate_country[0].count }} second={{ name: detailStats.plate_country[1].name, stat: detailStats.plate_country[1].count }} third={{ name: detailStats.plate_country[2].name, stat: detailStats.plate_country[2].count }} fixWidth={true} />
+                    <Podium title={
+                        <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                            <PublicRounded />&nbsp;&nbsp;Top Plate Countries
+                        </Typography>
+                    } first={{ name: detailStats.plate_country[0].name, stat: detailStats.plate_country[0].count }} second={{ name: detailStats.plate_country[1].name, stat: detailStats.plate_country[1].count }} third={{ name: detailStats.plate_country[2].name, stat: detailStats.plate_country[2].count }} fixWidth={true} />
                 </Grid>
             </Grid>
             <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
