@@ -64,7 +64,7 @@ const TileMap = ({ tilesUrl, title, style, route }) => {
                     }),
                 ],
                 view: new View({
-                    center: route === undefined || route === null ? [(mapInfo.x1 + mapInfo.x2) / 2, (mapInfo.y1 + mapInfo.y2) / 2] : calculateCenterPoint(route), // Set the initial center coordinates
+                    center: route === undefined || route === null || route.length === 0 ? [(mapInfo.x1 + mapInfo.x2) / 2, (mapInfo.y1 + mapInfo.y2) / 2] : calculateCenterPoint(route), // Set the initial center coordinates
                     zoom: 1, // Set the initial zoom level
                     minZoom: mapInfo.minZoom,
                     maxZoom: mapInfo.maxZoom,
@@ -74,7 +74,7 @@ const TileMap = ({ tilesUrl, title, style, route }) => {
                 }),
             });
 
-            if (route !== undefined && route !== null) {
+            if (route !== undefined && route !== null && route.length !== 0) {
                 const lineStyle = new Style({
                     stroke: new Stroke({
                         color: 'rgba(33, 243, 150, 0.7)',
@@ -114,6 +114,7 @@ const TileMap = ({ tilesUrl, title, style, route }) => {
     return <div style={{ borderRadius: "10px", overflow: "hidden", height: '600px', ...style }}>
         <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: '#484E66' }}>
             <Typography variant="body2" sx={{ position: "absolute", zIndex: 1, margin: "5px", color: "white" }}>{title}</Typography>
+            {route !== undefined && route !== null && route.length === 0 && <div style={{ backgroundColor: "rgb(0,0,0,0.5)", height: "100%", width: "100%" }}></div>}
         </div >
     </div>;
 };

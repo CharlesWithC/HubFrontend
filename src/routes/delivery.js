@@ -1,21 +1,21 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, useTheme } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
-import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded } from '@mui/icons-material';
+import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react/dist';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
 import TimeAgo from '../components/timeago';
 import TileMap from '../components/tilemap';
-import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode } from '../functions';
+import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios } from '../functions';
 import '../App.css';
 
 var vars = require("../variables");
 
-// [TODO] Button to reload route
+// TODO Request division button (detect user division directly)
 
 const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
 const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -77,8 +77,8 @@ function GetTrailerModel(trailers) {
     let trailerString = "";
     for (let i = 0; i < trailers.length; i++) {
         const trailer = trailers[i];
-        if (trailer.brand === null && trailer.name === "") trailerString += "Unknown";
-        else if (trailer.brand === null && trailer.name !== "") trailerString += trailer.name;
+        if (trailer.brand === null && (trailer.name === null || trailer.name === "")) trailerString += "Unknown";
+        else if (trailer.brand === null && trailer.name !== null && trailer.name !== "") trailerString += trailer.name;
         else trailerString += `${trailer.brand.name} ${trailer.name}`;
         if (i < trailers.length - 1) {
             trailerString += " - ";
@@ -104,6 +104,7 @@ const Delivery = () => {
     const [dlogDetail, setDlogDetail] = useState({});
     const [dlogRoute, setDlogRoute] = useState([]);
     const [dlogMap, setDlogMap] = useState(null);
+    const [doReload, setDoReload] = useState(0);
     // const [replayProgress, setReplayProgress] = useState(0);
 
     const [listModalItems, setListModalItems] = useState([]);
@@ -117,6 +118,18 @@ const Delivery = () => {
     }
 
     const theme = useTheme();
+
+    const handleReloadRoute = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        await axios({ url: `${vars.dhpath}/tracksim/update/route`, data: { logid: logid }, method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+
+        setDoReload(+new Date());
+    }, [logid]);
 
     useEffect(() => {
         async function doLoad() {
@@ -145,6 +158,23 @@ const Delivery = () => {
                 }
                 if (detail.events[i].type === "job.delivered") {
                     autoPark = detail.events[i].meta.autoParked;
+                }
+            }
+
+            let isPromods = (JSON.stringify(data).toLowerCase().indexOf("promods") !== -1);
+            if (detail.game.short_name === "eut2") {
+                if (isPromods) {
+                    setDlogMap("https://map.charlws.com/ets2/promods/tiles");
+                }
+                else {
+                    setDlogMap("https://map.charlws.com/ets2/base/tiles");
+                }
+            } else if (detail.game.short_name === "ats") {
+                if (isPromods) {
+                    setDlogMap("https://map.charlws.com/ats/promods/tiles");
+                }
+                else {
+                    setDlogMap("https://map.charlws.com/ats/base/tiles");
                 }
             }
 
@@ -269,7 +299,14 @@ const Delivery = () => {
             { "name": "Time Submitted", "value": <TimeAgo timestamp={data.timestamp * 1000} /> },
             { "name": "Time Spent", "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
             { "name": "Status", "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>Delivered</span> : <span style={{ color: theme.palette.error.main }}>Cancelled</span> },
-            { "name": "Delivery Route", "value": data.telemetry !== "" && data.telemetry !== null ? <span style={{ color: theme.palette.success.main }}>Available</span> : <span style={{ color: theme.palette.error.main }}>Unavailable</span> },
+            {
+                "name": "Delivery Route", "value":
+                    points !== undefined && points !== null && points.length !== 0 ?
+                        <span style={{ color: theme.palette.success.main }}>Available</span> :
+                        <Typography variant="span" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", color: theme.palette.error.main }}>Unavailable&nbsp;&nbsp;{data.telemetry === "" && <IconButton onClick={handleReloadRoute}>
+                            <RefreshRounded />
+                        </IconButton>}</Typography>
+            },
             { "name": "Division", "value": data.division !== null ? vars.divisions[data.division].name : "/" },
             {},
             { "name": "Driver", "value": <UserCard user={data.user} inline={true} /> },
@@ -312,7 +349,7 @@ const Delivery = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [logid, theme]);
+    }, [logid, theme, doReload, handleReloadRoute]);
 
     return (<>
         {dlog.logid === undefined &&
@@ -389,7 +426,7 @@ const Delivery = () => {
             <div style={{ display: 'flex', marginTop: "20px" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={8}>
-                        {dlogMap !== null && <TileMap title={"Delivery Route"} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
+                        {dlogMap !== null && <TileMap title={dlogRoute !== undefined && dlogRoute !== null && dlogRoute.length !== 0 ? "Delivery Route" : <><span style={{ color: theme.palette.error.main }}>Delivery Route NOT AVAILABLE</span>{dlog.telemetry === "" && <><br />You may try to reload it in detailed info modal.</>}</>} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
                         <Card sx={{ paddingBottom: "15px" }}>

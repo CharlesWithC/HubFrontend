@@ -3,7 +3,7 @@ import { IconButton, Popover, List, ListItem, ListItemText, Typography, Snackbar
 import { NotificationsRounded, DoneAllRounded } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import SimpleBar from 'simplebar-react';
-import axios from 'axios';
+import { customAxios as axios } from '../functions';
 
 var vars = require("../variables");
 
