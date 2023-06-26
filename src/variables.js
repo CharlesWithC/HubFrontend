@@ -16,6 +16,8 @@ var userInfo = {};
 exports.userInfo = userInfo;
 var userPerm = [];
 exports.userPerm = userPerm;
+var userDivisionIDs = [];
+exports.userDivisionIDs = userDivisionIDs;
 
 var userSettings = { "theme": null, "notificationRefresh": 30, "unit": "metric" };
 if (localStorage.getItem("client-settings") !== null) {

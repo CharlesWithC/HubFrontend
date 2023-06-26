@@ -101,6 +101,14 @@ export async function FetchProfile() {
             }
             vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
             if (vars.userInfo.userid !== -1) {
+                const divisionIDs = Object.keys(vars.divisions);
+                vars.userDivisionIDs = [];
+                for (let i = 0; i < divisionIDs.length; i++) {
+                    if (vars.userInfo.roles.includes(vars.divisions[divisionIDs[i]].role_id)) {
+                        vars.userDivisionIDs.push(divisionIDs[i]);
+                    }
+                }
+
                 // is member / fetch all members
                 let [resp] = await makeRequests([`${vars.dhpath}/member/list?page=1&page_size=250`]);
                 let totalPages = resp.total_pages;

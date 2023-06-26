@@ -1,16 +1,16 @@
 import React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, useTheme } from '@mui/material';
+import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, Select, MenuItem, useTheme } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
-import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded } from '@mui/icons-material';
+import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react/dist';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
 import TimeAgo from '../components/timeago';
 import TileMap from '../components/tilemap';
-import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios } from '../functions';
+import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios, checkPerm } from '../functions';
 import '../App.css';
 
 var vars = require("../variables");
@@ -20,7 +20,8 @@ var vars = require("../variables");
 const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
 const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
 const EVENT_NAME = { "job.started": "Job Started", "job.delivered": "Job Delivered", "job.cancelled": "Job Cancelled", "fine": "Fine", "tollgate": "Toll Gate", "ferry": "Ferry", "train": "Train", "collision": "Collision", "repair": "Repair", "refuel": "Refuel", "teleport": "Teleport", "speeding": "Speeding" };
-const FINE_DESC = { "crash": "Crashed a vehicle", "red_singal": "Ran a red light", "speeding_camera": "Speeding camera", "speeding": "Speeding", "wrong_way": "Wrong way", "no_lights": "No lights", "avoid_sleeping": "Fatigue driving", "avoid_weighing": "Avoided weighing", "damaged_vehicle_usage": "Damaged vehicle usage", "illegal_border_crossing": "Crossed border illegally", "illegal_trailer": "Attached illegal trailer", "avoid_inspection": "Avoided inspection", "hard_shoulder_violation": "Violated hard shoulder" };
+const FINE_DESC = { "crash": "Crashed a vehicle", "red_signal": "Ran a red light", "speeding_camera": "Speeding camera", "speeding": "Speeding", "wrong_way": "Wrong way", "no_lights": "No lights", "avoid_sleeping": "Fatigue driving", "avoid_weighing": "Avoided weighing", "damaged_vehicle_usage": "Damaged vehicle usage", "illegal_border_crossing": "Crossed border illegally", "illegal_trailer": "Attached illegal trailer", "avoid_inspection": "Avoided inspection", "hard_shoulder_violation": "Violated hard shoulder" };
+const STATUS = { 0: "Pending", 1: "Accepted", 2: "Declined" };
 
 const CURRENCY_UNIT = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
@@ -109,13 +110,53 @@ const Delivery = () => {
 
     const [listModalItems, setListModalItems] = useState([]);
     const [listModalOpen, setListModalOpen] = useState(false);
-
     function handleDetail() {
         setListModalOpen(true);
     }
     function handleCloseDetail() {
         setListModalOpen(false);
     }
+
+    const [divisionStatus, setDivisionStatus] = useState(-1);
+    const [newDivisionStatus, setNewDivisionStatus] = useState(0);
+    const [newDivisionMessage, setNewDivisionMessage] = useState("");
+    const [divisionMeta, setDivisionMeta] = useState({});
+    const [divisionModalOpen, setDivisionModalOpen] = useState(false);
+    function handleDivision() {
+        setDivisionModalOpen(true);
+    }
+    function handleCloseDivisionModal() {
+        setDivisionModalOpen(false);
+    }
+    const handleNewDivisionMessage = (event) => {
+        setNewDivisionMessage(event.target.value);
+    };
+    const [selectedDivision, setSelectedDivision] = useState("-1");
+    const handleDivisionChange = (event) => {
+        setSelectedDivision(event.target.value);
+    };
+    const handleRDVSubmit = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+
+        setDoReload(+new Date());
+    }, [logid, selectedDivision]);
+    const handleDVUpdate = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+
+        setDoReload(+new Date());
+    }, [logid, selectedDivision, newDivisionStatus, newDivisionMessage]);
 
     const theme = useTheme();
 
@@ -136,11 +177,21 @@ const Delivery = () => {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            const [dlogD] = await makeRequestsAuto([
+            const [dlogD, divisionM] = await makeRequestsAuto([
                 { url: `${vars.dhpath}/dlog/${logid}`, auth: true },
+                { url: `${vars.dhpath}/dlog/${logid}/division`, auth: true },
             ]);
             setDlog(dlogD);
             setDlogDetail(dlogD.detail.data.object);
+
+            if (divisionM.error === undefined) {
+                setDivisionStatus(divisionM.status);
+                setNewDivisionStatus(divisionM.status);
+                setDivisionMeta(divisionM);
+                setSelectedDivision(divisionM.divisionid);
+            } else {
+                setSelectedDivision(vars.userDivisionIDs[0]);
+            }
 
             const data = dlogD;
             const detail = dlogD.detail.data.object;
@@ -362,9 +413,6 @@ const Delivery = () => {
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <LocalShippingRounded />&nbsp;&nbsp;Delivery #{logid}&nbsp;&nbsp;
-                    <IconButton size="medium" color="inherit" onClick={handleDetail}>
-                        <InfoRounded />
-                    </IconButton>
                 </Typography>
                 <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
             </div>
@@ -479,6 +527,102 @@ const Delivery = () => {
                 </Grid>
             </div>
             {listModalItems.length !== 0 && <ListModal title={"Delivery Log"} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
+            <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
+                <DialogTitle>
+                    <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        <WarehouseRounded />&nbsp;&nbsp;Division
+                    </Typography>
+                </DialogTitle>
+                <DialogContent>
+                    {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) && <>
+                        <Typography variant="h5">To request division validation, please select a division:</Typography>
+                        <Select
+                            value={`${selectedDivision}`}
+                            onChange={handleDivisionChange}
+                            fullWidth
+                        >
+                            {vars.userDivisionIDs.map((divisionID, index) => (
+                                <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
+                            ))}
+                        </Select>
+                    </>}
+                    {(divisionStatus !== -1) && <>
+                        <Typography variant="body">Division validation request submitted <b><TimeAgo timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
+                        <Typography variant="body">Division: <b>{vars.divisions[divisionMeta.divisionid].name}</b></Typography><br />
+                        <Typography variant="body">Current status: <b>{STATUS[divisionStatus]}</b></Typography>
+                        {divisionMeta.update_timestamp !== -1 && <>
+                            <br /><Typography variant="body">Updated <b><TimeAgo timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
+                            <br /><Typography variant="body">Updated by: <b><UserCard user={divisionMeta.update_staff} inline={true} /></b></Typography>
+                            {divisionMeta.update_message !== "" && <><br /><Typography variant="body">Message: {divisionMeta.update_message}</Typography></>}
+                        </>}
+                    </>}
+                    {checkPerm(vars.userInfo.roles, ["admin", "division"]) && <>
+                        <hr />
+                        <Typography variant="body"><b>Update validation result</b></Typography>
+                        <br />
+                        <FormControl fullWidth>
+                            <Select
+                                value={`${selectedDivision}`}
+                                onChange={handleDivisionChange}
+                                sx={{ marginTop: "6px", height: "30px" }}
+                                fullWidth
+                            >
+                                {Object.keys(vars.divisions).map((divisionID, index) => (
+                                    <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <FormControl component="fieldset">
+                            <RadioGroup
+                                value={newDivisionStatus} row
+                                onChange={(e) => setNewDivisionStatus(e.target.value)}
+                            >
+                                <FormControlLabel value="0" control={<Radio />} label="Pending" />
+                                <FormControlLabel value="1" control={<Radio />} label="Accepted" />
+                                <FormControlLabel value="2" control={<Radio />} label="Declined" />
+                            </RadioGroup>
+                        </FormControl>
+                        <TextareaAutosize
+                            rows={2}
+                            value={newDivisionMessage}
+                            onChange={handleNewDivisionMessage}
+                            placeholder="Message (Optional)"
+                            style={{ width: '100%', resize: 'none' }}
+                        />
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                        Close
+                    </Button>
+                    {(checkPerm(vars.userInfo.roles, ["admin", "division"])) &&
+                        <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                            Update
+                        </Button>}
+                    {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) &&
+                        <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                            Submit
+                        </Button>
+                    }
+                </DialogActions>
+            </Dialog>
+            <SpeedDial
+                ariaLabel="Controls"
+                sx={{ position: 'fixed', bottom: 20, right: 20 }}
+                icon={<SpeedDialIcon />}
+            >
+                <SpeedDialAction
+                    key="details"
+                    tooltipTitle="Details"
+                    icon={<InfoRounded />}
+                    onClick={handleDetail} />
+                {((checkPerm(vars.userInfo.roles, ["admin", "division"]) && divisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+                    key="division"
+                    tooltipTitle="Division"
+                    icon={<WarehouseRounded />}
+                    onClick={handleDivision}
+                />}
+            </SpeedDial>
         </div>}
     </>
     );

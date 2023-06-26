@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { getFormattedDate } from "../functions";
 
-function calculate(timestamp) {
+function calculate(timestamp, lower) {
     if (timestamp === undefined || timestamp === null || isNaN(timestamp)) return "";
-    if (timestamp === 0) {
+    if (timestamp <= 86400000) {
         return "Never";
     }
     const date = new Date(timestamp);
@@ -17,23 +17,30 @@ function calculate(timestamp) {
     const isYesterday = yesterday.toDateString() === date.toDateString();
     const isThisYear = today.getFullYear() === date.getFullYear();
 
+    let ret = "";
     if (seconds < 5) {
-        return "Now";
+        ret = "Now";
     } else if (seconds < 60) {
-        return `${seconds} seconds ago`;
+        ret = `${seconds} seconds ago`;
     } else if (seconds < 120) {
-        return "1 minute ago";
+        ret = "1 minute ago";
     } else if (minutes < 60) {
-        return `${minutes} minutes ago`;
+        ret = `${minutes} minutes ago`;
     } else if (isToday) {
-        return getFormattedDate(date, "Today"); // Today at 10:20
+        ret = getFormattedDate(date, "Today"); // Today at 10:20
     } else if (isYesterday) {
-        return getFormattedDate(date, "Yesterday"); // Yesterday at 10:20
-    } else if (isThisYear) {
-        return getFormattedDate(date, false, true); // 10. January at 10:20
+        ret = getFormattedDate(date, "Yesterday"); // Yesterday at 10:20
     }
-    
-    return getFormattedDate(date); // 10. January 2017. at 10:20
+    if (ret !== "") {
+        if (lower) return ret.toLowerCase();
+        else return ret;
+    }
+    if (isThisYear) {
+        ret = getFormattedDate(date, false, true); // 10. January at 10:20
+    } else {
+        ret = getFormattedDate(date); // 10. January 2017. at 10:20
+    }
+    return ret;
 }
 
 const calculateInterval = (timestamp) => {
@@ -51,7 +58,7 @@ const calculateInterval = (timestamp) => {
 
 const TimeAgo = ({ timestamp, lower = false }) => {
     timestamp = parseInt(timestamp);
-    const [timeAgo, setTimeAgo] = useState(calculate(timestamp));
+    const [timeAgo, setTimeAgo] = useState(calculate(timestamp, lower));
     const [intervalDuration, setIntervalDuration] = useState(calculateInterval(timestamp));
 
     useEffect(() => {
@@ -72,11 +79,7 @@ const TimeAgo = ({ timestamp, lower = false }) => {
         return () => clearInterval(interval);
     }, [timestamp, intervalDuration]);
 
-    if (!lower) {
-        return <>{timeAgo}</>;
-    } else {
-        return <>{timeAgo.toLowerCase()}</>;
-    }
+    return <>{timeAgo}</>;
 };
 
 export default TimeAgo;
