@@ -235,7 +235,7 @@ const AnnouncementManagers = memo(() => {
     }</>;
 })
 
-function Announcement() {
+const Announcement = () => {
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -535,6 +535,6 @@ function Announcement() {
             </Snackbar>
         </>
     );
-}
+};
 
 export default Announcement;

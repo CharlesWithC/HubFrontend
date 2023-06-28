@@ -255,7 +255,7 @@ const DownloadableItemManagers = memo(() => {
     }</>;
 })
 
-function DownloadableItem() {
+const DownloadableItem = () => {
     const [downloadableItems, setDownloadableItems] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
