@@ -18,6 +18,7 @@ import Downloads from './routes/downloads';
 import Map from './routes/map';
 import Deliveries from './routes/deliveries';
 import Delivery from './routes/delivery';
+import Events from './routes/events';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -103,6 +104,7 @@ function App() {
                             <Route path="/map" element={<Map />}></Route>
                             <Route path="/delivery" element={<Deliveries />}></Route>
                             <Route path="/delivery/:logid" element={<Delivery />} />
+                            <Route path="/event" element={<Events />}></Route>
                         </Routes>
                     </SimpleBar>
                 </div>
