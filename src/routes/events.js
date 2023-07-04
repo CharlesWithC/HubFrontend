@@ -1,13 +1,13 @@
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
-import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded } from '@mui/icons-material';
+import { useState, useEffect, useCallback, memo } from 'react';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert } from '@mui/material';
+import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded } from '@mui/icons-material';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
-import { makeRequestsWithAuth, makeRequests, getFormattedDate } from '../functions';
+import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -44,14 +44,47 @@ function getDefaultDateRange() {
     };
 }
 
-const EventCard = ({ imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees }) => {
+const EventCard = ({ eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
+    const showControls = (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "event"]));
+    const showButtons = (vars.isLoggedIn);
+
+    const handleVote = useCallback(() => {
+        onVote(eventid);
+    }, [eventid, onVote]);
+
+    const handleUnvote = useCallback(() => {
+        onUnvote(eventid);
+    }, [eventid, onUnvote]);
+
+    const handleUpdateAttendees = useCallback(() => {
+        onUpdateAttendees(eventid);
+    }, [eventid, onUpdateAttendees]);
+
+    const handleEdit = useCallback(() => {
+        onEdit(eventid);
+    }, [eventid, onEdit]);
+
+    const handleDelete = useCallback(() => {
+        onDelete(eventid);
+    }, [eventid, onDelete]);
+
     return (
         <Card>
             <CardMedia component="img" src={imageUrl} alt=" " />
             <CardContent>
-                <Typography variant="h6" gutterBottom>
-                    <a href={link} target="_blank" rel="noreferrer">{title}</a>
-                </Typography>
+                <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
+                    <Typography variant="h6" gutterBottom sx={{ flexGrow: 1 }}>
+                        <a href={link} target="_blank" rel="noreferrer">{title}</a>
+                    </Typography>
+                    {showButtons && <>
+                        {voted !== null && <IconButton size="small" aria-label={voted ? "Unvote" : "Vote"} onClick={voted ? handleUnvote : handleVote}>{voted ? <CheckBoxRounded /> : <CheckBoxOutlineBlankRounded />}</IconButton >}
+                        {showControls && <>
+                            <IconButton size="small" aria-label="Update Attendees" onClick={handleUpdateAttendees}><PeopleAltRounded /></IconButton >
+                            <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+                            <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                        </>}
+                    </>}
+                </div>
                 <Grid container>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
@@ -124,18 +157,9 @@ const EventCard = ({ imageUrl, title, description, link, meetupTime, departureTi
     );
 };
 
-const Events = () => {
-    const [upcomingEvents, setUpcomingEvents] = useState([]);
-    const [calendarEvents, setCalendarEvents] = useState([]);
-    const [allEvents, setAllEvents] = useState([]);
-    const calendarRef = useRef(null);
-
-    const [openEventDetails, setOpenEventDetals] = useState(false);
-    const [modalEvent, setModalEvent] = useState({});
-
+const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity }) => {
     useEffect(() => {
         async function doLoad() {
-
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
@@ -160,9 +184,107 @@ const Events = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, []);
+    }, [setAllEvents, setUpcomingEvents]);
 
-    const mergeEvents = (newEventList) => {
+    const onVote = useCallback(async (eventid) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "PUT", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (resp.status === 204) {
+            const updatedAllEvents = allEvents.map((event) => {
+                if (event.eventid === eventid) {
+                    return {
+                        ...event,
+                        votes: event.votes + 1,
+                        voted: true,
+                    };
+                }
+                return event;
+            });
+
+            const updatedUpcomingEvents = upcomingEvents.map((event) => {
+                if (event.eventid === eventid) {
+                    return {
+                        ...event,
+                        votes: event.votes + 1,
+                        voted: true,
+                    };
+                }
+                return event;
+            });
+
+            setAllEvents(updatedAllEvents);
+            setUpcomingEvents(updatedUpcomingEvents);
+
+            if (modalEvent.eventid === eventid) {
+                let updatedModalEvent = { ...modalEvent, votecnt: modalEvent.votecnt + 1, voted: true };
+                updatedModalEvent.votes.push(vars.userInfo);
+                updatedModalEvent.voteO = <>{updatedModalEvent.votes.map((voter) => (<><UserCard user={voter} inline={true} />&nbsp;&nbsp;</>))}</>;
+                setModalEvent(updatedModalEvent);
+            }
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
+
+    const onUnvote = useCallback(async (eventid) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        if (resp.status === 204) {
+            const updatedAllEvents = allEvents.map((event) => {
+                if (event.eventid === eventid) {
+                    return {
+                        ...event,
+                        votes: event.votes - 1,
+                        voted: false,
+                    };
+                }
+                return event;
+            });
+
+            const updatedUpcomingEvents = upcomingEvents.map((event) => {
+                if (event.eventid === eventid) {
+                    return {
+                        ...event,
+                        votes: event.votes - 1,
+                        voted: false,
+                    };
+                }
+                return event;
+            });
+
+            setAllEvents(updatedAllEvents);
+            setUpcomingEvents(updatedUpcomingEvents);
+
+            if (modalEvent.eventid === eventid) {
+                const updatedModalEvent = { ...modalEvent, votecnt: modalEvent.votecnt - 1, voted: false };
+                for (let i = 0; i < updatedModalEvent.votes.length; i++) {
+                    if (updatedModalEvent.votes[i].userid === vars.userInfo.userid) {
+                        updatedModalEvent.votes.splice(i, 1);
+                        break;
+                    }
+                }
+                updatedModalEvent.voteO = <>{updatedModalEvent.votes.map((voter) => (<><UserCard user={voter} inline={true} />&nbsp;&nbsp;</>))}</>;
+                if (updatedModalEvent.votes.length === 0) updatedModalEvent.voteO = undefined;
+                setModalEvent(updatedModalEvent);
+            }
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
+
+    const mergeEvents = useCallback((newEventList) => {
         setAllEvents((prevEvents) => {
             const mergedArray = [...prevEvents];
 
@@ -178,9 +300,9 @@ const Events = () => {
 
             return mergedArray;
         });
-    };
+    }, [setAllEvents]);
 
-    const handleEventClick = (info) => {
+    const handleEventClick = useCallback((info) => {
         async function loadDetails(eventid, summary) {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
@@ -196,23 +318,15 @@ const Events = () => {
                 [event] = await makeRequests(urls);
             }
 
-            let attendees = <></>;
-            for (let i = 0; i < event.attendees.length; i++) {
-                attendees = <>{attendees}&nbsp;<UserCard user={event.attendees[i]} inline={false} /></>
-            }
-            summary.attendeecnt = parseInt(summary.attendees);
-            summary.attendees = attendees;
-            if (event.attendees.length === 0) summary.attendees = undefined;
+            event.attendeecnt = event.attendees.length;
+            event.attendeeO = <>{event.attendees.map((attendee) => (<><UserCard user={attendee} inline={true} />&nbsp;&nbsp;</>))}</>;
+            if (event.attendeecnt === 0) event.attendeeO = undefined;
 
-            let votes = <></>;
-            for (let i = 0; i < event.votes.length; i++) {
-                votes = <>{votes}&nbsp;<UserCard user={event.votes[i]} inline={false} /></>
-            }
-            summary.votecnt = parseInt(summary.votes);
-            summary.votes = votes;
-            if (event.votes.length === 0) summary.votes = undefined;
+            event.votecnt = event.votes.length;
+            event.voteO = <>{event.votes.map((voter) => (<><UserCard user={voter} inline={true} />&nbsp;&nbsp;</>))}</>;
+            if (event.votecnt === 0) event.voteO = undefined;
 
-            setModalEvent(summary);
+            setModalEvent(event);
             setOpenEventDetals(true);
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -226,8 +340,8 @@ const Events = () => {
                 loadDetails(eventid, allEvents[i]);
             }
         }
-    };
-    const handleDateSet = async (dateInfo) => {
+    }, [allEvents, setModalEvent, setOpenEventDetals]);
+    const handleDateSet = useCallback(async (dateInfo) => {
         const start = parseInt(dateInfo.start.getTime() / 1000);
         const end = parseInt(dateInfo.end.getTime() / 1000);
 
@@ -249,7 +363,7 @@ const Events = () => {
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    };
+    }, [mergeEvents]);
     useEffect(() => {
         let newCalendarEvents = [];
         for (let i = 0; i < allEvents.length; i++) {
@@ -257,13 +371,12 @@ const Events = () => {
             newCalendarEvents.push({ url: `/event/${event.eventid}`, title: event.title, start: new Date(event.departure_timestamp * 1000).toISOString().split('T')[0] });
         }
         setCalendarEvents(newCalendarEvents);
-    }, [allEvents]);
+    }, [allEvents, setCalendarEvents]);
 
     return (
         <>
             <Card sx={{ padding: "20px" }}>
                 <FullCalendar
-                    ref={calendarRef}
                     plugins={[dayGridPlugin]}
                     initialView="dayGridMonth"
                     events={calendarEvents}
@@ -276,6 +389,7 @@ const Events = () => {
                 <DialogTitle>Event</DialogTitle>
                 <DialogContent>
                     <EventCard
+                        eventid={modalEvent.eventid}
                         imageUrl={modalEvent.image}
                         title={modalEvent.title}
                         description={modalEvent.description}
@@ -288,8 +402,11 @@ const Events = () => {
                         votercnt={modalEvent.votecnt}
                         attendeecnt={modalEvent.attendeecnt}
                         points={modalEvent.points}
-                        voters={modalEvent.votes}
-                        attendees={modalEvent.attendees}
+                        voters={modalEvent.voteO}
+                        attendees={modalEvent.attendeeO}
+                        voted={modalEvent.voted}
+                        onVote={onVote}
+                        onUnvote={onUnvote}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -300,6 +417,7 @@ const Events = () => {
                 <Grid container spacing={2} sx={{ marginTop: "20px" }}>
                     <Grid item xs={upcomingEvents.length === 2 ? 6 : 12}>
                         <EventCard
+                            eventid={upcomingEvents[0].eventid}
                             imageUrl={upcomingEvents[0].image}
                             title={upcomingEvents[0].title}
                             description={upcomingEvents[0].description}
@@ -311,10 +429,14 @@ const Events = () => {
                             distance={upcomingEvents[0].distance}
                             votercnt={upcomingEvents[0].votes}
                             futureEvent={true}
+                            voted={upcomingEvents[0].voted}
+                            onVote={onVote}
+                            onUnvote={onUnvote}
                         />
                     </Grid>
                     {upcomingEvents.length === 2 && <Grid item xs={6}>
                         <EventCard
+                            eventid={upcomingEvents[1].eventid}
                             imageUrl={upcomingEvents[1].image}
                             title={upcomingEvents[1].title}
                             description={upcomingEvents[1].description}
@@ -326,12 +448,46 @@ const Events = () => {
                             distance={upcomingEvents[1].distance}
                             votercnt={upcomingEvents[1].votes}
                             futureEvent={true}
+                            voted={upcomingEvents[1].voted}
+                            onVote={onVote}
+                            onUnvote={onUnvote}
                         />
                     </Grid>}
                 </Grid>
             }
         </>
     );
+});
+
+const Events = () => {
+    const [upcomingEvents, setUpcomingEvents] = useState([]);
+    const [calendarEvents, setCalendarEvents] = useState([]);
+    const [allEvents, setAllEvents] = useState([]);
+
+    const [openEventDetails, setOpenEventDetals] = useState(false);
+    const [modalEvent, setModalEvent] = useState({});
+
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
+
+    return <>
+        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} />
+
+        <Snackbar
+            dialogOpen={!!snackbarContent}
+            autoHideDuration={5000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+            <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                {snackbarContent}
+            </Alert>
+        </Snackbar>
+    </>;
 };
 
 export default Events;

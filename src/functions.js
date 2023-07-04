@@ -137,7 +137,7 @@ export async function FetchProfile() {
 }
 
 export function TSep(val) {
-    return val.toLocaleString('en-US');
+    return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 export function ConvertUnit(type, val, decimal = 0) {
@@ -268,7 +268,7 @@ export function getTodayUTC() {
 }
 
 export function getMonthUTC(date = undefined) {
-    if(date === undefined){
+    if (date === undefined) {
         date = new Date();
     }
     const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), 1);

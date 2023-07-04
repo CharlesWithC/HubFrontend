@@ -35,7 +35,7 @@ const UserCard = (props) => {
                         e.target.src = vars.dhlogo;
                     }}
                     alt={name} />
-                &nbsp;&nbsp;
+                &nbsp;
                 {specialColor === null && name}
                 {specialColor !== null && <span style={{ color: specialColor }}>{name}</span>}
             </>}
