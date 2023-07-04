@@ -7,19 +7,10 @@ const MarkdownRenderer = ({ children }) => {
     };
 
     const components = {
-        p: ({ children }) => <span>{children}</span>,
-        text: (props) => {
-            return props.children?.includes('\n') ? (
-                props.children.split('\n').map((text, index) => (
-                    <React.Fragment key={index}>
-                        {text}
-                        <br />
-                    </React.Fragment>
-                ))
-            ) : (
-                <span>{props.children}</span>
-            );
+        p: (props) => {
+            return <span>{props.children}<br /></span>;
         },
+        img: (props) => <img {...props} style={{ width: '100%' }} alt=" " />,
     };
 
     const preprocessedContent = preprocessContent(children);

@@ -267,10 +267,23 @@ export function getTodayUTC() {
     return utcDate.getTime();
 }
 
-export function getMonthUTC() {
-    const today = new Date();
-    const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth(), 1);
+export function getMonthUTC(date = undefined) {
+    if(date === undefined){
+        date = new Date();
+    }
+    const utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), 1);
     return utcDate.getTime();
+}
+
+export function getNextMonthUTC() {
+    const today = new Date();
+    if (today.getUTCMonth() === 12) {
+        const utcDate = new Date(today.getUTCFullYear() + 1, 1, 1);
+        return utcDate.getTime();
+    } else {
+        const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth() + 1, 1);
+        return utcDate.getTime();
+    }
 }
 
 export function checkPerm(roles, perms) {
