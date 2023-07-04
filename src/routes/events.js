@@ -1,13 +1,13 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert } from '@mui/material';
-import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded } from '@mui/icons-material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
+import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
-import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm } from '../functions';
+import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -18,7 +18,6 @@ function ParseEventImage(events) {
         if (re !== null) {
             const link = re[1];
             events[i].image = link;
-            events[i].description = event.description.replace(`[Image src="${link}"]`, "").trimStart();
         }
     }
     return events;
@@ -44,7 +43,7 @@ function getDefaultDateRange() {
     };
 }
 
-const EventCard = ({ eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
+const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const showControls = (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "event"]));
     const showButtons = (vars.isLoggedIn);
 
@@ -61,12 +60,14 @@ const EventCard = ({ eventid, imageUrl, title, description, link, meetupTime, de
     }, [eventid, onUpdateAttendees]);
 
     const handleEdit = useCallback(() => {
-        onEdit(eventid);
-    }, [eventid, onEdit]);
+        onEdit(event);
+    }, [event, onEdit]);
 
     const handleDelete = useCallback(() => {
         onDelete(eventid);
     }, [eventid, onDelete]);
+
+    description = description.replace(`[Image src="${imageUrl}"]`, "").trimStart();
 
     return (
         <Card>
@@ -157,7 +158,7 @@ const EventCard = ({ eventid, imageUrl, title, description, link, meetupTime, de
     );
 };
 
-const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity }) => {
+const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, doReload }) => {
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -184,7 +185,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [setAllEvents, setUpcomingEvents]);
+    }, [setAllEvents, setUpcomingEvents, doReload]);
 
     const onVote = useCallback(async (eventid) => {
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -389,6 +390,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                 <DialogTitle>Event</DialogTitle>
                 <DialogContent>
                     <EventCard
+                        event={modalEvent}
                         eventid={modalEvent.eventid}
                         imageUrl={modalEvent.image}
                         title={modalEvent.title}
@@ -407,6 +409,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                         voted={modalEvent.voted}
                         onVote={onVote}
                         onUnvote={onUnvote}
+                        onEdit={onEdit}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -417,6 +420,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                 <Grid container spacing={2} sx={{ marginTop: "20px" }}>
                     <Grid item xs={upcomingEvents.length === 2 ? 6 : 12}>
                         <EventCard
+                            event={upcomingEvents[0]}
                             eventid={upcomingEvents[0].eventid}
                             imageUrl={upcomingEvents[0].image}
                             title={upcomingEvents[0].title}
@@ -432,10 +436,12 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             voted={upcomingEvents[0].voted}
                             onVote={onVote}
                             onUnvote={onUnvote}
+                            onEdit={onEdit}
                         />
                     </Grid>
                     {upcomingEvents.length === 2 && <Grid item xs={6}>
                         <EventCard
+                            event={upcomingEvents[1]}
                             eventid={upcomingEvents[1].eventid}
                             imageUrl={upcomingEvents[1].image}
                             title={upcomingEvents[1].title}
@@ -451,6 +457,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             voted={upcomingEvents[1].voted}
                             onVote={onVote}
                             onUnvote={onUnvote}
+                            onEdit={onEdit}
                         />
                     </Grid>}
                 </Grid>
@@ -463,6 +470,8 @@ const Events = () => {
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
     const [allEvents, setAllEvents] = useState([]);
+    const [editId, setEditId] = useState(null);
+    const [doReload, setDoReload] = useState(0);
 
     const [openEventDetails, setOpenEventDetals] = useState(false);
     const [modalEvent, setModalEvent] = useState({});
@@ -473,10 +482,250 @@ const Events = () => {
         setSnackbarContent("");
     }, []);
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState('Create Event');
+    const [dialogButton, setDialogButton] = useState("Create");
+    const [title, setTitle] = useState('');
+    const [link, setLink] = useState('');
+    const [description, setDescription] = useState('');
+    const [departure, setDeparture] = useState('');
+    const [destination, setDestination] = useState('');
+    const [distance, setDistance] = useState('');
+    const [meetupTime, setMeetupTime] = useState(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+    const [departureTime, setDepartureTime] = useState(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+    const [visibility, setVisibility] = useState('public');
+    const [orderId, setOrderId] = useState('');
+    const [isPinned, setIsPinned] = useState('false');
+    const [submitLoading, setSubmitLoading] = useState(false);
+
+    const clearModal = useCallback(() => {
+        setTitle('');
+        setLink('');
+        setDescription('');
+        setDeparture('');
+        setDestination('');
+        setDistance('');
+        setMeetupTime(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        setDepartureTime(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        setVisibility('public');
+        setOrderId('');
+        setIsPinned('false');
+    }, []);
+
+    const createEvent = useCallback(() => {
+        if (editId !== null) {
+            setEditId(null);
+            clearModal();
+        }
+        setDialogTitle("Create Event");
+        setDialogButton("Create");
+        setDialogOpen(true);
+    }, [editId, clearModal]);
+
+    const editEvent = useCallback(async (event) => {
+        clearModal();
+
+        setTitle(event.title);
+        setLink(event.link);
+        setDescription(event.description);
+        setDeparture(event.departure);
+        setDestination(event.destination);
+        setDistance(event.distance);
+        setMeetupTime(new Date(event.meetup_timestamp * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        setDepartureTime(new Date(event.departure_timestamp * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        setVisibility(event.is_private ? "private" : "public");
+        setOrderId(0);
+        setIsPinned(false);
+
+        setEditId(event.eventid);
+
+        setDialogTitle("Edit Event");
+        setDialogButton("Edit");
+        setDialogOpen(true);
+    }, [clearModal]);
+
+    const handleSubmit = useCallback(async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+
+        const eventData = {
+            title,
+            description,
+            link: link,
+            departure,
+            destination,
+            distance,
+            meetup_timestamp: new Date(meetupTime).getTime() / 1000,
+            departure_timestamp: new Date(departureTime).getTime() / 1000,
+            is_private: visibility === "private",
+        };
+
+        let resp;
+        if (editId === null) {
+            resp = await axios.post(`${vars.dhpath}/events`, eventData, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+        } else {
+            resp = await axios.patch(`${vars.dhpath}/events/${editId}`, eventData, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            });
+        }
+
+        if (resp.status === 200 || resp.status === 204) {
+            setDoReload(+new Date());
+            setSnackbarContent(editId === null ? "Event posted!" : "Event updated!");
+            setSnackbarSeverity("success");
+            clearModal();
+            setDialogOpen(false);
+            if (editId !== null) setEditId(null);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setSubmitLoading(false);
+    }, [title, description, link, departure, destination, distance, meetupTime, departureTime, visibility, editId, clearModal]);
 
     return <>
-        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} />
+        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} doReload={doReload} />
 
+        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+            <DialogTitle>{dialogTitle}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Link"
+                                value={link}
+                                onChange={(e) => setLink(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Description"
+                                multiline
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                fullWidth
+                                minRows={4}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Departure"
+                                value={departure}
+                                onChange={(e) => setDeparture(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Destination"
+                                value={destination}
+                                onChange={(e) => setDestination(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Distance"
+                                value={distance}
+                                onChange={(e) => setDistance(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Meetup Time"
+                                type="datetime-local"
+                                value={meetupTime}
+                                onChange={(e) => setMeetupTime(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Departure Time"
+                                type="datetime-local"
+                                value={departureTime}
+                                onChange={(e) => setDepartureTime(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Visibility</FormLabel>
+                                <RadioGroup
+                                    value={visibility}
+                                    row
+                                    onChange={(e) => setVisibility(e.target.value)}
+                                >
+                                    <FormControlLabel value="public" control={<Radio />} label="Public" />
+                                    <FormControlLabel value="private" control={<Radio />} label="Private" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Order ID</FormLabel>
+                                <TextField
+                                    type="number"
+                                    value={orderId}
+                                    onChange={(e) => setOrderId(e.target.value)}
+                                    inputProps={{ style: { padding: "4px 4px 4px 10px" } }}
+                                    fullWidth
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Is Pinned?</FormLabel>
+                                <RadioGroup
+                                    value={isPinned}
+                                    row
+                                    onChange={(e) => setIsPinned(e.target.value)}
+                                >
+                                    <FormControlLabel value="true" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="false" control={<Radio />} label="No" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                </form>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
+                <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
+            </DialogActions>
+        </Dialog>
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            {checkUserPerm(["admin", "event"]) && <SpeedDialAction
+                key="create"
+                icon={<EditNoteRounded />}
+                tooltipTitle="Create"
+                onClick={() => createEvent()}
+            />}
+            {/* {vars.userInfo.userid !== -1 && <SpeedDialAction
+                key="managers"
+                icon={<PeopleAltRounded />}
+                tooltipTitle="Managers"
+                onClick={() => setDialogManagers(true)}
+            />} */}
+        </SpeedDial>
         <Snackbar
             dialogOpen={!!snackbarContent}
             autoHideDuration={5000}
