@@ -44,8 +44,8 @@ function getDefaultDateRange() {
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
-    const showControls = (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "event"]));
-    const showButtons = (vars.isLoggedIn);
+    const showControls = onEdit !== null && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "event"]));
+    const showButtons = onEdit !== null && (vars.isLoggedIn);
 
     const handleVote = useCallback(() => {
         onVote(eventid);
@@ -63,9 +63,33 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
         onEdit(event);
     }, [event, onEdit]);
 
+    const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.keyCode === 16) {
+                setIsShiftPressed(true);
+            }
+        };
+
+        const handleKeyUp = (event) => {
+            if (event.keyCode === 16) {
+                setIsShiftPressed(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
+
     const handleDelete = useCallback(() => {
-        onDelete(eventid);
-    }, [eventid, onDelete]);
+        onDelete({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, isShiftPressed });
+    }, [onDelete, event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, isShiftPressed]);
 
     description = description.replace(`[Image src="${imageUrl}"]`, "").trimStart();
 
@@ -158,7 +182,7 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
     );
 };
 
-const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, doReload }) => {
+const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, doReload }) => {
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -410,6 +434,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                         onVote={onVote}
                         onUnvote={onUnvote}
                         onEdit={onEdit}
+                        onDelete={onDelete}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -437,6 +462,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             onVote={onVote}
                             onUnvote={onUnvote}
                             onEdit={onEdit}
+                            onDelete={onDelete}
                         />
                     </Grid>
                     {upcomingEvents.length === 2 && <Grid item xs={6}>
@@ -458,6 +484,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             onVote={onVote}
                             onUnvote={onUnvote}
                             onEdit={onEdit}
+                            onDelete={onDelete}
                         />
                     </Grid>}
                 </Grid>
@@ -497,6 +524,9 @@ const Events = () => {
     const [orderId, setOrderId] = useState('');
     const [isPinned, setIsPinned] = useState('false');
     const [submitLoading, setSubmitLoading] = useState(false);
+
+    const [dialogDelete, setDialogDelete] = useState(false);
+    const [toDelete, setToDelete] = useState(null);
 
     const clearModal = useCallback(() => {
         setTitle('');
@@ -586,8 +616,29 @@ const Events = () => {
         setSubmitLoading(false);
     }, [title, description, link, departure, destination, distance, meetupTime, departureTime, visibility, editId, clearModal]);
 
+    const deleteEvent = useCallback(async ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, isShiftPressed, confirmed }) => {
+        if (isShiftPressed === true || confirmed === true) {
+            setSubmitLoading(true);
+            let resp = await axios({ url: `${vars.dhpath}/events/${eventid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            if (resp.status === 204) {
+                setDoReload(+new Date());
+                setSnackbarContent("Event deleted!");
+                setSnackbarSeverity("success");
+                setDialogDelete(false);
+                setToDelete(null);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+            setSubmitLoading(false);
+        } else {
+            setDialogDelete(true);
+            setToDelete({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted });
+        }
+    }, []);
+
     return <>
-        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} doReload={doReload} />
+        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} />
 
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
             <DialogTitle>{dialogTitle}</DialogTitle>
@@ -726,6 +777,34 @@ const Events = () => {
                 onClick={() => setDialogManagers(true)}
             />} */}
         </SpeedDial>
+        <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+            <DialogTitle>Delete Event</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this event?</Typography>
+                {toDelete !== null &&
+                    <EventCard
+                        event={toDelete.event}
+                        eventid={toDelete.eventid}
+                        imageUrl={toDelete.image}
+                        title={toDelete.title}
+                        description={toDelete.description}
+                        link={toDelete.link}
+                        meetupTime={toDelete.meetupTime}
+                        departureTime={toDelete.departureTime}
+                        departure={toDelete.departure}
+                        destination={toDelete.destination}
+                        distance={toDelete.distance}
+                        votercnt={toDelete.votercnt}
+                        futureEvent={true}
+                        onEdit={null}
+                        onDelete={null}
+                    />}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
+                <Button variant="contained" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+            </DialogActions>
+        </Dialog>
         <Snackbar
             dialogOpen={!!snackbarContent}
             autoHideDuration={5000}
