@@ -22,7 +22,7 @@ const UserCard = (props) => {
     }
 
     return (
-        <Link to={`/member/${userid}`} style={{ flexGrow: 1, display: !inline ? 'flex' : null, alignItems: "center" }}>
+        <Link to={`/member/${userid}`} style={{ flexGrow: 1, whiteSpace: inline ? null : 'nowrap', alignItems: "center" }}>
             {!useChip && <>
                 <img src={avatar}
                     style={{
