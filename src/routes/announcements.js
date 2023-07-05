@@ -447,13 +447,11 @@ const Announcement = () => {
                                     </Grid>
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset">
-                                            <FormLabel component="legend">Order ID</FormLabel>
                                             <TextField
-                                                type="number"
+                                                label="Order ID"
                                                 value={orderId}
-                                                onChange={(e) => setOrderId(e.target.value)}
-                                                inputProps={{ style: { padding: "4px 4px 4px 10px" } }}
-                                                sx={{ marginTop: "6px" }}
+                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")) }}
+                                                fullWidth
                                             />
                                         </FormControl>
                                     </Grid>
