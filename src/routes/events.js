@@ -493,6 +493,21 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
     );
 });
 
+const EventManagers = memo(() => {
+    let managers = [];
+    for (let i = 0; i < vars.members.length; i++) {
+        if (checkPerm(vars.members[i].roles, ["admin", "event"])) {
+            managers.push(vars.members[i]);
+        }
+    }
+
+    return <>{
+        managers.map((user) => (
+            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+        ))
+    }</>;
+})
+
 const Events = () => {
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
@@ -527,6 +542,7 @@ const Events = () => {
 
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
+    const [dialogManagers, setDialogManagers] = useState(false);
 
     const clearModal = useCallback(() => {
         setTitle('');
@@ -768,12 +784,12 @@ const Events = () => {
                 tooltipTitle="Create"
                 onClick={() => createEvent()}
             />}
-            {/* {vars.userInfo.userid !== -1 && <SpeedDialAction
+            {vars.userInfo.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
                 tooltipTitle="Managers"
                 onClick={() => setDialogManagers(true)}
-            />} */}
+            />}
         </SpeedDial>
         <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
             <DialogTitle>Delete Event</DialogTitle>
@@ -783,10 +799,10 @@ const Events = () => {
                     <EventCard
                         event={toDelete.event}
                         eventid={toDelete.eventid}
-                        imageUrl={toDelete.image}
+                        imageUrl=""
                         title={toDelete.title}
-                        description={toDelete.description}
-                        link={toDelete.link}
+                        description=""
+                        link=""
                         meetupTime={toDelete.meetupTime}
                         departureTime={toDelete.departureTime}
                         departure={toDelete.departure}
@@ -801,6 +817,15 @@ const Events = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
                 <Button variant="contained" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+            <DialogTitle>Event Managers</DialogTitle>
+            <DialogContent>
+                <EventManagers />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
             </DialogActions>
         </Dialog>
         <Snackbar
