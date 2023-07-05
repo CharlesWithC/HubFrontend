@@ -7,6 +7,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
+import UserSelect from '../components/userselect';
 import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm } from '../functions';
 
 var vars = require("../variables");
@@ -182,7 +183,7 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
     );
 };
 
-const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, doReload }) => {
+const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -435,6 +436,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                         onUnvote={onUnvote}
                         onEdit={onEdit}
                         onDelete={onDelete}
+                        onUpdateAttendees={onUpdateAttendees}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -463,6 +465,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             onUnvote={onUnvote}
                             onEdit={onEdit}
                             onDelete={onDelete}
+                            onUpdateAttendees={onUpdateAttendees}
                         />
                     </Grid>
                     {upcomingEvents.length === 2 && <Grid item xs={6}>
@@ -485,6 +488,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             onUnvote={onUnvote}
                             onEdit={onEdit}
                             onDelete={onDelete}
+                            onUpdateAttendees={onUpdateAttendees}
                         />
                     </Grid>}
                 </Grid>
@@ -517,6 +521,10 @@ const Events = () => {
 
     const [openEventDetails, setOpenEventDetals] = useState(false);
     const [modalEvent, setModalEvent] = useState({});
+    const [openAttendeeEvent, setOpenAttendeeEvent] = useState(false);
+    const [attendeeEvent, setAttendeeEvent] = useState({});
+    const [eventAttendees, setEventAttendees] = useState([]);
+    const [points, setPoints] = useState(0);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -590,6 +598,22 @@ const Events = () => {
         setDialogOpen(true);
     }, [clearModal]);
 
+    const editEventAttendees = useCallback(async (eventid) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        let [event] = await makeRequestsWithAuth([`${vars.dhpath}/events/${eventid}`]);
+        if (event.error === undefined) {
+            setAttendeeEvent(event);
+            setOpenAttendeeEvent(true);
+            setEventAttendees(event.attendees);
+            setPoints(event.points);
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, []);
+
     const handleSubmit = useCallback(async (e) => {
         e.preventDefault();
         setSubmitLoading(true);
@@ -653,8 +677,36 @@ const Events = () => {
         }
     }, []);
 
+    const handleUpdateAttendees = useCallback(async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+
+        let attendees = eventAttendees.map(user => user.userid);
+
+        let resp = await axios.patch(`${vars.dhpath}/events/${attendeeEvent.eventid}/attendees`, { attendees: attendees, points: points }, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+
+        if (resp.status === 200 || resp.status === 204) {
+            setSnackbarContent(resp.message);
+            setSnackbarSeverity("success");
+            setOpenAttendeeEvent(false);
+
+            let event = { ...attendeeEvent, attendees: eventAttendees, points: points };
+            event.attendeecnt = event.attendees.length;
+            event.attendeeO = <>{event.attendees.map((attendee) => (<><UserCard user={attendee} inline={true} />&nbsp;&nbsp;</>))}</>;
+            if (event.attendeecnt === 0) event.attendeeO = undefined;
+            setModalEvent(event);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setSubmitLoading(false);
+    }, [attendeeEvent, eventAttendees, points]);
+
     return <>
-        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} />
+        <EventsMemo upcomingEvents={upcomingEvents} setUpcomingEvents={setUpcomingEvents} calendarEvents={calendarEvents} setCalendarEvents={setCalendarEvents} allEvents={allEvents} setAllEvents={setAllEvents} openEventDetails={openEventDetails} setOpenEventDetals={setOpenEventDetals} modalEvent={modalEvent} setModalEvent={setModalEvent} setSnackbarContent={setSnackbarContent} setSnackbarSeverity={setSnackbarSeverity} onEdit={editEvent} onDelete={deleteEvent} doReload={doReload} onUpdateAttendees={editEventAttendees} />
 
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
             <DialogTitle>{dialogTitle}</DialogTitle>
@@ -817,6 +869,30 @@ const Events = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
                 <Button variant="contained" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={openAttendeeEvent} onClose={() => setOpenAttendeeEvent(false)}>
+            <DialogTitle>{attendeeEvent.title}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleUpdateAttendees} style={{ marginTop: "5px" }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <UserSelect label="Attendees" initialUsers={eventAttendees} onUpdate={setEventAttendees} />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Points"
+                                value={points}
+                                onChange={(e) => { let f = e.target.value.startsWith("-"); setPoints((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")) }}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </form>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setOpenAttendeeEvent(false) }}>Close</Button>
+                <Button variant="contained" onClick={handleUpdateAttendees} disabled={submitLoading}>Update</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>

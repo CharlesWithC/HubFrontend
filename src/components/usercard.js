@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { userid, discordid, name, avatar, size, inline, useChip } = { userid: 0, discordid: 0, name: "", avatar: "", size: "20", inline: false, useChip: false };
+    let { userid, discordid, name, avatar, size, inline, useChip, onDelete, noLink, key, style } = { userid: 0, discordid: 0, name: "", avatar: "", size: "20", inline: false, useChip: false, onDelete: null, noLink: false, key: null, style: {} };
     if (props.user !== undefined) {
         ({ userid, discordid, name, avatar } = props.user);
-        ({ size, inline, useChip } = props);
+        ({ size, inline, useChip, onDelete, noLink, key, style } = props);
     } else {
-        ({ userid, discordid, name, avatar, size, inline, useChip } = props);
+        ({ userid, discordid, name, avatar, size, inline, useChip, onDelete, noLink, key, style } = props);
     }
 
     if (size === undefined) {
@@ -21,32 +21,40 @@ const UserCard = (props) => {
         specialColor = vars.specialRoles[discordid];
     }
 
+    let content = <>
+        {!useChip && <>
+            <img src={avatar}
+                style={{
+                    borderRadius: "100%",
+                    height: `${size}px`,
+                    verticalAlign: "middle"
+                }}
+                onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = vars.dhlogo;
+                }}
+                alt={name} />
+            &nbsp;
+            {specialColor === null && <span style={{ whiteSpace: "nowrap" }}>{name}</span>}
+            {specialColor !== null && <span style={{ whiteSpace: "nowrap", color: specialColor }}>{name}</span>}
+        </>}
+        {useChip && <>
+            <Chip
+                key={key}
+                avatar={<Avatar alt={name} src={avatar} />}
+                label={name}
+                variant="outlined"
+                sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
+                onDelete={onDelete}
+            />
+        </>}
+    </>;
+
+    if (noLink) return <div style={{ flexGrow: 1, whiteSpace: inline ? null : 'nowrap', alignItems: "center" }}>{content}</div>;
+
     return (
         <Link to={`/member/${userid}`} style={{ flexGrow: 1, whiteSpace: inline ? null : 'nowrap', alignItems: "center" }}>
-            {!useChip && <>
-                <img src={avatar}
-                    style={{
-                        borderRadius: "100%",
-                        height: `${size}px`,
-                        verticalAlign: "middle"
-                    }}
-                    onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = vars.dhlogo;
-                    }}
-                    alt={name} />
-                &nbsp;
-                {specialColor === null && name}
-                {specialColor !== null && <span style={{ color: specialColor }}>{name}</span>}
-            </>}
-            {useChip && <>
-                <Chip
-                    avatar={<Avatar alt={name} src={avatar} />}
-                    label={name}
-                    variant="outlined"
-                    sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {} }}
-                />
-            </>}
+            {content}
         </Link>
     )
 }
