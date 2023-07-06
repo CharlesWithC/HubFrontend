@@ -32,6 +32,14 @@ customAxios.interceptors.response.use(
 
 export { customAxios };
 
+export function setAuthToken(token) {
+    localStorage.setItem("token", atob(token.replaceAll("-", "z"), 'utf8'));
+}
+
+export function getAuthToken() {
+    return btoa(localStorage.getItem("token"), "utf8").replaceAll("z", "-");
+};
+
 export const makeRequests = async (urls) => {
     const responses = await Promise.all(
         urls.map((url) =>
@@ -49,7 +57,7 @@ export const makeRequestsWithAuth = async (urls) => {
             customAxios({
                 url,
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                    Authorization: `Bearer ${getAuthToken()}`
                 }
             })
         )
@@ -64,7 +72,7 @@ export const makeRequestsAuto = async (urls) => {
                 return customAxios({
                     url,
                     headers: auth ? {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`
+                        Authorization: `Bearer ${getAuthToken()}`
                     } : null,
                 });
             } else {
@@ -76,7 +84,7 @@ export const makeRequestsAuto = async (urls) => {
 };
 
 export async function FetchProfile() {
-    const bearerToken = localStorage.getItem("token");
+    const bearerToken = getAuthToken();
     if (bearerToken !== null) {
         const resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {

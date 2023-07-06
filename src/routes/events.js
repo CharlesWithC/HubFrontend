@@ -8,7 +8,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
-import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm } from '../functions';
+import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -45,7 +45,7 @@ function getDefaultDateRange() {
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
-    const showControls = onEdit !== null && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "event"]));
+    const showControls = onEdit !== null && (vars.isLoggedIn && checkUserPerm(["admin", "event"]));
     const showButtons = onEdit !== null && (vars.isLoggedIn);
 
     const handleVote = useCallback(() => {
@@ -216,7 +216,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "PUT", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             const updatedAllEvents = allEvents.map((event) => {
                 if (event.eventid === eventid) {
@@ -262,7 +262,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             const updatedAllEvents = allEvents.map((event) => {
                 if (event.eventid === eventid) {
@@ -633,11 +633,11 @@ const Events = () => {
         let resp;
         if (editId === null) {
             resp = await axios.post(`${vars.dhpath}/events`, eventData, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                headers: { Authorization: `Bearer ${getAuthToken()}` },
             });
         } else {
             resp = await axios.patch(`${vars.dhpath}/events/${editId}`, eventData, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                headers: { Authorization: `Bearer ${getAuthToken()}` },
             });
         }
 
@@ -659,7 +659,7 @@ const Events = () => {
     const deleteEvent = useCallback(async ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, isShiftPressed, confirmed }) => {
         if (isShiftPressed === true || confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/events/${eventid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            let resp = await axios({ url: `${vars.dhpath}/events/${eventid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setDoReload(+new Date());
                 setSnackbarContent("Event deleted!");
@@ -684,7 +684,7 @@ const Events = () => {
         let attendees = eventAttendees.map(user => user.userid);
 
         let resp = await axios.patch(`${vars.dhpath}/events/${attendeeEvent.eventid}/attendees`, { attendees: attendees, points: points }, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            headers: { Authorization: `Bearer ${getAuthToken()}` },
         });
 
         if (resp.status === 200 || resp.status === 204) {

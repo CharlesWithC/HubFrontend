@@ -5,7 +5,7 @@ import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, Che
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm } from '../functions';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -17,7 +17,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
     const icon = ICONS[announcement.announcement_type.id];
 
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "announcement"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "announcement"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -311,7 +311,7 @@ const Announcement = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Announcement posted!");
@@ -323,7 +323,7 @@ const Announcement = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "announcement_type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Announcement updated!");
@@ -369,7 +369,7 @@ const Announcement = () => {
     const deleteAnnouncement = useCallback(async (announcement, isShiftPressed) => {
         if (isShiftPressed === true || announcement.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Announcement deleted!");

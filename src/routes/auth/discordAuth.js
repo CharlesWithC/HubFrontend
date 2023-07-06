@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardActions, CardContent } from '@mui/material';
 
-import { FetchProfile, customAxios as axios } from '../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
 
 var vars = require('../../variables');
 
@@ -23,7 +23,7 @@ const DiscordAuth = () => {
                 let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/discord-auth` }, method: `GET` });
                 if (resp.status === 200) {
                     if (resp.data.mfa === false) {
-                        localStorage.setItem("token", resp.data.token);
+                        setAuthToken(resp.data.token);
                         setMessage("You are authorized 🎉");
                         await FetchProfile();
                         setContinue(true);

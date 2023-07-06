@@ -2,7 +2,7 @@ import { Card, CardContent, CardActions, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { FetchProfile, customAxios as axios } from '../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
 
 var vars = require('../../variables');
 
@@ -20,7 +20,7 @@ const TokenAuth = () => {
             try {
                 let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${token}` }, method: `PATCH` });
                 if (resp.status === 200) {
-                    localStorage.setItem("token", resp.data.token);
+                    setAuthToken(resp.data.token);
                     setMessage("You are authorized 🎉");
                     await FetchProfile();
                     setContinue(true);

@@ -5,7 +5,7 @@ import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRo
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile } from '../functions';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -15,7 +15,7 @@ const STBOOL = (s) => {
 
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkPerm(vars.userInfo.roles, ["admin", "downloads"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "downloads"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [downloading, setDownloading] = useState(false);
@@ -329,7 +329,7 @@ const DownloadableItem = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Downloadable item posted!");
@@ -341,7 +341,7 @@ const DownloadableItem = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Downloadable item updated!");
@@ -358,7 +358,7 @@ const DownloadableItem = () => {
     }, [title, description, link, editId, isPinned, orderId, clearModal, doLoad]);
 
     const doDownload = useCallback(async (downloadableItem) => {
-        let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             downloadFile(`${vars.dhpath}/downloads/redirect/${resp.data.secret}`);
         } else {
@@ -396,7 +396,7 @@ const DownloadableItem = () => {
     const deleteDownloadableItem = useCallback(async (downloadableItem, isShiftPressed) => {
         if (isShiftPressed === true || downloadableItem.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Downloadable item deleted!");

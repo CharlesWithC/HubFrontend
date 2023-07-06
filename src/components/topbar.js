@@ -5,7 +5,7 @@ import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
-import { FetchProfile, customAxios as axios } from "../functions";
+import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
 import NotificationsPopover from './notifications';
 
 var vars = require("../variables");
@@ -81,7 +81,7 @@ const TopBar = (props) => {
     }, []);
 
     async function logout() {
-        const bearerToken = localStorage.getItem("token");
+        const bearerToken = getAuthToken();
         if (bearerToken === null) {
             setSnackbarSeverity("error");
             setSnackbarContent("Looks like you are already logged out");

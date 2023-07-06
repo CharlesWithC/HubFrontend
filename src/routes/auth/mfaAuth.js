@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardActions, CardContent } from '@mui/material';
 import TextField from '@mui/material/TextField';
 
-import { FetchProfile, customAxios as axios } from '../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
 
 var vars = require('../../variables');
 
@@ -24,7 +24,7 @@ const MfaAuth = () => {
         try {
             let resp = await axios({ url: `${vars.dhpath}/auth/mfa`, data: { token: mfaToken, otp: otp }, method: `POST` });
             if (resp.status === 200) {
-                localStorage.setItem("token", resp.data.token);
+                setAuthToken(resp.data.token);
                 setOtpColor("success");
                 setOtpText("You are authorized 🎉");
                 setAllowVerify(false);

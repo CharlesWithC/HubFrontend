@@ -10,7 +10,7 @@ import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
 import TimeAgo from '../components/timeago';
 import TileMap from '../components/tilemap';
-import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios, checkPerm } from '../functions';
+import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios, checkUserPerm, getAuthToken } from '../functions';
 import '../App.css';
 
 var vars = require("../variables");
@@ -127,7 +127,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/tracksim/update/route`, data: { logid: logid }, method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+        await axios({ url: `${vars.dhpath}/tracksim/update/route`, data: { logid: logid }, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -504,13 +504,13 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                     tooltipTitle="Details"
                     icon={<InfoRounded />}
                     onClick={handleDetail} />
-                {((checkPerm(vars.userInfo.roles, ["admin", "division"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+                {((checkUserPerm(["admin", "division"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
                     key="division"
                     tooltipTitle="Division"
                     icon={<WarehouseRounded />}
                     onClick={handleDivision}
                 />}
-                {(checkPerm(vars.userInfo.roles, ["admin", "hrm", "delete_dlog"])) &&
+                {(checkUserPerm(["admin", "hrm", "delete_dlog"])) &&
                     <SpeedDialAction
                         key="delete"
                         tooltipTitle="Delete"
@@ -549,7 +549,7 @@ const Delivery = memo(() => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -560,7 +560,7 @@ const Delivery = memo(() => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -577,7 +577,7 @@ const Delivery = memo(() => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } });
+        await axios({ url: `${vars.dhpath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -617,7 +617,7 @@ const Delivery = memo(() => {
                         {divisionMeta.update_message !== "" && <><br /><Typography variant="body">Message: {divisionMeta.update_message}</Typography></>}
                     </>}
                 </>}
-                {(checkPerm(vars.userInfo.roles, ["admin", "division"]) && divisionStatus !== -1) && <>
+                {(checkUserPerm(["admin", "division"]) && divisionStatus !== -1) && <>
                     <hr />
                     <Typography variant="body"><b>Update validation result</b></Typography>
                     <br />
@@ -656,7 +656,7 @@ const Delivery = memo(() => {
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
                     Close
                 </Button>
-                {(checkPerm(vars.userInfo.roles, ["admin", "division"]) && divisionStatus !== -1) &&
+                {(checkUserPerm(["admin", "division"]) && divisionStatus !== -1) &&
                     <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
                         Update
                     </Button>}

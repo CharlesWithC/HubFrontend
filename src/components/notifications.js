@@ -3,7 +3,7 @@ import { IconButton, Popover, List, ListItem, ListItemText, Typography, Snackbar
 import { NotificationsRounded, DoneAllRounded } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import SimpleBar from 'simplebar-react';
-import { customAxios as axios } from '../functions';
+import { customAxios as axios, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -26,7 +26,7 @@ const NotificationsPopover = () => {
     const [unread, setUnread] = useState(0);
 
     const loadNotifications = useCallback(async () => {
-        const bearerToken = localStorage.getItem("token");
+        const bearerToken = getAuthToken();
 
         if (bearerToken === null) {
             return;
@@ -79,7 +79,7 @@ const NotificationsPopover = () => {
     }, [loadNotifications])
 
     const handleAllRead = async () => {
-        const bearerToken = localStorage.getItem("token");
+        const bearerToken = getAuthToken();
 
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
