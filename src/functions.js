@@ -117,8 +117,11 @@ export async function FetchProfile() {
                     }
                 }
 
+                let [resp] = await makeRequests([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
+                vars.userStats = resp;
+
                 // is member / fetch all members
-                let [resp] = await makeRequests([`${vars.dhpath}/member/list?page=1&page_size=250`]);
+                [resp] = await makeRequests([`${vars.dhpath}/member/list?page=1&page_size=250`]);
                 let totalPages = resp.total_pages;
                 vars.members = resp.list;
                 if (totalPages > 1) {
@@ -292,6 +295,16 @@ export function getNextMonthUTC() {
         const utcDate = new Date(today.getUTCFullYear(), today.getUTCMonth() + 1, 1);
         return utcDate.getTime();
     }
+}
+
+export function checkUserRole(roles) {
+    // any matches in perms will return true
+    for (let i = 0; i < roles.length; i++) {
+        if (vars.userInfo.roles.includes(roles[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 export function checkPerm(roles, perms) {

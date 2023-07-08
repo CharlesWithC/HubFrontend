@@ -15,7 +15,7 @@ const STBOOL = (s) => {
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> }
-    const icon = ICONS[announcement.announcement_type.id];
+    const icon = ICONS[announcement.type.id];
 
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "announcement"]));
 
@@ -354,7 +354,7 @@ const Announcement = () => {
 
         setTitle(announcement.title);
         setContent(announcement.content);
-        setAnnouncementType(announcement.announcement_type.id);
+        setAnnouncementType(announcement.type.id);
         setIsPrivate(announcement.is_private);
         setOrderId(announcement.orderid);
         setIsPinned(announcement.is_pinned);
