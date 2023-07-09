@@ -286,6 +286,10 @@ const Challenges = () => {
     const [dialogManagers, setDialogManagers] = useState(false);
     const [modalChallenge, setModalChallenge] = useState({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
 
+    const [modalUpdateDlogOpen, setModalUpdateDlogOpen] = useState(false);
+    const [updateDlogChallenge, setUpdateDlogChallenge] = useState({});
+    const [dlogID, setDlogID] = useState("");
+
     const [editId, setEditId] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -371,6 +375,39 @@ const Challenges = () => {
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
     }, []);
+
+    const updateDlog = useCallback((challenge) => {
+        setUpdateDlogChallenge(challenge);
+        setModalUpdateDlogOpen(true);
+    }, []);
+    const addDlog = useCallback(async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+        let resp = await axios({ url: `${vars.dhpath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+        if (resp.status === 204) {
+            setDoReload(+new Date());
+            setSnackbarContent("Delivery added!");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setSubmitLoading(false);
+    }, [updateDlogChallenge.challengeid, dlogID, modalChallenge]);
+    const removeDlog = useCallback(async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+        let resp = await axios({ url: `${vars.dhpath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+        if (resp.status === 204) {
+            setDoReload(+new Date());
+            setSnackbarContent("Delivery deleted!");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setSubmitLoading(false);
+    }, [updateDlogChallenge.challengeid, dlogID, modalChallenge]);
 
     const clearModal = useCallback(() => {
         setModalChallenge({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
@@ -488,10 +525,29 @@ const Challenges = () => {
     }, []);
 
     return <>
-        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onEdit={editChallenge} onDelete={deleteChallenge} />
+        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onUpdateDelivery={updateDlog} onEdit={editChallenge} onDelete={deleteChallenge} />
         {listModalItems.length !== 0 && <ListModal title={listModalChallenge.title} items={listModalItems} data={listModalChallenge} open={listModalOpen} onClose={handleCloseDetail} additionalContent={<Typography variant="body2" sx={{ marginTop: "20px" }}>
             <MarkdownRenderer>{listModalChallenge.description}</MarkdownRenderer>
         </Typography>} />}
+        <Dialog open={modalUpdateDlogOpen} onClose={() => setModalUpdateDlogOpen(false)}>
+            <DialogTitle>Update Deliveries</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Please enter the ID of the delivery log to be added / removed from the challenge:</Typography>
+                <TextField
+                    label="Delivery Log ID"
+                    value={dlogID}
+                    onChange={(e) => setDlogID(e.target.value)}
+                    fullWidth
+                    sx={{ marginBottom: "15px" }}
+                />
+                <ChallengeCard challenge={{ ...updateDlogChallenge, description: "" }} />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setModalUpdateDlogOpen(false) }}>Cancel</Button>
+                <Button variant="contained" color="error" onClick={removeDlog} disabled={submitLoading}>Remove</Button>
+                <Button variant="contained" color="success" onClick={addDlog} disabled={submitLoading}>Add</Button>
+            </DialogActions>
+        </Dialog>
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
             <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogContent>
