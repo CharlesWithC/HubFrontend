@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Chip } from '@mui/material';
-import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded } from '@mui/icons-material';
+import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
 import MarkdownRenderer from '../components/markdown';
@@ -143,6 +143,21 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
     );
 };
 
+const ChallengeManagers = memo(() => {
+    let managers = [];
+    for (let i = 0; i < vars.members.length; i++) {
+        if (checkPerm(vars.members[i].roles, ["admin", "challenge"])) {
+            managers.push(vars.members[i]);
+        }
+    }
+
+    return <>{
+        managers.map((user) => (
+            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+        ))
+    }</>;
+})
+
 const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
@@ -212,7 +227,60 @@ const Challenges = () => {
     const [activeChallenges, setActiveChallenges] = useState([]);
     const [doReload, setDoReload] = useState(0);
 
-    return <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} />;
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
+    const [dialogManagers, setDialogManagers] = useState(false);
+
+    return <>
+        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} />
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            {/* {checkUserPerm(["admin", "challenge"]) && <SpeedDialAction
+                key="create"
+                icon={<EditNoteRounded />}
+                tooltipTitle="Create"
+                onClick={() => createChallenge()}
+            />} */}
+            {vars.userInfo.userid !== -1 && <SpeedDialAction
+                key="managers"
+                icon={<PeopleAltRounded />}
+                tooltipTitle="Managers"
+                onClick={() => setDialogManagers(true)}
+            />}
+            <SpeedDialAction
+                key="refresh"
+                icon={<RefreshRounded />}
+                tooltipTitle="Refresh"
+                onClick={() => setDoReload(+new Date())}
+            />
+        </SpeedDial>
+        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+            <DialogTitle>Challenge Managers</DialogTitle>
+            <DialogContent>
+                <ChallengeManagers />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+            </DialogActions>
+        </Dialog>
+        <Snackbar
+            dialogOpen={!!snackbarContent}
+            autoHideDuration={5000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+            <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                {snackbarContent}
+            </Alert>
+        </Snackbar>
+    </>;
 };
 
 export default Challenges;
