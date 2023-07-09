@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, memo } from 'react';
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select, MenuItem, RadioGroup, Radio, Chip } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
+import { Portal } from '@mui/base';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
@@ -750,16 +751,19 @@ const Challenges = () => {
                 onClick={() => setDoReload(+new Date())}
             />
         </SpeedDial>
-        <Snackbar
-            dialogOpen={!!snackbarContent}
-            autoHideDuration={5000}
-            onClose={handleCloseSnackbar}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        >
-            <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                {snackbarContent}
-            </Alert>
-        </Snackbar>
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                sx={{ zIndex: 99999 }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </>;
 };
 

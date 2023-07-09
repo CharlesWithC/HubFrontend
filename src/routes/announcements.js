@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
+import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
@@ -521,16 +522,18 @@ const Announcement = () => {
                     onClick={() => doLoad()}
                 />
             </SpeedDial>
-            <Snackbar
-                dialogOpen={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
         </>
     );
 };
