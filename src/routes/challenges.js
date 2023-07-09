@@ -1,18 +1,41 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select, MenuItem, RadioGroup, Radio } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
-import UserSelect from '../components/userselect';
 import CustomTable from '../components/table';
-import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
 const CHALLENGE_TYPES = ["", "Personal (One-time)", "Company (One-time)", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
+const DEFAULT_JOB_REQUIREMENTS = {
+    "source_city_id": "",
+    "source_company_id": "",
+    "destination_city_id": "",
+    "destination_company_id": "",
+    "minimum_distance": "-1",
+    "cargo_id": "",
+    "minimum_cargo_mass": "-1",
+    "maximum_cargo_damage": "-1",
+    "maximum_speed": "-1",
+    "maximum_fuel": "" - 1,
+    "minimum_profit": "-1",
+    "maximum_profit": "-1",
+    "maximum_offence": "-1",
+    "allow_overspeed": "1",
+    "allow_auto_park": "1",
+    "allow_auto_load": "1",
+    "must_not_be_late": "0",
+    "must_be_special": "0",
+    "minimum_average_speed": "-1",
+    "maximum_average_speed": "-1",
+    "minimum_average_fuel": "-1",
+    "maximum_average_fuel": "-1"
+};
 
 const columns = [
     { id: 'challengeid', label: 'ID' },
@@ -99,6 +122,8 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
     const handleDelete = useCallback(() => {
         onDelete(challenge, isShiftPressed);
     }, [challenge, onDelete, isShiftPressed]);
+
+    if (challenge.description === undefined) { return <></>; }
 
     let description = challenge.description.replace(`[Image src="${challenge.image}"]`, "").trimStart();
 
@@ -233,21 +258,323 @@ const Challenges = () => {
         setSnackbarContent("");
     }, []);
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogTitle, setDialogTitle] = useState("Create Challenge");
+    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogDelete, setDialogDelete] = useState(false);
+    const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
+    const [modalChallenge, setModalChallenge] = useState({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
+
+    const [editId, setEditId] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false);
+
+    const clearModal = useCallback(() => {
+        setModalChallenge({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
+    }, []);
+
+    const handleSubmit = useCallback(async (e) => {
+        e.preventDefault();
+        setSubmitLoading(true);
+        if (editId === null) {
+            let resp = await axios({ url: `${vars.dhpath}/challenges`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+            if (resp.status === 200) {
+                setDoReload(+new Date());
+                setSnackbarContent("Challenge posted!");
+                setSnackbarSeverity("success");
+                clearModal();
+                setDialogOpen(false);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+        } else {
+            let resp = await axios({ url: `${vars.dhpath}/challenges/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
+            if (resp.status === 204) {
+                setDoReload(+new Date());
+                setSnackbarContent("Challenge updated!");
+                setSnackbarSeverity("success");
+                clearModal();
+                setDialogOpen(false);
+                setEditId(null);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+        }
+        setSubmitLoading(false);
+    }, [editId, modalChallenge, clearModal]);
+
+    const formatFieldName = (key) => {
+        const fieldNames = {
+            source_city_id: "Source City ID",
+            source_company_id: "Source Company ID",
+            destination_city_id: "Destination City ID",
+            destination_company_id: "Destination Company ID",
+            minimum_distance: "Minimum Distance",
+            cargo_id: "Cargo ID",
+            minimum_cargo_mass: "Minimum Cargo Mass",
+            maximum_cargo_damage: "Maximum Cargo Damage",
+            maximum_speed: "Maximum Speed",
+            maximum_fuel: "Maximum Fuel",
+            minimum_profit: "Minimum Profit",
+            maximum_profit: "Maximum Profit",
+            maximum_offence: "Maximum Offence",
+            allow_overspeed: "Allow Overspeed",
+            allow_auto_park: "Allow Auto Park",
+            allow_auto_load: "Allow Auto Load",
+            must_not_be_late: "Must Not Be Late",
+            must_be_special: "Must Be Special",
+            minimum_average_speed: "Minimum Average Speed",
+            maximum_average_speed: "Maximum Average Speed",
+            minimum_average_fuel: "Minimum Average Fuel",
+            maximum_average_fuel: "Maximum Average Fuel",
+        };
+
+        return fieldNames[key] || key;
+    };
+
+    const createChallenge = useCallback(() => {
+        if (editId !== null) {
+            setEditId(null);
+            clearModal();
+        }
+        setDialogTitle("Create Challenge");
+        setDialogButton("Create");
+        setDialogOpen(true);
+    }, [editId, clearModal]);
+
+    const editChallenge = useCallback(async (challenge) => {
+        clearModal();
+
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        [challenge] = await makeRequestsWithAuth([`${vars.dhpath}/challenges/${challenge.challengeid}`]);
+
+        setModalChallenge(challenge);
+        setEditId(challenge.challengeid);
+
+        setDialogTitle("Edit Challenge");
+        setDialogButton("Edit");
+        setDialogOpen(true);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [clearModal]);
+
+    const deleteChallenge = useCallback(async (challenge, isShiftPressed) => {
+        if (isShiftPressed === true || challenge.confirmed === true) {
+            setSubmitLoading(true);
+            let resp = await axios({ url: `${vars.dhpath}/challenges/${challenge.challengeid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (resp.status === 204) {
+                setDoReload(+new Date());
+                setSnackbarContent("Challenge deleted!");
+                setSnackbarSeverity("success");
+                setDialogDelete(false);
+                setToDelete(null);
+            } else {
+                setSnackbarContent(resp.data.error);
+                setSnackbarSeverity("error");
+            }
+            setSubmitLoading(false);
+        } else {
+            setDialogDelete(true);
+            setToDelete(challenge);
+        }
+    }, []);
 
     return <>
-        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} />
+        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onEdit={editChallenge} onDelete={deleteChallenge} />
+        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+            <DialogTitle>{dialogTitle}</DialogTitle>
+            <DialogContent>
+                <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Title"
+                                value={modalChallenge.title}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, title: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Description (Markdown)"
+                                multiline
+                                value={modalChallenge.description}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, description: e.target.value })}
+                                fullWidth
+                                minRows={4}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Start Time"
+                                type="datetime-local"
+                                value={new Date(new Date(modalChallenge.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, start_time: parseInt((+new Date(e.target.value)) / 1000) })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="End Time"
+                                type="datetime-local"
+                                value={new Date(new Date(modalChallenge.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, end_time: parseInt((+new Date(e.target.value)) / 1000) })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Challenge Type</FormLabel>
+                                <Select
+                                    value={modalChallenge.type}
+                                    onChange={(e) => setModalChallenge({ ...modalChallenge, type: e.target.value })}
+                                    sx={{ marginTop: "6px", height: "30px" }}
+                                >
+                                    <MenuItem value={1}>Personal (One-time)</MenuItem>
+                                    <MenuItem value={2}>Company (One-time)</MenuItem>
+                                    <MenuItem value={3}>Personal (Recurring)</MenuItem>
+                                    <MenuItem value={4}>Personal (Distance-based)</MenuItem>
+                                    <MenuItem value={5}>Company (Distance-based)</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Public Job Requirements?</FormLabel>
+                                <RadioGroup
+                                    value={String(modalChallenge.public_details)} row
+                                    onChange={(e) => setModalChallenge({ ...modalChallenge, public_details: e.target.value === "true" })}
+                                >
+                                    <FormControlLabel value="true" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="false" control={<Radio />} label="No" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Delivery Count"
+                                type="text"
+                                value={modalChallenge.delivery_count}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, delivery_count: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Required Roles"
+                                value={modalChallenge.required_roles.join(",")}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, required_roles: e.target.value.split(",") })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Required Distance"
+                                type="text"
+                                value={modalChallenge.required_distance}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, required_distance: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Reward Points"
+                                type="text"
+                                value={modalChallenge.reward_points}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, reward_points: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Order ID"
+                                type="text"
+                                value={modalChallenge.orderid}
+                                onChange={(e) => setModalChallenge({ ...modalChallenge, orderid: e.target.value })}
+                                fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Pin?</FormLabel>
+                                <RadioGroup
+                                    value={String(modalChallenge.is_pinned)} row
+                                    onChange={(e) => setModalChallenge({ ...modalChallenge, is_pinned: e.target.value === "true" })}
+                                >
+                                    <FormControlLabel value="true" control={<Radio />} label="Yes" />
+                                    <FormControlLabel value="false" control={<Radio />} label="No" />
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+                </form>
+                {/* Job Requirements section */}
+                <Typography variant="h6" style={{ marginTop: "20px" }}>
+                    Job Requirements
+                </Typography>
+                <Grid container spacing={2}>
+                    {Object.entries(modalChallenge.job_requirements).map(([key, value]) => (
+                        <Grid item xs={12} sm={6} key={key}>
+                            <TextField
+                                label={formatFieldName(key)}
+                                value={value}
+                                onChange={(e) =>
+                                    setModalChallenge({
+                                        ...modalChallenge,
+                                        job_requirements: { ...modalChallenge.job_requirements, [key]: e.target.value },
+                                    })
+                                }
+                                fullWidth
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>
+                    Cancel
+                </Button>
+                <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>
+                    {dialogButton}
+                </Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+            <DialogTitle>Delete Challenge</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this challenge?</Typography>
+                <ChallengeCard challenge={toDelete !== null ? toDelete : {}} />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
+                <Button variant="contained" onClick={() => { deleteChallenge({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+            <DialogTitle>Challenge Managers</DialogTitle>
+            <DialogContent>
+                <ChallengeManagers />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+            </DialogActions>
+        </Dialog>
         <SpeedDial
             ariaLabel="Controls"
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {/* {checkUserPerm(["admin", "challenge"]) && <SpeedDialAction
+            {checkUserPerm(["admin", "challenge"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
                 tooltipTitle="Create"
                 onClick={() => createChallenge()}
-            />} */}
+            />}
             {vars.userInfo.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
@@ -261,15 +588,6 @@ const Challenges = () => {
                 onClick={() => setDoReload(+new Date())}
             />
         </SpeedDial>
-        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-            <DialogTitle>Challenge Managers</DialogTitle>
-            <DialogContent>
-                <ChallengeManagers />
-            </DialogContent>
-            <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
-            </DialogActions>
-        </Dialog>
         <Snackbar
             dialogOpen={!!snackbarContent}
             autoHideDuration={5000}

@@ -33,7 +33,7 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
             <TableContainer>
                 <Table>
                     <TableHead>
-                        <TableRow>
+                        <TableRow key="head">
                             {columns.map((column) => (
                                 <TableCell key={column.id}>{column.label}</TableCell>
                             ))}
