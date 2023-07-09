@@ -1,13 +1,14 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select, MenuItem, RadioGroup, Radio } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select, MenuItem, RadioGroup, Radio, Chip } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
-import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken } from '../functions';
+import ListModal from '../components/listmodal';
+import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue } from '../functions';
 
 var vars = require("../variables");
 
@@ -80,8 +81,8 @@ function ParseChallenges(challenges, theme) {
 }
 
 const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, onEdit, onDelete }) => {
-    const showControls = onEdit !== null && (vars.isLoggedIn && checkUserPerm(["admin", "challenge"]));
-    const showButtons = onEdit !== null && (vars.isLoggedIn);
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admin", "challenge"]));
+    const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleShowDetails = useCallback(() => {
         onShowDetails(challenge);
@@ -269,6 +270,89 @@ const Challenges = () => {
     const [editId, setEditId] = useState(null);
     const [submitLoading, setSubmitLoading] = useState(false);
 
+    const [listModalOpen, setListModalOpen] = useState(false);
+    const handleCloseDetail = useCallback(() => {
+        setListModalItems([]);
+        setListModalOpen(false);
+    }, []);
+    const [listModalChallenge, setListModalChallenge] = useState({});
+    const [listModalItems, setListModalItems] = useState([]);
+
+    const theme = useTheme();
+    const showChallengeDetails = useCallback(async (challenge) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        [challenge] = await makeRequestsWithAuth([`${vars.dhpath}/challenges/${challenge.challengeid}`]);
+
+        setListModalChallenge(challenge);
+
+        let progress = <LinearProgress variant="determinate" color="success" value={Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100) + 1, 100)} sx={{ width: "100%" }} />;
+
+        let qualified = checkUserRole(challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
+        let qualifiedStatus = <>
+            {qualified && <>
+                <Chip color="success" sx={{ borderRadius: "5px" }} label="Qualified"></Chip>&nbsp;
+            </>}
+            {!qualified && <>
+                <Chip color="secondary" sx={{ borderRadius: "5px" }} label="Not Qualified"></Chip>&nbsp;
+            </>}</>;
+        let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
+        let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
+            ? <Chip color="success" sx={{ borderRadius: "5px" }} label="Ongoing"></Chip>
+            : challenge.start_time * 1000 > Date.now()
+                ? <Chip color="info" sx={{ borderRadius: "5px" }} label="Upcoming"></Chip>
+                : <Chip color="error" sx={{ borderRadius: "5px" }} label="Ended"></Chip>;
+        let status = <>{statusIcon}&nbsp;
+            {completed && <>
+                <Chip color="warning" sx={{ borderRadius: "5px" }} label="Completed"></Chip>&nbsp;
+            </>}</>;
+
+        let required_roles = challenge.required_roles.map((role) => {
+            return vars.roles[role].name + ` (${role})  `;
+        });
+
+        let completed_users = "";
+        let completed_users_cnt = {};
+        let completed_user_info = {};
+        let completed_user_point = {};
+        for (let i = 0; i < challenge.completed.length; i++) {
+            if (completed_users_cnt[challenge.completed[i].user.userid] === undefined) completed_users_cnt[challenge.completed[i].user.userid] = 1;
+            else completed_users_cnt[challenge.completed[i].user.userid] += 1;
+            completed_user_info[challenge.completed[i].user.userid] = challenge.completed[i];
+            completed_user_point[challenge.completed[i].user.userid] = parseInt(challenge.completed[i].points);
+        }
+        let d = sortDictWithValue(completed_user_point);
+        for (let i = 0; i < d.length; i++) {
+            let extrainfo = "";
+            if (challenge.type === 2) extrainfo = ` ${completed_user_info[d[i][0]].points} Points`;
+            else if (challenge.type === 3) extrainfo = ` x${completed_users_cnt[d[i][0]]}`;
+            else if (challenge.type === 5) extrainfo = ` ${ConvertUnit("km", completed_user_point[d[i][0]])}`;
+            completed_users = <>{completed_users} <UserCard user={completed_user_info[d[i][0]].user} inline={true} /> <Chip color="secondary" size="small" label={extrainfo}></Chip></>;
+        }
+
+        const lmi = [{ "name": "Type", "value": CHALLENGE_TYPES[challenge.type] },
+        { "name": "Reward Points", "key": "reward_points" },
+        { "name": "Start Time", "value": getFormattedDate(new Date(challenge.start_time * 1000)) },
+        { "name": "End Time", "value": getFormattedDate(new Date(challenge.end_time * 1000)) },
+        { "name": "Status", "value": status },
+        {},
+        { "name": "Deliveries", "key": "delivery_count" },
+        { "name": "Current Deliveries", "key": "current_delivery_count" },
+        { "name": "Progress", "value": progress },
+        {},
+        { "name": "Required Roles", "value": required_roles },
+        { "name": "Required Distance Driven", "value": ConvertUnit("km", challenge.required_distance) },
+        { "name": "Qualification", "value": qualifiedStatus },
+        {},
+        { "name": "Completed Members", "value": completed_users }];
+        setListModalItems(lmi);
+        setListModalOpen(true);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [theme]);
+
     const clearModal = useCallback(() => {
         setModalChallenge({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
     }, []);
@@ -385,7 +469,10 @@ const Challenges = () => {
     }, []);
 
     return <>
-        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onEdit={editChallenge} onDelete={deleteChallenge} />
+        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onEdit={editChallenge} onDelete={deleteChallenge} />
+        {listModalItems.length !== 0 && <ListModal title={listModalChallenge.title} items={listModalItems} data={listModalChallenge} open={listModalOpen} onClose={handleCloseDetail} additionalContent={<Typography variant="body2" sx={{ marginTop: "20px" }}>
+            <MarkdownRenderer>{listModalChallenge.description}</MarkdownRenderer>
+        </Typography>} />}
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
             <DialogTitle>{dialogTitle}</DialogTitle>
             <DialogContent>

@@ -33,7 +33,7 @@ const UserCard = (props) => {
                     e.target.onerror = null;
                     e.target.src = vars.dhlogo;
                 }}
-                alt={name} />
+                alt={""} />
             &nbsp;
             {specialColor === null && <span style={{ whiteSpace: "nowrap" }}>{name}</span>}
             {specialColor !== null && <span style={{ whiteSpace: "nowrap", color: specialColor }}>{name}</span>}

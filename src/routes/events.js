@@ -45,8 +45,8 @@ function getDefaultDateRange() {
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
-    const showControls = onEdit !== null && (vars.isLoggedIn && checkUserPerm(["admin", "event"]));
-    const showButtons = onEdit !== null && (vars.isLoggedIn);
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admin", "event"]));
+    const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleVote = useCallback(() => {
         onVote(eventid);

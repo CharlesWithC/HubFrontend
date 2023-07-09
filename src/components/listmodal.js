@@ -3,7 +3,7 @@ import { Modal, Paper, Table, TableBody, TableCell, TableContainer, TableRow, Ty
 import { CloseRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react';
 
-const ListModal = ({ title, items, data, open, onClose }) => {
+const ListModal = ({ title, items, data, additionalContent, open, onClose }) => {
     const modalStyle = {
         display: 'flex',
         alignItems: 'center',
@@ -45,6 +45,7 @@ const ListModal = ({ title, items, data, open, onClose }) => {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    {additionalContent !== undefined ? additionalContent : <></>}
                 </SimpleBar>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
                     <Button variant="contained" color="secondary" sx={{ ml: 'auto' }}

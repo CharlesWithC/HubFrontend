@@ -240,6 +240,19 @@ export function OrdinalSuffix(i) {
     return i + "th";
 }
 
+export function sortDictWithValue(dict) {
+    var items = Object.keys(dict).map(function (key) {
+        return [key, dict[key]];
+    });
+
+    // Sort the array based on the second element
+    items.sort(function (first, second) {
+        return second[1] - first[1];
+    });
+
+    return items;
+}
+
 export function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
     if (date === undefined || date === null) return "";
     const day = date.getDate();
