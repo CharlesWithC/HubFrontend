@@ -868,7 +868,7 @@ const Events = () => {
             </DialogContent>
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
-                <Button variant="contained" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={openAttendeeEvent} onClose={() => setOpenAttendeeEvent(false)}>

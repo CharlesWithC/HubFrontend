@@ -485,7 +485,7 @@ const Announcement = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
-                    <Button variant="contained" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>

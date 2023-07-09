@@ -47,7 +47,64 @@ const columns = [
     { id: 'metaStatus', label: 'Status' },
 ];
 
-function ParseChallenges(challenges, theme) {
+const staffColumns = [
+    { id: 'challengeid', label: 'ID' },
+    { id: 'title', label: 'Title' },
+    { id: 'metaType', label: 'Type' },
+    { id: 'reward_points', label: 'Reward' },
+    { id: 'metaProgress', label: 'Progress' },
+    { id: 'metaStatus', label: 'Status' },
+    { id: 'metaControls', label: 'Operations' },
+];
+
+const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {
+    const handleUpdateDelivery = useCallback((e) => {
+        e.stopPropagation();
+        onUpdateDelivery(challenge);
+    }, [challenge, onUpdateDelivery]);
+
+    const handleEdit = useCallback((e) => {
+        e.stopPropagation();
+        onEdit(challenge);
+    }, [challenge, onEdit]);
+
+    const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (challenge) => {
+            if (challenge.keyCode === 16) {
+                setIsShiftPressed(true);
+            }
+        };
+
+        const handleKeyUp = (challenge) => {
+            if (challenge.keyCode === 16) {
+                setIsShiftPressed(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
+
+    const handleDelete = useCallback((e) => {
+        e.stopPropagation();
+        onDelete(challenge, isShiftPressed);
+    }, [challenge, onDelete, isShiftPressed]);
+
+    return <>
+        <IconButton size="small" aria-label="Update Deliveries" onClick={handleUpdateDelivery}><LocalShippingRounded /></IconButton >
+        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
+        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+    </>;
+};
+
+function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) {
     for (let i = 0; i < challenges.length; i++) {
         let challenge = challenges[i];
         const re = challenge.description.match(/^\[Image src="(.+)"\]/);
@@ -76,6 +133,8 @@ function ParseChallenges(challenges, theme) {
             {completed && <>
                 <TaskAltRounded sx={{ color: theme.palette.warning.main }} />&nbsp;
             </>}</>;
+
+        challenges[i].metaControls = <ControlButtons challenge={challenges[i]} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />;
     }
     return challenges;
 }
@@ -87,42 +146,6 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
     const handleShowDetails = useCallback(() => {
         onShowDetails(challenge);
     }, [challenge, onShowDetails]);
-
-    const handleUpdateDelivery = useCallback(() => {
-        onUpdateDelivery(challenge);
-    }, [challenge, onUpdateDelivery]);
-
-    const handleEdit = useCallback(() => {
-        onEdit(challenge);
-    }, [challenge, onEdit]);
-
-    const [isShiftPressed, setIsShiftPressed] = useState(false);
-
-    useEffect(() => {
-        const handleKeyDown = (challenge) => {
-            if (challenge.keyCode === 16) {
-                setIsShiftPressed(true);
-            }
-        };
-
-        const handleKeyUp = (challenge) => {
-            if (challenge.keyCode === 16) {
-                setIsShiftPressed(false);
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
-        };
-    }, []);
-
-    const handleDelete = useCallback(() => {
-        onDelete(challenge, isShiftPressed);
-    }, [challenge, onDelete, isShiftPressed]);
 
     if (challenge.description === undefined) { return <></>; }
 
@@ -142,11 +165,7 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
                     </Typography>
                     {showButtons && <>
                         <IconButton size="small" aria-label="Details" onClick={handleShowDetails}><InfoRounded /></IconButton >
-                        {showControls && <>
-                            <IconButton size="small" aria-label="Update Deliveries" onClick={handleUpdateDelivery}><LocalShippingRounded /></IconButton >
-                            <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                            <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
-                        </>}
+                        {showControls && <ControlButtons challenge={challenge} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />}
                     </>}
                 </div>
                 <Grid container>
@@ -210,16 +229,16 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                     `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&order_by=end_time&order=desc`,
                 ];
                 let [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
-                setUpcomingChallenges(ParseChallenges(_upcomingChallenges.list, theme));
-                setActiveChallenges(ParseChallenges(_activeChallenges.list, theme));
-                setChallengeList(ParseChallenges(_challengeList.list, theme));
+                setUpcomingChallenges(ParseChallenges(_upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setActiveChallenges(ParseChallenges(_activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setChallengeList(ParseChallenges(_challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
                 setTotalItems(_challengeList.total_items);
             } else {
                 let urls = [
                     `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&order_by=end_time&order=desc`,
                 ];
                 let [_challengeList] = await makeRequestsWithAuth(urls);
-                setChallengeList(ParseChallenges(_challengeList.list, theme));
+                setChallengeList(ParseChallenges(_challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
                 setTotalItems(_challengeList.total_items);
             }
 
@@ -227,7 +246,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [doReload, setUpcomingChallenges, setActiveChallenges, pageSize, page, setChallengeList, theme]);
+    }, [doReload, setUpcomingChallenges, setActiveChallenges, pageSize, page, setChallengeList, theme, onUpdateDelivery, onEdit, onDelete]);
 
     return <>
         <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -243,7 +262,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable columns={columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} />}
+        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["admin", "challenge"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} />}
     </>;
 });
 
@@ -278,7 +297,6 @@ const Challenges = () => {
     const [listModalChallenge, setListModalChallenge] = useState({});
     const [listModalItems, setListModalItems] = useState([]);
 
-    const theme = useTheme();
     const showChallengeDetails = useCallback(async (challenge) => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
@@ -331,27 +349,28 @@ const Challenges = () => {
             completed_users = <>{completed_users} <UserCard user={completed_user_info[d[i][0]].user} inline={true} /> <Chip color="secondary" size="small" label={extrainfo}></Chip></>;
         }
 
-        const lmi = [{ "name": "Type", "value": CHALLENGE_TYPES[challenge.type] },
-        { "name": "Reward Points", "key": "reward_points" },
-        { "name": "Start Time", "value": getFormattedDate(new Date(challenge.start_time * 1000)) },
-        { "name": "End Time", "value": getFormattedDate(new Date(challenge.end_time * 1000)) },
-        { "name": "Status", "value": status },
-        {},
-        { "name": "Deliveries", "key": "delivery_count" },
-        { "name": "Current Deliveries", "key": "current_delivery_count" },
-        { "name": "Progress", "value": progress },
-        {},
-        { "name": "Required Roles", "value": required_roles },
-        { "name": "Required Distance Driven", "value": ConvertUnit("km", challenge.required_distance) },
-        { "name": "Qualification", "value": qualifiedStatus },
-        {},
-        { "name": "Completed Members", "value": completed_users }];
+        const lmi = [
+            { "name": "Type", "value": CHALLENGE_TYPES[challenge.type] },
+            { "name": "Reward Points", "key": "reward_points" },
+            { "name": "Start Time", "value": getFormattedDate(new Date(challenge.start_time * 1000)) },
+            { "name": "End Time", "value": getFormattedDate(new Date(challenge.end_time * 1000)) },
+            { "name": "Status", "value": status },
+            {},
+            { "name": "Deliveries", "key": "delivery_count" },
+            { "name": "Current Deliveries", "key": "current_delivery_count" },
+            { "name": "Progress", "value": progress },
+            {},
+            { "name": "Required Roles", "value": required_roles },
+            { "name": "Required Distance Driven", "value": ConvertUnit("km", challenge.required_distance) },
+            { "name": "Qualification", "value": qualifiedStatus },
+            {},
+            { "name": "Completed Members", "value": completed_users }];
         setListModalItems(lmi);
         setListModalOpen(true);
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [theme]);
+    }, []);
 
     const clearModal = useCallback(() => {
         setModalChallenge({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
@@ -639,7 +658,7 @@ const Challenges = () => {
             </DialogContent>
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
-                <Button variant="contained" onClick={() => { deleteChallenge({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                <Button variant="contained" color="error" onClick={() => { deleteChallenge({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>

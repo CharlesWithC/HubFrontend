@@ -496,7 +496,7 @@ const DownloadableItem = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
-                    <Button variant="contained" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
