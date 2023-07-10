@@ -21,6 +21,11 @@ const columns = [
     { id: 'profit', label: 'Profit' },
     { id: 'time', label: 'Time' },
 ];
+const pendingColumns = [
+    { id: 'logid', label: 'Log ID' },
+    { id: 'driver', label: 'Driver' },
+    { id: 'division', label: 'Division' },
+];
 
 const PROFIT_UNIT = { 1: "€", 2: "$" };
 
@@ -136,7 +141,7 @@ const DivisionsDlog = memo(({ doReload }) => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize]);
+    }, [page, pageSize, doReload]);
 
     const navigate = useNavigate();
     function handleClick(data) {
@@ -144,7 +149,51 @@ const DivisionsDlog = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} />}
+        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(["admin", "division"]) ? {} : { marginRight: "60px" }} name={"Recent Validated Division Deliveries"} />}
+    </>;
+});
+
+const DivisionsPending = memo(({ doReload }) => {
+    const [dlogList, setDlogList] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const [page, setPage] = useState(-1);
+    const [pageSize, setPageSize] = useState(10);
+
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let myPage = page;
+            if (myPage === -1) {
+                myPage = 1;
+            } else {
+                myPage += 1;
+            }
+
+            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${myPage}`]);
+
+            let newDlogList = [];
+            for (let i = 0; i < dlogL.list.length; i++) {
+                newDlogList.push({ logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, division: vars.divisions[dlogL.list[i].divisionid].name });
+            }
+
+            setDlogList(newDlogList);
+            setTotalItems(dlogL.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [page, pageSize, doReload]);
+
+    const navigate = useNavigate();
+    function handleClick(data) {
+        navigate(`/delivery/${data.logid}`);
+    }
+
+    return <>
+        {dlogList.length !== 0 && <CustomTable columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={"Pending Division Validation Requests"} />}
     </>;
 });
 
@@ -175,6 +224,7 @@ const Divisions = () => {
     return <>
         <DivisionsMemo doReload={doReload} />
         <DivisionsDlog doReload={doReload} />
+        <DivisionsPending doReload={doReload} />
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
             <DialogTitle>Division Managers</DialogTitle>
             <DialogContent>

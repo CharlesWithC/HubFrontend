@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, TablePagination } from '@mui/material';
+import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, TablePagination, Typography } from '@mui/material';
 
 const ClickableTableRow = ({ rowKey, rowMeta, children, onClick }) => {
     const handleClick = () => {
@@ -13,7 +13,7 @@ const ClickableTableRow = ({ rowKey, rowMeta, children, onClick }) => {
     );
 };
 
-const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, style, pstyle }) => {
+const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -50,7 +50,22 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
                     </TableBody>
                 </Table>
             </TableContainer>
-            <TablePagination
+            {name !== undefined && <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" component="div" style={{ marginLeft: "10px", marginRight: 'auto' }}>
+                    {name}
+                </Typography>
+                <TablePagination
+                    rowsPerPageOptions={rowsPerPageOptions}
+                    component="div"
+                    count={totalItems}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    sx={pstyle}
+                />
+            </div>}
+            {name === undefined && <TablePagination
                 rowsPerPageOptions={rowsPerPageOptions}
                 component="div"
                 count={totalItems}
@@ -59,7 +74,7 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 sx={pstyle}
-            />
+            />}
         </Card>
     );
 };
