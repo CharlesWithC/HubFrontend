@@ -117,11 +117,11 @@ export async function FetchProfile() {
                     }
                 }
 
-                let [resp] = await makeRequests([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
+                let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
                 vars.userStats = resp;
 
                 // is member / fetch all members
-                [resp] = await makeRequests([`${vars.dhpath}/member/list?page=1&page_size=250`]);
+                [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
                 let totalPages = resp.total_pages;
                 vars.members = resp.list;
                 if (totalPages > 1) {
@@ -129,7 +129,7 @@ export async function FetchProfile() {
                     for (let i = 2; i <= totalPages; i++) {
                         urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
                     }
-                    let resps = await makeRequests(urlsBatch);
+                    let resps = await makeRequestsWithAuth(urlsBatch);
                     for (let i = 0; i < resps.length; i++) {
                         vars.members.push(...resps[i].list);
                     }
