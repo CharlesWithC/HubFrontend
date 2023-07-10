@@ -13,7 +13,7 @@ const ClickableTableRow = ({ rowKey, rowMeta, children, onClick }) => {
     );
 };
 
-const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick }) => {
+const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -29,7 +29,7 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
     };
 
     return (
-        <Card className="PaperShadow">
+        <Card className="PaperShadow" sx={style}>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -58,6 +58,7 @@ const CustomTable = ({ columns, data, totalItems, rowsPerPageOptions, defaultRow
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+                sx={pstyle}
             />
         </Card>
     );

@@ -1,13 +1,28 @@
 import { useEffect, useState, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
+import CustomTable from '../components/table';
 import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 
 var vars = require("../variables");
+
+const columns = [
+    { id: 'logid', label: 'ID' },
+    { id: 'driver', label: 'Driver' },
+    { id: 'source', label: 'Source' },
+    { id: 'destination', label: 'Destination' },
+    { id: 'distance', label: 'Distance' },
+    { id: 'cargo', label: 'Cargo' },
+    { id: 'profit', label: 'Profit' },
+    { id: 'time', label: 'Time' },
+];
+
+const PROFIT_UNIT = { 1: "€", 2: "$" };
 
 const DivisionCard = ({ division }) => {
     return (<Card>
@@ -89,6 +104,50 @@ const DivisionsMemo = memo(({ doReload }) => {
     </Grid>);
 });
 
+const DivisionsDlog = memo(({ doReload }) => {
+    const [dlogList, setDlogList] = useState([]);
+    const [totalItems, setTotalItems] = useState(0);
+    const [page, setPage] = useState(-1);
+    const [pageSize, setPageSize] = useState(10);
+
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let myPage = page;
+            if (myPage === -1) {
+                myPage = 1;
+            } else {
+                myPage += 1;
+            }
+
+            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}&division=only`]);
+
+            let newDlogList = [];
+            for (let i = 0; i < dlogL.list.length; i++) {
+                newDlogList.push({ logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
+            }
+
+            setDlogList(newDlogList);
+            setTotalItems(dlogL.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [page, pageSize]);
+
+    const navigate = useNavigate();
+    function handleClick(data) {
+        navigate(`/delivery/${data.logid}`);
+    }
+
+    return <>
+        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} />}
+    </>;
+});
+
 const DivisionManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
@@ -115,7 +174,7 @@ const Divisions = () => {
 
     return <>
         <DivisionsMemo doReload={doReload} />
-
+        <DivisionsDlog doReload={doReload} />
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
             <DialogTitle>Division Managers</DialogTitle>
             <DialogContent>

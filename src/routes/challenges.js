@@ -202,7 +202,7 @@ const ChallengeManagers = memo(() => {
             <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
         ))
     }</>;
-})
+});
 
 const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const [page, setPage] = useState(-1);
@@ -263,7 +263,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["admin", "challenge"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} />}
+        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["admin", "challenge"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
     </>;
 });
 
@@ -544,7 +544,7 @@ const Challenges = () => {
                 <ChallengeCard challenge={{ ...updateDlogChallenge, description: "" }} />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setModalUpdateDlogOpen(false) }}>Cancel</Button>
+                <Button variant="primary" onClick={() => { setModalUpdateDlogOpen(false); }}>Cancel</Button>
                 <Button variant="contained" color="error" onClick={removeDlog} disabled={submitLoading}>Remove</Button>
                 <Button variant="contained" color="success" onClick={addDlog} disabled={submitLoading}>Add</Button>
             </DialogActions>
@@ -714,7 +714,7 @@ const Challenges = () => {
                 <ChallengeCard challenge={toDelete !== null ? toDelete : {}} />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
+                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
                 <Button variant="contained" color="error" onClick={() => { deleteChallenge({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
             </DialogActions>
         </Dialog>
@@ -724,7 +724,7 @@ const Challenges = () => {
                 <ChallengeManagers />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
