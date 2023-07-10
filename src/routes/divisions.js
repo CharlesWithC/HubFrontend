@@ -1,13 +1,12 @@
-import { useEffect, useState, useCallback, memo } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle} from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
-import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
-import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
+import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -214,11 +213,6 @@ const DivisionManagers = memo(() => {
 
 const Divisions = () => {
     const [doReload, setDoReload] = useState(0);
-    const [snackbarContent, setSnackbarContent] = useState("");
-    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    const handleCloseSnackbar = useCallback(() => {
-        setSnackbarContent("");
-    }, []);
     const [dialogManagers, setDialogManagers] = useState(false);
 
     return <>
@@ -252,18 +246,6 @@ const Divisions = () => {
                 onClick={() => setDoReload(+new Date())}
             />
         </SpeedDial>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
     </>;
 };
 
