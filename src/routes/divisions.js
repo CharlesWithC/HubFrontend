@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
-import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded } from '@mui/icons-material';
+import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
@@ -89,8 +89,73 @@ const DivisionsMemo = memo(({ doReload }) => {
     </Grid>);
 });
 
+const DivisionManagers = memo(() => {
+    let managers = [];
+    for (let i = 0; i < vars.members.length; i++) {
+        if (checkPerm(vars.members[i].roles, ["admin", "division"])) {
+            managers.push(vars.members[i]);
+        }
+    }
+
+    return <>{
+        managers.map((user) => (
+            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+        ))
+    }</>;
+});
+
 const Divisions = () => {
-    return <DivisionsMemo />;
+    const [doReload, setDoReload] = useState(0);
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+    const [dialogManagers, setDialogManagers] = useState(false);
+
+    return <>
+        <DivisionsMemo doReload={doReload} />
+
+        <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
+            <DialogTitle>Division Managers</DialogTitle>
+            <DialogContent>
+                <DivisionManagers />
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+            </DialogActions>
+        </Dialog>
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            {vars.userInfo.userid !== -1 && <SpeedDialAction
+                key="managers"
+                icon={<PeopleAltRounded />}
+                tooltipTitle="Managers"
+                onClick={() => setDialogManagers(true)}
+            />}
+            <SpeedDialAction
+                key="refresh"
+                icon={<RefreshRounded />}
+                tooltipTitle="Refresh"
+                onClick={() => setDoReload(+new Date())}
+            />
+        </SpeedDial>
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
+    </>;
 };
 
 export default Divisions;
