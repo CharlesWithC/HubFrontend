@@ -20,6 +20,7 @@ import Deliveries from './routes/deliveries';
 import Delivery from './routes/delivery';
 import Events from './routes/events';
 import Challenges from './routes/challenges';
+import Divisions from './routes/divisions';
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -107,6 +108,7 @@ function App() {
                             <Route path="/delivery/:logid" element={<Delivery />} />
                             <Route path="/event" element={<Events />}></Route>
                             <Route path="/challenge" element={<Challenges />}></Route>
+                            <Route path="/division" element={<Divisions />}></Route>
                         </Routes>
                     </SimpleBar>
                 </div>
