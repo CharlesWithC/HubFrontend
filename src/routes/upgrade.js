@@ -2,69 +2,109 @@ import React from 'react';
 import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 
 const UpgradeCard = () => {
-    const freeFeatures = [
-        { text: '✔️ Dark/Light theme' },
-        { text: '✔️ Regular name color' },
-        { text: '✔️ Regular support' },
-        { text: '✔️ All regular functionalities' },
-    ];
-
-    const premiumFeatures = [
-        { text: '✔️ More themes and customizable themes' },
-        { text: '✔️ Golden name color' },
-        { text: '✔️ Special Discord role' },
-        { text: '✔️ Exclusive functionalities' },
-    ];
-
+    const bronze = ["Patron Discord Role", "A special Thank You on our website"];
+    const silver = ["Silver Name", "Customizable Theme", "View Detailed Statistics"];
+    const gold = ["Gold Name", "Customizable Background Image", "Access to more Radio Stations", "Export Delivery Route", "Patron Support"];
+    const platinum = ["More choices on name color", "Access to ANY Radio Stations (customizable URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Patron Priority Support"];
 
     return (
-        <Grid container spacing={6} justifyContent="center">
-            <Grid item xs={12} sm={5}>
+        <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Regular User"
-                        subheader="All functions needed to use the Drivers Hub"
+                        title="Bronze Patreon"
+                        subheader="Cheapest choice"
                         titleTypographyProps={{ align: 'center' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
                     <CardContent>
                         <List>
-                            {freeFeatures.map((feature) => (
-                                <ListItem key={feature.text}>
-                                    <ListItemText primary={feature.text} />
+                            {bronze.map((feature) => (
+                                <ListItem key={feature}>
+                                    <ListItemText primary={feature} />
                                 </ListItem>
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            Free forever
+                            $1/mo.
                         </Typography>
-                        <Button variant="outlined" color="primary" fullWidth>
-                            No action needed
-                        </Button>
+                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                            Subscribe
+                        </Button></a>
                     </CardContent>
                 </Card>
             </Grid>
-            <Grid item xs={12} sm={5}>
+            <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Patreon Subscribers"
-                        subheader="Make your profile distringuied among members"
+                        title="Silver Patreon"
+                        subheader="Including Bronze Perks"
                         titleTypographyProps={{ align: 'center' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
                     <CardContent>
                         <List>
-                            {premiumFeatures.map((feature) => (
-                                <ListItem key={feature.text}>
-                                    <ListItemText primary={feature.text} />
+                            {silver.map((feature) => (
+                                <ListItem key={feature}>
+                                    <ListItemText primary={feature} />
                                 </ListItem>
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>
-                            $3 per month
+                            $3/mo.
                         </Typography>
                         <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Subscribe at Patreon
+                            Subscribe
+                        </Button></a>
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={3}>
+                <Card>
+                    <CardHeader
+                        title="Gold Patreon"
+                        subheader="Including Silver Perks"
+                        titleTypographyProps={{ align: 'center' }}
+                        subheaderTypographyProps={{ align: 'center' }}
+                    />
+                    <CardContent>
+                        <List>
+                            {gold.map((feature) => (
+                                <ListItem key={feature}>
+                                    <ListItemText primary={feature} />
+                                </ListItem>
+                            ))}
+                        </List>
+                        <Typography variant="h5" align="center" gutterBottom>
+                            $5/mo.
+                        </Typography>
+                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                            Subscribe
+                        </Button></a>
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={3}>
+                <Card>
+                    <CardHeader
+                        title="Platinum Patreon"
+                        subheader="Including Gold Perks"
+                        titleTypographyProps={{ align: 'center' }}
+                        subheaderTypographyProps={{ align: 'center' }}
+                    />
+                    <CardContent>
+                        <List>
+                            {platinum.map((feature) => (
+                                <ListItem key={feature}>
+                                    <ListItemText primary={feature} />
+                                </ListItem>
+                            ))}
+                        </List>
+                        <Typography variant="h5" align="center" gutterBottom>
+                            $8/mo.
+                        </Typography>
+                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                            Subscribe
                         </Button></a>
                     </CardContent>
                 </Card>
