@@ -21,6 +21,8 @@ import Delivery from './routes/delivery';
 import Events from './routes/events';
 import Challenges from './routes/challenges';
 import Divisions from './routes/divisions';
+import Members from './routes/members';
+
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
@@ -109,6 +111,7 @@ function App() {
                             <Route path="/event" element={<Events />}></Route>
                             <Route path="/challenge" element={<Challenges />}></Route>
                             <Route path="/division" element={<Divisions />}></Route>
+                            <Route path="/member" element={<Members />}></Route>
                         </Routes>
                     </SimpleBar>
                 </div>
