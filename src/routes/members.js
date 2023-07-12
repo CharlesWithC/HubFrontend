@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, Typography, Avatar, Grid } from '@mui/material';
+import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
 
 var vars = require("../variables");
 
@@ -33,27 +33,40 @@ const Members = () => {
             }
         }
         if (group.length !== 0) {
-            groups.push({ "group": roles[i].name, "users": group });
+            groups.push({ "group": roles[i].name, "color": roles[i].color, "description": roles[i].description, "users": group });
         }
     }
 
     return (<div style={{ width: "100%" }}>
-        {groups.map((group) => (<>
-            <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                <b>{group.group}</b>
-            </Typography>
+        {groups.map((group) => (<div key={group.group}>
+            <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : "No description"}
+                PopperProps={{
+                    modifiers: [
+                        {
+                            name: "offset",
+                            options: {
+                                offset: [0, -10],
+                            },
+                        },
+                    ],
+                }}>
+                <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
+                    <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
+                </Typography>
+            </Tooltip>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <Grid container spacing={2} justifyContent="center">
                     {group.users.map((user) => (
-                        <Grid item key={group.group} xs={6} sm={6} md={4} lg={2} sx={{ minWidth: 150 }}>
-                            <LargeUserCard key={user.userid} user={user} />
+                        <Grid item key={`${group.group}-${user.userid}`} xs={6} sm={6} md={4} lg={2} sx={{ minWidth: 150 }}>
+                            <LargeUserCard user={user} />
                         </Grid>
                     ))}
                 </Grid>
-            </div>
-        </>
-        ))}
-    </div>);
+            </div >
+        </div>
+        ))
+        }
+    </div >);
 };
 
-export default Members;
+export default Members;;

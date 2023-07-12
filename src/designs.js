@@ -69,6 +69,16 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
+                    MuiTooltip: {
+                        styleOverrides: {
+                            popover: {
+                                marginTop: 5,
+                            },
+                            arrow: {
+                                marginTop: 5,
+                            }
+                        },
+                    }
                 } : {
                     MuiListItemButton: {
                         styleOverrides: {
@@ -125,6 +135,17 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
+                    MuiTooltip: {
+                        styleOverrides: {
+                            tooltip: {
+                                fontSize: "16px",
+                                backgroundColor: '#202225',
+                            },  
+                            arrow: {
+                                color: '#202225',
+                            }
+                        },
+                    }
                 })
         },
     };

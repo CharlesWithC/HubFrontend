@@ -143,7 +143,7 @@ const Overview = () => {
                         <CardContent>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <LeaderboardRounded />&nbsp;&nbsp;Leaderboard
+                                    <LeaderboardRounded />&nbsp;&nbsp;Monthly Leaderboard
                                 </Typography>
                             </div>
                             <SimpleBar style={{ overflowY: "hidden" }}>
