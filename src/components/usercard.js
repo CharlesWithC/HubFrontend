@@ -23,17 +23,13 @@ const UserCard = (props) => {
 
     let content = <>
         {!useChip && <>
-            <img src={avatar}
+            <Avatar src={avatar}
                 style={{
-                    borderRadius: "100%",
+                    width: `${size}px`,
                     height: `${size}px`,
-                    verticalAlign: "middle"
-                }}
-                onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = vars.dhlogo;
-                }}
-                alt={""} />
+                    verticalAlign: "middle",
+                    display: "inline-flex"
+                }} />
             &nbsp;
             {specialColor === null && <span style={{ whiteSpace: "nowrap" }}>{name}</span>}
             {specialColor !== null && <span style={{ whiteSpace: "nowrap", color: specialColor }}>{name}</span>}
@@ -56,7 +52,7 @@ const UserCard = (props) => {
         <Link to={`/member/${userid}`} style={{ flexGrow: 1, whiteSpace: inline ? null : 'nowrap', alignItems: "center" }}>
             {content}
         </Link>
-    )
-}
+    );
+};
 
 export default UserCard;

@@ -34,9 +34,6 @@ const Members = () => {
         }
         if (group.length !== 0) {
             groups.push({ "group": roles[i].name, "users": group });
-            for (let j = 0; j < group.length; j++) {
-                members = members.filter(user => user.userid !== group[j].userid);
-            }
         }
     }
 
