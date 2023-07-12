@@ -10,7 +10,7 @@ import ListItemText from '@mui/material/ListItemText';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 import PropTypes from 'prop-types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 var vars = require('../variables');
@@ -26,17 +26,46 @@ const SideBar = (props) => {
         setSelectedIndex(index);
     };
 
-    const [bannerHeight, setLogoHeight] = useState(0);
+    const bannerRef = useRef(null);
+    const [simpleBarStyle, setSimpleBarStyle] = useState({
+        maxHeight: `calc(100vh - 30px)`,
+        height: `calc(100vh - 30px)`,
+    });
     useEffect(() => {
-        const banner = document.getElementsByClassName("sidebar-banner")[0];
-        if (banner) {
-            setLogoHeight(banner.offsetHeight);
+        const handleImageLoad = () => {
+            const sidebarBanners = document.querySelectorAll('.sidebar-banner');
+            const visibleSidebarBanner = Array.from(sidebarBanners).find(
+                (banner) => banner.offsetParent !== null
+            );
+            if (visibleSidebarBanner) {
+                setTimeout(() => {
+                    const updatedVisibleBanner = document.querySelector('.sidebar-banner:not([style*="display: none"])');
+                    if (updatedVisibleBanner) {
+                        setSimpleBarStyle({
+                            maxHeight: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
+                            height: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
+                        });
+                    }
+                }, 100);
+            }
+        };
+
+        let currentBannerRef = bannerRef.current;
+
+        if (currentBannerRef) {
+            if (currentBannerRef.complete) {
+                handleImageLoad();
+            } else {
+                currentBannerRef.addEventListener('load', handleImageLoad);
+            }
         }
-    }, []);
-    const simpleBarStyle = {
-        maxHeight: `calc(100vh - ${(bannerHeight + 30)}px)`,
-        height: `calc(100vh - ${(bannerHeight + 30)}px)`,
-    };
+
+        return () => {
+            if (currentBannerRef) {
+                currentBannerRef.removeEventListener('load', handleImageLoad);
+            }
+        };
+    }, [bannerRef]);
 
     const [reload, setReload] = useState(+new Date());
     useEffect(() => {
@@ -153,7 +182,7 @@ const SideBar = (props) => {
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
                         <Link to="/"><ListItem key={`navbtn-banner`} disablePadding>
-                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
+                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" ref={bannerRef} />
                         </ListItem></Link>
                     </List>
                     {sidebar}
@@ -173,7 +202,7 @@ const SideBar = (props) => {
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
                         <Link to="/"><ListItem key={`navbtn-banner`} disablePadding>
-                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" />
+                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" ref={bannerRef} />
                         </ListItem></Link>
                     </List>
                     {sidebar}
@@ -181,7 +210,7 @@ const SideBar = (props) => {
             </Drawer>
         </Box>
     );
-}
+};
 
 SideBar.propTypes = {
     width: PropTypes.number,
