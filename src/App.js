@@ -24,6 +24,7 @@ import Challenges from './routes/challenges';
 import Divisions from './routes/divisions';
 import Members from './routes/members';
 import Leaderboard from './routes/leaderboard';
+import Ranking from './routes/ranking';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -115,6 +116,7 @@ function App() {
                             <Route path="/division" element={<Divisions />}></Route>
                             <Route path="/member" element={<Members />}></Route>
                             <Route path="/leaderboard" element={<Leaderboard />}></Route>
+                            <Route path="/ranking" element={<Ranking />}></Route>
                         </Routes>
                         <footer>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>

@@ -22,8 +22,8 @@ customAxios.interceptors.response.use(
         const errorResponse = error.response;
 
         if (errorResponse && (errorResponse.status === 429 || errorResponse.status === 503)) {
-            const errorMessage = `Error ${errorResponse.status}: ${errorResponse.statusText}`;
-            throw new Error(errorMessage);
+            const errorMessage = `${errorResponse.status}: ${errorResponse.statusText}`;
+            console.error(new Error(errorMessage));
         }
 
         return errorResponse;
