@@ -4,6 +4,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import { useLocation, Routes, Route } from 'react-router-dom';
+import { Typography } from '@mui/material';
 
 import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
@@ -113,6 +114,20 @@ function App() {
                             <Route path="/division" element={<Divisions />}></Route>
                             <Route path="/member" element={<Members />}></Route>
                         </Routes>
+                        <footer>
+                            <hr style={{ marginTop: "20px" }} />
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                                    &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                                </Typography>
+                                <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end' }}>
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">CHub</a>&nbsp;&nbsp;
+                                    <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">Wiki</a>&nbsp;&nbsp;
+                                    <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">Discord</a>&nbsp;&nbsp;
+                                    <a href="https://twitter.com/CHub_DH" target="_blank" rel="noreferrer">Twitter</a>
+                                </Typography>
+                            </div>
+                        </footer>
                     </SimpleBar>
                 </div>
             </ThemeProvider>
