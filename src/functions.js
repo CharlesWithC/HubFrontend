@@ -137,13 +137,13 @@ export async function FetchProfile() {
             }
         } else {
             localStorage.removeItem("token");
-            vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" }
+            vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
         }
     } else {
         vars.isLoggedIn = false;
         vars.userInfo = {};
         vars.userPerm = [];
-        vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" }
+        vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
     }
 }
 
@@ -251,6 +251,36 @@ export function sortDictWithValue(dict) {
     });
 
     return items;
+}
+
+export function getRankName(points) {
+    if (points < vars.ranks[0].points) return "N/A";
+    for (let i = 0; i < vars.ranks.length - 1; i++) {
+        if (points > vars.ranks[i].points && points < vars.ranks[i + 1].points) {
+            return vars.ranks[i].name;
+        }
+    }
+    return vars.ranks[vars.ranks.length - 1].name;
+}
+
+export function getCurrentMonthName() {
+    const date = new Date();
+    const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+    ];
+
+    return months[date.getMonth()];
 }
 
 export function getFormattedDate(date, prefomattedDate = false, hideYear = false) {

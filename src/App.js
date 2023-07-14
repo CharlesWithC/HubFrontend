@@ -23,6 +23,7 @@ import Events from './routes/events';
 import Challenges from './routes/challenges';
 import Divisions from './routes/divisions';
 import Members from './routes/members';
+import Leaderboard from './routes/leaderboard';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -113,14 +114,14 @@ function App() {
                             <Route path="/challenge" element={<Challenges />}></Route>
                             <Route path="/division" element={<Divisions />}></Route>
                             <Route path="/member" element={<Members />}></Route>
+                            <Route path="/leaderboard" element={<Leaderboard />}></Route>
                         </Routes>
                         <footer>
-                            <hr style={{ marginTop: "20px" }} />
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
+                                <Typography variant="body2" sx={{ flexGrow: 1, fontFamily: "Orbitron" }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                 </Typography>
-                                <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end' }}>
+                                <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', fontFamily: "Orbitron" }}>
                                     <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">CHub</a>&nbsp;&nbsp;
                                     <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">Wiki</a>&nbsp;&nbsp;
                                     <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">Discord</a>&nbsp;&nbsp;

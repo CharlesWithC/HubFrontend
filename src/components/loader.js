@@ -97,10 +97,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     vars.perms = memberPerms;
                 }
                 if (memberRanks) {
-                    let ranks = memberRanks;
-                    for (let i = 0; i < ranks.length; i++) {
-                        vars.ranks[ranks[i].points] = ranks[i];
-                    }
+                    vars.ranks = memberRanks;
                 }
                 if (announcementTypes) {
                     vars.announcementTypes = announcementTypes;
