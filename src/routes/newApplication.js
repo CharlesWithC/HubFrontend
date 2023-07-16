@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Grid, Card, Typography, TextField, Select, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox } from '@mui/material';
+import { Grid, Card, CardContent, Typography, TextField, Select, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox } from '@mui/material';
 
 var vars = require("../variables");
 
@@ -34,6 +34,10 @@ var vars = require("../variables");
 //         "choices": ["English", "Spanish", "French"]
 //     },
 //     {
+//         "type": "position",
+//         "label": "What position are you applying for?" // this syncs to /applications/positions
+//     },
+//     {
 //         "type": "radio",
 //         "label": "Gender",
 //         "choices": ["Male", "Female", "Other"]
@@ -58,11 +62,21 @@ const CustomForm = ({ config, formData, setFormData }) => {
             else if (config[i].type === "datetime") {
                 defaultResp[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
             } else if (config[i].type === "checkbox") {
-                defaultResp[config[i].label] = [];
+                if (config[i].choices !== undefined) {
+                    defaultResp[config[i].label] = [];
+                } else {
+                    defaultResp[config[i].label] = "No";
+                }
+            } else if (config[i].type === "position") {
+                config[i].type = "dropdown";
+                config[i].choices = vars.applicationPositions;
             }
         }
     }
-    formData = defaultResp;
+    if (formData === null) {
+        setFormData(defaultResp);
+        formData = defaultResp;
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -73,11 +87,25 @@ const CustomForm = ({ config, formData, setFormData }) => {
     };
 
     const handleCheckboxChange = (choice, fieldLabel) => {
-        const updated = formData[fieldLabel];
+        let updated = formData[fieldLabel];
         if (updated.includes(choice)) {
             updated.splice(updated.indexOf(choice), 1);
         } else {
             updated.push(choice);
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            [fieldLabel]: updated
+        }));
+    };
+
+    const handleCheckboxYNChange = (fieldLabel) => {
+        let updated = formData[fieldLabel];
+        if (updated === "Yes") {
+            updated = "No";
+        } else {
+            updated = "Yes";
         }
 
         setFormData(prev => ({
@@ -109,6 +137,7 @@ const CustomForm = ({ config, formData, setFormData }) => {
                                     value={formData[field.label]}
                                     onChange={handleChange}
                                     placeholder={field.placeholder}
+                                    sx={{ width: "100%" }}
                                 />
                             );
                             break;
@@ -124,6 +153,7 @@ const CustomForm = ({ config, formData, setFormData }) => {
                                     onChange={handleChange}
                                     rows={field.rows}
                                     placeholder={field.placeholder}
+                                    sx={{ width: "100%" }}
                                 />
                             );
                             break;
@@ -137,6 +167,7 @@ const CustomForm = ({ config, formData, setFormData }) => {
                                     value={formData[field.label]}
                                     onChange={handleChange}
                                     type="number"
+                                    sx={{ width: "100%" }}
                                 />
                             );
                             break;
@@ -210,24 +241,42 @@ const CustomForm = ({ config, formData, setFormData }) => {
                             break;
 
                         case 'checkbox':
-                            ret = (
-                                <FormControl component="fieldset">
-                                    <FormLabel component="legend">{field.label}</FormLabel>
-                                    {field.choices.map(choice => (
+                            if (field.choices !== undefined) {
+                                ret = (
+                                    <FormControl component="fieldset">
+                                        <FormLabel component="legend">{field.label}</FormLabel>
+                                        {field.choices.map(choice => (
+                                            <FormControlLabel
+                                                key={choice}
+                                                control={
+                                                    <Checkbox
+                                                        name={field.label}
+                                                        checked={formData[field.label].includes(choice)}
+                                                        onChange={() => handleCheckboxChange(choice, field.label)}
+                                                    />
+                                                }
+                                                label={choice}
+                                            />
+                                        ))}
+                                    </FormControl>
+                                );
+                            } else {
+                                ret = (
+                                    <FormControl component="fieldset">
                                         <FormControlLabel
-                                            key={choice}
+                                            key={field.label}
                                             control={
                                                 <Checkbox
                                                     name={field.label}
-                                                    checked={formData[field.label].includes(choice)}
-                                                    onChange={() => handleCheckboxChange(choice, field.label)}
+                                                    checked={formData[field.label] === "Yes"}
+                                                    onChange={() => handleCheckboxYNChange(field.label)}
                                                 />
                                             }
-                                            label={choice}
+                                            label={field.label}
                                         />
-                                    ))}
-                                </FormControl>
-                            );
+                                    </FormControl>
+                                );
+                            }
                             break;
 
                         default:
@@ -244,24 +293,28 @@ const NewApplication = () => {
     const [selectedType, setSelectedType] = useState(null);
     const listTypes = Object.values(vars.applicationTypes);
 
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState(null);
 
     return <Card sx={{ padding: "20px" }}>
-        <FormControl component="fieldset">
-            <FormLabel component="legend">Application Type</FormLabel>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                New Application
+            </Typography>
             <Select
                 key="Application Type"
                 name="Application Type"
                 value={selectedType}
-                onChange={(e) => { setSelectedType(e.target.value); }}
+                onChange={(e) => { setSelectedType(e.target.value); setFormData(null); }}
                 sx={{ marginTop: "6px", height: "30px" }}
             >
                 {listTypes.map(type => (
                     <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
                 ))}
             </Select>
-        </FormControl>
-        <CustomForm config={selectedType !== null ? vars.applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} />
+        </div>
+        <CardContent>
+            <CustomForm config={selectedType !== null ? vars.applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} />
+        </CardContent>
     </Card>;
 };
 
