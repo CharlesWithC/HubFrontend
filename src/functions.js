@@ -254,7 +254,7 @@ export function sortDictWithValue(dict) {
 }
 
 export function getRankName(points) {
-    if (points < vars.ranks[0].points) return "N/A";
+    if (isNaN(Number(points)) || points < vars.ranks[0].points) return "N/A";
     for (let i = 0; i < vars.ranks.length - 1; i++) {
         if (points > vars.ranks[i].points && points < vars.ranks[i + 1].points) {
             return vars.ranks[i].name;

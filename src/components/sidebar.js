@@ -127,6 +127,11 @@ const SideBar = (props) => {
             setSelectedIndex(routeIndex["/" + window.location.pathname.split("/")[1]]);
         }
     }
+    if (Object.keys(routeIndex).includes("/" + window.location.pathname.split("/")[1] + "/" + window.location.pathname.split("/")[2])) {
+        if (selectedIndex !== routeIndex["/" + window.location.pathname.split("/")[1] + "/" + window.location.pathname.split("/")[2]]) {
+            setSelectedIndex(routeIndex["/" + window.location.pathname.split("/")[1] + "/" + window.location.pathname.split("/")[2]]);
+        }
+    }
 
     const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
         {menu.map((subMenu, subIndex) => (

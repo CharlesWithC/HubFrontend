@@ -25,6 +25,7 @@ import Divisions from './routes/divisions';
 import Members from './routes/members';
 import Leaderboard from './routes/leaderboard';
 import Ranking from './routes/ranking';
+import NewApplication from './routes/newApplication';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -105,6 +106,7 @@ function App() {
                             <Route path="/steam-redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
                             <Route path="/mfa" element={<MfaAuth />} />
                             <Route exact path="/" element={<Overview />}></Route>
+                            <Route path="/overview" element={<Overview />}></Route>
                             <Route path="/upgrade" element={<UpgradeCard />}></Route>
                             <Route path="/announcement" element={<Announcement />}></Route>
                             <Route path="/downloads" element={<Downloads />}></Route>
@@ -117,8 +119,10 @@ function App() {
                             <Route path="/member" element={<Members />}></Route>
                             <Route path="/leaderboard" element={<Leaderboard />}></Route>
                             <Route path="/ranking" element={<Ranking />}></Route>
+                            <Route path="/application/new" element={<NewApplication />}></Route>
+                            <Route path="/apply" element={<NewApplication />}></Route>
                         </Routes>
-                        <footer>
+                        <footer style={{ display: ["/auth", "/discord-auth", "/discord-redirect", "/steam-auth", "/steam-redirect", "/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontFamily: "Orbitron" }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
