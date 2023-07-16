@@ -1,5 +1,8 @@
-import { useState } from 'react';
-import { Grid, Card, CardContent, Typography, TextField, Select, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox } from '@mui/material';
+import { useState, useCallback } from 'react';
+import { Grid, Card, CardContent, Typography, TextField, Select, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert } from '@mui/material';
+import { Portal } from '@mui/base';
+
+import { customAxios as axios, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -50,7 +53,7 @@ var vars = require("../variables");
 // ];
 
 const CustomForm = ({ config, formData, setFormData }) => {
-    if (config === undefined) return <></>;
+    if (config === undefined) return <Typography>Please select an application type in the dropdown on the top-right corner</Typography>;
 
     let defaultResp = {};
     for (let i = 0; i < config.length; i++) {
@@ -292,8 +295,45 @@ const CustomForm = ({ config, formData, setFormData }) => {
 const NewApplication = () => {
     const [selectedType, setSelectedType] = useState(null);
     const listTypes = Object.values(vars.applicationTypes);
+    const [enableNotifications, setEnableNotifications] = useState(true);
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const [formData, setFormData] = useState(null);
+
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
+    const handleSubmit = useCallback(async () => {
+        setSubmitLoading(true);
+
+        let modFormData = formData;
+        let keys = Object.keys(modFormData);
+        for (let i = 0; i < keys.length; i++) {
+            if (modFormData[keys[i]] instanceof Array) {
+                modFormData[keys[i]] = modFormData[keys[i]].join(", ");
+            }
+        }
+
+        if (enableNotifications) {
+            await axios({ url: `${vars.dhpath}/user/notification/settings/discord/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }});
+            await axios({ url: `${vars.dhpath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }});
+        }
+
+        let resp = await axios({ url: `${vars.dhpath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "application_type": selectedType, "application": modFormData } });
+        if (resp.status === 200) {
+            setSnackbarContent("Application submitted!");
+            setSnackbarSeverity("success");
+            setFormData(null);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setSubmitLoading(false);
+    });
 
     return <Card sx={{ padding: "20px" }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -314,7 +354,40 @@ const NewApplication = () => {
         </div>
         <CardContent>
             <CustomForm config={selectedType !== null ? vars.applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} />
+            {(selectedType !== null ? vars.applicationTypes[selectedType].form : undefined !== undefined) &&
+                <Box sx={{ display: 'grid', justifyItems: 'end' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <FormControl component="fieldset">
+                            <FormControlLabel
+                                key="enable-notifications"
+                                control={
+                                    <Checkbox
+                                        name="Enable notifications?"
+                                        checked={enableNotifications}
+                                        onChange={() => setEnableNotifications(!enableNotifications)}
+                                    />
+                                }
+                                label="Enable notifications?"
+                            />
+                        </FormControl>
+                        <Button onClick={handleSubmit} variant="contained" color="info" disabled={submitLoading}>
+                            Submit
+                        </Button>
+                    </div>
+                </Box>}
         </CardContent>
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </Card>;
 };
 
