@@ -333,7 +333,7 @@ const NewApplication = () => {
         }
 
         setSubmitLoading(false);
-    });
+    }, []);
 
     return <Card sx={{ padding: "20px" }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -354,7 +354,7 @@ const NewApplication = () => {
         </div>
         <CardContent>
             <CustomForm config={selectedType !== null ? vars.applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} />
-            {(selectedType !== null ? vars.applicationTypes[selectedType].form : undefined !== undefined) &&
+            {((selectedType !== null ? vars.applicationTypes[selectedType].form : undefined) !== undefined) &&
                 <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                         <FormControl component="fieldset">

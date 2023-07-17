@@ -58,7 +58,7 @@ const Ranking = () => {
     }, []);
 
     return <>
-        {userPoints !== null && <Grid container spacing={2}>
+        {userPoints !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Card>
                     <CardContent>
@@ -135,7 +135,6 @@ const Ranking = () => {
                 </Card>
             </Grid >
         </Grid >}
-        <br />
         <Grid container spacing={2}>
             {vars.ranks.map((rank) => (
                 <Grid item xs={12} sm={12} md={4} lg={4}>
