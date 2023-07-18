@@ -1,12 +1,13 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 
-import { Card, CardContent, Typography, Grid, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, useTheme } from '@mui/material';
+import { Portal } from '@mui/base';
 
 import CustomTable from '../components/table';
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 
-import { makeRequestsAuto } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -28,7 +29,7 @@ const ApplicationTable = memo(({ showDetail }) => {
     const [pageSize, setPageSize] = useState(10);
 
     const theme = useTheme();
-    const STATUS = { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> };
+    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
 
     useEffect(() => {
         async function doLoad() {
@@ -58,7 +59,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type].name, submit: <TimeAgo timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo timestamp={app.update_timestamp * 1000} />, staff: <UserCard user={app.last_update_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type].name, submit: <TimeAgo timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             setApplications(newApplications);
@@ -68,7 +69,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize]);
+    }, [page, pageSize, STATUS]);
 
     function handleClick(data) {
         showDetail(data.application);
@@ -86,7 +87,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                             {STATUS[recent[0].status]}
                         </Typography>
                         <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                            Last Updated: <TimeAgo timestamp={recent[0].update_timestamp * 1000} />
+                            Last Responded: <TimeAgo timestamp={recent[0].respond_timestamp * 1000} />
                         </Typography>
                     </CardContent>
                 </Card>
@@ -102,7 +103,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                                 {STATUS[recent[1].status]}
                             </Typography>
                             <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                                Last Updated: <TimeAgo timestamp={recent[1].update_timestamp * 1000} />
+                                Last Responded: <TimeAgo timestamp={recent[1].respond_timestamp * 1000} />
                             </Typography>
                         </CardContent>
                     </Card>
@@ -114,7 +115,92 @@ const ApplicationTable = memo(({ showDetail }) => {
 });
 
 const MyApplication = () => {
-    return <ApplicationTable></ApplicationTable>;
+    const [detailApp, setDetailApp] = useState(null);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [message, setMessage] = useState("");
+    const [submitLoading, setSubmitLoading] = useState(false);
+
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
+    const showDetail = useCallback(async (application) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        setMessage("");
+
+        let resp = await axios({ url: `${vars.dhpath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setDetailApp(resp.data);
+            setDialogOpen(true);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, []);
+
+    const addMessage = useCallback(async () => {
+        setSubmitLoading(true);
+        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/message`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "message": message } });
+        if (resp.status === 204) {
+            setSnackbarContent("Message added!");
+            setSnackbarSeverity("success");
+            showDetail(detailApp);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setSubmitLoading(false);
+    }, [detailApp, message, showDetail]);
+
+    return <>
+        <ApplicationTable showDetail={showDetail}></ApplicationTable>
+        {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
+            <DialogTitle>Application</DialogTitle>
+            <DialogContent sx={{ minWidth: "400px" }}>
+                {Object.entries(detailApp.application).map(([question, answer]) => (
+                    <>
+                        <Typography variant="body" sx={{ marginBottom: "5px" }}>
+                            <b>{question}</b>
+                        </Typography>
+                        <Typography variant="body2" sx={{ marginBottom: "15px" }}>
+                            {answer}
+                        </Typography>
+                    </>
+                ))}
+                <div style={{ display: detailApp.status !== 0 ? "none" : "block" }}>
+                    <hr />
+                    <TextField
+                        label="Add Message"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        fullWidth
+                    />
+                </div>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>Close</Button>
+                <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>Respond</Button>
+            </DialogActions>
+        </Dialog>}
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal></>;
 };
 
 export default MyApplication;
