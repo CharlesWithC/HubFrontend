@@ -333,7 +333,7 @@ const NewApplication = () => {
         }
 
         setSubmitLoading(false);
-    }, []);
+    }, [enableNotifications, formData, selectedType]);
 
     return <Card sx={{ padding: "20px" }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>

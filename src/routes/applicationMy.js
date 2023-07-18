@@ -36,7 +36,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let [_latestPending, _applications] = [{}, {}];
+            let [_recent, _applications] = [{}, {}];
 
             let myPage = page;
             if (myPage === -1) {
@@ -46,11 +46,11 @@ const ApplicationTable = memo(({ showDetail }) => {
             }
 
             if (page === -1) {
-                [_latestPending, _applications] = await makeRequestsAuto([
+                [_recent, _applications] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/applications/list?page=1&page_size=2&order_by=submit_timestamp&order=desc`, auth: true },
                     { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&order_by=submit_timestamp&order=desc`, auth: true },
                 ]);
-                setRecent(_latestPending.list);
+                setRecent(_recent.list);
             } else {
                 [_applications] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&order_by=submit_timestamp&order=desc`, auth: true },
@@ -76,7 +76,7 @@ const ApplicationTable = memo(({ showDetail }) => {
     }
 
     return <>
-        {recent.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "30px" }}>
+        {recent.length !== 0 && <Grid container spacing={2} style={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={recent.length === 2 ? 6 : 12} lg={recent.length === 2 ? 6 : 12}>
                 <Card>
                     <CardContent>
@@ -180,6 +180,8 @@ const MyApplication = () => {
                         label="Add Message"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
+                        multiline
+                        rows="5"
                         fullWidth
                     />
                 </div>

@@ -25,8 +25,9 @@ import Divisions from './routes/divisions';
 import Members from './routes/members';
 import Leaderboard from './routes/leaderboard';
 import Ranking from './routes/ranking';
-import NewApplication from './routes/newApplication';
-import MyApplication from './routes/myApplication';
+import NewApplication from './routes/applicationNew';
+import MyApplication from './routes/applicationMy';
+import AllApplication from './routes/applicationAll';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -123,6 +124,7 @@ function App() {
                             <Route path="/application/new" element={<NewApplication />}></Route>
                             <Route path="/apply" element={<NewApplication />}></Route>
                             <Route path="/application/my" element={<MyApplication />}></Route>
+                            <Route path="/application/all" element={<AllApplication />}></Route>
                         </Routes>
                         <footer style={{ display: ["/auth", "/discord-auth", "/discord-redirect", "/steam-auth", "/steam-redirect", "/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
