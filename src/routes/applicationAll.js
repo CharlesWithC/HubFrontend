@@ -21,7 +21,7 @@ const columns = [
     { id: 'status', label: 'Status' }
 ];
 
-const ApplicationTable = memo(({ showDetail }) => {
+const ApplicationTable = memo(({ showDetail, doReload }) => {
     const [stats, setStats] = useState([]);
     const [applications, setApplications] = useState([]);
 
@@ -64,7 +64,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type].name, submit: <TimeAgo timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo timestamp={app.respond_timestamp * 1000} />, user: <UserCard user={app.creator} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? "Unknown", submit: <TimeAgo timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo timestamp={app.respond_timestamp * 1000} />, user: <UserCard user={app.creator} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             setApplications(newApplications);
@@ -74,7 +74,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize, STATUS]);
+    }, [page, pageSize, STATUS, doReload]);
 
     function handleClick(data) {
         showDetail(data.application);
@@ -120,9 +120,11 @@ const ApplicationTable = memo(({ showDetail }) => {
 const AllApplication = () => {
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogDelete, setDialogDelete] = useState(false);
     const [newStatus, setNewStatus] = useState(0);
     const [message, setMessage] = useState("");
     const [submitLoading, setSubmitLoading] = useState(false);
+    const [doReload, setDoReload] = useState(0);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -155,6 +157,7 @@ const AllApplication = () => {
         if (resp.status === 204) {
             setSnackbarContent("Status updated!");
             setSnackbarSeverity("success");
+            setDoReload(+new Date());
             showDetail(detailApp);
         } else {
             setSnackbarContent(resp.data.error);
@@ -163,8 +166,24 @@ const AllApplication = () => {
         setSubmitLoading(false);
     }, [detailApp, newStatus, message, showDetail]);
 
+    const deleteApp = useCallback(async () => {
+        setSubmitLoading(true);
+        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Application deleted!");
+            setSnackbarSeverity("success");
+            setDoReload(+new Date());
+            setDialogOpen(false);
+            setDialogDelete(false);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setSubmitLoading(false);
+    }, [detailApp]);
+
     return <>
-        <ApplicationTable showDetail={showDetail}></ApplicationTable>
+        <ApplicationTable showDetail={showDetail} doReload={doReload}></ApplicationTable>
         {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
             <DialogTitle>Application</DialogTitle>
             <DialogContent sx={{ minWidth: "400px" }}>
@@ -206,8 +225,9 @@ const AllApplication = () => {
             </DialogContent>
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogOpen(false); }}>Close</Button>
+                <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>Delete</Button>
                 <FormControl component="fieldset">
-                    <Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ height: "40px" }}>
+                    <Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }}>
                         <MenuItem key="0" value="0">
                             Pending
                         </MenuItem>
@@ -222,6 +242,16 @@ const AllApplication = () => {
                 <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >Respond</Button>
             </DialogActions>
         </Dialog>}
+        <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
+            <DialogTitle>Delete Application</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this application?</Typography>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
+                <Button variant="contained" color="error" onClick={() => { deleteApp(); }} disabled={submitLoading}>Delete</Button>
+            </DialogActions>
+        </Dialog>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
