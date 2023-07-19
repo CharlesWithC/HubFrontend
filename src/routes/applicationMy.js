@@ -169,7 +169,7 @@ const MyApplication = () => {
                         <Typography variant="body" sx={{ marginBottom: "5px" }}>
                             <b>{question}</b>
                         </Typography>
-                        <Typography variant="body2" sx={{ marginBottom: "15px" }}>
+                        <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
                             {answer}
                         </Typography>
                     </>

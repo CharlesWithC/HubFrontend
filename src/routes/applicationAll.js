@@ -46,7 +46,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                 myPage += 1;
             }
 
-            if (page === -1) {
+            if (page === -1 || +new Date() - doReload <= 1000) {
                 [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=0`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=1`, auth: true },
@@ -208,7 +208,7 @@ const AllApplication = () => {
                         <Typography variant="body" sx={{ marginBottom: "5px" }}>
                             <b>{question}</b>
                         </Typography>
-                        <Typography variant="body2" sx={{ marginBottom: "15px" }}>
+                        <Typography variant="body2" sx={{ marginBottom: "15px", wordWrap: "break-word" }}>
                             {answer}
                         </Typography>
                     </>
