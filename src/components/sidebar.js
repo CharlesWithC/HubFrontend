@@ -113,11 +113,11 @@ const SideBar = (props) => {
         }
     }
 
-    // not yet completed
-    toRemove.push("pending_user");
-    toRemove.push("audit_log");
-    toRemove.push("configuration");
-    // remove above after completed
+    if (vars.specialRoles[vars.userInfo.discordid] === "#9a63c2") {
+        toRemove.push("pending_user");
+        toRemove.push("audit_log");
+        toRemove.push("configuration");
+    }
 
     menu = menu.map(subMenu => subMenu.filter(item => (!allPlugins.includes(item)) || (plugins.includes(item) && allPlugins.includes(item))));
     menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));

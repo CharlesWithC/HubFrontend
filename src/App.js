@@ -126,7 +126,7 @@ function App() {
                             <Route path="/beta/application/my" element={<MyApplication />}></Route>
                             <Route path="/beta/application/all" element={<AllApplication />}></Route>
                         </Routes>
-                        <footer style={{ display: ["/auth", "/discord-auth", "/discord-redirect", "/steam-auth", "/steam-redirect", "/mfa"].includes(location.pathname) ? "none" : "block" }}>
+                        <footer style={{ display: ["/beta/auth", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontFamily: "Orbitron" }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>

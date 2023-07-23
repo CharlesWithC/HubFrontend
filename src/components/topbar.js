@@ -111,7 +111,32 @@ const TopBar = (props) => {
         window.dispatchEvent(reloadSideBar);
     }
 
-    const loggedInBtns = (<Menu
+    let loggedInBtns = (<Menu
+        anchorEl={anchorEl}
+        anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+        }}
+        id='topbar-dropdown-menu'
+        keepMounted
+        transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+        }}
+        open={isMenuOpen}
+        onClose={handleMenuClose}
+        sx={{ top: "50px" }}
+    >
+        <MenuItem><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
+        <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
+        <Divider />
+        <Link to="/upgrade"><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
+        <Divider />
+        <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
+    </Menu>);
+
+    if (vars.specialRoles[vars.userInfo.discordid] === "#9a63c2") {
+        loggedInBtns = (<Menu
         anchorEl={anchorEl}
         anchorOrigin={{
             vertical: 'top',
@@ -130,10 +155,9 @@ const TopBar = (props) => {
         <MenuItem disabled><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
         <MenuItem disabled><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
         <Divider />
-        <Link><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }} disabled><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
-        <Divider />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
+    }
 
     const notLoggedInBtns = (<Menu
         anchorEl={anchorEl}
