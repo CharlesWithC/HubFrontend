@@ -127,10 +127,10 @@ const TopBar = (props) => {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        <MenuItem><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-        <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
+        <MenuItem disabled><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
+        <MenuItem disabled><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
         <Divider />
-        <Link to="/upgrade"><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
+        <Link><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }} disabled><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
         <Divider />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
@@ -151,8 +151,8 @@ const TopBar = (props) => {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        <MenuItem><Link to="/discord-redirect" >Discord</Link></MenuItem>
-        <MenuItem><Link to="/steam-redirect">Steam</Link></MenuItem>
+        <MenuItem><Link to="/beta/discord-redirect" >Discord</Link></MenuItem>
+        <MenuItem><Link to="/beta/steam-redirect">Steam</Link></MenuItem>
     </Menu>);
 
     return (

@@ -33,11 +33,13 @@ customAxios.interceptors.response.use(
 export { customAxios };
 
 export function setAuthToken(token) {
-    localStorage.setItem("token", atob(token.replaceAll("-", "z"), 'utf8'));
+    // localStorage.setItem("token", atob(token.replaceAll("-", "z"), 'utf8'));
+    localStorage.setItem("token", token);
 }
 
 export function getAuthToken() {
-    return btoa(localStorage.getItem("token"), "utf8").replaceAll("z", "-");
+    // return btoa(localStorage.getItem("token"), "utf8").replaceAll("z", "-");
+    return localStorage.getItem("token");
 };
 
 export const makeRequests = async (urls) => {

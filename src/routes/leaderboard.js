@@ -12,12 +12,12 @@ var vars = require("../variables");
 const LargeUserCard = ({ user, color }) => {
     return (
         <Card sx={{ minWidth: 150 }}>
-            <Link to={`/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}>
+            <Link to={`'/beta/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}>
                 <Avatar src={user.avatar} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             </Link>
             <CardContent>
                 <Typography variant="h6" align="center">
-                    <Link to={`/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}>{user.name}</Link>
+                    <Link to={`'/beta/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}>{user.name}</Link>
                 </Typography>
             </CardContent>
         </Card>

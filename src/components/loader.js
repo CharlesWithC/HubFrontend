@@ -76,7 +76,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
                 const [specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequests(urlsBatch);
                 if (specialRoles) {
-                    const SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "support_team": "#b12773", "marketing_team": "#e28843", "graphic_team": "#11b17f", "translation_team": "#49a4af", "community_legend": "#b2db80", "patron": "#DAA520", "server_booster": "#DAA520" };
+                    const SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "support_team": "#b12773", "marketing_team": "#e28843", "graphic_team": "#11b17f", "translation_team": "#49a4af", "community_legend": "#b2db80", "patron": "#DAA520", "server_booster": "#DAA520", "fv3ea": "#9a63c2" };
                     let keys = Object.keys(specialRoles);
                     for (let i = 0; i < keys.length; i++) {
                         for (let j = 0; j < specialRoles[keys[i]].length; j++) {
@@ -117,6 +117,17 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
 
                 await FetchProfile();
+                
+                if (!vars.isLoggedIn) {
+                    setLoaderAnimation(false);
+                    setLoadMessage("You must login from alpha web client first!");
+                    return;
+                }
+                if(!["#9a63c2", "#2fc1f7", "#e488b9", "#e75757", "#f6529a", "#ecb484"].includes(vars.specialRoles[vars.userInfo.discordid])){
+                    setLoaderAnimation(false);
+                    setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
+                    return;
+                }
 
                 onLoaderLoaded();
             } catch (error) {

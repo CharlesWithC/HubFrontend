@@ -112,6 +112,13 @@ const SideBar = (props) => {
             }
         }
     }
+
+    // not yet completed
+    toRemove.push("pending_user");
+    toRemove.push("audit_log");
+    toRemove.push("configuration");
+    // remove above after completed
+
     menu = menu.map(subMenu => subMenu.filter(item => (!allPlugins.includes(item)) || (plugins.includes(item) && allPlugins.includes(item))));
     menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
     menu = menu.filter(subMenu => subMenu.length > 0);
@@ -138,7 +145,7 @@ const SideBar = (props) => {
             <div key={`navlist-${subMenu}-${subIndex}`}>
                 <List sx={{ margin: "0px 10px 0 10px" }}>
                     {subMenu.map((menuID, btnIndex) => (
-                        <Link key={`navlink-${menuID}-${btnIndex}`} to={menuRoute[menuID]}>
+                        <Link key={`navlink-${menuID}-${btnIndex}`} to={`/beta${menuRoute[menuID]}`}>
                             <ListItem key={`navbtn-${menuID}-${btnIndex}`} disablePadding>
                                 <ListItemButton selected={selectedIndex === subIndex * 10 + btnIndex}
                                     onClick={(event) => handleListItemClick(event, subIndex * 10 + btnIndex)}>
@@ -186,7 +193,7 @@ const SideBar = (props) => {
             >
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
-                        <Link to="/"><ListItem key={`navbtn-banner`} disablePadding>
+                        <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
                             <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" ref={bannerRef} />
                         </ListItem></Link>
                     </List>
@@ -206,7 +213,7 @@ const SideBar = (props) => {
             >
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
-                        <Link to="/"><ListItem key={`navbtn-banner`} disablePadding>
+                        <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
                             <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" ref={bannerRef} />
                         </ListItem></Link>
                     </List>

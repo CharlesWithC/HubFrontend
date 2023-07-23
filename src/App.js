@@ -101,30 +101,30 @@ function App() {
                     || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
                     <SimpleBar style={{ padding: "20px", height: "100%" }} >
                         <Routes>
-                            <Route path="/auth" element={<TokenAuth />} />
-                            <Route path="/discord-auth" element={<DiscordAuth />} />
-                            <Route path="/discord-redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fdiscord-auth&response_type=code&scope=identify email role_connections.write`} />} />
-                            <Route path="/steam-auth" element={<SteamAuth />} />
-                            <Route path="/steam-redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
-                            <Route path="/mfa" element={<MfaAuth />} />
-                            <Route exact path="/" element={<Overview />}></Route>
-                            <Route path="/overview" element={<Overview />}></Route>
-                            <Route path="/upgrade" element={<UpgradeCard />}></Route>
-                            <Route path="/announcement" element={<Announcement />}></Route>
-                            <Route path="/downloads" element={<Downloads />}></Route>
-                            <Route path="/map" element={<Map />}></Route>
-                            <Route path="/delivery" element={<Deliveries />}></Route>
-                            <Route path="/delivery/:logid" element={<Delivery />} />
-                            <Route path="/event" element={<Events />}></Route>
-                            <Route path="/challenge" element={<Challenges />}></Route>
-                            <Route path="/division" element={<Divisions />}></Route>
-                            <Route path="/member" element={<Members />}></Route>
-                            <Route path="/leaderboard" element={<Leaderboard />}></Route>
-                            <Route path="/ranking" element={<Ranking />}></Route>
-                            <Route path="/application/new" element={<NewApplication />}></Route>
-                            <Route path="/apply" element={<NewApplication />}></Route>
-                            <Route path="/application/my" element={<MyApplication />}></Route>
-                            <Route path="/application/all" element={<AllApplication />}></Route>
+                            <Route path="/beta/auth" element={<TokenAuth />} />
+                            <Route path="/beta/discord-auth" element={<DiscordAuth />} />
+                            <Route path="/beta/discord-redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fdiscord-auth&response_type=code&scope=identify email role_connections.write`} />} />
+                            <Route path="/beta/steam-auth" element={<SteamAuth />} />
+                            <Route path="/beta/steam-redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fsteam-auth%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
+                            <Route path="/beta/mfa" element={<MfaAuth />} />
+                            <Route path="/beta/" exact element={<Overview />}></Route>
+                            <Route path="/beta/overview" element={<Overview />}></Route>
+                            <Route path="/beta/upgrade" element={<UpgradeCard />}></Route>
+                            <Route path="/beta/announcement" element={<Announcement />}></Route>
+                            <Route path="/beta/downloads" element={<Downloads />}></Route>
+                            <Route path="/beta/map" element={<Map />}></Route>
+                            <Route path="/beta/delivery" element={<Deliveries />}></Route>
+                            <Route path="/beta/delivery/:logid" element={<Delivery />} />
+                            <Route path="/beta/event" element={<Events />}></Route>
+                            <Route path="/beta/challenge" element={<Challenges />}></Route>
+                            <Route path="/beta/division" element={<Divisions />}></Route>
+                            <Route path="/beta/member" element={<Members />}></Route>
+                            <Route path="/beta/leaderboard" element={<Leaderboard />}></Route>
+                            <Route path="/beta/ranking" element={<Ranking />}></Route>
+                            <Route path="/beta/application/new" element={<NewApplication />}></Route>
+                            <Route path="/beta/apply" element={<NewApplication />}></Route>
+                            <Route path="/beta/application/my" element={<MyApplication />}></Route>
+                            <Route path="/beta/application/all" element={<AllApplication />}></Route>
                         </Routes>
                         <footer style={{ display: ["/auth", "/discord-auth", "/discord-redirect", "/steam-auth", "/steam-redirect", "/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
