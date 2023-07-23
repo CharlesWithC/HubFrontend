@@ -6,9 +6,9 @@ import { FetchProfile, loadImageAsBase64, customAxios as axios } from '../functi
 
 var vars = require('../variables');
 
-var domain = localStorage.getItem("domain"); // use window.location.host
+var domain = localStorage.getItem("domain");
 if (domain === null) {
-    domain = "hub.atmvtc.com";
+    domain = window.location.host;
 }
 
 // TODO Consider returning the assets links in config.chub.page rather than directly using cdn.chub.page (static)
