@@ -97,7 +97,7 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
 
     return (
         <Card>
-            <CardMedia component="img" src={imageUrl} alt=" " />
+            {imageUrl !== undefined && <CardMedia component="img" src={imageUrl} alt=" " />}
             <CardContent>
                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                     <Typography variant="h6" gutterBottom sx={{ flexGrow: 1 }}>

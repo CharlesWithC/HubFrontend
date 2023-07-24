@@ -92,18 +92,20 @@ export async function FetchProfile() {
         if (resp.status === 200) {
             vars.isLoggedIn = true;
             vars.userInfo = resp.data;
-            const userRoles = vars.userInfo.roles.sort();
-            var roleOnDisplay = "";
-            for (let i = 0; i < userRoles.length; i++) {
-                if (Object.keys(vars.roles).includes(String(userRoles[i]))) {
-                    roleOnDisplay = vars.roles[userRoles[i]].name;
+
+            let roles = Object.values(vars.roles);
+            roles.sort((a, b) => a.order_id - b.order_id);
+            let roleOnDisplay = "";
+            for (let i = 0; i < roles.length; i++) {
+                if (vars.userInfo.roles.includes(roles[i].id)) {
+                    roleOnDisplay = roles[i].name;
                     break;
                 }
             }
             const allPerms = Object.keys(vars.perms);
-            for (let i = 0; i < userRoles.length; i++) {
+            for (let i = 0; i < vars.userInfo.roles.length; i++) {
                 for (let j = 0; j < allPerms.length; j++) {
-                    if (vars.perms[allPerms[j]].includes(userRoles[i])) {
+                    if (vars.perms[allPerms[j]].includes(vars.userInfo.roles[i])) {
                         vars.userPerm.push(allPerms[j]);
                         break;
                     }

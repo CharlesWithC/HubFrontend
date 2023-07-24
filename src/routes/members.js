@@ -20,6 +20,9 @@ const LargeUserCard = ({ user }) => {
 };
 
 const Members = () => {
+    if (vars.membersTabCache !== undefined) {
+        return vars.membersTabCache;
+    }
     let members = vars.members;
     let roles = Object.values(vars.roles);
     roles.sort((a, b) => a.order_id - b.order_id);
@@ -37,7 +40,7 @@ const Members = () => {
         }
     }
 
-    return (<div style={{ width: "100%" }}>
+    vars.membersTabCache = (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
             <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : "No description"}
                 PopperProps={{
@@ -67,6 +70,7 @@ const Members = () => {
         ))
         }
     </div >);
+    return vars.membersTabCache;
 };
 
-export default Members;;
+export default Members;
