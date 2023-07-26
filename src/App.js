@@ -1,10 +1,10 @@
 import './App.css';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import { useLocation, Routes, Route } from 'react-router-dom';
-import { Typography } from '@mui/material';
+import { Card, CardContent, Typography, Button, Grid } from '@mui/material';
 
 import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
@@ -38,7 +38,21 @@ import SideBar from './components/sidebar';
 
 var vars = require('./variables');
 
+const drivershub = `    ____       _                         __  __      __
+   / __ \\_____(_)   _____  __________   / / / /_  __/ /_
+  / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\
+ / /_/ / /  / /| |/ /  __/ /  (__  )  / __  / /_/ / /_/ /
+/_____/_/  /_/ |___/\\___/_/  /____/  /_/ /_/\\__,_/_.___/
+                                                      `;
+
 function App() {
+    useEffect(() => {
+        console.log(drivershub);
+        console.log("Drivers Hub: Frontend");
+        console.log(`Copyright (C) ${new Date().getFullYear()} CharlesWithC All rights reserved.`);
+        console.log("This is the Early Access build. All functions are subject to change.");
+    }, []);
+
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const themeMode = vars.userSettings.theme === null ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
     const theme = useMemo(
@@ -79,6 +93,25 @@ function App() {
 
     const protocol = window.location.protocol.replace(":", "");
 
+    const [cookieSettings, setCookieSettings] = useState(localStorage.getItem("cookie-settings"));
+    const updateCookieSettings = useCallback((settings) => {
+        setCookieSettings(settings);
+        localStorage.setItem("cookie-settings", settings);
+    }, []);
+    useEffect(() => {
+        if (cookieSettings === "analytical") {
+            const script = document.createElement('script');
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN';
+            script.async = true;
+            document.head.appendChild(script);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { window.dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', 'G-SLZ5TY9MVN');
+        }
+    }, [cookieSettings]);
+
     if (vars.dhconfig == null) {
         return (
             <ThemeProvider theme={theme}>
@@ -99,6 +132,31 @@ function App() {
                 {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
                 <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })
                     || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
+                    {cookieSettings === null && <>
+                        <Card sx={{ position: "fixed", zIndex: 1000, bottom: "10px", right: "10px", width: "400px" }}>
+                            <CardContent>
+                                <Typography variant="h6">
+                                    We value your privacy
+                                </Typography>
+                                <Typography variant="body2" sx={{ marginBottom: "10px" }}>
+                                    We use necessary cookies for smooth functionality and rely on Google Analytics to anonymously track user interactions, helping us improve the site.<br />
+                                    By clicking "Accept", you consent to analytical cookie usage. Otherwise only essential cookies will be used.
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <Button onClick={() => { updateCookieSettings("analytical"); }} variant="contained" color="success" sx={{ width: "100%" }}>
+                                            Accept
+                                        </Button>
+                                    </Grid>
+                                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <Button onClick={() => { updateCookieSettings("essential"); }} variant="contained" color="secondary" sx={{ width: "100%" }}>
+                                            Decline
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </>}
                     <SimpleBar style={{ padding: "20px", height: "100%" }} >
                         <Routes>
                             <Route path="/beta/auth" element={<TokenAuth />} />
@@ -141,7 +199,7 @@ function App() {
                         </footer>
                     </SimpleBar>
                 </div>
-            </ThemeProvider>
+            </ThemeProvider >
         );
     }
 }
