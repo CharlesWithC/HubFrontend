@@ -43,7 +43,11 @@ const Loader = ({ onLoaderLoaded }) => {
                 vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
 
                 setTitle(vars.dhconfig.name);
-                vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
+                try {
+                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
+                } catch {
+                    vars.dhlogo = "";
+                }
                 setLogoSrc(vars.dhlogo);
                 setLoadMessage(`Loading`);
 
@@ -117,13 +121,13 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
 
                 await FetchProfile();
-                
+
                 if (!vars.isLoggedIn) {
                     setLoaderAnimation(false);
                     setLoadMessage("You must login from alpha web client first!");
                     return;
                 }
-                if(!["#9a63c2", "#2fc1f7", "#e488b9", "#e75757", "#f6529a", "#ecb484"].includes(vars.specialRoles[vars.userInfo.discordid])){
+                if (!["#9a63c2", "#2fc1f7", "#e488b9", "#e75757", "#f6529a", "#ecb484"].includes(vars.specialRoles[vars.userInfo.discordid])) {
                     setLoaderAnimation(false);
                     setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
                     return;
@@ -155,6 +159,6 @@ const Loader = ({ onLoaderLoaded }) => {
             </p>
         </div>
     );
-}
+};
 
 export default Loader;
