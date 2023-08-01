@@ -1,7 +1,7 @@
 import { useEffect, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle} from '@mui/material';
-import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, useTheme } from '@mui/material';
+import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
 
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
@@ -114,6 +114,8 @@ const DivisionsDlog = memo(({ doReload }) => {
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
 
+    const theme = useTheme();
+
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -130,7 +132,7 @@ const DivisionsDlog = memo(({ doReload }) => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                newDlogList.push({ logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
+                newDlogList.push({ logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main }} /></Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
             setDlogList(newDlogList);
@@ -140,7 +142,7 @@ const DivisionsDlog = memo(({ doReload }) => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize, doReload]);
+    }, [page, pageSize, doReload, theme]);
 
     const navigate = useNavigate();
     function handleClick(data) {

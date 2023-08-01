@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Typography, Grid } from '@mui/material';
-import { LocalShippingRounded, WidgetsRounded, PublicRounded } from '@mui/icons-material';
+import { Typography, Grid, Tooltip, useTheme } from '@mui/material';
+import { LocalShippingRounded, WidgetsRounded, PublicRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 import Podium from "../components/podium";
@@ -32,6 +32,8 @@ const Deliveries = () => {
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
 
+    const theme = useTheme();
+
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -61,7 +63,23 @@ const Deliveries = () => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                newDlogList.push({ logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
+                let divisionCheckmark = <></>;
+                if (dlogL.list[i].division.divisionid !== undefined) {
+                    divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
+                        PopperProps={{
+                            modifiers: [
+                                {
+                                    name: "offset",
+                                    options: {
+                                        offset: [0, -10],
+                                    },
+                                },
+                            ],
+                        }}>
+                        <VerifiedOutlined sx={{ color: theme.palette.info.main }} />
+                    </Tooltip>;
+                }
+                newDlogList.push({ logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
             setDlogList(newDlogList);
@@ -71,7 +89,7 @@ const Deliveries = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize]);
+    }, [page, pageSize, theme]);
 
     const navigate = useNavigate();
     function handleClick(data) {
