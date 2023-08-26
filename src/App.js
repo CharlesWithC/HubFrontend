@@ -29,6 +29,7 @@ import NewApplication from './routes/applicationNew';
 import MyApplication from './routes/applicationMy';
 import AllApplication from './routes/applicationAll';
 import PendingUser from './routes/pendingUser';
+import AuditLog from './routes/auditLog';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -185,6 +186,7 @@ function App() {
                             <Route path="/beta/application/my" element={<MyApplication />}></Route>
                             <Route path="/beta/application/all" element={<AllApplication />}></Route>
                             <Route path="/beta/pending-user" element={<PendingUser />}></Route>
+                            <Route path="/beta/audit-log" element={<AuditLog />}></Route>
                         </Routes>
                         <footer style={{ display: ["/beta/auth", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
