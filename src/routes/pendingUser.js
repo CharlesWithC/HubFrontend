@@ -1,16 +1,17 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Tooltip, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
 import { makeRequestsAuto } from '../functions';
+import UserCard from '../components/usercard';
 
 var vars = require("../variables");
 
 const puColumns = [
     { id: 'uid', label: 'UID' },
-    { id: 'name', label: 'Name' },
+    { id: 'user', label: 'User' },
     { id: 'discordid', label: 'Discord ID' },
     { id: 'steamid', label: 'Steam ID' },
     { id: 'truckersmpid', label: 'TruckersMP ID' },
@@ -45,7 +46,7 @@ const PendingUser = () => {
             let newUserList = [];
             for (let i = 0; i < _userList.list.length; i++) {
                 let user = _userList.list[i];
-                newUserList.push({ uid: user.uid, name: user.name, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo timestamp={user.join_timestamp * 1000} />, manage: 'Under Development' });
+                newUserList.push({ uid: user.uid, user: <UserCard user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo timestamp={user.join_timestamp * 1000} />, manage: 'Under Development' });
             }
 
             // Manage should be a dropdown like Fv2
@@ -66,7 +67,7 @@ const PendingUser = () => {
 
     return <>
         {userList.length !== 0 &&
-            <CustomTable name="Pending Users" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPagePU} onRowsPerPageChange={setPageSizePU} onRowClick={handleClickPU} />
+            <CustomTable columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPagePU} onRowsPerPageChange={setPageSizePU} onRowClick={handleClickPU} />
         }
     </>;
 };
