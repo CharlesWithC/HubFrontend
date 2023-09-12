@@ -11,7 +11,7 @@ import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm } fro
 var vars = require("../variables");
 
 const columns = [
-    { id: 'logid', label: 'ID' },
+    { id: 'display_logid', label: 'ID' },
     { id: 'driver', label: 'Driver' },
     { id: 'source', label: 'Source' },
     { id: 'destination', label: 'Destination' },
@@ -21,7 +21,7 @@ const columns = [
     { id: 'time', label: 'Time' },
 ];
 const pendingColumns = [
-    { id: 'logid', label: 'Log ID' },
+    { id: 'display_logid', label: 'Log ID' },
     { id: 'driver', label: 'Driver' },
     { id: 'division', label: 'Division' },
 ];
@@ -132,7 +132,7 @@ const DivisionsDlog = memo(({ doReload }) => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                newDlogList.push({ logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main }} /></Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
+                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main }} /></Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
             setDlogList(newDlogList);
@@ -146,7 +146,7 @@ const DivisionsDlog = memo(({ doReload }) => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/delivery/${data.logid}`);
+        navigate(`/beta/delivery/${data.logid}`);
     }
 
     return <>
@@ -176,7 +176,7 @@ const DivisionsPending = memo(({ doReload }) => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                newDlogList.push({ logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, division: vars.divisions[dlogL.list[i].divisionid].name });
+                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, division: vars.divisions[dlogL.list[i].divisionid].name });
             }
 
             setDlogList(newDlogList);
@@ -190,7 +190,7 @@ const DivisionsPending = memo(({ doReload }) => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/delivery/${data.logid}`);
+        navigate(`/beta/delivery/${data.logid}`);
     }
 
     return <>

@@ -13,7 +13,7 @@ import { makeRequestsAuto, getMonthUTC, ConvertUnit } from '../functions';
 var vars = require("../variables");
 
 const columns = [
-    { id: 'logid', label: 'ID' },
+    { id: 'display_logid', label: 'ID' },
     { id: 'driver', label: 'Driver' },
     { id: 'source', label: 'Source' },
     { id: 'destination', label: 'Destination' },
@@ -79,7 +79,7 @@ const Deliveries = () => {
                         <VerifiedOutlined sx={{ color: theme.palette.info.main }} />
                     </Tooltip>;
                 }
-                newDlogList.push({ logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
+                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${dlogL.list[i].profit}${PROFIT_UNIT[dlogL.list[i].unit]}`, time: <TimeAgo timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
             setDlogList(newDlogList);
@@ -93,7 +93,8 @@ const Deliveries = () => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/delivery/${data.logid}`);
+        console.log(data);
+        navigate(`/beta/delivery/${data.logid}`);
     }
 
     return <>

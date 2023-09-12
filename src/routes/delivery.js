@@ -145,7 +145,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                 { url: `${vars.dhpath}/dlog/${logid}/division`, auth: true },
             ]);
             if (dlogD.error !== undefined) {
-                navigate(`/delivery`);
+                navigate(`/beta/delivery`);
             }
             setDlog(dlogD);
             setDlogDetail(dlogD.detail.data.object);
@@ -582,7 +582,7 @@ const Delivery = memo(() => {
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
 
-        navigate(`/delivery`);
+        navigate(`/beta/delivery`);
     }, [logid, navigate]);
 
     return (<>

@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Grid, Card, CardContent, Typography, Snackbar, Alert } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, Button } from '@mui/material';
+import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
 import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken } from '../functions';
 
@@ -13,56 +16,65 @@ const Ranking = () => {
         setSnackbarContent("");
     }, []);
 
+    const [modalCRTOpen, setModalCRTOpen] = useState(false);
+    const handleModalCRTClose = useCallback(() => {
+        setModalCRTOpen(false);
+    }, [setModalCRTOpen]);
+
     const [curRankTypeId, setRankTypeId] = useState(null);
     const [curRankRoles, setCurRankRoles] = useState([]);
     const [curRankPointTypes, setCurRankPointTypes] = useState([]);
     const [userPoints, setUserPoints] = useState(null);
     const [rankIdx, setRankIdx] = useState(null);
 
-    useEffect(() => {
-        async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+    const handleRankTypeIdChange = useCallback((e) => {
+        setRankTypeId(e.target.value);
+    }, []);
 
-            if (curRankTypeId === null) {
-                for (let i = 0; i < vars.ranks.length; i++) {
-                    if (vars.ranks[i].default) {
-                        setRankTypeId(vars.ranks[i].id);
-                        setCurRankRoles(vars.ranks[i].details);
-                        setCurRankPointTypes(vars.ranks[i].point_types);
-                        break;
-                    }
+    const doLoad = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        if (curRankTypeId === null) {
+            for (let i = 0; i < vars.ranks.length; i++) {
+                if (vars.ranks[i].default) {
+                    setRankTypeId(vars.ranks[i].id);
+                    setCurRankRoles(vars.ranks[i].details);
+                    setCurRankPointTypes(vars.ranks[i].point_types);
+                    break;
                 }
             }
+        }
 
-            const [_leaderboard] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`]);
-            if (_leaderboard.list.length === 0) {
-                setUserPoints(0);
-                setRankIdx(-1);
-                const loadingEnd = new CustomEvent('loadingEnd', {});
-                window.dispatchEvent(loadingEnd);
-                return;
-            }
-
-            let points = 0;
-            for (let i = 0; i < curRankPointTypes.length; i++) {
-                points += _leaderboard.list[0].points[curRankPointTypes[i]];
-            }
-            setUserPoints(points);
-
-            if (points < curRankRoles[0].points) setRankIdx(-1);
-            for (let i = 0; i < curRankRoles.length - 1; i++) {
-                if (points > curRankRoles[i].points && points < curRankRoles[i + 1].points) {
-                    setRankIdx(i);
-                }
-            }
-            if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
-
+        const [_leaderboard] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`]);
+        if (_leaderboard.list.length === 0) {
+            setUserPoints(0);
+            setRankIdx(-1);
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
+            return;
         }
-        doLoad();
+
+        let points = 0;
+        for (let i = 0; i < curRankPointTypes.length; i++) {
+            points += _leaderboard.list[0].points[curRankPointTypes[i]];
+        }
+        setUserPoints(points);
+
+        if (points < curRankRoles[0].points) setRankIdx(-1);
+        for (let i = 0; i < curRankRoles.length - 1; i++) {
+            if (points > curRankRoles[i].points && points < curRankRoles[i + 1].points) {
+                setRankIdx(i);
+            }
+        }
+        if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
     }, [curRankPointTypes, curRankRoles, curRankTypeId]);
+    useEffect(() => {
+        doLoad();
+    }, [curRankPointTypes, curRankRoles, curRankTypeId, doLoad]);
 
     const getDiscordRole = useCallback(async () => {
         let resp = await axios({ url: `${vars.dhpath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -169,6 +181,55 @@ const Ranking = () => {
                 </Grid >
             ))}
         </Grid>
+        <Dialog open={modalCRTOpen} onClose={handleModalCRTClose}>
+            <DialogTitle>
+                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <AltRouteRounded />&nbsp;&nbsp;Change Rank Type
+                </Typography>
+            </DialogTitle>
+            <DialogContent>
+                <Typography variant="body">Rank Type</Typography>
+                <Select
+                    value={`${curRankTypeId}`}
+                    onChange={handleRankTypeIdChange}
+                    sx={{ marginTop: "6px", height: "30px" }}
+                    fullWidth
+                >
+                    {vars.ranks.map((ranktype, index) => (
+                        <MenuItem value={`${ranktype.id}`} key={index}>{ranktype.name}</MenuItem>
+                    ))}
+                </Select>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleModalCRTClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                    Close
+                </Button>
+            </DialogActions>
+        </Dialog>
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            <SpeedDialAction
+                key="refresh"
+                icon={<RefreshRounded />}
+                tooltipTitle="Refresh"
+                onClick={() => doLoad()}
+            />
+            <SpeedDialAction
+                key="rank_type"
+                icon={<AltRouteRounded />}
+                tooltipTitle="Change Rank Type"
+                onClick={() => setModalCRTOpen(true)}
+            />
+            <SpeedDialAction
+                key="discord"
+                icon={<FontAwesomeIcon icon={faDiscord} />}
+                tooltipTitle="Get Discord Role"
+                onClick={() => getDiscordRole()}
+            />
+        </SpeedDial>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

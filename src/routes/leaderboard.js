@@ -89,7 +89,7 @@ const Leaderboard = () => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/member/${data.userid}`);
+        navigate(`/beta/member/${data.userid}`);
     }
 
     return <>
