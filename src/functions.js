@@ -422,3 +422,19 @@ export function b62decode(num62) {
     }
     return ret * flag;
 }
+
+export function isSameDay(timestamp) {
+    // Convert the timestamp to a Date object
+    const dateFromTimestamp = new Date(timestamp);
+
+    // Get the current date
+    const currentDate = new Date();
+
+    // Compare the date components (year, month, and day)
+    const isSameYear = dateFromTimestamp.getFullYear() === currentDate.getFullYear();
+    const isSameMonth = dateFromTimestamp.getMonth() === currentDate.getMonth();
+    const isSameDay = dateFromTimestamp.getDate() === currentDate.getDate();
+
+    // If all date components match, it's the same day
+    return isSameYear && isSameMonth && isSameDay;
+}

@@ -3,9 +3,10 @@ import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedD
 import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCoins } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
-import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken } from '../functions';
+import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken , isSameDay} from '../functions';
 
 var vars = require("../variables");
 
@@ -26,6 +27,7 @@ const Ranking = () => {
     const [curRankPointTypes, setCurRankPointTypes] = useState([]);
     const [userPoints, setUserPoints] = useState(null);
     const [rankIdx, setRankIdx] = useState(null);
+    const [bonusStreak, setBonusStreak] = useState("/");
 
     const handleRankTypeIdChange = useCallback((e) => {
         setRankTypeId(e.target.value);
@@ -46,7 +48,16 @@ const Ranking = () => {
             }
         }
 
-        const [_leaderboard] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`]);
+        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`, `${vars.dhpath}/member/bonus/history`]);
+        for (let i = 0; i < _bonusHistory.length; i++) {
+            if(isSameDay(_bonusHistory[i].timestamp * 1000)){
+                setBonusStreak(`${_bonusHistory[i].streak + 1}`);
+                break;
+            } else if(isSameDay(_bonusHistory[i].timestamp * 1000 - 86400000)){
+                setBonusStreak(`${_bonusHistory[i].streak}*`);
+                break;
+            } 
+        }
         if (_leaderboard.list.length === 0) {
             setUserPoints(0);
             setRankIdx(-1);
@@ -80,6 +91,16 @@ const Ranking = () => {
         let resp = await axios({ url: `${vars.dhpath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent("You received a new rank role!");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [curRankTypeId]);
+    const claimDailyBonus = useCallback(async () => {
+        let resp = await axios({ url: `${vars.dhpath}/member/bonus/claim`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Daily bonus claimed! You got ${resp.data.bonus} points. Remember to come back tomorrow and don't break your streak!`);
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -127,6 +148,9 @@ const Ranking = () => {
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 {TSep(userPoints)} Pts
                             </Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                Daily Bonus: {bonusStreak} Streak
+                            </Typography>
                         </>}
                         {rankIdx <= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
@@ -134,6 +158,9 @@ const Ranking = () => {
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
                                 0 Pts
+                            </Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
+                                Daily Bonus: {bonusStreak} Streak
                             </Typography>
                         </>}
                     </CardContent>
@@ -222,6 +249,12 @@ const Ranking = () => {
                 icon={<AltRouteRounded />}
                 tooltipTitle="Change Rank Type"
                 onClick={() => setModalCRTOpen(true)}
+            />
+            <SpeedDialAction
+                key="bonus"
+                icon={<FontAwesomeIcon icon={faCoins} />}
+                tooltipTitle="Claim Daily Bonus"
+                onClick={() => claimDailyBonus()}
             />
             <SpeedDialAction
                 key="discord"
