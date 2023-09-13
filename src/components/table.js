@@ -1,19 +1,19 @@
-import React from 'react';
-import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, TablePagination, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, TablePagination, Typography, Menu } from '@mui/material';
 
-const ClickableTableRow = ({ rowKey, rowMeta, children, onClick }) => {
+const ClickableTableRow = ({ rowKey, rowMeta, children, onClick, onContextMenu }) => {
     const handleClick = () => {
         onClick(rowMeta);
     };
 
     return (
-        <TableRow key={rowKey} onClick={handleClick} hover style={{ cursor: 'pointer' }}>
+        <TableRow key={rowKey} onClick={handleClick} onContextMenu={onContextMenu} hover style={{ cursor: 'pointer' }}>
             {children}
         </TableRow>
     );
 };
 
-const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, style, pstyle }) => {
+const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, hasContextMenu, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -28,8 +28,19 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
         onRowsPerPageChange(newRowsPerPage);
     };
 
+    const [anchorPosition, setAnchorPosition] = useState({});
+
+    const handleContextMenu = (event, row_idx) => {
+        event.preventDefault();
+        setAnchorPosition({[row_idx]: { top: event.clientY, left: event.clientX }});
+    };
+
+    const handleCloseMenu = () => {
+        setAnchorPosition({});
+    };
+
     return (
-        <Card className="PaperShadow" sx={style}>
+        <Card className="PaperShadow" sx={style} onContextMenu={(e) => { if (hasContextMenu === true) { e.preventDefault(); if (Object.keys(anchorPosition).length !== 0) handleCloseMenu(); } }}>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -41,11 +52,21 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
                     </TableHead>
                     <TableBody>
                         {data.map((row, row_idx) => (
-                            <ClickableTableRow rowKey={row_idx} rowMeta={row} onClick={onRowClick}>
-                                {columns.map((column, col_idx) => (
-                                    <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
-                                ))}
-                            </ClickableTableRow>
+                            <>
+                                <ClickableTableRow rowKey={row_idx} rowMeta={row} onClick={onRowClick} onContextMenu={(e) => handleContextMenu(e, row_idx)}>
+                                    {columns.map((column, col_idx) => (
+                                        <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
+                                    ))}
+                                </ClickableTableRow>
+                                {row.contextMenu !== null && row.contextMenu !== undefined && <Menu
+                                    anchorReference="anchorPosition"
+                                    anchorPosition={anchorPosition[row_idx]}
+                                    open={anchorPosition[row_idx] !== undefined}
+                                    onClose={handleCloseMenu}
+                                >
+                                    {row.contextMenu}
+                                </Menu>}
+                            </>
                         ))}
                     </TableBody>
                 </Table>

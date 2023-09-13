@@ -1,10 +1,11 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
-import { useTheme } from '@mui/material';
+import { useEffect, useState, useCallback } from 'react';
+import { useTheme, MenuItem, Snackbar, Alert } from '@mui/material';
+import { Portal } from '@mui/base';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, getFormattedDate } from '../functions';
+import { makeRequestsAuto, getFormattedDate, customAxios as axios, getAuthToken, removeNullValues } from '../functions';
 import UserCard from '../components/usercard';
 
 var vars = require("../variables");
@@ -19,6 +20,7 @@ const puColumns = [
 ];
 const buColumns = [
     { id: 'uid', label: 'UID' },
+    { id: 'user', label: 'User' },
     { id: 'email', label: 'Email' },
     { id: 'discordid', label: 'Discord ID' },
     { id: 'steamid', label: 'Steam ID' },
@@ -28,6 +30,12 @@ const buColumns = [
 ];
 
 const ExternalUsers = () => {
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPagePU] = useState(-1);
@@ -39,6 +47,18 @@ const ExternalUsers = () => {
     const [banPageSize, setBanPageSizePU] = useState(10);
 
     const theme = useTheme();
+
+    const unbanUser = useCallback(async (meta) => {
+        meta = removeNullValues(meta);
+        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: meta });
+        if (resp.status === 204) {
+            setSnackbarContent("User unbanned");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, []);
 
     useEffect(() => {
         async function doLoad() {
@@ -65,8 +85,8 @@ const ExternalUsers = () => {
             for (let i = 0; i < _banList.list.length; i++) {
                 let ban = _banList.list[i];
                 let expireDT = getFormattedDate(new Date(ban.ban.expire * 1000));
-                if(ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
-                newBanList.push({ uid: ban.meta.uid, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT });
+                if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
+                newBanList.push({ uid: ban.meta.uid, user: <UserCard user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoad(); }}>Unban</MenuItem> });
             }
 
             // PU Manage should be a right-click dropdown like Fv2
@@ -83,7 +103,7 @@ const ExternalUsers = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize, banPage, banPageSize, theme]);
+    }, [page, pageSize, banPage, banPageSize, theme, unbanUser]);
 
     function handleClickPU(data) {
         // Popup showing user info
@@ -94,9 +114,21 @@ const ExternalUsers = () => {
         {userList.length !== 0 &&
             <>
                 <CustomTable name="External Users" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPagePU} onRowsPerPageChange={setPageSizePU} onRowClick={handleClickPU} />
-                <CustomTable name="Banned Users" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPagePU} onRowsPerPageChange={setBanPageSizePU} onRowClick={handleClickBU} style={{ marginTop: "15px" }}  />
+                <CustomTable name="Banned Users" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPagePU} onRowsPerPageChange={setBanPageSizePU} onRowClick={handleClickBU} hasContextMenu={true} style={{ marginTop: "15px" }} />
             </>
         }
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </>;
 };
 

@@ -438,3 +438,16 @@ export function isSameDay(timestamp) {
     // If all date components match, it's the same day
     return isSameYear && isSameMonth && isSameDay;
 }
+
+export function removeNullValues(obj) {
+    const newObj = {};
+
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key) && obj[key] !== null) {
+            newObj[key] = obj[key];
+        }
+    }
+
+    console.log(newObj);
+    return newObj;
+};
