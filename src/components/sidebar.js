@@ -80,9 +80,9 @@ const SideBar = (props) => {
 
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event"];
-    const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "pending_user": "Pending Users", "audit_log": "Audit Log", "configuration": "Configuration" };
-    const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "pending_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
-    const menuRoute = { "overview": "/", "announcement": "/announcement", "downloads": "/downloads", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "pending_user": "/pending-user", "audit_log": "/audit-log", "configuration": "/config" };
+    const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "external_user": "External Users", "audit_log": "Audit Log", "configuration": "Configuration" };
+    const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
+    const menuRoute = { "overview": "/", "announcement": "/announcement", "downloads": "/downloads", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" };
 
     let menu = [];
     let toRemove = [];
@@ -90,20 +90,20 @@ const SideBar = (props) => {
     if (!vars.isLoggedIn) {
         menu = [["overview", "announcement"], ["live_map", "delivery", "event"]];
     } else {
-        menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["pending_user", "audit_log", "configuration"]];
+        menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["external_user", "audit_log", "configuration"]];
         if (!vars.userPerm.includes("admin")) {
             if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
-                toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "pending_user", "audit_log", "configuration"];
+                toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
             }
             if (!vars.userPerm.includes("config") && !vars.userPerm.includes("reload_config") && !vars.userPerm.includes("restart")) {
                 toRemove.push("configuration");
             } else {
                 toRemove = toRemove.filter(item => item !== "configuration");
             }
-            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("manage_profile") && !vars.userPerm.includes("get_pending_user_list") && !vars.userPerm.includes("ban_user") && !vars.userPerm.includes("disable_user_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_user")) {
-                toRemove.push("pending_user");
+            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("manage_profile") && !vars.userPerm.includes("get_external_user_list") && !vars.userPerm.includes("ban_user") && !vars.userPerm.includes("disable_user_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_user")) {
+                toRemove.push("external_user");
             } else {
-                toRemove = toRemove.filter(item => item !== "pending_user");
+                toRemove = toRemove.filter(item => item !== "external_user");
             }
             if (!vars.userPerm.includes("audit")) {
                 toRemove.push("audit_log");
@@ -114,7 +114,7 @@ const SideBar = (props) => {
     }
 
     if (vars.specialRoles[vars.userInfo.discordid] === "#9a63c2") {
-        toRemove.push("pending_user");
+        toRemove.push("external_user");
         toRemove.push("audit_log");
         toRemove.push("configuration");
     }
