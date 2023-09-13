@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoins } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
-import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken , isSameDay} from '../functions';
+import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameDay } from '../functions';
 
 var vars = require("../variables");
 
@@ -50,13 +50,13 @@ const Ranking = () => {
 
         const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`, `${vars.dhpath}/member/bonus/history`]);
         for (let i = 0; i < _bonusHistory.length; i++) {
-            if(isSameDay(_bonusHistory[i].timestamp * 1000)){
+            if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
                 setBonusStreak(`${_bonusHistory[i].streak + 1}`);
                 break;
-            } else if(isSameDay(_bonusHistory[i].timestamp * 1000 - 86400000)){
-                setBonusStreak(`${_bonusHistory[i].streak}*`);
+            } else if (isSameDay(_bonusHistory[i].timestamp * 1000 + 86400000)) {
+                setBonusStreak(`${_bonusHistory[i].streak + 1}*`);
                 break;
-            } 
+            }
         }
         if (_leaderboard.list.length === 0) {
             setUserPoints(0);
@@ -102,11 +102,12 @@ const Ranking = () => {
         if (resp.status === 200) {
             setSnackbarContent(`Daily bonus claimed! You got ${resp.data.bonus} points. Remember to come back tomorrow and don't break your streak!`);
             setSnackbarSeverity("success");
+            doLoad();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
-    }, [curRankTypeId]);
+    }, [doLoad]);
 
     return <>
         {userPoints !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
