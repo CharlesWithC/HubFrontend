@@ -30,6 +30,7 @@ import MyApplication from './routes/applicationMy';
 import AllApplication from './routes/applicationAll';
 import ExternalUsers from './routes/externalUsers';
 import AuditLog from './routes/auditLog';
+import Configuration from './routes/configuration';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -187,6 +188,7 @@ function App() {
                             <Route path="/beta/application/all" element={<AllApplication />}></Route>
                             <Route path="/beta/external-user" element={<ExternalUsers />}></Route>
                             <Route path="/beta/audit-log" element={<AuditLog />}></Route>
+                            <Route path="/beta/config" element={<Configuration />}></Route>
                         </Routes>
                         <footer style={{ display: ["/beta/auth", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>

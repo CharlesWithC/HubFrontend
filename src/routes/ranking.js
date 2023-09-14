@@ -49,7 +49,7 @@ const Ranking = () => {
         }
 
         const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`, `${vars.dhpath}/member/bonus/history`]);
-        for (let i = 0; i < _bonusHistory.length; i++) {
+        for (let i = _bonusHistory.length - 1; i >= 0; i--) {
             if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
                 setBonusStreak(`${_bonusHistory[i].streak + 1}`);
                 break;
