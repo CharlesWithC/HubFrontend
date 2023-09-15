@@ -110,7 +110,7 @@ const Ranking = () => {
     }, [doLoad]);
 
     return <>
-        {userPoints !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
+        {userPoints !== null && rankIdx !== null && <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
             <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Card>
                     <CardContent>
