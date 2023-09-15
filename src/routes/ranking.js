@@ -72,13 +72,15 @@ const Ranking = () => {
         }
         setUserPoints(points);
 
-        if (points < curRankRoles[0].points) setRankIdx(-1);
-        for (let i = 0; i < curRankRoles.length - 1; i++) {
-            if (points > curRankRoles[i].points && points < curRankRoles[i + 1].points) {
-                setRankIdx(i);
+        if (curRankRoles.length === 0 || points < curRankRoles[0].points) setRankIdx(-1);
+        else {
+            for (let i = 0; i < curRankRoles.length - 1; i++) {
+                if (points > curRankRoles[i].points && points < curRankRoles[i + 1].points) {
+                    setRankIdx(i);
+                }
             }
+            if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
         }
-        if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);

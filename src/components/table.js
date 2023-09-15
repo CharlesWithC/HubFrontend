@@ -32,7 +32,7 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
 
     const handleContextMenu = (event, row_idx) => {
         event.preventDefault();
-        setAnchorPosition({[row_idx]: { top: event.clientY, left: event.clientX }});
+        setAnchorPosition({ [row_idx]: { top: event.clientY, left: event.clientX } });
     };
 
     const handleCloseMenu = () => {
@@ -40,7 +40,7 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
     };
 
     return (
-        <Card className="PaperShadow" sx={style} onContextMenu={(e) => { if (hasContextMenu === true) { e.preventDefault(); if (Object.keys(anchorPosition).length !== 0) handleCloseMenu(); } }}>
+        <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); }}>
             <TableContainer>
                 <Table>
                     <TableHead>

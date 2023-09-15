@@ -82,7 +82,7 @@ const SideBar = (props) => {
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event"];
     const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "external_user": "External Users", "audit_log": "Audit Log", "configuration": "Configuration" };
     const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
-    const menuRoute = { "overview":"/", "announcement":"/announcement", "downloads":"/downloads", "live_map":"/map", "delivery":"/delivery", "challenge":"/challenge", "division":"/division", "economy":"/economy", "event":"/event", "member":"/member", "leaderboard":"/leaderboard", "ranking":"/ranking", "new_application":"/application/new", "my_application":"/application/my", "all_application":"/application/all", "external_user":"/external-user", "audit_log":"/audit-log", "configuration":"/config" };
+    const menuRoute = { "overview": "/", "announcement": "/announcement", "downloads": "/downloads", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" };
 
     let menu = [];
     let toRemove = [];
@@ -129,14 +129,15 @@ const SideBar = (props) => {
             routeIndex[menuRoute[menu[i][j]]] = i * 10 + j;
         }
     }
-    if (Object.keys(routeIndex).includes("/" + window.location.pathname.split("/")[1])) {
-        if (selectedIndex !== routeIndex["/" + window.location.pathname.split("/")[1]]) {
-            setSelectedIndex(routeIndex["/" + window.location.pathname.split("/")[1]]);
+    let path = window.location.pathname.replace("/beta", "");
+    if (Object.keys(routeIndex).includes("/" + path.split("/")[1])) {
+        if (selectedIndex !== routeIndex["/" + path.split("/")[1]]) {
+            setSelectedIndex(routeIndex["/" + path.split("/")[1]]);
         }
     }
-    if (Object.keys(routeIndex).includes("/" + window.location.pathname.split("/")[1] + "/" + window.location.pathname.split("/")[2])) {
-        if (selectedIndex !== routeIndex["/" + window.location.pathname.split("/")[1] + "/" + window.location.pathname.split("/")[2]]) {
-            setSelectedIndex(routeIndex["/" + window.location.pathname.split("/")[1] + "/" + window.location.pathname.split("/")[2]]);
+    if (Object.keys(routeIndex).includes("/" + path.split("/")[1] + "/" + path.split("/")[2])) {
+        if (selectedIndex !== routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]) {
+            setSelectedIndex(routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]);
         }
     }
 
