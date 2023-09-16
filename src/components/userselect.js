@@ -1,96 +1,61 @@
-import React, { useState, useRef } from 'react';
-import { TextField, Popper, Paper, List, ListItem, ListItemButton } from '@mui/material';
-
-import UserCard from './usercard';
+import React, { useState } from 'react';
+import { Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import Select from 'react-select';
 
 var vars = require("../variables");
 
+const customStyles = (theme) => ({
+    control: (provided, state) => ({
+        ...provided,
+        backgroundColor: theme.palette.text.primary,
+        borderColor: theme.palette.text.secondary
+    }),
+    option: (provided, state) => ({
+        ...provided,
+        color: theme.palette.background.default
+    }),
+    menu: (provided) => ({
+        ...provided,
+        zIndex: 10005,
+    }),
+});
+
 const UserSelect = ({ label, initialUsers, onUpdate }) => {
-    const [inputValue, setInputValue] = useState('');
-    const [selectedUsers, setSelectedUsers] = useState(initialUsers !== undefined ? initialUsers : []);
-    const [showSelection, setShowSelection] = useState(false);
-    const inputRef = useRef(null);
+    let formattedInit = [];
+    for (let i = 0; i < initialUsers.length; i++) {
+        formattedInit.push({ value: initialUsers[i].userid, label: initialUsers[i].name });
+    }
+    let memberMap = {};
+    for (let i = 0; i < vars.members.length; i++) {
+        memberMap[vars.members[i].userid] = vars.members[i];
+    }
 
-    const handleInputChange = (e) => {
-        const value = e.target.value;
-        setInputValue(value);
-        setShowSelection(value !== '');
+    const [selectedUsers, setSelectedUsers] = useState(formattedInit !== undefined ? formattedInit : []);
+
+    const handleInputChange = (val) => {
+        setSelectedUsers(val);
+        onUpdate(val.map((item) => (memberMap[item.value])));
     };
 
-    const handleUserSelect = (user) => {
-        setSelectedUsers([...selectedUsers, user]);
-        if (onUpdate !== undefined) {
-            onUpdate([...selectedUsers, user]);
-        }
-        setInputValue('');
-        setShowSelection(false);
-    };
-
-    const handleUserRemove = (user) => {
-        const updatedUsers = selectedUsers.filter((selectedUser) => selectedUser.userid !== user.userid);
-        setSelectedUsers(updatedUsers);
-        if (onUpdate !== undefined) {
-            onUpdate(updatedUsers);
-        }
-    };
-
-    const renderUserSelection = () => {
-        if (!showSelection) {
-            return null;
-        }
-
-        const lowercaseInput = inputValue.toLowerCase();
-        const matchedUsers = vars.members.filter(
-            user =>
-                (user.name.toLowerCase().includes(lowercaseInput) ||
-                    String(user.userid).includes(lowercaseInput)) &&
-                !selectedUsers.includes(user)
-        ).slice(0, 5);
-
-        return (
-            <Popper open={true} anchorEl={inputRef.current} placement="bottom-start" sx={{ zIndex: "10000" }}>
-                <Paper>
-                    <List>
-                        {matchedUsers.map(user => (
-                            <ListItem key={user.userid}>
-                                <ListItemButton onClick={() => handleUserSelect(user)}>
-                                    <UserCard user={user} noLink={true} />
-                                </ListItemButton>
-                            </ListItem>
-                        ))}
-                    </List>
-                </Paper>
-            </Popper>
-        );
-    };
+    const theme = useTheme();
 
     return (
-        <>
-            <TextField
-                label={label !== undefined ? label : "Users"}
-                value={inputValue}
+        <div>
+            <Typography variant="body2">{label}</Typography>
+            <Select
+                defaultValue={formattedInit}
+                isMulti
+                name="colors"
+                options={vars.members.map((user) => ({ value: user.userid, label: user.name }
+                ))}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customStyles(theme)}
+                value={selectedUsers}
                 onChange={handleInputChange}
-                inputRef={inputRef}
-                fullWidth
-                InputProps={{
-                    startAdornment: (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', maxWidth: '100%', marginBottom: '5px', }}>
-                            {selectedUsers.map((user) => (
-                                <UserCard
-                                    user={user}
-                                    key={user.userid}
-                                    useChip={true}
-                                    noLink={true}
-                                    onDelete={() => handleUserRemove(user)}
-                                    style={{ marginRight: '5px', marginTop: '5px' }}
-                                />
-                            ))}
-                        </div>
-                    ),
-                }}
             />
-            {renderUserSelection()}
-        </>
+        </div>
     );
 };
 
