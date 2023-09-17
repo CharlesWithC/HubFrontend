@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
 
+import UserCard from '../components/usercard';
+
 var vars = require("../variables");
 
 const LargeUserCard = ({ user }) => {
@@ -12,7 +14,7 @@ const LargeUserCard = ({ user }) => {
             </Link>
             <CardContent>
                 <Typography variant="h6" align="center">
-                    <Link to={`/beta/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}>{user.name}</Link>
+                    <Link to={`/beta/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}><UserCard user={user} textOnly={true} /></Link>
                 </Typography>
             </CardContent>
         </Card>

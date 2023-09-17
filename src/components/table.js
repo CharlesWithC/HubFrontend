@@ -30,17 +30,25 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
 
     const [anchorPosition, setAnchorPosition] = useState({});
 
-    const handleContextMenu = (event, row_idx) => {
-        event.preventDefault();
-        setAnchorPosition({ [row_idx]: { top: event.clientY, left: event.clientX } });
+    const handleContextMenu = (e, row_idx) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (anchorPosition[row_idx]) {
+            console.log("close");
+            setAnchorPosition({});
+            return;
+        }
+        setAnchorPosition({ [row_idx]: { top: e.clientY, left: e.clientX } });
     };
 
-    const handleCloseMenu = () => {
+    const handleCloseMenu = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         setAnchorPosition({});
     };
 
     return (
-        <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); }}>
+        <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
             <TableContainer>
                 <Table>
                     <TableHead>
@@ -57,15 +65,15 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
                                     {columns.map((column, col_idx) => (
                                         <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
                                     ))}
+                                    {row.contextMenu !== null && row.contextMenu !== undefined && anchorPosition[row_idx] !== undefined && <Menu
+                                        anchorReference="anchorPosition"
+                                        anchorPosition={anchorPosition[row_idx]}
+                                        open={anchorPosition[row_idx] !== undefined}
+                                        onClose={handleCloseMenu}
+                                    >
+                                        {row.contextMenu}
+                                    </Menu>}
                                 </ClickableTableRow>
-                                {row.contextMenu !== null && row.contextMenu !== undefined && <Menu
-                                    anchorReference="anchorPosition"
-                                    anchorPosition={anchorPosition[row_idx]}
-                                    open={anchorPosition[row_idx] !== undefined}
-                                    onClose={handleCloseMenu}
-                                >
-                                    {row.contextMenu}
-                                </Menu>}
                             </>
                         ))}
                     </TableBody>

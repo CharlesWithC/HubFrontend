@@ -6,18 +6,22 @@ import Select from 'react-select';
 var vars = require("../variables");
 
 const customStyles = (theme) => ({
-    control: (provided, state) => ({
-        ...provided,
+    control: (base, state) => ({
+        ...base,
         backgroundColor: theme.palette.text.primary,
         borderColor: theme.palette.text.secondary
     }),
-    option: (provided, state) => ({
-        ...provided,
+    option: (base, state) => ({
+        ...base,
         color: theme.palette.background.default
     }),
-    menu: (provided) => ({
-        ...provided,
+    menu: (base) => ({
+        ...base,
         zIndex: 10005,
+    }),
+    menuPortal: (base) => ({
+        ...base,
+        zIndex: 100005
     }),
 });
 
@@ -42,7 +46,7 @@ const UserSelect = ({ label, initialUsers, onUpdate }) => {
 
     return (
         <div>
-            <Typography variant="body2">{label}</Typography>
+            {label && <Typography variant="body2">{label}</Typography>}
             <Select
                 defaultValue={formattedInit}
                 isMulti
@@ -54,6 +58,7 @@ const UserSelect = ({ label, initialUsers, onUpdate }) => {
                 styles={customStyles(theme)}
                 value={selectedUsers}
                 onChange={handleInputChange}
+                menuPortalTarget={document.body}
             />
         </div>
     );
