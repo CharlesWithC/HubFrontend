@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider } from "@mui/material";
+import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, useTheme } from "@mui/material";
 import { Portal } from '@mui/base';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 
@@ -33,9 +33,10 @@ const UserCard = (props) => {
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback((e) => {
-        e.preventDefault(); e.stopPropagation();
         setSnackbarContent("");
     }, []);
+
+    const theme = useTheme();
 
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [anchorPosition, setAnchorPosition] = useState({});
@@ -87,7 +88,7 @@ const UserCard = (props) => {
                     avatarRef.current = resp.data.avatar;
                     rolesRef.current = resp.data.roles;
                     setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
-                    setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: steamid, truckersmpid: resp.data.truckersmpid });
+                    setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
                 }
             }
         }
@@ -155,6 +156,20 @@ const UserCard = (props) => {
         setDialogBtnDisabled(false);
     }, [uid, newConnections, updateUserInfo]);
 
+    const disableMFA = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${uid}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("MFA disabled");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [uid]);
+
+
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatar}
@@ -188,7 +203,8 @@ const UserCard = (props) => {
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             <Divider />
-            {checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_user_connections"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
+            {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
+            {checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-roles" && userid >= 0 &&
@@ -335,12 +351,26 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
+            {ctxAction === "disable-mfa" && userid >= 0 &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>Disable MFA | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- Multiple Factor Authentication will be disabled for the user.</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- This may put the user's account at risk! Only proceed when user's identity is confirmed.</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" color="error" onClick={() => { disableMFA(); }} disabled={dialogBtnDisabled}>Disable</Button>
+                    </DialogActions>
+                </Dialog>
+            }
         </div>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
                 autoHideDuration={5000}
                 onClose={handleCloseSnackbar}
+                onClick={(e) => { e.stopPropagation(); }}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
                 <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
