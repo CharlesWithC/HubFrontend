@@ -4,7 +4,7 @@ import { Portal } from '@mui/base';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 
@@ -169,6 +169,25 @@ const UserCard = (props) => {
         setDialogBtnDisabled(false);
     }, [uid]);
 
+    const dismissMember = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/member/${userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            let newMembers = [];
+            for (let i = 0; i < vars.members.list; i++) {
+                if (vars.members[i].userid !== userid) {
+                    newMembers.push(vars.members[i]);
+                }
+            }
+            vars.members = newMembers;
+            setSnackbarContent("User dismissed!");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [userid]);
 
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
@@ -205,6 +224,8 @@ const UserCard = (props) => {
             <Divider />
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
+            <Divider />
+            {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "dismiss_member"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon> Dismiss</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-roles" && userid >= 0 &&
@@ -361,6 +382,19 @@ const UserCard = (props) => {
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
                         <Button variant="contained" color="error" onClick={() => { disableMFA(); }} disabled={dialogBtnDisabled}>Disable</Button>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "dismiss-member" && userid >= 0 &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>Dismiss | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- The user will be dismissed. This process cannot be undone.</Typography>
+                        <Typography variant="body2">- Jobs submitted by the user will not be deleted, but "Unknown" will be shown as driver.</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" color="error" onClick={() => { dismissMember(); }} disabled={dialogBtnDisabled}>Dismiss</Button>
                     </DialogActions>
                 </Dialog>
             }
