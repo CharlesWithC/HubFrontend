@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup } from "@mui/material";
+import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider } from "@mui/material";
 import { Portal } from '@mui/base';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 
@@ -13,12 +13,12 @@ import { customAxios as axios, getAuthToken, checkPerm } from '../functions';
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, avatar, roles, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: 0, userid: 0, discordid: 0, name: "", avatar: "", roles: [], size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: 0, userid: 0, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
     if (props.user !== undefined) {
-        ({ uid, userid, discordid, name, avatar, roles } = props.user);
+        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles } = props.user);
         ({ size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, avatar, roles, size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -32,7 +32,8 @@ const UserCard = (props) => {
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    const handleCloseSnackbar = useCallback(() => {
+    const handleCloseSnackbar = useCallback((e) => {
+        e.preventDefault(); e.stopPropagation();
         setSnackbarContent("");
     }, []);
 
@@ -60,9 +61,13 @@ const UserCard = (props) => {
     const [newRoles, setNewRoles] = useState(roles);
     const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
     const [newProfile, setNewProfile] = useState({ name: name, avatar: avatar });
+    const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
     const discordidRef = useRef(discordid);
+    const emailRef = useRef(email);
+    const steamidRef = useRef(steamid);
+    const truckersmpidRef = useRef(truckersmpid);
     const nameRef = useRef(name);
     const avatarRef = useRef(avatar);
     const rolesRef = useRef(roles);
@@ -75,14 +80,18 @@ const UserCard = (props) => {
                     uidRef.current = resp.data.uid;
                     useridRef.current = resp.data.userid;
                     discordidRef.current = resp.data.discordid;
+                    emailRef.current = resp.data.email;
+                    steamidRef.current = resp.data.steamid;
+                    truckersmpidRef.current = resp.data.truckersmpid;
                     nameRef.current = resp.data.name;
                     avatarRef.current = resp.data.avatar;
                     rolesRef.current = resp.data.roles;
                     setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+                    setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: steamid, truckersmpid: resp.data.truckersmpid });
                 }
             }
         }
-    }, [uid, uidRef, useridRef, discordidRef, nameRef, avatarRef, rolesRef, setNewProfile]);
+    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, setNewProfile]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -115,9 +124,9 @@ const UserCard = (props) => {
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setDialogBtnDisabled(true);
         sync_to === undefined ? sync_to = "" : sync_to = `&sync_to_${sync_to}=true`;
-        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}${sync_to}`, method: "PATCH", data: { name: newProfile.name, avatar: newProfile.avatar }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            updateUserInfo();
+            await updateUserInfo();
             setSnackbarContent("Profile updated");
             setSnackbarSeverity("success");
         } else {
@@ -126,6 +135,25 @@ const UserCard = (props) => {
         }
         setDialogBtnDisabled(false);
     }, [uid, newProfile, updateUserInfo]);
+
+    const updateConnections = useCallback(async (action = "update") => {
+        setDialogBtnDisabled(true);
+        let resp = undefined;
+        if (action === "update") {
+            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections`, method: "PATCH", data: newConnections, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else if (action === "delete") {
+            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        }
+        if (resp.status === 204) {
+            await updateUserInfo();
+            setSnackbarContent(`Connections ${action}d`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [uid, newConnections, updateUserInfo]);
 
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
@@ -159,6 +187,8 @@ const UserCard = (props) => {
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
+            <Divider />
+            {checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_user_connections"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-roles" && userid >= 0 &&
@@ -217,7 +247,7 @@ const UserCard = (props) => {
                                     label="Name"
                                     value={newProfile.name}
                                     onChange={(e) => setNewProfile({ ...newProfile, name: e.target.value })}
-                                    fullWidth
+                                    fullWidth disabled={dialogBtnDisabled}
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -225,7 +255,7 @@ const UserCard = (props) => {
                                     label="Avatar URL"
                                     value={newProfile.avatar}
                                     onChange={(e) => setNewProfile({ ...newProfile, avatar: e.target.value })}
-                                    fullWidth
+                                    fullWidth disabled={dialogBtnDisabled}
                                 />
                             </Grid>
                         </Grid>
@@ -243,6 +273,63 @@ const UserCard = (props) => {
                             <ButtonGroup>
                                 <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
                                 <Button variant="contained" onClick={() => { updateProfile(); }} disabled={dialogBtnDisabled}>Save</Button>
+                            </ButtonGroup>
+                        </Box>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "update-connections" && userid >= 0 &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
+                    <DialogTitle>Update Connections | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- Connections should not be modified or deleted unless requested by the user.</Typography>
+                        <Typography variant="body2">- Remember that all users have access to updating connections themselves. Staff should only be involved when the user needs to delete the connections or the user is unable to update connections on their own (e.g. lost access to account).</Typography>
+                        <Typography variant="body2">- Deleting connections will only delete Steam and TruckersMP connections.</Typography>
+                        <Grid container spacing={2} sx={{ mt: "5px" }}>
+                            <Grid item xs={6}>
+                                <TextField
+                                    label="Email"
+                                    value={newConnections.email}
+                                    onChange={(e) => setNewConnections({ ...newConnections, email: e.target.value })}
+                                    fullWidth disabled={dialogBtnDisabled}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    label="Discord ID"
+                                    value={newConnections.discordid}
+                                    onChange={(e) => setNewConnections({ ...newConnections, discordid: e.target.value })}
+                                    fullWidth disabled={dialogBtnDisabled}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    label="Steam ID"
+                                    value={newConnections.steamid}
+                                    onChange={(e) => setNewConnections({ ...newConnections, steamid: e.target.value })}
+                                    fullWidth disabled={dialogBtnDisabled}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField
+                                    label="TruckersMP ID"
+                                    value={newConnections.truckersmpid}
+                                    onChange={(e) => setNewConnections({ ...newConnections, truckersmpid: e.target.value })}
+                                    fullWidth disabled={dialogBtnDisabled}
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions sx={{ justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'grid', justifyItems: 'start' }}>
+                            <ButtonGroup>
+                                <Button variant="contained" color="error" onClick={() => { updateConnections("delete"); }} disabled={dialogBtnDisabled}>Delete Connections</Button>
+                            </ButtonGroup>
+                        </Box>
+                        <Box sx={{ display: 'grid', justifyItems: 'end' }}>
+                            <ButtonGroup>
+                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                                <Button variant="contained" onClick={() => { updateConnections(); }} disabled={dialogBtnDisabled}>Save</Button>
                             </ButtonGroup>
                         </Box>
                     </DialogActions>

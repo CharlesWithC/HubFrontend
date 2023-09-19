@@ -30,6 +30,7 @@ const Members = () => {
     roles.sort((a, b) => a.order_id - b.order_id);
 
     let groups = [];
+    let norole_group = [];
     for (let i = 0; i < roles.length; i++) {
         let group = [];
         for (let j = 0; j < members.length; j++) {
@@ -41,6 +42,12 @@ const Members = () => {
             groups.push({ "group": roles[i].name, "color": roles[i].color, "description": roles[i].description, "users": group });
         }
     }
+    for (let i = 0; i < members.length; i++) {
+        if (members[i].roles.length === 0) {
+            norole_group.push(members[i]);
+        }
+    }
+    groups.push({ "group": "No Role", "description": "These users have no role assigned.", "users": norole_group });
 
     vars.membersTabCache = (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
