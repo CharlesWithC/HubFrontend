@@ -4,7 +4,7 @@ import { Portal } from '@mui/base';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 
@@ -234,6 +234,19 @@ const UserCard = (props) => {
         }
     }, [uid, discordid, email, steamid, truckersmpid]);
 
+    const acceptUser = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/${uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("User accepted as member");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
+        }
+    }, [uid]);
+
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatar}
@@ -267,6 +280,7 @@ const UserCard = (props) => {
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             <Divider />
+            {(userid === null || userid < 0) && checkPerm(vars.userInfo.roles, ["admin", "hrm", "add_member"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
             <Divider />
@@ -360,6 +374,19 @@ const UserCard = (props) => {
                                 <Button variant="contained" onClick={() => { updateProfile(); }} disabled={dialogBtnDisabled}>Save</Button>
                             </ButtonGroup>
                         </Box>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "accept-user" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>Accept as Member | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- The user will be accepted as member and given an unique User ID.</Typography>
+                        <Typography variant="body2">- This will not affect the user's initial roles or application status. They must be updated manually at this point. (We may support partial automations in the future.)</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" color="success" onClick={() => { acceptUser(); }} disabled={dialogBtnDisabled}>Accept</Button>
                     </DialogActions>
                 </Dialog>
             }
