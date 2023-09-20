@@ -639,7 +639,7 @@ const Challenges = () => {
                                 label="Start Time"
                                 type="datetime-local"
                                 value={new Date(new Date(modalChallenge.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                                onChange={(e) => setModalChallenge({ ...modalChallenge, start_time: parseInt((+new Date(e.target.value)) / 1000) })}
+                                onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setModalChallenge({ ...modalChallenge, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
                                 fullWidth
                             />
                         </Grid>
@@ -648,7 +648,7 @@ const Challenges = () => {
                                 label="End Time"
                                 type="datetime-local"
                                 value={new Date(new Date(modalChallenge.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                                onChange={(e) => setModalChallenge({ ...modalChallenge, end_time: parseInt((+new Date(e.target.value)) / 1000) })}
+                                onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setModalChallenge({ ...modalChallenge, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
                                 fullWidth
                             />
                         </Grid>

@@ -4,21 +4,21 @@ import { Portal } from '@mui/base';
 import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 
-import { customAxios as axios, getAuthToken, checkPerm } from '../functions';
+import { customAxios as axios, getAuthToken, checkPerm, removeNullValues } from '../functions';
 
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: 0, userid: 0, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
-    if (props.user !== undefined) {
-        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles } = props.user);
+    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: 0, userid: 0, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
+    if (props.user !== undefined && props.user !== null) {
+        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         ({ size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -56,6 +56,7 @@ const UserCard = (props) => {
         e.stopPropagation();
         setCtxAction(action);
         setShowContextMenu(false);
+        setDialogBtnDisabled(false);
     }, []);
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
@@ -63,6 +64,7 @@ const UserCard = (props) => {
     const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
     const [newProfile, setNewProfile] = useState({ name: name, avatar: avatar });
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
+    const [newBan, setNewBan] = useState({ expire: +new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000) / 1000, reason: "" });
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
     const discordidRef = useRef(discordid);
@@ -72,6 +74,7 @@ const UserCard = (props) => {
     const nameRef = useRef(name);
     const avatarRef = useRef(avatar);
     const rolesRef = useRef(roles);
+    const banRef = useRef(ban);
     const updateUserInfo = useCallback(async () => {
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
@@ -87,12 +90,13 @@ const UserCard = (props) => {
                     nameRef.current = resp.data.name;
                     avatarRef.current = resp.data.avatar;
                     rolesRef.current = resp.data.roles;
+                    banRef.current = resp.data.ban;
                     setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
                     setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
                 }
             }
         }
-    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, setNewProfile]);
+    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef, setNewProfile]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -165,8 +169,8 @@ const UserCard = (props) => {
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
         }
-        setDialogBtnDisabled(false);
     }, [uid]);
 
     const dismissMember = useCallback(async () => {
@@ -185,8 +189,8 @@ const UserCard = (props) => {
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
         }
-        setDialogBtnDisabled(false);
     }, [userid]);
 
     const deleteUser = useCallback(async () => {
@@ -198,9 +202,37 @@ const UserCard = (props) => {
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
         }
-        setDialogBtnDisabled(false);
     }, [uid]);
+
+    const putBan = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let meta = removeNullValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid, expire: newBan.expire, reason: newBan.reason });
+        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "PUT", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("User banned");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
+        }
+    }, [uid, discordid, email, steamid, truckersmpid, newBan]);
+
+    const deleteBan = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let meta = removeNullValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
+        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("User unbanned");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
+        }
+    }, [uid, discordid, email, steamid, truckersmpid]);
 
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
@@ -238,11 +270,13 @@ const UserCard = (props) => {
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
             <Divider />
+            {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "ban_user"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon> Ban</MenuItem>}
+            {(userid === null || userid < 0) && ban !== null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "ban_user"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon> Unban</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "dismiss_member"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon> Dismiss Member</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "delete_user"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon> Delete User</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
-            {ctxAction === "update-roles" && userid >= 0 &&
+            {ctxAction === "update-roles" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
                     <DialogTitle>Update Roles | {name} (User ID: {userid})</DialogTitle>
                     <DialogContent>
@@ -254,7 +288,7 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "update-points" && userid >= 0 &&
+            {ctxAction === "update-points" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
                     <DialogTitle>Update Points | {name} (User ID: {userid})</DialogTitle>
                     <DialogContent>
@@ -286,7 +320,7 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "update-profile" && userid >= 0 &&
+            {ctxAction === "update-profile" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
                     <DialogTitle>Update Profile | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
@@ -329,7 +363,7 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "update-connections" && userid >= 0 &&
+            {ctxAction === "update-connections" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
                     <DialogTitle>Update Connections | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
@@ -386,7 +420,7 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "disable-mfa" && userid >= 0 &&
+            {ctxAction === "disable-mfa" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
                     <DialogTitle>Disable MFA | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
@@ -399,7 +433,49 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "dismiss-member" && userid >= 0 &&
+            {ctxAction === "ban-user" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
+                    <DialogTitle>Ban User | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Grid container spacing={2} sx={{ mt: "5px" }}>
+                            <Grid item xs={6}>
+                                <TextField
+                                    label="Expire Datetime"
+                                    type="datetime-local"
+                                    value={new Date(new Date(newBan.expire * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                                    onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setNewBan({ ...newBan, expire: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                                    fullWidth
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Reason"
+                                    value={newBan.reason}
+                                    onChange={(e) => setNewBan({ ...newBan, reason: e.target.value })}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" color="error" onClick={() => { putBan(); }} disabled={dialogBtnDisabled}>Ban</Button>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "unban-user" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
+                    <DialogTitle>Unban User | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- The user will be able to login when you unban it</Typography>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" color="success" onClick={() => { deleteBan(); }} disabled={dialogBtnDisabled}>Unban</Button>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "dismiss-member" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
                     <DialogTitle>Dismiss Member | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
@@ -412,7 +488,7 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "delete-user" && userid >= 0 &&
+            {ctxAction === "delete-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
                     <DialogTitle>Delete User | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
