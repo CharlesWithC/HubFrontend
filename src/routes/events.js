@@ -191,11 +191,11 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             window.dispatchEvent(loadingStart);
 
             const defaultDateRange = getDefaultDateRange();
-            const [after, before] = [parseInt(defaultDateRange.start.getTime() / 1000), parseInt(defaultDateRange.end.getTime() / 1000)];
+            const [after, meetup_before] = [parseInt(defaultDateRange.start.getTime() / 1000), parseInt(defaultDateRange.end.getTime() / 1000)];
 
             let urls = [
-                `${vars.dhpath}/events/list?page_size=2&page=1&after=${parseInt(+new Date() / 1000)}`,
-                `${vars.dhpath}/events/list?page_size=250&page=1&after=${after}&before=${before}`
+                `${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`,
+                `${vars.dhpath}/events/list?page_size=250&page=1&meetup_after=${after}&meetup_before=${meetup_before}`
             ];
             let [events, curMonthEvents] = [{}, {}];
 
@@ -376,7 +376,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         window.dispatchEvent(loadingStart);
 
         let urls = [
-            `${vars.dhpath}/events/list?page_size=250&page=1&after=${start}&before=${end}`
+            `${vars.dhpath}/events/list?page_size=250&page=1&meetup_after=${start}&meetup_before=${end}`
         ];
         let [monthEvents] = [{}, {}];
 

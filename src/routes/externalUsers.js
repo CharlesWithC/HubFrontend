@@ -1,14 +1,13 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { useTheme, Snackbar, Alert, Typography } from '@mui/material';
-import { Portal } from '@mui/base';
+import { useTheme, Typography } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBan } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, getFormattedDate, customAxios as axios, getAuthToken, removeNullValues } from '../functions';
+import { makeRequestsAuto, getFormattedDate } from '../functions';
 import UserCard from '../components/usercard';
 
 var vars = require("../variables");
@@ -33,12 +32,6 @@ const buColumns = [
 ];
 
 const ExternalUsers = () => {
-    const [snackbarContent, setSnackbarContent] = useState("");
-    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    const handleCloseSnackbar = useCallback(() => {
-        setSnackbarContent("");
-    }, []);
-
     const theme = useTheme();
 
     const [userList, setUserList] = useState([]);
@@ -50,18 +43,6 @@ const ExternalUsers = () => {
     const [banTotalItems, setBanTotalItems] = useState(0);
     const [banPage, setBanPagePU] = useState(-1);
     const [banPageSize, setBanPageSizePU] = useState(10);
-
-    const unbanUser = useCallback(async (meta) => {
-        meta = removeNullValues(meta);
-        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: meta });
-        if (resp.status === 204) {
-            setSnackbarContent("User unbanned");
-            setSnackbarSeverity("success");
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-    }, []);
 
     const doLoad = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -100,7 +81,7 @@ const ExternalUsers = () => {
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [theme, page, pageSize, banPage, banPageSize, unbanUser]);
+    }, [theme, page, pageSize, banPage, banPageSize]);
     useEffect(() => {
         doLoad();
     }, [doLoad]);
@@ -127,18 +108,6 @@ const ExternalUsers = () => {
                 <CustomTable name="Banned Users" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPagePU} onRowsPerPageChange={setBanPageSizePU} onRowClick={handleClickBU} hasContextMenu={true} style={{ marginTop: "15px" }} />
             </>
         }
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
     </>;
 };
 
