@@ -13,7 +13,7 @@ import { customAxios as axios, getAuthToken, checkPerm, removeNullValues } from 
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: 0, userid: 0, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
     if (props.user !== undefined && props.user !== null) {
         ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         ({ size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
@@ -76,6 +76,9 @@ const UserCard = (props) => {
     const rolesRef = useRef(roles);
     const banRef = useRef(ban);
     const updateUserInfo = useCallback(async () => {
+        const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});
+        window.dispatchEvent(updateExternalUserTable);
+
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             for (let i = 0; i < vars.members.length; i++) {
@@ -164,6 +167,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${uid}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
+            updateUserInfo();
             setSnackbarContent("MFA disabled");
             setSnackbarSeverity("success");
         } else {
@@ -171,12 +175,13 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [uid]);
+    }, [uid, updateUserInfo]);
 
     const dismissMember = useCallback(async () => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/member/${userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
+            updateUserInfo();
             let newMembers = [];
             for (let i = 0; i < vars.members.list; i++) {
                 if (vars.members[i].userid !== userid) {
@@ -191,7 +196,7 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [userid]);
+    }, [userid, updateUserInfo]);
 
     const deleteUser = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -199,6 +204,9 @@ const UserCard = (props) => {
         if (resp.status === 204) {
             setSnackbarContent("User deleted");
             setSnackbarSeverity("success");
+
+            const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});
+            window.dispatchEvent(updateExternalUserTable);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -213,12 +221,13 @@ const UserCard = (props) => {
         if (resp.status === 204) {
             setSnackbarContent("User banned");
             setSnackbarSeverity("success");
+            updateUserInfo();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [uid, discordid, email, steamid, truckersmpid, newBan]);
+    }, [uid, discordid, email, steamid, truckersmpid, newBan, updateUserInfo]);
 
     const deleteBan = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -227,12 +236,13 @@ const UserCard = (props) => {
         if (resp.status === 204) {
             setSnackbarContent("User unbanned");
             setSnackbarSeverity("success");
+            updateUserInfo();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [uid, discordid, email, steamid, truckersmpid]);
+    }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
     const acceptUser = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -240,12 +250,13 @@ const UserCard = (props) => {
         if (resp.status === 204) {
             setSnackbarContent("User accepted as member");
             setSnackbarSeverity("success");
+            updateUserInfo();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [uid]);
+    }, [uid, updateUserInfo]);
 
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
@@ -276,11 +287,11 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            {checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
+            {uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             <Divider />
-            {(userid === null || userid < 0) && checkPerm(vars.userInfo.roles, ["admin", "hrm", "add_member"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
+            {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "add_member"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
             <Divider />

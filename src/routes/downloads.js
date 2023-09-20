@@ -52,11 +52,9 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
     }, [downloadableItem, isShiftPressed, onDelete]);
 
     const handleDownload = useCallback(async () => {
-        console.log("downloading");
         setDownloading(true);
         await onDownload(downloadableItem);
         setDownloading(false);
-        console.log("done");
     }, [downloadableItem, onDownload]);
 
     if (downloadableItem.title === undefined) {

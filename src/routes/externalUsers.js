@@ -1,7 +1,10 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { useTheme, MenuItem, Snackbar, Alert } from '@mui/material';
+import { useTheme, Snackbar, Alert, Typography } from '@mui/material';
 import { Portal } from '@mui/base';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBan } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
@@ -36,6 +39,8 @@ const ExternalUsers = () => {
         setSnackbarContent("");
     }, []);
 
+    const theme = useTheme();
+
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPagePU] = useState(-1);
@@ -45,8 +50,6 @@ const ExternalUsers = () => {
     const [banTotalItems, setBanTotalItems] = useState(0);
     const [banPage, setBanPagePU] = useState(-1);
     const [banPageSize, setBanPageSizePU] = useState(10);
-
-    const theme = useTheme();
 
     const unbanUser = useCallback(async (meta) => {
         meta = removeNullValues(meta);
@@ -60,50 +63,57 @@ const ExternalUsers = () => {
         }
     }, []);
 
-    useEffect(() => {
-        async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+    const doLoad = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
 
-            let myPage = page;
-            myPage === -1 ? myPage = 1 : myPage += 1;
+        let myPage = page;
+        myPage === -1 ? myPage = 1 : myPage += 1;
 
-            let myBanPage = banPage;
-            myBanPage === -1 ? myBanPage = 1 : myBanPage += 1;
+        let myBanPage = banPage;
+        myBanPage === -1 ? myBanPage = 1 : myBanPage += 1;
 
-            const [_userList, _banList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/list?order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}`, auth: true },
-                { url: `${vars.dhpath}/user/ban/list?order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}`, auth: true },
-            ]);
+        const [_userList, _banList] = await makeRequestsAuto([
+            { url: `${vars.dhpath}/user/list?order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}`, auth: true },
+            { url: `${vars.dhpath}/user/ban/list?order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}`, auth: true },
+        ]);
 
-            let newUserList = [];
-            for (let i = 0; i < _userList.list.length; i++) {
-                let user = _userList.list[i];
-                newUserList.push({ uid: user.uid, user: <UserCard user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo timestamp={user.join_timestamp * 1000} /> });
-            }
-            let newBanList = [];
-            for (let i = 0; i < _banList.list.length; i++) {
-                let ban = _banList.list[i];
-                let expireDT = getFormattedDate(new Date(ban.ban.expire * 1000));
-                if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
-                newBanList.push({ uid: ban.meta.uid, user: <UserCard user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoad(); }}>Unban</MenuItem> });
-            }
-
-            // PU Manage should be a right-click dropdown like Fv2
-            // Move "Sync to Discord Profile" to "Edit Custom Profile", and add the function to sync to Steam/TruckersMP
-
-            // Ban right-click should be a dropdown of unban button
-
-            setUserList(newUserList);
-            setTotalItems(_userList.total_items);
-            setBanList(newBanList);
-            setBanTotalItems(_banList.total_items);
-
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+        let newUserList = [];
+        for (let i = 0; i < _userList.list.length; i++) {
+            let user = _userList.list[i];
+            let banMark = <></>;
+            if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
+            newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo timestamp={user.join_timestamp * 1000} /> });
         }
+        let newBanList = [];
+        for (let i = 0; i < _banList.list.length; i++) {
+            let ban = _banList.list[i];
+            let expireDT = getFormattedDate(new Date(ban.ban.expire * 1000));
+            if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
+            newBanList.push({ uid: ban.meta.uid, user: <UserCard user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT });
+        }
+
+        setUserList(newUserList);
+        setTotalItems(_userList.total_items);
+        setBanList(newBanList);
+        setBanTotalItems(_banList.total_items);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [theme, page, pageSize, banPage, banPageSize, unbanUser]);
+    useEffect(() => {
         doLoad();
-    }, [page, pageSize, banPage, banPageSize, theme, unbanUser]);
+    }, [doLoad]);
+
+    useEffect(() => {
+        const handleUpdateEvent = () => {
+            doLoad();
+        };
+        window.addEventListener("updateExternalUserTable", handleUpdateEvent);
+        return () => {
+            window.removeEventListener("updateExternalUserTable", handleUpdateEvent);
+        };
+    }, [doLoad]);
 
     function handleClickPU(data) {
         // Popup showing user info

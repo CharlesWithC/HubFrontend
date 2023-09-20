@@ -93,7 +93,6 @@ const Deliveries = () => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        console.log(data);
         navigate(`/beta/delivery/${data.logid}`);
     }
 

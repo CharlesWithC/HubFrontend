@@ -7,7 +7,6 @@ const customAxios = axios.create();
 axiosRetry(customAxios, {
     retries: 3,
     retryDelay: (retryCount) => {
-        console.log(`retry attempt: ${retryCount}`);
         return retryCount * 1000;
     },
     retryCondition: (error) => {
@@ -448,6 +447,5 @@ export function removeNullValues(obj) {
         }
     }
 
-    console.log(newObj);
     return newObj;
 };

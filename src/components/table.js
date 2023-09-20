@@ -34,7 +34,6 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
         e.preventDefault();
         e.stopPropagation();
         if (anchorPosition[row_idx]) {
-            console.log("close");
             setAnchorPosition({});
             return;
         }
