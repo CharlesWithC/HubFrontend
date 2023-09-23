@@ -2,10 +2,10 @@ import React from 'react';
 import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 
 const UpgradeCard = () => {
-    const bronze = ["Patron Discord Role", "A special Thank You on our website"];
-    const silver = ["Silver Name", "Customizable Theme", "View Detailed Statistics"];
-    const gold = ["Gold Name", "Customizable Background Image", "Access to more Radio Stations", "Export Delivery Route", "Patron Support"];
-    const platinum = ["More choices on name color", "Access to ANY Radio Stations (customizable URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Patron Priority Support"];
+    const bronze = ["Patron Discord Role", "A Special Thank You"];
+    const silver = ["Silver Name", "Custom Color Theme", "View Detailed Statistics", "More Radio Stations"];
+    const gold = ["Gold Name", "Custom Background Image", "Custom Profile Banner", "Custom Profile Theme", "Patron Support"];
+    const platinum = ["More Name Color", "Any Radio Stations (Radio URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Patron Priority Support"];
 
     return (
         <Grid container spacing={2} justifyContent="center">

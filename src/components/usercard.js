@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, useTheme } from "@mui/material";
+import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, Popover, Card, CardContent, CardMedia, useTheme } from "@mui/material";
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
@@ -13,13 +13,13 @@ import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFor
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, bio, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
     if (props.user !== undefined && props.user !== null) {
-        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
+        ({ uid, userid, discordid, bio, name, bio, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         if (vars.users[uid] === undefined) vars.users[uid] = props.user;
         ({ size, useChip, onDelete, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, bio, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -40,6 +40,7 @@ const UserCard = (props) => {
     const theme = useTheme();
 
     const [showContextMenu, setShowContextMenu] = useState(false);
+    const [showPopover, setShowPopover] = useState(false);
     const [anchorPosition, setAnchorPosition] = useState({});
     const handleContextMenu = useCallback((e) => {
         e.preventDefault();
@@ -51,6 +52,16 @@ const UserCard = (props) => {
         setAnchorPosition({ top: e.clientY, left: e.clientX });
         setShowContextMenu(true);
     }, [showContextMenu]);
+    const handleClick = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (showPopover) {
+            setShowPopover(false);
+            return;
+        }
+        setAnchorPosition({ top: e.clientY, left: e.clientX });
+        setShowPopover(true);
+    }, [showPopover]);
     const [ctxAction, setCtxAction] = useState("");
     const updateCtxAction = useCallback((e, action) => {
         e.preventDefault();
@@ -103,6 +114,7 @@ const UserCard = (props) => {
 
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
+    const bioRef = useRef(bio);
     const discordidRef = useRef(discordid);
     const emailRef = useRef(email);
     const steamidRef = useRef(steamid);
@@ -124,6 +136,7 @@ const UserCard = (props) => {
             steamidRef.current = resp.data.steamid;
             truckersmpidRef.current = resp.data.truckersmpid;
             nameRef.current = resp.data.name;
+            bioRef.current = resp.data.bio;
             avatarRef.current = resp.data.avatar;
             rolesRef.current = resp.data.roles;
             banRef.current = resp.data.ban;
@@ -144,7 +157,7 @@ const UserCard = (props) => {
             const userUpdated = new CustomEvent('userUpdated', {});
             window.dispatchEvent(userUpdated);
         }
-    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef]);
+    }, [uid]);
 
     useEffect(() => {
         const userUpdated = () => {
@@ -156,6 +169,7 @@ const UserCard = (props) => {
                 steamidRef.current = vars.users[uid].steamid;
                 truckersmpidRef.current = vars.users[uid].truckersmpid;
                 nameRef.current = vars.users[uid].name;
+                bioRef.current = vars.users[uid].bio;
                 avatarRef.current = vars.users[uid].avatar;
                 rolesRef.current = vars.users[uid].roles;
                 banRef.current = vars.users[uid].ban;
@@ -185,7 +199,7 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [userid, newRoles, updateUserInfo]);
+    }, [newRoles, updateUserInfo]);
 
     const updatePoints = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -199,7 +213,7 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [userid, newPoints, updateUserInfo]);
+    }, [newPoints, updateUserInfo]);
 
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setDialogBtnDisabled(true);
@@ -344,7 +358,7 @@ const UserCard = (props) => {
         }
     }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
-    let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
+    let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu} onClick={handleClick}>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatarRef.current}
                 style={{
@@ -695,6 +709,72 @@ const UserCard = (props) => {
                 </Dialog>
             }
         </div>
+        <Popover
+            open={showPopover && userid >= 0 && userid !== null && userid !== undefined}
+            anchorReference="anchorPosition"
+            anchorPosition={anchorPosition}
+            onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
+        >
+            <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(#484d5f, #dbdbe4)` }}>
+                <CardMedia
+                    component="img"
+                    image={`${vars.dhpath}/member/banner?userid=${userid}`}
+                    alt="User Banner"
+                    sx={{ borderRadius: "5px 5px 0 0" }}
+                />
+                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                    <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
+                        <div style={{ display: "flex", flexDirection: "row" }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                {nameRef.current}
+                            </Typography>
+                            <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                                <FontAwesomeIcon icon={faHashtag} />{useridRef.current}
+                            </Typography>
+                        </div>
+                        <Divider sx={{ mt: "8px", mb: "8px" }} />
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                            ABOUT ME
+                        </Typography>
+                        <Typography variant="body2">
+                            {bio}
+                        </Typography>
+                        <Grid container sx={{ mt: "10px" }}>
+                            <Grid item xs={6}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    MEMBER SINCE
+                                </Typography>
+                                <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                    {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    TRACKER
+                                </Typography>
+                                <Typography variant="body2">
+                                    {trackerMapping[trackerInUse]}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                        <Box sx={{ mt: "10px" }}>
+                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                {roles.length > 1 ? `ROLES` : `ROLE`}
+                            </Typography>
+                            {roles.map((role) => (
+                                <Chip
+                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} /> }
+                                    label={vars.roles[role].name}
+                                    variant="outlined"
+                                    size="small"
+                                    sx={{ borderRadius: "5px", margin: "3px" }}
+                                />
+                            ))}
+                        </Box>
+                    </CardContent>
+                </CardContent>
+            </Card>
+        </Popover>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
