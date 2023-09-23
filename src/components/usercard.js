@@ -13,13 +13,13 @@ import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFor
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, bio, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, bio, note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
     if (props.user !== undefined && props.user !== null) {
-        ({ uid, userid, discordid, bio, name, bio, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
+        ({ uid, userid, discordid, bio, name, bio, note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         if (vars.users[uid] === undefined) vars.users[uid] = props.user;
         ({ size, useChip, onDelete, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, bio, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, bio, note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -89,6 +89,7 @@ const UserCard = (props) => {
     const [trackerInUse, setTrackerInUse] = useState(vars.userInfo.tracker !== "unknown" ? vars.userInfo.tracker : trackers[0]);
     const [roleHistory, setRoleHistory] = useState(undefined);
     const [banHistory, setBanHistory] = useState(undefined);
+    const [newNote, setNewNote] = useState(note);
 
     useEffect(() => {
         let ok = false;
@@ -116,6 +117,7 @@ const UserCard = (props) => {
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
     const bioRef = useRef(bio);
+    const noteRef = useRef(note);
     const discordidRef = useRef(discordid);
     const emailRef = useRef(email);
     const steamidRef = useRef(steamid);
@@ -138,11 +140,13 @@ const UserCard = (props) => {
             truckersmpidRef.current = resp.data.truckersmpid;
             nameRef.current = resp.data.name;
             bioRef.current = resp.data.bio;
+            noteRef.current = resp.data.note;
             avatarRef.current = resp.data.avatar;
             rolesRef.current = resp.data.roles;
             banRef.current = resp.data.ban;
             setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
             setNewAboutMe(resp.data.bio);
+            setNewNote(resp.data.note);
             setNewRoles(resp.data.roles);
             setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
             setTrackerInUse(resp.data.tracker);
@@ -172,11 +176,13 @@ const UserCard = (props) => {
                 truckersmpidRef.current = vars.users[uid].truckersmpid;
                 nameRef.current = vars.users[uid].name;
                 bioRef.current = vars.users[uid].bio;
+                noteRef.current = vars.users[uid].note;
                 avatarRef.current = vars.users[uid].avatar;
                 rolesRef.current = vars.users[uid].roles;
                 banRef.current = vars.users[uid].ban;
                 setNewProfile({ name: vars.users[uid].name, avatar: vars.users[uid].avatar });
                 setNewAboutMe(vars.users[uid].bio);
+                setNewNote(vars.users[uid].note);
                 setNewRoles(vars.users[uid].roles);
                 setNewConnections({ email: vars.users[uid].email, discordid: vars.users[uid].discordid, steamid: vars.users[uid].steamid, truckersmpid: vars.users[uid].truckersmpid });
                 setTrackerInUse(vars.users[uid].tracker);
@@ -217,7 +223,23 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [uid, newAboutMe, updateUserInfo]);
+    }, [newAboutMe, updateUserInfo]);
+
+    const updateNote = useCallback(async () => {
+        if (noteRef.current === newNote) { return; }
+        vars.users[uid].note = newNote;
+        for (let i = 0; i < vars.members.length; i++) {
+            if (vars.members[i].uid === uid) {
+                vars.members[i].note = newNote;
+                break;
+            }
+        }
+        const userUpdated = new CustomEvent('userUpdated', {});
+        window.dispatchEvent(userUpdated);
+
+        await axios({ url: `${vars.dhpath}/user/${uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        updateUserInfo();
+    }, [uid, newNote, updateUserInfo]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -375,7 +397,7 @@ const UserCard = (props) => {
         }
     }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
-    let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu} onClick={handleClick}>
+    let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatarRef.current}
                 style={{
@@ -385,8 +407,8 @@ const UserCard = (props) => {
                     display: "inline-flex"
                 }} />
                 &nbsp;</>}
-            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} >{nameRef.current}</span>}
-            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }}>{nameRef.current}</span>}
+            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick}>{nameRef.current}</span>}
+            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick}>{nameRef.current}</span>}
         </>}
         {useChip && <>
             <Chip
@@ -395,7 +417,7 @@ const UserCard = (props) => {
                 label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
-                onDelete={onDelete}
+                onDelete={onDelete} onClick={handleClick}
             />
         </>}
         {showContextMenu && <Menu
@@ -752,7 +774,8 @@ const UserCard = (props) => {
             open={showPopover && userid >= 0 && userid !== null && userid !== undefined}
             anchorReference="anchorPosition"
             anchorPosition={anchorPosition}
-            onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
+            onContextMenu={(e) => { e.stopPropagation(); }}
+            onClose={(e) => { updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
             <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(#484d5f, #dbdbe4)` }}>
                 <CardMedia
@@ -809,6 +832,17 @@ const UserCard = (props) => {
                                     sx={{ borderRadius: "5px", margin: "3px" }}
                                 />
                             ))}
+                        </Box>
+                        <Box sx={{ mt: "10px" }}>
+                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                NOTE
+                            </Typography>
+                            <TextField
+                                value={newNote}
+                                onChange={(e) => setNewNote(e.target.value)}
+                                fullWidth multiline
+                                size="small"
+                            />
                         </Box>
                     </CardContent>
                 </CardContent>
