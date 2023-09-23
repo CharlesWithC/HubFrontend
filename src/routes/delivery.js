@@ -162,7 +162,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
 
             const data = dlogD;
             const detail = dlogD.detail.data.object;
-            const TRACKER = { "tracksim": "TrackSim", "navio": "Navio" };
+            const TRACKER = { "navio": "Navio", "tracksim": "TrackSim", "trucky": "Trucky" };
 
             let fine = 0;
             let autoLoad = false;
@@ -313,7 +313,8 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
             }
 
             const lmi = [{ "name": "Log ID", "value": logid },
-            { "name": `${TRACKER[data.tracker]} ID`, "key": "id" },
+            { "name": `Tracker`, "value": TRACKER[data.tracker] },
+            { "name": `Tracker Job ID`, "key": "id" },
             { "name": "Time Submitted", "value": <TimeAgo timestamp={data.timestamp * 1000} /> },
             { "name": "Time Spent", "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
             { "name": "Status", "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>Delivered</span> : <span style={{ color: theme.palette.error.main }}>Cancelled</span> },
@@ -329,10 +330,10 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
             {},
             { "name": "Driver", "value": <UserCard user={data.user} inline={true} /> },
             { "name": "Truck Model", "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
-            { "name": "Truck Plate", "value": <>{GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)}&nbsp;{detail.truck.license_plate}</> },
+            { "name": "Truck Plate", "value": <>{detail.truck.license_plate_country !== null ? `${GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)}&nbsp;${detail.truck.license_plate}` : `N/A`}</> },
             { "name": "Truck Odometer", "value": <>{ConvertUnit("km", detail.truck.initial_odometer)} {'->'} {ConvertUnit("km", detail.truck.odometer)}</> },
             { "name": "Trailer Model", "value": GetTrailerModel(detail.trailers) },
-            { "name": "Trailer Plate", "value": GetTrailerPlate(detail.game.short_name, detail.trailers) },
+            { "name": "Trailer Plate", "value": <>{detail.trailers[0].license_plate_country !== null ? `${GetTrailerPlate(detail.game.short_name, detail.trailers)}` : `N/A`}</> },
             {},
             { "name": "Cargo", "value": <>{detail.cargo.name} <span style={{ color: "grey" }}>({detail.cargo.unique_id})</span></> },
             { "name": "Cargo Mass", "value": ConvertUnit("kg", detail.cargo.mass) },
@@ -461,13 +462,13 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                                             }
                                             desc = <>{desc}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.amount}</>;
                                         } else if (e.type === "tollgate") {
-                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>
+                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>;
                                         } else if (e.type === "ferry" || e.type === "train") {
-                                            desc = <>From {e.meta.source_name}<br />To {e.meta.target_name}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>
+                                            desc = <>From {e.meta.source_name}<br />To {e.meta.target_name}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>;
                                         } else if (e.type === "refuel") {
-                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>
+                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
                                         } else if (e.type === "speeding") {
-                                            desc = <>Max. Speed: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>
+                                            desc = <>Max. Speed: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
                                         }
                                         return (
                                             <TimelineItem key={idx}>
@@ -485,7 +486,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                                                     <Typography>{desc !== null ? <>{desc}<br /></> : <></>}<span style={{ color: "grey" }}>{CalcInterval(new Date(dlogDetail.events[0].real_time), new Date(e.real_time))}</span></Typography>
                                                 </TimelineContent>
                                             </TimelineItem>
-                                        )
+                                        );
                                     })}
                                 </Timeline>
                             </SimpleBar>
@@ -685,7 +686,7 @@ const Delivery = memo(() => {
                 </Button>
             </DialogActions>
         </Dialog>
-    </>)
+    </>);
 });
 
 export default Delivery;
