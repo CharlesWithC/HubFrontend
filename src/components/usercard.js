@@ -880,7 +880,7 @@ const UserCard = (props) => {
                         <CardMedia
                             component="img"
                             image={`${vars.dhpath}/member/banner?userid=${userid}`}
-                            alt="User Banner"
+                            alt=""
                             sx={{ borderRadius: "5px 5px 0 0" }}
                         />
                         <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
@@ -891,18 +891,20 @@ const UserCard = (props) => {
                                     </Typography>
                                     <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                         {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
-                                        <FontAwesomeIcon icon={faHashtag} />{useridRef.current}
+                                        {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
                                         {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                                     </Typography>
                                 </div>
                                 {vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
                                 <Divider sx={{ mt: "8px", mb: "8px" }} />
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    ABOUT ME
-                                </Typography>
-                                <Typography variant="body2">
-                                    {bioRef.current}
-                                </Typography>
+                                {bioRef.current !== "" && <>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        ABOUT ME
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {bioRef.current}
+                                    </Typography>
+                                </>}
                                 <Grid container sx={{ mt: "10px" }}>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -953,7 +955,7 @@ const UserCard = (props) => {
             }
         </div>
         <Popover
-            open={showPopover && userid >= 0 && userid !== null && userid !== undefined}
+            open={showPopover}
             anchorReference="anchorPosition"
             anchorPosition={anchorPosition}
             onContextMenu={(e) => { e.stopPropagation(); }}
@@ -963,7 +965,7 @@ const UserCard = (props) => {
                 <CardMedia
                     component="img"
                     image={`${vars.dhpath}/member/banner?userid=${userid}`}
-                    alt="User Banner"
+                    alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}
                 />
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
@@ -974,17 +976,19 @@ const UserCard = (props) => {
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                 {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
-                                <FontAwesomeIcon icon={faHashtag} />{useridRef.current}
+                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
                             </Typography>
                         </div>
                         {vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
-                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                            ABOUT ME
-                        </Typography>
-                        <Typography variant="body2">
-                            {bioRef.current}
-                        </Typography>
+                        {bioRef.current !== "" && <>
+                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                ABOUT ME
+                            </Typography>
+                            <Typography variant="body2">
+                                {bioRef.current}
+                            </Typography>
+                        </>}
                         <Grid container sx={{ mt: "10px" }}>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
