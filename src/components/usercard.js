@@ -3,7 +3,7 @@ import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, Dialo
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
@@ -83,6 +83,7 @@ const UserCard = (props) => {
     const [newRoles, setNewRoles] = useState(roles);
     const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
     const [newProfile, setNewProfile] = useState({ name: name, avatar: avatar });
+    const [newAboutMe, setNewAboutMe] = useState(bio);
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
     const [newBan, setNewBan] = useState({ expire: +new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000) / 1000, reason: "" });
     const [trackerInUse, setTrackerInUse] = useState(vars.userInfo.tracker !== "unknown" ? vars.userInfo.tracker : trackers[0]);
@@ -141,6 +142,7 @@ const UserCard = (props) => {
             rolesRef.current = resp.data.roles;
             banRef.current = resp.data.ban;
             setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+            setNewAboutMe(resp.data.bio);
             setNewRoles(resp.data.roles);
             setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
             setTrackerInUse(resp.data.tracker);
@@ -174,6 +176,7 @@ const UserCard = (props) => {
                 rolesRef.current = vars.users[uid].roles;
                 banRef.current = vars.users[uid].ban;
                 setNewProfile({ name: vars.users[uid].name, avatar: vars.users[uid].avatar });
+                setNewAboutMe(vars.users[uid].bio);
                 setNewRoles(vars.users[uid].roles);
                 setNewConnections({ email: vars.users[uid].email, discordid: vars.users[uid].discordid, steamid: vars.users[uid].steamid, truckersmpid: vars.users[uid].truckersmpid });
                 setTrackerInUse(vars.users[uid].tracker);
@@ -186,6 +189,35 @@ const UserCard = (props) => {
             window.removeEventListener("userUpdated", userUpdated);
         };
     }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef]);
+
+    const updateProfile = useCallback(async (sync_to = undefined) => {
+        setDialogBtnDisabled(true);
+        sync_to === undefined ? sync_to = "" : sync_to = `&sync_to_${sync_to}=true`;
+        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            await updateUserInfo();
+            setSnackbarContent("Profile updated");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [uid, newProfile, updateUserInfo]);
+
+    const updateAboutMe = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/bio`, method: "PATCH", data: { "bio": newAboutMe }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            await updateUserInfo();
+            setSnackbarContent("About me updated");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [uid, newAboutMe, updateUserInfo]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -214,21 +246,6 @@ const UserCard = (props) => {
         }
         setDialogBtnDisabled(false);
     }, [newPoints, updateUserInfo]);
-
-    const updateProfile = useCallback(async (sync_to = undefined) => {
-        setDialogBtnDisabled(true);
-        sync_to === undefined ? sync_to = "" : sync_to = `&sync_to_${sync_to}=true`;
-        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 204) {
-            await updateUserInfo();
-            setSnackbarContent("Profile updated");
-            setSnackbarSeverity("success");
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-        setDialogBtnDisabled(false);
-    }, [uid, newProfile, updateUserInfo]);
 
     const switchTracker = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -388,7 +405,9 @@ const UserCard = (props) => {
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
+            {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
+            <Divider />
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             {<MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>}
@@ -403,6 +422,69 @@ const UserCard = (props) => {
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "delete_user"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon> Delete User</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
+            {ctxAction === "update-profile" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
+                    <DialogTitle>Update Profile | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- Custom profile may be set by providing name and avatar url</Typography>
+                        <Typography variant="body2">- Alternatively, sync to Discord / Steam / TruckersMP profile</Typography>
+                        <Grid container spacing={2} sx={{ mt: "5px" }}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Name"
+                                    value={newProfile.name}
+                                    onChange={(e) => setNewProfile({ ...newProfile, name: e.target.value })}
+                                    fullWidth disabled={dialogBtnDisabled}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Avatar URL"
+                                    value={newProfile.avatar}
+                                    onChange={(e) => setNewProfile({ ...newProfile, avatar: e.target.value })}
+                                    fullWidth disabled={dialogBtnDisabled}
+                                />
+                            </Grid>
+                        </Grid>
+                    </DialogContent>
+                    <DialogActions sx={{ justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'grid', justifyItems: 'start' }}>
+                            <ButtonGroup>
+                                <Button variant="contained" color="secondary">Sync To</Button>
+                                <Button variant="contained" color="success" onClick={() => { updateProfile("discord"); }} disabled={dialogBtnDisabled}>Discord</Button>
+                                <Button variant="contained" color="warning" onClick={() => { updateProfile("steam"); }} disabled={dialogBtnDisabled}>Steam</Button>
+                                <Button variant="contained" color="error" onClick={() => { updateProfile("truckersmp"); }} disabled={dialogBtnDisabled}>TruckersMP</Button>
+                            </ButtonGroup>
+                        </Box>
+                        <Box sx={{ display: 'grid', justifyItems: 'end' }}>
+                            <ButtonGroup>
+                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                                <Button variant="contained" onClick={() => { updateProfile(); }} disabled={dialogBtnDisabled}>Save</Button>
+                            </ButtonGroup>
+                        </Box>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "update-about-me" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
+                    <DialogTitle>Update About Me | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            label="About Me"
+                            value={newAboutMe}
+                            onChange={(e) => setNewAboutMe(e.target.value)}
+                            fullWidth disabled={dialogBtnDisabled}
+                            sx={{ mt: "5px" }}
+                        />
+                    </DialogContent>
+                    <DialogActions >
+                        <ButtonGroup>
+                            <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                            <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={dialogBtnDisabled}>Save</Button>
+                        </ButtonGroup>
+                    </DialogActions>
+                </Dialog>
+            }
             {ctxAction === "update-roles" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
                     <DialogTitle>Update Roles | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
@@ -444,49 +526,6 @@ const UserCard = (props) => {
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
                         <Button variant="contained" onClick={() => { updatePoints(); }} disabled={dialogBtnDisabled}>Update</Button>
-                    </DialogActions>
-                </Dialog>
-            }
-            {ctxAction === "update-profile" &&
-                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Profile | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
-                    <DialogContent>
-                        <Typography variant="body2">- Custom profile may be set by providing name and avatar url</Typography>
-                        <Typography variant="body2">- Alternatively, sync to Discord / Steam / TruckersMP profile</Typography>
-                        <Grid container spacing={2} sx={{ mt: "5px" }}>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Name"
-                                    value={newProfile.name}
-                                    onChange={(e) => setNewProfile({ ...newProfile, name: e.target.value })}
-                                    fullWidth disabled={dialogBtnDisabled}
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <TextField
-                                    label="Avatar URL"
-                                    value={newProfile.avatar}
-                                    onChange={(e) => setNewProfile({ ...newProfile, avatar: e.target.value })}
-                                    fullWidth disabled={dialogBtnDisabled}
-                                />
-                            </Grid>
-                        </Grid>
-                    </DialogContent>
-                    <DialogActions sx={{ justifyContent: 'space-between' }}>
-                        <Box sx={{ display: 'grid', justifyItems: 'start' }}>
-                            <ButtonGroup>
-                                <Button variant="contained" color="secondary">Sync To</Button>
-                                <Button variant="contained" color="success" onClick={() => { updateProfile("discord"); }} disabled={dialogBtnDisabled}>Discord</Button>
-                                <Button variant="contained" color="warning" onClick={() => { updateProfile("steam"); }} disabled={dialogBtnDisabled}>Steam</Button>
-                                <Button variant="contained" color="error" onClick={() => { updateProfile("truckersmp"); }} disabled={dialogBtnDisabled}>TruckersMP</Button>
-                            </ButtonGroup>
-                        </Box>
-                        <Box sx={{ display: 'grid', justifyItems: 'end' }}>
-                            <ButtonGroup>
-                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                                <Button variant="contained" onClick={() => { updateProfile(); }} disabled={dialogBtnDisabled}>Save</Button>
-                            </ButtonGroup>
-                        </Box>
                     </DialogActions>
                 </Dialog>
             }
@@ -541,7 +580,7 @@ const UserCard = (props) => {
                     <DialogContent>
                         <Box display="flex" alignItems="center">
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>Role History</Typography>
-                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Private` : (roleHistory !== undefined ? `Public` : `Loading`)}</Typography>
+                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? `Visible` : `Loading`)}</Typography>
                         </Box>
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
@@ -554,7 +593,7 @@ const UserCard = (props) => {
 
                         <Box display="flex" alignItems="center" sx={{ mt: "10px" }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>Ban History</Typography>
-                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Private` : (banHistory !== undefined ? `Public` : `Loading`)}</Typography>
+                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? `Visible` : `Loading`)}</Typography>
                         </Box>
                         {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
@@ -737,7 +776,7 @@ const UserCard = (props) => {
                             ABOUT ME
                         </Typography>
                         <Typography variant="body2">
-                            {bio}
+                            {bioRef.current}
                         </Typography>
                         <Grid container sx={{ mt: "10px" }}>
                             <Grid item xs={6}>
@@ -763,7 +802,7 @@ const UserCard = (props) => {
                             </Typography>
                             {roles.map((role) => (
                                 <Chip
-                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} /> }
+                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
                                     label={vars.roles[role].name}
                                     variant="outlined"
                                     size="small"
