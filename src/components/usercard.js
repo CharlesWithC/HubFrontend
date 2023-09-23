@@ -3,7 +3,7 @@ import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, Dialo
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
@@ -13,13 +13,13 @@ import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFor
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, bio, note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
     if (props.user !== undefined && props.user !== null) {
-        ({ uid, userid, discordid, bio, name, bio, note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
+        ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         if (vars.users[uid] === undefined) vars.users[uid] = props.user;
         ({ size, useChip, onDelete, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, bio, note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -90,6 +90,7 @@ const UserCard = (props) => {
     const [roleHistory, setRoleHistory] = useState(undefined);
     const [banHistory, setBanHistory] = useState(undefined);
     const [newNote, setNewNote] = useState(note);
+    const [newGlobalNote, setNewGlobalNote] = useState(global_note);
 
     useEffect(() => {
         let ok = false;
@@ -118,6 +119,7 @@ const UserCard = (props) => {
     const useridRef = useRef(userid);
     const bioRef = useRef(bio);
     const noteRef = useRef(note);
+    const globalNoteRef = useRef(global_note);
     const discordidRef = useRef(discordid);
     const emailRef = useRef(email);
     const steamidRef = useRef(steamid);
@@ -141,12 +143,14 @@ const UserCard = (props) => {
             nameRef.current = resp.data.name;
             bioRef.current = resp.data.bio;
             noteRef.current = resp.data.note;
+            globalNoteRef.current = resp.data.global_note;
             avatarRef.current = resp.data.avatar;
             rolesRef.current = resp.data.roles;
             banRef.current = resp.data.ban;
             setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
             setNewAboutMe(resp.data.bio);
             setNewNote(resp.data.note);
+            setNewGlobalNote(resp.data.global_note);
             setNewRoles(resp.data.roles);
             setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
             setTrackerInUse(resp.data.tracker);
@@ -177,12 +181,14 @@ const UserCard = (props) => {
                 nameRef.current = vars.users[uid].name;
                 bioRef.current = vars.users[uid].bio;
                 noteRef.current = vars.users[uid].note;
+                globalNoteRef.current = vars.users[uid].global_note;
                 avatarRef.current = vars.users[uid].avatar;
                 rolesRef.current = vars.users[uid].roles;
                 banRef.current = vars.users[uid].ban;
                 setNewProfile({ name: vars.users[uid].name, avatar: vars.users[uid].avatar });
                 setNewAboutMe(vars.users[uid].bio);
                 setNewNote(vars.users[uid].note);
+                setNewGlobalNote(vars.users[uid].global_note);
                 setNewRoles(vars.users[uid].roles);
                 setNewConnections({ email: vars.users[uid].email, discordid: vars.users[uid].discordid, steamid: vars.users[uid].steamid, truckersmpid: vars.users[uid].truckersmpid });
                 setTrackerInUse(vars.users[uid].tracker);
@@ -240,6 +246,20 @@ const UserCard = (props) => {
         await axios({ url: `${vars.dhpath}/user/${uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         updateUserInfo();
     }, [uid, newNote, updateUserInfo]);
+
+    const updateGlobalNote = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/${uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            await updateUserInfo();
+            setSnackbarContent("Global note updated");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [newGlobalNote, updateUserInfo]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
@@ -430,6 +450,7 @@ const UserCard = (props) => {
             {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
             <Divider />
+            {checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_user_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon> Update Global Note</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             {<MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>}
@@ -516,6 +537,25 @@ const UserCard = (props) => {
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
                         <Button variant="contained" onClick={() => { updateRoles(); }} disabled={dialogBtnDisabled}>Save</Button>
+                    </DialogActions>
+                </Dialog>
+            }
+            {ctxAction === "update-global-note" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>Update Global Note | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- Global note works like your private note, but it is shared between staff.</Typography>
+                        <TextField
+                            label="Global Note"
+                            value={newGlobalNote}
+                            onChange={(e) => setNewGlobalNote(e.target.value)}
+                            fullWidth
+                            sx={{ mt: "15px" }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" onClick={() => { updateGlobalNote(); }} disabled={dialogBtnDisabled}>Save</Button>
                     </DialogActions>
                 </Dialog>
             }
