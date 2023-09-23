@@ -1,23 +1,25 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, useTheme } from "@mui/material";
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
+import TimeAgo from './timeago';
 
-import { customAxios as axios, getAuthToken, checkPerm, removeNullValues } from '../functions';
+import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate } from '../functions';
 
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, size: "20", inline: false, useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
     if (props.user !== undefined && props.user !== null) {
         ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
-        ({ size, inline, useChip, onDelete, textOnly, key, style } = props);
+        if (vars.users[uid] === undefined) vars.users[uid] = props.user;
+        ({ size, useChip, onDelete, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -73,6 +75,32 @@ const UserCard = (props) => {
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
     const [newBan, setNewBan] = useState({ expire: +new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000) / 1000, reason: "" });
     const [trackerInUse, setTrackerInUse] = useState(vars.userInfo.tracker !== "unknown" ? vars.userInfo.tracker : trackers[0]);
+    const [roleHistory, setRoleHistory] = useState(undefined);
+    const [banHistory, setBanHistory] = useState(undefined);
+
+    useEffect(() => {
+        let ok = false;
+        for (let i = 0; i < vars.members.length; i++) {
+            if (vars.members[i].uid === uid) {
+                ok = true;
+                if (vars.members[i].role_history !== undefined) setRoleHistory(vars.members[i].role_history);
+                if (vars.members[i].ban_history !== undefined) setBanHistory(vars.members[i].ban_history);
+                break;
+            }
+        }
+        if (!ok) {
+            let uids = Object.keys(vars.users);
+            for (let i = 0; i < uids.length; i++) {
+                if (uids[i] === uid) {
+                    ok = true;
+                    if (vars.users[uids[i]].role_history !== undefined) setRoleHistory(vars.users[uids[i]].role_history);
+                    if (vars.users[uids[i]].ban_history !== undefined) setBanHistory(vars.users[uids[i]].ban_history);
+                    break;
+                }
+            }
+        }
+    }, [uid, setRoleHistory, setBanHistory]);
+
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
     const discordidRef = useRef(discordid);
@@ -89,31 +117,67 @@ const UserCard = (props) => {
 
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
+            uidRef.current = resp.data.uid;
+            useridRef.current = resp.data.userid;
+            discordidRef.current = resp.data.discordid;
+            emailRef.current = resp.data.email;
+            steamidRef.current = resp.data.steamid;
+            truckersmpidRef.current = resp.data.truckersmpid;
+            nameRef.current = resp.data.name;
+            avatarRef.current = resp.data.avatar;
+            rolesRef.current = resp.data.roles;
+            banRef.current = resp.data.ban;
+            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+            setNewRoles(resp.data.roles);
+            setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
+            setTrackerInUse(resp.data.tracker);
+            setRoleHistory(resp.data.role_history);
+            setBanHistory(resp.data.ban_history);
             for (let i = 0; i < vars.members.length; i++) {
                 if (vars.members[i].uid === uid) {
                     vars.members[i] = resp.data;
-                    uidRef.current = resp.data.uid;
-                    useridRef.current = resp.data.userid;
-                    discordidRef.current = resp.data.discordid;
-                    emailRef.current = resp.data.email;
-                    steamidRef.current = resp.data.steamid;
-                    truckersmpidRef.current = resp.data.truckersmpid;
-                    nameRef.current = resp.data.name;
-                    avatarRef.current = resp.data.avatar;
-                    rolesRef.current = resp.data.roles;
-                    banRef.current = resp.data.ban;
-                    setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
-                    setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
+                    break;
                 }
             }
+            vars.users[uid] = resp.data;
+
+            const userUpdated = new CustomEvent('userUpdated', {});
+            window.dispatchEvent(userUpdated);
         }
-    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef, setNewProfile]);
+    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef]);
+
+    useEffect(() => {
+        const userUpdated = () => {
+            if (vars.users[uid] !== undefined) {
+                uidRef.current = vars.users[uid].uid;
+                useridRef.current = vars.users[uid].userid;
+                discordidRef.current = vars.users[uid].discordid;
+                emailRef.current = vars.users[uid].email;
+                steamidRef.current = vars.users[uid].steamid;
+                truckersmpidRef.current = vars.users[uid].truckersmpid;
+                nameRef.current = vars.users[uid].name;
+                avatarRef.current = vars.users[uid].avatar;
+                rolesRef.current = vars.users[uid].roles;
+                banRef.current = vars.users[uid].ban;
+                setNewProfile({ name: vars.users[uid].name, avatar: vars.users[uid].avatar });
+                setNewRoles(vars.users[uid].roles);
+                setNewConnections({ email: vars.users[uid].email, discordid: vars.users[uid].discordid, steamid: vars.users[uid].steamid, truckersmpid: vars.users[uid].truckersmpid });
+                setTrackerInUse(vars.users[uid].tracker);
+                setRoleHistory(vars.users[uid].role_history);
+                setBanHistory(vars.users[uid].ban_history);
+            }
+        };
+        window.addEventListener("userUpdated", userUpdated);
+        return () => {
+            window.removeEventListener("userUpdated", userUpdated);
+        };
+    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            updateUserInfo();
+            await updateUserInfo();
             setSnackbarContent("Roles updated");
             setSnackbarSeverity("success");
         } else {
@@ -125,7 +189,7 @@ const UserCard = (props) => {
 
     const updatePoints = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${userid}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             updateUserInfo();
             setSnackbarContent("Points updated");
@@ -215,7 +279,7 @@ const UserCard = (props) => {
 
     const dismissMember = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             updateUserInfo();
             let newMembers = [];
@@ -282,7 +346,7 @@ const UserCard = (props) => {
 
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
-            {!textOnly && <><Avatar src={avatar}
+            {!textOnly && <><Avatar src={avatarRef.current}
                 style={{
                     width: `${size}px`,
                     height: `${size}px`,
@@ -290,14 +354,14 @@ const UserCard = (props) => {
                     display: "inline-flex"
                 }} />
                 &nbsp;</>}
-            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} >{name}</span>}
-            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }}>{name}</span>}
+            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} >{nameRef.current}</span>}
+            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }}>{nameRef.current}</span>}
         </>}
         {useChip && <>
             <Chip
                 key={key}
-                avatar={textOnly ? undefined : <Avatar alt={name} src={avatar} />}
-                label={name}
+                avatar={textOnly ? undefined : <Avatar alt={nameRef.current} src={avatarRef.current} />}
+                label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
                 onDelete={onDelete}
@@ -313,6 +377,7 @@ const UserCard = (props) => {
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
+            {<MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>}
             <Divider />
             {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "add_member"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
@@ -326,9 +391,9 @@ const UserCard = (props) => {
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-roles" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Update Roles | {name} (User ID: {userid})</DialogTitle>
+                    <DialogTitle>Update Roles | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
                     <DialogContent>
-                        <RoleSelect initialRoles={roles} onUpdate={setNewRoles} />
+                        <RoleSelect initialRoles={rolesRef.current} onUpdate={setNewRoles} />
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
@@ -338,7 +403,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-points" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Points | {name} (User ID: {userid})</DialogTitle>
+                    <DialogTitle>Update Points | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- Distance should be given when the tracker fails to submit jobs automatically</Typography>
                         <Typography variant="body2">- Bonus points could be given as extra reward (e.g. special events / contribution)</Typography>
@@ -370,7 +435,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-profile" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Profile | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Update Profile | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- Custom profile may be set by providing name and avatar url</Typography>
                         <Typography variant="body2">- Alternatively, sync to Discord / Steam / TruckersMP profile</Typography>
@@ -413,7 +478,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "switch-tracker" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Switch Tracker | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Switch Tracker | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- This will change the tracker we listen data from for the user.</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
@@ -435,7 +500,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "accept-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Accept as Member | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Accept as Member | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- The user will be accepted as member and given an unique User ID.</Typography>
                         <Typography variant="body2">- This will not affect the user's initial roles or application status. They must be updated manually at this point. (We may support partial automations in the future.)</Typography>
@@ -456,9 +521,43 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
+            {ctxAction === "role-ban-history" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>{nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Box display="flex" alignItems="center">
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Role History</Typography>
+                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Private` : (roleHistory !== undefined ? `Public` : `Loading`)}</Typography>
+                        </Box>
+                        {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
+                            {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
+                            {history.added_roles.map((role) => (<Typography variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role].name}</Typography>))}
+                            {history.removed_roles.map((role) => (<Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role].name}</Typography>))}
+                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo timestamp={history.timestamp * 1000} /></Typography>
+                        </>
+                        ))}
+                        {roleHistory !== undefined && roleHistory !== null && roleHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
+
+                        <Box display="flex" alignItems="center" sx={{ mt: "10px" }}>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Ban History</Typography>
+                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Private` : (banHistory !== undefined ? `Public` : `Loading`)}</Typography>
+                        </Box>
+                        {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
+                            {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
+                            <Typography variant="body2">{history.reason}</Typography>
+                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>Expiry: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
+                        </>
+                        ))}
+                        {banHistory !== undefined && banHistory !== null && banHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                    </DialogActions>
+                </Dialog>
+            }
             {ctxAction === "update-connections" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Connections | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Update Connections | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- Connections should not be modified or deleted unless requested by the user.</Typography>
                         <Typography variant="body2">- Remember that all users have access to updating connections themselves. Staff should only be involved when the user needs to delete the connections or the user is unable to update connections on their own (e.g. lost access to account).</Typography>
@@ -515,7 +614,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "disable-mfa" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Disable MFA | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Disable MFA | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- Multiple Factor Authentication will be disabled for the user.</Typography>
                         <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- This may put the user's account at risk! Only proceed when user's identity is confirmed.</Typography>
@@ -528,7 +627,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "ban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Ban User | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Ban User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={6}>
@@ -558,7 +657,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "unban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Unban User | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Unban User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- The user will be able to login when you unban it</Typography>
                     </DialogContent>
@@ -570,7 +669,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "dismiss-member" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Dismiss Member | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Dismiss Member | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- The user will be dismissed. This process cannot be undone.</Typography>
                         <Typography variant="body2">- Most data generated by the user (including jobs) will not be deleted, but "Unknown" will be shown as driver.</Typography>
@@ -583,7 +682,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "delete-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Delete User | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>Delete User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- The user will be deleted immediately (no 14-day cooldown). This process cannot be undone.</Typography>
                         <Typography variant="body2">- User ban will not be affected. To unban the user, use the "Banned Users" table.</Typography>
@@ -609,7 +708,7 @@ const UserCard = (props) => {
                 </Alert>
             </Snackbar>
         </Portal>
-    </div>;
+    </div >;
 
     return <>{content}</>;
 };
