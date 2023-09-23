@@ -23,7 +23,8 @@ const Overview = () => {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            const [chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
+            const [_, chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
+                { url: `${vars.dhpath}`, auth: true }, // access the index url to update status
                 { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false },
                 { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true&before=` + getTodayUTC() / 1000, auth: false },
                 { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },

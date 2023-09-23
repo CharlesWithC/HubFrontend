@@ -113,7 +113,7 @@ const SideBar = (props) => {
         }
     }
 
-    if (vars.specialRoles[vars.userInfo.discordid] === "#9a63c2") {
+    if (vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
         toRemove.push("external_user");
         toRemove.push("audit_log");
         toRemove.push("configuration");

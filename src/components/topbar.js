@@ -135,28 +135,28 @@ const TopBar = (props) => {
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
 
-    if (vars.specialRoles[vars.userInfo.discordid] === "#9a63c2") {
+    if (vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
         loggedInBtns = (<Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-        }}
-        id='topbar-dropdown-menu'
-        keepMounted
-        transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-        }}
-        open={isMenuOpen}
-        onClose={handleMenuClose}
-        sx={{ top: "50px" }}
-    >
-        <MenuItem disabled><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-        <MenuItem disabled><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
-        <Divider />
-        <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
-    </Menu>);
+            anchorEl={anchorEl}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            id='topbar-dropdown-menu'
+            keepMounted
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+            }}
+            open={isMenuOpen}
+            onClose={handleMenuClose}
+            sx={{ top: "50px" }}
+        >
+            <MenuItem disabled><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
+            <MenuItem disabled><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
+            <Divider />
+            <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
+        </Menu>);
     }
 
     const notLoggedInBtns = (<Menu
@@ -220,7 +220,7 @@ const TopBar = (props) => {
             </Snackbar>
         </div>
     );
-}
+};
 
 TopBar.propTypes = {
     sidebarWidth: PropTypes.number,

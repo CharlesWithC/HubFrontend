@@ -66,16 +66,7 @@ const Deliveries = () => {
                 let divisionCheckmark = <></>;
                 if (dlogL.list[i].division.divisionid !== undefined) {
                     divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
-                        PopperProps={{
-                            modifiers: [
-                                {
-                                    name: "offset",
-                                    options: {
-                                        offset: [0, -10],
-                                    },
-                                },
-                            ],
-                        }}>
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
                     </Tooltip>;
                 }

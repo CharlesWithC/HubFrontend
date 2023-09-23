@@ -84,7 +84,9 @@ const Loader = ({ onLoaderLoaded }) => {
                     let keys = Object.keys(specialRoles);
                     for (let i = 0; i < keys.length; i++) {
                         for (let j = 0; j < specialRoles[keys[i]].length; j++) {
-                            vars.specialRoles[specialRoles[keys[i]][j]] = SPECIAL_COLOR[keys[i]];
+                            if (!Object.keys(specialRoles).includes(specialRoles[keys[i]][j]))
+                                vars.specialRoles[specialRoles[keys[i]][j]] = [];
+                            vars.specialRoles[specialRoles[keys[i]][j]].push({ "name": keys[i], "color": SPECIAL_COLOR[keys[i]] });
                         }
                     }
                 }
@@ -128,7 +130,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     setLoadMessage("You must login from alpha web client first!");
                     return;
                 }
-                if (!["#9a63c2", "#2fc1f7", "#e488b9", "#e75757", "#f6529a", "#ecb484"].includes(vars.specialRoles[vars.userInfo.discordid])) {
+                if (!Object.keys(vars.specialRoles).includes(vars.userInfo.discordid)) {
                     setLoaderAnimation(false);
                     setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
                     return;

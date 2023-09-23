@@ -6,15 +6,13 @@ import UserCard from '../components/usercard';
 
 var vars = require("../variables");
 
-const LargeUserCard = ({ user }) => {
+const LargeUserCard = ({ user, color }) => {
     return (
         <Card sx={{ minWidth: 150 }}>
-            <Link to={`/beta/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}>
-                <Avatar src={user.avatar} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3 }} />
-            </Link>
+            <Avatar src={user.avatar} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
                 <Typography variant="h6" align="center">
-                    <Link to={`/beta/member/${user.userid}`} style={{ flexGrow: 1, alignItems: "center" }}><UserCard user={user} textOnly={true} /></Link>
+                    <UserCard user={user} textOnly={true} />
                 </Typography>
             </CardContent>
         </Card>
@@ -52,16 +50,7 @@ const Members = () => {
     vars.membersTabCache = (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
             <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : "No description"}
-                PopperProps={{
-                    modifiers: [
-                        {
-                            name: "offset",
-                            options: {
-                                offset: [0, -10],
-                            },
-                        },
-                    ],
-                }}>
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
                     <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>
                 </Typography>
