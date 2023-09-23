@@ -82,7 +82,7 @@ const TopBar = (props) => {
         };
     }, []);
 
-    const openProfileModal = () => { console.log("profile modal"); setShowProfileModal(2); };
+    const openProfileModal = () => { setShowProfileModal(2); };
 
     async function logout() {
         const bearerToken = getAuthToken();

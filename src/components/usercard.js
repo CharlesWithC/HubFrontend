@@ -192,6 +192,48 @@ const UserCard = (props) => {
     const avatarRef = useRef(avatar);
     const rolesRef = useRef(roles);
     const banRef = useRef(ban);
+    useEffect(() => {
+        if (uidRef.current === undefined) {
+            uidRef.current = uid;
+        }
+        if (useridRef.current === undefined) {
+            useridRef.current = userid;
+        }
+        if (bioRef.current === undefined) {
+            bioRef.current = bio;
+        }
+        if (noteRef.current === undefined) {
+            noteRef.current = note;
+        }
+        if (globalNoteRef.current === undefined) {
+            globalNoteRef.current = global_note;
+        }
+        if (discordidRef.current === undefined) {
+            discordidRef.current = discordid;
+        }
+        if (emailRef.current === undefined) {
+            emailRef.current = email;
+        }
+        if (steamidRef.current === undefined) {
+            steamidRef.current = steamid;
+        }
+        if (truckersmpidRef.current === undefined) {
+            truckersmpidRef.current = truckersmpid;
+        }
+        if (nameRef.current === undefined) {
+            nameRef.current = name;
+        }
+        if (avatarRef.current === undefined) {
+            avatarRef.current = avatar;
+        }
+        if (rolesRef.current === undefined) {
+            rolesRef.current = roles;
+        }
+        if (banRef.current === undefined) {
+            banRef.current = ban;
+        }
+    }, [uid, userid, bio, note, global_note, discordid, email, steamid, truckersmpid, name, avatar, roles, ban,]);
+
     const updateUserInfo = useCallback(async () => {
         const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});
         window.dispatchEvent(updateExternalUserTable);
@@ -264,7 +306,7 @@ const UserCard = (props) => {
         return () => {
             window.removeEventListener("userUpdated", userUpdated);
         };
-    }, [uid, uidRef, useridRef, discordidRef, emailRef, steamidRef, truckersmpidRef, nameRef, avatarRef, rolesRef, banRef]);
+    }, [uid]);
 
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setDialogBtnDisabled(true);
@@ -535,8 +577,8 @@ const UserCard = (props) => {
                         </Typography>
                         {roles.map((role) => (
                             <Chip
-                                avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
-                                label={vars.roles[role].name}
+                                avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
+                                label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
                                 variant="outlined"
                                 size="small"
                                 sx={{ borderRadius: "5px", margin: "3px" }}
@@ -559,11 +601,10 @@ const UserCard = (props) => {
         </Card>
     </Dialog>;
 
-    console.log(showProfileModal);
     if (showProfileModal === 2) return <>{profileModal}</>;
     else if (showProfileModal === 1) return <></>;
 
-    let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
+    let content = <>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatarRef.current}
                 style={{
@@ -571,10 +612,13 @@ const UserCard = (props) => {
                     height: `${size}px`,
                     verticalAlign: "middle",
                     display: "inline-flex"
-                }} />
+                }}
+                onClick={handleClick}
+                onContextMenu={handleContextMenu}
+            />
                 &nbsp;</>}
-            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick}>{nameRef.current}</span>}
-            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick}>{nameRef.current}</span>}
+            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
+            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
         </>}
         {useChip && <>
             <Chip
@@ -583,7 +627,7 @@ const UserCard = (props) => {
                 label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
-                onDelete={onDelete} onClick={handleClick}
+                onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu}
             />
         </>}
         {showContextMenu && <Menu
@@ -1053,7 +1097,7 @@ const UserCard = (props) => {
                 </Alert>
             </Snackbar>
         </Portal>
-    </div >;
+    </>;
 
     return <>{content}</>;
 };
