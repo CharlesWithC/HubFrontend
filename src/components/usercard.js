@@ -53,13 +53,13 @@ function GetActivity(activity) {
 }
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
     if (props.user !== undefined && props.user !== null) {
         ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         if (vars.users[uid] === undefined) vars.users[uid] = props.user;
-        ({ size, useChip, onDelete, textOnly, key, style } = props);
+        ({ size, useChip, onDelete, textOnly, key, style, showProfileModal, onProfileModalClose } = props);
     } else {
-        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style, showProfileModal, onProfileModalClose } = props);
     }
 
     if (size === undefined) {
@@ -481,6 +481,88 @@ const UserCard = (props) => {
         }
     }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
+    let profileModal = <Dialog open={true} onClose={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); }} fullWidth >
+        <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(#484d5f, #dbdbe4)` }}>
+            <CardMedia
+                component="img"
+                image={`${vars.dhpath}/member/banner?userid=${userid}`}
+                alt=""
+                sx={{ borderRadius: "5px 5px 0 0" }}
+            />
+            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                        <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                            {nameRef.current}
+                        </Typography>
+                        <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                            {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
+                            {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
+                            {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"])))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                        </Typography>
+                    </div>
+                    {vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
+                    <Divider sx={{ mt: "8px", mb: "8px" }} />
+                    {bioRef.current !== "" && <>
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                            ABOUT ME
+                        </Typography>
+                        <Typography variant="body2">
+                            {bioRef.current}
+                        </Typography>
+                    </>}
+                    <Grid container sx={{ mt: "10px" }}>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                MEMBER SINCE
+                            </Typography>
+                            <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                TRACKER
+                            </Typography>
+                            <Typography variant="body2">
+                                {trackerMapping[trackerInUse]}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                    {roles !== null && roles !== undefined && <Box sx={{ mt: "10px" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                            {roles.length > 1 ? `ROLES` : `ROLE`}
+                        </Typography>
+                        {roles.map((role) => (
+                            <Chip
+                                avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
+                                label={vars.roles[role].name}
+                                variant="outlined"
+                                size="small"
+                                sx={{ borderRadius: "5px", margin: "3px" }}
+                            />
+                        ))}
+                    </Box>}
+                    <Box sx={{ mt: "10px" }}>
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                            NOTE
+                        </Typography>
+                        <TextField
+                            value={newNote}
+                            onChange={(e) => setNewNote(e.target.value)}
+                            fullWidth multiline
+                            size="small"
+                        />
+                    </Box>
+                </CardContent>
+            </CardContent>
+        </Card>
+    </Dialog>;
+
+    console.log(showProfileModal);
+    if (showProfileModal === 2) return <>{profileModal}</>;
+    else if (showProfileModal === 1) return <></>;
+
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatarRef.current}
@@ -874,85 +956,7 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
-            {ctxAction === "show-profile" &&
-                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(#484d5f, #dbdbe4)` }}>
-                        <CardMedia
-                            component="img"
-                            image={`${vars.dhpath}/member/banner?userid=${userid}`}
-                            alt=""
-                            sx={{ borderRadius: "5px 5px 0 0" }}
-                        />
-                        <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-                            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
-                                <div style={{ display: "flex", flexDirection: "row" }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                        {nameRef.current}
-                                    </Typography>
-                                    <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                        {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
-                                        {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
-                                        {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
-                                    </Typography>
-                                </div>
-                                {vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
-                                <Divider sx={{ mt: "8px", mb: "8px" }} />
-                                {bioRef.current !== "" && <>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        ABOUT ME
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        {bioRef.current}
-                                    </Typography>
-                                </>}
-                                <Grid container sx={{ mt: "10px" }}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                            MEMBER SINCE
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                            {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
-                                        </Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                            TRACKER
-                                        </Typography>
-                                        <Typography variant="body2">
-                                            {trackerMapping[trackerInUse]}
-                                        </Typography>
-                                    </Grid>
-                                </Grid>
-                                {roles !== null && roles !== undefined && <Box sx={{ mt: "10px" }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        {roles.length > 1 ? `ROLES` : `ROLE`}
-                                    </Typography>
-                                    {roles.map((role) => (
-                                        <Chip
-                                            avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
-                                            label={vars.roles[role].name}
-                                            variant="outlined"
-                                            size="small"
-                                            sx={{ borderRadius: "5px", margin: "3px" }}
-                                        />
-                                    ))}
-                                </Box>}
-                                <Box sx={{ mt: "10px" }}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        NOTE
-                                    </Typography>
-                                    <TextField
-                                        value={newNote}
-                                        onChange={(e) => setNewNote(e.target.value)}
-                                        fullWidth multiline
-                                        size="small"
-                                    />
-                                </Box>
-                            </CardContent>
-                        </CardContent>
-                    </Card>
-                </Dialog>
-            }
+            {ctxAction === "show-profile" && <>{profileModal}</>}
         </div>
         <Popover
             open={showPopover}

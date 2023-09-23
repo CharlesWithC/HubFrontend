@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 
 import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
 import NotificationsPopover from './notifications';
+import UserCard from './usercard';
 
 var vars = require("../variables");
 
@@ -18,6 +19,7 @@ const TopBar = (props) => {
     const handleCloseSnackbar = () => {
         setSnackbarContent("");
     };
+    const [showProfileModal, setShowProfileModal] = useState(1);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
@@ -80,6 +82,8 @@ const TopBar = (props) => {
         };
     }, []);
 
+    const openProfileModal = () => { console.log("profile modal"); setShowProfileModal(2); };
+
     async function logout() {
         const bearerToken = getAuthToken();
         if (bearerToken === null) {
@@ -127,7 +131,7 @@ const TopBar = (props) => {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        <MenuItem><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
+        <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
         <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
         <Divider />
         <Link to="/beta/upgrade"><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
@@ -152,7 +156,7 @@ const TopBar = (props) => {
             onClose={handleMenuClose}
             sx={{ top: "50px" }}
         >
-            <MenuItem disabled><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
+            <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
             <MenuItem disabled><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
             <Divider />
             <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
@@ -181,6 +185,7 @@ const TopBar = (props) => {
 
     return (
         <div do-reload={reload}>
+            <UserCard user={vars.userInfo} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(1); }} />
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar ref={appBarRef} position="static"
                     sx={{
