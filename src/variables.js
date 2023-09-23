@@ -1,9 +1,11 @@
 var dhconfig = null;
+var apiconfig = null;
 var dhapplication = "";
 var dhstyle = "";
 var dhpath = "";
 var dhlogo = "";
 exports.dhconfig = dhconfig;
+exports.apiconfig = apiconfig;
 exports.dhapplication = dhapplication;
 exports.dhstyle = dhstyle;
 exports.dhpath = dhpath;

@@ -90,6 +90,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 if (config) {
                     vars.discordClientID = config.config.discord_client_id;
+                    vars.apiconfig = config.config;
                 }
                 if (memberRoles) {
                     let roles = memberRoles;

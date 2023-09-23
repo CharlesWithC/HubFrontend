@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, useTheme } from "@mui/material";
+import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, useTheme } from "@mui/material";
 import { Portal } from '@mui/base';
-import { Link } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 
@@ -13,12 +12,12 @@ import { customAxios as axios, getAuthToken, checkPerm, removeNullValues } from 
 var vars = require("../variables");
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, noLink, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, size: "20", inline: false, useChip: false, onDelete: null, noLink: false, textOnly: false, key: null, style: {} };
+    let { uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, textOnly, key, style } = { uid: -1, userid: -1, discordid: 0, name: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, size: "20", inline: false, useChip: false, onDelete: null, textOnly: false, key: null, style: {} };
     if (props.user !== undefined && props.user !== null) {
         ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
-        ({ size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
+        ({ size, inline, useChip, onDelete, textOnly, key, style } = props);
     } else {
-        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, noLink, textOnly, key, style } = props);
+        ({ uid, userid, discordid, name, avatar, email, steamid, truckersmpid, roles, ban, size, inline, useChip, onDelete, textOnly, key, style } = props);
     }
 
     if (size === undefined) {
@@ -60,11 +59,20 @@ const UserCard = (props) => {
     }, []);
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
+    let trackers = [];
+    for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
+        if (!trackers.includes(vars.apiconfig.tracker[i].type)) {
+            trackers.push(vars.apiconfig.tracker[i].type);
+        }
+    }
+    const trackerMapping = { "tracksim": "TrackSim", "trucky": "Trucky" };
+
     const [newRoles, setNewRoles] = useState(roles);
     const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
     const [newProfile, setNewProfile] = useState({ name: name, avatar: avatar });
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
     const [newBan, setNewBan] = useState({ expire: +new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000) / 1000, reason: "" });
+    const [trackerInUse, setTrackerInUse] = useState(vars.userInfo.tracker !== "unknown" ? vars.userInfo.tracker : trackers[0]);
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
     const discordidRef = useRef(discordid);
@@ -143,6 +151,34 @@ const UserCard = (props) => {
         }
         setDialogBtnDisabled(false);
     }, [uid, newProfile, updateUserInfo]);
+
+    const switchTracker = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Tracker updated");
+            setSnackbarSeverity("success");
+            updateUserInfo();
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogBtnDisabled(false);
+    }, [uid, trackerInUse, updateUserInfo]);
+
+    const acceptUser = useCallback(async () => {
+        setDialogBtnDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/${uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("User accepted as member");
+            setSnackbarSeverity("success");
+            updateUserInfo();
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+            setDialogBtnDisabled(false);
+        }
+    }, [uid, trackerInUse, updateUserInfo]);
 
     const updateConnections = useCallback(async (action = "update") => {
         setDialogBtnDisabled(true);
@@ -244,20 +280,6 @@ const UserCard = (props) => {
         }
     }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
-    const acceptUser = useCallback(async () => {
-        setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 204) {
-            setSnackbarContent("User accepted as member");
-            setSnackbarSeverity("success");
-            updateUserInfo();
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-            setDialogBtnDisabled(false);
-        }
-    }, [uid, updateUserInfo]);
-
     let content = <div style={{ display: "inline-block" }} onContextMenu={handleContextMenu}>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatar}
@@ -268,8 +290,8 @@ const UserCard = (props) => {
                     display: "inline-flex"
                 }} />
                 &nbsp;</>}
-            {specialColor === null && <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} >{name}</span>}
-            {specialColor !== null && <span style={{ whiteSpace: "nowrap", color: specialColor, overflow: "hidden", textOverflow: "ellipsis" }} >{name}</span>}
+            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} >{name}</span>}
+            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }}>{name}</span>}
         </>}
         {useChip && <>
             <Chip
@@ -287,7 +309,8 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            {uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
+            {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
+            {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             <Divider />
@@ -388,12 +411,44 @@ const UserCard = (props) => {
                     </DialogActions>
                 </Dialog>
             }
+            {ctxAction === "switch-tracker" &&
+                <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
+                    <DialogTitle>Switch Tracker | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">- This will change the tracker we listen data from for the user.</Typography>
+                        <FormControl component="fieldset" sx={{ mt: "5px" }}>
+                            <FormLabel component="legend">Tracker:</FormLabel>
+                            <Select value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
+                                {trackers.map((tracker) => (
+                                    <MenuItem key={tracker} value={tracker}>
+                                        {trackerMapping[tracker]}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="contained" color="success" onClick={() => { switchTracker(); }} disabled={dialogBtnDisabled}>Update</Button>
+                    </DialogActions>
+                </Dialog>
+            }
             {ctxAction === "accept-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
                     <DialogTitle>Accept as Member | {name} ({userid !== null ? `User ID: ${userid} / ` : ""}UID: {uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">- The user will be accepted as member and given an unique User ID.</Typography>
                         <Typography variant="body2">- This will not affect the user's initial roles or application status. They must be updated manually at this point. (We may support partial automations in the future.)</Typography>
+                        <FormControl component="fieldset" sx={{ mt: "5px" }}>
+                            <FormLabel component="legend">Select the tracker the user will use (This may be changed later):</FormLabel>
+                            <Select value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
+                                {trackers.map((tracker) => (
+                                    <MenuItem key={tracker} value={tracker}>
+                                        {trackerMapping[tracker]}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
@@ -556,13 +611,7 @@ const UserCard = (props) => {
         </Portal>
     </div>;
 
-    if (noLink) return <div style={{ flexGrow: 1, whiteSpace: inline ? null : 'nowrap', alignItems: "center" }}>{content}</div>;
-
-    return (
-        <Link to={`/beta/member/${userid}`} style={{ flexGrow: 1, whiteSpace: inline ? null : 'nowrap', alignItems: "center" }}>
-            {content}
-        </Link>
-    );
+    return <>{content}</>;
 };
 
 export default UserCard;

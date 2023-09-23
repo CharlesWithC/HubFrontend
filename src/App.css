@@ -1,90 +1,94 @@
 .sidebar-banner {
-  width: calc(100% - 20px);
-  margin: 5px 10px 5px 10px;
+    width: calc(100% - 20px);
+    margin: 5px 10px 5px 10px;
 }
 
 .loader {
-  width: 100px;
-  height: 100px;
-  pointer-events: none;
+    width: 100px;
+    height: 100px;
+    pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .loader-animated {
-    animation: loader 1s infinite;
-  }
-
-  @keyframes loader {
-    0% {
-      transform: scale(1);
-      opacity: 1;
+    .loader-animated {
+        animation: loader 1s infinite;
     }
 
-    50% {
-      transform: scale(1.2);
-      opacity: 0.5;
-    }
+    @keyframes loader {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
 
-    100% {
-      transform: scale(1);
-      opacity: 1;
+        50% {
+            transform: scale(1.2);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
-  }
 }
 
 .loading-div {
-  text-align: center;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
 }
 
 .user-profile {
-  display: flex;
-  align-items: center;
-  margin: 10px;
-  padding: 6px;
-  border-radius: 8px;
-  cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 .user-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-right: 16px;
 }
 
 .user-name {
-  font-size: 1.2rem;
-  font-weight: bold;
-  text-align: right;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: right;
 }
 
 .user-role {
-  font-size: 0.9rem;
-  color: #999;
-  text-align: right;
+    font-size: 0.9rem;
+    color: #999;
+    text-align: right;
 }
 
 .user-avatar {
-  width: 48px;
-  height: 48px;
-  overflow: hidden;
-  border-radius: 5px;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border-radius: 5px;
 }
 
 .user-avatar img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
+}
+
+.hover-underline:hover {
+    text-decoration: underline;
 }
