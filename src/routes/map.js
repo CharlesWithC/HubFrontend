@@ -46,7 +46,7 @@ const Map = () => {
 
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={tab} onChange={handleChange} aria-label="map tabs">
+            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" textColor="info">
                 <Tab label="ETS2 (Base)" {...a11yProps(0)} />
                 <Tab label="ETS2 (ProMods)" {...a11yProps(1)} />
                 <Tab label="ATS (Base)" {...a11yProps(2)} />
