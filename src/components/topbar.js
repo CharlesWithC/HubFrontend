@@ -132,7 +132,7 @@ const TopBar = (props) => {
         sx={{ top: "50px" }}
     >
         <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-        <MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
+        <Link to="/beta/settings"><MenuItem sx={{ marginBottom: "10px" }}><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
         <Divider />
         <Link to="/beta/upgrade"><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
         <Divider />
@@ -157,7 +157,7 @@ const TopBar = (props) => {
             sx={{ top: "50px" }}
         >
             <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-            <MenuItem disabled><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem>
+            <Link to="/beta/settings"><MenuItem sx={{ marginBottom: "10px" }}><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
             <Divider />
             <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
         </Menu>);

@@ -31,6 +31,7 @@ import AllApplication from './routes/applicationAll';
 import ExternalUsers from './routes/externalUsers';
 import AuditLog from './routes/auditLog';
 import Configuration from './routes/configuration';
+import Settings from './routes/settings';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -57,12 +58,22 @@ function App() {
     }, []);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const themeMode = vars.userSettings.theme === null ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
+    const [themeMode, updateThemeMode] = useState(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
     const theme = useMemo(
         () =>
             createTheme(getDesignTokens(themeMode), themeMode),
         [themeMode],
     );
+
+    useEffect(() => {
+        const handleUpdateTheme = () => {
+            updateThemeMode(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
+        };
+        window.addEventListener("themeUpdated", handleUpdateTheme);
+        return () => {
+            window.removeEventListener("themeUpdated", handleUpdateTheme);
+        };
+    }, [updateThemeMode]);
 
     const [, setRerender] = useState(false);
 
@@ -160,7 +171,7 @@ function App() {
                             </CardContent>
                         </Card>
                     </>}
-                    <SimpleBar style={{ padding: "20px", height: "100%" }} >
+                    <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                         <Routes>
                             <Route path="/beta/auth" element={<TokenAuth />} />
                             <Route path="/beta/discord-auth" element={<DiscordAuth />} />
@@ -189,6 +200,7 @@ function App() {
                             <Route path="/beta/external-user" element={<ExternalUsers />}></Route>
                             <Route path="/beta/audit-log" element={<AuditLog />}></Route>
                             <Route path="/beta/config" element={<Configuration />}></Route>
+                            <Route path="/beta/settings" element={<Settings />}></Route>
                         </Routes>
                         <footer style={{ display: ["/beta/auth", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>

@@ -50,7 +50,7 @@ const Map = () => {
                 <Tab label="ETS2 (Base)" {...a11yProps(0)} />
                 <Tab label="ETS2 (ProMods)" {...a11yProps(1)} />
                 <Tab label="ATS (Base)" {...a11yProps(2)} />
-                <Tab label="ATS (ProMods)" {...a11yProps(2)} />
+                <Tab label="ATS (ProMods)" {...a11yProps(3)} />
             </Tabs>
         </Box>
         <TabPanel value={tab} index={0}>

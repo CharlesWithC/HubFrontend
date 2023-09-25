@@ -23,7 +23,7 @@ exports.userDivisionIDs = userDivisionIDs;
 var userStats = {};
 exports.userStats = userStats;
 
-var userSettings = { "theme": null, "notificationRefresh": 30, "unit": "metric" };
+var userSettings = { "theme": "auto", "notificationRefresh": 30, "unit": "metric" };
 if (localStorage.getItem("client-settings") !== null) {
     try {
         let lsSettings = JSON.parse(localStorage.getItem("client-settings"));

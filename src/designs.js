@@ -10,6 +10,9 @@ export function getDesignTokens(mode) {
                     primary: {
                         main: '#fafafa',
                     },
+                    secondary: {
+                        main: '#dadada',
+                    },
                     background: {
                         default: '#fafafa',
                         paper: '#f0f0f0',
@@ -63,8 +66,7 @@ export function getDesignTokens(mode) {
                         styleOverrides: {
                             root: {
                                 '& .Mui-selected': {
-                                    color: '#2196f3',
-                                    textShadow: "1px 1px 2px"
+                                    color: '#2196f3'
                                 },
                             },
                         },
@@ -129,8 +131,7 @@ export function getDesignTokens(mode) {
                         styleOverrides: {
                             root: {
                                 '& .Mui-selected': {
-                                    color: '#2196f3',
-                                    textShadow: "0 0 1px"
+                                    color: '#2196f3'
                                 },
                             },
                         },
