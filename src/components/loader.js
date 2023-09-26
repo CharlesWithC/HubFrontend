@@ -125,15 +125,17 @@ const Loader = ({ onLoaderLoaded }) => {
 
                 await FetchProfile();
 
-                if (!vars.isLoggedIn) {
-                    setLoaderAnimation(false);
-                    setLoadMessage("You must login from alpha web client first!");
-                    return;
-                }
-                if (!Object.keys(vars.specialRoles).includes(vars.userInfo.discordid)) {
-                    setLoaderAnimation(false);
-                    setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
-                    return;
+                if (domain !== "hub.atmvtc.com") {
+                    if (!vars.isLoggedIn) {
+                        setLoaderAnimation(false);
+                        setLoadMessage("You must login from alpha web client first!");
+                        return;
+                    }
+                    if (!Object.keys(vars.specialRoles).includes(vars.userInfo.discordid)) {
+                        setLoaderAnimation(false);
+                        setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
+                        return;
+                    }
                 }
 
                 onLoaderLoaded();
