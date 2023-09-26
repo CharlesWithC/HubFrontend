@@ -132,10 +132,10 @@ const TopBar = (props) => {
         sx={{ top: "50px" }}
     >
         <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-        <Link to="/beta/settings"><MenuItem sx={{ marginBottom: "10px" }}><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
-        <Divider />
-        <Link to="/beta/upgrade"><MenuItem sx={{ color: '#FFC400', marginBottom: "10px" }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
-        <Divider />
+        <Link to="/beta/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
+        <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
+        <Link to="/beta/upgrade"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
+        <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
 
@@ -157,8 +157,8 @@ const TopBar = (props) => {
             sx={{ top: "50px" }}
         >
             <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-            <Link to="/beta/settings"><MenuItem sx={{ marginBottom: "10px" }}><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
-            <Divider />
+            <Link to="/beta/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
+            <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
             <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
         </Menu>);
     }
