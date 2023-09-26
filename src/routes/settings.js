@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -70,6 +70,55 @@ const NOTIFICATION_NAMES = {
     "poll_result": "Poll Result"
 };
 const NOTIFICATION_TYPES = Object.keys(NOTIFICATION_NAMES);
+
+const LANGUAGES = {
+    'ar': 'Arabic (العربية)',
+    'be': 'Belarusian (беларуская)',
+    'bg': 'Bulgarian (български)',
+    'cs': 'Czech (čeština)',
+    'cy': 'Welsh (Cymraeg)',
+    'da': 'Danish (dansk)',
+    'de': 'German (Deutsch)',
+    'el': 'Greek (Ελληνικά)',
+    'en': 'English',
+    'eo': 'Esperanto',
+    'es': 'Spanish (Español)',
+    'et': 'Estonian (eesti keel)',
+    'fi': 'Finnish (suomi)',
+    'fr': 'French (français)',
+    'ga': 'Irish (Gaeilge)',
+    'gd': 'Scottish (Gàidhlig)',
+    'hu': 'Hungarian (magyar)',
+    'hy': 'Armenian (Հայերեն)',
+    'id': 'Indonesian (Bahasa Indonesia)',
+    'is': 'Icelandic (íslenska)',
+    'it': 'Italian (italiano)',
+    'ja': 'Japanese (日本語)',
+    'ko': 'Korean (한국어)',
+    'lt': 'Lithuanian (lietuvių kalba)',
+    'lv': 'Latvian (latviešu valoda)',
+    'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)',
+    'mn': 'Mongolian (Монгол)',
+    'mo': 'Moldavian (Moldova)',
+    'ne': 'Nepali (नेपाली)',
+    'nl': 'Dutch (Nederlands)',
+    'nn': 'Norwegian (norsk nynorsk)',
+    'pl': 'Polish (polski)',
+    'pt': 'Portuguese (Português)',
+    'ro': 'Romanian (română)',
+    'ru': 'Russian (русский)',
+    'sk': 'Slovak (slovenčina)',
+    'sl': 'Slovenian (slovenščina)',
+    'sq': 'Albanian (Shqip)',
+    'sr': 'Serbian (српски)',
+    'sv': 'Swedish (Svenska)',
+    'th': 'Thai (ไทย)',
+    'tr': 'Turkish (Türkçe)',
+    'uk': 'Ukrainian (українська)',
+    'vi': 'Vietnamese (Tiếng Việt)',
+    'yi': 'Yiddish (ייִדיש)',
+    'zh': 'Chinese (中文)'
+};
 
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -177,7 +226,7 @@ const Settings = () => {
                 setSnackbarContent(`Disabled ${NOTIFICATION_NAMES[disabled[i]]} Notification`);
                 setSnackbarSeverity("success");
             } else {
-                setSnackbarContent(`Failed to disable ${NOTIFICATION_NAMES[disabled[i]]} Notification` + resp.data.error);
+                setSnackbarContent(`Failed to disable ${NOTIFICATION_NAMES[disabled[i]]} Notification: ` + resp.data.error);
                 setSnackbarSeverity("error");
                 reloadNotificationSettings();
             }
@@ -187,9 +236,27 @@ const Settings = () => {
         window.dispatchEvent(loadingEnd);
     }, [notificationSettings]);
 
+    const [userLanguage, setUserLanguage] = useState("en");
+    const [supportedLanguages, setSupportedLanguages] = useState([]);
+    const updateUserLanguage = useCallback(async (e) => {
+        setUserLanguage(e.target.value);
+        let resp = await axios({ url: `${vars.dhpath}/user/language`, data: { language: e.target.value }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Changed language to ${LANGUAGES[e.target.value]}`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to change language to ${LANGUAGES[e.target.value]}: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            reloadNotificationSettings();
+        }
+    }, []);
+
     useEffect(() => {
         async function doLoad() {
-            const [_notificationSettings] = await makeRequestsWithAuth([`${vars.dhpath}/user/notification/settings`]);
+            const [_notificationSettings, _languages, _userLanguage] = await makeRequestsWithAuth([
+                `${vars.dhpath}/user/notification/settings`,
+                `${vars.dhpath}/languages`,
+                `${vars.dhpath}/user/language`]);
             let newNotificationSettings = [];
             for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
                 if (_notificationSettings[NOTIFICATION_TYPES[i]]) {
@@ -197,6 +264,8 @@ const Settings = () => {
                 }
             }
             setNotificationSettings(newNotificationSettings);
+            setSupportedLanguages(_languages.supported);
+            setUserLanguage(_userLanguage.language);
         }
         doLoad();
     }, []);
@@ -250,6 +319,22 @@ const Settings = () => {
                         menuPortalTarget={document.body}
                     />}
                     {notificationSettings === null && <Typography variant="body2">Loading...</Typography>}
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Language (API & Notifications Only)</Typography>
+                    <br />
+                    <MUISelect
+                        key="user-language"
+                        name="User Language"
+                        value={userLanguage}
+                        onChange={updateUserLanguage}
+                        sx={{ marginTop: "6px", height: "30px" }}
+                    >
+                        {supportedLanguages.map(language => (
+                            <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
+                        ))}
+                    </MUISelect>
                 </Grid>
             </Grid>
         </TabPanel>
