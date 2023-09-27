@@ -324,6 +324,28 @@ const Settings = () => {
         window.dispatchEvent(loadingEnd);
     }, [newEmail]);
 
+    const [newAboutMe, setNewAboutMe] = useState(vars.userInfo.bio);
+    const [aboutMeDisabled, setAboutMeDisabled] = useState(false);
+    const updateAboutMe = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setAboutMeDisabled(true);
+        
+        let resp = await axios({ url: `${vars.dhpath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Updated About Me`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to update about me to ${LANGUAGES[e.target.value]}: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            reloadNotificationSettings();
+        }
+
+        setAboutMeDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [newAboutMe]);
+
     useEffect(() => {
         async function doLoad() {
             const [_notificationSettings, _languages, _userLanguage] = await makeRequestsWithAuth([
@@ -403,6 +425,7 @@ const Settings = () => {
                         value={userLanguage}
                         onChange={updateUserLanguage}
                         sx={{ marginTop: "6px", height: "30px" }}
+                        fullWidth
                     >
                         {supportedLanguages.map(language => (
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
@@ -462,6 +485,22 @@ const Settings = () => {
                             <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={truckersmpDisabled} fullWidth>Update</Button>
                         </Grid>
                     </Grid>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 80 }}>About Me</Typography>
+                    <br />
+                    <TextField
+                        multiline
+                        key="about-me"
+                        name="About Me"
+                        value={newAboutMe}
+                        onChange={(e) => { setNewAboutMe(e.target.value); }}
+                        rows={7}
+                        placeholder={"Say something about you!"}
+                        sx={{ mt: "5px" }} fullWidth
+                    />
+                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={aboutMeDisabled} sx={{ mt: "5px" }} fullWidth>Save</Button>
                 </Grid>
             </Grid>
         </TabPanel>
