@@ -30,7 +30,7 @@ const MfaAuth = () => {
                 setAllowVerify(false);
                 setOtpReadOnly(true);
                 await FetchProfile();
-                setTimeout(function () { navigate("/"); }, 500);
+                setTimeout(function () { navigate("/beta/"); }, 500);
             } else {
                 setOtpError(true);
                 setOtpText(resp.data.error);

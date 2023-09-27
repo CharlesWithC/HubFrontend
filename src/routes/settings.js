@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
+import { useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
@@ -148,7 +149,6 @@ TabPanel.propTypes = {
 
 const Settings = () => {
     const [tab, setTab] = useState(0);
-
     const handleChange = (event, newValue) => {
         setTab(newValue);
     };
@@ -160,6 +160,7 @@ const Settings = () => {
     }, []);
 
     const theme = useTheme();
+    const navigate = useNavigate();
 
     const [userSettings, setUserSettings] = useState(vars.userSettings);
 
@@ -239,6 +240,9 @@ const Settings = () => {
     const [userLanguage, setUserLanguage] = useState("en");
     const [supportedLanguages, setSupportedLanguages] = useState([]);
     const updateUserLanguage = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
         setUserLanguage(e.target.value);
         let resp = await axios({ url: `${vars.dhpath}/user/language`, data: { language: e.target.value }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -249,7 +253,76 @@ const Settings = () => {
             setSnackbarSeverity("error");
             reloadNotificationSettings();
         }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
     }, []);
+
+    const [newTruckersMPID, setNewTruckersMPID] = useState(vars.userInfo.truckersmpid);
+    const [truckersmpDisabled, setTruckersmpDisabled] = useState(false);
+    const updateTruckersMPID = useCallback(async () => {
+        if (isNaN(newTruckersMPID) || String(newTruckersMPID).replaceAll(" ", "") === "") {
+            setSnackbarContent(`Invalid TruckersMP ID`);
+            setSnackbarSeverity("error");
+            return;
+        }
+        if (Number(newTruckersMPID) === vars.userInfo.truckersmpid) {
+            setSnackbarContent(`TruckersMP ID was not updated`);
+            setSnackbarSeverity("warning");
+            return;
+        }
+
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        setTruckersmpDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/truckersmp`, data: { truckersmpid: newTruckersMPID }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Updated TruckersMP Account`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to update TruckersMP Account: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            reloadNotificationSettings();
+        }
+        setTruckersmpDisabled(false);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [newTruckersMPID]);
+
+    const [newEmail, setNewEmail] = useState(vars.userInfo.email);
+    const [emailDisabled, setEmailDisabled] = useState(false);
+    const updateEmail = useCallback(async () => {
+        if (newEmail.indexOf("@") === -1) {
+            setSnackbarContent(`Invalid Email`);
+            setSnackbarSeverity("error");
+            return;
+        }
+        if (newEmail === vars.userInfo.email) {
+            setSnackbarContent(`Email was not updated`);
+            setSnackbarSeverity("warning");
+            return;
+        }
+
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        setEmailDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/user/email`, data: { email: newEmail }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Email update request submitted. Please check your inbox for confirmation email.`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to update email: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            reloadNotificationSettings();
+        }
+        setEmailDisabled(false);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [newEmail]);
 
     useEffect(() => {
         async function doLoad() {
@@ -335,6 +408,60 @@ const Settings = () => {
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
                         ))}
                     </MUISelect>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Account Connections</Typography>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                            <TextField
+                                label="Email"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                fullWidth size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Button variant="contained" onClick={() => { updateEmail(); }} disabled={emailDisabled} fullWidth>Update</Button>
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                            <TextField
+                                label="Discord"
+                                value={vars.userInfo.discordid}
+                                fullWidth disabled size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/beta/discord-redirect"); }} fullWidth>Update (OAuth)</Button>
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                            <TextField
+                                label="Steam"
+                                value={vars.userInfo.steamid}
+                                fullWidth disabled size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/beta/steam-redirect"); }} fullWidth>Update (OAuth)</Button>
+                        </Grid>
+                    </Grid>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                            <TextField
+                                label="TruckersMP"
+                                value={newTruckersMPID}
+                                onChange={(e) => setNewTruckersMPID(e.target.value)}
+                                fullWidth size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={truckersmpDisabled} fullWidth>Update</Button>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         </TabPanel>

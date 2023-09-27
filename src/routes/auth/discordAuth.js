@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardActions, CardContent } from '@mui/material';
 
-import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '../../functions';
 
 var vars = require('../../variables');
 
@@ -16,25 +16,42 @@ const DiscordAuth = () => {
 
     const [message, setMessage] = useState("Validating authorization...");
     const [allowContinue, setContinue] = useState(false);
+    const [doingUpdate, setDoingUpdate] = useState(false);
 
     useEffect(() => {
         async function validateDiscordAuth() {
             try {
-                let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/discord-auth` }, method: `GET` });
-                if (resp.status === 200) {
-                    if (resp.data.mfa === false) {
-                        setAuthToken(resp.data.token);
-                        setMessage("You are authorized 🎉");
-                        await FetchProfile();
-                        setContinue(true);
-                        setTimeout(function () { navigate('/'); }, 500);
+                let updcode = localStorage.getItem("update-discord");
+                if (updcode === null || !isNaN(updcode) && +new Date() - updcode > 600000 || getAuthToken() === null) {
+                    localStorage.removeItem("update-discord");
+                    let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/beta/discord-auth` }, method: `GET` });
+                    if (resp.status === 200) {
+                        if (resp.data.mfa === false) {
+                            setAuthToken(resp.data.token);
+                            setMessage("You are authorized 🎉");
+                            await FetchProfile();
+                            setContinue(true);
+                            setTimeout(function () { navigate('/beta/'); }, 500);
+                        } else {
+                            navigate("/beta/mfa?token=" + resp.data.token);
+                            setMessage("MFA OTP Required 🔑");
+                        }
                     } else {
-                        navigate("/mfa?token=" + resp.data.token);
-                        setMessage("MFA OTP Required 🔑");
+                        setContinue(true);
+                        setMessage("❌ " + resp.data.error);
                     }
                 } else {
-                    setContinue(true);
-                    setMessage("❌ " + resp.data.error);
+                    setDoingUpdate(true);
+                    let resp = await axios({ url: `${vars.dhpath}/user/discord`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/beta/discord-auth` }, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 204) {
+                        setContinue(true);
+                        localStorage.removeItem("update-discord");
+                        setTimeout(function () { navigate("/beta/settings"); }, 3000);
+                        setMessage("Discord Account Updated");
+                    } else {
+                        setContinue(true);
+                        setMessage("❌ Failed to update Discord account: " + resp.data.error);
+                    }
                 }
             } catch (error) {
                 console.error(error);
@@ -49,7 +66,7 @@ const DiscordAuth = () => {
             setMessage(`❌ Discord Error: ${discordError}`);
             return;
         } else if (discordCode === null) {
-            navigate("/discord-redirect");
+            navigate("/beta/discord-redirect");
             return;
         } else {
             validateDiscordAuth();
@@ -57,7 +74,11 @@ const DiscordAuth = () => {
     }, [discordCode, discordError, discordErrorDescription, navigate]);
 
     function handleContinue() {
-        navigate('/');
+        if(doingUpdate){
+            navigate('/beta/settings');
+        } else {
+            navigate('/beta/');
+        }
     }
 
     return (
@@ -72,6 +93,6 @@ const DiscordAuth = () => {
             </CardActions>
         </Card>
     );
-}
+};
 
 export default DiscordAuth;
