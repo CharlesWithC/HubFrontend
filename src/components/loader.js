@@ -3,6 +3,7 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 
 import { loadConfig } from '../functions/config';
 import { FetchProfile, loadImageAsBase64, customAxios as axios } from '../functions';
+import { useTheme } from '@emotion/react';
 
 var vars = require('../variables');
 
@@ -15,6 +16,7 @@ if (domain === null) {
 // Also TODO, rename navio_company_id to tracker_company_id
 
 const Loader = ({ onLoaderLoaded }) => {
+    const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
     const [logoSrc, setLogoSrc] = useState(null);
     const [title, setTitle] = useState("Drivers Hub");
@@ -150,7 +152,7 @@ const Loader = ({ onLoaderLoaded }) => {
     }, [onLoaderLoaded]);
 
     return (
-        <div className="loading-div">
+        <div className="loading-div" style={{ backgroundColor: theme.palette.background.default }}>
             <HelmetProvider>
                 <Helmet>
                     <title>{title}</title>

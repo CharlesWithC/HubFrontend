@@ -8,12 +8,12 @@ var vars = require("../variables");
 const customStyles = (theme) => ({
     control: (base) => ({
         ...base,
-        backgroundColor: theme.palette.text.primary,
+        backgroundColor: theme.palette.background.default,
         borderColor: theme.palette.text.secondary
     }),
     option: (base) => ({
         ...base,
-        color: theme.palette.background.default
+        color: '#3c3c3c'
     }),
     menu: (base) => ({
         ...base,
