@@ -3,6 +3,7 @@ import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card,
 
 const ClickableTableRow = ({ rowKey, rowMeta, children, onClick, onContextMenu }) => {
     const handleClick = () => {
+        if (onClick === undefined || onClick === null) return;
         onClick(rowMeta);
     };
 

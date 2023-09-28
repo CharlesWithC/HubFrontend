@@ -57,6 +57,7 @@ const calculateInterval = (timestamp) => {
 };
 
 const TimeAgo = ({ timestamp, lower = false }) => {
+    if (timestamp === null) timestamp = 0;
     timestamp = parseInt(timestamp);
     const [timeAgo, setTimeAgo] = useState(calculate(timestamp, lower));
     const [intervalDuration, setIntervalDuration] = useState(calculateInterval(timestamp));
