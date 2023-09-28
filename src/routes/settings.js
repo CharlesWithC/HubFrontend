@@ -177,6 +177,8 @@ const Settings = () => {
             updatePassword();
         } else if (otpAction === "disable-password") {
             disablePassword();
+        } else if (otpAction === "create-apptoken") {
+            createAppToken();
         }
         setOtpAction("");
         setRequireOtp(false);
@@ -437,6 +439,48 @@ const Settings = () => {
         window.dispatchEvent(loadingEnd);
     }, [otp, otpPass]);
 
+    const [newAppToken, setNewAppToken] = useState(null);
+    const [newAppTokenName, setNewAppTokenName] = useState("");
+    const [newAppTokenDisabled, setNewAppTokenDisabled] = useState(false);
+    const createAppToken = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setNewAppTokenDisabled(true);
+
+        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+            setOtpPass(0); setOtp(""); createAppToken();
+            return;
+        }
+
+        let resp = null;
+        if (!vars.userInfo.mfa) {
+            resp = await axios({ url: `${vars.dhpath}/token/application`, data: { app_name: newAppTokenName }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else if (otp !== "") {
+            resp = await axios({ url: `${vars.dhpath}/token/application`, data: { app_name: newAppTokenName, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else {
+            setOtpAction("create-apptoken");
+            setRequireOtp(true);
+            setNewAppTokenDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            return;
+        }
+        if (resp.status === 200) {
+            setSnackbarContent(`Created Application Token`);
+            setSnackbarSeverity("success");
+            setOtpPass(+new Date() + 45000);
+            setNewAppToken(resp.data.token);
+        } else {
+            setSnackbarContent(`Failed to create appplication token: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            setOtp(""); setOtpPass(0);
+        }
+
+        setNewAppTokenDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [newAppTokenName, otp, otpPass]);
+
     useEffect(() => {
         async function doLoad() {
             const [_notificationSettings, _languages, _userLanguage] = await makeRequestsWithAuth([
@@ -605,7 +649,7 @@ const Settings = () => {
                     <Typography variant="body2">- If you no longer want to use password login, disable it for better security.</Typography>
                     <Typography variant="body2">- If MFA is not enabled, certain actions may be blocked if you logged in with password.</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
-                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <Grid item xs={12} sm={12} md={6} lg={8}>
                             <TextField
                                 label="New Password"
                                 value={newPassword}
@@ -614,11 +658,39 @@ const Settings = () => {
                                 fullWidth size="small"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Grid item xs={12} sm={12} md={6} lg={4}>
                             <ButtonGroup fullWidth>
                                 <Button variant="contained" color="error" onClick={() => { disablePassword(); }} disabled={newPasswordDisabled}>Disable</Button>
                                 <Button variant="contained" onClick={() => { updatePassword(); }} disabled={newPasswordDisabled}>Update</Button>
                             </ButtonGroup>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Application Authorization</Typography>
+                    <br />
+                    <Typography variant="body2">- An application token is provided to authorize external applications to act on behalf of you.</Typography>
+                    <Typography variant="body2">- Always make sure you the application is trusted.</Typography>
+                    <Typography variant="body2">- Dangerous actions like resigning cannot be done with application authorization.</Typography>
+                    <Typography variant="body2">- Existing application authorizations are managed in "Sessions" tab.</Typography>
+                    <Typography variant="body2" color="error">- If anyone asks you to provide a bearer token, using F12 Developer Tools, they are trying to hack your account! Please report to security@chub.page immediately!</Typography>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={8} lg={10}>
+                            {newAppToken === null && <TextField
+                                label="Application Name"
+                                value={newAppTokenName}
+                                onChange={(e) => setNewAppTokenName(e.target.value)}
+                                fullWidth size="small"
+                            />}
+                            {newAppToken !== null && <TextField
+                                label={`Application Token for ${newAppTokenName}`}
+                                value={newAppToken}
+                                fullWidth size="small" disabled
+                            />}
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={2}>
+                            {newAppToken === null && <Button variant="contained" onClick={() => { createAppToken(); }} disabled={newAppTokenDisabled} fullWidth>Create</Button>}
+                            {newAppToken !== null && <Button variant="contained" onClick={() => { window.navigator.clipboard.writeText(newAppToken); }} fullWidth>Copy</Button>}
                         </Grid>
                     </Grid>
                 </Grid>
