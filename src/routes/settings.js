@@ -211,6 +211,29 @@ const Settings = () => {
         window.dispatchEvent(themeUpdated);
     }, [setUserSettings]);
 
+    let trackers = [];
+    for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
+        if (!trackers.includes(vars.apiconfig.tracker[i].type)) {
+            trackers.push(vars.apiconfig.tracker[i].type);
+        }
+    }
+    const [tracker, setTracker] = useState(vars.userInfo.tracker);
+    const updateTracker = useCallback(async (to) => {
+        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${vars.userInfo.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Tracker updated");
+            setSnackbarSeverity("success");
+            vars.userInfo.tracker = tracker;
+            setTracker(to);
+            vars.users[vars.userInfo.uid] = vars.userInfo;
+            const userUpdated = new CustomEvent('userUpdated', {});
+            window.dispatchEvent(userUpdated);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [tracker]);
+
     const [notificationSettings, setNotificationSettings] = useState(null);
     const reloadNotificationSettings = useCallback(async () => {
         const [_notificationSettings] = await makeRequestsWithAuth([`${vars.dhpath}/user/notification/settings`]);
@@ -549,6 +572,9 @@ const Settings = () => {
                 vars.userInfo.mfa = true;
                 setMfaEnabled(true);
                 setModalEnableMfa(false);
+                vars.users[vars.userInfo.uid] = vars.userInfo;
+                const userUpdated = new CustomEvent('userUpdated', {});
+                window.dispatchEvent(userUpdated);
             } else {
                 setSnackbarContent(`Failed to enable MFA: ` + resp.data.error);
                 setSnackbarSeverity("error");
@@ -587,6 +613,9 @@ const Settings = () => {
             setOtpPass(+new Date() + 30000);
             vars.userInfo.mfa = false;
             setMfaEnabled(false);
+            vars.users[vars.userInfo.uid] = vars.userInfo;
+            const userUpdated = new CustomEvent('userUpdated', {});
+            window.dispatchEvent(userUpdated);
         } else {
             setSnackbarContent(`Failed to disable MFA: ` + resp.data.error);
             setSnackbarSeverity("error");
@@ -691,7 +720,7 @@ const Settings = () => {
         </Box>
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
                     <br />
                     <ButtonGroup>
@@ -700,13 +729,22 @@ const Settings = () => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
                     <br />
                     <ButtonGroup>
                         <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
                         <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { updateTheme("dark"); }}>Dark</Button>
                         <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
+                    <br />
+                    <ButtonGroup>
+                        {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
+                        {trackers.includes("tracksim") && <Button variant="contained" color={tracker === "tracksim" ? "info" : "secondary"} onClick={() => { updateTracker("tracksim"); }}>TrackSim</Button>}
                     </ButtonGroup>
                 </Grid>
 
