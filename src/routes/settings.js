@@ -185,6 +185,8 @@ const Settings = () => {
             createAppToken();
         } else if (otpAction === "disable-mfa") {
             disableMfa();
+        } else if (otpAction === "resign") {
+            resign();
         }
         setOtpAction("");
         setRequireOtp(false);
@@ -377,7 +379,7 @@ const Settings = () => {
         window.dispatchEvent(loadingStart);
         setUpdatePasswordDisabled(true);
 
-        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+        if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
             setOtpPass(0); setOtp(""); updatePassword();
             return;
         }
@@ -398,7 +400,7 @@ const Settings = () => {
         if (resp.status === 204) {
             setSnackbarContent(`Updated Password`);
             setSnackbarSeverity("success");
-            setOtpPass(+new Date() + 45000);
+            setOtpPass(+new Date() + 30000);
         } else {
             setSnackbarContent(`Failed to update password: ` + resp.data.error);
             setSnackbarSeverity("error");
@@ -414,7 +416,7 @@ const Settings = () => {
         window.dispatchEvent(loadingStart);
         setUpdatePasswordDisabled(true);
 
-        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+        if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
             setOtpPass(0); setOtp(""); updatePassword();
             return;
         }
@@ -453,7 +455,7 @@ const Settings = () => {
         window.dispatchEvent(loadingStart);
         setNewAppTokenDisabled(true);
 
-        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+        if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
             setOtpPass(0); setOtp(""); createAppToken();
             return;
         }
@@ -474,7 +476,7 @@ const Settings = () => {
         if (resp.status === 200) {
             setSnackbarContent(`Created Application Token`);
             setSnackbarSeverity("success");
-            setOtpPass(+new Date() + 45000);
+            setOtpPass(+new Date() + 30000);
             setNewAppToken(resp.data.token);
         } else {
             setSnackbarContent(`Failed to create appplication token: ` + resp.data.error);
@@ -528,14 +530,19 @@ const Settings = () => {
                     hideBackgroundDots: false,
                 }
             });
-            setTimeout(function () { qrCode.append(mfaSecretQRCodeRef.current); }, 1000);
+            let qrInterval = setInterval(function () {
+                if (mfaSecretQRCodeRef !== null && mfaSecretQRCodeRef.current !== null) {
+                    qrCode.append(mfaSecretQRCodeRef.current);
+                    clearInterval(qrInterval);
+                }
+            }, 50);
         } else {
             setManageMfaDisabled(true);
             let resp = await axios({ url: `${vars.dhpath}/user/mfa/enable`, data: { secret: mfaSecret, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSnackbarContent(`MFA Enabled`);
                 setSnackbarSeverity("success");
-                setOtpPass(+new Date() + 45000);
+                setOtpPass(+new Date() + 30000);
                 vars.userInfo.mfa = true;
                 setMfaEnabled(true);
                 setModalEnableMfa(false);
@@ -555,7 +562,7 @@ const Settings = () => {
         window.dispatchEvent(loadingStart);
         setManageMfaDisabled(true);
 
-        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+        if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
             setOtpPass(0); setOtp(""); disableMfa();
             return;
         }
@@ -574,7 +581,7 @@ const Settings = () => {
         if (resp.status === 204) {
             setSnackbarContent(`MFA Disabled`);
             setSnackbarSeverity("success");
-            setOtpPass(+new Date() + 45000);
+            setOtpPass(+new Date() + 30000);
             vars.userInfo.mfa = false;
             setMfaEnabled(false);
         } else {
@@ -587,6 +594,47 @@ const Settings = () => {
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
     }, [newAppTokenName, otp, otpPass]);
+
+    const [resignConfirm, setResignConfirm] = useState(false);
+    const [resignDisabled, setResignDisabled] = useState(false);
+    const resignRef = useRef(null);
+    const resign = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setResignDisabled(true);
+
+        if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
+            setOtpPass(0); setOtp(""); resign();
+            return;
+        }
+
+        let resp = null;
+        if (!mfaEnabled) {
+            resp = await axios({ url: `${vars.dhpath}/member/resign`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else if (otp !== "") {
+            resp = await axios({ url: `${vars.dhpath}/member/resign`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else {
+            setOtpAction("resign");
+            setRequireOtp(true);
+            setResignDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            return;
+        }
+        if (resp.status === 204) {
+            setSnackbarContent(`You have resigned! Goodbye and best wishes!`);
+            setSnackbarSeverity("success");
+            setOtpPass(+new Date() + 30000);
+        } else {
+            setSnackbarContent(`Failed to resign: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            setOtp(""); setOtpPass(0);
+        }
+
+        setResignDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [otp, otpPass, mfaEnabled]);
 
     useEffect(() => {
         async function doLoad() {
@@ -790,14 +838,14 @@ const Settings = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-                <Grid item xs={12} sm={12} md={12} lg={12}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 80 }}>Application Authorization</Typography>
                     <br />
                     <Typography variant="body2">- An application token is provided to authorize external applications to act on behalf of you.</Typography>
                     <Typography variant="body2">- Always make sure you the application is trusted.</Typography>
                     <Typography variant="body2">- Dangerous actions like resigning cannot be done with application authorization.</Typography>
                     <Typography variant="body2">- Existing application authorizations are managed in "Sessions" tab.</Typography>
-                    <Typography variant="body2" color="error">- If anyone asks you to provide a bearer token, using F12 Developer Tools, they are trying to hack your account! Please report to security@chub.page immediately!</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- If anyone asks you to provide a bearer token, using F12 Developer Tools, they are trying to hack your account! Please report to security@chub.page immediately!</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
                         <Grid item xs={12} sm={12} md={8} lg={10}>
                             {newAppToken === null && <TextField
@@ -817,6 +865,23 @@ const Settings = () => {
                             {newAppToken !== null && <Button variant="contained" onClick={() => { window.navigator.clipboard.writeText(newAppToken); }} fullWidth>Copy</Button>}
                         </Grid>
                     </Grid>
+                </Grid>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    {vars.userInfo.userid !== null && vars.userInfo.userid >= 0 && <>
+                        <Typography variant="h7" sx={{ color: theme.palette.warning.main, fontWeight: 80 }}>Leave <b>{vars.dhconfig.name}</b></Typography>
+                        <br />
+                        <Typography variant="body2">- All data, including jobs and points, that is currently linked to your account, will be unlinked.</Typography>
+                        <Typography variant="body2">- The data will be kept but will have no owner. To delete them, you must inquire a staff in the company.</Typography>
+                        <Typography variant="body2">- You may have to create an application or ticket to inform Human Resources to prevent being banned.</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Think twice! This cannot be undone!</Typography>
+                        <Grid container spacing={2} sx={{ mt: "3px" }}>
+                            <Grid item xs={12} sm={12} md={6} lg={8}>
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={6} lg={4}>
+                                <Button ref={resignRef} variant="contained" color="error" onClick={() => { if (!resignConfirm) { setResignDisabled(true); setResignConfirm(true); setTimeout(function () { setResignDisabled(false); }, 5000); } else resign(); }} disabled={resignDisabled} fullWidth>{!resignConfirm ? "Resign" : `${resignDisabled ? "Confirm? Wait..." : "Confirmed! Resign!"}`}</Button>
+                            </Grid>
+                        </Grid>
+                    </>}
                 </Grid>
             </Grid>
         </TabPanel>
