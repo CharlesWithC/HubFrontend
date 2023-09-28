@@ -9,7 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
+import QRCodeStyling from 'qr-code-styling';
+
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken } from '../functions';
+import { useRef } from 'react';
 
 var vars = require("../variables");
 
@@ -166,6 +169,7 @@ const Settings = () => {
     const [otpAction, setOtpAction] = useState("");
     const [otpPass, setOtpPass] = useState(0); // timestamp, before which user doesn't need to re-enter the otp
     const [requireOtp, setRequireOtp] = useState(false);
+    const [mfaEnabled, setMfaEnabled] = useState(vars.userInfo.mfa);
     const handleOtp = useCallback(() => {
         if (otp.replaceAll(" ", "") === "" || isNaN(otp.replaceAll(" ", "")) || otp.length !== 6) {
             setSnackbarContent(`Invalid OTP`);
@@ -179,6 +183,8 @@ const Settings = () => {
             disablePassword();
         } else if (otpAction === "create-apptoken") {
             createAppToken();
+        } else if (otpAction === "disable-mfa") {
+            disableMfa();
         }
         setOtpAction("");
         setRequireOtp(false);
@@ -377,7 +383,7 @@ const Settings = () => {
         }
 
         let resp = null;
-        if (!vars.userInfo.mfa) {
+        if (!mfaEnabled) {
             resp = await axios({ url: `${vars.dhpath}/user/password`, data: { password: newPassword }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
             resp = await axios({ url: `${vars.dhpath}/user/password`, data: { password: newPassword, otp: otp }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -402,7 +408,7 @@ const Settings = () => {
         setUpdatePasswordDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [newPassword, otp, otpPass]);
+    }, [newPassword, otp, otpPass, mfaEnabled]);
     const disablePassword = useCallback(async (e) => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
@@ -414,7 +420,7 @@ const Settings = () => {
         }
 
         let resp = null;
-        if (!vars.userInfo.mfa) {
+        if (!mfaEnabled) {
             resp = await axios({ url: `${vars.dhpath}/user/password/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
             resp = await axios({ url: `${vars.dhpath}/user/password/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -437,7 +443,7 @@ const Settings = () => {
         setUpdatePasswordDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [otp, otpPass]);
+    }, [otp, otpPass, mfaEnabled]);
 
     const [newAppToken, setNewAppToken] = useState(null);
     const [newAppTokenName, setNewAppTokenName] = useState("");
@@ -453,7 +459,7 @@ const Settings = () => {
         }
 
         let resp = null;
-        if (!vars.userInfo.mfa) {
+        if (!mfaEnabled) {
             resp = await axios({ url: `${vars.dhpath}/token/application`, data: { app_name: newAppTokenName }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
             resp = await axios({ url: `${vars.dhpath}/token/application`, data: { app_name: newAppTokenName, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -477,6 +483,107 @@ const Settings = () => {
         }
 
         setNewAppTokenDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [newAppTokenName, otp, otpPass, mfaEnabled]);
+
+    const [mfaSecret, setMfaSecret] = useState("");
+    const mfaSecretQRCodeRef = useRef(null);
+    const [modalEnableMfa, setModalEnableMfa] = useState(false);
+    const [manageMfaDisabled, setManageMfaDisabled] = useState(false);
+    const enableMfa = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        if (!modalEnableMfa) {
+            let newSecret = RandomB32String(16);
+            function RandomB32String(length) {
+                var result = '';
+                var characters = 'ABCDEFGHIJLKMNOPQRSTUVWXYZ234567';
+                var charactersLength = characters.length;
+                for (var i = 0; i < length; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+            }
+            setMfaSecret(newSecret);
+            setModalEnableMfa(true);
+
+            const qrCode = new QRCodeStyling({
+                width: 200,
+                height: 200,
+                type: "svg",
+                data: `otpauth://totp/${vars.dhconfig.name.replaceAll(" ", "%20")}%20Drivers%20Hub?secret=${newSecret}&issuer=drivershub.charlws&digits=6&period=30`,
+                image: "https://drivershub.charlws.com/images/logo.png",
+                dotsOptions: {
+                    color: theme.palette.text.secondary,
+                    type: "extra-rounded"
+                },
+                backgroundOptions: {
+                    color: "transparent",
+                },
+                imageOptions: {
+                    crossOrigin: "anonymous",
+                    margin: 0,
+                    hideBackgroundDots: false,
+                }
+            });
+            setTimeout(function () { qrCode.append(mfaSecretQRCodeRef.current); }, 1000);
+        } else {
+            setManageMfaDisabled(true);
+            let resp = await axios({ url: `${vars.dhpath}/user/mfa/enable`, data: { secret: mfaSecret, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (resp.status === 204) {
+                setSnackbarContent(`MFA Enabled`);
+                setSnackbarSeverity("success");
+                setOtpPass(+new Date() + 45000);
+                vars.userInfo.mfa = true;
+                setMfaEnabled(true);
+                setModalEnableMfa(false);
+            } else {
+                setSnackbarContent(`Failed to enable MFA: ` + resp.data.error);
+                setSnackbarSeverity("error");
+                setOtp(""); setOtpPass(0);
+            }
+            setManageMfaDisabled(false);
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [otp, mfaSecret, modalEnableMfa]);
+    const disableMfa = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setManageMfaDisabled(true);
+
+        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+            setOtpPass(0); setOtp(""); disableMfa();
+            return;
+        }
+
+        let resp = null;
+        if (otp !== "") {
+            resp = await axios({ url: `${vars.dhpath}/user/mfa/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else {
+            setOtpAction("disable-mfa");
+            setRequireOtp(true);
+            setManageMfaDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            return;
+        }
+        if (resp.status === 204) {
+            setSnackbarContent(`MFA Disabled`);
+            setSnackbarSeverity("success");
+            setOtpPass(+new Date() + 45000);
+            vars.userInfo.mfa = false;
+            setMfaEnabled(false);
+        } else {
+            setSnackbarContent(`Failed to disable MFA: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            setOtp(""); setOtpPass(0);
+        }
+
+        setManageMfaDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
     }, [newAppTokenName, otp, otpPass]);
@@ -667,6 +774,23 @@ const Settings = () => {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Multiple Factor Authentication (MFA) {mfaEnabled && <>- <span style={{ color: theme.palette.success.main }}>Already Enabled</span></>}</Typography>
+                    <br />
+                    <Typography variant="body2">- When MFA is enabled, a one-time-pass (OTP) is required upon login or perfoming sensitive action.</Typography>
+                    <Typography variant="body2">- It is highly recommended to enable MFA for enhanced account security.</Typography>
+                    <Typography variant="body2">- You will need an application like Authy or Google Authenticator to generate the one-time-pass (OTP).</Typography>
+                    <Typography variant="body2">- If you lost access to the application, you may ask a staff member to disable MFA for you.</Typography>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={6} lg={8}></Grid>
+                        <Grid item xs={12} sm={12} md={6} lg={4}>
+                            <ButtonGroup fullWidth>
+                                {!mfaEnabled && <Button variant="contained" onClick={() => { enableMfa(); }} disabled={manageMfaDisabled}>Enable</Button>}
+                                {mfaEnabled && <Button variant="contained" color="error" onClick={() => { disableMfa(); }} disabled={manageMfaDisabled}>Disable</Button>}
+                            </ButtonGroup>
+                        </Grid>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Typography variant="h7" sx={{ fontWeight: 80 }}>Application Authorization</Typography>
                     <br />
                     <Typography variant="body2">- An application token is provided to authorize external applications to act on behalf of you.</Typography>
@@ -696,6 +820,44 @@ const Settings = () => {
                 </Grid>
             </Grid>
         </TabPanel>
+        <Dialog open={modalEnableMfa} onClose={(e) => { setModalEnableMfa(false); }}>
+            <DialogTitle>
+                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication (MFA)
+                </Typography>
+            </DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12} md={7} lg={7}>
+                        <Typography variant="body2">- To enable MFA, first install an Authentication App, like Authy and Google Authenticator.</Typography>
+                        <Typography variant="body2">- Then, scan the QR code below to add the account to the App.</Typography>
+                        <Typography variant="body2">- Or, enter the secret manually: <b>{mfaSecret}</b></Typography>
+                        <Typography variant="body2">- Finally, enter the 6-digit OTP below and click "Verify".</Typography>
+                        <TextField
+                            sx={{ mt: "15px" }}
+                            label="MFA OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={5} lg={5}>
+                        <div ref={mfaSecretQRCodeRef} style={{ marginLeft: "20px" }} />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={(e) => { setModalEnableMfa(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                    Close
+                </Button>
+                <Button onClick={() => { window.navigator.clipboard.writeText(mfaSecret); }} variant="contained" color="info" sx={{ ml: 'auto' }}>
+                    Copy Secret
+                </Button>
+                <Button onClick={enableMfa} disabled={manageMfaDisabled} variant="contained" color="success" sx={{ ml: 'auto' }}>
+                    Verify
+                </Button>
+            </DialogActions>
+        </Dialog>
         <Dialog open={requireOtp} onClose={(e) => { setRequireOtp(false); }}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
@@ -734,7 +896,7 @@ const Settings = () => {
                 </Alert>
             </Snackbar>
         </Portal>
-    </Card>;
+    </Card >;
 };
 
 export default Settings;
