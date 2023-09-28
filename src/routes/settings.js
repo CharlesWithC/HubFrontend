@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken } from '../functions';
 
@@ -162,6 +162,26 @@ const Settings = () => {
     const theme = useTheme();
     const navigate = useNavigate();
 
+    const [otp, setOtp] = useState("");
+    const [otpAction, setOtpAction] = useState("");
+    const [otpPass, setOtpPass] = useState(0); // timestamp, before which user doesn't need to re-enter the otp
+    const [requireOtp, setRequireOtp] = useState(false);
+    const handleOtp = useCallback(() => {
+        if (otp.replaceAll(" ", "") === "" || isNaN(otp.replaceAll(" ", "")) || otp.length !== 6) {
+            setSnackbarContent(`Invalid OTP`);
+            setSnackbarSeverity("warning");
+            return;
+        }
+
+        if (otpAction === "update-password") {
+            updatePassword();
+        } else if (otpAction === "disable-password") {
+            disablePassword();
+        }
+        setOtpAction("");
+        setRequireOtp(false);
+    }, [otp, otpAction]);
+
     const [userSettings, setUserSettings] = useState(vars.userSettings);
 
     const updateUnit = useCallback((to) => {
@@ -251,7 +271,6 @@ const Settings = () => {
         } else {
             setSnackbarContent(`Failed to change language to ${LANGUAGES[e.target.value]}: ` + resp.data.error);
             setSnackbarSeverity("error");
-            reloadNotificationSettings();
         }
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -259,7 +278,7 @@ const Settings = () => {
     }, []);
 
     const [newTruckersMPID, setNewTruckersMPID] = useState(vars.userInfo.truckersmpid);
-    const [truckersmpDisabled, setTruckersmpDisabled] = useState(false);
+    const [newTruckersMPDisabled, setTruckersmpDisabled] = useState(false);
     const updateTruckersMPID = useCallback(async () => {
         if (isNaN(newTruckersMPID) || String(newTruckersMPID).replaceAll(" ", "") === "") {
             setSnackbarContent(`Invalid TruckersMP ID`);
@@ -283,7 +302,6 @@ const Settings = () => {
         } else {
             setSnackbarContent(`Failed to update TruckersMP Account: ` + resp.data.error);
             setSnackbarSeverity("error");
-            reloadNotificationSettings();
         }
         setTruckersmpDisabled(false);
 
@@ -292,7 +310,7 @@ const Settings = () => {
     }, [newTruckersMPID]);
 
     const [newEmail, setNewEmail] = useState(vars.userInfo.email);
-    const [emailDisabled, setEmailDisabled] = useState(false);
+    const [newEmailDisabled, setEmailDisabled] = useState(false);
     const updateEmail = useCallback(async () => {
         if (newEmail.indexOf("@") === -1) {
             setSnackbarContent(`Invalid Email`);
@@ -316,7 +334,6 @@ const Settings = () => {
         } else {
             setSnackbarContent(`Failed to update email: ` + resp.data.error);
             setSnackbarSeverity("error");
-            reloadNotificationSettings();
         }
         setEmailDisabled(false);
 
@@ -325,12 +342,12 @@ const Settings = () => {
     }, [newEmail]);
 
     const [newAboutMe, setNewAboutMe] = useState(vars.userInfo.bio);
-    const [aboutMeDisabled, setAboutMeDisabled] = useState(false);
+    const [newAboutMeDisabled, setAboutMeDisabled] = useState(false);
     const updateAboutMe = useCallback(async (e) => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
         setAboutMeDisabled(true);
-        
+
         let resp = await axios({ url: `${vars.dhpath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(`Updated About Me`);
@@ -338,13 +355,87 @@ const Settings = () => {
         } else {
             setSnackbarContent(`Failed to update about me to ${LANGUAGES[e.target.value]}: ` + resp.data.error);
             setSnackbarSeverity("error");
-            reloadNotificationSettings();
         }
 
         setAboutMeDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
     }, [newAboutMe]);
+
+    const [newPassword, setNewPassword] = useState("");
+    const [newPasswordDisabled, setUpdatePasswordDisabled] = useState(false);
+    const updatePassword = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setUpdatePasswordDisabled(true);
+
+        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+            setOtpPass(0); setOtp(""); updatePassword();
+            return;
+        }
+
+        let resp = null;
+        if (!vars.userInfo.mfa) {
+            resp = await axios({ url: `${vars.dhpath}/user/password`, data: { password: newPassword }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else if (otp !== "") {
+            resp = await axios({ url: `${vars.dhpath}/user/password`, data: { password: newPassword, otp: otp }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else {
+            setOtpAction("update-password");
+            setRequireOtp(true);
+            setUpdatePasswordDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            return;
+        }
+        if (resp.status === 204) {
+            setSnackbarContent(`Updated Password`);
+            setSnackbarSeverity("success");
+            setOtpPass(+new Date() + 45000);
+        } else {
+            setSnackbarContent(`Failed to update password: ` + resp.data.error);
+            setSnackbarSeverity("error");
+            setOtp(""); setOtpPass(0);
+        }
+
+        setUpdatePasswordDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [newPassword, otp, otpPass]);
+    const disablePassword = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setUpdatePasswordDisabled(true);
+
+        if (otpPass !== 0 && +new Date() - otpPass > 45000 && otp !== "") {
+            setOtpPass(0); setOtp(""); updatePassword();
+            return;
+        }
+
+        let resp = null;
+        if (!vars.userInfo.mfa) {
+            resp = await axios({ url: `${vars.dhpath}/user/password/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else if (otp !== "") {
+            resp = await axios({ url: `${vars.dhpath}/user/password/disable`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else {
+            setOtpAction("disable-password");
+            setRequireOtp(true);
+            setUpdatePasswordDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            return;
+        }
+        if (resp.status === 204) {
+            setSnackbarContent(`Disabled Password Login`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to disable password login: ` + resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setUpdatePasswordDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [otp, otpPass]);
 
     useEffect(() => {
         async function doLoad() {
@@ -445,7 +536,7 @@ const Settings = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Button variant="contained" onClick={() => { updateEmail(); }} disabled={emailDisabled} fullWidth>Update</Button>
+                            <Button variant="contained" onClick={() => { updateEmail(); }} disabled={newEmailDisabled} fullWidth>Update</Button>
                         </Grid>
                     </Grid>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
@@ -482,7 +573,7 @@ const Settings = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={truckersmpDisabled} fullWidth>Update</Button>
+                            <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={newTruckersMPDisabled} fullWidth>Update</Button>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -500,10 +591,64 @@ const Settings = () => {
                         placeholder={"Say something about you!"}
                         sx={{ mt: "5px" }} fullWidth
                     />
-                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={aboutMeDisabled} sx={{ mt: "5px" }} fullWidth>Save</Button>
+                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={newAboutMeDisabled} sx={{ mt: "5px" }} fullWidth>Save</Button>
                 </Grid>
             </Grid>
         </TabPanel>
+        <TabPanel value={tab} index={1}>
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Password Login</Typography>
+                    <br />
+                    <Typography variant="body2">- An unique email must be linked to your account to enable password login.</Typography>
+                    <Typography variant="body2">- You will be able to login with email and password if password login is enabled.</Typography>
+                    <Typography variant="body2">- If you no longer want to use password login, disable it for better security.</Typography>
+                    <Typography variant="body2">- If MFA is not enabled, certain actions may be blocked if you logged in with password.</Typography>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                            <TextField
+                                label="New Password"
+                                value={newPassword}
+                                type="password"
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                fullWidth size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <ButtonGroup fullWidth>
+                                <Button variant="contained" color="error" onClick={() => { disablePassword(); }} disabled={newPasswordDisabled}>Disable</Button>
+                                <Button variant="contained" onClick={() => { updatePassword(); }} disabled={newPasswordDisabled}>Update</Button>
+                            </ButtonGroup>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </TabPanel>
+        <Dialog open={requireOtp} onClose={(e) => { setRequireOtp(false); }}>
+            <DialogTitle>
+                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Attention Required
+                </Typography>
+            </DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">For security purposes, you must prove your identity with Multiple Factor Authentication.</Typography>
+                <TextField
+                    sx={{ mt: "15px" }}
+                    label="MFA OTP"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    fullWidth
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={(e) => { setRequireOtp(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                    Close
+                </Button>
+                <Button onClick={handleOtp} variant="contained" color="success" sx={{ ml: 'auto' }}>
+                    Verify
+                </Button>
+            </DialogActions>
+        </Dialog>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

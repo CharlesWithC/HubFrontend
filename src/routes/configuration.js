@@ -158,7 +158,7 @@ const Configuration = () => {
                 </Typography>
             </DialogTitle>
             <DialogContent>
-                <Typography variant="body2">For security purposes, you must prove your identity with Multiple Factor Authentication before proceeding.</Typography>
+                <Typography variant="body2">For security purposes, you must prove your identity with Multiple Factor Authentication.</Typography>
                 <TextField
                     sx={{ mt: "15px" }}
                     label="MFA OTP"
