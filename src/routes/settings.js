@@ -186,7 +186,9 @@ const Settings = () => {
         } else if (otpAction === "disable-mfa") {
             disableMfa();
         } else if (otpAction === "resign") {
-            resign();
+            memberResign();
+        } else if (otpAction === "delete-account") {
+            deleteAccount();
         }
         setOtpAction("");
         setRequireOtp(false);
@@ -509,6 +511,7 @@ const Settings = () => {
                 return result;
             }
             setMfaSecret(newSecret);
+            setOtp(""); setOtpPass(0);
             setModalEnableMfa(true);
 
             const qrCode = new QRCodeStyling({
@@ -598,13 +601,13 @@ const Settings = () => {
     const [resignConfirm, setResignConfirm] = useState(false);
     const [resignDisabled, setResignDisabled] = useState(false);
     const resignRef = useRef(null);
-    const resign = useCallback(async (e) => {
+    const memberResign = useCallback(async (e) => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
         setResignDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
-            setOtpPass(0); setOtp(""); resign();
+            setOtpPass(0); setOtp(""); memberResign();
             return;
         }
 
@@ -636,6 +639,29 @@ const Settings = () => {
         window.dispatchEvent(loadingEnd);
     }, [otp, otpPass, mfaEnabled]);
 
+    const [deleteConfirm, setDeleteConfirm] = useState(false);
+    const [deleteDisabled, setDeleteDisabled] = useState(false);
+    const deleteRef = useRef(null);
+    const deleteAccount = useCallback(async (e) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setDeleteDisabled(true);
+
+        let resp = await axios({ url: `${vars.dhpath}/user/${vars.userInfo.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+
+        if (resp.status === 204) {
+            setSnackbarContent(`Account deleted! Goodbye!`);
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to delete account: ` + resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setDeleteDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, []);
+
     useEffect(() => {
         async function doLoad() {
             const [_notificationSettings, _languages, _userLanguage] = await makeRequestsWithAuth([
@@ -666,7 +692,7 @@ const Settings = () => {
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Distance Unit</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
                     <br />
                     <ButtonGroup>
                         <Button variant="contained" color={userSettings.unit === "metric" ? "info" : "secondary"} onClick={() => { updateUnit("metric"); }}>Metric</Button>
@@ -675,7 +701,7 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Theme</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
                     <br />
                     <ButtonGroup>
                         <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
@@ -685,7 +711,7 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Notification Settings <IconButton size="small" aria-label="Edit" onClick={(e) => { reloadNotificationSettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Notification Settings <IconButton size="small" aria-label="Edit" onClick={(e) => { reloadNotificationSettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
                     <br />
                     {notificationSettings !== null && <Select
                         defaultValue={notificationSettings}
@@ -707,7 +733,7 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Language (API & Notifications Only)</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Language (API & Notifications Only)</Typography>
                     <br />
                     <MUISelect
                         key="user-language"
@@ -724,7 +750,7 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Account Connections</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Account Connections</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
                         <Grid item xs={12} sm={12} md={8} lg={8}>
                             <TextField
@@ -778,7 +804,7 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>About Me</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>About Me</Typography>
                     <br />
                     <TextField
                         multiline
@@ -797,7 +823,7 @@ const Settings = () => {
         <TabPanel value={tab} index={1}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Password Login</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Password Login</Typography>
                     <br />
                     <Typography variant="body2">- An unique email must be linked to your account to enable password login.</Typography>
                     <Typography variant="body2">- You will be able to login with email and password if password login is enabled.</Typography>
@@ -822,7 +848,7 @@ const Settings = () => {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Multiple Factor Authentication (MFA) {mfaEnabled && <>- <span style={{ color: theme.palette.success.main }}>Already Enabled</span></>}</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Multiple Factor Authentication (MFA) {mfaEnabled && <>- <span style={{ color: theme.palette.success.main }}>Already Enabled</span></>}</Typography>
                     <br />
                     <Typography variant="body2">- When MFA is enabled, a one-time-pass (OTP) is required upon login or perfoming sensitive action.</Typography>
                     <Typography variant="body2">- It is highly recommended to enable MFA for enhanced account security.</Typography>
@@ -839,7 +865,7 @@ const Settings = () => {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 80 }}>Application Authorization</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Application Authorization</Typography>
                     <br />
                     <Typography variant="body2">- An application token is provided to authorize external applications to act on behalf of you.</Typography>
                     <Typography variant="body2">- Always make sure you the application is trusted.</Typography>
@@ -868,17 +894,34 @@ const Settings = () => {
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     {vars.userInfo.userid !== null && vars.userInfo.userid >= 0 && <>
-                        <Typography variant="h7" sx={{ color: theme.palette.warning.main, fontWeight: 80 }}>Leave <b>{vars.dhconfig.name}</b></Typography>
+                        <Typography variant="h7" sx={{ color: theme.palette.warning.main }}>Leave <b>{vars.dhconfig.name}</b></Typography>
                         <br />
                         <Typography variant="body2">- All data, including jobs and points, that is currently linked to your account, will be unlinked.</Typography>
-                        <Typography variant="body2">- The data will be kept but will have no owner. To delete them, you must inquire a staff in the company.</Typography>
+                        <Typography variant="body2">- The data will be kept but will have no owner. To delete them, you must reach out to a staff in the company.</Typography>
                         <Typography variant="body2">- You may have to create an application or ticket to inform Human Resources to prevent being banned.</Typography>
                         <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Think twice! This cannot be undone!</Typography>
                         <Grid container spacing={2} sx={{ mt: "3px" }}>
                             <Grid item xs={12} sm={12} md={6} lg={8}>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={4}>
-                                <Button ref={resignRef} variant="contained" color="error" onClick={() => { if (!resignConfirm) { setResignDisabled(true); setResignConfirm(true); setTimeout(function () { setResignDisabled(false); }, 5000); } else resign(); }} disabled={resignDisabled} fullWidth>{!resignConfirm ? "Resign" : `${resignDisabled ? "Confirm? Wait..." : "Confirmed! Resign!"}`}</Button>
+                                <Button ref={resignRef} variant="contained" color="error" onClick={() => { if (!resignConfirm) { setResignDisabled(true); setResignConfirm(true); setTimeout(function () { setResignDisabled(false); }, 5000); } else memberResign(); }} disabled={resignDisabled} fullWidth>{!resignConfirm ? "Resign" : `${resignDisabled ? "Confirm? Wait..." : "Confirmed! Resign!"}`}</Button>
+                            </Grid>
+                        </Grid>
+                    </>}
+                    {(vars.userInfo.userid === null || vars.userInfo.userid < 0) && <>
+                        <Typography variant="h7" sx={{ color: theme.palette.warning.main, fontWeight: 800 }}>Delete Account</Typography>
+                        <br />
+                        <Typography variant="body2">- Your account will be disabled for a 14-day cooldown, during which you may login again to recover it.</Typography>
+                        <Typography variant="body2">- After the cooldown, the account will be deleted, along with personal information like email.</Typography>
+                        <Typography variant="body2">- Certain data might be kept. For example, the information you sent in an application.</Typography>
+                        <Typography variant="body2">- To completely delete such data, reach out to a staff in the company.</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Deleting account will not remove an active ban.</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Think twice! This cannot be undone!</Typography>
+                        <Grid container spacing={2} sx={{ mt: "3px" }}>
+                            <Grid item xs={12} sm={12} md={6} lg={8}>
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={6} lg={4}>
+                                <Button ref={deleteRef} variant="contained" color="error" onClick={() => { if (!deleteConfirm) { setDeleteDisabled(true); setDeleteConfirm(true); setTimeout(function () { setDeleteDisabled(false); }, 5000); } else deleteAccount(); }} disabled={deleteDisabled} fullWidth>{!deleteConfirm ? "Delete" : `${deleteDisabled ? "Confirm? Wait..." : "Confirmed! Delete!"}`}</Button>
                             </Grid>
                         </Grid>
                     </>}
@@ -895,8 +938,8 @@ const Settings = () => {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={7} lg={7}>
                         <Typography variant="body2">- To enable MFA, first install an Authentication App, like Authy and Google Authenticator.</Typography>
-                        <Typography variant="body2">- Then, scan the QR code below to add the account to the App.</Typography>
-                        <Typography variant="body2">- Or, enter the secret manually: <b>{mfaSecret}</b></Typography>
+                        <Typography variant="body2">- Then, scan the QR code below to add the account.</Typography>
+                        <Typography variant="body2">- Or, enter the code manually: <b>{mfaSecret}</b></Typography>
                         <Typography variant="body2">- Finally, enter the 6-digit OTP below and click "Verify".</Typography>
                         <TextField
                             sx={{ mt: "15px" }}
@@ -907,7 +950,7 @@ const Settings = () => {
                         />
                     </Grid>
                     <Grid item xs={12} sm={12} md={5} lg={5}>
-                        <div ref={mfaSecretQRCodeRef} style={{ marginLeft: "20px" }} />
+                        <div ref={mfaSecretQRCodeRef} style={{ marginTop: "-15px", marginLeft: "20px" }} />
                     </Grid>
                 </Grid>
             </DialogContent>
