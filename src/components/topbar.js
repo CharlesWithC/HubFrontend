@@ -139,7 +139,7 @@ const TopBar = (props) => {
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
 
-    if (vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
+    if (vars.specialRoles[vars.userInfo.discordid] !== undefined && vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
         loggedInBtns = (<Menu
             anchorEl={anchorEl}
             anchorOrigin={{

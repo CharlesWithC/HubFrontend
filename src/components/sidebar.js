@@ -113,7 +113,7 @@ const SideBar = (props) => {
         }
     }
 
-    if (vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
+    if (vars.specialRoles[vars.userInfo.discordid] !== undefined && vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
         toRemove.push("external_user");
         toRemove.push("audit_log");
         toRemove.push("configuration");
@@ -195,7 +195,7 @@ const SideBar = (props) => {
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
                         <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
-                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" ref={bannerRef} />
+                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="banner" ref={bannerRef} />
                         </ListItem></Link>
                     </List>
                     {sidebar}
@@ -215,7 +215,7 @@ const SideBar = (props) => {
                 <div style={{ overflow: "hidden" }}>
                     <List key="0">
                         <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
-                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png`} alt="banner" ref={bannerRef} />
+                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="banner" ref={bannerRef} />
                         </ListItem></Link>
                     </List>
                     {sidebar}

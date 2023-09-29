@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 
-import { loadConfig } from '../functions/config';
-import { FetchProfile, loadImageAsBase64, customAxios as axios } from '../functions';
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequests } from '../functions';
 import { useTheme } from '@emotion/react';
 
 var vars = require('../variables');
@@ -38,15 +37,26 @@ const Loader = ({ onLoaderLoaded }) => {
         async function doLoad() {
             try {
                 // fetch config
-                let loadedConfig = (await loadConfig(domain));
+                let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
+                if (resp.status !== 200) {
+                    setLoaderAnimation(false);
+                    setTitle("CHub - Drivers Hub");
+                    vars.dhlogo = await loadImageAsBase64(`https://drivershub.charlws.com/images/logo.png`);
+                    setLogoSrc(vars.dhlogo);
+                    if (resp.data.error === "Service Suspended") {
+                        setLoadMessage(<>Drivers Hub Suspended<br />Please ask the owner to complete the payment for CHub<br /><br /><a href="https://drivershub.charlws.com/">CHub - Drivers Hub</a></>);
+                    } else if (resp.data.error === "Not Found") {
+                        setLoadMessage(<>Drivers Hub Not Found<br />We currently do not operate Drivers Hub under this domain<br /><br /><a href="https://drivershub.charlws.com/">CHub - Drivers Hub</a></>);
+                    }
+                    return;
+                }
+                let loadedConfig = resp.data;
                 vars.dhconfig = loadedConfig.config;
-                vars.dhapplication = loadedConfig.application;
-                vars.dhstyle = loadedConfig.style;
                 vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
 
                 setTitle(vars.dhconfig.name);
                 try {
-                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
+                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
                 } catch {
                     vars.dhlogo = "";
                 }
@@ -54,19 +64,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 setLoadMessage(`Loading`);
 
                 localStorage.setItem("preload-title", vars.dhconfig.name);
-                localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png`);
-
-                // load cache
-                const makeRequests = async (urls) => {
-                    const responses = await Promise.all(
-                        urls.map((url) =>
-                            axios({
-                                url,
-                            })
-                        )
-                    );
-                    return responses.map((response) => response.data);
-                };
+                localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
 
                 var urlsBatch = [
                     "https://config.chub.page/roles",
