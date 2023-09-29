@@ -28,8 +28,8 @@ const SideBar = (props) => {
 
     const bannerRef = useRef(null);
     const [simpleBarStyle, setSimpleBarStyle] = useState({
-        maxHeight: `calc(100vh - 30px)`,
-        height: `calc(100vh - 30px)`,
+        maxHeight: `100vh`,
+        height: `100vh`,
     });
     useEffect(() => {
         const handleImageLoad = () => {
@@ -37,17 +37,17 @@ const SideBar = (props) => {
             const visibleSidebarBanner = Array.from(sidebarBanners).find(
                 (banner) => banner.offsetParent !== null
             );
-            if (visibleSidebarBanner) {
-                setTimeout(() => {
-                    const updatedVisibleBanner = document.querySelector('.sidebar-banner:not([style*="display: none"])');
-                    if (updatedVisibleBanner) {
-                        setSimpleBarStyle({
-                            maxHeight: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
-                            height: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
-                        });
-                    }
-                }, 100);
-            }
+            // if (visibleSidebarBanner) {
+            //     setTimeout(() => {
+            //         const updatedVisibleBanner = document.querySelector('.sidebar-banner:not([style*="display: none"])');
+            //         if (updatedVisibleBanner) {
+            //             setSimpleBarStyle({
+            //                 maxHeight: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
+            //                 height: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
+            //             });
+            //         }
+            //     }, 100);
+            // }
         };
 
         let currentBannerRef = bannerRef.current;
@@ -142,6 +142,11 @@ const SideBar = (props) => {
     }
 
     const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
+        <List key="0" sx={{ paddingTop: 0 }}>
+            <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
+                <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="banner" ref={bannerRef} style={{ margin: 0, width: "100%" }} />
+            </ListItem></Link>
+        </List>
         {menu.map((subMenu, subIndex) => (
             <div key={`navlist-${subMenu}-${subIndex}`}>
                 <List sx={{ margin: "0px 10px 0 10px" }}>
@@ -193,11 +198,6 @@ const SideBar = (props) => {
                 }}
             >
                 <div style={{ overflow: "hidden" }}>
-                    <List key="0">
-                        <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
-                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="banner" ref={bannerRef} />
-                        </ListItem></Link>
-                    </List>
                     {sidebar}
                 </div>
             </Drawer>
@@ -213,11 +213,6 @@ const SideBar = (props) => {
                 open
             >
                 <div style={{ overflow: "hidden" }}>
-                    <List key="0">
-                        <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
-                            <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="banner" ref={bannerRef} />
-                        </ListItem></Link>
-                    </List>
                     {sidebar}
                 </div>
             </Drawer>
