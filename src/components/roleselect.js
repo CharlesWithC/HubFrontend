@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Select from 'react-select';
+import { checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -40,14 +41,25 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
     let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
     for (let i = 0; i < roleIds.length; i++) {
+        roleIds[i] = Number(roleIds[i]);
         if (userHighestRole === undefined || vars.roles[roleIds[i]].order_id < userHighestRole) {
             userHighestRole = vars.roles[roleIds[i]].order_id;
         }
     }
 
+    let divisionRoles = [];
+    let divisionIds = Object.keys(vars.divisions);
+    for (let i = 0; i < divisionIds.length; i++) {
+        divisionRoles.push(vars.divisions[divisionIds[i]].role_id);
+    }
+    let divisionOnly = false;
+    if (checkUserPerm(["division"]) && !checkUserPerm(["admin", "hrm", "hr", "update_member_roles"])) {
+        divisionOnly = true;
+    }
+
     let formattedInit = [];
     for (let i = 0; i < initialRoles.length; i++) {
-        formattedInit.push({ value: initialRoles[i], label: vars.roles[initialRoles[i]].name, orderId: vars.roles[initialRoles[i]].order_id, isFixed: vars.roles[initialRoles[i]].order_id <= userHighestRole });
+        formattedInit.push({ value: initialRoles[i], label: vars.roles[initialRoles[i]].name, orderId: vars.roles[initialRoles[i]].order_id, isFixed: !divisionOnly ? vars.roles[initialRoles[i]].order_id <= userHighestRole : !divisionRoles.includes(initialRoles[i]) });
     }
 
     const [selectedRoles, setSelectedRoles] = useState(formattedInit !== undefined ? formattedInit : []);
@@ -68,11 +80,12 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
                 isMulti
                 name="colors"
                 options={roleIds
-                    .filter((roleId) => vars.roles[roleId].order_id > userHighestRole)
+                    .filter((roleId) => !divisionOnly ? vars.roles[roleId].order_id > userHighestRole : divisionRoles.includes(roleId))
                     .map((roleId) => ({
                         value: roleId,
                         label: vars.roles[roleId].name,
                         orderId: vars.roles[roleId].order_id,
+                        isFixed: !divisionOnly ? vars.roles[roleId].order_id <= userHighestRole : !divisionRoles.includes(roleId)
                     }))}
                 isClearable={selectedRoles.some((v) => !v.isFixed)}
                 className="basic-multi-select"
