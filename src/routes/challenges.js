@@ -185,7 +185,7 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
 
     return (
         <Card>
-            <CardMedia component="img" src={challenge.image} alt=" " />
+            <CardMedia component="img" src={challenge.image} alt="Banner" />
             {upcoming !== true && <>{challenge.metaProgress}</>}
             <CardContent>
                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>

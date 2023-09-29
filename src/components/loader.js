@@ -33,6 +33,13 @@ const Loader = ({ onLoaderLoaded }) => {
         localStorage.setItem("domain", domain);
     }
 
+    if (localStorage.getItem("update-discord") !== null && +new Date() - localStorage.getItem("update-discord") > 60000) {
+        localStorage.removeItem("update-discord");
+    }
+    if (localStorage.getItem("update-steam") !== null && +new Date() - localStorage.getItem("update-steam") > 60000) {
+        localStorage.removeItem("update-steam");
+    }
+
     useEffect(() => {
         async function doLoad() {
             try {
@@ -125,7 +132,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
                 await FetchProfile();
 
-                if (domain !== "hub.atmvtc.com") {
+                if (!["hub.atmvtc.com", "hub.gokboru.net.tr", "hub.movezenvtc.com", "hub.lightninglogisticsvtc.com", "hub.logisticaxtnt.com"].includes(domain)) {
                     if (!vars.isLoggedIn) {
                         setLoaderAnimation(false);
                         setLoadMessage("You must login from alpha web client first!");

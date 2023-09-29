@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress } from "@mui/material";
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
 import NotificationsPopover from './notifications';
@@ -13,6 +13,7 @@ var vars = require("../variables");
 
 const TopBar = (props) => {
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -24,6 +25,9 @@ const TopBar = (props) => {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
     const handleProfileMenuOpen = (event) => {
+        if (!vars.isLoggedIn) {
+            navigate("/beta/auth/login");
+        }
         setAnchorEl(event.currentTarget);
     };
     const handleMenuClose = () => {
@@ -163,26 +167,6 @@ const TopBar = (props) => {
         </Menu>);
     }
 
-    const notLoggedInBtns = (<Menu
-        anchorEl={anchorEl}
-        anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-        }}
-        id='topbar-dropdown-menu'
-        keepMounted
-        transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-        }}
-        open={isMenuOpen}
-        onClose={handleMenuClose}
-        sx={{ top: "50px" }}
-    >
-        <MenuItem><Link to="/beta/discord-redirect" >Discord</Link></MenuItem>
-        <MenuItem><Link to="/beta/steam-redirect">Steam</Link></MenuItem>
-    </Menu>);
-
     return (
         <div do-reload={reload}>
             <UserCard user={vars.userInfo} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(1); }} />
@@ -204,11 +188,10 @@ const TopBar = (props) => {
                                 <div className="user-role">{vars.userBanner.role}</div>
                             </div>
                             <div className="user-avatar">
-                                <img src={vars.userBanner.avatar} alt="User Avatar" />
+                                <img src={vars.userBanner.avatar} alt="Avatar" />
                             </div>
                         </div>
                         {vars.isLoggedIn && loggedInBtns}
-                        {!vars.isLoggedIn && notLoggedInBtns}
                     </Toolbar>
                 </AppBar>
                 <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101, display: loading ? "block" : "none" }} />

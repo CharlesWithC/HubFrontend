@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { useLocation, Routes, Route } from 'react-router-dom';
 import { Card, CardContent, Typography, Button, Grid } from '@mui/material';
 
+import AuthLogin from './routes/auth/login';
 import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
 import SteamAuth from './routes/auth/steamAuth';
@@ -86,7 +87,7 @@ function App() {
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
         const handle = () => {
-            if (["/beta/auth", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname)) {
+            if (["/beta/auth", "/beta/auth/login", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname)) {
                 setSidebarHidden(true);
                 setTopbarHidden(true);
             } else {
@@ -173,6 +174,7 @@ function App() {
                     </>}
                     <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                         <Routes>
+                            <Route path="/beta/auth/login" element={<AuthLogin />} />
                             <Route path="/beta/auth" element={<TokenAuth />} />
                             <Route path="/beta/discord-auth" element={<DiscordAuth />} />
                             <Route path="/beta/discord-redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fbeta%2Fdiscord-auth&response_type=code&scope=identify email role_connections.write`} />} />
@@ -202,7 +204,7 @@ function App() {
                             <Route path="/beta/config" element={<Configuration />}></Route>
                             <Route path="/beta/settings" element={<Settings />}></Route>
                         </Routes>
-                        <footer style={{ display: ["/beta/auth", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname) ? "none" : "block" }}>
+                        <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/discord-auth", "/beta/discord-redirect", "/beta/steam-auth", "/beta/steam-redirect", "/beta/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontFamily: "Orbitron" }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
