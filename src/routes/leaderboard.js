@@ -86,9 +86,7 @@ const Leaderboard = () => {
     }, [page, pageSize]);
 
     const navigate = useNavigate();
-    function handleClick(data) {
-    }
-
+    
     return <>
         {monthly.length === 3 && <>
             <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
@@ -154,7 +152,7 @@ const Leaderboard = () => {
             </Box>
         </>
         }
-        {leaderboard.length > 0 && <CustomTable columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "30px" }} />}
+        {leaderboard.length > 0 && <CustomTable columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
     </>;
 };
 

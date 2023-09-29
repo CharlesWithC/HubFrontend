@@ -3,11 +3,13 @@ import PropTypes from 'prop-types';
 import { Card, Box, Tabs, Tab } from '@mui/material';
 
 import TileMap from '../components/tilemap';
+import { useTheme } from '@emotion/react';
 
-function a11yProps(index) {
+function tabBtnProps(index, current, theme) {
     return {
         id: `map-tab-${index}`,
         'aria-controls': `map-tabpanel-${index}`,
+        style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
 }
 
@@ -44,13 +46,15 @@ const Map = () => {
         setTab(newValue);
     };
 
+    const theme = useTheme();
+
     return <Card>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" textColor="info">
-                <Tab label="ETS2 (Base)" {...a11yProps(0)} />
-                <Tab label="ETS2 (ProMods)" {...a11yProps(1)} />
-                <Tab label="ATS (Base)" {...a11yProps(2)} />
-                <Tab label="ATS (ProMods)" {...a11yProps(3)} />
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
+                <Tab label="ETS2 (Base)" {...tabBtnProps(0, tab, theme)} />
+                <Tab label="ETS2 (ProMods)" {...tabBtnProps(1, tab, theme)} />
+                <Tab label="ATS (Base)" {...tabBtnProps(2, tab, theme)} />
+                <Tab label="ATS (ProMods)" {...tabBtnProps(3, tab, theme)} />
             </Tabs>
         </Box>
         <TabPanel value={tab} index={0}>
@@ -65,7 +69,7 @@ const Map = () => {
         <TabPanel value={tab} index={3}>
             <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={"American Truck Simulator - ProMods Map"} />
         </TabPanel>
-    </Card>
+    </Card>;
 };
 
 export default Map;

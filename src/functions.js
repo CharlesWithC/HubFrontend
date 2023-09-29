@@ -354,6 +354,7 @@ export function checkUserRole(roles) {
 }
 
 export function checkPerm(roles, perms) {
+    if (roles === undefined) return false;
     // any matches in perms will return true
     for (let i = 0; i < perms.length; i++) {
         for (let j = 0; j < vars.perms[perms[i]].length; j++) {

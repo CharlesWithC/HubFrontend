@@ -508,7 +508,7 @@ const EventManagers = memo(() => {
 
     return <>{
         managers.map((user) => (
-            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+            <UserCard user={user} useChip={true} inline={true} />
         ))
     }</>;
 })

@@ -230,7 +230,7 @@ const ChallengeManagers = memo(() => {
 
     return <>{
         managers.map((user) => (
-            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+            <UserCard user={user} useChip={true} inline={true} />
         ))
     }</>;
 });
@@ -283,14 +283,14 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
     return <>
         <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
             {upcomingChallenges.length !== 0 && <>
-                <Grid item xs={upcomingChallenges.length === 2 ? 6 : 12}>
+                <Grid item xs={upcomingChallenges.length === 2 ? 6 : 12} key={`challenge-${upcomingChallenges[0].challengeid}`}>
                     <ChallengeCard challenge={upcomingChallenges[0]} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} upcoming={true} />
                 </Grid>
-                {upcomingChallenges.length === 2 && <Grid item xs={6}>
+                {upcomingChallenges.length === 2 && <Grid item xs={6} key={`challenge-${upcomingChallenges[1].challengeid}`}>
                     <ChallengeCard challenge={upcomingChallenges[1]} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} upcoming={true} />
                 </Grid>}
             </>}
-            {activeChallenges.map((challenge, index) => <Grid item xs={activeChallenges.length % 2 === 1 && index === activeChallenges.length - 1 ? 12 : 6}>
+            {activeChallenges.map((challenge, index) => <Grid item xs={activeChallenges.length % 2 === 1 && index === activeChallenges.length - 1 ? 12 : 6} key={`challenge-${index}`}>
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>

@@ -8,6 +8,7 @@ import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUser
 
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
+import MarkdownRenderer from './markdown';
 
 import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate } from '../functions';
 
@@ -53,13 +54,13 @@ function GetActivity(activity) {
 }
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, key: null, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
+    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
     if (props.user !== undefined && props.user !== null) {
         ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
         if (vars.users[uid] === undefined) vars.users[uid] = props.user;
-        ({ size, useChip, onDelete, textOnly, key, style, showProfileModal, onProfileModalClose } = props);
+        ({ size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
     } else {
-        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, key, style, showProfileModal, onProfileModalClose } = props);
+        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
     }
 
     if (size === undefined) {
@@ -74,17 +75,17 @@ const UserCard = (props) => {
             let sr = vars.specialRoles[discordid][i];
             let badge = null;
             if (['project_team', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team', 'translation_team'].includes(sr.name)) {
-                badge = <Tooltip placement="top" arrow title="CHub Staff"
+                badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title="CHub Staff"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                 </Tooltip>;
             } else if (['community_legend'].includes(sr.name)) {
-                badge = <Tooltip placement="top" arrow title="CHub Community Legend"
+                badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="CHub Community Legend"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                 </Tooltip>;
             } else if (['patron', 'server_booster', 'fv3ea'].includes(sr.name)) {
-                badge = <Tooltip placement="top" arrow title="CHub Supporter"
+                badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="CHub Supporter"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                 </Tooltip>;
@@ -105,7 +106,7 @@ const UserCard = (props) => {
 
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [showPopover, setShowPopover] = useState(false);
-    const [anchorPosition, setAnchorPosition] = useState({});
+    const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
     const handleContextMenu = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -550,7 +551,7 @@ const UserCard = (props) => {
                             ABOUT ME
                         </Typography>
                         <Typography variant="body2">
-                            {bioRef.current}
+                            <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
                         </Typography>
                     </>}
                     <Grid container sx={{ mt: "10px" }}>
@@ -577,6 +578,7 @@ const UserCard = (props) => {
                         </Typography>
                         {roles.map((role) => (
                             <Chip
+                                key={`role-${role}`}
                                 avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
                                 label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
                                 variant="outlined"
@@ -617,12 +619,12 @@ const UserCard = (props) => {
                 onContextMenu={handleContextMenu}
             />
                 &nbsp;</>}
-            {specialColor === null && <span className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
-            {specialColor !== null && <span className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
+            {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
+            {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
         </>}
         {useChip && <>
             <Chip
-                key={key}
+                key={`user-${uid}-${Math.random()}`}
                 avatar={textOnly ? undefined : <Avatar alt={nameRef.current} src={avatarRef.current} />}
                 label={nameRef.current}
                 variant="outlined"
@@ -636,20 +638,20 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            {<MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>}
-            <Divider />
+            <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>
+            {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <Divider />}
             {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
             <Divider />
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_user_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon> Update Global Note</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
-            {<MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>}
-            <Divider />
+            <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>
+            {((userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "add_member"]) || checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) || checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"])) && <Divider />}
             {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "add_member"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "update_user_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
             {checkPerm(vars.userInfo.roles, ["admin", "hrm", "disable_user_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
-            <Divider />
+            {((userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "ban_user"]) || userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "dismiss_member"]) || checkPerm(vars.userInfo.roles, ["admin", "hrm", "delete_user"])) && <Divider />}
             {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "ban_user"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon> Ban</MenuItem>}
             {(userid === null || userid < 0) && ban !== null && checkPerm(vars.userInfo.roles, ["admin", "hrm", "ban_user"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon> Unban</MenuItem>}
             {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "dismiss_member"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon> Dismiss Member</MenuItem>}
@@ -837,9 +839,9 @@ const UserCard = (props) => {
                         </Box>
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
-                            {history.added_roles.map((role) => (<Typography variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role].name}</Typography>))}
-                            {history.removed_roles.map((role) => (<Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role].name}</Typography>))}
-                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo timestamp={history.timestamp * 1000} /></Typography>
+                            {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role].name}</Typography>))}
+                            {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role].name}</Typography>))}
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
@@ -850,8 +852,8 @@ const UserCard = (props) => {
                         </Box>
                         {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
-                            <Typography variant="body2">{history.reason}</Typography>
-                            <Typography variant="body2" sx={{ color: theme.palette.text.secondary }}>Expiry: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
+                            <Typography key={`history-${idx}`} variant="body2">{history.reason}</Typography>
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}>Expiry: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
                         </>
                         ))}
                         {banHistory !== undefined && banHistory !== null && banHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
@@ -1034,7 +1036,7 @@ const UserCard = (props) => {
                                 ABOUT ME
                             </Typography>
                             <Typography variant="body2">
-                                {bioRef.current}
+                                <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
                             </Typography>
                         </>}
                         <Grid container sx={{ mt: "10px" }}>
@@ -1061,6 +1063,7 @@ const UserCard = (props) => {
                             </Typography>
                             {roles.map((role) => (
                                 <Chip
+                                    key={`role-${role}`}
                                     avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
                                     label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
                                     variant="outlined"

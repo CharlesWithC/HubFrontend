@@ -141,7 +141,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
             window.dispatchEvent(loadingStart);
 
             let [dlogD, divisionM] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/dlog/${logid}`, auth: true },
+                { url: `${vars.dhpath}/dlog/${logid}` },
                 { url: `${vars.dhpath}/dlog/${logid}/division`, auth: true },
             ]);
             if (dlogD.error !== undefined) {
@@ -154,7 +154,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                 setDivisionStatus(divisionM.status);
                 setNewDivisionStatus(divisionM.status);
                 setLocalDivisionStatus(divisionM.status);
-                setDivisionMeta(divisionM);
+                setDivisionMeta(null);
                 setSelectedDivision(divisionM.divisionid);
             } else {
                 setSelectedDivision(vars.userDivisionIDs[0]);
@@ -330,7 +330,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
             {},
             { "name": "Driver", "value": <UserCard user={data.user} inline={true} /> },
             { "name": "Truck Model", "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
-            { "name": "Truck Plate", "value": <>{detail.truck.license_plate_country !== null ? `${GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)}&nbsp;${detail.truck.license_plate}` : `N/A`}</> },
+            { "name": "Truck Plate", "value": <>{detail.truck.license_plate_country !== null ? `${GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)} ${detail.truck.license_plate}` : `N/A`}</> },
             { "name": "Truck Odometer", "value": <>{ConvertUnit("km", detail.truck.initial_odometer)} {'->'} {ConvertUnit("km", detail.truck.odometer)}</> },
             { "name": "Trailer Model", "value": GetTrailerModel(detail.trailers) },
             { "name": "Trailer Plate", "value": <>{detail.trailers[0].license_plate_country !== null ? `${GetTrailerPlate(detail.game.short_name, detail.trailers)}` : `N/A`}</> },
@@ -588,7 +588,7 @@ const Delivery = memo(() => {
 
     return (<>
         <DeliveryDetail doReload={doReload} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
-        <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
+        {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <WarehouseRounded />&nbsp;&nbsp;Division
@@ -667,7 +667,7 @@ const Delivery = memo(() => {
                     </Button>
                 }
             </DialogActions>
-        </Dialog>
+        </Dialog>}
         <Dialog open={deleteOpen} onClose={handleDeleteClose}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>

@@ -26,7 +26,7 @@ const columns = [
 const PROFIT_UNIT = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
-    const [detailStats, setDetailStats] = useState({});
+    const [detailStats, setDetailStats] = useState("loading");
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
@@ -51,13 +51,13 @@ const Deliveries = () => {
             if (page === -1) {
                 [detailS, dlogL] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}` },
                 ]);
 
                 setDetailStats(detailS);
             } else {
                 [dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}` },
                 ]);
             }
 
@@ -88,7 +88,7 @@ const Deliveries = () => {
     }
 
     return <>
-        {detailStats.truck !== undefined && <>
+        {detailStats.truck !== undefined && detailStats !== "loading" && <>
             <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
                 <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
@@ -116,6 +116,8 @@ const Deliveries = () => {
             <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
         </>
         }
+        {detailStats.truck === undefined && detailStats !== "loading" &&
+            <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
     </>;
 };
 

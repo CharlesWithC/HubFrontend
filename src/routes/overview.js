@@ -15,8 +15,8 @@ const Overview = () => {
     const [charts, setCharts] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
     const [leaderboard, setLeaderboard] = useState([]);
     const [recentVisitors, setRecentVisitors] = useState([]);
-    const [newestMember, setNewestMember] = useState({});
-    const [latestDelivery, setLatestDelivery] = useState([]);
+    const [newestMember, setNewestMember] = useState(null);
+    const [latestDelivery, setLatestDelivery] = useState(null);
 
     useEffect(() => {
         async function doLoad() {
@@ -101,7 +101,7 @@ const Overview = () => {
         <Grid item xs={12} sm={12} md={6} lg={4}>
             <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
         </Grid>
-        {vars.isLoggedIn &&
+        {vars.isLoggedIn && newestMember !== null && latestDelivery !== null &&
             <><Grid item xs={12} sm={12} md={6} lg={4}>
                 <Card>
                     <CardContent>

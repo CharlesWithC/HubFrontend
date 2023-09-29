@@ -101,7 +101,7 @@ const DivisionsMemo = memo(({ doReload }) => {
 
     return (<Grid container spacing={2}>
         {divisions.map((division, index) => (
-            <Grid item xs={12} sm={12} md={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6} lg={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6}>
+            <Grid key={`grid-${index}`} item xs={12} sm={12} md={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6} lg={divisions.length % 2 === 0 ? 6 : index === divisions.length - 1 ? 12 : 6}>
                 <DivisionCard division={division} />
             </Grid>
         ))}
@@ -208,7 +208,7 @@ const DivisionManagers = memo(() => {
 
     return <>{
         managers.map((user) => (
-            <UserCard key={`user-${user.userid}`} user={user} useChip={true} inline={true} />
+            <UserCard user={user} useChip={true} inline={true} />
         ))
     }</>;
 });

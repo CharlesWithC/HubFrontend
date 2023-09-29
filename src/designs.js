@@ -62,15 +62,6 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
-                    MuiTabs: {
-                        styleOverrides: {
-                            root: {
-                                '& .Mui-selected': {
-                                    color: '#2196f3'
-                                },
-                            },
-                        },
-                    },
                     MuiTooltip: {
                         styleOverrides: {
                             popover: {
@@ -126,15 +117,6 @@ export function getDesignTokens(mode) {
                                 fontWeight: "800"
                             }
                         }
-                    },
-                    MuiTabs: {
-                        styleOverrides: {
-                            root: {
-                                '& .Mui-selected': {
-                                    color: '#2196f3'
-                                },
-                            },
-                        },
                     },
                     MuiTooltip: {
                         styleOverrides: {

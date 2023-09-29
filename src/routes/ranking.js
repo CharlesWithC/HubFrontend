@@ -196,8 +196,8 @@ const Ranking = () => {
             </Grid >
         </Grid >}
         <Grid container spacing={2}>
-            {curRankRoles.map((rank) => (
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+            {curRankRoles.map((rank, idx) => (
+                <Grid item xs={12} sm={12} md={4} lg={4} key={`rank-${idx}`}>
                     <Card>
                         <CardContent>
                             <Typography variant="h5" align="center" component="div" sx={{ ...rank.points < userPoints ? { textDecoration: "line-through" } : {}, color: rank?.color }}>

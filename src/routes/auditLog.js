@@ -58,13 +58,9 @@ const AuditLog = () => {
         doLoad();
     }, [page, pageSize, theme]);
 
-    function handleClickAL(data) {
-        return;
-    }
-
     return <>
         {userList.length !== 0 &&
-            <CustomTable columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPageAL} onRowsPerPageChange={setPageSizeAL} onRowClick={handleClickAL} />
+            <CustomTable columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPageAL} onRowsPerPageChange={setPageSizeAL} />
         }
     </>;
 };

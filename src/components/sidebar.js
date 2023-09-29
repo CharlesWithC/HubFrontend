@@ -21,7 +21,7 @@ const SideBar = (props) => {
         setMobileOpen(!mobileOpen);
     };
 
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
     };
@@ -130,16 +130,20 @@ const SideBar = (props) => {
         }
     }
     let path = window.location.pathname.replace("/beta", "");
+    let matchedPath = false;
     if (Object.keys(routeIndex).includes("/" + path.split("/")[1])) {
+        matchedPath = true;
         if (selectedIndex !== routeIndex["/" + path.split("/")[1]]) {
             setSelectedIndex(routeIndex["/" + path.split("/")[1]]);
         }
     }
     if (Object.keys(routeIndex).includes("/" + path.split("/")[1] + "/" + path.split("/")[2])) {
+        matchedPath = true;
         if (selectedIndex !== routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]) {
             setSelectedIndex(routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]);
         }
     }
+    if (!matchedPath && selectedIndex !== -1) { setSelectedIndex(-1); }
 
     const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
         <List key="0" sx={{ paddingTop: 0 }}>

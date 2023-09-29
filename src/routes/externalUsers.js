@@ -95,17 +95,12 @@ const ExternalUsers = () => {
             window.removeEventListener("updateExternalUserTable", handleUpdateEvent);
         };
     }, [doLoad]);
-
-    function handleClickPU(data) {
-        // Popup showing user info
-    }
-    function handleClickBU(data) { }
-
+    
     return <>
         {userList.length !== 0 &&
             <>
-                <CustomTable name="External Users" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPagePU} onRowsPerPageChange={setPageSizePU} onRowClick={handleClickPU} />
-                <CustomTable name="Banned Users" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPagePU} onRowsPerPageChange={setBanPageSizePU} onRowClick={handleClickBU} hasContextMenu={true} style={{ marginTop: "15px" }} />
+                <CustomTable name="External Users" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPagePU} onRowsPerPageChange={setPageSizePU} />
+                <CustomTable name="Banned Users" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPagePU} onRowsPerPageChange={setBanPageSizePU} style={{ marginTop: "15px" }} />
             </>
         }
     </>;

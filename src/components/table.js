@@ -1,20 +1,7 @@
 import React, { useState } from 'react';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, TablePagination, Typography, Menu } from '@mui/material';
 
-const ClickableTableRow = ({ rowKey, rowMeta, children, onClick, onContextMenu }) => {
-    const handleClick = () => {
-        if (onClick === undefined || onClick === null) return;
-        onClick(rowMeta);
-    };
-
-    return (
-        <TableRow key={rowKey} onClick={handleClick} onContextMenu={onContextMenu} hover style={{ cursor: 'pointer' }}>
-            {children}
-        </TableRow>
-    );
-};
-
-const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, hasContextMenu, style, pstyle }) => {
+const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -29,7 +16,7 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
         onRowsPerPageChange(newRowsPerPage);
     };
 
-    const [anchorPosition, setAnchorPosition] = useState({});
+    const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
 
     const handleContextMenu = (e, row_idx) => {
         e.preventDefault();
@@ -51,30 +38,28 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
         <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
             <TableContainer>
                 <Table>
-                    <TableHead>
-                        <TableRow key="head">
-                            {columns.map((column) => (
-                                <TableCell key={column.id}>{column.label}</TableCell>
+                    <TableHead key={`table-head`}>
+                        <TableRow key={`row-head`}>
+                            {columns.map((column, idx) => (
+                                <TableCell key={`cell-${idx}`}>{column.label}</TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
-                    <TableBody>
+                    <TableBody key={`table-body`}>
                         {data.map((row, row_idx) => (
-                            <>
-                                <ClickableTableRow rowKey={row_idx} rowMeta={row} onClick={onRowClick} onContextMenu={(e) => handleContextMenu(e, row_idx)}>
-                                    {columns.map((column, col_idx) => (
-                                        <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
-                                    ))}
-                                    {row.contextMenu !== null && row.contextMenu !== undefined && anchorPosition[row_idx] !== undefined && <Menu
-                                        anchorReference="anchorPosition"
-                                        anchorPosition={anchorPosition[row_idx]}
-                                        open={anchorPosition[row_idx] !== undefined}
-                                        onClose={handleCloseMenu}
-                                    >
-                                        {row.contextMenu}
-                                    </Menu>}
-                                </ClickableTableRow>
-                            </>
+                            <TableRow key={`row-${row_idx}`} onClick={() => { if (onRowClick === undefined || onRowClick === null) return; onRowClick(row); }} onContextMenu={(e) => handleContextMenu(e, row_idx)} hover style={(onRowClick !== undefined && onRowClick !== null) ? { cursor: 'pointer' } : {}}>
+                                {columns.map((column, col_idx) => (
+                                    <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
+                                ))}
+                                {row.contextMenu !== null && row.contextMenu !== undefined && anchorPosition[row_idx] !== undefined && <Menu
+                                    anchorReference="anchorPosition"
+                                    anchorPosition={anchorPosition[row_idx]}
+                                    open={anchorPosition[row_idx] !== undefined}
+                                    onClose={handleCloseMenu}
+                                >
+                                    {row.contextMenu}
+                                </Menu>}
+                            </TableRow>
                         ))}
                     </TableBody>
                 </Table>

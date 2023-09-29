@@ -19,10 +19,11 @@ import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } fr
 
 var vars = require("../variables");
 
-function a11yProps(index) {
+function tabBtnProps(index, current, theme) {
     return {
         id: `map-tab-${index}`,
         'aria-controls': `map-tabpanel-${index}`,
+        style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
 }
 
@@ -824,11 +825,11 @@ const Settings = () => {
     }, []);
 
     return <Card>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" textColor="info">
-                <Tab label="General" {...a11yProps(0)} />
-                <Tab label="Security" {...a11yProps(1)} />
-                <Tab label="Sessions" {...a11yProps(2)} />
+        <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
+                <Tab label="General" {...tabBtnProps(0, tab, theme)} />
+                <Tab label="Security" {...tabBtnProps(1, tab, theme)} />
+                <Tab label="Sessions" {...tabBtnProps(2, tab, theme)} />
             </Tabs>
         </Box>
         <TabPanel value={tab} index={0}>
