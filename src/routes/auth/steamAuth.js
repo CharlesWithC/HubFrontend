@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSteam } from '@fortawesome/free-brands-svg-icons';
 
 import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '../../functions';
 
@@ -31,7 +34,7 @@ const SteamAuth = () => {
                             setContinue(true);
                             setTimeout(function () { navigate('/beta/'); }, 500);
                         } else {
-                            navigate("/beta/mfa?token=" + resp.data.token);
+                            navigate("/beta/auth/mfa?token=" + resp.data.token);
                             setMessage("MFA OTP Required 🔑");
                         }
                     } else {
@@ -68,10 +71,14 @@ const SteamAuth = () => {
     }
 
     return (
-        <Card sx={{ width: 350, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <Card sx={{ width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <CardContent>
-                <h2>Steam Authorization</h2>
-                <div><p>{message}</p></div>
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
+                    <FontAwesomeIcon icon={faSteam} />&nbsp;&nbsp;Steam Authorization
+                </Typography>
+                <Typography variant="body">
+                    {message}
+                </Typography>
             </CardContent>
             <CardActions>
                 <Button variant="contained" color="primary" sx={{ ml: 'auto' }}

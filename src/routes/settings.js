@@ -925,7 +925,7 @@ const Settings = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/beta/discord-redirect"); }} fullWidth>Update (OAuth)</Button>
+                            <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/beta/auth/discord/redirect"); }} fullWidth>Update (OAuth)</Button>
                         </Grid>
                     </Grid>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
@@ -937,7 +937,7 @@ const Settings = () => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={4} lg={4}>
-                            <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/beta/steam-redirect"); }} fullWidth>Update (OAuth)</Button>
+                            <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/beta/auth/steam/redirect"); }} fullWidth>Update (OAuth)</Button>
                         </Grid>
                     </Grid>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>

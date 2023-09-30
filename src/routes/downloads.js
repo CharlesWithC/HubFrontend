@@ -123,7 +123,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
             <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={downloadableItem.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
+                        <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -181,7 +181,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         </Card>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={downloadableItem.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
+                        <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
             </Grid>

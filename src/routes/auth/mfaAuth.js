@@ -1,13 +1,17 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
 import TextField from '@mui/material/TextField';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
 
 var vars = require('../../variables');
 
 const MfaAuth = () => {
+    const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -17,32 +21,36 @@ const MfaAuth = () => {
     const [otpReadOnly, setOtpReadOnly] = useState(false);
     const [otpColor, setOtpColor] = useState(null);
     const [otpError, setOtpError] = useState(false);
-    const [otpText, setOtpText] = useState(false);
+    const [otpText, setOtpText] = useState("");
     const [allowVerify, setAllowVerify] = useState(false);
 
-    async function handleVerify() {
+    const handleVerify = useCallback(async () => {
         try {
+            setAllowVerify(false);
             let resp = await axios({ url: `${vars.dhpath}/auth/mfa`, data: { token: mfaToken, otp: otp }, method: `POST` });
             if (resp.status === 200) {
                 setAuthToken(resp.data.token);
-                setOtpColor("success");
+                setOtpColor(theme.palette.success.main);
                 setOtpText("You are authorized 🎉");
-                setAllowVerify(false);
                 setOtpReadOnly(true);
                 await FetchProfile();
                 setTimeout(function () { navigate("/beta/"); }, 500);
             } else {
                 setOtpError(true);
+                setOtpColor(theme.palette.error.main);
                 setOtpText(resp.data.error);
+                setAllowVerify(true);
             }
         } catch (error) {
             console.error(error);
             setOtpError(true);
+            setOtpColor(theme.palette.error.main);
             setOtpText("Error occurred! Check F12 for more info.");
+            setAllowVerify(true);
         }
-    }
+    }, [otp]);
 
-    const validateOTP = (event) => {
+    const validateOTP = useCallback((event) => {
         setOtpError(false);
         setOtpColor(null);
         setOtpText("");
@@ -54,20 +62,22 @@ const MfaAuth = () => {
         } else {
             setAllowVerify(false);
         }
-    };
+    });
 
     return (
-        <Card sx={{ width: 400, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <Card sx={{ width: 450, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
             <CardContent>
-                <h2>Multiple Factor Authentication</h2>
-                <TextField label="OTP" variant="outlined" onChange={validateOTP} color={otpColor} readOnly={otpReadOnly} error={otpError} helperText={otpText} sx={{ width: "100%" }} />
+                <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication
+                </Typography>
+                <TextField label="OTP" variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
             </CardContent>
             <CardActions>
                 <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
                     onClick={handleVerify} disabled={!allowVerify}>Verify</Button>
             </CardActions>
-        </Card>
+        </Card >
     );
-}
+};
 
 export default MfaAuth;

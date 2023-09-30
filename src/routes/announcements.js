@@ -112,7 +112,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
             <Grid item xs={12} sm={12} md={12} lg={12} key={announcement.announcementid}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={announcement.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
+                        <img src={announcement.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -164,7 +164,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                         </Card>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={announcement.image} alt="Banner" style={{ width: '100%', border: 'none' }} />
+                        <img src={announcement.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
             </Grid>

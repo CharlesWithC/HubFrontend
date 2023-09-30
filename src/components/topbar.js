@@ -101,6 +101,7 @@ const TopBar = (props) => {
         try {
             let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${bearerToken}` }, method: `DELETE` });
             localStorage.removeItem("token");
+            navigate("/beta/");
             if (parseInt(resp.status / 100) === 2) {
                 setSnackbarSeverity("success");
                 setSnackbarContent("You are logged out");
@@ -188,7 +189,7 @@ const TopBar = (props) => {
                                 <div className="user-role">{vars.userBanner.role}</div>
                             </div>
                             <div className="user-avatar">
-                                <img src={vars.userBanner.avatar} alt="Avatar" />
+                                <img src={vars.userBanner.avatar} alt="" />
                             </div>
                         </div>
                         {vars.isLoggedIn && loggedInBtns}

@@ -625,7 +625,7 @@ const UserCard = (props) => {
         {useChip && <>
             <Chip
                 key={`user-${uid}-${Math.random()}`}
-                avatar={textOnly ? undefined : <Avatar alt={nameRef.current} src={avatarRef.current} />}
+                avatar={textOnly ? undefined : <Avatar alt="" src={avatarRef.current} />}
                 label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
