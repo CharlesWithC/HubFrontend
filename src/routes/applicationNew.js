@@ -322,7 +322,7 @@ const NewApplication = () => {
             await axios({ url: `${vars.dhpath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }});
         }
 
-        let resp = await axios({ url: `${vars.dhpath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "application_type": selectedType, "application": modFormData } });
+        let resp = await axios({ url: `${vars.dhpath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "type": selectedType, "application": modFormData } });
         if (resp.status === 200) {
             setSnackbarContent("Application submitted!");
             setSnackbarSeverity("success");

@@ -69,10 +69,10 @@ export const makeRequestsWithAuth = async (urls) => {
 export const makeRequestsAuto = async (urls) => {
     const responses = await Promise.all(
         urls.map(({ url, auth }) => {
-            if (!auth || (auth && vars.isLoggedIn)) {
+            if (auth === false || (auth === true && vars.isLoggedIn) || auth === "prefer") {
                 return customAxios({
                     url,
-                    headers: auth ? {
+                    headers: auth === true || auth === "prefer" && getAuthToken() !== null ? {
                         Authorization: `Bearer ${getAuthToken()}`
                     } : null,
                 });
@@ -257,13 +257,20 @@ export function sortDictWithValue(dict) {
 }
 
 export function getRankName(points) {
-    if (isNaN(Number(points)) || points < vars.ranks[0].points) return "N/A";
-    for (let i = 0; i < vars.ranks.length - 1; i++) {
-        if (points > vars.ranks[i].points && points < vars.ranks[i + 1].points) {
-            return vars.ranks[i].name;
+    let ranks = [];
+    for (let i = 0; i < vars.ranks.length; i++) {
+        if (vars.ranks[i].default) {
+            ranks = vars.ranks[i].details;
+            break;
         }
     }
-    return vars.ranks[vars.ranks.length - 1].name;
+    if (isNaN(Number(points)) || points < ranks[0].points) return "N/A";
+    for (let i = 0; i < ranks.length - 1; i++) {
+        if (points > ranks[i].points && points < ranks[i + 1].points) {
+            return ranks[i].name;
+        }
+    }
+    return ranks[ranks.length - 1].name;
 }
 
 export function getCurrentMonthName() {

@@ -139,7 +139,7 @@ const Overview = () => {
                         </CardContent>
                     </Card>
                 </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={8}>
+                {leaderboard.length !== 0 && recentVisitors.length != 0 && <><Grid item xs={12} sm={12} md={6} lg={8}>
                     <Card>
                         <CardContent>
                             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -173,36 +173,36 @@ const Overview = () => {
                             </SimpleBar>
                         </CardContent>
                     </Card >
-                </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={4}>
-                    <Card>
-                        <CardContent>
-                            <div style={{ display: "flex", flexDirection: "row" }}>
-                                <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <DirectionsRunRounded />&nbsp;&nbsp;Recent Visitors
-                                </Typography>
-                            </div>
-                            <SimpleBar style={{ overflowY: "hidden" }}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>User</TableCell>
-                                            <TableCell align="right">Last Seen</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {recentVisitors.map((row, idx) => {
-                                            return (<TableRow key={`recent-visitors-${idx}`}>
-                                                <TableCell>{row.user}</TableCell>
-                                                <TableCell align="right"><TimeAgo timestamp={row.timestamp * 1000} /></TableCell>
-                                            </TableRow>);
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </SimpleBar>
-                        </CardContent>
-                    </Card >
-                </Grid></>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={4}>
+                        <Card>
+                            <CardContent>
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                    <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                        <DirectionsRunRounded />&nbsp;&nbsp;Recent Visitors
+                                    </Typography>
+                                </div>
+                                <SimpleBar style={{ overflowY: "hidden" }}>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>User</TableCell>
+                                                <TableCell align="right">Last Seen</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {recentVisitors.map((row, idx) => {
+                                                return (<TableRow key={`recent-visitors-${idx}`}>
+                                                    <TableCell>{row.user}</TableCell>
+                                                    <TableCell align="right"><TimeAgo timestamp={row.timestamp * 1000} /></TableCell>
+                                                </TableRow>);
+                                            })}
+                                        </TableBody>
+                                    </Table>
+                                </SimpleBar>
+                            </CardContent>
+                        </Card >
+                    </Grid></>}</>
         }
     </Grid>);
 };

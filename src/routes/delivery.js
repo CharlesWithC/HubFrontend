@@ -98,7 +98,7 @@ function GetTrailerPlate(game, trailers) {
     return trailerString;
 }
 
-const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
+const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { logid } = useParams();
     const [dlog, setDlog] = useState({});
     const [dlogDetail, setDlogDetail] = useState({});
@@ -141,7 +141,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
             window.dispatchEvent(loadingStart);
 
             let [dlogD, divisionM] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/dlog/${logid}` },
+                { url: `${vars.dhpath}/dlog/${logid}`, auth: "prefer" },
                 { url: `${vars.dhpath}/dlog/${logid}/division`, auth: true },
             ]);
             if (dlogD.error !== undefined) {
@@ -150,14 +150,18 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
             setDlog(dlogD);
             setDlogDetail(dlogD.detail.data.object);
 
-            if (divisionM.error === undefined) {
-                setDivisionStatus(divisionM.status);
-                setNewDivisionStatus(divisionM.status);
-                setLocalDivisionStatus(divisionM.status);
+            if (!vars.isLoggedIn || vars.userInfo.userid === null || vars.userInfo.userid < 0) {
                 setDivisionMeta(null);
-                setSelectedDivision(divisionM.divisionid);
             } else {
-                setSelectedDivision(vars.userDivisionIDs[0]);
+                if (divisionM.error === undefined) {
+                    setDivisionStatus(divisionM.status);
+                    setNewDivisionStatus(divisionM.status);
+                    setLocalDivisionStatus(divisionM.status);
+                    setSelectedDivision(divisionM.divisionid);
+                    setDivisionMeta(divisionM);
+                } else {
+                    setSelectedDivision(vars.userDivisionIDs[0]);
+                }
             }
 
             const data = dlogD;
@@ -412,9 +416,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                                 sx={{
                                     width: '90%',
                                     margin: '4px',
-                                    '& .MuiLinearProgress-barColorPrimary': {
-                                        backgroundColor: '#2196f3',
-                                    },
+                                    backgroundColor: theme.palette.text.secondary
                                 }}
                             />
 
@@ -505,7 +507,7 @@ const DeliveryDetail = memo(({ doReload, setDoReload, setDivisionStatus, setNewD
                     tooltipTitle="Details"
                     icon={<InfoRounded />}
                     onClick={handleDetail} />
-                {((checkUserPerm(["admin", "division"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+                {divisionMeta !== null && ((checkUserPerm(["admin", "division"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
                     key="division"
                     tooltipTitle="Division"
                     icon={<WarehouseRounded />}
@@ -587,7 +589,7 @@ const Delivery = memo(() => {
     }, [logid, navigate]);
 
     return (<>
-        <DeliveryDetail doReload={doReload} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
+        <DeliveryDetail doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
         {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>

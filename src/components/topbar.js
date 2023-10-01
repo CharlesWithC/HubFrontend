@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
-import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, useTheme } from "@mui/material";
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,7 @@ var vars = require("../variables");
 const TopBar = (props) => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -195,7 +196,7 @@ const TopBar = (props) => {
                         {vars.isLoggedIn && loggedInBtns}
                     </Toolbar>
                 </AppBar>
-                <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101, display: loading ? "block" : "none" }} />
+                <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101, display: loading ? "block" : "none", '& .MuiLinearProgress-barColorPrimary': { backgroundColor: theme.palette.info.main } }} />
             </Box>
             <Snackbar
                 open={!!snackbarContent}

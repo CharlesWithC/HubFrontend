@@ -85,8 +85,6 @@ const Leaderboard = () => {
         doLoad();
     }, [page, pageSize]);
 
-    const navigate = useNavigate();
-    
     return <>
         {monthly.length === 3 && <>
             <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>

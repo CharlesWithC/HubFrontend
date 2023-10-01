@@ -693,14 +693,33 @@ const Settings = () => {
         window.dispatchEvent(loadingStart);
         setDeleteDisabled(true);
 
-        let resp = await axios({ url: `${vars.dhpath}/user/${vars.userInfo.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
+            setOtpPass(0); setOtp(""); memberResign();
+            return;
+        }
+
+        let resp = null;
+        if (!mfaEnabled) {
+            resp = await axios({ url: `${vars.dhpath}/user/${vars.userInfo.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else if (otp !== "") {
+            resp = await axios({ url: `${vars.dhpath}/user/${vars.userInfo.uid}`, data: { otp: otp }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        } else {
+            setOtpAction("delete-account");
+            setRequireOtp(true);
+            setResignDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            return;
+        }
 
         if (resp.status === 204) {
             setSnackbarContent(`Account deleted! Goodbye!`);
             setSnackbarSeverity("success");
+            setOtpPass(+new Date() + 30000);
         } else {
             setSnackbarContent(`Failed to delete account: ` + resp.data.error);
             setSnackbarSeverity("error");
+            setOtp(""); setOtpPass(0);
         }
 
         setDeleteDisabled(false);

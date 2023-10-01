@@ -51,13 +51,13 @@ const Deliveries = () => {
             if (page === -1) {
                 [detailS, dlogL] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}` },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: "prefer" },
                 ]);
 
                 setDetailStats(detailS);
             } else {
                 [dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}` },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: "prefer" },
                 ]);
             }
 
