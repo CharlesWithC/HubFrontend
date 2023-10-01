@@ -27,7 +27,7 @@ function tabBtnProps(index, current, theme) {
     };
 }
 
-const customStyles = (theme) => ({
+const customSelectStyles = (theme) => ({
     control: (base) => ({
         ...base,
         backgroundColor: theme.palette.background.default,
@@ -895,7 +895,7 @@ const Settings = () => {
                             }))}
                         className="basic-multi-select"
                         classNamePrefix="select"
-                        styles={customStyles(theme)}
+                        styles={customSelectStyles(theme)}
                         value={notificationSettings}
                         onChange={updateNotificationSettings}
                         menuPortalTarget={document.body}

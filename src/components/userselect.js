@@ -5,7 +5,7 @@ import Select from 'react-select';
 
 var vars = require("../variables");
 
-const customStyles = (theme) => ({
+const customSelectStyles = (theme) => ({
     control: (base) => ({
         ...base,
         backgroundColor: theme.palette.background.default,
@@ -23,6 +23,17 @@ const customStyles = (theme) => ({
         ...base,
         zIndex: 100005
     }),
+    multiValue: (base, state) => {
+        return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
+    },
+    multiValueLabel: (base, state) => {
+        return state.data.isFixed
+            ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
+            : base;
+    },
+    multiValueRemove: (base, state) => {
+        return state.data.isFixed ? { ...base, display: 'none' } : base;
+    },
 });
 
 const UserSelect = ({ label, initialUsers, onUpdate }) => {
@@ -45,7 +56,7 @@ const UserSelect = ({ label, initialUsers, onUpdate }) => {
     const theme = useTheme();
 
     return (
-        <div>
+        <>
             {label && <Typography variant="body2">{label}</Typography>}
             <Select
                 defaultValue={formattedInit}
@@ -55,12 +66,12 @@ const UserSelect = ({ label, initialUsers, onUpdate }) => {
                 ))}
                 className="basic-multi-select"
                 classNamePrefix="select"
-                styles={customStyles(theme)}
+                styles={customSelectStyles(theme)}
                 value={selectedUsers}
                 onChange={handleInputChange}
                 menuPortalTarget={document.body}
             />
-        </div>
+        </>
     );
 };
 

@@ -6,7 +6,7 @@ import { checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
-const customStyles = (theme) => ({
+const customSelectStyles = (theme) => ({
     control: (base) => ({
         ...base,
         backgroundColor: theme.palette.background.default,
@@ -73,7 +73,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
     const theme = useTheme();
 
     return (
-        <div>
+        <>
             {label && <Typography variant="body2">{label}</Typography>}
             <Select
                 defaultValue={formattedInit}
@@ -90,12 +90,12 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
                 isClearable={selectedRoles.some((v) => !v.isFixed)}
                 className="basic-multi-select"
                 classNamePrefix="select"
-                styles={customStyles(theme)}
+                styles={customSelectStyles(theme)}
                 value={selectedRoles}
                 onChange={handleInputChange}
                 menuPortalTarget={document.body}
             />
-        </div>
+        </>
     );
 };
 

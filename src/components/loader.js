@@ -83,9 +83,10 @@ const Loader = ({ onLoaderLoaded }) => {
                     `${vars.dhpath}/applications/positions`,
                     `${vars.dhpath}/applications/types`,
                     `${vars.dhpath}/divisions/list`,
+                    `${vars.dhpath}/dlog/statistics/details`,
                 ];
 
-                const [specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequests(urlsBatch);
+                const [specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails] = await makeRequests(urlsBatch);
                 if (specialRoles) {
                     const SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "support_team": "#b12773", "marketing_team": "#e28843", "graphic_team": "#11b17f", "translation_team": "#49a4af", "community_legend": "#b2db80", "patron": "#DAA520", "server_booster": "#DAA520", "fv3ea": "#9a63c2" };
                     let keys = Object.keys(specialRoles);
@@ -128,6 +129,9 @@ const Loader = ({ onLoaderLoaded }) => {
                     for (let i = 0; i < divisions.length; i++) {
                         vars.divisions[divisions[i].id] = divisions[i];
                     }
+                }
+                if (dlogDetails && dlogDetails.error === undefined) {
+                    vars.dlogDetails = dlogDetails;
                 }
 
                 await FetchProfile();

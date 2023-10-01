@@ -19,6 +19,9 @@ exports.userDivisionIDs = userDivisionIDs;
 var userStats = {};
 exports.userStats = userStats;
 
+var dlogDetails = {};
+exports.dlogDetails = dlogDetails;
+
 var userSettings = { "theme": "auto", "notificationRefresh": 30, "unit": "metric" };
 if (localStorage.getItem("client-settings") !== null) {
     try {

@@ -105,6 +105,11 @@ const SideBar = (props) => {
             } else {
                 toRemove = toRemove.filter(item => item !== "external_user");
             }
+            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("application")) {
+                toRemove.push("all_application");
+            } else {
+                toRemove = toRemove.filter(item => item !== "all_application");
+            }
             if (!vars.userPerm.includes("audit")) {
                 toRemove.push("audit_log");
             } else {

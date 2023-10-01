@@ -1,15 +1,18 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select, MenuItem, RadioGroup, Radio, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select as MUISelect, MenuItem, RadioGroup, Radio, Chip } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Portal } from '@mui/base';
+
+import CreatableSelect from 'react-select/creatable';
 
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
 import ListModal from '../components/listmodal';
 import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue } from '../functions';
+import RoleSelect from '../components/roleselect';
 
 var vars = require("../variables");
 
@@ -67,8 +70,41 @@ const DEFAULT_JOB_REQUIREMENTS = {
     allow_auto_park: "0",
     allow_auto_load: "0",
     must_not_be_late: "0",
-    must_be_special: "0"
+    must_be_special: "0",
+    minimum_warp: "-1",
+    maximum_warp: "-1"
 };
+
+const customSelectStyles = (theme) => ({
+    control: (base) => ({
+        ...base,
+        backgroundColor: theme.palette.background.default,
+        borderColor: theme.palette.text.secondary
+    }),
+    option: (base) => ({
+        ...base,
+        color: '#3c3c3c'
+    }),
+    menu: (base) => ({
+        ...base,
+        zIndex: 100005,
+    }),
+    menuPortal: (base) => ({
+        ...base,
+        zIndex: 100005
+    }),
+    multiValue: (base, state) => {
+        return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
+    },
+    multiValueLabel: (base, state) => {
+        return state.data.isFixed
+            ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
+            : base;
+    },
+    multiValueRemove: (base, state) => {
+        return state.data.isFixed ? { ...base, display: 'none' } : base;
+    },
+});
 
 const columns = [
     { id: 'challengeid', label: 'ID' },
@@ -299,6 +335,8 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
 });
 
 const Challenges = () => {
+    const theme = useTheme();
+
     const [challengeList, setChallengeList] = useState([]);
     const [upcomingChallenges, setUpcomingChallenges] = useState([]);
     const [activeChallenges, setActiveChallenges] = useState([]);
@@ -332,6 +370,25 @@ const Challenges = () => {
     }, []);
     const [listModalChallenge, setListModalChallenge] = useState({});
     const [listModalItems, setListModalItems] = useState([]);
+
+    let cityIDs = {};
+    for (let i = 0; i < vars.dlogDetails["source_city"].length; i++) {
+        cityIDs[vars.dlogDetails["source_city"][i]["unique_id"]] = vars.dlogDetails["source_city"][i]["name"];
+    }
+    for (let i = 0; i < vars.dlogDetails["destination_city"].length; i++) {
+        cityIDs[vars.dlogDetails["destination_city"][i]["unique_id"]] = vars.dlogDetails["destination_city"][i]["name"];
+    }
+    let companyIDs = {};
+    for (let i = 0; i < vars.dlogDetails["source_company"].length; i++) {
+        companyIDs[vars.dlogDetails["source_company"][i]["unique_id"]] = vars.dlogDetails["source_company"][i]["name"];
+    }
+    for (let i = 0; i < vars.dlogDetails["destination_company"].length; i++) {
+        companyIDs[vars.dlogDetails["destination_company"][i]["unique_id"]] = vars.dlogDetails["destination_company"][i]["name"];
+    }
+    let cargoIDs = {};
+    for (let i = 0; i < vars.dlogDetails["cargo"].length; i++) {
+        cargoIDs[vars.dlogDetails["cargo"][i]["unique_id"]] = vars.dlogDetails["cargo"][i]["name"];
+    }
 
     const showChallengeDetails = useCallback(async (challenge) => {
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -531,7 +588,9 @@ const Challenges = () => {
             allow_auto_park: "Allow Auto Park",
             allow_auto_load: "Allow Auto Load",
             must_not_be_late: "Must Not Be Late",
-            must_be_special: "Must Be Special"
+            must_be_special: "Must Be Special",
+            minimum_warp: "Minimum Warp",
+            maximum_warp: "Maximum Warp"
         };
 
         return fieldNames[key] || key;
@@ -655,7 +714,7 @@ const Challenges = () => {
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
                                 <FormLabel component="legend">Challenge Type</FormLabel>
-                                <Select
+                                <MUISelect
                                     value={modalChallenge.type}
                                     onChange={(e) => setModalChallenge({ ...modalChallenge, type: e.target.value })}
                                     sx={{ marginTop: "6px", height: "30px" }}
@@ -665,7 +724,7 @@ const Challenges = () => {
                                     <MenuItem value={3}>Personal (Recurring)</MenuItem>
                                     <MenuItem value={4}>Personal (Distance-based)</MenuItem>
                                     <MenuItem value={5}>Company (Distance-based)</MenuItem>
-                                </Select>
+                                </MUISelect>
                             </FormControl>
                         </Grid>
                         <Grid item xs={6}>
@@ -689,13 +748,8 @@ const Challenges = () => {
                                 fullWidth
                             />
                         </Grid>
-                        <Grid item xs={6}>
-                            <TextField
-                                label="Required Roles"
-                                value={modalChallenge.required_roles.join(",")}
-                                onChange={(e) => setModalChallenge({ ...modalChallenge, required_roles: e.target.value.split(",") })}
-                                fullWidth
-                            />
+                        <Grid item xs={6} style={{ paddingTop: 0 }}>
+                            <RoleSelect initialRoles={modalChallenge.required_roles} onUpdate={(newRoles) => setModalChallenge({ ...modalChallenge, required_roles: newRoles.map((role) => (role.id)) })} label="Required Roles" />
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
@@ -743,21 +797,88 @@ const Challenges = () => {
                     Job Requirements
                 </Typography>
                 <Grid container spacing={2}>
-                    {Object.entries(modalChallenge.job_requirements).map(([key, value]) => (
-                        <Grid item xs={12} sm={6} key={key}>
-                            <TextField
-                                label={formatFieldName(key)}
-                                value={value}
-                                onChange={(e) =>
-                                    setModalChallenge({
-                                        ...modalChallenge,
-                                        job_requirements: { ...modalChallenge.job_requirements, [key]: e.target.value },
-                                    })
-                                }
-                                fullWidth
-                            />
-                        </Grid>
-                    ))}
+                    {Object.entries(modalChallenge.job_requirements).map(([key, value]) => (<>
+                        {["source_city_id", "destination_city_id"].includes(key) &&
+                            <Grid item xs={12} sm={6} key={key}>
+                                <Typography variant="body2">{formatFieldName(key)}</Typography>
+                                <CreatableSelect
+                                    defaultValue={value.split(",").splice(Number(value === "")).map((cityID) => ({ value: cityID, label: cityIDs[cityID] !== undefined ? cityIDs[cityID] : cityID }))}
+                                    isMulti
+                                    name="colors"
+                                    options={Object.keys(cityIDs).map((cityID) => ({ value: cityID, label: cityIDs[cityID] }))}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    styles={customSelectStyles(theme)}
+                                    value={value.split(",").splice(Number(value === "")).map((cityID) => ({ value: cityID, label: cityIDs[cityID] !== undefined ? cityIDs[cityID] : cityID }))}
+                                    onChange={(newIDs) => {
+                                        setModalChallenge({
+                                            ...modalChallenge,
+                                            job_requirements: { ...modalChallenge.job_requirements, [key]: newIDs.map((item) => (item.value)).join(",") },
+                                        });
+                                    }}
+                                    menuPortalTarget={document.body}
+                                />
+                            </Grid>
+                        }
+                        {["source_company_id", "destination_company_id"].includes(key) &&
+                            <Grid item xs={12} sm={6} key={key}>
+                                <Typography variant="body2">{formatFieldName(key)}</Typography>
+                                <CreatableSelect
+                                    defaultValue={value.split(",").splice(Number(value === "")).map((companyID) => ({ value: companyID, label: companyIDs[companyID] !== undefined ? companyIDs[companyID] : companyID }))}
+                                    isMulti
+                                    name="colors"
+                                    options={Object.keys(companyIDs).map((companyID) => ({ value: companyID, label: companyIDs[companyID] }))}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    styles={customSelectStyles(theme)}
+                                    value={value.split(",").splice(Number(value === "")).map((companyID) => ({ value: companyID, label: companyIDs[companyID] !== undefined ? companyIDs[companyID] : companyID }))}
+                                    onChange={(newIDs) => {
+                                        setModalChallenge({
+                                            ...modalChallenge,
+                                            job_requirements: { ...modalChallenge.job_requirements, [key]: newIDs.map((item) => (item.value)).join(",") },
+                                        });
+                                    }}
+                                    menuPortalTarget={document.body}
+                                />
+                            </Grid>
+                        }
+                        {["cargo_id"].includes(key) &&
+                            <Grid item xs={12} sm={6} key={key} style={{ paddingTop: "5px" }}>
+                                <Typography variant="body2">{formatFieldName(key)}</Typography>
+                                <CreatableSelect
+                                    defaultValue={value.split(",").splice(Number(value === "")).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] !== undefined ? cargoIDs[cargoID] : cargoID }))}
+                                    isMulti
+                                    name="colors"
+                                    options={Object.keys(cargoIDs).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] }))}
+                                    className="basic-multi-select"
+                                    classNamePrefix="select"
+                                    styles={customSelectStyles(theme)}
+                                    value={value.split(",").splice(Number(value === "")).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] !== undefined ? cargoIDs[cargoID] : cargoID }))}
+                                    onChange={(newIDs) => {
+                                        setModalChallenge({
+                                            ...modalChallenge,
+                                            job_requirements: { ...modalChallenge.job_requirements, [key]: newIDs.map((item) => (item.value)).join(",") },
+                                        });
+                                    }}
+                                    menuPortalTarget={document.body}
+                                />
+                            </Grid>
+                        }
+                        {!["source_city_id", "destination_city_id", "source_company_id", "destination_company_id", "cargo_id"].includes(key) &&
+                            <Grid item xs={12} sm={6} key={key}>
+                                <TextField
+                                    label={formatFieldName(key)}
+                                    value={value}
+                                    onChange={(e) =>
+                                        setModalChallenge({
+                                            ...modalChallenge,
+                                            job_requirements: { ...modalChallenge.job_requirements, [key]: e.target.value },
+                                        })
+                                    }
+                                    fullWidth
+                                />
+                            </Grid>}
+                    </>))}
                 </Grid>
             </DialogContent>
             <DialogActions>

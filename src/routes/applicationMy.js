@@ -22,7 +22,7 @@ const columns = [
 
 const ApplicationTable = memo(({ showDetail }) => {
     const [recent, setRecent] = useState([]);
-    const [applications, setApplications] = useState([]);
+    const [applications, setApplications] = useState(null);
 
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
@@ -110,7 +110,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 </Grid>
             }
         </Grid>}
-        {applications.length > 0 && <CustomTable columns={columns} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        {applications !== null && <CustomTable columns={columns} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
     </>;
 });
 
