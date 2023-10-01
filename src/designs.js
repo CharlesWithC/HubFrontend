@@ -62,6 +62,25 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
+                    MuiRadio: {
+                        styleOverrides: {
+                            root: {
+                                color: '#606060',
+                                '&.Mui-checked': {
+                                    color: '#3c3c3c',
+                                },
+                            },
+                        },
+                    },
+                    MuiFormLabel: {
+                        styleOverrides: {
+                            root: {
+                                '&.Mui-focused': {
+                                    color: '#606060',
+                                },
+                            },
+                        },
+                    },
                     MuiTooltip: {
                         styleOverrides: {
                             popover: {
@@ -118,12 +137,22 @@ export function getDesignTokens(mode) {
                             }
                         }
                     },
+                    MuiRadio: {
+                        styleOverrides: {
+                            root: {
+                                color: '#efefef',
+                                '&.Mui-checked': {
+                                    color: '#fafafa',
+                                },
+                            },
+                        },
+                    },
                     MuiTooltip: {
                         styleOverrides: {
                             tooltip: {
                                 fontSize: "16px",
                                 backgroundColor: '#202225',
-                            },  
+                            },
                             arrow: {
                                 color: '#202225',
                             }
