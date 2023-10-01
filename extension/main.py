@@ -3,6 +3,8 @@
 
 import json
 import os
+import sqlite3
+import threading
 import time
 import uuid
 
@@ -18,11 +20,67 @@ rolesLU = 0
 
 discord_bot_token = os.getenv("BOT_TOKEN")
 
+gconn = sqlite3.connect("truckersmp.db", check_same_thread=False)
+gcur = gconn.cursor()
+
+def truckersmp_online_data():
+    conn = sqlite3.connect("truckersmp.db", check_same_thread=False)
+    cur = conn.cursor()
+    cur.execute(f"CREATE TABLE IF NOT EXISTS players (mpid INT PRIMARY KEY, name VARCHAR(64), last_online BIGINT UNSIGNED)")
+
+    recent_online = {}
+    cur.execute(f"SELECT mpid, last_online FROM players WHERE last_online >= {int(time.time()) - 3600}")
+    t = cur.fetchall()
+    for tt in t:
+        recent_online[tt[0]] = tt[1]
+
+    while 1:
+        r = requests.get("https://tracker.ets2map.com/v3/fullmap")
+        if r.status_code == 200:
+            updates = []
+            # 0: new player
+            # 1: update player (long time no see)
+            # 2: update player who is recently online
+            # name will only be updated if the player is not seen for at least 1 hour
+
+            recent_onlines = list(recent_online.keys())
+
+            d = json.loads(r.text)
+            for player in d["Data"]:
+                mpid = player["MpId"]
+                name = player["Name"]
+                timestamp = player["Time"]
+                if mpid not in recent_onlines:
+                    cur.execute(f"SELECT mpid FROM players WHERE mpid = {mpid}")
+                    t = cur.fetchall()
+                    if len(t) == 0:
+                        updates.append((0, mpid, name, timestamp))
+                    else:
+                        updates.append((1, mpid, name, timestamp))
+                    recent_online[mpid] = timestamp
+                else:
+                    updates.append((2, mpid, name, timestamp))
+                    recent_online[mpid] = timestamp
+            
+            conn.isolation_level = None
+            for (op, mpid, name, timestamp) in updates:
+                if op == 0:
+                    cur.execute(f"INSERT INTO players VALUES (?, ?, ?)", (mpid, name, timestamp, ))
+                elif op == 1:
+                    cur.execute(f"UPDATE players SET name = ?, last_online = ? WHERE mpid = ?", (name, timestamp, mpid, ))
+                elif op == 2:
+                    cur.execute(f"UPDATE players SET last_online = ? WHERE mpid = ?", (timestamp, mpid, ))
+            conn.commit()
+            conn.isolation_level = 'DEFERRED'
+
+            threshold = int(time.time()) - 3600
+            recent_online = {mpid: last_online for (mpid, last_online) in recent_online.items() if last_online >= threshold}
+            
+        time.sleep(60)
+
 @app.get("/")
 async def index():
     return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
-
-# #2fc1f7 #e488b9 #e75757 #f6529a #ecb484
 
 def updateRolesCache():
     global rolesCache
@@ -51,6 +109,21 @@ async def getRoles():
         rolesLU = time.time()
         updateRolesCache()
     return rolesCache
+
+@app.get("/truckersmp")
+async def getTruckersMP(mpid: int, response: Response):
+    for _ in range(5):
+        try:
+            gcur.execute(f"SELECT name, last_online FROM players WHERE mpid = {mpid}")
+            t = gcur.fetchall()
+            if len(t) == 0:
+                response.status_code = 404
+                return {"error": "Not Found"}
+            else:
+                return {"mpid": mpid, "name": t[0][0], "last_online": t[0][1]}
+        except:
+            time.sleep(0.01)
+    return {"error": "Service Unavailable"}
     
 @app.get("/config")
 async def getConfig(domain: str, request: Request, response: Response):
@@ -223,4 +296,5 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     return Response(status_code=204)
 
 if __name__ == "__main__":
+    threading.Thread(target=truckersmp_online_data, daemon=True).start()
     uvicorn.run("main:app", host = "127.0.0.1", port = 8299, access_log = False)
