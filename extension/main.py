@@ -96,6 +96,8 @@ def updateRolesCache():
                 for role in ROLES.keys():
                     if ROLES[role] in dd["roles"]:
                         rolesCache[role].append(dd["user"]["id"])
+                if "1157885414854627438" in dd["roles"]:
+                    rolesCache["project_team"].append(dd["user"]["id"])
             if len(d) < 1000:
                 break
         else:
@@ -118,7 +120,7 @@ async def getTruckersMP(mpid: int, response: Response):
             t = gcur.fetchall()
             if len(t) == 0:
                 response.status_code = 404
-                return {"error": "Not Found"}
+                return {"error": "Player has not been online since tracking started."}
             else:
                 return {"mpid": mpid, "name": t[0][0], "last_online": t[0][1]}
         except:
