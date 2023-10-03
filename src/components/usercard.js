@@ -179,15 +179,17 @@ const UserCard = (props) => {
     const [tmpLastOnline, setTmpLastOnline] = useState(null);
     const [chartStats, setChartStats] = useState(null);
     const [overallStats, setOverallStats] = useState(null);
+    const [detailStats, setDetailStats] = useState(null);
     const [pointStats, setPointStats] = useState(null);
     const loadStats = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        const [_tmp, _chart, _overall, _point] = await makeRequestsAuto([
+        const [_tmp, _chart, _overall, _details, _point] = await makeRequestsAuto([
             { url: `https://config.chub.page/truckersmp?mpid=${truckersmpidRef.current}`, auth: false },
             { url: `${vars.dhpath}/dlog/statistics/chart?userid=${userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
             { url: `${vars.dhpath}/dlog/statistics/summary?userid=${userid}`, auth: true },
+            { url: `${vars.dhpath}/dlog/statistics/details?userid=${userid}`, auth: true },
             { url: `${vars.dhpath}/dlog/leaderboard?userids=${userid}`, auth: true },
         ]);
 
@@ -204,6 +206,7 @@ const UserCard = (props) => {
         }
         setChartStats(newCharts);
         setOverallStats(_overall);
+        if (_details.truck !== undefined) setDetailStats(_details);
         setPointStats(_point.list[0].points);
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -750,7 +753,7 @@ const UserCard = (props) => {
                                         <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/img/avatar.png" /></Tooltip>}
-                                            label={<>{truckersmpidRef.current} {tmpLastOnline !== null ? <><br />(Last Seen: <TimeAgo timestamp={tmpLastOnline * 1000} />)</> : <></>}</>}
+                                            label={<>{truckersmpidRef.current} {tmpLastOnline !== null ? <><br />(Last seen: <TimeAgo timestamp={tmpLastOnline * 1000} />)</> : <></>}</>}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -838,6 +841,16 @@ const UserCard = (props) => {
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS Profit</Typography>
                                     <Typography variant="body2">{"$" + TSep(overallStats.profit.all.tot.dollar)}</Typography>
                                 </Grid>
+                                {detailStats !== null && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
+                                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favoriate Truck</Typography>
+                                        <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count})</Typography>
+                                    </Grid>
+                                    <Grid item xs={6} sm={6} md={6} lg={6}>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favoriate Cargo</Typography>
+                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count})</Typography>
+                                    </Grid>
+                                </>}
                             </Grid>}
                             <Divider sx={{ mt: "6px", mb: "6px" }} />
                             {pointStats !== null && <Grid container spacing={2}>
