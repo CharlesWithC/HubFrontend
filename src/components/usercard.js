@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
-import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded } from "@mui/icons-material";
+import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, VerifiedOutlined } from "@mui/icons-material";
 import { Portal } from '@mui/base';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +13,7 @@ import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
 import MarkdownRenderer from './markdown';
 import StatCard from './statcard';
+import CustomTable from './table';
 
 import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
@@ -45,6 +46,14 @@ function TabPanel(props) {
         </div>
     );
 }
+
+const dlogColumns = [
+    { id: 'display_logid', label: 'ID' },
+    { id: 'cargo', label: 'Cargo' },
+    { id: 'distance', label: 'Distance' },
+    { id: 'profit', label: 'Profit' },
+];
+const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 function GetActivity(activity) {
     if (activity.status === "offline") {
@@ -137,6 +146,7 @@ const UserCard = (props) => {
     }, []);
 
     const theme = useTheme();
+    const navigate = useNavigate();
 
     const [tab, setTab] = useState(0);
     const handleChange = (event, newValue) => {
@@ -181,16 +191,24 @@ const UserCard = (props) => {
     const [overallStats, setOverallStats] = useState(null);
     const [detailStats, setDetailStats] = useState(null);
     const [pointStats, setPointStats] = useState(null);
+    const [dlogList, setDlogList] = useState(null);
+    const [dlogTotalItems, setDlogTotalItems] = useState(0);
+    const [dlogPage, setDlogPage] = useState(-1);
+    const [dlogPageSize, setDlogPageSize] = useState(10);
     const loadStats = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        const [_tmp, _chart, _overall, _details, _point] = await makeRequestsAuto([
+        let myPage = dlogPage;
+        myPage === -1 ? myPage = 1 : myPage += 1;
+
+        const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
             { url: `https://config.chub.page/truckersmp?mpid=${truckersmpidRef.current}`, auth: false },
             { url: `${vars.dhpath}/dlog/statistics/chart?userid=${userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
             { url: `${vars.dhpath}/dlog/statistics/summary?userid=${userid}`, auth: true },
             { url: `${vars.dhpath}/dlog/statistics/details?userid=${userid}`, auth: true },
             { url: `${vars.dhpath}/dlog/leaderboard?userids=${userid}`, auth: true },
+            { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${myPage}&page_size=${dlogPageSize}`, auth: "prefer" },
         ]);
 
         if (_tmp.error === undefined && _tmp.last_online !== undefined) {
@@ -209,6 +227,20 @@ const UserCard = (props) => {
         if (_details.truck !== undefined) setDetailStats(_details);
         setPointStats(_point.list[0].points);
 
+        let newDlogList = [];
+        for (let i = 0; i < _dlogList.list.length; i++) {
+            let divisionCheckmark = <></>;
+            if (_dlogList.list[i].division.divisionid !== undefined) {
+                divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
+                </Tooltip>;
+            }
+            newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo timestamp={_dlogList.list[i].timestamp * 1000} /> });
+        }
+        setDlogList(newDlogList);
+        setDlogTotalItems(_dlogList.total_items);
+
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
     }, [userid]);
@@ -216,6 +248,37 @@ const UserCard = (props) => {
         if (chartStats === null && (ctxAction === "show-profile" || showProfileModal === 2))
             loadStats();
     }, [chartStats, ctxAction, showProfileModal]);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let myPage = dlogPage;
+            myPage === -1 ? myPage = 1 : myPage += 1;
+
+            const [_dlogList] = await makeRequestsAuto([
+                { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${myPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+            ]);
+            let newDlogList = [];
+            for (let i = 0; i < _dlogList.list.length; i++) {
+                let divisionCheckmark = <></>;
+                if (_dlogList.list[i].division.divisionid !== undefined) {
+                    divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
+                    </Tooltip>;
+                }
+                newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo timestamp={_dlogList.list[i].timestamp * 1000} /> });
+            }
+            setDlogList(newDlogList);
+            setDlogTotalItems(_dlogList.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+
+        doLoad();
+    }, [dlogPage, dlogPageSize]);
 
     let trackers = [];
     for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
@@ -852,7 +915,7 @@ const UserCard = (props) => {
                                     </Grid>
                                 </>}
                             </Grid>}
-                            <Divider sx={{ mt: "6px", mb: "6px" }} />
+                            {pointStats !== null && <Divider sx={{ mt: "6px", mb: "6px" }} />}
                             {pointStats !== null && <Grid container spacing={2}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Points</Typography>
@@ -879,6 +942,10 @@ const UserCard = (props) => {
                                     <Typography variant="body2">{TSep(pointStats.division)}</Typography>
                                 </Grid>
                             </Grid>}
+                        </TabPanel>
+                        <TabPanel value={tab} index={2}>
+                            {dlogList !== null &&
+                                <CustomTable columns={dlogColumns} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/beta/delivery/${data.logid}`); }} />}
                         </TabPanel>
                     </SimpleBar>
                 </CardContent>
