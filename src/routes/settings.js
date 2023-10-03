@@ -161,12 +161,6 @@ function TabPanel(props) {
     );
 }
 
-TabPanel.propTypes = {
-    children: PropTypes.node,
-    index: PropTypes.number.isRequired,
-    value: PropTypes.number.isRequired,
-};
-
 const Settings = () => {
     const [tab, setTab] = useState(0);
     const handleChange = (event, newValue) => {
