@@ -4,8 +4,10 @@ import { Card, CardContent, Typography, Chip } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 const StatCard = (props) => {
-    const { icon, title, latest, inputs } = props;
+    let { icon, title, latest, inputs, size, height } = props;
     const theme = useTheme();
+
+    if (height === undefined) height = "100%";
 
     const chartRef = useRef(null);
 
@@ -94,14 +96,14 @@ const StatCard = (props) => {
         <Card>
             <CardContent>
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                    <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                    <Typography variant={size === "small" ? "body" : "h5"} component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                         {icon}&nbsp;&nbsp;{title}
                     </Typography>
-                    <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>
+                    {latest !== undefined && <Chip label={latest} sx={{ fontFamily: "Orbitron", borderRadius: "5px" }}></Chip>}
                 </div>
             </CardContent>
-            <div style={{ height: '100%' }}>
-                <canvas ref={chartRef} style={{ height: '100%' }} />
+            <div style={{ height: height }}>
+                <canvas ref={chartRef} style={{ height: height }} />
             </div>
         </Card >
     );

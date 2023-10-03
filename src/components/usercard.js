@@ -1,16 +1,20 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
+import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded } from "@mui/icons-material";
 import { Portal } from '@mui/base';
 import { Link } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt } from '@fortawesome/free-solid-svg-icons';
 
+import SimpleBar from 'simplebar-react';
+
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
 import MarkdownRenderer from './markdown';
+import StatCard from './statcard';
 
-import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate } from '../functions';
+import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 var vars = require("../variables");
@@ -171,6 +175,44 @@ const UserCard = (props) => {
         setDialogBtnDisabled(false);
     }, []);
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
+
+    const [tmpLastOnline, setTmpLastOnline] = useState(null);
+    const [chartStats, setChartStats] = useState(null);
+    const [overallStats, setOverallStats] = useState(null);
+    const [pointStats, setPointStats] = useState(null);
+    const loadStats = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        const [_tmp, _chart, _overall, _point] = await makeRequestsAuto([
+            { url: `https://config.chub.page/truckersmp?mpid=${truckersmpidRef.current}`, auth: false },
+            { url: `${vars.dhpath}/dlog/statistics/chart?userid=${userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
+            { url: `${vars.dhpath}/dlog/statistics/summary?userid=${userid}`, auth: true },
+            { url: `${vars.dhpath}/dlog/leaderboard?userids=${userid}`, auth: true },
+        ]);
+
+        if (_tmp.error === undefined && _tmp.last_online !== undefined) {
+            setTmpLastOnline(_tmp.last_online);
+        }
+
+        let newCharts = { distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
+        for (let i = 0; i < _chart.length; i++) {
+            newCharts.distance.push(_chart[i].distance.sum);
+            newCharts.fuel.push(_chart[i].fuel.sum);
+            newCharts.profit_euro.push(_chart[i].profit.euro);
+            newCharts.profit_dollar.push(_chart[i].profit.dollar);
+        }
+        setChartStats(newCharts);
+        setOverallStats(_overall);
+        setPointStats(_point.list[0].points);
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [userid]);
+    useEffect(() => {
+        if (chartStats === null && (ctxAction === "show-profile" || showProfileModal === 2))
+            loadStats();
+    }, [chartStats, ctxAction, showProfileModal]);
 
     let trackers = [];
     for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
@@ -587,145 +629,245 @@ const UserCard = (props) => {
                             <Tab label="Deliveries" {...tabBtnProps(2, tab, theme)} />
                         </Tabs>
                     </Box>
-                    <TabPanel value={tab} index={0}>
-                        {bioRef.current !== "" && <>
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                ABOUT ME
-                            </Typography>
-                            <Typography variant="body2">
-                                <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
-                            </Typography>
-                        </>}
-                        <Grid container sx={{ mt: "10px" }}>
-                            <Grid item xs={6}>
+                    <SimpleBar style={{ height: "40vh" }}>
+                        <TabPanel value={tab} index={0}>
+                            {bioRef.current !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    MEMBER SINCE
-                                </Typography>
-                                {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                    {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
-                                </Typography>}
-                            </Grid>
-                            <Grid item xs={6}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    TRACKER
+                                    ABOUT ME
                                 </Typography>
                                 <Typography variant="body2">
-                                    {trackerMapping[trackerInUse]}
+                                    <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
                                 </Typography>
+                            </>}
+                            <Grid container sx={{ mt: "10px" }}>
+                                <Grid item xs={6}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        MEMBER SINCE
+                                    </Typography>
+                                    {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                        {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
+                                    </Typography>}
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        TRACKER
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        {trackerMapping[trackerInUse]}
+                                    </Typography>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                        {roles !== null && roles !== undefined && <Box sx={{ mt: "10px" }}>
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                {roles.length > 1 ? `ROLES` : `ROLE`}
-                            </Typography>
-                            {roles.map((role) => (
-                                <Chip
-                                    key={`role-${role}`}
-                                    avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
-                                    label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
-                                    variant="outlined"
+                            {roles !== null && roles !== undefined && <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    {roles.length > 1 ? `ROLES` : `ROLE`}
+                                </Typography>
+                                {roles.map((role) => (
+                                    <Chip
+                                        key={`role-${role}`}
+                                        avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
+                                        label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ borderRadius: "5px", margin: "3px" }}
+                                    />
+                                ))}
+                            </Box>}
+                            <Box sx={{ mt: "10px" }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    NOTE
+                                </Typography>
+                                <TextField
+                                    value={newNote}
+                                    onChange={(e) => setNewNote(e.target.value)}
+                                    fullWidth multiline
                                     size="small"
-                                    sx={{ borderRadius: "5px", margin: "3px" }}
                                 />
-                            ))}
-                        </Box>}
-                        <Box sx={{ mt: "10px" }}>
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                NOTE
-                            </Typography>
-                            <TextField
-                                value={newNote}
-                                onChange={(e) => setNewNote(e.target.value)}
-                                fullWidth multiline
-                                size="small"
-                            />
-                        </Box>
-                        <Divider />
-                        <Box sx={{ mt: "10px" }}>
-                            <Grid container spacing={2}>
-                                {emailRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <a href={`mailto:${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
-                                        avatar={<Tooltip placement="top" arrow title="Email"
-                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
-                                        label={emailRef.current}
-                                        sx={{
-                                            borderRadius: "5px",
-                                            margin: "3px",
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'flex-start',
-                                            border: '1px solid ' + theme.palette.grey[500],
-                                            backgroundColor: 'transparent',
-                                            width: "auto",
-                                            padding: "10px",
-                                            height: "105%",
-                                            cursor: "pointer"
-                                        }}
-                                    /></a>
-                                </Grid>}
-                                {discordidRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <a href={`https://discord.com/users/${discordidRef.current}`} target="_blank" rel="noreferrer"><Chip
-                                        avatar={<Tooltip placement="top" arrow title="Discord"
-                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faDiscord} /></Tooltip>}
-                                        label={discordidRef.current}
-                                        sx={{
-                                            borderRadius: "5px",
-                                            margin: "3px",
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'flex-start',
-                                            border: '1px solid ' + theme.palette.grey[500],
-                                            backgroundColor: 'transparent',
-                                            width: "auto",
-                                            padding: "10px",
-                                            height: "105%",
-                                            cursor: "pointer"
-                                        }}
-                                    /></a>
-                                </Grid>}
-                                {steamidRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <a href={`https://steamcommunity.com/profiles/${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
-                                        avatar={<Tooltip placement="top" arrow title="Steam"
-                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
-                                        label={steamidRef.current}
-                                        sx={{
-                                            borderRadius: "5px",
-                                            margin: "3px",
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'flex-start',
-                                            border: '1px solid ' + theme.palette.grey[500],
-                                            backgroundColor: 'transparent',
-                                            width: "auto",
-                                            padding: "10px",
-                                            height: "105%",
-                                            cursor: "pointer"
-                                        }}
-                                    /></a>
-                                </Grid>}
-                                {truckersmpidRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
-                                        avatar={<Tooltip placement="top" arrow title="TruckersMP"
-                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/img/avatar.png" /></Tooltip>}
-                                        label={truckersmpidRef.current}
-                                        sx={{
-                                            borderRadius: "5px",
-                                            margin: "3px",
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'flex-start',
-                                            border: '1px solid ' + theme.palette.grey[500],
-                                            backgroundColor: 'transparent',
-                                            width: "auto",
-                                            padding: "10px",
-                                            height: "105%",
-                                            cursor: "pointer"
-                                        }}
-                                    /></a>
-                                </Grid>}
-                            </Grid>
-                        </Box>
-                    </TabPanel>
+                            </Box>
+                            <Divider />
+                            <Box sx={{ mt: "10px" }}>
+                                <Grid container spacing={2}>
+                                    {emailRef.current !== undefined && emailRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`mailto:${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                            avatar={<Tooltip placement="top" arrow title="Email"
+                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
+                                            label={emailRef.current}
+                                            sx={{
+                                                borderRadius: "5px",
+                                                margin: "3px",
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'flex-start',
+                                                border: '1px solid ' + theme.palette.grey[500],
+                                                backgroundColor: 'transparent',
+                                                width: "auto",
+                                                padding: "10px",
+                                                height: "105%",
+                                                cursor: "pointer"
+                                            }}
+                                        /></a>
+                                    </Grid>}
+                                    {discordidRef.current !== undefined && discordidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`https://discord.com/users/${discordidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                            avatar={<Tooltip placement="top" arrow title="Discord"
+                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faDiscord} /></Tooltip>}
+                                            label={discordidRef.current}
+                                            sx={{
+                                                borderRadius: "5px",
+                                                margin: "3px",
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'flex-start',
+                                                border: '1px solid ' + theme.palette.grey[500],
+                                                backgroundColor: 'transparent',
+                                                width: "auto",
+                                                padding: "10px",
+                                                height: "105%",
+                                                cursor: "pointer"
+                                            }}
+                                        /></a>
+                                    </Grid>}
+                                    {steamidRef.current !== undefined && steamidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`https://steamcommunity.com/profiles/${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                            avatar={<Tooltip placement="top" arrow title="Steam"
+                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
+                                            label={steamidRef.current}
+                                            sx={{
+                                                borderRadius: "5px",
+                                                margin: "3px",
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'flex-start',
+                                                border: '1px solid ' + theme.palette.grey[500],
+                                                backgroundColor: 'transparent',
+                                                width: "auto",
+                                                padding: "10px",
+                                                height: "105%",
+                                                cursor: "pointer"
+                                            }}
+                                        /></a>
+                                    </Grid>}
+                                    {truckersmpidRef.current !== undefined && truckersmpidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                            avatar={<Tooltip placement="top" arrow title="TruckersMP"
+                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/img/avatar.png" /></Tooltip>}
+                                            label={<>{truckersmpidRef.current} {tmpLastOnline !== null ? <><br />(Last Seen: <TimeAgo timestamp={tmpLastOnline * 1000} />)</> : <></>}</>}
+                                            sx={{
+                                                borderRadius: "5px",
+                                                margin: "3px",
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'flex-start',
+                                                border: '1px solid ' + theme.palette.grey[500],
+                                                backgroundColor: 'transparent',
+                                                width: "auto",
+                                                padding: "10px",
+                                                height: "105%",
+                                                cursor: "pointer"
+                                            }}
+                                        /></a>
+                                    </Grid>}
+                                </Grid>
+                            </Box>
+                        </TabPanel>
+                        <TabPanel value={tab} index={1}>
+                            {chartStats !== null && <Grid container spacing={2}>
+                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    <StatCard icon={<RouteRounded />} title={"Distance"} inputs={chartStats.distance} size="small" height="75px" />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} inputs={chartStats.fuel} size="small" height="75px" />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} inputs={chartStats.profit_euro} size="small" height="75px" />
+                                </Grid>
+                                <Grid item xs={12} sm={12} md={6} lg={6}>
+                                    <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} inputs={chartStats.profit_dollar} size="small" height="75px" />
+                                </Grid>
+                            </Grid>}
+                            {overallStats !== null && <Grid container spacing={2} sx={{ mt: "5px" }}>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Jobs Submitted</Typography>
+                                    <Typography variant="body2">{TSep(overallStats.job.all.sum.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2</Typography>
+                                    <Typography variant="body2">{TSep(overallStats.job.all.ets2.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS</Typography>
+                                    <Typography variant="body2">{TSep(overallStats.job.all.ats.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}></Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Delivered</Typography>
+                                    <Typography variant="body2">{TSep(overallStats.job.delivered.sum.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Cancelled</Typography>
+                                    <Typography variant="body2">{TSep(overallStats.job.cancelled.sum.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Distance Driven</Typography>
+                                    <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.sum.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2</Typography>
+                                    <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.ets2.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS</Typography>
+                                    <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.ats.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Fuel Consumed</Typography>
+                                    <Typography variant="body2">{ConvertUnit("l", overallStats.fuel.all.sum.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2</Typography>
+                                    <Typography variant="body2">{ConvertUnit("l", overallStats.fuel.all.ets2.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS</Typography>
+                                    <Typography variant="body2">{ConvertUnit("l", overallStats.distance.all.ats.tot)}</Typography>
+                                </Grid>
+                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2 Profit</Typography>
+                                    <Typography variant="body2">{"€" + TSep(overallStats.profit.all.tot.euro)}</Typography>
+                                </Grid>
+                                <Grid item xs={6} sm={6} md={6} lg={6}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS Profit</Typography>
+                                    <Typography variant="body2">{"$" + TSep(overallStats.profit.all.tot.dollar)}</Typography>
+                                </Grid>
+                            </Grid>}
+                            <Divider sx={{ mt: "6px", mb: "6px" }} />
+                            {pointStats !== null && <Grid container spacing={2}>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Points</Typography>
+                                    <Typography variant="body2">{TSep(pointStats.total)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Distance</Typography>
+                                    <Typography variant="body2">{TSep(pointStats.distance)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Challenge</Typography>
+                                    <Typography variant="body2">{TSep(pointStats.challenge)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Bonus</Typography>
+                                    <Typography variant="body2">{TSep(pointStats.bonus)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Event</Typography>
+                                    <Typography variant="body2">{TSep(pointStats.event)}</Typography>
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Division</Typography>
+                                    <Typography variant="body2">{TSep(pointStats.division)}</Typography>
+                                </Grid>
+                            </Grid>}
+                        </TabPanel>
+                    </SimpleBar>
                 </CardContent>
             </CardContent>
         </Card>
@@ -766,7 +908,8 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>
+            {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>}
+            {(userid === null || userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <Divider />}
             {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}

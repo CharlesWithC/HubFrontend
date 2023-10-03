@@ -21,7 +21,7 @@ const EVENT_NAME = { "job.started": "Job Started", "job.delivered": "Job Deliver
 const FINE_DESC = { "crash": "Crashed a vehicle", "red_signal": "Ran a red light", "speeding_camera": "Speeding camera", "speeding": "Speeding", "wrong_way": "Wrong way", "no_lights": "No lights", "avoid_sleeping": "Fatigue driving", "avoid_weighing": "Avoided weighing", "damaged_vehicle_usage": "Damaged vehicle usage", "illegal_border_crossing": "Crossed border illegally", "illegal_trailer": "Attached illegal trailer", "avoid_inspection": "Avoided inspection", "hard_shoulder_violation": "Violated hard shoulder" };
 const STATUS = { 0: "Pending", 1: "Accepted", 2: "Declined" };
 
-const CURRENCY_UNIT = { "eut2": "€", "ats": "$" };
+const CURRENTY_ICON = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
 const YES_NO = { 0: "No", 1: "Yes" };
 const MARKET = { "cargo_market": "Cargo Market", "freight_market": "Freight Market", "external_contracts": "External Contracts", "quick_job": "Quick Job", "external_market": "External Market" };
@@ -357,8 +357,8 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
             { "name": "Max. Speed", "value": ConvertUnit("km", detail.truck.top_speed * 3.6) + "/h" },
             { "name": "Avg. Speed", "value": ConvertUnit("km", detail.truck.average_speed * 3.6) + "/h" },
             {},
-            { "name": "Revenue", "value": detail.events[detail.events.length - 1].meta.revenue !== undefined ? detail.events[detail.events.length - 1].meta.revenue + CURRENCY_UNIT[detail.game.short_name] : "/" },
-            { "name": "Fine", "value": fine + CURRENCY_UNIT[detail.game.short_name] },
+            { "name": "Revenue", "value": detail.events[detail.events.length - 1].meta.revenue !== undefined ? CURRENTY_ICON[detail.game.short_name] + detail.events[detail.events.length - 1].meta.revenue : "/" },
+            { "name": "Fine", "value": CURRENTY_ICON[detail.game.short_name] + fine },
             {},
             { "name": "Is Special Transport?", "value": YES_NO[bool2int(detail.is_special)] },
             { "name": "Is Late?", "value": <span style={{ color: detail.is_late === false ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.is_late)]}</span> },
@@ -462,13 +462,13 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                                             if (e.meta.offence === "speeding" || e.meta.offence === "speeding_camera") {
                                                 desc = <>{desc}<br />Speed: {ConvertUnit("km", e.meta.speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
                                             }
-                                            desc = <>{desc}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.amount}</>;
+                                            desc = <>{desc}<br />Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.amount}</>;
                                         } else if (e.type === "tollgate") {
-                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>;
+                                            desc = <>Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
                                         } else if (e.type === "ferry" || e.type === "train") {
-                                            desc = <>From {e.meta.source_name}<br />To {e.meta.target_name}<br />Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{e.meta.cost}</>;
+                                            desc = <>From {e.meta.source_name}<br />To {e.meta.target_name}<br />Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
                                         } else if (e.type === "refuel") {
-                                            desc = <>Paid {CURRENCY_UNIT[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
+                                            desc = <>Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
                                         } else if (e.type === "speeding") {
                                             desc = <>Max. Speed: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
                                         }

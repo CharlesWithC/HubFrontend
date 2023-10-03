@@ -93,10 +93,10 @@ const Overview = () => {
             <StatCard icon={<RouteRounded />} title={"Distance"} latest={ConvertUnit("km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} latest={TSep(latest.profit_euro).replaceAll(",", " ") + "€"} inputs={charts.profit_euro} />
+            <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} latest={TSep(latest.profit_dollar).replaceAll(",", " ") + "$"} inputs={charts.profit_dollar} />
+            <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
         </Grid>
         <Grid item xs={12} sm={12} md={6} lg={4}>
             <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
@@ -173,7 +173,7 @@ const Overview = () => {
                             </SimpleBar>
                         </CardContent>
                     </Card >
-                    </Grid>
+                </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
                         <Card>
                             <CardContent>

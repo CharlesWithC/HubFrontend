@@ -55,7 +55,7 @@ function App() {
         console.log(drivershub);
         console.log("Drivers Hub: Frontend");
         console.log(`Copyright (C) ${new Date().getFullYear()} CharlesWithC All rights reserved.`);
-        console.log("This is the Early Access build. All functions are subject to change.");
+        console.log("This is the beta build. Functions may be updated or removed.");
     }, []);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');

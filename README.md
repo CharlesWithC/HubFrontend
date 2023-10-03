@@ -11,3 +11,4 @@ A bunch of easter eggs are kept in the project, they are hidden from the general
 2. [event Add `[Image src="{link}"]` (\*case-sensitive) to the beginning of description to show an image heading for an event.  
 3. [(todo)statistics] Display statistics details  
 4. [(todo)display] Display login background  
+5. [statistics] User profile popover statistics details (e.g. favoriate truck)  

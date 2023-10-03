@@ -99,7 +99,6 @@ const Loader = ({ onLoaderLoaded }) => {
                             vars.specialRoles[discordid].push({ "name": role, "color": SPECIAL_COLOR[role] });
                         }
                     }
-                    console.log(vars.specialRoles);
                 }
                 if (config) {
                     vars.discordClientID = config.config.discord_client_id;
