@@ -544,7 +544,7 @@ const UserCard = (props) => {
                             {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"])))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                         </Typography>
                     </div>
-                    {vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
+                    {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
                     <Divider sx={{ mt: "8px", mb: "8px" }} />
                     {bioRef.current !== "" && <>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -559,9 +559,9 @@ const UserCard = (props) => {
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                 MEMBER SINCE
                             </Typography>
-                            <Typography variant="body2" sx={{ display: "inline-block" }}>
+                            {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
                                 {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
-                            </Typography>
+                            </Typography>}
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -1029,7 +1029,7 @@ const UserCard = (props) => {
                                 {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
                             </Typography>
                         </div>
-                        {vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
+                        {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
                         {bioRef.current !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -1044,9 +1044,9 @@ const UserCard = (props) => {
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     MEMBER SINCE
                                 </Typography>
-                                <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
                                     {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
-                                </Typography>
+                                </Typography>}
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>

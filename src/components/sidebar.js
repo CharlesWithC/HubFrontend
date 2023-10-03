@@ -152,9 +152,9 @@ const SideBar = (props) => {
 
     const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
         <List key="0" sx={{ paddingTop: 0 }}>
-            <Link to="/beta/"><ListItem key={`navbtn-banner`} disablePadding>
+            <ListItem key={`navbtn-banner`} disablePadding>
                 <img className="sidebar-banner" src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="" ref={bannerRef} style={{ margin: 0, width: "100%" }} />
-            </ListItem></Link>
+            </ListItem>
         </List>
         {menu.map((subMenu, subIndex) => (
             <div key={`navlist-${subMenu}-${subIndex}`}>

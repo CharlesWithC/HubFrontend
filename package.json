@@ -16,6 +16,8 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/lab": "^5.0.0-alpha.134",
     "@mui/material": "^5.12.1",
+    "@sentry/cli": "^2.21.1",
+    "@sentry/react": "^7.73.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -41,11 +43,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run sentry:sourcemaps",
     "postbuild": "bash ./scripts/post-build.sh",
     "fast": "react-scripts build && serve -s build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "sentry:sourcemaps": "npx sentry-cli sourcemaps inject --org charlws --project chub-frontend-v3 ./build && npx sentry-cli sourcemaps upload --org charlws --project chub-frontend-v3 ./build"
   },
   "eslintConfig": {
     "extends": [

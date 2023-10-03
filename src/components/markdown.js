@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 
 const MarkdownRenderer = ({ children }) => {
     const preprocessContent = (content) => {
+        if (content === undefined) return "";
         return content.replace(/\n/g, '\n\n');
     };
 

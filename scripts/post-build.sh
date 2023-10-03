@@ -7,3 +7,5 @@ sed -i "s|/beta/static|$replacement|g" ./build/index.html
 
 # Replace "/beta/static" with the specified URL in asset-manifest.json
 sed -i "s|/beta/static|$replacement|g" ./build/asset-manifest.json
+
+find ./build -type f -name '*.map' -exec rm {} \;
