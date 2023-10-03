@@ -4,13 +4,14 @@ import { Portal } from '@mui/base';
 import { Link } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faLocationArrow } from '@fortawesome/free-solid-svg-icons';
 
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
 import MarkdownRenderer from './markdown';
 
 import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate } from '../functions';
+import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 var vars = require("../variables");
 
@@ -79,12 +80,14 @@ const UserCard = (props) => {
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                 </Tooltip>;
-            } else if (['community_legend'].includes(sr.name)) {
+            }
+            if (['community_legend'].includes(sr.name)) {
                 badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="CHub Community Legend"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                 </Tooltip>;
-            } else if (['patron', 'server_booster', 'fv3ea'].includes(sr.name)) {
+            }
+            if (['patron', 'server_booster', 'fv3ea'].includes(sr.name)) {
                 badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="CHub Supporter"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
@@ -540,7 +543,8 @@ const UserCard = (props) => {
                         </Typography>
                         <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                             {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
-                            {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
+                            {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Tooltip>}
                             {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"])))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                         </Typography>
                     </div>
@@ -597,6 +601,91 @@ const UserCard = (props) => {
                             fullWidth multiline
                             size="small"
                         />
+                    </Box>
+                    <Divider />
+                    <Box sx={{ mt: "10px" }}>
+                        <Grid container spacing={2}>
+                            {emailRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <a href={`mailto:${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    avatar={<Tooltip placement="top" arrow title="Email"
+                                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
+                                    label={emailRef.current}
+                                    sx={{
+                                        borderRadius: "5px",
+                                        margin: "3px",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-start',
+                                        border: '1px solid ' + theme.palette.grey[500],
+                                        backgroundColor: 'transparent',
+                                        width: "auto",
+                                        padding: "10px",
+                                        height: "105%",
+                                        cursor: "pointer"
+                                    }}
+                                /></a>
+                            </Grid>}
+                            {discordidRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <a href={`https://discord.com/users/${discordidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    avatar={<Tooltip placement="top" arrow title="Discord"
+                                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faDiscord} /></Tooltip>}
+                                    label={discordidRef.current}
+                                    sx={{
+                                        borderRadius: "5px",
+                                        margin: "3px",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-start',
+                                        border: '1px solid ' + theme.palette.grey[500],
+                                        backgroundColor: 'transparent',
+                                        width: "auto",
+                                        padding: "10px",
+                                        height: "105%",
+                                        cursor: "pointer"
+                                    }}
+                                /></a>
+                            </Grid>}
+                            {steamidRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <a href={`https://steamcommunity.com/profiles/${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    avatar={<Tooltip placement="top" arrow title="Steam"
+                                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
+                                    label={steamidRef.current}
+                                    sx={{
+                                        borderRadius: "5px",
+                                        margin: "3px",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-start',
+                                        border: '1px solid ' + theme.palette.grey[500],
+                                        backgroundColor: 'transparent',
+                                        width: "auto",
+                                        padding: "10px",
+                                        height: "105%",
+                                        cursor: "pointer"
+                                    }}
+                                /></a>
+                            </Grid>}
+                            {truckersmpidRef.current !== undefined && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    avatar={<Tooltip placement="top" arrow title="TruckersMP"
+                                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/img/avatar.png" /></Tooltip>}
+                                    label={truckersmpidRef.current}
+                                    sx={{
+                                        borderRadius: "5px",
+                                        margin: "3px",
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'flex-start',
+                                        border: '1px solid ' + theme.palette.grey[500],
+                                        backgroundColor: 'transparent',
+                                        width: "auto",
+                                        padding: "10px",
+                                        height: "105%",
+                                        cursor: "pointer"
+                                    }}
+                                /></a>
+                            </Grid>}
+                        </Grid>
                     </Box>
                 </CardContent>
             </CardContent>
@@ -1026,7 +1115,8 @@ const UserCard = (props) => {
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                 {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
-                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</>}
+                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Tooltip>}
                             </Typography>
                         </div>
                         {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
