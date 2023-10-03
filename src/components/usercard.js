@@ -542,9 +542,9 @@ const UserCard = (props) => {
                             {nameRef.current}
                         </Typography>
                         <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                            {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
+                            {badges.map((badge) => { return <>{badge}&nbsp;&nbsp;</>; })}
                             {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
-                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Tooltip>}
+                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"])))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                         </Typography>
                     </div>
@@ -1114,9 +1114,9 @@ const UserCard = (props) => {
                                 {nameRef.current}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                {badges.map((badge) => { return badge; })}&nbsp;&nbsp;
+                                {badges.map((badge) => { return <>{badge}&nbsp;&nbsp;</>; })}&nbsp;&nbsp;
                                 {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
-                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Tooltip>}
+                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             </Typography>
                         </div>
                         {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}

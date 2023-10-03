@@ -89,14 +89,17 @@ const Loader = ({ onLoaderLoaded }) => {
                 const [specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails] = await makeRequests(urlsBatch);
                 if (specialRoles) {
                     const SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "support_team": "#b12773", "marketing_team": "#e28843", "graphic_team": "#11b17f", "translation_team": "#49a4af", "community_legend": "#b2db80", "patron": "#DAA520", "server_booster": "#DAA520", "fv3ea": "#9a63c2" };
-                    let keys = Object.keys(specialRoles);
-                    for (let i = 0; i < keys.length; i++) {
-                        for (let j = 0; j < specialRoles[keys[i]].length; j++) {
-                            if (!Object.keys(specialRoles).includes(specialRoles[keys[i]][j]))
-                                vars.specialRoles[specialRoles[keys[i]][j]] = [];
-                            vars.specialRoles[specialRoles[keys[i]][j]].push({ "name": keys[i], "color": SPECIAL_COLOR[keys[i]] });
+                    let roles = Object.keys(specialRoles);
+                    for (let i = 0; i < roles.length; i++) {
+                        let role = roles[i];
+                        for (let j = 0; j < specialRoles[role].length; j++) {
+                            let discordid = specialRoles[role][j];
+                            if (!Object.keys(vars.specialRoles).includes(discordid))
+                                vars.specialRoles[discordid] = [];
+                            vars.specialRoles[discordid].push({ "name": role, "color": SPECIAL_COLOR[role] });
                         }
                     }
+                    console.log(vars.specialRoles);
                 }
                 if (config) {
                     vars.discordClientID = config.config.discord_client_id;
