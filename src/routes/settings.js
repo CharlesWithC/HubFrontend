@@ -393,6 +393,45 @@ const Settings = () => {
         window.dispatchEvent(loadingEnd);
     }, [newEmail]);
 
+    const [newProfile, setNewProfile] = useState({ name: vars.userInfo.name, avatar: vars.userInfo.avatar });
+    const [newProfileDisabled, setNewProfileDisabled] = useState(false);
+    const updateProfile = useCallback(async (sync_to = undefined) => {
+        setNewProfileDisabled(true);
+        sync_to === undefined ? sync_to = "" : sync_to = `?sync_to_${sync_to}=true`;
+        let resp = await axios({ url: `${vars.dhpath}/user/profile${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            if (sync_to !== "") {
+                resp = await axios({ url: `${vars.dhpath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+                vars.userInfo = resp.data;
+                vars.users[vars.userInfo.uid] = resp.data;
+                for (let i = 0; i < vars.members.length; i++) {
+                    if (vars.members[i].uid === vars.userInfo.uid) {
+                        vars.members[i] = resp.data;
+                        break;
+                    }
+                }
+            } else {
+                vars.userInfo.name = newProfile.name;
+                vars.userInfo.avatar = newProfile.avatar;
+                vars.userInfo = vars.userInfo;
+                vars.users[vars.userInfo.uid] = vars.userInfo;
+                for (let i = 0; i < vars.members.length; i++) {
+                    if (vars.members[i].uid === vars.userInfo.uid) {
+                        vars.members[i] = vars.userInfo;
+                        break;
+                    }
+                }
+            }
+            setSnackbarContent("Profile updated");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(`Failed to update profile: ` + resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setNewProfileDisabled(false);
+    }, [newProfile]);
+
     const [newAboutMe, setNewAboutMe] = useState(vars.userInfo.bio);
     const [newAboutMeDisabled, setAboutMeDisabled] = useState(false);
     const updateAboutMe = useCallback(async (e) => {
@@ -918,6 +957,39 @@ const Settings = () => {
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
                         ))}
                     </MUISelect>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={12} lg={12}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile</Typography>
+                    <Grid container spacing={2} sx={{ mt: "3px" }}>
+                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                            <TextField
+                                label="Name"
+                                value={newProfile.name}
+                                onChange={(e) => setNewProfile({ ...newProfile, name: e.target.value })}
+                                fullWidth disabled={newProfileDisabled}
+                                size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                            <TextField
+                                label="Avatar URL"
+                                value={newProfile.avatar}
+                                onChange={(e) => setNewProfile({ ...newProfile, avatar: e.target.value })}
+                                fullWidth disabled={newProfileDisabled}
+                                size="small"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={2} lg={2}>
+                            <Button variant="contained" onClick={() => { updateProfile(); }} disabled={newProfileDisabled} fullWidth>Save</Button>
+                        </Grid>
+                    </Grid>
+                    <ButtonGroup fullWidth sx={{ mt: "5px" }}>
+                        <Button variant="contained" color="secondary">Sync To</Button>
+                        <Button variant="contained" color="success" onClick={() => { updateProfile("discord"); }} disabled={newProfileDisabled}>Discord</Button>
+                        <Button variant="contained" color="warning" onClick={() => { updateProfile("steam"); }} disabled={newProfileDisabled}>Steam</Button>
+                        <Button variant="contained" color="error" onClick={() => { updateProfile("truckersmp"); }} disabled={newProfileDisabled}>TruckersMP</Button>
+                    </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
