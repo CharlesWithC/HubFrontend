@@ -22,12 +22,16 @@ const DiscordAuth = () => {
     const [doingUpdate, setDoingUpdate] = useState(false);
 
     useEffect(() => {
+        let callback_url = `${window.location.protocol}//${window.location.host}/beta/auth/discord/callback`;
+        if (vars.discordClientID === 1120997206938361877) {
+            callback_url = `https://shared-discord-application.chub.page/discord-auth`;
+        }
         async function validateDiscordAuth() {
             try {
                 let updcode = localStorage.getItem("update-discord");
                 if (updcode === null || !isNaN(updcode) && +new Date() - updcode > 600000 || getAuthToken() === null) {
                     localStorage.removeItem("update-discord");
-                    let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/beta/auth/discord/callback` }, method: `GET` });
+                    let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: callback_url }, method: `GET` });
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
@@ -45,7 +49,7 @@ const DiscordAuth = () => {
                     }
                 } else {
                     setDoingUpdate(true);
-                    let resp = await axios({ url: `${vars.dhpath}/user/discord`, params: { code: discordCode, callback_url: `${window.location.protocol}//${window.location.host}/beta/auth/discord/callback` }, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let resp = await axios({ url: `${vars.dhpath}/user/discord`, params: { code: discordCode, callback_url: callback_url }, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setContinue(true);
                         localStorage.removeItem("update-discord");
