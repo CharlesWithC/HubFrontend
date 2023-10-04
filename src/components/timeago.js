@@ -71,7 +71,7 @@ const TimeAgo = ({ timestamp, lower = false }) => {
                 if (newInterval === null) {
                     setIntervalDuration(null);
                 } else if (newInterval !== intervalDuration) {
-                    setIntervalDuration(null);
+                    setIntervalDuration(newInterval);
                 }
                 setTimeAgo(calculate(timestamp));
             }, intervalDuration);
