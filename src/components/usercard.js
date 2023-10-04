@@ -276,9 +276,9 @@ const UserCard = (props) => {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-
-        doLoad();
-    }, [dlogPage, dlogPageSize]);
+        if (ctxAction === "show-profile" || showProfileModal === 2)
+            doLoad();
+    }, [dlogPage, dlogPageSize, ctxAction, showProfileModal]);
 
     let trackers = [];
     for (let i = 0; i < vars.apiconfig.tracker.length; i++) {

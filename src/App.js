@@ -11,6 +11,7 @@ import TokenAuth from './routes/auth/tokenAuth';
 import DiscordAuth from './routes/auth/discordAuth';
 import SteamAuth from './routes/auth/steamAuth';
 import MfaAuth from './routes/auth/mfaAuth';
+import EmailAuth from './routes/auth/emailAuth';
 import Loader from './components/loader';
 import Redirect from './components/redirect';
 import UpgradeCard from './routes/upgrade';
@@ -87,7 +88,7 @@ function App() {
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
         const handle = () => {
-            if (["/beta/auth", "/beta/auth/login", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname)) {
+            if (["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname)) {
                 setSidebarHidden(true);
                 setTopbarHidden(true);
             } else {
@@ -182,6 +183,7 @@ function App() {
                             <Route path="/beta/auth/steam/callback" element={<SteamAuth />} />
                             <Route path="/beta/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
                             <Route path="/beta/auth/mfa" element={<MfaAuth />} />
+                            <Route path="/beta/auth/email" element={<EmailAuth />} />
                             <Route path="/beta/" exact element={<Overview />}></Route>
                             <Route path="/beta/overview" element={<Overview />}></Route>
                             <Route path="/beta/upgrade" element={<UpgradeCard />}></Route>
@@ -205,7 +207,7 @@ function App() {
                             <Route path="/beta/config" element={<Configuration />}></Route>
                             <Route path="/beta/settings" element={<Settings />}></Route>
                         </Routes>
-                        <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
+                        <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontFamily: "Orbitron" }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
