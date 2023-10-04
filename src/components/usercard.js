@@ -110,31 +110,37 @@ const UserCard = (props) => {
 
     let specialColor = null;
     let badges = [];
+    let badgeNames = [];
     if (Object.keys(vars.specialRoles).includes(discordid)) {
         specialColor = vars.specialRoles[discordid][0].color;
         for (let i = 0; i < vars.specialRoles[discordid].length; i++) {
             let sr = vars.specialRoles[discordid][i];
             let badge = null;
+            let badgeName = null;
             if (['project_team', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team', 'translation_team'].includes(sr.name)) {
                 badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title="CHub Staff"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                 </Tooltip>;
+                badgeName = "chub";
             }
             if (['community_legend'].includes(sr.name)) {
                 badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="CHub Community Legend"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                 </Tooltip>;
+                badgeName = "legend";
             }
             if (['patron', 'server_booster', 'fv3ea'].includes(sr.name)) {
                 badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="CHub Supporter"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                 </Tooltip>;
+                badgeName = "supporter";
             }
-            if (badge !== null && !badges.includes(badge)) {
+            if (badge !== null && !badgeNames.includes(badgeName)) {
                 badges.push(badge);
+                badgeNames.push(badgeName);
             }
         }
     }
