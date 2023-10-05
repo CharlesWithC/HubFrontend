@@ -45,7 +45,9 @@ const Members = () => {
             norole_group.push(members[i]);
         }
     }
-    groups.push({ "group": "No Role", "description": "These users have no role assigned.", "users": norole_group });
+    if (norole_group.length > 0) {
+        groups.push({ "group": "No Role", "description": "These users have no role assigned.", "users": norole_group });
+    }
 
     vars.membersTabCache = (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
