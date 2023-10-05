@@ -30,6 +30,7 @@ import Ranking from './routes/ranking';
 import NewApplication from './routes/applicationNew';
 import MyApplication from './routes/applicationMy';
 import AllApplication from './routes/applicationAll';
+import MemberList from './routes/memberList';
 import ExternalUsers from './routes/externalUsers';
 import AuditLog from './routes/auditLog';
 import Configuration from './routes/configuration';
@@ -202,6 +203,7 @@ function App() {
                             <Route path="/beta/apply" element={<NewApplication />}></Route>
                             <Route path="/beta/application/my" element={<MyApplication />}></Route>
                             <Route path="/beta/application/all" element={<AllApplication />}></Route>
+                            <Route path="/beta/member-list" element={<MemberList />}></Route>
                             <Route path="/beta/external-user" element={<ExternalUsers />}></Route>
                             <Route path="/beta/audit-log" element={<AuditLog />}></Route>
                             <Route path="/beta/config" element={<Configuration />}></Route>

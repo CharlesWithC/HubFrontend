@@ -80,9 +80,9 @@ const SideBar = (props) => {
 
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event"];
-    const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "external_user": "External Users", "audit_log": "Audit Log", "configuration": "Configuration" };
-    const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
-    const menuRoute = { "overview": "/", "announcement": "/announcement", "downloads": "/downloads", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" };
+    const menuName = { "overview": "Overview", "announcement": "Announcements", "downloads": "Downloads", "live_map": "Map", "delivery": "Deliveries", "challenge": "Challenges", "division": "Divisions", "economy": "Economy", "event": "Events", "member": "Members", "leaderboard": "Leaderboard", "ranking": "Rankings", "new_application": "New Application", "my_application": "My Applications", "all_application": "All Applications", "member_list": "Member List", "external_user": "External Users", "audit_log": "Audit Log", "configuration": "Configuration" };
+    const menuIcon = { "overview": <AnalyticsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <AccountBalanceRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "member_list": <PeopleAltRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
+    const menuRoute = { "overview": "/", "announcement": "/announcement", "downloads": "/downloads", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "member_list": "/member-list", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" };
 
     let menu = [];
     let toRemove = [];
@@ -90,7 +90,7 @@ const SideBar = (props) => {
     if (!vars.isLoggedIn) {
         menu = [["overview", "announcement"], ["live_map", "delivery", "event"]];
     } else {
-        menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["external_user", "audit_log", "configuration"]];
+        menu = [["overview", "announcement", "downloads"], ["live_map", "delivery", "challenge", "division", "event"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
         if (!vars.userPerm.includes("admin")) {
             if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
                 toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
@@ -102,8 +102,10 @@ const SideBar = (props) => {
             }
             if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("manage_profile") && !vars.userPerm.includes("get_external_user_list") && !vars.userPerm.includes("ban_user") && !vars.userPerm.includes("disable_user_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_user")) {
                 toRemove.push("external_user");
+                toRemove.push("member_list");
             } else {
                 toRemove = toRemove.filter(item => item !== "external_user");
+                toRemove = toRemove.filter(item => item !== "member_list");
             }
             if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("application")) {
                 toRemove.push("all_application");
@@ -116,12 +118,6 @@ const SideBar = (props) => {
                 toRemove = toRemove.filter(item => item !== "audit_log");
             }
         }
-    }
-
-    if (vars.specialRoles[vars.userInfo.discordid] !== undefined && vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
-        toRemove.push("external_user");
-        toRemove.push("audit_log");
-        toRemove.push("configuration");
     }
 
     menu = menu.map(subMenu => subMenu.filter(item => (!allPlugins.includes(item)) || (plugins.includes(item) && allPlugins.includes(item))));

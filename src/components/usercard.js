@@ -308,12 +308,14 @@ const UserCard = (props) => {
 
     useEffect(() => {
         let ok = false;
-        for (let i = 0; i < vars.members.length; i++) {
-            if (vars.members[i].uid === uid) {
-                ok = true;
-                if (vars.members[i].role_history !== undefined) setRoleHistory(vars.members[i].role_history);
-                if (vars.members[i].ban_history !== undefined) setBanHistory(vars.members[i].ban_history);
-                break;
+        if(vars.members !== undefined){
+            for (let i = 0; i < vars.members.length; i++) {
+                if (vars.members[i].uid === uid) {
+                    ok = true;
+                    if (vars.members[i].role_history !== undefined) setRoleHistory(vars.members[i].role_history);
+                    if (vars.members[i].ban_history !== undefined) setBanHistory(vars.members[i].ban_history);
+                    break;
+                }
             }
         }
         if (!ok) {
