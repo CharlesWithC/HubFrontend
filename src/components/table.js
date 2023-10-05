@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
-import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu, TextField } from '@mui/material';
 
-const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, style, pstyle }) => {
+const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
+
+    if (searchUpdateInterval === undefined) searchUpdateInterval = 100;
+    if (searchWidth === undefined) searchWidth = "300px";
+    const [searchContent, setSearchContent] = useState("");
+    const [searchContentLU, setSearchConentLU] = useState("");
+    const [searchLastUpdate, setSearchLastUpdate] = useState(0);
+    useEffect(() => {
+        let interval = null;
+
+        if (onSearch !== undefined) {
+            interval = setInterval(() => {
+                if (+new Date() - searchLastUpdate >= searchUpdateInterval && searchContentLU !== searchContent) {
+                    setSearchConentLU(searchContent);
+                    onSearch(searchContent);
+                }
+            }, 50);
+        }
+
+        return () => clearInterval(interval);
+    }, [searchContent, searchContentLU]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -38,9 +58,18 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
         <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
             <CardContent sx={name === undefined ? { p: 0 } : {}} style={{ paddingBottom: 0 }}>
                 {name !== undefined &&
-                    <Typography variant="h6" component="div" style={{ marginLeft: "10px", marginRight: 'auto' }}>
-                        {name}
-                    </Typography>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="h6" component="div" style={{ marginLeft: "10px", marginRight: 'auto' }}>
+                            {name}
+                        </Typography>
+                        {onSearch !== undefined && <TextField
+                            label={searchHint}
+                            value={searchContent}
+                            onChange={(e) => { setSearchContent(e.target.value); setSearchLastUpdate(+new Date()); }}
+                            sx={{ width: searchWidth }}
+                            size="small"
+                        />}
+                    </div>
                 }
                 <TableContainer>
                     <Table>
