@@ -416,6 +416,29 @@ export function downloadFile(url) {
         });
 }
 
+export function downloadLocal(fileName, fileContent) {
+    // Creating a Blob with the content
+    const blob = new Blob([fileContent], { type: 'text/plain' });
+
+    // Creating a link element
+    const link = document.createElement('a');
+
+    // Setting the href attribute to the Blob URL
+    link.href = URL.createObjectURL(blob);
+
+    // Setting the download attribute to specify the filename
+    link.download = fileName;
+
+    // Appending the link to the document
+    document.body.appendChild(link);
+
+    // Triggering the click event to initiate the download
+    link.click();
+
+    // Removing the link from the document
+    document.body.removeChild(link);
+};
+
 export function b62decode(num62) {
     let flag = 1;
     if (num62.startsWith("-")) {
