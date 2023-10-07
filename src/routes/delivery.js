@@ -590,7 +590,7 @@ const Delivery = memo(() => {
 
     return (<>
         <DeliveryDetail doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
-        {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
+        {divisionMeta !== null && vars.divisions[divisionMeta.divisionid] !== undefined && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <WarehouseRounded />&nbsp;&nbsp;Division
