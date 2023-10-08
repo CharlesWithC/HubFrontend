@@ -1,18 +1,18 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, useTheme } from '@mui/material';
+import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, PublicRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileExport } from '@fortawesome/free-solid-svg-icons';
+import { faFileExport, faTruckFront } from '@fortawesome/free-solid-svg-icons';
 
 import Podium from "../components/podium";
 import CustomTable from "../components/table";
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
-import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal } from '../functions';
+import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -42,12 +42,12 @@ const Deliveries = () => {
         setSnackbarContent("");
     }, []);
 
-    const [dialogOpen, setDialogOpen] = useState("");
-    const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
-    const [exportRange, setExportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
-
     const theme = useTheme();
 
+    const [dialogOpen, setDialogOpen] = useState("");
+    const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
+
+    const [exportRange, setExportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
     const exportDlog = useCallback(async () => {
         if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
             setSnackbarContent("The date range must be smaller than 90 days.");
@@ -66,6 +66,115 @@ const Deliveries = () => {
         }
         setDialogButtonDisabled(false);
     }, [exportRange]);
+
+    const [truckyJobID, setTruckyJobID] = useState();
+    const importFromTruckySingle = useCallback(async () => {
+        if (isNaN(truckyJobID) || truckyJobID.replaceAll(" ", "") === "") {
+            setSnackbarContent("Invalid Job ID");
+            setSnackbarSeverity("error");
+            return;
+        }
+        setDialogButtonDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/trucky/import/${truckyJobID}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Job Imported");
+            setSnackbarSeverity("error");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogButtonDisabled(false);
+    }, [truckyJobID]);
+    const [truckyCompanyID, setTruckyCompanyID] = useState("");
+    const [truckyImportRange, setTruckyImportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
+    const [truckyBatchImportTotal, setTruckyBatchImportTotal] = useState(0);
+    const [truckyBatchImportCurrent, setTruckyBatchImportCurrent] = useState(0);
+    const [truckyBatchImportSuccess, setTruckyBatchImportSuccess] = useState(0);
+    const sleep = ms => new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
+    const importFromTruckyMultiple = useCallback(async () => {
+        if (isNaN(truckyCompanyID) || truckyCompanyID.replaceAll(" ", "") === "") {
+            setSnackbarContent("Invalid Company ID");
+            setSnackbarSeverity("error");
+            return;
+        }
+        setDialogButtonDisabled(true);
+        let resp = await axios({ url: `https://e.truckyapp.com/api/v1/company/${truckyCompanyID}/jobs?dateFrom=${new Date(truckyImportRange.start_time * 1000).toISOString()}&dateTo=${new Date(truckyImportRange.end_time * 1000).toISOString()}` });
+        if (resp.data.error === true) {
+            setSnackbarContent(`Trucky Error: ${resp.data.error}`);
+            setSnackbarSeverity("error");
+            return;
+        }
+        if (resp.data.total === 0) {
+            setSnackbarContent(`No job detected! Try another company or change the time range.`);
+            setSnackbarSeverity("error");
+            return;
+        }
+        setSnackbarContent(`Detected ${resp.data.total} jobs. Importing...`);
+        setSnackbarSeverity("info");
+        let totalPages = Math.ceil(resp.data.total / resp.data.per_page);
+        setTruckyBatchImportTotal(resp.data.total);
+        setTruckyBatchImportSuccess(0);
+
+        let successCnt = 0;
+
+        for (let i = 0; i < resp.data.data.length; i++) {
+            setTruckyBatchImportCurrent(i + 1);
+            let jobID = resp.data.data[i].id;
+            let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (dhresp.status === 204) {
+                setSnackbarContent(`Imported Trucky job #${jobID}`);
+                setSnackbarSeverity("success");
+                successCnt += 1;
+                setTruckyBatchImportSuccess(successCnt);
+            } else {
+                if (dhresp.data.retry_after !== undefined) {
+                    setSnackbarContent(`We are being rate limited by Drivers Hub API. We will continue after ${dhresp.data.retry_after} seconds...`);
+                    setSnackbarSeverity("warning");
+                    await sleep((dhresp.data.retry_after + 1) * 1000);
+                    i -= 1;
+                } else {
+                    setSnackbarContent(`Failed to import Trucky job #${jobID}: ${dhresp.data.error}`);
+                    setSnackbarSeverity("error");
+                }
+            }
+        }
+
+        if (totalPages > 1) {
+            for (let page = 2; page <= totalPages; page++) {
+                resp = await axios({ url: `https://e.truckyapp.com/api/v1/company/${truckyCompanyID}/jobs?dateFrom=${new Date(truckyImportRange.start_time * 1000).toISOString()}&dateTo=${new Date(truckyImportRange.end_time * 1000).toISOString()}&page=${page}` });
+                if (resp.data.error === true) {
+                    setSnackbarContent(`Trucky Error: ${resp.data.error}`);
+                    setSnackbarSeverity("error");
+                    return;
+                }
+                for (let i = 0; i < resp.data.data.length; i++) {
+                    setTruckyBatchImportCurrent((page - 1) * resp.data.per_page + i + 1);
+                    let jobID = resp.data.data[i].id;
+                    let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (dhresp.status === 204) {
+                        setSnackbarContent(`Imported Trucky job #${jobID}`);
+                        setSnackbarSeverity("success");
+                        successCnt += 1;
+                        setTruckyBatchImportSuccess(successCnt);
+                    } else {
+                        if (dhresp.data.retry_after !== undefined) {
+                            setSnackbarContent(`We are being rate limited by Drivers Hub API. We will continue after ${dhresp.data.retry_after} seconds...`);
+                            setSnackbarSeverity("warning");
+                            await sleep((dhresp.data.retry_after + 1) * 1000);
+                            i -= 1;
+                        } else {
+                            setSnackbarContent(`Failed to import Trucky job #${jobID}: ${dhresp.data.error}`);
+                            setSnackbarSeverity("error");
+                        }
+                    }
+                }
+            }
+        };
+
+        setDialogButtonDisabled(false);
+    }, [truckyCompanyID, truckyImportRange]);
 
     useEffect(() => {
         async function doLoad() {
@@ -181,6 +290,62 @@ const Deliveries = () => {
                 <Button variant="contained" color="info" onClick={() => { exportDlog(); }} disabled={dialogButtonDisabled}>Export</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogOpen === "import-trucky"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle>Import Trucky Jobs</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" >- You may either import a single job or multiple jobs from a Trucky VTC automatically.</Typography>
+                <Typography variant="body2">- If you get an error like "User Not Found", then the user who submitted the job on Trucky is not a member of the Drivers Hub.</Typography>
+                <Typography variant="body2" sx={{ mb: "10px" }}>- When importing multiple jobs, do not close the tab, or it will not continue.</Typography>
+
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Single Job</Typography>
+                <Grid container spacing={2} sx={{ mb: "3px" }}>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Trucky Job ID"
+                            value={truckyJobID}
+                            onChange={(e) => { setTruckyJobID(e.target.value); }}
+                            fullWidth sx={{ mb: "5px" }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button variant="contained" color="info" onClick={() => { importFromTruckySingle(); }} disabled={dialogButtonDisabled} fullWidth>Import</Button>
+                    </Grid>
+                </Grid>
+                <Divider sx={{ mt: "10px", mb: "10px" }} />
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}</Typography>
+                <Grid container spacing={2} sx={{ mb: "3px" }}>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Trucky Company ID"
+                            value={truckyCompanyID}
+                            onChange={(e) => { setTruckyCompanyID(e.target.value); }}
+                            fullWidth sx={{ mb: "5px" }}
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="Start Time"
+                            type="datetime-local"
+                            value={new Date(new Date(truckyImportRange.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTruckyImportRange({ ...truckyImportRange, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="End Time"
+                            type="datetime-local"
+                            value={new Date(new Date(truckyImportRange.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTruckyImportRange({ ...truckyImportRange, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Button variant="contained" color="info" onClick={() => { importFromTruckyMultiple(); }} disabled={dialogButtonDisabled} fullWidth>Import</Button>
+                    </Grid>
+                </Grid>
+            </DialogContent>
+        </Dialog>
         <SpeedDial
             ariaLabel="Controls"
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
@@ -191,6 +356,11 @@ const Deliveries = () => {
                 tooltipTitle="Export"
                 icon={<FontAwesomeIcon icon={faFileExport} />}
                 onClick={() => { setDialogOpen("export"); }} />
+            {checkUserPerm(["admin", "hrm", "hr", "import_dlog"]) && <SpeedDialAction
+                key="import"
+                tooltipTitle="Import Trucky Jobs"
+                icon={<FontAwesomeIcon icon={faTruckFront} />}
+                onClick={() => { setDialogOpen("import-trucky"); }} />}
         </SpeedDial>
         <Portal>
             <Snackbar

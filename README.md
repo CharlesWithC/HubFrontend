@@ -12,3 +12,4 @@ A bunch of easter eggs are kept in the project, they are hidden from the general
 3. [(todo)statistics] Display statistics details  
 4. [(todo)display] Display login background  
 5. [statistics] User profile popover statistics more details (more than favoriate truck/cargo)  
+6. [staff] Batch import jobs from Trucky VTC
