@@ -35,6 +35,7 @@ import ExternalUsers from './routes/externalUsers';
 import AuditLog from './routes/auditLog';
 import Configuration from './routes/configuration';
 import Settings from './routes/settings';
+import Notifications from './routes/notifications';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -208,6 +209,7 @@ function App() {
                             <Route path="/beta/audit-log" element={<AuditLog />}></Route>
                             <Route path="/beta/config" element={<Configuration />}></Route>
                             <Route path="/beta/settings" element={<Settings />}></Route>
+                            <Route path="/beta/notifications" element={<Notifications />}></Route>
                         </Routes>
                         <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>

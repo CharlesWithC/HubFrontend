@@ -4,6 +4,10 @@ import { NotificationsRounded, DoneAllRounded } from '@mui/icons-material';
 import ReactMarkdown from 'react-markdown';
 import SimpleBar from 'simplebar-react';
 import { customAxios as axios, getAuthToken } from '../functions';
+import { useNavigate } from 'react-router-dom';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExpand } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -16,6 +20,8 @@ const NotificationsPopover = () => {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
+    const navigate = useNavigate();
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -75,8 +81,8 @@ const NotificationsPopover = () => {
             loadNotifications();
         }, vars.userSettings.notificationRefresh * 1000);
 
-        return () => { clearInterval(interval); }
-    }, [loadNotifications])
+        return () => { clearInterval(interval); };
+    }, [loadNotifications]);
 
     const handleAllRead = async () => {
         const bearerToken = getAuthToken();
@@ -126,6 +132,9 @@ const NotificationsPopover = () => {
                         <ListItemText primary={<Typography fontWeight="bold">Notifications</Typography>} />
                         <IconButton onClick={handleAllRead}>
                             <DoneAllRounded />
+                        </IconButton>
+                        <IconButton onClick={() => { navigate("/beta/notifications"); }}>
+                            <FontAwesomeIcon icon={faExpand} />
                         </IconButton>
                     </ListItem>
                     {notifications !== null &&
