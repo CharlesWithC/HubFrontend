@@ -194,7 +194,7 @@ const Overview = () => {
                                             {recentVisitors.map((row, idx) => {
                                                 return (<TableRow key={`recent-visitors-${idx}`}>
                                                     <TableCell>{row.user}</TableCell>
-                                                    <TableCell align="right"><TimeAgo timestamp={row.timestamp * 1000} /></TableCell>
+                                                    <TableCell align="right"><TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /></TableCell>
                                                 </TableRow>);
                                             })}
                                         </TableBody>

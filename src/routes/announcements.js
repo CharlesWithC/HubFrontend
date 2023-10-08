@@ -78,7 +78,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                         <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
+                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo key={`${+new Date()}`} timestamp={announcement.timestamp * 1000} /></Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -102,7 +102,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                         <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
+                        <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo key={`${+new Date()}`} timestamp={announcement.timestamp * 1000} /></Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -131,7 +131,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
+                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo key={`${+new Date()}`} timestamp={announcement.timestamp * 1000} /></Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -159,7 +159,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo timestamp={announcement.timestamp * 1000} /></Typography>
+                                <Typography variant="caption"><UserCard user={announcement.author} inline={true} /> | <TimeAgo key={`${+new Date()}`} timestamp={announcement.timestamp * 1000} /></Typography>
                             </CardContent>
                         </Card>
                     </Grid>

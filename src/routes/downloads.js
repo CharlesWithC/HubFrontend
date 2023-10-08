@@ -86,7 +86,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
+                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -113,7 +113,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
+                        <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -145,7 +145,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
+                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -176,7 +176,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo timestamp={downloadableItem.timestamp * 1000} />}</Typography>
+                                <Typography variant="caption">{downloadableItem.timestamp !== 0 && <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} />}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>

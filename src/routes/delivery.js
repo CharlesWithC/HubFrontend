@@ -319,7 +319,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
             const lmi = [{ "name": "Log ID", "value": logid },
             { "name": `Tracker`, "value": TRACKER[data.tracker] },
             { "name": `Tracker Job ID`, "key": "id" },
-            { "name": "Time Submitted", "value": <TimeAgo timestamp={data.timestamp * 1000} /> },
+            { "name": "Time Submitted", "value": <TimeAgo key={`${+new Date()}`} timestamp={data.timestamp * 1000} /> },
             { "name": "Time Spent", "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
             { "name": "Status", "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>Delivered</span> : <span style={{ color: theme.palette.error.main }}>Cancelled</span> },
             {
@@ -611,11 +611,11 @@ const Delivery = memo(() => {
                     </Select>
                 </>}
                 {(divisionStatus !== -1) && <>
-                    <Typography variant="body">Division validation request submitted <b><TimeAgo timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
+                    <Typography variant="body">Division validation request submitted <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
                     <Typography variant="body">Division: <b>{vars.divisions[divisionMeta.divisionid].name}</b></Typography><br />
                     <Typography variant="body">Current status: <b>{STATUS[divisionStatus]}</b></Typography>
                     {divisionMeta.update_timestamp !== -1 && <>
-                        <br /><Typography variant="body">Updated <b><TimeAgo timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
+                        <br /><Typography variant="body">Updated <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
                         <br /><Typography variant="body">Updated by: <b><UserCard user={divisionMeta.update_staff} inline={true} /></b></Typography>
                         {divisionMeta.update_message !== "" && <><br /><Typography variant="body">Message: {divisionMeta.update_message}</Typography></>}
                     </>}

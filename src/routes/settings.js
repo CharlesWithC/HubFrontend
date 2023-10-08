@@ -822,14 +822,14 @@ const Settings = () => {
         let newSessions = [];
         for (let i = 0; i < _sessions.list.length; i++) {
             newSessions.push({
-                ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeAgo timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>Revoke</MenuItem>) : (<MenuItem disabled > Current Session</MenuItem >)
+                ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>Revoke</MenuItem>) : (<MenuItem disabled > Current Session</MenuItem >)
             });
         };
         setSessions(newSessions);
         setSessionsTotalItems(_sessions.total_items);
         let newAppSessions = [];
         for (let i = 0; i < _appSessions.list.length; i++) {
-            newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeAgo timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>Revoke</MenuItem> });
+            newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>Revoke</MenuItem> });
         }
         setAppSessions(newAppSessions);
         setAppSessionsTotalItems(_appSessions.total_items);

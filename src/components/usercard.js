@@ -58,7 +58,7 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 function GetActivity(activity) {
     if (activity.status === "offline") {
         if (activity.last_seen !== -1)
-            return <>Offline - Last seen <TimeAgo timestamp={activity.last_seen * 1000} lower={true} /></>;
+            return <>Offline - Last seen <TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
         else
             return <>Offline</>;
     } else if (activity.status === "online") {
@@ -242,7 +242,7 @@ const UserCard = (props) => {
                     <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
                 </Tooltip>;
             }
-            newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo timestamp={_dlogList.list[i].timestamp * 1000} /> });
+            newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
         }
         setDlogList(newDlogList);
         setDlogTotalItems(_dlogList.total_items);
@@ -274,7 +274,7 @@ const UserCard = (props) => {
                         <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
                     </Tooltip>;
                 }
-                newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo timestamp={_dlogList.list[i].timestamp * 1000} /> });
+                newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
             }
             setDlogList(newDlogList);
             setDlogTotalItems(_dlogList.total_items);
@@ -824,7 +824,7 @@ const UserCard = (props) => {
                                         <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/img/avatar.png" /></Tooltip>}
-                                            label={<>{truckersmpidRef.current} {tmpLastOnline !== null ? <><br />(Last seen: <TimeAgo timestamp={tmpLastOnline * 1000} />)</> : <></>}</>}
+                                            label={<>{truckersmpidRef.current} {tmpLastOnline !== null ? <><br />(Last seen: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} />)</> : <></>}</>}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -1200,7 +1200,7 @@ const UserCard = (props) => {
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
                             {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role].name}</Typography>))}
                             {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role].name}</Typography>))}
-                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo timestamp={history.timestamp * 1000} /></Typography>
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
