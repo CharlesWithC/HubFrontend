@@ -150,6 +150,8 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
             setDlog(dlogD);
             setDlogDetail(dlogD.detail.data.object);
 
+            if (divisionM.divisionid === null) divisionM.divisionid = -1;
+            if (divisionM.status === null) divisionM.status = -1;
             if (!vars.isLoggedIn || vars.userInfo.userid === null || vars.userInfo.userid < 0) {
                 setDivisionMeta(null);
             } else {
@@ -590,7 +592,7 @@ const Delivery = memo(() => {
 
     return (<>
         <DeliveryDetail doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
-        {divisionMeta !== null && vars.divisions[divisionMeta.divisionid] !== undefined && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
+        {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <WarehouseRounded />&nbsp;&nbsp;Division
