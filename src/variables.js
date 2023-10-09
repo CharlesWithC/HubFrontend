@@ -1,7 +1,9 @@
+var apiversion = "";
 var dhconfig = null;
 var apiconfig = null;
 var dhpath = "";
 var dhlogo = "";
+exports.apiversion = apiversion;
 exports.dhconfig = dhconfig;
 exports.apiconfig = apiconfig;
 exports.dhpath = dhpath;

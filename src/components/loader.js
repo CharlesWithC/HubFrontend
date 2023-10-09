@@ -74,6 +74,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
 
                 var urlsBatch = [
+                    `${vars.dhpath}`,
                     "https://config.chub.page/roles",
                     `${vars.dhpath}/config`,
                     `${vars.dhpath}/member/roles`,
@@ -86,7 +87,10 @@ const Loader = ({ onLoaderLoaded }) => {
                     `${vars.dhpath}/dlog/statistics/details`,
                 ];
 
-                const [specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails] = await makeRequests(urlsBatch);
+                const [index, specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails] = await makeRequests(urlsBatch);
+                if (index) {
+                    vars.apiversion = index.version;
+                }
                 if (specialRoles) {
                     const SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "support_team": "#b12773", "marketing_team": "#e28843", "graphic_team": "#11b17f", "translation_team": "#49a4af", "community_legend": "#b2db80", "patron": "#DAA520", "server_booster": "#DAA520", "fv3ea": "#9a63c2" };
                     let roles = Object.keys(specialRoles);

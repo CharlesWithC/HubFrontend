@@ -4,7 +4,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
 import { useLocation, Routes, Route } from 'react-router-dom';
-import { Card, CardContent, Typography, Button, Grid } from '@mui/material';
+import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent } from '@mui/material';
 
 import AuthLogin from './routes/auth/login';
 import TokenAuth from './routes/auth/tokenAuth';
@@ -36,6 +36,9 @@ import AuditLog from './routes/auditLog';
 import Configuration from './routes/configuration';
 import Settings from './routes/settings';
 import Notifications from './routes/notifications';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -84,6 +87,8 @@ function App() {
     const runRerender = () => {
         setTimeout(function () { setRerender(true); }, 500);
     };
+
+    const [aboutCHubModal, setAboutCHubModal] = useState(false);
 
     const location = useLocation();
     const [sidebarHidden, setSidebarHidden] = useState(window.innerWidth < 600);
@@ -211,16 +216,56 @@ function App() {
                             <Route path="/beta/settings" element={<Settings />}></Route>
                             <Route path="/beta/notifications" element={<Notifications />}></Route>
                         </Routes>
-                        <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
-                            <div style={{ display: 'flex', alignItems: 'center', marginTop: "10px" }}>
-                                <Typography variant="body2" sx={{ flexGrow: 1, fontFamily: "Orbitron" }}>
-                                    &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                        <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
+                            <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
+                            <DialogContent>
+                                <Typography variant="body2">
+                                    The website you are currently using is a <b>Drivers Hub</b>, a portal for VTCs, enhancing community experience and making management easier.
                                 </Typography>
-                                <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', fontFamily: "Orbitron" }}>
-                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">CHub</a>&nbsp;&nbsp;
+                                <br />
+                                <Typography variant="body2">
+                                    The project is developed and owned by <b>CharlesWithC</b>, operated under the name of CHub, or The Drivers Hub Project.
+                                </Typography>
+                                <br />
+                                <Typography variant="body2">
+                                    CHub is a SaaS service which you may subscribe, starting your own Drivers Hub. You may visit our <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">website (drivershub.charlws.com)</a> to know more.
+                                </Typography>
+                                <br />
+                                <Typography variant="body2">
+                                    <b>Some useful links:</b>&nbsp;&nbsp;
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">Website</a>&nbsp;&nbsp;
                                     <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">Wiki</a>&nbsp;&nbsp;
                                     <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">Discord</a>&nbsp;&nbsp;
                                     <a href="https://twitter.com/CHub_DH" target="_blank" rel="noreferrer">Twitter</a>
+                                    <br />
+                                </Typography>
+                                <Typography variant="body2">
+                                    <b>Our partners:</b>&nbsp;&nbsp;
+                                    <a href="https://truckyapp.com/" target="_blank" rel="noreferrer">Trucky</a>&nbsp;&nbsp;
+                                    <a href="https://discord.com/trucksim" target="_blank" rel="noreferrer">TruckStopRadio</a>&nbsp;&nbsp;
+                                    <a href="https://truckstopradio.co.uk/" target="_blank" rel="noreferrer">/r/trucksim</a>&nbsp;&nbsp;
+                                    <a href="https://ocsc-event.com/" target="_blank" rel="noreferrer">OCSC Event</a>&nbsp;&nbsp;
+                                </Typography>
+                                <br />
+                                <Typography variant="body2">
+                                    Thanks for reading these. You may close the modal dialog and enjoy the Drivers Hub now!
+                                </Typography>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>Close</Button>
+                            </DialogActions>
+                        </Dialog>
+                        <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
+                                <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
+                                    &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                                    <br />
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
+                                </Typography>
+                                <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800 }}>
+                                    {vars.dhconfig.name}
+                                    <br />
+                                    API: v{vars.apiversion} | Client: v3 (beta)
                                 </Typography>
                             </div>
                         </footer>
