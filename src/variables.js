@@ -22,7 +22,9 @@ exports.userStats = userStats;
 var dlogDetails = {};
 exports.dlogDetails = dlogDetails;
 
-var userSettings = { "theme": "auto", "notificationRefresh": 30, "unit": "metric" };
+var userSettings = { "theme": "auto", "notificationRefresh": 30, "unit": "metric", "radio": "enabled", "radio_type": "tsr" };
+// radio: enabled / disabled / auto-play (enabled)
+// radio-type: tsr / {url}
 if (localStorage.getItem("client-settings") !== null) {
     try {
         let lsSettings = JSON.parse(localStorage.getItem("client-settings"));

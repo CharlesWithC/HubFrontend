@@ -5,11 +5,18 @@ import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCirclePlay, faCirclePause } from '@fortawesome/free-solid-svg-icons';
+
 import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
 import NotificationsPopover from './notifications';
 import UserCard from './usercard';
 
 var vars = require("../variables");
+
+const radioURLs = { "tsr": "https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3" };
+const radioNames = { "tsr": "TruckStopRadio" };
+const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png" };
 
 const TopBar = (props) => {
     const [loading, setLoading] = useState(false);
@@ -22,6 +29,82 @@ const TopBar = (props) => {
         setSnackbarContent("");
     };
     const [showProfileModal, setShowProfileModal] = useState(1);
+
+    const sleep = ms => new Promise(
+        resolve => setTimeout(resolve, ms)
+    );
+
+    const radioRef = useRef(null);
+    const [radioURL, setRadioURL] = useState("");
+    const [radioImage, setRadioImage] = useState("");
+    const [radioSongName, setRadioSongName] = useState("Now Playing");
+    const [radioName, setRadioName] = useState("No Radio");
+    const [isPlaying, setIsPlaying] = useState(false);
+    async function loadRadio() {
+        if (vars.userSettings.radio !== "disabled") {
+            let radioOK = false;
+            if (Object.keys(radioURLs).includes(vars.userSettings.radio_type)) {
+                setRadioURL(radioURLs[vars.userSettings.radio_type]);
+                setRadioName(radioNames[vars.userSettings.radio_type]);
+                setRadioImage(radioImages[vars.userSettings.radio_type]);
+                radioOK = true;
+            } else {
+                try {
+                    new URL(vars.userSettings.radio_type);
+                    setRadioURL(vars.userSettings.radio_type);
+                    setRadioName("Custom Radio");
+                    setRadioImage("https://drivershub.charlws.com/images/logo.png");
+                    radioOK = true;
+                } catch {
+                    // invalid url
+                    console.error(`Invalid Radio URL: ${vars.userSettings.radio_type}`);
+                }
+            }
+
+            if (vars.userSettings.radio === "auto" && radioOK) {
+                for (let i = 0; i <= 10; i++) {
+                    try {
+                        radioRef.current.play();
+                        setIsPlaying(true);
+                        break;
+                    } catch {
+                        await sleep(1000);
+                    }
+                }
+            }
+        } else {
+            setIsPlaying(false);
+            setRadioURL("");
+        }
+    }
+    useEffect(() => {
+        if (radioRef.current !== null) {
+            if (isPlaying) {
+                radioRef.current.play();
+            } else {
+                radioRef.current.pause();
+            }
+        }
+    }, [isPlaying]);
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            if (isPlaying) {
+                let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
+                setRadioSongName(resp.data.song.title);
+                setRadioImage(resp.data.song.graphic.medium);
+            }
+        }, 10000);
+        return () => { clearInterval(interval); };
+    }, [isPlaying]);
+    useEffect(() => {
+        loadRadio();
+    }, [vars.userSettings.radio]);
+    useEffect(() => {
+        window.addEventListener("radioUpdated", loadRadio);
+        return () => {
+            window.removeEventListener("radioUpdated", loadRadio);
+        };
+    }, []);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
@@ -181,9 +264,23 @@ const TopBar = (props) => {
                         zIndex: "100"
                     }}>
                     <Toolbar>
-                        <Typography component="div" sx={{ flexGrow: 1 }}>
-                            <NotificationsPopover />
-                        </Typography>
+                        <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
+                            <Typography variant="body2"><NotificationsPopover /></Typography>
+                            {radioURL !== "" &&
+                                <div className="user-profile" style={{ cursor: "default" }}>
+                                    <div className="user-avatar">
+                                        <img src={radioImage} alt="" />
+                                    </div>
+                                    <div className="user-info" style={{ marginLeft: "16px" }}>
+                                        <div className="user-name" style={{ textAlign: "left", maxWidth: "400px", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{isPlaying ? radioSongName : `Radio Paused`}</div>
+                                        <div className="user-role" style={{ textAlign: "left" }}>{isPlaying ? <FontAwesomeIcon icon={faCirclePause} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(false); }} /> : <FontAwesomeIcon icon={faCirclePlay} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(true); }} />} {radioName}</div>
+                                    </div>
+                                    <audio ref={radioRef}>
+                                        <source src={radioURL} type="audio/mp3" />
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>}
+                        </Box>
                         <div className="user-profile" onClick={handleProfileMenuOpen}>
                             <div className="user-info">
                                 <div className="user-name">{vars.userBanner.name}</div>
@@ -208,7 +305,7 @@ const TopBar = (props) => {
                     {snackbarContent}
                 </Alert>
             </Snackbar>
-        </div>
+        </div >
     );
 };
 

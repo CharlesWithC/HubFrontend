@@ -222,6 +222,15 @@ const Settings = () => {
         window.dispatchEvent(themeUpdated);
     }, [setUserSettings]);
 
+    const updateRadio = useCallback((to) => {
+        vars.userSettings.radio = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, radio: to });
+
+        const themeUpdated = new CustomEvent('radioUpdated', {});
+        window.dispatchEvent(themeUpdated);
+    }, [setUserSettings]);
+
     let trackers = [];
     for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
         if (!trackers.includes(vars.apiconfig.tracker[i].type)) {
@@ -886,7 +895,7 @@ const Settings = () => {
         </Box>
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
                     <br />
                     <ButtonGroup>
@@ -894,8 +903,8 @@ const Settings = () => {
                         <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>Imperial</Button>
                     </ButtonGroup>
                 </Grid>
-
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
                     <br />
                     <ButtonGroup>
@@ -905,12 +914,22 @@ const Settings = () => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
                     <br />
                     <ButtonGroup>
                         {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
                         {trackers.includes("tracksim") && <Button variant="contained" color={tracker === "tracksim" ? "info" : "secondary"} onClick={() => { updateTracker("tracksim"); }}>TrackSim</Button>}
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
+                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
                     </ButtonGroup>
                 </Grid>
 
