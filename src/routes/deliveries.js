@@ -295,7 +295,7 @@ const Deliveries = () => {
             <DialogContent>
                 <Typography variant="body2" >- You may either import a single job or multiple jobs from a Trucky VTC automatically.</Typography>
                 <Typography variant="body2">- If you get an error like "User Not Found", then the user who submitted the job on Trucky is not a member of the Drivers Hub.</Typography>
-                <Typography variant="body2" sx={{ mb: "10px" }}>- When importing multiple jobs, do not close the tab, or it will not continue.</Typography>
+                <Typography variant="body2" sx={{ mb: "10px" }}>- When importing multiple jobs, do not close the tab, or the process will stop.</Typography>
 
                 <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Single Job</Typography>
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
