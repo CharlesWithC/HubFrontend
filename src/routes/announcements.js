@@ -396,7 +396,7 @@ const Announcement = () => {
         <>
             <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
             {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
-                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "50px" }} />}
+                sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>{dialogTitle}</DialogTitle>
                 <DialogContent>

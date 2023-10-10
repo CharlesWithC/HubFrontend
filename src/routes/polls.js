@@ -1,7 +1,11 @@
 import { useEffect, useState, useCallback, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
-import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, useTheme } from '@mui/material';
+import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircle as faCircleSolid } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
@@ -12,14 +16,15 @@ var vars = require("../variables");
 
 const STBOOL = (s) => {
     return s === "true";
-}
+};
 
-const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
+const PollCard = ({ poll, onEdit, onDelete }) => {
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "downloads"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "poll"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
-    const [downloading, setDownloading] = useState(false);
+
+    const theme = useTheme();
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -44,86 +49,153 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
     }, []);
 
     const handleEdit = useCallback(() => {
-        onEdit(downloadableItem);
-    }, [downloadableItem, onEdit]);
+        onEdit(poll);
+    }, [poll, onEdit]);
 
     const handleDelete = useCallback(() => {
-        onDelete(downloadableItem, isShiftPressed);
-    }, [downloadableItem, isShiftPressed, onDelete]);
+        onDelete(poll, isShiftPressed);
+    }, [poll, isShiftPressed, onDelete]);
 
-    const handleDownload = useCallback(async () => {
-        setDownloading(true);
-        await onDownload(downloadableItem);
-        setDownloading(false);
-    }, [downloadableItem, onDownload]);
-
-    if (downloadableItem.title === undefined) {
-        return <></>
+    if (poll.title === undefined) {
+        return <></>;
     }
 
-    const loc = downloadableItem.display.replace("with-image-", "");
-    let description = downloadableItem.description.replace(`[Image src="${downloadableItem.image}" loc="${loc}"]`, "").trimStart();
+    const [selectedChoices, setSelectedChoices] = useState([]);
 
-    if (downloadableItem.display === "half-width") {
+    const loc = poll.display.replace("with-image-", "");
+    let description = poll.description.replace(`[Image src="${poll.image}" loc="${loc}"]`, "").trimStart();
+
+    const totalVotes = poll.choices.reduce((acc, choice) => acc + choice.votes, 0);
+    let pollChoices = (
+        <>
+            {poll.choices.map((choice, index) => {
+                const percentage = totalVotes === 0 ? 0 : (choice.votes / totalVotes) * 100;
+                const displayPercentage = isNaN(percentage) ? 0 : percentage;
+
+                return (
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                        <div
+                            style={{
+                                marginRight: '16px',
+                                flex: 1,
+                                cursor: poll.voted && !poll.config.allowed_modify_vote ? 'default' : 'pointer',
+                                opacity: poll.voted ? 0.7 : 1,
+                                position: 'relative', // Make the container relative for absolute positioning of the background div
+                            }}
+                            onClick={() => {
+                                if (!selectedChoices.includes(index)) {
+                                    if (selectedChoices.length < poll.config.max_choice) {
+                                        setSelectedChoices([...selectedChoices, index]);
+                                    } else {
+                                        if (poll.config.max_choice === 1) {
+                                            setSelectedChoices([index]);
+                                        }
+                                    }
+                                } else {
+                                    setSelectedChoices(selectedChoices.filter(item => item !== index));
+                                }
+                            }}
+                        >
+                            <div
+                                style={{
+                                    width: `100%`,
+                                    height: '30px',
+                                    borderRadius: '4px',
+                                    backgroundColor: theme.palette.info.main + "22",
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    bottom: 0,
+                                    zIndex: 8
+                                }}
+                            />
+                            <div
+                                style={{
+                                    width: `${displayPercentage}%`,
+                                    height: '30px',
+                                    borderRadius: '4px',
+                                    backgroundColor: theme.palette.info.main + "aa",
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    bottom: 0,
+                                    zIndex: 9
+                                }}
+                            />
+                            <Typography variant="body2" sx={{ position: "relative", padding: "5px", zIndex: 10 }}>
+                                {choice.voted ? <FontAwesomeIcon icon={faCircleCheck} /> : <>{selectedChoices.includes(index) ? <FontAwesomeIcon icon={faCircleSolid} /> : <FontAwesomeIcon icon={faCircle} />}</>}
+                                &nbsp;&nbsp;{choice.content} ({displayPercentage}%)</Typography>
+                        </div>
+                    </div>
+                );
+            })}
+        </>
+    );
+
+    let caption = <><UserCard user={poll.creator} inline={true} /> | <TimeAgo key={`${+new Date()}`} timestamp={poll.timestamp * 1000} /> | {poll.config.max_choice === 1 ? `Single choice` : `Up to ${poll.config.max_choice} choices`} | {poll.config.show_voter ? `Identifiable voting` : `Anonymous voting`} | {poll.config.allow_modify_vote ? `Vote modification allowed` : `Vote modification prohibited`}</>;
+
+    if (poll.display === "half-width") {
         return (
-            <Grid item xs={12} sm={12} md={6} lg={6} key={downloadableItem.downloadsid}>
+            <Grid item xs={12} sm={12} md={6} lg={6} key={poll.pollid}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {downloadableItem.title}
+                                    {poll.title}
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+
                             </div>}
                             {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                 <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                        <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                        {pollChoices}
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                        <Typography variant="caption">{caption}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
         );
-    } else if (downloadableItem.display === "full-width") {
+    } else if (poll.display === "full-width") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
+            <Grid item xs={12} sm={12} md={12} lg={12} key={poll.pollid}>
                 <Card>
                     <CardContent>
                         <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {downloadableItem.title}
+                                    {poll.title}
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+
                             </div>}
                             {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                 <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
-                        <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                        <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                        {pollChoices}
                     </CardContent>
                     <CardContent>
-                        <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                        <Typography variant="caption">{caption}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
         );
-    } else if (downloadableItem.display === "with-image-left") {
+    } else if (poll.display === "with-image-left") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
+            <Grid item xs={12} sm={12} md={12} lg={12} key={poll.pollid}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
+                        <img src={poll.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -131,30 +203,31 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                                     <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {downloadableItem.title}
+                                            {poll.title}
                                         </div>
                                     </Typography>
                                     {(showButtons) && <div>
-                                        <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+
                                     </div>}
                                     {(showControls && showButtons) && <div>
                                         <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                         <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
-                                <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                                <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                                {pollChoices}
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                                <Typography variant="caption">{caption}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
             </Grid>
         );
-    } else if (downloadableItem.display === "with-image-right") {
+    } else if (poll.display === "with-image-right") {
         return (
-            <Grid item xs={12} sm={12} md={12} lg={12} key={downloadableItem.downloadsid}>
+            <Grid item xs={12} sm={12} md={12} lg={12} key={poll.pollid}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6} style={{ display: 'flex' }}>
                         <Card style={{ display: 'flex', flexDirection: 'column' }}>
@@ -162,26 +235,27 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
                                     <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {downloadableItem.title}
+                                            {poll.title}
                                         </div>
                                     </Typography>
                                     {(showButtons) && <div>
-                                        <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+
                                     </div>}
                                     {(showControls && showButtons) && <div>
                                         <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
                                         <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
-                                <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                                <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
+                                {pollChoices}
                             </CardContent>
                             <CardContent>
-                                <Typography variant="caption"><UserCard user={downloadableItem.creator} inline={true} />{downloadableItem.timestamp !== 0 && <> | <TimeAgo key={`${+new Date()}`} timestamp={downloadableItem.timestamp * 1000} /></>}</Typography>
+                                <Typography variant="caption">{caption}</Typography>
                             </CardContent>
                         </Card>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <img src={downloadableItem.image} alt="" style={{ width: '100%', border: 'none' }} />
+                        <img src={poll.image} alt="" style={{ width: '100%', border: 'none' }} />
                     </Grid>
                 </Grid>
             </Grid>
@@ -189,60 +263,59 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
     }
 };
 
-const DownloadableItemGrid = memo(({ downloadableItems, lastUpdate, onEdit, onDelete, onDownload }) => {
+const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete }) => {
     let halfCnt = 0;
     return <Grid container spacing={3}>
-        {downloadableItems.map((downloadableItem, index) => {
-            downloadableItem.display = 'half-width';
+        {polls.map((poll, index) => {
+            poll.display = 'half-width';
 
-            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(downloadableItem.description);
+            const hasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(poll.description);
 
             if (hasImage) {
-                const re = downloadableItem.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
+                const re = poll.description.match(/^\[Image src="(.+)" loc="(.+)"\]/);
                 const link = re[1];
                 const loc = re[2];
-                downloadableItem.image = link;
-                downloadableItem.display = 'with-image-' + loc;
+                poll.image = link;
+                poll.display = 'with-image-' + loc;
                 halfCnt = 0;
             } else {
-                if (index + 1 < downloadableItems.length) {
-                    const nextDownloadableItem = downloadableItems[index + 1];
-                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextDownloadableItem.description);
+                if (index + 1 < polls.length) {
+                    const nextPoll = polls[index + 1];
+                    const nextHasImage = /^\[Image src="(.+)" loc="(.+)"\]/.test(nextPoll.description);
 
                     if (nextHasImage) {
                         if (halfCnt % 2 === 1) {
-                            downloadableItem.display = 'half-width';
+                            poll.display = 'half-width';
                             halfCnt += 1;
                         } else {
-                            downloadableItem.display = 'full-width';
+                            poll.display = 'full-width';
                             halfCnt = 0;
                         }
                     } else {
-                        downloadableItem.display = 'half-width';
+                        poll.display = 'half-width';
                         halfCnt += 1;
                     }
                 }
             }
 
             return (
-                <DownloadableItemCard
-                    downloadableItem={downloadableItem}
-                    key={downloadableItem.downloadsid}
+                <PollCard
+                    poll={poll}
+                    key={poll.pollid}
                     onEdit={onEdit}
                     onDelete={onDelete}
-                    onDownload={onDownload}
                 />
             );
         })}
-    </Grid>
+    </Grid>;
 }, (prevProps, nextProps) => {
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
 
-const DownloadableItemManagers = memo(() => {
+const PollManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "downloads"])) {
+        if (checkPerm(vars.members[i].roles, ["admin", "poll"])) {
             managers.push(vars.members[i]);
         }
     }
@@ -252,10 +325,10 @@ const DownloadableItemManagers = memo(() => {
             <UserCard user={user} useChip={true} inline={true} />
         ))
     }</>;
-})
+});
 
-const DownloadableItem = () => {
-    const [downloadableItems, setDownloadableItems] = useState([]);
+const Poll = () => {
+    const [polls, setPolls] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
     const [page, setPage] = useState(1);
@@ -271,7 +344,7 @@ const DownloadableItem = () => {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Create Downloadable Item");
+    const [dialogTitle, setDialogTitle] = useState("Create Poll");
     const [dialogButton, setDialogButton] = useState("Create");
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
@@ -296,7 +369,7 @@ const DownloadableItem = () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        let url = `${vars.dhpath}/downloads/list?page_size=10&page=${page}`;
+        let url = `${vars.dhpath}/polls/list?page_size=10&page=${page}`;
 
         var newDowns = [];
         if (vars.isLoggedIn) {
@@ -317,7 +390,7 @@ const DownloadableItem = () => {
             newDowns[i] = { ...newDowns[i] };
         }
 
-        setDownloadableItems(newDowns);
+        setPolls(newDowns);
         setLastUpdate(+new Date());
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -328,10 +401,10 @@ const DownloadableItem = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/poll`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 200) {
                 doLoad();
-                setSnackbarContent("Downloadable item posted!");
+                setSnackbarContent("Poll created!");
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -340,10 +413,10 @@ const DownloadableItem = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/polls/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Downloadable item updated!");
+                setSnackbarContent("Poll updated!");
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -356,49 +429,39 @@ const DownloadableItem = () => {
         setSubmitLoading(false);
     }, [title, description, link, editId, isPinned, orderId, clearModal, doLoad]);
 
-    const doDownload = useCallback(async (downloadableItem) => {
-        let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 200) {
-            downloadFile(`${vars.dhpath}/downloads/redirect/${resp.data.secret}`);
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-    }, []);
-
-    const createDownloadableItem = useCallback(() => {
+    const createPoll = useCallback(() => {
         if (editId !== null) {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Downloadable Item");
+        setDialogTitle("Create Poll");
         setDialogButton("Create");
         setDialogOpen(true);
     }, [editId, clearModal]);
 
-    const editDownloadableItem = useCallback((downloadableItem) => {
+    const editPoll = useCallback((poll) => {
         clearModal();
 
-        setTitle(downloadableItem.title);
-        setContent(downloadableItem.description);
-        setLink(downloadableItem.link);
-        setOrderId(downloadableItem.orderid);
-        setIsPinned(String(downloadableItem.is_pinned));
+        setTitle(poll.title);
+        setContent(poll.description);
+        setLink(poll.link);
+        setOrderId(poll.orderid);
+        setIsPinned(String(poll.is_pinned));
 
-        setEditId(downloadableItem.downloadsid);
+        setEditId(poll.pollid);
 
-        setDialogTitle("Edit Downloadable Item");
+        setDialogTitle("Edit Poll");
         setDialogButton("Edit");
         setDialogOpen(true);
     }, [clearModal]);
 
-    const deleteDownloadableItem = useCallback(async (downloadableItem, isShiftPressed) => {
-        if (isShiftPressed === true || downloadableItem.confirmed === true) {
+    const deletePoll = useCallback(async (poll, isShiftPressed) => {
+        if (isShiftPressed === true || poll.confirmed === true) {
             setSubmitLoading(true);
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Downloadable item deleted!");
+                setSnackbarContent("Poll deleted!");
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -409,7 +472,7 @@ const DownloadableItem = () => {
             setSubmitLoading(false);
         } else {
             setDialogDelete(true);
-            setToDelete(downloadableItem);
+            setToDelete(poll);
         }
     }, [doLoad]);
 
@@ -419,8 +482,8 @@ const DownloadableItem = () => {
 
     return (
         <>
-            <DownloadableItemGrid downloadableItems={downloadableItems} lastUpdate={lastUpdate} onEdit={editDownloadableItem} onDelete={deleteDownloadableItem} onDownload={doDownload} />
-            {downloadableItems.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
+            <PollGrid polls={polls} lastUpdate={lastUpdate} onEdit={editPoll} onDelete={deletePoll} />
+            {polls.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
                 <DialogTitle>{dialogTitle}</DialogTitle>
@@ -446,21 +509,13 @@ const DownloadableItem = () => {
                                 />
                             </Grid>
                             <Grid item xs={12}>
-                                <TextField
-                                    label="Download Link"
-                                    value={link}
-                                    onChange={(e) => setLink(e.target.value)}
-                                    fullWidth
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset">
                                             <TextField
                                                 label="Order ID"
                                                 value={orderId}
-                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")) }}
+                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                                 fullWidth
                                             />
                                         </FormControl>
@@ -488,23 +543,23 @@ const DownloadableItem = () => {
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>Delete Downloadable Item</DialogTitle>
+                <DialogTitle>Delete Poll</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this downloadable item?</Typography>
-                    <DownloadableItemCard downloadableItem={toDelete !== null ? toDelete : {}} />
+                    <PollCard poll={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
-                    <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
+                    <Button variant="contained" color="error" onClick={() => { deletePoll({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>Downloads Managers</DialogTitle>
+                <DialogTitle>PeopleAltRounded Managers</DialogTitle>
                 <DialogContent>
-                    <DownloadableItemManagers />
+                    <PollManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial
@@ -512,11 +567,11 @@ const DownloadableItem = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["admin", "downloads"]) && <SpeedDialAction
+                {checkUserPerm(["admin", "poll"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"
-                    onClick={() => createDownloadableItem()}
+                    onClick={() => createPoll()}
                 />}
                 {vars.userInfo.userid !== -1 && <SpeedDialAction
                     key="managers"
@@ -545,6 +600,6 @@ const DownloadableItem = () => {
             </Portal>
         </>
     );
-}
+};
 
-export default DownloadableItem;
+export default Poll;

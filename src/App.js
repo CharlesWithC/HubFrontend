@@ -36,6 +36,7 @@ import AuditLog from './routes/auditLog';
 import Configuration from './routes/configuration';
 import Settings from './routes/settings';
 import Notifications from './routes/notifications';
+import Poll from './routes/polls';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -215,6 +216,7 @@ function App() {
                             <Route path="/beta/config" element={<Configuration />}></Route>
                             <Route path="/beta/settings" element={<Settings />}></Route>
                             <Route path="/beta/notifications" element={<Notifications />}></Route>
+                            <Route path="/beta/poll" element={<Poll />}></Route>
                         </Routes>
                         <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
                             <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
