@@ -1,16 +1,16 @@
 import { useEffect, useState, useCallback, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, useTheme } from '@mui/material';
 import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle as faCircleSolid } from '@fortawesome/free-solid-svg-icons';
+import { faCircle as faCircleSolid, fa1, faN, faUsers, faUsersSlash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, downloadFile, getAuthToken } from '../functions';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -18,9 +18,17 @@ const STBOOL = (s) => {
     return s === "true";
 };
 
-const PollCard = ({ poll, onEdit, onDelete }) => {
+const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
+    const [poll, setPoll] = useState(inputPoll);
     const showButtons = onEdit !== undefined;
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "poll"]));
+
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback((e) => {
+        setSnackbarContent("");
+    }, []);
+
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -56,11 +64,47 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
         onDelete(poll, isShiftPressed);
     }, [poll, isShiftPressed, onDelete]);
 
+    // note: in later stage a refresh event should be emitted to reload the poll from api
+    const [selectedChoices, setSelectedChoices] = useState([]);
+    const [voteDisabled, setVoteDisabled] = useState(false);
+    const handleVote = useCallback(async () => {
+        setVoteDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}/vote`, method: "PUT", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Vote submitted");
+            setSnackbarSeverity("success");
+            let votedChoices = [];
+            for (let i = 0; i < poll.choices.length; i++) {
+                votedChoices.push({ ...poll.choices[i], voted: selectedChoices.includes(poll.choices[i].choiceid), votes: Number(poll.choices[i].votes + selectedChoices.includes(poll.choices[i].choiceid)) });
+            }
+            setPoll({ ...poll, choices: votedChoices, voted: true });
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setVoteDisabled(false);
+    }, [poll, selectedChoices]);
+    const handleModifyVote = useCallback(async () => {
+        setVoteDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}/vote`, method: "PATCH", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent("Vote updated");
+            setSnackbarSeverity("success");
+            let votedChoices = [];
+            for (let i = 0; i < poll.choices.length; i++) {
+                votedChoices.push({ ...poll.choices[i], voted: selectedChoices.includes(poll.choices[i].choiceid), votes: poll.choices[i].votes - (!isNaN(Number(poll.choices[i].voted)) ? Number(poll.choices[i].voted) : 0) + Number(selectedChoices.includes(poll.choices[i].choiceid)) });
+            }
+            setPoll({ ...poll, choices: votedChoices, voted: selectedChoices.length !== 0 });
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setVoteDisabled(false);
+    }, [poll, selectedChoices]);
+
     if (poll.title === undefined) {
         return <></>;
     }
-
-    const [selectedChoices, setSelectedChoices] = useState([]);
 
     const loc = poll.display.replace("with-image-", "");
     let description = poll.description.replace(`[Image src="${poll.image}" loc="${loc}"]`, "").trimStart();
@@ -78,21 +122,21 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
                             style={{
                                 marginRight: '16px',
                                 flex: 1,
-                                cursor: poll.voted && !poll.config.allowed_modify_vote ? 'default' : 'pointer',
-                                opacity: poll.voted ? 0.7 : 1,
+                                cursor: poll.voted && !poll.config.allow_modify_vote ? 'default' : 'pointer',
+                                opacity: poll.voted && !poll.config.allow_modify_vote ? 0.7 : 1,
                                 position: 'relative', // Make the container relative for absolute positioning of the background div
                             }}
                             onClick={() => {
-                                if (!selectedChoices.includes(index)) {
+                                if (!selectedChoices.includes(choice.choiceid)) {
                                     if (selectedChoices.length < poll.config.max_choice) {
-                                        setSelectedChoices([...selectedChoices, index]);
+                                        setSelectedChoices([...selectedChoices, choice.choiceid]);
                                     } else {
                                         if (poll.config.max_choice === 1) {
-                                            setSelectedChoices([index]);
+                                            setSelectedChoices([choice.choiceid]);
                                         }
                                     }
                                 } else {
-                                    setSelectedChoices(selectedChoices.filter(item => item !== index));
+                                    setSelectedChoices(selectedChoices.filter(item => item !== choice.choiceid));
                                 }
                             }}
                         >
@@ -123,16 +167,64 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
                                 }}
                             />
                             <Typography variant="body2" sx={{ position: "relative", padding: "5px", zIndex: 10 }}>
-                                {choice.voted ? <FontAwesomeIcon icon={faCircleCheck} /> : <>{selectedChoices.includes(index) ? <FontAwesomeIcon icon={faCircleSolid} /> : <FontAwesomeIcon icon={faCircle} />}</>}
+                                {choice.voted && !poll.config.allow_modify_vote && (poll.end_time !== null || poll.end_time * 1000 <= +new Date()) ? <FontAwesomeIcon icon={faCircleCheck} /> : <>{selectedChoices.includes(choice.choiceid) ? <FontAwesomeIcon icon={faCircleSolid} /> : <FontAwesomeIcon icon={faCircle} />}</>}
                                 &nbsp;&nbsp;{choice.content} ({displayPercentage}%)</Typography>
                         </div>
                     </div>
                 );
             })}
+            <Box sx={{ display: 'grid', justifyItems: 'end' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    {!poll.voted && <Button onClick={handleVote} variant="contained" color="info" disabled={voteDisabled}>
+                        Vote
+                    </Button>}
+                    {poll.voted && poll.config.allow_modify_vote && (poll.end_time !== null || poll.end_time * 1000 <= +new Date()) && <Button onClick={handleModifyVote} variant="contained" color="info" disabled={voteDisabled}>
+                        Modify Vote
+                    </Button>}
+                </div>
+            </Box>
+            <Portal>
+                <Snackbar
+                    open={!!snackbarContent}
+                    autoHideDuration={5000}
+                    onClose={handleCloseSnackbar}
+                    onClick={(e) => { e.stopPropagation(); }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                    <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                        {snackbarContent}
+                    </Alert>
+                </Snackbar>
+            </Portal>
         </>
     );
 
-    let caption = <><UserCard user={poll.creator} inline={true} /> | <TimeAgo key={`${+new Date()}`} timestamp={poll.timestamp * 1000} /> | {poll.config.max_choice === 1 ? `Single choice` : `Up to ${poll.config.max_choice} choices`} | {poll.config.show_voter ? `Identifiable voting` : `Anonymous voting`} | {poll.config.allow_modify_vote ? `Vote modification allowed` : `Vote modification prohibited`}</>;
+    let caption = <><UserCard user={poll.creator} inline={true} />
+        | <TimeAgo key={`${+new Date()}`} timestamp={poll.timestamp * 1000} />
+        | {poll.config.max_choice === 1 ?
+            <Tooltip key={`single-choice`} placement="top" arrow title="Single choice"
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <FontAwesomeIcon icon={fa1} />
+            </Tooltip> : <Tooltip key={`multiple-choice`} placement="top" arrow title={`Up to ${poll.config.max_choice} choices`}
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <FontAwesomeIcon icon={faN} />
+            </Tooltip>}
+        &nbsp;&nbsp;{poll.config.show_voter ?
+            <Tooltip key={`identifiable-voting`} placement="top" arrow title={`Identifiable voting`}
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <FontAwesomeIcon icon={faUsers} />
+            </Tooltip> : <Tooltip key={`anomymous-voting`} placement="top" arrow title={`Anonymous voting`}
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <FontAwesomeIcon icon={faUsersSlash} />
+            </Tooltip>}
+        &nbsp;&nbsp;{poll.config.allow_modify_vote ?
+            <Tooltip key={`allow-modify`} placement="top" arrow title={`Poll modification allowed`}
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <FontAwesomeIcon icon={faPenToSquare} style={{ color: theme.palette.success.main }} />
+            </Tooltip> : <Tooltip key={`disallow-modify`} placement="top" arrow title={`Poll modification prohibited`}
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <FontAwesomeIcon icon={faPenToSquare} style={{ color: theme.palette.error.main }} />
+            </Tooltip>}</>;
 
     if (poll.display === "half-width") {
         return (
@@ -156,7 +248,7 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
                         <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                         {pollChoices}
                     </CardContent>
-                    <CardContent>
+                    <CardContent sx={{ pt: 0 }}>
                         <Typography variant="caption">{caption}</Typography>
                     </CardContent>
                 </Card>
@@ -184,7 +276,7 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
                         <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                         {pollChoices}
                     </CardContent>
-                    <CardContent>
+                    <CardContent sx={{ pt: 0 }}>
                         <Typography variant="caption">{caption}</Typography>
                     </CardContent>
                 </Card>
@@ -217,7 +309,7 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
                                 <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                                 {pollChoices}
                             </CardContent>
-                            <CardContent>
+                            <CardContent sx={{ pt: 0 }}>
                                 <Typography variant="caption">{caption}</Typography>
                             </CardContent>
                         </Card>
@@ -249,7 +341,7 @@ const PollCard = ({ poll, onEdit, onDelete }) => {
                                 <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
                                 {pollChoices}
                             </CardContent>
-                            <CardContent>
+                            <CardContent sx={{ pt: 0 }}>
                                 <Typography variant="caption">{caption}</Typography>
                             </CardContent>
                         </Card>
@@ -371,26 +463,26 @@ const Poll = () => {
 
         let url = `${vars.dhpath}/polls/list?page_size=10&page=${page}`;
 
-        var newDowns = [];
+        var newPolls = [];
         if (vars.isLoggedIn) {
-            const [anns] = await makeRequestsWithAuth([
+            const [polls] = await makeRequestsWithAuth([
                 url
             ]);
-            newDowns = anns.list;
-            setTotalPages(anns.total_pages);
+            newPolls = polls.list;
+            setTotalPages(polls.total_pages);
         } else {
-            const [anns] = await makeRequests([
+            const [polls] = await makeRequests([
                 url
             ]);
-            newDowns = anns.list;
-            setTotalPages(anns.total_pages);
+            newPolls = polls.list;
+            setTotalPages(polls.total_pages);
         }
 
-        for (let i = 0; i < newDowns.length; i++) {
-            newDowns[i] = { ...newDowns[i] };
+        for (let i = 0; i < newPolls.length; i++) {
+            newPolls[i] = { ...newPolls[i] };
         }
 
-        setPolls(newDowns);
+        setPolls(newPolls);
         setLastUpdate(+new Date());
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
