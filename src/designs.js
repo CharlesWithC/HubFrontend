@@ -1,4 +1,93 @@
-export function getDesignTokens(mode) {
+function darkenColor(hex, factor = 0.2) {
+    // Ensure the factor is between 0 and 1
+    const clampedFactor = Math.min(1, Math.max(0, factor));
+
+    // Parse the hex color into RGB components
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+
+    // Calculate the darkened color by reducing each RGB component
+    r = Math.round(r * (1 - clampedFactor));
+    g = Math.round(g * (1 - clampedFactor));
+    b = Math.round(b * (1 - clampedFactor));
+
+    // Convert back to hex format
+    const darkenedHex = `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+
+    return darkenedHex;
+}
+
+export function getDesignTokens(customMode, mode) {
+    let bgBase = {
+        light: {
+            default: '#fafafa',
+            paper: '#f0f0f0',
+        },
+        dark: {
+            default: '#2F3136',
+            paper: '#212529',
+        },
+        halloween: {
+            default: '#DF5120',
+            paper: '#C33922',
+        }
+    };
+    let darkenRatio = {
+        light: 0.05,
+        dark: 0.5,
+        halloween: 0.2
+    };
+
+    let compoBase = {
+        MuiDialogTitle: {
+            styleOverrides: {
+                root: {
+                    fontWeight: "800"
+                }
+            }
+        },
+        MuiTooltip: {
+            styleOverrides: {
+                popover: {
+                    marginTop: 5,
+                },
+                arrow: {
+                    marginTop: 5,
+                }
+            },
+        },
+        MuiListItemButton: {
+            styleOverrides: {
+                root: {
+                    borderRadius: '5px',
+                    '&.Mui-selected': {
+                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode]),
+                    },
+                    '&.Mui-selected:hover': {
+                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode]),
+                    },
+                },
+            },
+        },
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode]),
+                }
+            }
+        },
+        MuiToolbar: {
+            styleOverrides: {
+                root: {
+                    '& .user-profile:hover': {
+                        backgroundColor: darkenColor(bgBase[customMode].default, 0.15),
+                    },
+                },
+            },
+        },
+    };
+
     return {
         typography: {
             fontFamily: 'Open Sans, sans-serif',
@@ -6,62 +95,35 @@ export function getDesignTokens(mode) {
         palette: {
             mode, ...(mode === 'light'
                 ? {
-                    // palette values for light mode
                     primary: {
                         main: '#fafafa',
                     },
                     secondary: {
                         main: '#dadada',
                     },
-                    background: {
-                        default: '#fafafa',
-                        paper: '#f0f0f0',
-                    },
+                    background: bgBase[customMode],
                     text: {
                         primary: '#3c3c3c',
                         secondary: '#606060',
                     },
                 }
                 : {
-                    // palette values for dark mode
                     primary: {
                         main: '#2F3136'
                     },
                     secondary: {
                         main: '#212529'
                     },
-                    background: {
-                        default: '#2F3136',
-                        paper: '#212529',
-                    },
+                    background: bgBase[customMode],
                     text: {
                         primary: '#fafafa',
                         secondary: '#efefef'
                     },
-                }),
+                })
         }, components: {
-            mode, ...(mode === 'light'
+            mode, ...(customMode === 'light'
                 ? {
-                    MuiDialogTitle: {
-                        styleOverrides: {
-                            root: {
-                                fontWeight: "800"
-                            }
-                        }
-                    },
-                    MuiListItemButton: {
-                        styleOverrides: {
-                            root: {
-                                borderRadius: '5px',
-                                '&.Mui-selected': {
-                                    backgroundColor: '#afafaf',
-                                },
-                                '&.Mui-selected:hover': {
-                                    backgroundColor: '#afafaf',
-                                },
-                            },
-                        },
-                    },
+                    ...compoBase,
                     MuiRadio: {
                         styleOverrides: {
                             root: {
@@ -81,46 +143,8 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
-                    MuiTooltip: {
-                        styleOverrides: {
-                            popover: {
-                                marginTop: 5,
-                            },
-                            arrow: {
-                                marginTop: 5,
-                            }
-                        },
-                    }
                 } : {
-                    MuiListItemButton: {
-                        styleOverrides: {
-                            root: {
-                                borderRadius: '5px',
-                                '&.Mui-selected': {
-                                    backgroundColor: '#3F4248',
-                                },
-                                '&.Mui-selected:hover': {
-                                    backgroundColor: '#3F4248',
-                                },
-                            },
-                        },
-                    },
-                    MuiCard: {
-                        styleOverrides: {
-                            root: {
-                                backgroundColor: '#111214',
-                            }
-                        }
-                    },
-                    MuiToolbar: {
-                        styleOverrides: {
-                            root: {
-                                '& .user-profile:hover': {
-                                    backgroundColor: '#3F4248',
-                                },
-                            },
-                        },
-                    },
+                    ...compoBase,
                     MuiFormLabel: {
                         styleOverrides: {
                             root: {
@@ -129,13 +153,6 @@ export function getDesignTokens(mode) {
                                 },
                             },
                         },
-                    },
-                    MuiDialogTitle: {
-                        styleOverrides: {
-                            root: {
-                                fontWeight: "800"
-                            }
-                        }
                     },
                     MuiRadio: {
                         styleOverrides: {
@@ -147,17 +164,6 @@ export function getDesignTokens(mode) {
                             },
                         },
                     },
-                    MuiTooltip: {
-                        styleOverrides: {
-                            tooltip: {
-                                fontSize: "16px",
-                                backgroundColor: '#202225',
-                            },
-                            arrow: {
-                                color: '#202225',
-                            }
-                        },
-                    }
                 })
         },
     };

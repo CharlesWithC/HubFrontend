@@ -67,8 +67,8 @@
 
 .user-role {
     font-size: 0.9rem;
-    color: #999;
     text-align: right;
+    opacity: 0.6;
 }
 
 .user-avatar {

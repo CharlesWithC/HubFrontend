@@ -67,9 +67,10 @@ function App() {
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const [themeMode, updateThemeMode] = useState(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
+    const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
     const theme = useMemo(
         () =>
-            createTheme(getDesignTokens(themeMode), themeMode),
+            createTheme(getDesignTokens(themeMode, muiTheme[themeMode]), muiTheme[themeMode]),
         [themeMode],
     );
 

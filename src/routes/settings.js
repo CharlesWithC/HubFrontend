@@ -903,7 +903,7 @@ const Settings = () => {
                         <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>Imperial</Button>
                     </ButtonGroup>
                 </Grid>
-                
+
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
                     <br />
@@ -911,6 +911,7 @@ const Settings = () => {
                         <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
                         <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { updateTheme("dark"); }}>Dark</Button>
                         <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
+                        <Button variant="contained" color={userSettings.theme === "halloween" ? "info" : "secondary"} onClick={() => { updateTheme("halloween"); }} sx={{ color: "#DF5120" }}>Halloween (Limited Time)</Button>
                     </ButtonGroup>
                 </Grid>
 
