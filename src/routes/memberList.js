@@ -1,7 +1,6 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { useTheme, IconButton, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button } from '@mui/material';
-import { Portal } from '@mui/base';
+import { useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faUserGroup } from '@fortawesome/free-solid-svg-icons';
@@ -32,12 +31,6 @@ const MemberList = () => {
     const [pageSize, setPageSize] = useState(10);
     const [search, setSearch] = useState("");
 
-    const [snackbarContent, setSnackbarContent] = useState("");
-    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    const handleCloseSnackbar = useCallback(() => {
-        setSnackbarContent("");
-    }, []);
-
     const [dialogOpen, setDialogOpen] = useState("");
     const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
 
@@ -45,6 +38,8 @@ const MemberList = () => {
         resolve => setTimeout(resolve, ms)
     );
 
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const [syncProfileLog, setSyncProfileLog] = useState("");
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
     const syncProfile = useCallback(async () => {
         setDialogButtonDisabled(true);
@@ -63,17 +58,17 @@ const MemberList = () => {
             sync_to = `&sync_to_${sync_to}=true`;
             let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${vars.members[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
-                setSnackbarContent(`Synced ${vars.members[i].name}'s profile`);
+                setSyncProfileLog(`Synced ${vars.members[i].name}'s profile`);
                 setSnackbarSeverity("success");
                 setSyncProfileCurrent(i + 1);
             } else {
                 if (resp.data.retry_after !== undefined) {
-                    setSnackbarContent(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                    setSyncProfileLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
                     setSnackbarSeverity("warning");
                     await sleep((resp.data.retry_after + 1) * 1000);
                     i -= 1;
                 } else {
-                    setSnackbarContent(`Failed to sync ${vars.members[i].name}'s profile: ${resp.data.error}`);
+                    setSyncProfileLog(`Failed to sync ${vars.members[i].name}'s profile: ${resp.data.error}`);
                     setSnackbarSeverity("error");
                 }
             }
@@ -135,24 +130,12 @@ const MemberList = () => {
                 <br />
                 <Typography variant="body2" gutterBottom>Completed {syncProfileCurrent} / {vars.members.length}</Typography>
                 <LinearProgress variant="determinate" value={syncProfileCurrent / vars.members.list} />
-                <Typography variant="body2" sx={{ color: theme.palette[snackbarSeverity].main }} gutterBottom>{snackbarContent}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette[snackbarSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" color="info" onClick={() => { syncProfile(); }} disabled={dialogButtonDisabled}>Sync</Button>
             </DialogActions>
         </Dialog>
-        <Portal>
-            <Snackbar
-                open={!!snackbarContent}
-                autoHideDuration={5000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-                    {snackbarContent}
-                </Alert>
-            </Snackbar>
-        </Portal>
     </>;
 };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, useTheme } from '@mui/material';
+import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, PublicRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
@@ -67,6 +67,7 @@ const Deliveries = () => {
         setDialogButtonDisabled(false);
     }, [exportRange]);
 
+    const [bypassTrackerCheck, setBypassTrackerCheck] = useState(false);
     const [truckyJobID, setTruckyJobID] = useState();
     const importFromTruckySingle = useCallback(async () => {
         if (isNaN(truckyJobID) || truckyJobID.replaceAll(" ", "") === "") {
@@ -75,7 +76,7 @@ const Deliveries = () => {
             return;
         }
         setDialogButtonDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/trucky/import/${truckyJobID}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/trucky/import/${truckyJobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent("Job Imported");
             setSnackbarSeverity("error");
@@ -84,7 +85,8 @@ const Deliveries = () => {
             setSnackbarSeverity("error");
         }
         setDialogButtonDisabled(false);
-    }, [truckyJobID]);
+    }, [truckyJobID, bypassTrackerCheck]);
+    const [truckyImportLog, setTruckyImportLog] = useState("");
     const [truckyCompanyID, setTruckyCompanyID] = useState("");
     const [truckyImportRange, setTruckyImportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
     const [truckyBatchImportTotal, setTruckyBatchImportTotal] = useState(0);
@@ -95,23 +97,25 @@ const Deliveries = () => {
     );
     const importFromTruckyMultiple = useCallback(async () => {
         if (isNaN(truckyCompanyID) || truckyCompanyID.replaceAll(" ", "") === "") {
-            setSnackbarContent("Invalid Company ID");
+            setTruckyImportLog("Invalid Company ID");
             setSnackbarSeverity("error");
             return;
         }
         setDialogButtonDisabled(true);
         let resp = await axios({ url: `https://e.truckyapp.com/api/v1/company/${truckyCompanyID}/jobs?dateFrom=${new Date(truckyImportRange.start_time * 1000).toISOString()}&dateTo=${new Date(truckyImportRange.end_time * 1000).toISOString()}` });
         if (resp.data.error === true) {
-            setSnackbarContent(`Trucky Error: ${resp.data.error}`);
+            setTruckyImportLog(`Trucky Error: ${resp.data.error}`);
             setSnackbarSeverity("error");
+            setDialogButtonDisabled(false);
             return;
         }
         if (resp.data.total === 0) {
-            setSnackbarContent(`No job detected! Try another company or change the time range.`);
+            setTruckyImportLog(`No job detected! Try another company or change the time range.`);
             setSnackbarSeverity("error");
+            setDialogButtonDisabled(false);
             return;
         }
-        setSnackbarContent(`Detected ${resp.data.total} jobs. Importing...`);
+        setTruckyImportLog(`Detected ${resp.data.total} jobs. Importing...`);
         setSnackbarSeverity("info");
         let totalPages = Math.ceil(resp.data.total / resp.data.per_page);
         setTruckyBatchImportTotal(resp.data.total);
@@ -121,60 +125,67 @@ const Deliveries = () => {
 
         for (let i = 0; i < resp.data.data.length; i++) {
             setTruckyBatchImportCurrent(i + 1);
+            let st = +new Date();
             let jobID = resp.data.data[i].id;
-            let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (dhresp.status === 204) {
-                setSnackbarContent(`Imported Trucky job #${jobID}`);
+                setTruckyImportLog(`Imported Trucky job #${jobID}`);
                 setSnackbarSeverity("success");
                 successCnt += 1;
                 setTruckyBatchImportSuccess(successCnt);
             } else {
                 if (dhresp.data.retry_after !== undefined) {
-                    setSnackbarContent(`We are being rate limited by Drivers Hub API. We will continue after ${dhresp.data.retry_after} seconds...`);
+                    setTruckyImportLog(`We are being rate limited by Drivers Hub API. We will continue after ${dhresp.data.retry_after} seconds...`);
                     setSnackbarSeverity("warning");
                     await sleep((dhresp.data.retry_after + 1) * 1000);
                     i -= 1;
                 } else {
-                    setSnackbarContent(`Failed to import Trucky job #${jobID}: ${dhresp.data.error}`);
+                    setTruckyImportLog(`Failed to import Trucky job #${jobID}: ${dhresp.data.error}`);
                     setSnackbarSeverity("error");
                 }
             }
+            let ed = +new Date();
+            if (ed - st < 1000) await sleep(1000 - (ed - st));
         }
 
         if (totalPages > 1) {
             for (let page = 2; page <= totalPages; page++) {
                 resp = await axios({ url: `https://e.truckyapp.com/api/v1/company/${truckyCompanyID}/jobs?dateFrom=${new Date(truckyImportRange.start_time * 1000).toISOString()}&dateTo=${new Date(truckyImportRange.end_time * 1000).toISOString()}&page=${page}` });
                 if (resp.data.error === true) {
-                    setSnackbarContent(`Trucky Error: ${resp.data.error}`);
+                    setTruckyImportLog(`Trucky Error: ${resp.data.error}`);
                     setSnackbarSeverity("error");
+                    setDialogButtonDisabled(false);
                     return;
                 }
                 for (let i = 0; i < resp.data.data.length; i++) {
                     setTruckyBatchImportCurrent((page - 1) * resp.data.per_page + i + 1);
+                    let st = +new Date();
                     let jobID = resp.data.data[i].id;
-                    let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    let dhresp = await axios({ url: `${vars.dhpath}/trucky/import/${jobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (dhresp.status === 204) {
-                        setSnackbarContent(`Imported Trucky job #${jobID}`);
+                        setTruckyImportLog(`Imported Trucky job #${jobID}`);
                         setSnackbarSeverity("success");
                         successCnt += 1;
                         setTruckyBatchImportSuccess(successCnt);
                     } else {
                         if (dhresp.data.retry_after !== undefined) {
-                            setSnackbarContent(`We are being rate limited by Drivers Hub API. We will continue after ${dhresp.data.retry_after} seconds...`);
+                            setTruckyImportLog(`We are being rate limited by Drivers Hub API. We will continue after ${dhresp.data.retry_after} seconds...`);
                             setSnackbarSeverity("warning");
                             await sleep((dhresp.data.retry_after + 1) * 1000);
                             i -= 1;
                         } else {
-                            setSnackbarContent(`Failed to import Trucky job #${jobID}: ${dhresp.data.error}`);
+                            setTruckyImportLog(`Failed to import Trucky job #${jobID}: ${dhresp.data.error}`);
                             setSnackbarSeverity("error");
                         }
                     }
+                    let ed = +new Date();
+                    if (ed - st < 1000) await sleep(1000 - (ed - st));
                 }
             }
         };
 
         setDialogButtonDisabled(false);
-    }, [truckyCompanyID, truckyImportRange]);
+    }, [truckyCompanyID, truckyImportRange, bypassTrackerCheck]);
 
     useEffect(() => {
         async function doLoad() {
@@ -295,7 +306,22 @@ const Deliveries = () => {
             <DialogContent>
                 <Typography variant="body2" >- You may either import a single job or multiple jobs from a Trucky VTC automatically.</Typography>
                 <Typography variant="body2">- If you get an error like "User Not Found", then the user who submitted the job on Trucky is not a member of the Drivers Hub.</Typography>
-                <Typography variant="body2" sx={{ mb: "10px" }}>- When importing multiple jobs, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2">- If you get an error like "User chose to use another tracker", you may enable "Bypass tracker check" to ignore that. But keep in mind that this may lead to duplicate jobs.</Typography>
+                <Typography variant="body2">- When importing multiple jobs, do not close the tab, or the process will stop.</Typography>
+
+                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                    <FormControlLabel
+                        key="bypass-tracker-check"
+                        control={
+                            <Checkbox
+                                name="Bypass tracker check?"
+                                checked={bypassTrackerCheck}
+                                onChange={() => setBypassTrackerCheck(!bypassTrackerCheck)}
+                            />
+                        }
+                        label="Bypass tracker check?"
+                    />
+                </FormControl>
 
                 <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Single Job</Typography>
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
@@ -313,6 +339,7 @@ const Deliveries = () => {
                 </Grid>
                 <Divider sx={{ mt: "10px", mb: "10px" }} />
                 <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}</Typography>
+
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
                     <Grid item xs={12}>
                         <TextField
@@ -341,6 +368,7 @@ const Deliveries = () => {
                         />
                     </Grid>
                     <Grid item xs={12}>
+                        <Typography variant="body2" sx={{ color: theme.palette[snackbarSeverity].main }} gutterBottom>{truckyImportLog}</Typography>
                         <Button variant="contained" color="info" onClick={() => { importFromTruckyMultiple(); }} disabled={dialogButtonDisabled} fullWidth>Import</Button>
                     </Grid>
                 </Grid>
