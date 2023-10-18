@@ -73,7 +73,7 @@ export function getDesignTokens(customMode, mode) {
         MuiCard: {
             styleOverrides: {
                 root: {
-                    backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode]),
+                    backgroundColor: darkenColor(bgBase[customMode].paper, darkenRatio[customMode]),
                 }
             }
         },
