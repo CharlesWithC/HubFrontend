@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
@@ -54,7 +54,7 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
     }, [downloadableItem, onDownload]);
 
     if (downloadableItem.title === undefined) {
-        return <></>
+        return <></>;
     }
 
     const loc = downloadableItem.display.replace("with-image-", "");
@@ -230,7 +230,7 @@ const DownloadableItemGrid = memo(({ downloadableItems, lastUpdate, onEdit, onDe
                 />
             );
         })}
-    </Grid>
+    </Grid>;
 }, (prevProps, nextProps) => {
     return prevProps.lastUpdate === nextProps.lastUpdate;
 });
@@ -248,7 +248,7 @@ const DownloadableItemManagers = memo(() => {
             <UserCard user={user} useChip={true} inline={true} />
         ))
     }</>;
-})
+});
 
 const DownloadableItem = () => {
     const [downloadableItems, setDownloadableItems] = useState([]);
@@ -456,21 +456,24 @@ const DownloadableItem = () => {
                                             <TextField
                                                 label="Order ID"
                                                 value={orderId}
-                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")) }}
+                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                                 fullWidth
                                             />
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <FormControl component="fieldset" sx={{ position: "relative", mt: "-5px" }}>
-                                            <FormLabel component="legend">Pin?</FormLabel>
-                                            <RadioGroup
-                                                value={isPinned} row
-                                                onChange={(e) => setIsPinned(e.target.value)}
-                                            >
-                                                <FormControlLabel value={true} control={<Radio />} label="Yes" />
-                                                <FormControlLabel value={false} control={<Radio />} label="No" />
-                                            </RadioGroup>
+                                        <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                            <FormControlLabel
+                                                key="pin"
+                                                control={
+                                                    <Checkbox
+                                                        name="Pin"
+                                                        checked={isPinned}
+                                                        onChange={() => setIsPinned(!isPinned)}
+                                                    />
+                                                }
+                                                label="Pin"
+                                            />
                                         </FormControl>
                                     </Grid>
                                 </Grid>
@@ -490,7 +493,7 @@ const DownloadableItem = () => {
                     <DownloadableItemCard downloadableItem={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
                     <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
                 </DialogActions>
             </Dialog>
@@ -500,7 +503,7 @@ const DownloadableItem = () => {
                     <DownloadableItemManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial
@@ -541,6 +544,6 @@ const DownloadableItem = () => {
             </Portal>
         </>
     );
-}
+};
 
 export default DownloadableItem;

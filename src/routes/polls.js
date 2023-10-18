@@ -17,6 +17,10 @@ var vars = require("../variables");
 
 const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
     const [poll, setPoll] = useState(inputPoll);
+    useEffect(() => {
+        setPoll(inputPoll);
+    }, [inputPoll]);
+
     const showButtons = onEdit !== undefined;
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "poll"]));
     let initialChoices = [];
@@ -67,7 +71,6 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
         onDelete(poll, isShiftPressed);
     }, [poll, isShiftPressed, onDelete]);
 
-    // note: in later stage a refresh event should be emitted to reload the poll from api
     const [selectedChoices, setSelectedChoices] = useState(initialChoices);
     const [voteDisabled, setVoteDisabled] = useState(false);
     const handleVote = useCallback(async () => {
@@ -397,7 +400,7 @@ const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete }) => {
             return (
                 <PollCard
                     poll={poll}
-                    key={poll.pollid}
+                    key={index}
                     onEdit={onEdit}
                     onDelete={onDelete}
                 />
@@ -818,7 +821,7 @@ const Poll = () => {
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>PeopleAltRounded Managers</DialogTitle>
+                <DialogTitle>Poll Managers</DialogTitle>
                 <DialogContent>
                     <PollManagers />
                 </DialogContent>

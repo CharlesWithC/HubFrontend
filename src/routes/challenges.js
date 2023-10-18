@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select as MUISelect, MenuItem, RadioGroup, Radio, Chip } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select as MUISelect, MenuItem, RadioGroup, Radio, Chip, Checkbox } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Portal } from '@mui/base';
@@ -751,15 +751,18 @@ const Challenges = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <FormControl component="fieldset" sx={{ position: "relative", mt: "-5px" }}>
-                                <FormLabel component="legend">Pin?</FormLabel>
-                                <RadioGroup
-                                    value={String(modalChallenge.is_pinned)} row
-                                    onChange={(e) => setModalChallenge({ ...modalChallenge, is_pinned: e.target.value === true })}
-                                >
-                                    <FormControlLabel value={true} control={<Radio />} label="Yes" />
-                                    <FormControlLabel value={false} control={<Radio />} label="No" />
-                                </RadioGroup>
+                            <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                <FormControlLabel
+                                    key="pin"
+                                    control={
+                                        <Checkbox
+                                            name="Pin"
+                                            checked={modalChallenge.is_pinned}
+                                            onChange={() => setModalChallenge({ ...modalChallenge, is_pinned: e.target.value === true })}
+                                        />
+                                    }
+                                    label="Pin"
+                                />
                             </FormControl>
                         </Grid>
                     </Grid>
