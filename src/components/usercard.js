@@ -308,7 +308,7 @@ const UserCard = (props) => {
 
     useEffect(() => {
         let ok = false;
-        if(vars.members !== undefined){
+        if (vars.members !== undefined) {
             for (let i = 0; i < vars.members.length; i++) {
                 if (vars.members[i].uid === uid) {
                     ok = true;
@@ -686,14 +686,14 @@ const UserCard = (props) => {
             <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
                     <div style={{ display: "flex", flexDirection: "row" }}>
-                        <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        <Typography key="name" variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
                             {nameRef.current}
                         </Typography>
-                        <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                            {badges.map((badge) => { return <>{badge}&nbsp;&nbsp;</>; })}
+                        <Typography key="badge" variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                            {badges.map((badge) => { return <>{badge}&nbsp;</>; })}
                             {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
-                            {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"])))) && <>&nbsp;&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                            {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["admin", "hrm", "hr", "manage_profile"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                         </Typography>
                     </div>
                     <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
@@ -1384,7 +1384,7 @@ const UserCard = (props) => {
                                 {nameRef.current}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                {badges.map((badge) => { return <>{badge}&nbsp;&nbsp;</>; })}&nbsp;&nbsp;
+                                {badges.map((badge) => { return <>{badge}&nbsp;</>; })}
                                 {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             </Typography>

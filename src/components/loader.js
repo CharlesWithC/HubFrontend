@@ -141,8 +141,8 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
 
                 await FetchProfile();
-
-                if (!["hub.atmvtc.com", "hub.gokboru.net.tr", "hub.movezenvtc.com", "hub.lightninglogisticsvtc.com", "hub.logisticaxtnt.com", "hub.plvtc.com", "md.chub.page", "hub.routevtc.com.tr", "hub.globaltrucking.uk", "midlandgloballogistics.chub.page"].includes(domain)) {
+                
+                if (window.location.hostname !== "localhost" && !["hub.atmvtc.com", "hub.gokboru.net.tr", "hub.movezenvtc.com", "hub.lightninglogisticsvtc.com", "hub.logisticaxtnt.com", "hub.plvtc.com", "md.chub.page", "hub.routevtc.com.tr", "hub.globaltrucking.uk", "midlandgloballogistics.chub.page"].includes(domain)) {
                     if (!vars.isLoggedIn) {
                         setLoaderAnimation(false);
                         setLoadMessage("You must login from alpha web client first!");

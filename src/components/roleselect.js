@@ -37,13 +37,22 @@ const customSelectStyles = (theme) => ({
     },
 });
 
+const getRole = (roleId) => {
+    if (vars.roles[roleId] !== undefined) {
+        return vars.roles[roleId];
+    } else {
+        let roleIds = Object.keys(vars.roles);
+        let lastRole = roleIds[roleIds.length - 1];
+        return { "name": `Unknown Role (${roleId})`, id: roleId, order_id: vars.roles[lastRole].order_id + 1 };
+    }
+};
+
 const RoleSelect = ({ label, initialRoles, onUpdate }) => {
     let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
-    for (let i = 0; i < roleIds.length; i++) {
-        roleIds[i] = Number(roleIds[i]);
-        if (userHighestRole === undefined || vars.roles[roleIds[i]].order_id < userHighestRole) {
-            userHighestRole = vars.roles[roleIds[i]].order_id;
+    for (let i = 0; i < vars.userInfo.roles.length; i++) {
+        if (userHighestRole === undefined || getRole(vars.userInfo.roles[i]).order_id < userHighestRole) {
+            userHighestRole = getRole(vars.userInfo.roles[i]).order_id;
         }
     }
 
@@ -59,7 +68,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
 
     let formattedInit = [];
     for (let i = 0; i < initialRoles.length; i++) {
-        formattedInit.push({ value: initialRoles[i], label: vars.roles[initialRoles[i]].name, orderId: vars.roles[initialRoles[i]].order_id, isFixed: !divisionOnly ? vars.roles[initialRoles[i]].order_id <= userHighestRole : !divisionRoles.includes(initialRoles[i]) });
+        formattedInit.push({ value: initialRoles[i], label: getRole(initialRoles[i]).name, orderId: getRole(initialRoles[i]).order_id, isFixed: !divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(initialRoles[i]) });
     }
 
     const [selectedRoles, setSelectedRoles] = useState(formattedInit !== undefined ? formattedInit : []);
@@ -80,12 +89,12 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
                 isMulti
                 name="colors"
                 options={roleIds
-                    .filter((roleId) => !divisionOnly ? vars.roles[roleId].order_id > userHighestRole : divisionRoles.includes(roleId))
+                    .filter((roleId) => !divisionOnly ? getRole(roleId).order_id > userHighestRole : divisionRoles.includes(roleId))
                     .map((roleId) => ({
                         value: roleId,
-                        label: vars.roles[roleId].name,
-                        orderId: vars.roles[roleId].order_id,
-                        isFixed: !divisionOnly ? vars.roles[roleId].order_id <= userHighestRole : !divisionRoles.includes(roleId)
+                        label: getRole(roleId).name,
+                        orderId: getRole(roleId).order_id,
+                        isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId)
                     }))}
                 isClearable={selectedRoles.some((v) => !v.isFixed)}
                 className="basic-multi-select"
