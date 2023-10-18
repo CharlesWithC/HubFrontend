@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 
-import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequests } from '../functions';
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto } from '../functions';
 import { useTheme } from '@emotion/react';
 
 var vars = require('../variables');
@@ -74,20 +74,23 @@ const Loader = ({ onLoaderLoaded }) => {
                 localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
 
                 var urlsBatch = [
-                    `${vars.dhpath}`,
-                    "https://config.chub.page/roles",
-                    `${vars.dhpath}/config`,
-                    `${vars.dhpath}/member/roles`,
-                    `${vars.dhpath}/member/perms`,
-                    `${vars.dhpath}/member/ranks`,
-                    `${vars.dhpath}/announcements/types`,
-                    `${vars.dhpath}/applications/positions`,
-                    `${vars.dhpath}/applications/types`,
-                    `${vars.dhpath}/divisions/list`,
-                    `${vars.dhpath}/dlog/statistics/details`,
+                    { url: `${vars.dhpath}`, auth: false },
+                    { url: "https://config.chub.page/roles", auth: false },
+                    { url: `${vars.dhpath}/config`, auth: false },
+                    { url: `${vars.dhpath}/member/roles`, auth: false },
+                    { url: `${vars.dhpath}/member/perms`, auth: false },
+                    { url: `${vars.dhpath}/member/ranks`, auth: false },
+                    { url: `${vars.dhpath}/announcements/types`, auth: false },
+                    { url: `${vars.dhpath}/applications/positions`, auth: false },
+                    { url: `${vars.dhpath}/applications/types`, auth: false },
+                    { url: `${vars.dhpath}/divisions/list`, auth: false },
+                    { url: `${vars.dhpath}/dlog/statistics/details`, auth: false },
+                    { url: `${vars.dhpath}/economy`, auth: true },
+                    { url: `${vars.dhpath}/economy/garages`, auth: true },
+                    { url: `${vars.dhpath}/economy/trucks`, auth: true },
                 ];
 
-                const [index, specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails] = await makeRequests(urlsBatch);
+                const [index, specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails, economyConfig, economyGarages, economyTrucks] = await makeRequestsAuto(urlsBatch);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -139,9 +142,18 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (dlogDetails && dlogDetails.error === undefined) {
                     vars.dlogDetails = dlogDetails;
                 }
+                if (economyConfig) {
+                    vars.economyConfig = economyConfig;
+                }
+                if (economyGarages) {
+                    vars.economyGarages = economyGarages;
+                }
+                if (economyTrucks) {
+                    vars.economyTrucks = economyTrucks;
+                }
 
                 await FetchProfile();
-                
+
                 if (window.location.hostname !== "localhost" && !["hub.atmvtc.com", "hub.gokboru.net.tr", "hub.movezenvtc.com", "hub.lightninglogisticsvtc.com", "hub.logisticaxtnt.com", "hub.plvtc.com", "md.chub.page", "hub.routevtc.com.tr", "hub.globaltrucking.uk", "midlandgloballogistics.chub.page"].includes(domain)) {
                     if (!vars.isLoggedIn) {
                         setLoaderAnimation(false);

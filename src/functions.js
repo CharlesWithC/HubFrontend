@@ -69,7 +69,7 @@ export const makeRequestsWithAuth = async (urls) => {
 export const makeRequestsAuto = async (urls) => {
     const responses = await Promise.all(
         urls.map(({ url, auth }) => {
-            if (auth === false || (auth === true && vars.isLoggedIn) || auth === "prefer") {
+            if (auth === false || (auth === true && getAuthToken() !== null) || auth === "prefer") {
                 return customAxios({
                     url,
                     headers: auth === true || auth === "prefer" && getAuthToken() !== null ? {

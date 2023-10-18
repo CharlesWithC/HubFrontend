@@ -120,7 +120,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
         <>
             {poll.choices.map((choice, index) => {
                 const percentage = totalVotes === 0 ? 0 : (choice.votes / totalVotes) * 100;
-                const displayPercentage = isNaN(percentage) ? 0 : percentage;
+                const displayPercentage = isNaN(percentage) ? 0 : Math.round(percentage * 100) / 100;
 
                 return (
                     <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>

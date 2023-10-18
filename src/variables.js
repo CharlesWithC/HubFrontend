@@ -21,6 +21,13 @@ exports.userDivisionIDs = userDivisionIDs;
 var userStats = {};
 exports.userStats = userStats;
 
+var economyConfig = {};
+exports.economyConfig = economyConfig;
+var economyGarages = [];
+exports.economyGarages = economyGarages;
+var economyTrucks = [];
+exports.economyTrucks = economyTrucks;
+
 var dlogDetails = {};
 exports.dlogDetails = dlogDetails;
 
