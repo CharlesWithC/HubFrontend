@@ -704,10 +704,10 @@ const Challenges = () => {
                                 <FormLabel component="legend">Public Job Requirements?</FormLabel>
                                 <RadioGroup
                                     value={String(modalChallenge.public_details)} row
-                                    onChange={(e) => setModalChallenge({ ...modalChallenge, public_details: e.target.value === "true" })}
+                                    onChange={(e) => setModalChallenge({ ...modalChallenge, public_details: e.target.value === true })}
                                 >
-                                    <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                                    <FormControlLabel value="false" control={<Radio />} label="No" />
+                                    <FormControlLabel value={true} control={<Radio />} label="Yes" />
+                                    <FormControlLabel value={false} control={<Radio />} label="No" />
                                 </RadioGroup>
                             </FormControl>
                         </Grid>
@@ -755,10 +755,10 @@ const Challenges = () => {
                                 <FormLabel component="legend">Pin?</FormLabel>
                                 <RadioGroup
                                     value={String(modalChallenge.is_pinned)} row
-                                    onChange={(e) => setModalChallenge({ ...modalChallenge, is_pinned: e.target.value === "true" })}
+                                    onChange={(e) => setModalChallenge({ ...modalChallenge, is_pinned: e.target.value === true })}
                                 >
-                                    <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                                    <FormControlLabel value="false" control={<Radio />} label="No" />
+                                    <FormControlLabel value={true} control={<Radio />} label="Yes" />
+                                    <FormControlLabel value={false} control={<Radio />} label="No" />
                                 </RadioGroup>
                             </FormControl>
                         </Grid>

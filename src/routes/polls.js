@@ -1,22 +1,19 @@
 import { useEffect, useState, useCallback, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, Checkbox, useTheme } from '@mui/material';
 import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircle as faCircleSolid, fa1, faN, faUsers, faUsersSlash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faCircle as faCircleSolid, fa1, faN, faUsers, faUsersSlash, faPenToSquare, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
 import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
+import { ButtonGroup } from 'react-bootstrap';
 
 var vars = require("../variables");
-
-const STBOOL = (s) => {
-    return s === "true";
-};
 
 const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
     const [poll, setPoll] = useState(inputPoll);
@@ -133,6 +130,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
                                 position: 'relative', // Make the container relative for absolute positioning of the background div
                             }}
                             onClick={() => {
+                                if (!showButtons) return;
                                 if (!selectedChoices.includes(choice.choiceid)) {
                                     if (selectedChoices.length < poll.config.max_choice) {
                                         setSelectedChoices([...selectedChoices, choice.choiceid]);
@@ -179,7 +177,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
                     </div>
                 );
             })}
-            <Box sx={{ display: 'grid', justifyItems: 'end' }}>
+            {showButtons && <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     {!poll.voted && <Button onClick={handleVote} variant="contained" color="info" disabled={voteDisabled}>
                         Vote
@@ -188,7 +186,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
                         Modify Vote
                     </Button>}
                 </div>
-            </Box>
+            </Box>}
             <Portal>
                 <Snackbar
                     open={!!snackbarContent}
@@ -451,16 +449,22 @@ const Poll = () => {
     const [editId, setEditId] = useState(null);
     const [title, setTitle] = useState('');
     const [description, setContent] = useState('');
-    const [link, setLink] = useState('');
+    const [choices, setChoices] = useState([{ content: "" }, { content: "" }, { content: "" }, { content: "" }]);
+    const [config, setConfig] = useState({ max_choice: 1, allow_modify_vote: false, show_stats: true, show_stats_before_vote: false, show_voter: false, show_stats_when_ended: false });
+    const [endTime, setEndTime] = useState(parseInt(+new Date() / 1000 + 86400 * 7));
+    const [noEndTime, setNoEndTime] = useState(false);
     const [orderId, setOrderId] = useState(0);
-    const [isPinned, setIsPinned] = useState("false");
+    const [isPinned, setIsPinned] = useState(false);
 
     const clearModal = useCallback(() => {
         setTitle('');
         setContent('');
-        setLink('');
+        setChoices([{ content: "" }, { content: "" }, { content: "" }, { content: "" }]);
+        setConfig({ max_choice: 1, allow_modify_vote: false, show_stats: true, show_stats_before_vote: false, show_voter: false, show_stats_when_ended: true });
+        setEndTime(parseInt(+new Date() / 1000 + 86400 * 7));
+        setNoEndTime(false);
         setOrderId(0);
-        setIsPinned("false");
+        setIsPinned(false);
     }, []);
 
     const doLoad = useCallback(async () => {
@@ -499,7 +503,11 @@ const Poll = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/poll`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let formattedChoices = [];
+            for (let i = 0; i < choices.length; i++) {
+                formattedChoices.push(choices[i].content);
+            }
+            let resp = await axios({ url: `${vars.dhpath}/polls`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Poll created!");
@@ -511,7 +519,11 @@ const Poll = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/polls/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let formattedChoices = [];
+            for (let i = 0; i < choices.length; i++) {
+                formattedChoices.push({ choiceid: choices[i].choiceid, orderid: i + 1 });
+            }
+            let resp = await axios({ url: `${vars.dhpath}/polls/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Poll updated!");
@@ -525,7 +537,7 @@ const Poll = () => {
             }
         }
         setSubmitLoading(false);
-    }, [title, description, link, editId, isPinned, orderId, clearModal, doLoad]);
+    }, [title, description, choices, endTime, noEndTime, config, editId, isPinned, orderId, clearModal, doLoad]);
 
     const createPoll = useCallback(() => {
         if (editId !== null) {
@@ -542,7 +554,15 @@ const Poll = () => {
 
         setTitle(poll.title);
         setContent(poll.description);
-        setLink(poll.link);
+        setChoices(poll.choices);
+        if (poll.end_time === null) {
+            setEndTime(parseInt(+new Date() / 1000 + 86400 * 7));
+            setNoEndTime(true);
+        } else {
+            setEndTime(poll.end_time);
+            setNoEndTime(false);
+        }
+        setConfig(poll.config);
         setOrderId(poll.orderid);
         setIsPinned(String(poll.is_pinned));
 
@@ -606,31 +626,177 @@ const Poll = () => {
                                     minRows={4}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <Grid container spacing={2}>
-                                    <Grid item xs={6}>
-                                        <FormControl component="fieldset">
-                                            <TextField
-                                                label="Order ID"
-                                                value={orderId}
-                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
-                                                fullWidth
+                            <Grid item xs={12} sx={{ mb: 0 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    Choices
+                                </Typography>
+                            </Grid>
+                            {choices.map((_, index) => {
+                                return <Grid item xs={12} key={index}>
+                                    <ButtonGroup>
+                                        <TextField
+                                            label={`Choice #${index + 1}`}
+                                            value={choices[index].content}
+                                            onChange={(e) => setChoices(prevChoices => [...prevChoices.slice(0, index), { content: e.target.value }, ...prevChoices.slice(index + 1)])}
+                                            size="small"
+                                            sx={editId === null ? { width: "calc(100% - 150px)" } : { width: "calc(100% - 75px)" }}
+                                        />
+                                        {editId === null && <IconButton variant="contained" color="success" onClick={() => {
+                                            if (choices.length < 10) setChoices(prevChoices => [...prevChoices.slice(0, index + 1), { content: "" }, ...prevChoices.slice(index + 1)]);
+                                        }}><FontAwesomeIcon icon={faPlus} disabled={choices.length >= 10} /></IconButton>}
+                                        {editId === null && <IconButton variant="contained" color="error" onClick={() => {
+                                            if (choices.length > 1) setChoices(prevChoices => [...prevChoices.slice(0, index), ...prevChoices.slice(index + 1)]);
+                                        }}><FontAwesomeIcon icon={faMinus} disabled={choices.length <= 1} /></IconButton>}
+                                        <IconButton variant="contained" color="info" onClick={() => {
+                                            if (index >= 1) setChoices(prevChoices => [...prevChoices.slice(0, index - 1), prevChoices[index], prevChoices[index - 1], ...prevChoices.slice(index + 1)]);
+                                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                                        <IconButton variant="contained" color="warning" onClick={() => {
+                                            if (index <= choices.length - 2) setChoices(prevChoices => [...prevChoices.slice(0, index), prevChoices[index + 1], prevChoices[index], ...prevChoices.slice(index + 2)]);
+                                        }} disabled={index === choices.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                                    </ButtonGroup>
+                                </Grid>;
+                            })}
+                            <Grid item xs={12} sx={{ mb: 0 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                    Config
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset">
+                                    <TextField
+                                        label="End Time"
+                                        type="datetime-local"
+                                        value={new Date(new Date(endTime * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                                        onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setEndTime(parseInt((+new Date(e.target.value)) / 1000)); }}
+                                        fullWidth
+                                        disabled={noEndTime === true}
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="always-active"
+                                        control={
+                                            <Checkbox
+                                                name="Always active"
+                                                checked={noEndTime}
+                                                onChange={() => setNoEndTime(!noEndTime)}
                                             />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <FormControl component="fieldset" sx={{ position: "relative", mt: "-5px" }}>
-                                            <FormLabel component="legend">Pin?</FormLabel>
-                                            <RadioGroup
-                                                value={isPinned} row
-                                                onChange={(e) => setIsPinned(e.target.value)}
-                                            >
-                                                <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                                                <FormControlLabel value="false" control={<Radio />} label="No" />
-                                            </RadioGroup>
-                                        </FormControl>
-                                    </Grid>
-                                </Grid>
+                                        }
+                                        label="Always active"
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset">
+                                    <TextField
+                                        label="Max Choice"
+                                        value={config.max_choice}
+                                        onChange={(e) => { setConfig({ ...config, max_choice: e.target.value.replace(/[^0-9]/g, "") }); }}
+                                        fullWidth
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="allow-modify-vote"
+                                        control={
+                                            <Checkbox
+                                                name="Allow poll modification"
+                                                checked={config.allow_modify_vote}
+                                                onChange={() => setConfig({ ...config, allow_modify_vote: !config.allow_modify_vote })}
+                                            />
+                                        }
+                                        label="Allow poll modification"
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="anonymous-voting"
+                                        control={
+                                            <Checkbox
+                                                name="Anonymous voting"
+                                                checked={!config.show_voter}
+                                                onChange={() => setConfig({ ...config, show_voter: !config.show_voter })}
+                                            />
+                                        }
+                                        label="Anonymous voting"
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="always-show-results"
+                                        control={
+                                            <Checkbox
+                                                name="Show results"
+                                                checked={config.show_stats}
+                                                onChange={() => { setConfig({ ...config, show_stats: !config.show_stats }); }}
+                                            />
+                                        }
+                                        label="Show results"
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="show-stats-before-vote"
+                                        control={
+                                            <Checkbox
+                                                name="Show results before voting"
+                                                checked={config.show_stats_before_vote}
+                                                onChange={() => { setConfig({ ...config, show_stats_before_vote: !config.show_stats_before_vote }); }}
+                                            />
+                                        }
+                                        label="Show results before voting"
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="show-stats-after-end"
+                                        control={
+                                            <Checkbox
+                                                name="Show results after ending"
+                                                checked={config.show_stats_when_ended}
+                                                onChange={() => { setConfig({ ...config, show_stats_when_ended: !config.show_stats_when_ended }); }}
+                                            />
+                                        }
+                                        label="Show results after ending"
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset">
+                                    <TextField
+                                        label="Order ID"
+                                        value={orderId}
+                                        onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                        fullWidth
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl component="fieldset" sx={{ mb: "10px" }}>
+                                    <FormControlLabel
+                                        key="pin"
+                                        control={
+                                            <Checkbox
+                                                name="Pin"
+                                                checked={isPinned}
+                                                onChange={() => setIsPinned(!isPinned)}
+                                            />
+                                        }
+                                        label="Pin"
+                                    />
+                                </FormControl>
                             </Grid>
                         </Grid>
                     </form>
@@ -639,7 +805,7 @@ const Poll = () => {
                     <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
                     <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog >
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
                 <DialogTitle>Delete Poll</DialogTitle>
                 <DialogContent>

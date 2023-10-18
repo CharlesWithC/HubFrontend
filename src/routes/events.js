@@ -813,8 +813,8 @@ const Events = () => {
                                     row
                                     onChange={(e) => setIsPinned(e.target.value)}
                                 >
-                                    <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                                    <FormControlLabel value="false" control={<Radio />} label="No" />
+                                    <FormControlLabel value={true} control={<Radio />} label="Yes" />
+                                    <FormControlLabel value={false} control={<Radio />} label="No" />
                                 </RadioGroup>
                             </FormControl>
                         </Grid>

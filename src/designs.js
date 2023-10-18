@@ -158,6 +158,15 @@ export function getDesignTokens(customMode, mode) {
             mode, ...(customMode === 'light'
                 ? {
                     ...compoBase,
+                    MuiFormLabel: {
+                        styleOverrides: {
+                            root: {
+                                '&.Mui-focused': {
+                                    color: '#606060',
+                                },
+                            },
+                        },
+                    },
                     MuiRadio: {
                         styleOverrides: {
                             root: {
@@ -168,11 +177,12 @@ export function getDesignTokens(customMode, mode) {
                             },
                         },
                     },
-                    MuiFormLabel: {
+                    MuiCheckbox: {
                         styleOverrides: {
                             root: {
-                                '&.Mui-focused': {
-                                    color: '#606060',
+                                color: '#606060',
+                                '&.Mui-checked': {
+                                    color: '#3c3c3c',
                                 },
                             },
                         },
@@ -189,6 +199,16 @@ export function getDesignTokens(customMode, mode) {
                         },
                     },
                     MuiRadio: {
+                        styleOverrides: {
+                            root: {
+                                color: '#efefef',
+                                '&.Mui-checked': {
+                                    color: '#fafafa',
+                                },
+                            },
+                        },
+                    },
+                    MuiCheckbox: {
                         styleOverrides: {
                             root: {
                                 color: '#efefef',

@@ -11,7 +11,7 @@ import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios
 var vars = require("../variables");
 
 const STBOOL = (s) => {
-    return s === "true";
+    return s === true;
 }
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
@@ -263,9 +263,9 @@ const Announcement = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [announcementType, setAnnouncementType] = useState(0);
-    const [isPrivate, setIsPrivate] = useState("false");
+    const [isPrivate, setIsPrivate] = useState(false);
     const [orderId, setOrderId] = useState(0);
-    const [isPinned, setIsPinned] = useState("false");
+    const [isPinned, setIsPinned] = useState(false);
 
     const clearModal = useCallback(() => {
         setTitle('');
@@ -312,7 +312,7 @@ const Announcement = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Announcement posted!");
@@ -324,7 +324,7 @@ const Announcement = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": STBOOL(isPrivate), "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Announcement updated!");
@@ -441,8 +441,8 @@ const Announcement = () => {
                                                 value={isPrivate} row
                                                 onChange={(e) => setIsPrivate(e.target.value)}
                                             >
-                                                <FormControlLabel value="false" control={<Radio />} label="Public" />
-                                                <FormControlLabel value="true" control={<Radio />} label="Private" />
+                                                <FormControlLabel value={false} control={<Radio />} label="Public" />
+                                                <FormControlLabel value={true} control={<Radio />} label="Private" />
                                             </RadioGroup>
                                         </FormControl>
                                     </Grid>
@@ -463,8 +463,8 @@ const Announcement = () => {
                                                 value={isPinned} row
                                                 onChange={(e) => setIsPinned(e.target.value)}
                                             >
-                                                <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                                                <FormControlLabel value="false" control={<Radio />} label="No" />
+                                                <FormControlLabel value={true} control={<Radio />} label="Yes" />
+                                                <FormControlLabel value={false} control={<Radio />} label="No" />
                                             </RadioGroup>
                                         </FormControl>
                                     </Grid>

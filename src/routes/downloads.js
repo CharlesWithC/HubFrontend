@@ -10,10 +10,6 @@ import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios
 
 var vars = require("../variables");
 
-const STBOOL = (s) => {
-    return s === "true";
-}
-
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const showButtons = onEdit !== undefined;
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "downloads"]));
@@ -282,14 +278,14 @@ const DownloadableItem = () => {
     const [description, setContent] = useState('');
     const [link, setLink] = useState('');
     const [orderId, setOrderId] = useState(0);
-    const [isPinned, setIsPinned] = useState("false");
+    const [isPinned, setIsPinned] = useState(false);
 
     const clearModal = useCallback(() => {
         setTitle('');
         setContent('');
         setLink('');
         setOrderId(0);
-        setIsPinned("false");
+        setIsPinned(false);
     }, []);
 
     const doLoad = useCallback(async () => {
@@ -328,7 +324,7 @@ const DownloadableItem = () => {
         e.preventDefault();
         setSubmitLoading(true);
         if (editId === null) {
-            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
                 setSnackbarContent("Downloadable item posted!");
@@ -340,7 +336,7 @@ const DownloadableItem = () => {
                 setSnackbarSeverity("error");
             }
         } else {
-            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": STBOOL(isPinned) } });
+            let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
                 setSnackbarContent("Downloadable item updated!");
@@ -472,8 +468,8 @@ const DownloadableItem = () => {
                                                 value={isPinned} row
                                                 onChange={(e) => setIsPinned(e.target.value)}
                                             >
-                                                <FormControlLabel value="true" control={<Radio />} label="Yes" />
-                                                <FormControlLabel value="false" control={<Radio />} label="No" />
+                                                <FormControlLabel value={true} control={<Radio />} label="Yes" />
+                                                <FormControlLabel value={false} control={<Radio />} label="No" />
                                             </RadioGroup>
                                         </FormControl>
                                     </Grid>
