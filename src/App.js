@@ -245,8 +245,8 @@ function App() {
                                 <Typography variant="body2">
                                     <b>Our partners:</b>&nbsp;&nbsp;
                                     <a href="https://truckyapp.com/" target="_blank" rel="noreferrer">Trucky</a>&nbsp;&nbsp;
-                                    <a href="https://discord.com/trucksim" target="_blank" rel="noreferrer">TruckStopRadio</a>&nbsp;&nbsp;
-                                    <a href="https://truckstopradio.co.uk/" target="_blank" rel="noreferrer">/r/trucksim</a>&nbsp;&nbsp;
+                                    <a href="https://truckstopradio.co.uk/" target="_blank" rel="noreferrer">TruckStopRadio</a>&nbsp;&nbsp;
+                                    <a href="https://discord.gg/trucksim" target="_blank" rel="noreferrer">/r/trucksim</a>&nbsp;&nbsp;
                                     <a href="https://ocsc-event.com/" target="_blank" rel="noreferrer">OCSC Event</a>&nbsp;&nbsp;
                                 </Typography>
                                 <br />

@@ -801,7 +801,7 @@ const UserCard = (props) => {
                                         /></a>
                                     </Grid>}
                                     {steamidRef.current !== undefined && steamidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                        <a href={`https://steamcommunity.com/profiles/${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                        <a href={`https://steamcommunity.com/profiles/${steamidRef.current}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Steam"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
                                             label={steamidRef.current}

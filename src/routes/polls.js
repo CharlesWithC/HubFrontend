@@ -474,28 +474,9 @@ const Poll = () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        let url = `${vars.dhpath}/polls/list?page_size=10&page=${page}`;
-
-        var newPolls = [];
-        if (vars.isLoggedIn) {
-            const [polls] = await makeRequestsWithAuth([
-                url
-            ]);
-            newPolls = polls.list;
-            setTotalPages(polls.total_pages);
-        } else {
-            const [polls] = await makeRequests([
-                url
-            ]);
-            newPolls = polls.list;
-            setTotalPages(polls.total_pages);
-        }
-
-        for (let i = 0; i < newPolls.length; i++) {
-            newPolls[i] = { ...newPolls[i] };
-        }
-
-        setPolls(newPolls);
+        const [polls] = await makeRequestsWithAuth([`${vars.dhpath}/polls/list?page_size=10&page=${page}`]);
+        setPolls(polls.list);
+        setTotalPages(polls.total_pages);
         setLastUpdate(+new Date());
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
