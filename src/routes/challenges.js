@@ -13,6 +13,7 @@ import CustomTable from '../components/table';
 import ListModal from '../components/listmodal';
 import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue } from '../functions';
 import RoleSelect from '../components/roleselect';
+import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
@@ -72,39 +73,9 @@ const DEFAULT_JOB_REQUIREMENTS = {
     must_not_be_late: "0",
     must_be_special: "0",
     minimum_warp: "-1",
-    maximum_warp: "-1"
+    maximum_warp: "-1",
+    required_realistic_settings: "-1"
 };
-
-const customSelectStyles = (theme) => ({
-    control: (base) => ({
-        ...base,
-        backgroundColor: theme.palette.background.default,
-        borderColor: theme.palette.text.secondary
-    }),
-    option: (base) => ({
-        ...base,
-        color: '#3c3c3c'
-    }),
-    menu: (base) => ({
-        ...base,
-        zIndex: 100005,
-    }),
-    menuPortal: (base) => ({
-        ...base,
-        zIndex: 100005
-    }),
-    multiValue: (base, state) => {
-        return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
-    },
-    multiValueLabel: (base, state) => {
-        return state.data.isFixed
-            ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
-            : base;
-    },
-    multiValueRemove: (base, state) => {
-        return state.data.isFixed ? { ...base, display: 'none' } : base;
-    },
-});
 
 const columns = [
     { id: 'challengeid', label: 'ID' },
@@ -590,7 +561,8 @@ const Challenges = () => {
             must_not_be_late: "Must Not Be Late",
             must_be_special: "Must Be Special",
             minimum_warp: "Minimum Warp",
-            maximum_warp: "Maximum Warp"
+            maximum_warp: "Maximum Warp",
+            required_realistic_settings: "Required Realistic Settings (Trucky)"
         };
 
         return fieldNames[key] || key;
@@ -779,7 +751,7 @@ const Challenges = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <FormControl component="fieldset">
+                            <FormControl component="fieldset" sx={{ position: "relative", mt: "-5px" }}>
                                 <FormLabel component="legend">Pin?</FormLabel>
                                 <RadioGroup
                                     value={String(modalChallenge.is_pinned)} row

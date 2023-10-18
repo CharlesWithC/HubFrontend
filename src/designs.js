@@ -18,6 +18,40 @@ function darkenColor(hex, factor = 0.2) {
     return darkenedHex;
 }
 
+export function customSelectStyles(theme) {
+    return {
+        control: (base) => ({
+            ...base,
+            backgroundColor: "transparent",
+            borderColor: theme.palette.text.secondary
+        }),
+        option: (base) => ({
+            ...base,
+            color: '#3c3c3c'
+        }),
+        menu: (base) => ({
+            ...base,
+            zIndex: 100005,
+        }),
+        menuPortal: (base) => ({
+            ...base,
+            zIndex: 100005
+        }),
+        multiValue: (base, state) => {
+            return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
+        },
+        multiValueLabel: (base, state) => {
+            return state.data.isFixed
+                ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
+                : base;
+        },
+        multiValueRemove: (base, state) => {
+            return state.data.isFixed ? { ...base, display: 'none' } : base;
+        }
+    };
+};
+
+
 export function getDesignTokens(customMode, mode) {
     let bgBase = {
         light: {

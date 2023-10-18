@@ -17,6 +17,7 @@ import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } from '@fortawesome/free-brands-svg-icons';
 
+import { customSelectStyles } from '../designs';
 var vars = require("../variables");
 
 function tabBtnProps(index, current, theme) {
@@ -26,37 +27,6 @@ function tabBtnProps(index, current, theme) {
         style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
 }
-
-const customSelectStyles = (theme) => ({
-    control: (base) => ({
-        ...base,
-        backgroundColor: theme.palette.background.default,
-        borderColor: theme.palette.text.secondary
-    }),
-    option: (base) => ({
-        ...base,
-        color: '#3c3c3c'
-    }),
-    menu: (base) => ({
-        ...base,
-        zIndex: 100005,
-    }),
-    menuPortal: (base) => ({
-        ...base,
-        zIndex: 100005
-    }),
-    multiValue: (base, state) => {
-        return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
-    },
-    multiValueLabel: (base, state) => {
-        return state.data.isFixed
-            ? { ...base, fontWeight: 'bold', color: 'white', paddingRight: 6 }
-            : base;
-    },
-    multiValueRemove: (base, state) => {
-        return state.data.isFixed ? { ...base, display: 'none' } : base;
-    },
-});
 
 const NOTIFICATION_NAMES = {
     "drivershub": "Drivers Hub",

@@ -466,7 +466,7 @@ const DownloadableItem = () => {
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <FormControl component="fieldset">
+                                        <FormControl component="fieldset" sx={{ position: "relative", mt: "-5px" }}>
                                             <FormLabel component="legend">Pin?</FormLabel>
                                             <RadioGroup
                                                 value={isPinned} row

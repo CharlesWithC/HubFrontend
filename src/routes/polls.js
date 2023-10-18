@@ -22,6 +22,12 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
     const [poll, setPoll] = useState(inputPoll);
     const showButtons = onEdit !== undefined;
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "poll"]));
+    let initialChoices = [];
+    for (let i = 0; i < poll.choices.length; i++) {
+        if (poll.choices[i].voted) {
+            initialChoices.push(poll.choices[i].choiceid);
+        }
+    }
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -65,7 +71,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
     }, [poll, isShiftPressed, onDelete]);
 
     // note: in later stage a refresh event should be emitted to reload the poll from api
-    const [selectedChoices, setSelectedChoices] = useState([]);
+    const [selectedChoices, setSelectedChoices] = useState(initialChoices);
     const [voteDisabled, setVoteDisabled] = useState(false);
     const handleVote = useCallback(async () => {
         setVoteDisabled(true);
@@ -613,7 +619,7 @@ const Poll = () => {
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <FormControl component="fieldset">
+                                        <FormControl component="fieldset" sx={{ position: "relative", mt: "-5px" }}>
                                             <FormLabel component="legend">Pin?</FormLabel>
                                             <RadioGroup
                                                 value={isPinned} row
