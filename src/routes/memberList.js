@@ -56,6 +56,7 @@ const MemberList = () => {
                 continue;
             }
             sync_to = `&sync_to_${sync_to}=true`;
+            let st = +new Date();
             let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${vars.members[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSyncProfileLog(`Synced ${vars.members[i].name}'s profile`);
@@ -72,6 +73,8 @@ const MemberList = () => {
                     setSnackbarSeverity("error");
                 }
             }
+            let ed = +new Date();
+            if (ed - st < 4000) await sleep(4000 - (ed - st));
         }
         setDialogButtonDisabled(false);
     }, []);
@@ -122,7 +125,7 @@ const MemberList = () => {
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;Members&nbsp;&nbsp;<IconButton onClick={() => { setDialogOpen("sync-profile"); }}><FontAwesomeIcon icon={faArrowsRotate} /></IconButton></>} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(-1); setSearch(content); }} searchHint="Search by username or discord id" />
         <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle>Sync Profiles&nbsp;&nbsp;<FontAwesomeIcon icon={faArrowsRotate} /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;Sync Profiles</DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- The profiles of all users will be updated to to the current one in Discord, Steam or TruckersMP.</Typography>
                 <Typography variant="body2">- This function is mainly used to sync outdated profile. Custom profiles will not be synced.</Typography>
