@@ -11,18 +11,17 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { Projection } from 'ol/proj';
 import { getVectorContext } from 'ol/render.js';
 
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
-import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
 
 var vars = require("../variables");
 
-// truck card - like usercard
 const slotColumns = [
     { id: 'slotid', label: 'ID' },
     { id: 'owner', label: 'Owner' },
@@ -30,6 +29,8 @@ const slotColumns = [
     { id: 'odometer', label: 'Odometer' },
     { id: 'income', label: 'Income' },
 ];
+
+const TRUCK_STATUS = { "inactive": "Inactive", "active": "Active", "require_service": "Service Required", "scrapped": "Scrapped" };
 
 function calculateCenterPoint(points) {
     if (points.length === 0) {
@@ -219,7 +220,7 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
     </div>;
 };
 
-const Garage = () => {
+const Economy = () => {
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -309,7 +310,7 @@ const Garage = () => {
                 let slot = resp.data.list[i];
                 let ctxMenu = <><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("transfer-slot"); }} sx={{ color: theme.palette.warning.main }}>Transfer Slot</MenuItem><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("sell-slot"); }} sx={{ color: theme.palette.error.main }} disabled={slot.note === "garage-owner"}>Sell Slot</MenuItem></>;
                 if (slot.truck !== null) {
-                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: slot.truck.truck.brand + " " + slot.truck.truck.model, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
+                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckReferer("slot"); setActiveTruck(slot.truck); loadTruck(slot.truck); setDialogAction("truck"); }}>{slot.truck.truck.brand} {slot.truck.truck.model}</a>, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
                 } else {
                     newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: "Empty Slot", odometer: "/", income: "/", contextMenu: ctxMenu });
                 }
@@ -374,6 +375,136 @@ const Garage = () => {
         setDialogDisabled(false);
     }, [modalGarage, activeSlot]);
 
+    const [truckReferer, setTruckReferer] = useState("");
+    const [activeTruck, setActiveTruck] = useState({});
+    const [truckSlotId, setTruckSlotId] = useState("");
+    const [truckOwner, setTruckOwner] = useState({});
+    const [truckAssignee, setTruckAssignee] = useState({});
+    const loadTruck = useCallback(async (truck) => {
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        setActiveTruck({ ...truck, ...resp.data, update: +new Date() });
+    }, []);
+    const activateTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/activate`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Truck activated!`);
+            setSnackbarSeverity("success");
+            setActiveTruck({ ...activeTruck, status: "active", update: +new Date() });
+            loadTruck(activeTruck);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck]);
+    const deactivateTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/deactivate`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Truck deactivated!`);
+            setSnackbarSeverity("success");
+            setActiveTruck({ ...activeTruck, status: "inactive", update: +new Date() });
+            loadTruck(activeTruck);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck]);
+    const relocateTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/relocate`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Truck relocated!`);
+            setSnackbarSeverity("success");
+            loadTruck(activeTruck);
+            setDialogAction("truck");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck, truckSlotId]);
+    const repairTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/repair`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Truck repaired! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setActiveTruck({ ...activeTruck, damage: 0, repair_cost: 0, service: activeTruck.service + activeTruck.repair_cost, update: +new Date() });
+            loadTruck(activeTruck);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck]);
+    const transferTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let owner = truckOwner.userid;
+        if (owner === -1000) owner = "company";
+        else if (owner === vars.userInfo.userid) owner = "self";
+        else owner = "user-" + owner;
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Truck transferred!`);
+            setSnackbarSeverity("success");
+            setActiveTruck({ ...activeTruck, update: +new Date() });
+            loadTruck(activeTruck);
+            setDialogAction("truck");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck, truckOwner]);
+    const reassignTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let assignee = truckAssignee.userid;
+        if (assignee === -1000) assignee = "company";
+        else if (assignee === vars.userInfo.userid) assignee = "self";
+        else assignee = "user-" + assignee;
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { assignee: assignee, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Truck reassigned!`);
+            setSnackbarSeverity("success");
+            setActiveTruck({ ...activeTruck, update: +new Date() });
+            loadTruck(activeTruck);
+            setDialogAction("truck");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck, truckAssignee]);
+    const sellTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Truck sold! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setDialogAction("slot");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck]);
+    const scrapTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/scrap`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Truck scrapped! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setDialogAction("slot");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeTruck])
+
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
@@ -387,7 +518,7 @@ const Garage = () => {
                             <Typography variant="body2"><UserCard user={modalGarageDetails.garage_owner} /></Typography>
                         </Grid>
                         <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchased Since</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchased</Typography>
                             <Typography variant="body2"><TimeAgo timestamp={modalGarageDetails.purchase_timestamp * 1000} /></Typography>
                         </Grid>
                         <Grid item xs={4}>
@@ -428,15 +559,15 @@ const Garage = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
-                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell"); }}>Sell</Button>}
-                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer"); }}>Transfer</Button>}
-                    <Button variant="contained" color="info" onClick={() => { setDialogAction("slot"); }}>Show Slots</Button>
+                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>Sell</Button>}
+                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>Transfer</Button>}
+                    <Button variant="contained" color="info" onClick={() => { setSlotList([]); setDialogAction("slot"); }}>Show Slots</Button>
                 </>}
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>Purchase</Button>}
             </DialogActions>
         </Dialog>
         {modalGarageDetails !== null && <>
-            <Dialog open={dialogAction === "transfer"} onClose={() => setDialogAction("garage")} fullWidth>
+            <Dialog open={dialogAction === "transfer-garage"} onClose={() => setDialogAction("garage")} fullWidth>
                 <DialogTitle>Transfer Garage - {modalGarage.name}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
@@ -459,7 +590,7 @@ const Garage = () => {
                     <Button variant="contained" color="warning" onClick={() => { transferGarage(); }} disabled={dialogDisabled}>Transfer</Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={dialogAction === "sell"} onClose={() => setDialogAction("garage")}>
+            <Dialog open={dialogAction === "sell-garage"} onClose={() => setDialogAction("garage")}>
                 <DialogTitle>Sell Garage - {modalGarage.name}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
@@ -531,6 +662,183 @@ const Garage = () => {
                 </DialogActions>
             </Dialog>
         </>}
+        {activeTruck.truck !== undefined && <>
+            <Dialog open={dialogAction === "truck"} onClose={() => setDialogAction(truckReferer)}>
+                <DialogTitle>Vehicle #{activeTruck.vehicleid}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Owner</Typography>
+                            <Typography variant="body2"><UserCard user={activeTruck.owner} /></Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Assignee</Typography>
+                            <Typography variant="body2"><UserCard user={activeTruck.assignee} /></Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Parking At</Typography>
+                            <Typography variant="body2">{vars.economyGaragesMap[activeTruck.garageid] !== undefined ? vars.economyGaragesMap[activeTruck.garageid].name : "Unknown Garage"}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Model</Typography>
+                            <Typography variant="body2">{activeTruck.truck.brand} {activeTruck.truck.model}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Price</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchased</Typography>
+                            <Typography variant="body2"><TimeAgo timestamp={activeTruck.purchase_timestamp * 1000} /></Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Odometer</Typography>
+                            <Typography variant="body2">{ConvertUnit("km", activeTruck.odometer)}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Income</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.income)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Service Expense</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.service)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Damage</Typography>
+                            <Typography variant="body2">{activeTruck.damage * 100}%</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Repair Cost</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.repair_cost)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Status</Typography>
+                            <Typography variant="body2">{TRUCK_STATUS[activeTruck.status]}</Typography>
+                        </Grid>
+                    </Grid>
+                    {(checkUserPerm(["admin", "economy_manager", "truck_manager"]) || activeTruck.owner.userid === vars.userInfo.userid) && <>
+                        <ButtonGroup fullWidth sx={{ mt: "10px" }}>
+                            <Button variant="contained" color="success" onClick={() => { activateTruck(); }} disabled={activeTruck.status !== "inactive" || dialogDisabled}>Activate</Button>
+                            <Button variant="contained" color="warning" onClick={() => { deactivateTruck(); }} disabled={activeTruck.status !== "active" || dialogDisabled}>Deactivate</Button>
+                            <Button variant="contained" color="info" onClick={() => { setDialogAction("relocate-truck"); }} disabled={dialogDisabled}>Relocate</Button>
+                            <Button variant="contained" color="success" onClick={() => { repairTruck(); }} disabled={activeTruck.damage === 0 || dialogDisabled}>Repair</Button>
+                        </ButtonGroup>
+                        <ButtonGroup fullWidth sx={{ mt: "10px" }}>
+                            <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-truck"); }} disabled={dialogDisabled}>Transfer</Button>
+                            <Button variant="contained" color="warning" onClick={() => { setDialogAction("reassign-truck"); }} disabled={dialogDisabled}>Reassign</Button>
+                            <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-truck"); }} disabled={dialogDisabled}>Sell</Button>
+                            <Button variant="contained" color="error" onClick={() => { setDialogAction("scrap-truck"); }} disabled={dialogDisabled}>Scrap</Button>
+                        </ButtonGroup>
+                    </>}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction(truckReferer); }}>Close</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "relocate-truck"} onClose={() => setDialogAction("truck")} fullWidth>
+                <DialogTitle>Relocate Truck #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Slot ID"
+                                value={truckSlotId}
+                                onChange={(e) => setTruckSlotId(e.target.value)}
+                                fullWidth sx={{ mt: "5px" }}
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>Close</Button>
+                    <Button variant="contained" color="info" onClick={() => { relocateTruck(); }} disabled={dialogDisabled}>Relocate</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "transfer-truck"} onClose={() => setDialogAction("truck")} fullWidth>
+                <DialogTitle>Transfer Truck #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>New truck owner</Typography>
+                            <Typography variant="body2"><UserSelect initialUsers={[activeTruck.owner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Message"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>Close</Button>
+                    <Button variant="contained" color="warning" onClick={() => { transferTruck(); }} disabled={dialogDisabled}>Transfer</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "reassign-truck"} onClose={() => setDialogAction("truck")} fullWidth>
+                <DialogTitle>Reassign Truck #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>New truck assignee</Typography>
+                            <Typography variant="body2"><UserSelect initialUsers={[activeTruck.assignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Message"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>Close</Button>
+                    <Button variant="contained" color="warning" onClick={() => { reassignTruck(); }} disabled={dialogDisabled}>Reassign</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "sell-truck"} onClose={() => setDialogAction("truck")}>
+                <DialogTitle>Sell Truck #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchase Price</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Refund</Typography>
+                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * vars.economyConfig.truck_refund))} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>Close</Button>
+                    <Button variant="contained" color="error" onClick={() => { sellTruck(); }} disabled={dialogDisabled}>Sell</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "scrap-truck"} onClose={() => setDialogAction("truck")}>
+                <DialogTitle>Scrap Truck #{activeTruck.vehicleid} - {activeTruck.truck.brand} {activeTruck.truck.model}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchase Price</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Refund</Typography>
+                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * vars.economyConfig.scrap_refund))} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>Close</Button>
+                    <Button variant="contained" color="error" onClick={() => { scrapTruck(); }} disabled={dialogDisabled}>Scrap</Button>
+                </DialogActions>
+            </Dialog>
+        </>}
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
@@ -544,10 +852,6 @@ const Garage = () => {
             </Snackbar>
         </Portal>
     </>;
-};
-
-const Economy = () => {
-    return <Garage />;
 };
 
 export default Economy;

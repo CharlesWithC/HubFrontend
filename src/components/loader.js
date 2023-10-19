@@ -147,6 +147,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 if (economyGarages) {
                     vars.economyGarages = economyGarages;
+                    for (let i = 0; i < economyGarages.length; i++) {
+                        vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
+                    }
                 }
                 if (economyTrucks) {
                     vars.economyTrucks = economyTrucks;

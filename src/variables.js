@@ -27,6 +27,8 @@ var economyGarages = [];
 exports.economyGarages = economyGarages;
 var economyTrucks = [];
 exports.economyTrucks = economyTrucks;
+var economyGaragesMap = {};
+exports.economyGaragesMap = economyGaragesMap;
 
 var dlogDetails = {};
 exports.dlogDetails = dlogDetails;
