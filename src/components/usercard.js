@@ -385,6 +385,24 @@ const UserCard = (props) => {
             banRef.current = ban;
         }
     }, [uid, userid, bio, note, global_note, discordid, email, steamid, truckersmpid, name, avatar, roles, ban,]);
+    useEffect(() => {
+        if (props.user !== undefined && props.user !== null) {
+            ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
+            uidRef.current = uid;
+            useridRef.current = userid;
+            bioRef.current = bio;
+            noteRef.current = note;
+            globalNoteRef.current = global_note;
+            discordidRef.current = discordid;
+            emailRef.current = email;
+            steamidRef.current = steamid;
+            truckersmpidRef.current = truckersmpid;
+            nameRef.current = name;
+            avatarRef.current = avatar;
+            rolesRef.current = roles;
+            banRef.current = ban;
+        }
+    }, [props.user]);
 
     const updateUserInfo = useCallback(async () => {
         const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});

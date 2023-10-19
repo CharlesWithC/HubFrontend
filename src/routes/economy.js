@@ -11,15 +11,25 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { Projection } from 'ol/proj';
 import { getVectorContext } from 'ol/render.js';
 
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
+import CustomTable from '../components/table';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm } from '../functions';
 
 var vars = require("../variables");
+
+// truck card - like usercard
+const slotColumns = [
+    { id: 'slotid', label: 'ID' },
+    { id: 'owner', label: 'Owner' },
+    { id: 'truck', label: 'Truck' },
+    { id: 'odometer', label: 'Odometer' },
+    { id: 'income', label: 'Income' },
+];
 
 function calculateCenterPoint(points) {
     if (points.length === 0) {
@@ -282,6 +292,88 @@ const Garage = () => {
         setDialogDisabled(false);
     }, [modalGarage]);
 
+    const [slotList, setSlotList] = useState([]);
+    const [slotTotal, setSlotTotal] = useState(0);
+    const [slotPage, setSlotPage] = useState(1);
+    const [slotPageSize, setSlotPageSize] = useState(10);
+
+    const [activeSlot, setActiveSlot] = useState({});
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/list?page=${slotPage}&page_size=${slotPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let newSlotList = [];
+            for (let i = 0; i < resp.data.list.length; i++) {
+                let slot = resp.data.list[i];
+                let ctxMenu = <><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("transfer-slot"); }} sx={{ color: theme.palette.warning.main }}>Transfer Slot</MenuItem><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("sell-slot"); }} sx={{ color: theme.palette.error.main }} disabled={slot.note === "garage-owner"}>Sell Slot</MenuItem></>;
+                if (slot.truck !== null) {
+                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: slot.truck.truck.brand + " " + slot.truck.truck.model, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
+                } else {
+                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: "Empty Slot", odometer: "/", income: "/", contextMenu: ctxMenu });
+                }
+            }
+            setSlotList(newSlotList);
+            setSlotTotal(resp.data.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        if (dialogAction === "slot") {
+            doLoad();
+        }
+    }, [modalGarage, dialogAction, slotPage, slotPageSize]);
+
+    const purchaseSlot = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Slot purchased! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setModalGarage({ ...modalGarage, update: +new Date() });
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [modalGarage]);
+
+    const [slotOwner, setSlotOwner] = useState({});
+    const transferSlot = useCallback(async () => {
+        setDialogDisabled(true);
+        let owner = slotOwner.userid;
+        if (owner === -1000) owner = "company";
+        else if (owner === vars.userInfo.userid) owner = "self";
+        else owner = "user-" + owner;
+        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Slot transferred!`);
+            setSnackbarSeverity("success");
+            setModalGarage({ ...modalGarage, update: +new Date() });
+            setDialogAction("slot");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [modalGarage, activeSlot, slotOwner]);
+
+    const sellSlot = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Slot sold! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setModalGarage({ ...modalGarage, update: +new Date() });
+            setDialogAction("slot");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [modalGarage, activeSlot]);
+
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
@@ -336,8 +428,9 @@ const Garage = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
-                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer"); }} disabled={dialogDisabled}>Transfer</Button>}
-                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell"); }} disabled={dialogDisabled}>Sell</Button>}
+                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell"); }}>Sell</Button>}
+                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer"); }}>Transfer</Button>}
+                    <Button variant="contained" color="info" onClick={() => { setDialogAction("slot"); }}>Show Slots</Button>
                 </>}
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>Purchase</Button>}
             </DialogActions>
@@ -383,6 +476,58 @@ const Garage = () => {
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>Close</Button>
                     <Button variant="contained" color="error" onClick={() => { sellGarage(); }} disabled={dialogDisabled}>Sell</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "slot"} onClose={() => setDialogAction("garage")} fullWidth>
+                <DialogTitle>Slots - {modalGarage.name}</DialogTitle>
+                <DialogContent>
+                    <CustomTable columns={slotColumns} data={slotList} totalItems={slotTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={slotPageSize} onPageChange={setSlotPage} onRowsPerPageChange={setSlotPageSize} />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>Close</Button>
+                    <Button variant="contained" color="info" onClick={() => { purchaseSlot(); }} disabled={dialogDisabled}>Purchase (Cost: {modalGarage.slot_price})</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "transfer-slot"} onClose={() => setDialogAction("slot")} fullWidth>
+                <DialogTitle>Transfer Slot #{activeSlot.slotid} - {modalGarage.name}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>New slot owner</Typography>
+                            <Typography variant="body2"><UserSelect initialUsers={[activeSlot.slot_owner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Message"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>Close</Button>
+                    <Button variant="contained" color="warning" onClick={() => { transferSlot(); }} disabled={dialogDisabled}>Transfer</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "sell-slot"} onClose={() => setDialogAction("slot")}>
+                <DialogTitle>Sell Slot #{activeSlot.slotid} - {modalGarage.name}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchase Price</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Refund</Typography>
+                            <Typography variant="body2">{TSep(parseInt(modalGarage.slot_price * vars.economyConfig.slot_refund))} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>Close</Button>
+                    <Button variant="contained" color="error" onClick={() => { sellSlot(); }} disabled={dialogDisabled}>Sell</Button>
                 </DialogActions>
             </Dialog>
         </>}
