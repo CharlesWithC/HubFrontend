@@ -37,6 +37,14 @@ export function customSelectStyles(theme) {
             ...base,
             zIndex: 100005
         }),
+        input: (base) => ({
+            ...base,
+            color: theme.palette.text.primary
+        }),
+        singleValue: (base) => ({
+            ...base,
+            color: theme.palette.text.primary
+        }),
         multiValue: (base, state) => {
             return state.data.isFixed ? { ...base, backgroundColor: 'gray' } : base;
         },

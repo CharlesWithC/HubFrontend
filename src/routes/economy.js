@@ -11,11 +11,13 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { Projection } from 'ol/proj';
 import { getVectorContext } from 'ol/render.js';
 
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField } from '@mui/material';
+import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
+import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
-import { makeRequestsAuto, customAxios as axios, getAuthToken } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -207,44 +209,17 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
     </div>;
 };
 
-// function tabBtnProps(index, current, theme) {
-//     return {
-//         id: `map-tab-${index}`,
-//         'aria-controls': `map-tabpanel-${index}`,
-//         style: { color: current === index ? theme.palette.info.main : 'inherit' }
-//     };
-// }
-
-// function TabPanel(props) {
-//     const { children, value, index, ...other } = props;
-
-//     return (
-//         <div
-//             role="tabpanel"
-//             hidden={value !== index}
-//             id={`map-tabpanel-${index}`}
-//             aria-labelledby={`map-tab-${index}`}
-//             {...other}
-//         >
-//             {value === index && (
-//                 <Box sx={{ p: 3 }}>
-//                     {children}
-//                 </Box>
-//             )}
-//         </div>
-//     );
-// }
-
-const Economy = () => {
-    // const [tab, setTab] = React.useState(0);
-
-    // const handleChange = (event, newValue) => {
-    //     setTab(newValue);
-    // };
-
+const Garage = () => {
     const theme = useTheme();
 
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
     const [dialogAction, setDialogAction] = useState("");
+    const [dialogDisabled, setDialogDisabled] = useState(false);
 
     const [modalGarage, setModalGarage] = useState({});
     const [modalGarageDetails, setModalGarageDetails] = useState(null);
@@ -257,20 +232,59 @@ const Economy = () => {
         setModalGarageDetails(resp.data);
     }, []);
 
+    const purchaseGarage = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Garage purchased! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            handleGarageClick(modalGarage);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [modalGarage]);
+
+    const [garageOwner, setGarageOwner] = useState({});
+    const [message, setMessage] = useState("");
+    const transferGarage = useCallback(async () => {
+        setDialogDisabled(true);
+        let owner = garageOwner.userid;
+        if (owner === -1000) owner = "company";
+        else if (owner === vars.userInfo.userid) owner = "self";
+        else owner = "user-" + owner;
+        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Garage transferred!`);
+            setSnackbarSeverity("success");
+            handleGarageClick(modalGarage);
+            setDialogAction("garage");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [modalGarage, garageOwner]);
+
+    const sellGarage = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Garage sold! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            handleGarageClick(modalGarage);
+            setDialogAction("garage");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [modalGarage]);
+
     return <>
-        {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                <Tab label="Europe" {...tabBtnProps(0, tab, theme)} />
-                <Tab label="US" {...tabBtnProps(1, tab, theme)} />
-            </Tabs>
-        </Box> */}
-        {/* <TabPanel value={tab} index={0}> */}
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
-        {/* </TabPanel> */}
-        {/* <TabPanel value={tab} index={1}>
-            <CustomTileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={"US"} />
-        </TabPanel> */}
-        <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")}>
+        <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
             <DialogTitle>{modalGarage.name}</DialogTitle>
             <DialogContent>
                 {modalGarageDetails === null && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>Loading garage info...</Typography>}
@@ -281,38 +295,114 @@ const Economy = () => {
                             <Typography variant="body2"><UserCard user={modalGarageDetails.garage_owner} /></Typography>
                         </Grid>
                         <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchased At</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchased Since</Typography>
                             <Typography variant="body2"><TimeAgo timestamp={modalGarageDetails.purchase_timestamp * 1000} /></Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Income</Typography>
-                            <Typography variant="body2">{modalGarageDetails.income} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(modalGarageDetails.income)} {vars.economyConfig.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Trucks</Typography>
-                            <Typography variant="body2">{modalGarageDetails.trucks}</Typography>
+                            <Typography variant="body2">{TSep(modalGarageDetails.trucks)}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Slots</Typography>
-                            <Typography variant="body2">{modalGarageDetails.slots}</Typography>
+                            <Typography variant="body2">{TSep(modalGarageDetails.slots)}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Slot Owners</Typography>
-                            <Typography variant="body2">{modalGarageDetails.slot_owners}</Typography>
+                            <Typography variant="body2">{TSep(modalGarageDetails.slot_owners)}</Typography>
                         </Grid>
                     </Grid>
                 </>}
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <>
-                    <Typography variant="body2">
-                        This garage hasn't been purchased.
-                    </Typography>
+                    <Grid container spacing={2}>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Price</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Base Slots</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.base_slots)}</Typography>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Slot Price</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                    </Grid>
                 </>}
             </DialogContent>
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
+                {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
+                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer"); }} disabled={dialogDisabled}>Transfer</Button>}
+                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell"); }} disabled={dialogDisabled}>Sell</Button>}
+                </>}
+                {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>Purchase</Button>}
             </DialogActions>
         </Dialog>
+        {modalGarageDetails !== null && <>
+            <Dialog open={dialogAction === "transfer"} onClose={() => setDialogAction("garage")} fullWidth>
+                <DialogTitle>Transfer Garage - {modalGarage.name}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>New garage owner</Typography>
+                            <Typography variant="body2"><UserSelect initialUsers={[modalGarageDetails.garage_owner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Message"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>Close</Button>
+                    <Button variant="contained" color="warning" onClick={() => { transferGarage(); }} disabled={dialogDisabled}>Transfer</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "sell"} onClose={() => setDialogAction("garage")}>
+                <DialogTitle>Sell Garage - {modalGarage.name}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchase Price</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Refund</Typography>
+                            <Typography variant="body2">{TSep(parseInt(modalGarage.price * vars.economyConfig.garage_refund))} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("garage"); }}>Close</Button>
+                    <Button variant="contained" color="error" onClick={() => { sellGarage(); }} disabled={dialogDisabled}>Sell</Button>
+                </DialogActions>
+            </Dialog>
+        </>}
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </>;
+};
+
+const Economy = () => {
+    return <Garage />;
 };
 
 export default Economy;
