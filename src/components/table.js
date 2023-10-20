@@ -59,7 +59,7 @@ const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOp
             <CardContent sx={name === undefined ? { p: 0 } : {}} style={{ paddingBottom: 0 }}>
                 {name !== undefined &&
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center', marginLeft: "10px", marginRight: 'auto' }}>
+                        <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center', marginLeft: "10px", marginRight: 'auto', fontWeight: 800 }}>
                             {name}
                         </Typography>
                         {onSearch !== undefined && <TextField

@@ -11,7 +11,7 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { Projection } from 'ol/proj';
 import { getVectorContext } from 'ol/render.js';
 
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup, IconButton } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup, IconButton, Divider, Card, CardContent } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -23,7 +23,7 @@ import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faMoneyBillTransfer, faPlus, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -244,6 +244,8 @@ const Economy = () => {
     const [dialogAction, setDialogAction] = useState("");
     const [dialogDisabled, setDialogDisabled] = useState(false);
 
+    const [balance, setBalance] = useState("/");
+
     const [modalGarage, setModalGarage] = useState({});
     const [modalGarageDetails, setModalGarageDetails] = useState(null);
     const handleGarageClick = useCallback(async (garage) => {
@@ -262,6 +264,7 @@ const Economy = () => {
             setSnackbarContent(`Garage purchased! Balance: ${resp.data.balance}`);
             setSnackbarSeverity("success");
             handleGarageClick(modalGarage);
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -298,6 +301,7 @@ const Economy = () => {
             setSnackbarSeverity("success");
             handleGarageClick(modalGarage);
             setDialogAction("garage");
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -345,6 +349,7 @@ const Economy = () => {
             setSnackbarContent(`Slot purchased! Balance: ${resp.data.balance}`);
             setSnackbarSeverity("success");
             setModalGarage({ ...modalGarage, update: +new Date() });
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -380,6 +385,7 @@ const Economy = () => {
             setSnackbarSeverity("success");
             setModalGarage({ ...modalGarage, update: +new Date() });
             setDialogAction("slot");
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -448,6 +454,7 @@ const Economy = () => {
             setSnackbarSeverity("success");
             setActiveTruck({ ...activeTruck, damage: 0, repair_cost: 0, service: activeTruck.service + activeTruck.repair_cost, update: +new Date() });
             loadTruck(activeTruck);
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -496,6 +503,7 @@ const Economy = () => {
             setSnackbarContent(`Truck sold! Balance: ${resp.data.balance}`);
             setSnackbarSeverity("success");
             setDialogAction("slot");
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -509,6 +517,7 @@ const Economy = () => {
             setSnackbarContent(`Truck scrapped! Balance: ${resp.data.balance}`);
             setSnackbarSeverity("success");
             setDialogAction("slot");
+            setBalance(resp.data.balance);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -556,6 +565,31 @@ const Economy = () => {
         }
         setDialogDisabled(false);
     }, [selectedTruck, truckSlotId, truckReferer]);
+
+    const [transferFrom, setTransferFrom] = useState(vars.userInfo);
+    const [transferTo, setTransferTo] = useState({});
+    const [transferAmount, setTransferAmount] = useState(0);
+    const [transferMessage, setTransferMessage] = useState("");
+    const transferMoney = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/transfer`, data: { from_userid: transferFrom.userid, to_userid: transferTo.userid, amount: transferAmount, message: transferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Transaction succeed! Balance: ${resp.data.from_balance}`);
+            setSnackbarSeverity("success");
+            setBalance(resp.data.from_balance);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [transferFrom, transferTo, transferAmount, transferMessage]);
+    useEffect(() => {
+        async function doLoad() {
+            let resp = await axios({ url: `${vars.dhpath}/economy/balance`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            setBalance(resp.data.balance);
+        }
+        doLoad();
+    }, []);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -924,6 +958,37 @@ const Economy = () => {
         </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Card>
+                    <CardContent>
+                        <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;Balance</Typography>
+                        <Typography variant="body">Current Balance: {balance} {vars.economyConfig.currency_name}</Typography>
+                        <Divider sx={{ mt: "10px", mb: "10px" }} />
+                        <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;Transfer</Typography>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>Recipent</Typography>
+                                <Typography variant="body2"><UserSelect initialUsers={[transferTo]} isMulti={false} includeCompany={true} onUpdate={setTransferTo} /></Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={6} lg={6}>
+                                <TextField
+                                    label="Amount"
+                                    value={transferAmount}
+                                    onChange={(e) => setTransferAmount(e.target.value)}
+                                    fullWidth size="small" sx={{ mt: { md: "18px", lg: "18px" } }}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Message"
+                                    value={transferMessage}
+                                    onChange={(e) => setTransferMessage(e.target.value)}
+                                    fullWidth
+                                />
+                            </Grid>
+                        </Grid>
+                        <Button variant="contained" color="info" fullWidth onClick={() => { transferMoney(); }} disabled={transferTo.userid === undefined || dialogDisabled}>Transfer</Button>
+                    </CardContent>
+                </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
