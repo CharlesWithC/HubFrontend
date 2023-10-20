@@ -6,13 +6,14 @@ import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
-const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeCompany = false }) => {
+const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false }) => {
     let formattedInit = [];
     for (let i = 0; i < initialUsers.length; i++) {
         formattedInit.push({ value: initialUsers[i].userid, label: initialUsers[i].name });
     }
     let memberMap = {};
     memberMap[-1000] = { userid: -1000, name: vars.dhconfig.name };
+    memberMap[-1005] = { userid: -1005, name: "Blackhole" };
     for (let i = 0; i < vars.members.length; i++) {
         memberMap[vars.members[i].userid] = vars.members[i];
     }
@@ -20,6 +21,9 @@ const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeComp
     let options = vars.members.map((user) => ({ value: user.userid, label: user.name }));
     if (includeCompany) {
         options.unshift({ value: -1000, label: vars.dhconfig.name });
+    }
+    if (includeBlackhole) {
+        options.unshift({ value: -1005, label: "Blackhole" });
     }
 
     const [selectedUsers, setSelectedUsers] = useState(formattedInit !== undefined ? formattedInit : []);

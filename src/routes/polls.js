@@ -793,7 +793,7 @@ const Poll = () => {
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
                 <DialogTitle>Delete Poll</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this downloadable item?</Typography>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this poll?</Typography>
                     <PollCard poll={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>

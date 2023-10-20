@@ -23,7 +23,7 @@ import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faLock, faMoneyBillTransfer, faPlus, faTruck, faUnlock } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faLock, faMoneyBillTransfer, faPlus, faTruck, faUnlock, faUserGear } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -567,7 +567,7 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [selectedTruck, truckSlotId, truckReferer]);
 
-    const [transferFrom, setTransferFrom] = useState(vars.userInfo);
+    const transferFrom = vars.userInfo;
     const [transferTo, setTransferTo] = useState({});
     const [transferAmount, setTransferAmount] = useState(0);
     const [transferMessage, setTransferMessage] = useState("");
@@ -583,7 +583,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [transferFrom, transferTo, transferAmount, transferMessage]);
+    }, [transferTo, transferAmount, transferMessage]);
     useEffect(() => {
         async function doLoad() {
             let resp = await axios({ url: `${vars.dhpath}/economy/balance`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -601,6 +601,59 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
     }, [balanceVisibility]);
+
+    const [manageNewBalance, setManageNewBalance] = useState("/");
+    const [manageBalance, setManageBalance] = useState("/");
+    const [manageBalanceVisibility, setManageBalanceVisibility] = useState("");
+    const [manageTransferFrom, setManageTransferFrom] = useState({});
+    const [manageTransferTo, setManageTransferTo] = useState({});
+    const [manageTransferAmount, setManageTransferAmount] = useState(0);
+    const [manageTransferMessage, setManageTransferMessage] = useState("");
+    useEffect(() => {
+        async function doLoad() {
+            if (manageTransferFrom.userid !== undefined) {
+                let resp = await axios({ url: `${vars.dhpath}/economy/balance/${manageTransferFrom.userid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                setManageBalance(resp.data.balance);
+                setManageBalanceVisibility(resp.data.visibility);
+            }
+        }
+        doLoad();
+    }, [manageTransferFrom]);
+    const manageTransferMoney = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/transfer`, data: { from_userid: manageTransferFrom.userid, to_userid: manageTransferTo.userid, amount: manageTransferAmount, message: manageTransferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Transaction succeed! User balance: ${resp.data.from_balance}`);
+            setSnackbarSeverity("success");
+            setManageBalance(resp.data.from_balance);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [manageTransferFrom, manageTransferTo, manageTransferAmount, manageTransferMessage]);
+    const manageUpdateBalance = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${manageTransferFrom.userid}`, data: { amount: manageNewBalance }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Balance updated!`);
+            setSnackbarSeverity("success");
+            setManageBalance(manageNewBalance);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [manageTransferFrom, manageNewBalance]);
+    const updateManageBalanceVisibility = useCallback(async (visibility) => {
+        setManageBalanceVisibility(visibility);
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${manageTransferFrom.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status !== 204) {
+            setManageBalanceVisibility(visibility === "public" ? "private" : "public");
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [manageTransferFrom, manageBalanceVisibility]);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -967,6 +1020,58 @@ const Economy = () => {
                 <Button variant="contained" color="info" onClick={() => { purchaseTruck(); }} disabled={selectedTruck.truck === undefined || truckSlotId === "" || dialogDisabled}>Purchase</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogAction === "manage-balance"} onClose={() => setDialogAction("")} fullWidth>
+            <DialogTitle><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;Manage Balance</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ fontWeight: "bold" }}>User</Typography>
+                <Typography variant="body2"><UserSelect initialUsers={[manageTransferFrom]} isMulti={false} includeCompany={true} onUpdate={setManageTransferFrom} /></Typography>
+                <br />
+                <Typography variant="body">Current Balance: {TSep(manageBalance)} {vars.economyConfig.currency_name}
+                    {manageBalanceVisibility === "public" && <IconButton onClick={() => { updateManageBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
+                    {manageBalanceVisibility === "private" && <IconButton onClick={() => { updateManageBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}</Typography>
+                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                    <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <TextField
+                            label="Set Balance To"
+                            value={manageNewBalance}
+                            onChange={(e) => setManageNewBalance(e.target.value)}
+                            fullWidth size="small"
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Button variant="contained" color="info" onClick={() => { manageUpdateBalance(); }} disabled={dialogDisabled} fullWidth>Update</Button>
+                    </Grid>
+                </Grid>
+                <Divider sx={{ mt: "10px", mb: "10px" }} />
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;Transfer</Typography>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>Recipent</Typography>
+                        <Typography variant="body2"><UserSelect initialUsers={[manageTransferTo]} isMulti={false} includeCompany={true} includeBlackhole={true} onUpdate={setManageTransferTo} /></Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <TextField
+                            label="Amount"
+                            value={manageTransferAmount}
+                            onChange={(e) => setManageTransferAmount(e.target.value)}
+                            fullWidth size="small" sx={{ mt: { md: "18px", lg: "18px" } }}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Message"
+                            value={manageTransferMessage}
+                            onChange={(e) => setManageTransferMessage(e.target.value)}
+                            fullWidth
+                        />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
+                <Button variant="contained" color="info" onClick={() => { manageTransferMoney(); }} disabled={dialogDisabled}>Transfer</Button>
+            </DialogActions>
+        </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
@@ -976,9 +1081,10 @@ const Economy = () => {
                             <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center' }}>
                                 {balanceVisibility === "public" && <IconButton onClick={() => { updateBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
                                 {balanceVisibility === "private" && <IconButton onClick={() => { updateBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}
+                                {checkUserPerm(["admin", "economy_manager", "balance_manager"]) && <IconButton onClick={() => { setDialogAction("manage-balance"); }}><FontAwesomeIcon icon={faUserGear} /></IconButton>}
                             </Typography>
                         </div>
-                        <Typography variant="body">Current Balance: {balance} {vars.economyConfig.currency_name}</Typography>
+                        <Typography variant="body">Current Balance: {TSep(balance)} {vars.economyConfig.currency_name}</Typography>
                         <Divider sx={{ mt: "10px", mb: "10px" }} />
                         <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;Transfer</Typography>
                         <Grid container spacing={2}>
