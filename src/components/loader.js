@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 
-import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto } from '../functions';
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import { useTheme } from '@emotion/react';
 
 var vars = require('../variables');
@@ -73,7 +73,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 localStorage.setItem("preload-title", vars.dhconfig.name);
                 localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
 
-                var urlsBatch = [
+                const urlsBatch1 = [
                     { url: `${vars.dhpath}`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
@@ -84,13 +84,16 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/applications/positions`, auth: false },
                     { url: `${vars.dhpath}/applications/types`, auth: false },
                     { url: `${vars.dhpath}/divisions/list`, auth: false },
-                    { url: `${vars.dhpath}/dlog/statistics/details`, auth: false },
+                ];
+                const urlsBatch2 = [
+                    { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
                     { url: `${vars.dhpath}/economy`, auth: true },
                     { url: `${vars.dhpath}/economy/garages`, auth: true },
                     { url: `${vars.dhpath}/economy/trucks`, auth: true },
+                    { url: `${vars.dhpath}/economy/merch`, auth: true },
                 ];
 
-                const [index, specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions, dlogDetails, economyConfig, economyGarages, economyTrucks] = await makeRequestsAuto(urlsBatch);
+                const [index, specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -139,20 +142,29 @@ const Loader = ({ onLoaderLoaded }) => {
                         vars.divisions[divisions[i].id] = divisions[i];
                     }
                 }
-                if (dlogDetails && dlogDetails.error === undefined) {
-                    vars.dlogDetails = dlogDetails;
-                }
-                if (economyConfig) {
-                    vars.economyConfig = economyConfig;
-                }
-                if (economyGarages) {
-                    vars.economyGarages = economyGarages;
-                    for (let i = 0; i < economyGarages.length; i++) {
-                        vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
+                if (getAuthToken() !== null) {
+                    const [dlogDetails, economyConfig, economyGarages, economyTrucks, economyMerch] = await makeRequestsAuto(urlsBatch2);
+                    if (dlogDetails && dlogDetails.error === undefined) {
+                        vars.dlogDetails = dlogDetails;
                     }
-                }
-                if (economyTrucks) {
-                    vars.economyTrucks = economyTrucks;
+                    if (economyConfig) {
+                        vars.economyConfig = economyConfig;
+                    }
+                    if (economyGarages) {
+                        vars.economyGarages = economyGarages;
+                        for (let i = 0; i < economyGarages.length; i++) {
+                            vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
+                        }
+                    }
+                    if (economyTrucks) {
+                        vars.economyTrucks = economyTrucks;
+                    }
+                    if (economyMerch) {
+                        vars.economyMerch = economyMerch;
+                        for(let i = 0; i < economyMerch.length; i++) {
+                            vars.economyMerchMap[economyMerch[i].id] = economyMerch[i];
+                        }
+                    }
                 }
 
                 await FetchProfile();

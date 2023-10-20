@@ -23,7 +23,7 @@ import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit, downloadLocal } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -45,6 +45,11 @@ const leaderboardColumns = [
     { id: 'rank', label: 'Rank' },
     { id: 'user', label: 'User' },
     { id: 'balance', label: 'Balance' },
+];
+const merchColumns = [
+    { id: 'name', label: 'Name' },
+    { id: 'value', label: 'Value' },
+    { id: 'purchased', label: 'Purchased' },
 ];
 
 const TRUCK_STATUS = { "inactive": "Inactive", "active": "Active", "require_service": "Service Required", "scrapped": "Scrapped" };
@@ -702,6 +707,82 @@ const Economy = () => {
         doLoad();
     }, [leaderboardPage, leaderboardPageSize]);
 
+    const [merchList, setMerchList] = useState(null);
+    const [merchTotal, setMerchTotal] = useState(0);
+    const [merchPage, setMerchPage] = useState(1);
+    const [merchPageSize, setMerchPageSize] = useState(5);
+    const [loadMerch, setLoadMerch] = useState(0);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let resp = await axios({ url: `${vars.dhpath}/economy/merch/list?owner=${vars.userInfo.userid}&page=${merchPage}&page_size=${merchPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let newMerchList = [];
+            for (let i = 0; i < resp.data.list.length; i++) {
+                let merch = resp.data.list[i];
+                let ctxMenu = <><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("transfer-merch"); }} sx={{ color: theme.palette.warning.main }}>Transfer Merch</MenuItem><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("sell-merch"); }} sx={{ color: theme.palette.error.main }}>Sell Merch</MenuItem></>;
+                newMerchList.push({ name: vars.economyMerchMap[merch.merchid] !== undefined ? vars.economyMerchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeAgo timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
+            }
+            setMerchList(newMerchList);
+            setMerchTotal(resp.data.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [merchPage, merchPageSize, loadMerch]);
+    const [activeMerch, setActiveMerch] = useState({});
+    const [merchOwner, setMerchOwner] = useState({});
+    const [selectedMerch, setSelectedMerch] = useState({});
+    const purchaseMerch = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${selectedMerch.merch.id}/purchase`, data: { owner:  "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Merch purchased! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setBalance(resp.data.balance);
+            setLoadMerch(+new Date());
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [selectedMerch]);
+    const transferMerch = useCallback(async () => {
+        setDialogDisabled(true);
+        let owner = merchOwner.userid;
+        if (owner === -1000) owner = "company";
+        else if (owner === vars.userInfo.userid) owner = "self";
+        else owner = "user-" + owner;
+        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${activeMerch.itemid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Merch transferred!`);
+            setSnackbarSeverity("success");
+            setDialogAction("");
+            setLoadMerch(+new Date());
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeMerch, merchOwner]);
+    const sellMerch = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${activeMerch.itemid}/sell`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Merch sold! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setDialogAction("");
+            setBalance(resp.data.balance);
+            setLoadMerch(+new Date());
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [activeMerch]);
+
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
@@ -1149,6 +1230,73 @@ const Economy = () => {
                 <Button variant="contained" color="info" onClick={() => { exportTransaction(); }} disabled={dialogDisabled}>Export</Button>
             </DialogActions>
         </Dialog>
+        {activeMerch.merchid !== undefined && <>
+            <Dialog open={dialogAction === "transfer-merch"} onClose={() => setDialogAction("merch")} fullWidth>
+                <DialogTitle>Transfer Merch - {vars.economyMerchMap[activeMerch.merchid] !== undefined ? vars.economyMerchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>New owner</Typography>
+                            <Typography variant="body2"><UserSelect initialUsers={[activeMerch.owner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label="Message"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                fullWidth
+                            />
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("merch"); }}>Close</Button>
+                    <Button variant="contained" color="warning" onClick={() => { transferMerch(); }} disabled={dialogDisabled}>Transfer</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={dialogAction === "sell-merch"} onClose={() => setDialogAction("merch")}>
+                <DialogTitle>Sell Merch - {vars.economyMerchMap[activeMerch.merchid] !== undefined ? vars.economyMerchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Purchase Price</Typography>
+                            <Typography variant="body2">{TSep(activeMerch.price)} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Sell Price</Typography>
+                            <Typography variant="body2">{vars.economyMerchMap[activeMerch.merchid] !== undefined ? TSep(vars.economyMerchMap[activeMerch.merchid].sell_price) : "/"} {vars.economyConfig.currency_name}</Typography>
+                        </Grid>
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogAction("merch"); }}>Close</Button>
+                    <Button variant="contained" color="error" onClick={() => { sellMerch(); }} disabled={dialogDisabled}>Sell</Button>
+                </DialogActions>
+            </Dialog>
+        </>}
+        <Dialog open={dialogAction === "purchase-merch"} onClose={() => setDialogAction("")} fullWidth>
+            <DialogTitle>Purchase Merch</DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <Select
+                            name="colors"
+                            options={vars.economyMerch.map((merch) => ({ value: merch.id, label: merch.name + " - " + merch.buy_price + " " + vars.economyConfig.currency_name, merch: merch }))}
+                            className="basic-select"
+                            classNamePrefix="select"
+                            styles={customSelectStyles(theme)}
+                            value={selectedMerch}
+                            onChange={(item) => { setSelectedMerch(item); }}
+                            menuPortalTarget={document.body}
+                        />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
+                <Button variant="contained" color="info" onClick={() => { purchaseMerch(); }} disabled={selectedMerch.merch.id === undefined || dialogDisabled}>Purchase</Button>
+            </DialogActions>
+        </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
@@ -1196,6 +1344,9 @@ const Economy = () => {
             </Grid>
             {leaderboard.length !== 0 && <Grid item xs={12} sm={12} md={6} lg={6}>
                 <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;Balance Leaderboard</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(["admin", "economy_manager", "balance_manager"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
+            </Grid>}
+            {merchList !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;Owned Merchandise</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
             </Grid>}
         </Grid>
         <Portal>

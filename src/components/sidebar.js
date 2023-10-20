@@ -120,9 +120,6 @@ const SideBar = (props) => {
         }
     }
 
-    if (window.location.host !== "localhost:3000") {
-        toRemove.push("economy");
-    }
     menu = menu.map(subMenu => subMenu.filter(item => (!allPlugins.includes(item)) || (plugins.includes(item) && allPlugins.includes(item))));
     menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
     menu = menu.filter(subMenu => subMenu.length > 0);
