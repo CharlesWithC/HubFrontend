@@ -21,9 +21,9 @@ import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
-import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit, downloadLocal } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faLock, faMoneyBillTransfer, faPlus, faTruck, faUnlock, faUserGear } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faTruck, faUnlock, faUserGear } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -654,6 +654,25 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
     }, [manageTransferFrom, manageBalanceVisibility]);
+    const [exportRange, setExportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
+    const exportTransaction = useCallback(async () => {
+        if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
+            setSnackbarContent("The date range must be smaller than 90 days.");
+            setSnackbarSeverity("error");
+            return;
+        }
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${vars.userInfo.userid}/transactions/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            downloadLocal("export.csv", resp.data);
+            setSnackbarContent("Success");
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [exportRange]);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -1072,6 +1091,36 @@ const Economy = () => {
                 <Button variant="contained" color="info" onClick={() => { manageTransferMoney(); }} disabled={dialogDisabled}>Transfer</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogAction === "export-transaction"} onClose={() => setDialogAction("")}>
+            <DialogTitle>Export Transaction History</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">- You may export transaction history of a range of up to 90 days each time.</Typography>
+                <Grid container spacing={2} style={{ marginTop: "3px" }}>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="Start Time"
+                            type="datetime-local"
+                            value={new Date(new Date(exportRange.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setExportRange({ ...exportRange, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="End Time"
+                            type="datetime-local"
+                            value={new Date(new Date(exportRange.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setExportRange({ ...exportRange, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogAction(""); }}>Cancel</Button>
+                <Button variant="contained" color="info" onClick={() => { exportTransaction(); }} disabled={dialogDisabled}>Export</Button>
+            </DialogActions>
+        </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
@@ -1082,6 +1131,7 @@ const Economy = () => {
                                 {balanceVisibility === "public" && <IconButton onClick={() => { updateBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
                                 {balanceVisibility === "private" && <IconButton onClick={() => { updateBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}
                                 {checkUserPerm(["admin", "economy_manager", "balance_manager"]) && <IconButton onClick={() => { setDialogAction("manage-balance"); }}><FontAwesomeIcon icon={faUserGear} /></IconButton>}
+                                {<IconButton onClick={() => { setDialogAction("export-transaction"); }}><FontAwesomeIcon icon={faFileExport} /></IconButton>}
                             </Typography>
                         </div>
                         <Typography variant="body">Current Balance: {TSep(balance)} {vars.economyConfig.currency_name}</Typography>

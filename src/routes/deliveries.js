@@ -59,7 +59,7 @@ const Deliveries = () => {
         if (resp.status === 200) {
             downloadLocal("export.csv", resp.data);
             setSnackbarContent("Success");
-            setSnackbarSeverity("error");
+            setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
