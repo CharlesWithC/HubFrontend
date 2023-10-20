@@ -23,7 +23,7 @@ import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faMoneyBillTransfer, faPlus, faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faLock, faMoneyBillTransfer, faPlus, faTruck, faUnlock } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -245,6 +245,7 @@ const Economy = () => {
     const [dialogDisabled, setDialogDisabled] = useState(false);
 
     const [balance, setBalance] = useState("/");
+    const [balanceVisibility, setBalanceVisibility] = useState("");
 
     const [modalGarage, setModalGarage] = useState({});
     const [modalGarageDetails, setModalGarageDetails] = useState(null);
@@ -587,9 +588,19 @@ const Economy = () => {
         async function doLoad() {
             let resp = await axios({ url: `${vars.dhpath}/economy/balance`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             setBalance(resp.data.balance);
+            setBalanceVisibility(resp.data.visibility);
         }
         doLoad();
     }, []);
+    const updateBalanceVisibility = useCallback(async (visibility) => {
+        setBalanceVisibility(visibility);
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${vars.userInfo.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status !== 204) {
+            setBalanceVisibility(visibility === "public" ? "private" : "public");
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+    }, [balanceVisibility]);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -960,7 +971,13 @@ const Economy = () => {
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
                     <CardContent>
-                        <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;Balance</Typography>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px", display: 'flex', alignItems: 'center', marginRight: 'auto' }}><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;Balance</Typography>
+                            <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center' }}>
+                                {balanceVisibility === "public" && <IconButton onClick={() => { updateBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
+                                {balanceVisibility === "private" && <IconButton onClick={() => { updateBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}
+                            </Typography>
+                        </div>
                         <Typography variant="body">Current Balance: {balance} {vars.economyConfig.currency_name}</Typography>
                         <Divider sx={{ mt: "10px", mb: "10px" }} />
                         <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;Transfer</Typography>
