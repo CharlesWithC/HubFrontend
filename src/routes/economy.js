@@ -23,7 +23,7 @@ import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit, downloadLocal } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faTruck, faUnlock, faUserGear } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -40,6 +40,11 @@ const myTruckColumns = [
     { id: 'odometer', label: 'Odometer' },
     { id: 'income', label: 'Income' },
     { id: 'status', label: 'Status' },
+];
+const leaderboardColumns = [
+    { id: 'rank', label: 'Rank' },
+    { id: 'user', label: 'User' },
+    { id: 'balance', label: 'Balance' },
 ];
 
 const TRUCK_STATUS = { "inactive": "Inactive", "active": "Active", "require_service": "Service Required", "scrapped": "Scrapped" };
@@ -529,7 +534,7 @@ const Economy = () => {
     const [myTruckList, setMyTruckList] = useState([]);
     const [myTruckTotal, setMyTruckTotal] = useState(0);
     const [myTruckPage, setMyTruckPage] = useState(1);
-    const [myTruckPageSize, setMyTruckPageSize] = useState(10);
+    const [myTruckPageSize, setMyTruckPageSize] = useState(5);
     const [loadMyTruck, setLoadMyTruck] = useState(0);
     useEffect(() => {
         async function doLoad() {
@@ -673,6 +678,29 @@ const Economy = () => {
         }
         setDialogDisabled(false);
     }, [exportRange]);
+
+    const [leaderboard, setLeaderboard] = useState([]);
+    const [leaderboardTotal, setLeaderboardTotal] = useState(0);
+    const [leaderboardPage, setLeaderboardPage] = useState(1);
+    const [leaderboardPageSize, setLeaderboardPageSize] = useState(5);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let resp = await axios({ url: `${vars.dhpath}/economy/balance/leaderboard?page=${leaderboardPage}&page_size=${leaderboardPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let newLeaderboard = [];
+            for (let i = 0; i < resp.data.list.length; i++) {
+                newLeaderboard.push({ rank: (leaderboardPage - 1) * leaderboardPageSize + i + 1, user: <UserCard key={`${leaderboardPage}-i`} user={resp.data.list[i].user} />, balance: TSep(resp.data.list[i].balance), data: resp.data.list[i].user });
+            }
+            setLeaderboard(newLeaderboard);
+            setLeaderboardTotal(resp.data.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [leaderboardPage, leaderboardPageSize]);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -1164,8 +1192,11 @@ const Economy = () => {
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
+            {leaderboard.length !== 0 && <Grid item xs={12} sm={12} md={6} lg={6}>
+                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;Balance Leaderboard</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(["admin", "economy_manager", "balance_manager"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
+            </Grid>}
         </Grid>
         <Portal>
             <Snackbar
