@@ -982,6 +982,15 @@ const UserCard = (props) => {
     if (showProfileModal === 2) return <>{profileModal}</>;
     else if (showProfileModal === 1) return <></>;
 
+    if (uid === null) return <><Avatar src={avatarRef.current}
+        style={{
+            width: `${size}px`,
+            height: `${size}px`,
+            verticalAlign: "middle",
+            display: "inline-flex"
+        }}
+    /><span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nameRef.current}</span></>;
+
     let content = <>
         {!useChip && <>
             {!textOnly && <><Avatar src={avatarRef.current}
@@ -999,7 +1008,6 @@ const UserCard = (props) => {
                 {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
                 {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
             </>}
-            {uid === null && <span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nameRef.current}</span>}
         </>}
         {useChip && <>
             <Chip

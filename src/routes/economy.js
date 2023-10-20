@@ -310,7 +310,7 @@ const Economy = () => {
                 let slot = resp.data.list[i];
                 let ctxMenu = <><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("transfer-slot"); }} sx={{ color: theme.palette.warning.main }}>Transfer Slot</MenuItem><MenuItem onClick={() => { setActiveSlot(slot); setDialogAction("sell-slot"); }} sx={{ color: theme.palette.error.main }} disabled={slot.note === "garage-owner"}>Sell Slot</MenuItem></>;
                 if (slot.truck !== null) {
-                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckReferer("slot"); setActiveTruck(slot.truck); loadTruck(slot.truck); setDialogAction("truck"); }}>{slot.truck.truck.brand} {slot.truck.truck.model}</a>, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
+                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckReferer("slot"); setActiveTruck(slot.truck); setTruckOwner(slot.truck.owner); setTruckAssignee(slot.truck.assignee); loadTruck(slot.truck); setDialogAction("truck"); }}>{slot.truck.truck.brand} {slot.truck.truck.model}</a>, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
                 } else {
                     newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: "Empty Slot", odometer: "/", income: "/", contextMenu: ctxMenu });
                 }
@@ -383,6 +383,8 @@ const Economy = () => {
     const loadTruck = useCallback(async (truck) => {
         let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${truck.vehicleid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         setActiveTruck({ ...truck, ...resp.data, update: +new Date() });
+        setTruckOwner(resp.data.owner);
+        setTruckAssignee(resp.data.assignee);
     }, []);
     const activateTruck = useCallback(async () => {
         setDialogDisabled(true);
@@ -462,10 +464,7 @@ const Economy = () => {
     const reassignTruck = useCallback(async () => {
         setDialogDisabled(true);
         let assignee = truckAssignee.userid;
-        if (assignee === -1000) assignee = "company";
-        else if (assignee === vars.userInfo.userid) assignee = "self";
-        else assignee = "user-" + assignee;
-        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { assignee: assignee, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { assigneeid: assignee, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(`Truck reassigned!`);
             setSnackbarSeverity("success");
@@ -503,7 +502,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
         setDialogDisabled(false);
-    }, [activeTruck])
+    }, [activeTruck]);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -673,7 +672,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Assignee</Typography>
-                            <Typography variant="body2"><UserCard user={activeTruck.assignee} /></Typography>
+                            <Typography variant="body2">{activeTruck.owner.userid === null ? <UserCard user={activeTruck.assignee} /> : "/"}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Parking At</Typography>
@@ -725,7 +724,7 @@ const Economy = () => {
                         </ButtonGroup>
                         <ButtonGroup fullWidth sx={{ mt: "10px" }}>
                             <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-truck"); }} disabled={dialogDisabled}>Transfer</Button>
-                            <Button variant="contained" color="warning" onClick={() => { setDialogAction("reassign-truck"); }} disabled={dialogDisabled}>Reassign</Button>
+                            <Button variant="contained" color="warning" onClick={() => { setDialogAction("reassign-truck"); }} disabled={activeTruck.owner.userid !== null || dialogDisabled}>Reassign</Button>
                             <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-truck"); }} disabled={dialogDisabled}>Sell</Button>
                             <Button variant="contained" color="error" onClick={() => { setDialogAction("scrap-truck"); }} disabled={dialogDisabled}>Scrap</Button>
                         </ButtonGroup>
