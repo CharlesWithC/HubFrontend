@@ -1294,7 +1294,7 @@ const Economy = () => {
             </DialogContent>
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
-                <Button variant="contained" color="info" onClick={() => { purchaseMerch(); }} disabled={selectedMerch.merch.id === undefined || dialogDisabled}>Purchase</Button>
+                <Button variant="contained" color="info" onClick={() => { purchaseMerch(); }} disabled={selectedMerch.value === undefined || dialogDisabled}>Purchase</Button>
             </DialogActions>
         </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
