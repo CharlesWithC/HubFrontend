@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu, TextField } from '@mui/material';
 
-const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
+const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -59,7 +59,7 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
             <CardContent sx={name === undefined ? { p: 0 } : {}} style={{ paddingBottom: 0 }}>
                 {name !== undefined &&
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                        <Typography variant="h6" component="div" style={{ marginLeft: "10px", marginRight: 'auto' }}>
+                        <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center', marginLeft: "10px", marginRight: 'auto' }}>
                             {name}
                         </Typography>
                         {onSearch !== undefined && <TextField
@@ -69,6 +69,11 @@ const CustomTable = ({ columns, name, data, totalItems, rowsPerPageOptions, defa
                             sx={{ width: searchWidth }}
                             size="small"
                         />}
+                        {nameRight !== undefined && <>
+                            <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center' }}>
+                                {nameRight}
+                            </Typography>
+                        </>}
                     </div>
                 }
                 <TableContainer>

@@ -11,16 +11,19 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { Projection } from 'ol/proj';
 import { getVectorContext } from 'ol/render.js';
 
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup } from '@mui/material';
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup, IconButton } from '@mui/material';
 import { Portal } from '@mui/base';
+
+import Select from 'react-select';
 
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
+import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTruck } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTruck } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -321,7 +324,7 @@ const Economy = () => {
                 if (slot.truck !== null) {
                     newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckReferer("slot"); setActiveTruck(slot.truck); setTruckOwner(slot.truck.owner); setTruckAssignee(slot.truck.assignee); loadTruck(slot.truck); setDialogAction("truck"); }}>{slot.truck.truck.brand} {slot.truck.truck.model}</a>, odometer: TSep(slot.truck.odometer), income: TSep(slot.truck.income), contextMenu: ctxMenu });
                 } else {
-                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: "Empty Slot", odometer: "/", income: "/", contextMenu: ctxMenu });
+                    newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckSlotId(slot.slotid); setTruckReferer("slot"); setDialogAction("purchase-truck"); }}>Empty Slot</a>, odometer: "/", income: "/", contextMenu: ctxMenu });
                 }
             }
             setSlotList(newSlotList);
@@ -517,6 +520,7 @@ const Economy = () => {
     const [myTruckTotal, setMyTruckTotal] = useState(0);
     const [myTruckPage, setMyTruckPage] = useState(1);
     const [myTruckPageSize, setMyTruckPageSize] = useState(10);
+    const [loadMyTruck, setLoadMyTruck] = useState(0);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -535,7 +539,23 @@ const Economy = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [myTruckPage, myTruckPageSize]);
+    }, [myTruckPage, myTruckPageSize, loadMyTruck]);
+
+    const [selectedTruck, setSelectedTruck] = useState({});
+    const purchaseTruck = useCallback(async () => {
+        setDialogDisabled(true);
+        let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${selectedTruck.truck.id}/purchase`, data: { slotid: truckSlotId }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setSnackbarContent(`Truck purchased! Balance: ${resp.data.balance}`);
+            setSnackbarSeverity("success");
+            setDialogAction(truckReferer);
+            setLoadMyTruck(+new Date());
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+        setDialogDisabled(false);
+    }, [selectedTruck, truckSlotId, truckReferer]);
 
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
@@ -847,7 +867,7 @@ const Economy = () => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>Close</Button>
                     <Button variant="contained" color="error" onClick={() => { sellTruck(); }} disabled={dialogDisabled}>Sell</Button>
                 </DialogActions>
             </Dialog>
@@ -866,16 +886,47 @@ const Economy = () => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogAction("slot"); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogAction("truck"); }}>Close</Button>
                     <Button variant="contained" color="error" onClick={() => { scrapTruck(); }} disabled={dialogDisabled}>Scrap</Button>
                 </DialogActions>
             </Dialog>
         </>}
+        <Dialog open={dialogAction === "purchase-truck"} onClose={() => setDialogAction(truckReferer)} fullWidth>
+            <DialogTitle>Purchase Truck</DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                        <Select
+                            name="colors"
+                            options={vars.economyTrucks.map((truck) => ({ value: truck.id, label: truck.brand + " " + truck.model + " - " + truck.price + " " + vars.economyConfig.currency_name, truck: truck }))}
+                            className="basic-select"
+                            classNamePrefix="select"
+                            styles={customSelectStyles(theme)}
+                            value={selectedTruck}
+                            onChange={(item) => { setSelectedTruck(item); }}
+                            menuPortalTarget={document.body}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Slot ID"
+                            value={truckSlotId}
+                            onChange={(e) => setTruckSlotId(e.target.value)}
+                            fullWidth sx={{ mt: "5px" }}
+                        />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="primary" onClick={() => { setDialogAction(truckReferer); }}>Close</Button>
+                <Button variant="contained" color="info" onClick={() => { purchaseTruck(); }} disabled={selectedTruck.truck === undefined || truckSlotId === "" || dialogDisabled}>Purchase</Button>
+            </DialogActions>
+        </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
         </Grid>
         <Portal>
