@@ -19,6 +19,8 @@ import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit } from '../functions';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTruck } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -28,6 +30,13 @@ const slotColumns = [
     { id: 'truck', label: 'Truck' },
     { id: 'odometer', label: 'Odometer' },
     { id: 'income', label: 'Income' },
+];
+const myTruckColumns = [
+    { id: 'truck', label: 'Truck' },
+    { id: 'garage', label: 'Garage' },
+    { id: 'odometer', label: 'Odometer' },
+    { id: 'income', label: 'Income' },
+    { id: 'status', label: 'Status' },
 ];
 
 const TRUCK_STATUS = { "inactive": "Inactive", "active": "Active", "require_service": "Service Required", "scrapped": "Scrapped" };
@@ -504,6 +513,30 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [activeTruck]);
 
+    const [myTruckList, setMyTruckList] = useState([]);
+    const [myTruckTotal, setMyTruckTotal] = useState(0);
+    const [myTruckPage, setMyTruckPage] = useState(1);
+    const [myTruckPageSize, setMyTruckPageSize] = useState(10);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?owner=${vars.userInfo.userid}&page=${myTruckPage}&page_size=${myTruckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let newTruckList = [];
+            for (let i = 0; i < resp.data.list.length; i++) {
+                let truck = resp.data.list[i];
+                newTruckList.push({ truck: <>{truck.truck.brand} {truck.truck.model}</>, garage: vars.economyGaragesMap[truck.garageid] !== undefined ? vars.economyGaragesMap[truck.garageid].name : "Unknown Garage", odometer: TSep(truck.odometer), income: TSep(truck.income), status: TRUCK_STATUS[truck.status], data: truck });
+            }
+            setMyTruckList(newTruckList);
+            setMyTruckTotal(resp.data.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [myTruckPage, myTruckPageSize]);
+
     return <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
@@ -838,6 +871,13 @@ const Economy = () => {
                 </DialogActions>
             </Dialog>
         </>}
+        <Grid container spacing={2} sx={{ mt: "10px" }}>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
+            </Grid>
+        </Grid>
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
