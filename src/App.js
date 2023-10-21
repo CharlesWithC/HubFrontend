@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import { useLocation, Routes, Route } from 'react-router-dom';
+import { useLocation, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent } from '@mui/material';
 
 import AuthLogin from './routes/auth/login';
@@ -38,9 +38,10 @@ import Settings from './routes/settings';
 import Notifications from './routes/notifications';
 import Poll from './routes/polls';
 import Economy from './routes/economy';
+import Supporters from './routes/supporters';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faClover, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -94,6 +95,7 @@ function App() {
     const [aboutCHubModal, setAboutCHubModal] = useState(false);
 
     const location = useLocation();
+    const navigate = useNavigate();
     const [sidebarHidden, setSidebarHidden] = useState(window.innerWidth < 600);
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
@@ -220,6 +222,7 @@ function App() {
                             <Route path="/beta/notifications" element={<Notifications />}></Route>
                             <Route path="/beta/poll" element={<Poll />}></Route>
                             <Route path="/beta/economy" element={<Economy />}></Route>
+                            <Route path="/beta/supporters" element={<Supporters />}></Route>
                         </Routes>
                         <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
                             <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
@@ -265,7 +268,7 @@ function App() {
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                     <br />
-                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/beta/supporters"); }} style={{ cursor: "pointer" }} />
                                 </Typography>
                                 <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800 }}>
                                     {vars.dhconfig.name}

@@ -65,6 +65,8 @@ var specialRoles = {};
 exports.specialRoles = specialRoles;
 var specialRolesMap = {};
 exports.specialRolesMap = specialRolesMap;
+var supportersTabCache = undefined;
+exports.supportersTabCache = supportersTabCache;
 
 // DriversHub
 var discordClientID = null;
