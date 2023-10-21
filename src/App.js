@@ -14,7 +14,7 @@ import MfaAuth from './routes/auth/mfaAuth';
 import EmailAuth from './routes/auth/emailAuth';
 import Loader from './components/loader';
 import Redirect from './components/redirect';
-import UpgradeCard from './routes/upgrade';
+import UpgradeCard from './routes/sponsor';
 import Overview from './routes/overview';
 import Announcement from './routes/announcements';
 import Downloads from './routes/downloads';
@@ -196,7 +196,7 @@ function App() {
                             <Route path="/beta/auth/email" element={<EmailAuth />} />
                             <Route path="/beta/" exact element={<Overview />}></Route>
                             <Route path="/beta/overview" element={<Overview />}></Route>
-                            <Route path="/beta/upgrade" element={<UpgradeCard />}></Route>
+                            <Route path="/beta/sponsor" element={<UpgradeCard />}></Route>
                             <Route path="/beta/announcement" element={<Announcement />}></Route>
                             <Route path="/beta/downloads" element={<Downloads />}></Route>
                             <Route path="/beta/map" element={<Map />}></Route>

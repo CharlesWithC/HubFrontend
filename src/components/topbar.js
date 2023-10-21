@@ -223,12 +223,12 @@ const TopBar = (props) => {
         <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
         <Link to="/beta/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-        <Link to="/beta/upgrade"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Upgrade</MenuItem></Link>
+        <Link to="/beta/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Sponsor</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
 
-    if (vars.specialRoles[vars.userInfo.discordid] !== undefined && vars.specialRoles[vars.userInfo.discordid].includes({ "name": "project_team", "color": "#2fc1f7" })) {
+    if (window.location.hostname !== "localhost") {
         loggedInBtns = (<Menu
             anchorEl={anchorEl}
             anchorOrigin={{

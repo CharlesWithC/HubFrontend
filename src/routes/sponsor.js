@@ -2,19 +2,29 @@ import React from 'react';
 import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 
 const UpgradeCard = () => {
-    const bronze = ["Patron Discord Role", "A Special Thank You"];
-    const silver = ["Silver Name", "Custom Color Theme", "View Detailed Statistics", "More Radio Stations"];
-    const gold = ["Gold Name", "Custom Background Image", "Custom Profile Banner", "Custom Profile Theme", "Patron Support"];
-    const platinum = ["More Name Color", "Any Radio Stations (Radio URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Patron Priority Support"];
+    const bronze = ["A Special Discord Role", "A Special Thank You"];
+    const silver = ["Silver Name", "Custom Color Theme", "More Radio Stations"];
+    const gold = ["Gold Name", "Custom Background Image", "Custom Profile Theme & Banner", "Sponsor Support"];
+    const platinum = ["More Name Color", "Any Radio Stations (Radio URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Sponsor Priority Support"];
 
     return (
         <Grid container spacing={2} justifyContent="center">
+            <Grid item xs={12}>
+                <Card>
+                    <CardHeader
+                        title="Become a Sponsor"
+                        subheader="To support The Drivers Hub Project (CHub)"
+                        titleTypographyProps={{ align: 'center' }}
+                        subheaderTypographyProps={{ align: 'center' }}
+                    />
+                </Card>
+            </Grid>
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Bronze Patreon"
+                        title="Bronze Sponsor"
                         subheader="Cheapest choice"
-                        titleTypographyProps={{ align: 'center' }}
+                        titleTypographyProps={{ align: 'center', color: '#cd7f32' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
                     <CardContent>
@@ -29,7 +39,7 @@ const UpgradeCard = () => {
                             $1/mo.
                         </Typography>
                         <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Subscribe
+                            Sponsor
                         </Button></a>
                     </CardContent>
                 </Card>
@@ -37,9 +47,9 @@ const UpgradeCard = () => {
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Silver Patreon"
-                        subheader="Including Bronze Perks"
-                        titleTypographyProps={{ align: 'center' }}
+                        title="Silver Sponsor"
+                        subheader="Including bronze perks"
+                        titleTypographyProps={{ align: 'center', color: '#c0c0c0' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
                     <CardContent>
@@ -54,7 +64,7 @@ const UpgradeCard = () => {
                             $3/mo.
                         </Typography>
                         <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Subscribe
+                            Sponsor
                         </Button></a>
                     </CardContent>
                 </Card>
@@ -62,9 +72,9 @@ const UpgradeCard = () => {
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Gold Patreon"
-                        subheader="Including Silver Perks"
-                        titleTypographyProps={{ align: 'center' }}
+                        title="Gold Sponsor"
+                        subheader="Including silver perks"
+                        titleTypographyProps={{ align: 'center', color: '#ffd700' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
                     <CardContent>
@@ -79,7 +89,7 @@ const UpgradeCard = () => {
                             $5/mo.
                         </Typography>
                         <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Subscribe
+                            Sponsor
                         </Button></a>
                     </CardContent>
                 </Card>
@@ -87,9 +97,9 @@ const UpgradeCard = () => {
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Platinum Patreon"
-                        subheader="Including Gold Perks"
-                        titleTypographyProps={{ align: 'center' }}
+                        title="Platinum Sponsor"
+                        subheader="Including gold perks"
+                        titleTypographyProps={{ align: 'center', color: '#e5e4e2' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
                     <CardContent>
@@ -104,7 +114,7 @@ const UpgradeCard = () => {
                             $8/mo.
                         </Typography>
                         <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Subscribe
+                            Sponsor
                         </Button></a>
                     </CardContent>
                 </Card>

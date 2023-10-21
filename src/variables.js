@@ -63,6 +63,8 @@ exports.userBanner = userBanner;
 // CHub
 var specialRoles = {};
 exports.specialRoles = specialRoles;
+var specialRolesMap = {};
+exports.specialRolesMap = specialRolesMap;
 
 // DriversHub
 var discordClientID = null;

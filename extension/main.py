@@ -84,20 +84,36 @@ async def index():
 
 def updateRolesCache():
     global rolesCache
-    rolesCache = {"project_team": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "support_team": [], "marketing_team": [], "graphic_team": [], "translation_team": [], "community_legend": [], "patron": [], "server_booster": [], "fv3ea": []}
-    ROLES = {"project_team": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "translation_team": "1041362203728683051", "community_legend": "992781163477344326", "patron": "1031947700419186779", "server_booster": "988263021010898995", "fv3ea": "1127416037076389960"}
+    rolesCache = {"lead_developer": [], "project_manager": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "support_team": [], "marketing_team": [], "graphic_team": [], "translation_team": [], "community_legend": [], "platinum_sponsor": [], "gold_sponsor": [], "silver_sponsor": [], "bronze_sponsor": [], "server_booster": [], "web_client_beta": []}
+    ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "translation_team": "1041362203728683051", "community_legend": "992781163477344326", "platinum_sponsor": "1128329358218633268", "gold_sponsor": "1128329030106615969", "silver_sponsor": "1031947700419186779", "bronze_sponsor": "1128328748110975006", "server_booster": "988263021010898995", "web_client_beta": "1127416037076389960"}
+    ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_manager": "", "marketing_manager": "", "support_team": "", "marketing_team": "", "graphic_team": "", "translation_team": "", "community_legend": "", "platinum_sponsor": "", "gold_sponsor": "", "silver_sponsor": "", "bronze_sponsor": "", "server_booster": "", "web_client_beta": ""}
+    r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
+    if r.status_code == 200:
+        d = json.loads(r.text)
+        for dd in d:
+            for role in ROLES.keys():
+                if dd["id"] == ROLES[role]:
+                    ROLE_COLOR[role] = dd["color"]
+                    break
+
     after = 0
     while True:
         r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/members?limit=1000&after={after}", headers={"Authorization": f"Bot {discord_bot_token}"})
         if r.status_code == 200:
             d = json.loads(r.text)
             after = d[-1]["user"]["id"]
+
             for dd in d:
+                username = dd["user"]["username"]
+                if dd["nick"] is not None:
+                    username = dd["nick"]
+                elif dd["user"]["global_name"] is not None:
+                    username = dd["user"]["global_name"]
+                
                 for role in ROLES.keys():
                     if ROLES[role] in dd["roles"]:
-                        rolesCache[role].append(dd["user"]["id"])
-                if "1157885414854627438" in dd["roles"]:
-                    rolesCache["project_team"].append(dd["user"]["id"])
+                        rolesCache[role].append({"id": dd["user"]["id"], "name": username, "avatar": dd["user"]["avatar"], "color": "#" + str(hex(ROLE_COLOR[role]))[2:]})
+
             if len(d) < 1000:
                 break
         else:

@@ -98,15 +98,15 @@ const Loader = ({ onLoaderLoaded }) => {
                     vars.apiversion = index.version;
                 }
                 if (specialRoles) {
-                    const SPECIAL_COLOR = { "project_team": "#2fc1f7", "community_manager": "#e488b9", "development_team": "#e75757", "support_manager": "#f6529a", "marketing_manager": "#ecb484", "support_team": "#b12773", "marketing_team": "#e28843", "graphic_team": "#11b17f", "translation_team": "#49a4af", "community_legend": "#b2db80", "patron": "#DAA520", "server_booster": "#DAA520", "fv3ea": "#9a63c2" };
-                    let roles = Object.keys(specialRoles);
-                    for (let i = 0; i < roles.length; i++) {
-                        let role = roles[i];
-                        for (let j = 0; j < specialRoles[role].length; j++) {
-                            let discordid = specialRoles[role][j];
-                            if (!Object.keys(vars.specialRoles).includes(discordid))
-                                vars.specialRoles[discordid] = [];
-                            vars.specialRoles[discordid].push({ "name": role, "color": SPECIAL_COLOR[role] });
+                    vars.specialRoles = specialRoles;
+                    let roleNames = Object.keys(specialRoles);
+                    for (let i = 0; i < roleNames.length; i++) {
+                        let roleName = roleNames[i];
+                        for (let j = 0; j < specialRoles[roleName].length; j++) {
+                            let user = specialRoles[roleName][j];
+                            if (!Object.keys(vars.specialRolesMap).includes(user.id))
+                                vars.specialRolesMap[user.id] = [];
+                            vars.specialRolesMap[user.id].push({ "role": roleName, "color": user.color });
                         }
                     }
                 }
@@ -161,7 +161,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     }
                     if (economyMerch) {
                         vars.economyMerch = economyMerch;
-                        for(let i = 0; i < economyMerch.length; i++) {
+                        for (let i = 0; i < economyMerch.length; i++) {
                             vars.economyMerchMap[economyMerch[i].id] = economyMerch[i];
                         }
                     }
@@ -175,7 +175,7 @@ const Loader = ({ onLoaderLoaded }) => {
                         setLoadMessage("You must login from alpha web client first!");
                         return;
                     }
-                    if (!Object.keys(vars.specialRoles).includes(vars.userInfo.discordid)) {
+                    if (!Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
                         setLoaderAnimation(false);
                         setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
                         return;
