@@ -2,12 +2,14 @@ import * as React from 'react';
 import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, useTheme } from "@mui/material";
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay, faCirclePause } from '@fortawesome/free-solid-svg-icons';
 
+import SimpleBar from 'simplebar-react';
 import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
 import NotificationsPopover from './notifications';
 import UserCard from './usercard';
@@ -23,6 +25,7 @@ const TopBar = (props) => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const theme = useTheme();
+    const isSm = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -111,43 +114,47 @@ const TopBar = (props) => {
     useEffect(() => {
         const interval = setInterval(async () => {
             if (isPlaying) {
-                if (vars.userSettings.radio_type === "tsr") {
-                    let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
-                    setRadioSongName(resp.data.song.title);
-                    setRadioImage(resp.data.song.graphic.medium);
-                    setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: resp.data.song.title,
-                        artist: resp.data.song.artist,
-                        album: resp.data.song.album,
-                        artwork: [
-                            { src: resp.data.song.graphic.medium, sizes: '300x300', type: 'image/jpeg' }
-                        ]
-                    });
-                } else if (vars.userSettings.radio_type === "tfm") {
-                    let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
-                    setRadioSongName(resp.data.data.title);
-                    setRadioImage(resp.data.data.album_art);
-                    setRadioSpotifyId(resp.data.data.link.split("/").pop());
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: resp.data.data.title,
-                        artist: resp.data.data.artist,
-                        artwork: [
-                            { src: resp.data.data.album_art, sizes: '300x300', type: 'image/jpeg' }
-                        ]
-                    });
-                } else if (vars.userSettings.radio_type === "simhit") {
-                    let resp = await axios({ url: `https://api.simulatorhits.com/now-playing` });
-                    setRadioSongName(resp.data.song.title);
-                    setRadioImage(resp.data.song.artwork);
-                    setRadioSpotifyId(resp.data.song.identifier.spotify);
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: resp.data.song.title,
-                        artist: resp.data.song.artist,
-                        artwork: [
-                            { src: resp.data.song.artwork, sizes: '640x640', type: 'image/jpeg' }
-                        ]
-                    });
+                try {
+                    if (vars.userSettings.radio_type === "tsr") {
+                        let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
+                        setRadioSongName(resp.data.song.title);
+                        setRadioImage(resp.data.song.graphic.medium);
+                        setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: resp.data.song.title,
+                            artist: resp.data.song.artist,
+                            album: resp.data.song.album,
+                            artwork: [
+                                { src: resp.data.song.graphic.medium, sizes: '300x300', type: 'image/jpeg' }
+                            ]
+                        });
+                    } else if (vars.userSettings.radio_type === "tfm") {
+                        let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
+                        setRadioSongName(resp.data.data.title);
+                        setRadioImage(resp.data.data.album_art);
+                        setRadioSpotifyId(resp.data.data.link.split("/").pop());
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: resp.data.data.title,
+                            artist: resp.data.data.artist,
+                            artwork: [
+                                { src: resp.data.data.album_art, sizes: '300x300', type: 'image/jpeg' }
+                            ]
+                        });
+                    } else if (vars.userSettings.radio_type === "simhit") {
+                        let resp = await axios({ url: `https://api.simulatorhits.com/now-playing` });
+                        setRadioSongName(resp.data.song.title);
+                        setRadioImage(resp.data.song.artwork);
+                        setRadioSpotifyId(resp.data.song.identifier.spotify);
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: resp.data.song.title,
+                            artist: resp.data.song.artist,
+                            artwork: [
+                                { src: resp.data.song.artwork, sizes: '640x640', type: 'image/jpeg' }
+                            ]
+                        });
+                    }
+                } catch {
+                    console.error("Error updating radio metadata...");
                 }
             }
         }, 10000);
@@ -360,35 +367,40 @@ const TopBar = (props) => {
                         position: "fixed",
                         zIndex: "100"
                     }}>
-                    <Toolbar>
-                        <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
-                            <Typography variant="body2"><NotificationsPopover /></Typography>
-                            {radioURL !== "" &&
-                                <div className="user-profile" style={{ cursor: "default" }}>
-                                    <div className="user-avatar">
-                                        <img src={radioImage} alt="" />
-                                    </div>
-                                    <div className="user-info" style={{ marginLeft: "16px" }}>
-                                        <div className="user-name" style={{ textAlign: "left", maxWidth: "400px", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{isPlaying ? radioSongName : `Radio Paused`}</div>
-                                        <div className="user-role" style={{ textAlign: "left" }}>{isPlaying ? <FontAwesomeIcon icon={faCirclePause} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(false); }} /> : <FontAwesomeIcon icon={faCirclePlay} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(true); }} />} {radioSpotifyId !== undefined && <FontAwesomeIcon icon={faSpotify} style={{ cursor: "pointer" }} onClick={() => { window.location.href = `spotify:track:${radioSpotifyId}`; }} />} {radioName}</div>
-                                    </div>
-                                    <audio ref={radioRef}>
-                                        <source src={radioURL} type="audio/mp3" />
-                                        Your browser does not support the audio element.
-                                    </audio>
-                                </div>}
-                        </Box>
-                        <div className="user-profile" onClick={handleProfileMenuOpen}>
-                            <div className="user-info">
-                                <div className="user-name">{vars.userBanner.name}</div>
-                                <div className="user-role">{vars.userBanner.role}</div>
+                    <SimpleBar style={{
+                        width: `calc(100vw${isSm ? '' : ` - ${props.sidebarWidth}px`})`,
+                        maxWidth: `calc(100vw${isSm ? '' : ` - ${props.sidebarWidth}px`})`
+                    }}>
+                        <Toolbar>
+                            <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
+                                <Typography variant="body2"><NotificationsPopover /></Typography>
+                                {radioURL !== "" &&
+                                    <div className="user-profile" style={{ cursor: "default" }}>
+                                        <div className="user-avatar">
+                                            <img src={radioImage} alt="" />
+                                        </div>
+                                        <div className="user-info" style={{ marginLeft: "16px" }}>
+                                            <div className="user-name" style={{ textAlign: "left", maxWidth: "400px", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{isPlaying ? radioSongName : `Radio Paused`}</div>
+                                            <div className="user-role" style={{ textAlign: "left" }}>{isPlaying ? <FontAwesomeIcon icon={faCirclePause} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(false); }} /> : <FontAwesomeIcon icon={faCirclePlay} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(true); }} />} {radioSpotifyId !== undefined && <FontAwesomeIcon icon={faSpotify} style={{ cursor: "pointer" }} onClick={() => { window.location.href = `spotify:track:${radioSpotifyId}`; }} />} {radioName}</div>
+                                        </div>
+                                        <audio ref={radioRef}>
+                                            <source src={radioURL} type="audio/mp3" />
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                    </div>}
+                            </Box>
+                            <div className="user-profile" onClick={handleProfileMenuOpen}>
+                                <div className="user-info">
+                                    <div className="user-name">{vars.userBanner.name}</div>
+                                    <div className="user-role">{vars.userBanner.role}</div>
+                                </div>
+                                <div className="user-avatar">
+                                    <img src={vars.userBanner.avatar} alt="" />
+                                </div>
                             </div>
-                            <div className="user-avatar">
-                                <img src={vars.userBanner.avatar} alt="" />
-                            </div>
-                        </div>
-                        {vars.isLoggedIn && loggedInBtns}
-                    </Toolbar>
+                            {vars.isLoggedIn && loggedInBtns}
+                        </Toolbar>
+                    </SimpleBar>
                 </AppBar>
                 <LinearProgress ref={progressBarRef} sx={{ ...progressBarStyle, top: "80px", position: "fixed", zIndex: 101, display: loading ? "block" : "none", '& .MuiLinearProgress-barColorPrimary': { backgroundColor: theme.palette.info.main } }} />
             </Box>
