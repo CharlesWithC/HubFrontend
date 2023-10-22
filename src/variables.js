@@ -37,7 +37,7 @@ exports.economyMerchMap = economyMerchMap;
 var dlogDetails = {};
 exports.dlogDetails = dlogDetails;
 
-var userSettings = { "theme": "auto", "notificationRefresh": 30, "unit": "metric", "radio": "enabled", "radio_type": "tsr" };
+var userSettings = { "theme": "auto", "notificationRefresh": 30, "unit": "metric", "radio": "enabled", "radio_type": "tsr", "radio_volume": 100 };
 // radio: enabled / disabled / auto-play (enabled)
 // radio-type: tsr / {url}
 if (localStorage.getItem("client-settings") !== null) {

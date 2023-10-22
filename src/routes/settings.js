@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -10,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import QRCodeStyling from 'qr-code-styling';
+import CreatableSelect from 'react-select/creatable';
 
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken } from '../functions';
 import { useRef } from 'react';
@@ -19,6 +19,8 @@ import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } fr
 
 import { customSelectStyles } from '../designs';
 var vars = require("../variables");
+
+const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
 
 function tabBtnProps(index, current, theme) {
     return {
@@ -197,8 +199,26 @@ const Settings = () => {
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
         setUserSettings({ ...userSettings, radio: to });
 
-        const themeUpdated = new CustomEvent('radioUpdated', {});
-        window.dispatchEvent(themeUpdated);
+        const radioUpdated = new CustomEvent('radioUpdated', {});
+        window.dispatchEvent(radioUpdated);
+    }, [setUserSettings]);
+
+    const updateRadioType = useCallback((to) => {
+        vars.userSettings.radio_type = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, radio_type: to });
+
+        const radioTypeUpdated = new CustomEvent('radioTypeUpdated', {});
+        window.dispatchEvent(radioTypeUpdated);
+    }, [setUserSettings]);
+
+    const updateRadioVolume = useCallback((to) => {
+        vars.userSettings.radio_volume = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, radio_volume: to });
+
+        const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});
+        window.dispatchEvent(radioVolumeUpdated);
     }, [setUserSettings]);
 
     let trackers = [];
@@ -902,6 +922,28 @@ const Settings = () => {
                         <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
                         <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
                     </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
+                    <br />
+                    <CreatableSelect
+                        defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
+                        name="colors"
+                        options={Object.keys(RADIO_TYPES).map((radioType) => ({ value: radioType, label: RADIO_TYPES[radioType] !== undefined ? RADIO_TYPES[radioType] : radioType }))}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        styles={customSelectStyles(theme)}
+                        value={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
+                        onChange={(item) => { updateRadioType(item.value); }}
+                        menuPortalTarget={document.body}
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
+                    <br />
+                    <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>

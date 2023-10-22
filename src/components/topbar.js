@@ -11,12 +11,13 @@ import { faCirclePlay, faCirclePause } from '@fortawesome/free-solid-svg-icons';
 import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
 import NotificationsPopover from './notifications';
 import UserCard from './usercard';
+import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 var vars = require("../variables");
 
-const radioURLs = { "tsr": "https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3" };
-const radioNames = { "tsr": "TruckStopRadio" };
-const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png" };
+const radioURLs = { "tsr": "https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3", "tfm": "https://live.truckers.fm/", "simhit": "https://radio.simulatorhits.com/radio/8000/stream" };
+const radioNames = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
+const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-2020.png", "simhit": "https://simulatorhits.com/images/SH_Logo.jpg" };
 
 const TopBar = (props) => {
     const [loading, setLoading] = useState(false);
@@ -39,6 +40,7 @@ const TopBar = (props) => {
     const [radioImage, setRadioImage] = useState("");
     const [radioSongName, setRadioSongName] = useState("Now Playing");
     const [radioName, setRadioName] = useState("No Radio");
+    const [radioSpotifyId, setRadioSpotifyId] = useState(undefined);
     const [isPlaying, setIsPlaying] = useState(false);
     async function loadRadio() {
         if (vars.userSettings.radio !== "disabled") {
@@ -47,13 +49,27 @@ const TopBar = (props) => {
                 setRadioURL(radioURLs[vars.userSettings.radio_type]);
                 setRadioName(radioNames[vars.userSettings.radio_type]);
                 setRadioImage(radioImages[vars.userSettings.radio_type]);
+                setRadioSpotifyId(undefined);
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: radioNames[vars.userSettings.radio_type],
+                    artwork: [
+                        { src: radioImages[vars.userSettings.radio_type], sizes: '256x256', type: 'image/jpeg' }
+                    ]
+                });
                 radioOK = true;
             } else {
                 try {
                     new URL(vars.userSettings.radio_type);
+                    setRadioSpotifyId(undefined);
                     setRadioURL(vars.userSettings.radio_type);
                     setRadioName("Custom Radio");
                     setRadioImage("https://drivershub.charlws.com/images/logo.png");
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: "Custom Radio",
+                        artwork: [
+                            { src: "https://drivershub.charlws.com/images/logo.png", sizes: '500x500', type: 'image/jpeg' }
+                        ]
+                    });
                     radioOK = true;
                 } catch {
                     // invalid url
@@ -75,27 +91,68 @@ const TopBar = (props) => {
         } else {
             setIsPlaying(false);
             setRadioURL("");
+            setRadioSpotifyId(undefined);
         }
     }
     useEffect(() => {
         if (radioRef.current !== null) {
-            if (isPlaying) {
-                radioRef.current.play();
-            } else {
-                radioRef.current.pause();
+            try {
+                if (isPlaying) {
+                    radioRef.current.load();
+                    radioRef.current.play();
+                } else {
+                    radioRef.current.pause();
+                }
+            } catch {
+                setRadioSongName("Failed to play");
             }
         }
     }, [isPlaying]);
     useEffect(() => {
         const interval = setInterval(async () => {
             if (isPlaying) {
-                let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
-                setRadioSongName(resp.data.song.title);
-                setRadioImage(resp.data.song.graphic.medium);
+                if (vars.userSettings.radio_type === "tsr") {
+                    let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
+                    setRadioSongName(resp.data.song.title);
+                    setRadioImage(resp.data.song.graphic.medium);
+                    setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: resp.data.song.title,
+                        artist: resp.data.song.artist,
+                        album: resp.data.song.album,
+                        artwork: [
+                            { src: resp.data.song.graphic.medium, sizes: '300x300', type: 'image/jpeg' }
+                        ]
+                    });
+                } else if (vars.userSettings.radio_type === "tfm") {
+                    let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
+                    setRadioSongName(resp.data.data.title);
+                    setRadioImage(resp.data.data.album_art);
+                    setRadioSpotifyId(resp.data.data.link.split("/").pop());
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: resp.data.data.title,
+                        artist: resp.data.data.artist,
+                        artwork: [
+                            { src: resp.data.data.album_art, sizes: '300x300', type: 'image/jpeg' }
+                        ]
+                    });
+                } else if (vars.userSettings.radio_type === "simhit") {
+                    let resp = await axios({ url: `https://api.simulatorhits.com/now-playing` });
+                    setRadioSongName(resp.data.song.title);
+                    setRadioImage(resp.data.song.artwork);
+                    setRadioSpotifyId(resp.data.song.identifier.spotify);
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: resp.data.song.title,
+                        artist: resp.data.song.artist,
+                        artwork: [
+                            { src: resp.data.song.artwork, sizes: '640x640', type: 'image/jpeg' }
+                        ]
+                    });
+                }
             }
         }, 10000);
         return () => { clearInterval(interval); };
-    }, [isPlaying]);
+    }, [isPlaying, vars.userSettings]);
     useEffect(() => {
         loadRadio();
     }, [vars.userSettings.radio]);
@@ -103,6 +160,46 @@ const TopBar = (props) => {
         window.addEventListener("radioUpdated", loadRadio);
         return () => {
             window.removeEventListener("radioUpdated", loadRadio);
+        };
+    }, []);
+    useEffect(() => {
+        const handleRadioTypeUpdate = async () => {
+            setRadioSongName("Now Playing");
+            setRadioSpotifyId(undefined);
+            await loadRadio();
+            try {
+                radioRef.current.load();
+                radioRef.current.play();
+            } catch {
+                setRadioSongName("Failed to play");
+            }
+        };
+        window.addEventListener("radioTypeUpdated", handleRadioTypeUpdate);
+        return () => {
+            window.removeEventListener("radioTypeUpdated", handleRadioTypeUpdate);
+        };
+    }, []);
+    async function handleRadioVolumeUpdate() {
+        radioRef.current.volume = vars.userSettings.radio_volume / 100;
+        radioRef.current.play();
+    };
+    useEffect(() => {
+        window.addEventListener("radioVolumeUpdated", handleRadioVolumeUpdate);
+        return () => {
+            window.removeEventListener("radioVolumeUpdated", handleRadioVolumeUpdate);
+        };
+    }, []);
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (radioRef.current && radioRef.current.paused) {
+                setIsPlaying(false);
+            } else {
+                setIsPlaying(true);
+            }
+        }, 1000);
+
+        return () => {
+            clearInterval(intervalId);
         };
     }, []);
 
@@ -273,7 +370,7 @@ const TopBar = (props) => {
                                     </div>
                                     <div className="user-info" style={{ marginLeft: "16px" }}>
                                         <div className="user-name" style={{ textAlign: "left", maxWidth: "400px", whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{isPlaying ? radioSongName : `Radio Paused`}</div>
-                                        <div className="user-role" style={{ textAlign: "left" }}>{isPlaying ? <FontAwesomeIcon icon={faCirclePause} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(false); }} /> : <FontAwesomeIcon icon={faCirclePlay} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(true); }} />} {radioName}</div>
+                                        <div className="user-role" style={{ textAlign: "left" }}>{isPlaying ? <FontAwesomeIcon icon={faCirclePause} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(false); }} /> : <FontAwesomeIcon icon={faCirclePlay} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(true); }} />} {radioSpotifyId !== undefined && <FontAwesomeIcon icon={faSpotify} style={{ cursor: "pointer" }} onClick={() => { window.location.href = `spotify:track:${radioSpotifyId}`; }} />} {radioName}</div>
                                     </div>
                                     <audio ref={radioRef}>
                                         <source src={radioURL} type="audio/mp3" />
