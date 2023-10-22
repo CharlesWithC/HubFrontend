@@ -879,71 +879,20 @@ const Settings = () => {
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
                 <Tab label="General" {...tabBtnProps(0, tab, theme)} />
-                <Tab label="Security" {...tabBtnProps(1, tab, theme)} />
-                <Tab label="Sessions" {...tabBtnProps(2, tab, theme)} />
+                <Tab label="Appearance" {...tabBtnProps(1, tab, theme)} />
+                <Tab label="Security" {...tabBtnProps(2, tab, theme)} />
+                <Tab label="Sessions" {...tabBtnProps(3, tab, theme)} />
             </Tabs>
         </Box>
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
-                    <br />
-                    <ButtonGroup>
-                        <Button variant="contained" color={userSettings.unit === "metric" ? "info" : "secondary"} onClick={() => { updateUnit("metric"); }}>Metric</Button>
-                        <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>Imperial</Button>
-                    </ButtonGroup>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
-                    <br />
-                    <ButtonGroup>
-                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
-                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { updateTheme("dark"); }}>Dark</Button>
-                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
-                        <Button variant="contained" color={userSettings.theme === "halloween" ? "info" : "secondary"} onClick={() => { updateTheme("halloween"); }} sx={{ color: "#DF5120" }}>Halloween (Limited Time)</Button>
-                    </ButtonGroup>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
                     <br />
                     <ButtonGroup>
                         {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
                         {trackers.includes("tracksim") && <Button variant="contained" color={tracker === "tracksim" ? "info" : "secondary"} onClick={() => { updateTracker("tracksim"); }}>TrackSim</Button>}
                     </ButtonGroup>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
-                    <br />
-                    <ButtonGroup>
-                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
-                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
-                    </ButtonGroup>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
-                    <br />
-                    <CreatableSelect
-                        defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
-                        name="colors"
-                        options={Object.keys(RADIO_TYPES).map((radioType) => ({ value: radioType, label: RADIO_TYPES[radioType] !== undefined ? RADIO_TYPES[radioType] : radioType }))}
-                        className="basic-multi-select"
-                        classNamePrefix="select"
-                        styles={customSelectStyles(theme)}
-                        value={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
-                        onChange={(item) => { updateRadioType(item.value); }}
-                        menuPortalTarget={document.body}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
-                    <br />
-                    <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1092,6 +1041,61 @@ const Settings = () => {
         <TabPanel value={tab} index={1}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.unit === "metric" ? "info" : "secondary"} onClick={() => { updateUnit("metric"); }}>Metric</Button>
+                        <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>Imperial</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
+                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { updateTheme("dark"); }}>Dark</Button>
+                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
+                        <Button variant="contained" color={userSettings.theme === "halloween" ? "info" : "secondary"} onClick={() => { updateTheme("halloween"); }} sx={{ color: "#DF5120" }}>Halloween (Limited Time)</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={3} lg={3}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
+                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
+                    <br />
+                    <CreatableSelect
+                        defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
+                        name="colors"
+                        options={Object.keys(RADIO_TYPES).map((radioType) => ({ value: radioType, label: RADIO_TYPES[radioType] !== undefined ? RADIO_TYPES[radioType] : radioType }))}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        styles={customSelectStyles(theme)}
+                        value={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
+                        onChange={(item) => { updateRadioType(item.value); }}
+                        menuPortalTarget={document.body}
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={5} lg={5}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
+                    <br />
+                    <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
+                </Grid>
+            </Grid>
+        </TabPanel>
+        <TabPanel value={tab} index={2}>
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Password Login</Typography>
                     <br />
                     <Typography variant="body2">- An unique email must be linked to your account to enable password login.</Typography>
@@ -1197,7 +1201,7 @@ const Settings = () => {
                 </Grid>
             </Grid>
         </TabPanel>
-        <TabPanel value={tab} index={2}>
+        <TabPanel value={tab} index={3}>
             {sessions.length > 0 && <CustomTable columns={sessionsColumns} data={sessions} totalItems={sessionsTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={sessionsPageSize} onPageChange={setSessionsPage} onRowsPerPageChange={setSessionsPageSize} name="User Sessions" />}
             {appSessions.length > 0 && <CustomTable columns={appSessionsColumns} data={appSessions} totalItems={appSessionsTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={appSessionsPageSize} onPageChange={setAppSessionsPage} onRowsPerPageChange={setAppSessionsPageSize} style={{ marginTop: "10px" }} name="Application Authorizations" />}
         </TabPanel>
