@@ -10,6 +10,7 @@ import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
+import { HexColorPicker } from "react-colorful";
 
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken } from '../functions';
 import { useRef } from 'react';
@@ -183,16 +184,65 @@ const Settings = () => {
         vars.userSettings.unit = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
         setUserSettings({ ...userSettings, unit: to });
-    }, [setUserSettings]);
+    }, [userSettings]);
 
     const updateTheme = useCallback((to) => {
         vars.userSettings.theme = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
         setUserSettings({ ...userSettings, theme: to });
+        if (userSettings.use_custom_theme) {
+            if (!["auto", "dark", "light"].includes(to)) {
+                vars.userSettings.use_custom_theme = false;
+                setUserSettings({ ...userSettings, theme: to, use_custom_theme: false });
+            }
+        }
 
         const themeUpdated = new CustomEvent('themeUpdated', {});
         window.dispatchEvent(themeUpdated);
-    }, [setUserSettings]);
+    }, [userSettings]);
+
+    const updateUseCustomTheme = useCallback((to) => {
+        vars.userSettings.use_custom_theme = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, use_custom_theme: to });
+
+        if (to === true) {
+            if (userSettings.theme === "halloween") {
+                vars.userSettings.theme = "dark";
+                setUserSettings({ ...userSettings, use_custom_theme: to, theme: "dark" });
+            }
+        }
+
+        const themeUpdated = new CustomEvent('themeUpdated', {});
+        window.dispatchEvent(themeUpdated);
+    }, [userSettings]);
+
+    const updateThemeDarkenRatio = useCallback((to) => {
+        vars.userSettings.theme_darken_ratio = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, theme_darken_ratio: to });
+
+        const themeUpdated = new CustomEvent('themeUpdated', {});
+        window.dispatchEvent(themeUpdated);
+    }, [userSettings]);
+
+    const updateThemePrimaryColor = useCallback((to) => {
+        vars.userSettings.theme_primary = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, theme_primary: to });
+
+        const themeUpdated = new CustomEvent('themeUpdated', {});
+        window.dispatchEvent(themeUpdated);
+    }, [userSettings]);
+
+    const updateThemeSecondaryColor = useCallback((to) => {
+        vars.userSettings.theme_secondary = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, theme_secondary: to });
+
+        const themeUpdated = new CustomEvent('themeUpdated', {});
+        window.dispatchEvent(themeUpdated);
+    }, [userSettings]);
 
     const updateRadio = useCallback((to) => {
         vars.userSettings.radio = to;
@@ -201,7 +251,7 @@ const Settings = () => {
 
         const radioUpdated = new CustomEvent('radioUpdated', {});
         window.dispatchEvent(radioUpdated);
-    }, [setUserSettings]);
+    }, [userSettings]);
 
     const updateRadioType = useCallback((to) => {
         vars.userSettings.radio_type = to;
@@ -210,7 +260,7 @@ const Settings = () => {
 
         const radioTypeUpdated = new CustomEvent('radioTypeUpdated', {});
         window.dispatchEvent(radioTypeUpdated);
-    }, [setUserSettings]);
+    }, [userSettings]);
 
     const updateRadioVolume = useCallback((to) => {
         vars.userSettings.radio_volume = to;
@@ -219,7 +269,7 @@ const Settings = () => {
 
         const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});
         window.dispatchEvent(radioVolumeUpdated);
-    }, [setUserSettings]);
+    }, [userSettings]);
 
     let trackers = [];
     for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
@@ -1058,6 +1108,32 @@ const Settings = () => {
                         <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
                         <Button variant="contained" color={userSettings.theme === "halloween" ? "info" : "secondary"} onClick={() => { updateTheme("halloween"); }} sx={{ color: "#DF5120" }}>Halloween (Limited Time)</Button>
                     </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }}>Disabled</Button>
+                    </ButtonGroup>
+                    <br />
+                    <br />
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Darken Ratio</Typography>
+                    <br />
+                    <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Primary Color</Typography>
+                    <br />
+                    <HexColorPicker color={userSettings.theme_primary !== null ? userSettings.theme_primary : "#ffffff"} onChange={updateThemePrimaryColor} />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Secondary Color</Typography>
+                    <br />
+                    <HexColorPicker color={userSettings.theme_secondary !== null ? userSettings.theme_secondary : "#ffffff"} onChange={updateThemeSecondaryColor} />
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={3} lg={3}>

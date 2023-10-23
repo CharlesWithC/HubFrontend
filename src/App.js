@@ -70,15 +70,17 @@ function App() {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const [themeMode, updateThemeMode] = useState(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
+    const [designTokens, setDesignTokens] = useState(getDesignTokens(themeMode, muiTheme[themeMode], vars.userSettings.use_custom_theme, vars.userSettings.theme_primary, vars.userSettings.theme_secondary, vars.userSettings.theme_darken_ratio));
     const theme = useMemo(
-        () =>
-            createTheme(getDesignTokens(themeMode, muiTheme[themeMode]), muiTheme[themeMode]),
-        [themeMode],
+        () => createTheme(designTokens, muiTheme[themeMode]),
+        [designTokens, themeMode],
     );
 
     useEffect(() => {
         const handleUpdateTheme = () => {
-            updateThemeMode(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
+            const tm = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
+            updateThemeMode(tm);
+            setDesignTokens(getDesignTokens(tm, muiTheme[tm], vars.userSettings.use_custom_theme, vars.userSettings.theme_primary, vars.userSettings.theme_secondary, vars.userSettings.theme_darken_ratio));
         };
         window.addEventListener("themeUpdated", handleUpdateTheme);
         return () => {

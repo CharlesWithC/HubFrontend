@@ -60,7 +60,10 @@ export function customSelectStyles(theme) {
 };
 
 
-export function getDesignTokens(customMode, mode) {
+export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_primary = null, theme_secondary = null, darken_ratio = null) {
+    if (theme_primary !== null && theme_secondary !== null && darken_ratio !== null && use_custom_theme) {
+        customMode = "custom";
+    }
     let bgBase = {
         light: {
             default: '#fafafa',
@@ -73,12 +76,17 @@ export function getDesignTokens(customMode, mode) {
         halloween: {
             default: '#DF5120',
             paper: '#C33922',
-        }
+        },
+        custom: {
+            default: theme_primary,
+            paper: theme_secondary
+        },
     };
     let darkenRatio = {
         light: 0.05,
         dark: 0.5,
-        halloween: 0.2
+        halloween: 0.2,
+        custom: darken_ratio
     };
 
     let compoBase = {
@@ -119,9 +127,17 @@ export function getDesignTokens(customMode, mode) {
                 }
             }
         },
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: bgBase[customMode].paper,
+                }
+            }
+        },
         MuiToolbar: {
             styleOverrides: {
                 root: {
+                    backgroundColor: darkenColor(bgBase[customMode].default, 0.15),
                     '& .user-profile:hover': {
                         backgroundColor: darkenColor(bgBase[customMode].default, 0.15),
                     },
