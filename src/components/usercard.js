@@ -14,6 +14,7 @@ import TimeAgo from './timeago';
 import MarkdownRenderer from './markdown';
 import StatCard from './statcard';
 import CustomTable from './table';
+import { darkenColor } from '../designs';
 
 import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
@@ -108,6 +109,9 @@ const UserCard = (props) => {
         size = "20";
     }
 
+    const theme = useTheme();
+    const navigate = useNavigate();
+
     let specialColor = null;
     let badges = [];
     let badgeNames = [];
@@ -144,15 +148,33 @@ const UserCard = (props) => {
             }
         }
     }
+    let profile_background = [darkenColor(theme.palette.background.paper, 0.5), darkenColor(theme.palette.background.paper, 0.5)];
+    let profile_banner_url = `${vars.dhpath}/member/banner?userid=${userid}`;
+    if (Object.keys(vars.userConfig).includes(discordid)) {
+        for (let i = 0; i < vars.userConfig[discordid].length; i++) {
+            if (vars.userConfig[discordid][i].abbr === vars.dhconfig.abbr) {
+                let uc = vars.userConfig[discordid][i];
+                if (uc.name_color !== "#x1") {
+                    specialColor = uc.name_color;
+                }
+                if (uc.profile_upper_color !== "#x1" && uc.profile_lower_color !== "#x1") {
+                    profile_background = [uc.profile_upper_color, uc.profile_lower_color];
+                }
+                try {
+                    new URL(uc.profile_banner_url);
+                    profile_banner_url = uc.profile_banner_url;
+                } catch {
+                    console.error("Invalid custom profile banner url...");
+                }
+            }
+        }
+    }
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback((e) => {
         setSnackbarContent("");
     }, []);
-
-    const theme = useTheme();
-    const navigate = useNavigate();
 
     const [tab, setTab] = useState(0);
     const handleChange = (event, newValue) => {
@@ -694,10 +716,13 @@ const UserCard = (props) => {
     }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
     let profileModal = <Dialog open={true} onClose={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); }} fullWidth >
-        <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(#484d5f, #dbdbe4)` }}>
+        <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
             <CardMedia
                 component="img"
-                image={`${vars.dhpath}/member/banner?userid=${userid}`}
+                image={profile_banner_url}
+                onError={(event) => {
+                    event.target.src = `${vars.dhpath}/member/banner?userid=${userid}`;
+                }}
                 alt=""
                 sx={{ borderRadius: "5px 5px 0 0" }}
             />
@@ -1399,10 +1424,13 @@ const UserCard = (props) => {
             onContextMenu={(e) => { e.stopPropagation(); }}
             onClose={(e) => { updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
-            <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(#484d5f, #dbdbe4)` }}>
+            <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
                 <CardMedia
                     component="img"
-                    image={`${vars.dhpath}/member/banner?userid=${userid}`}
+                    image={profile_banner_url}
+                    onError={(event) => {
+                        event.target.src = `${vars.dhpath}/member/banner?userid=${userid}`;
+                    }}
                     alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}
                 />

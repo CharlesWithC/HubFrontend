@@ -2,6 +2,7 @@
 # Author: @CharlesWithC
 
 import json
+import math
 import os
 import sqlite3
 import threading
@@ -15,13 +16,36 @@ from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 
+reservedColor = [3129847, 14398740, 14977209, 16023551, 11721600, 15161175, 11609971, 14846019, 15512708, 16023551, 4826287, 16143002, 1159551, 10118082, 16023551, 16023551, 16023551, 16568598]
 rolesCache = []
 rolesLU = 0
+userConfigCache = []
+userConfigLU = 0
 
 discord_bot_token = os.getenv("BOT_TOKEN")
 
 gconn = sqlite3.connect("truckersmp.db", check_same_thread=False)
 gcur = gconn.cursor()
+
+uconn = sqlite3.connect("user-settings.db", check_same_thread=False)
+ucur = uconn.cursor()
+# user-settings => set name color + profile upper/lower theme + profile banner url
+# these data are synced into /roles endpoint
+ucur.execute(f"CREATE TABLE IF NOT EXISTS users (discordid BIGINT UNSIGNED PRIMARY KEY, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT)")
+
+def color_similarity(hex1, hex2):
+    # Convert hex codes to RGB values
+    r1, g1, b1 = tuple(int(hex1[i:i+2], 16) for i in (0, 2, 4))
+    r2, g2, b2 = tuple(int(hex2[i:i+2], 16) for i in (0, 2, 4))
+
+    # Calculate Euclidean distance between RGB values
+    distance = math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
+
+    # Normalize distance to a value between 0 and 1
+    max_distance = math.sqrt((255 ** 2) * 3)
+    similarity = 1 - (distance / max_distance)
+
+    return similarity
 
 def truckersmp_online_data():
     conn = sqlite3.connect("truckersmp.db", check_same_thread=False)
@@ -64,12 +88,15 @@ def truckersmp_online_data():
             
             conn.isolation_level = None
             for (op, mpid, name, timestamp) in updates:
-                if op == 0:
-                    cur.execute(f"INSERT INTO players VALUES (?, ?, ?)", (mpid, name, timestamp, ))
-                elif op == 1:
-                    cur.execute(f"UPDATE players SET name = ?, last_online = ? WHERE mpid = ?", (name, timestamp, mpid, ))
-                elif op == 2:
-                    cur.execute(f"UPDATE players SET last_online = ? WHERE mpid = ?", (timestamp, mpid, ))
+                try:
+                    if op == 0:
+                        cur.execute(f"INSERT INTO players VALUES (?, ?, ?)", (mpid, name, timestamp, ))
+                    elif op == 1:
+                        cur.execute(f"UPDATE players SET name = ?, last_online = ? WHERE mpid = ?", (name, timestamp, mpid, ))
+                    elif op == 2:
+                        cur.execute(f"UPDATE players SET last_online = ? WHERE mpid = ?", (timestamp, mpid, ))
+                except:
+                    pass
             conn.commit()
             conn.isolation_level = 'DEFERRED'
 
@@ -88,13 +115,17 @@ def updateRolesCache():
     ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "translation_team": "1041362203728683051", "community_legend": "992781163477344326", "platinum_sponsor": "1128329358218633268", "gold_sponsor": "1128329030106615969", "silver_sponsor": "1031947700419186779", "bronze_sponsor": "1128328748110975006", "server_booster": "988263021010898995", "web_client_beta": "1127416037076389960"}
     ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_manager": "", "marketing_manager": "", "support_team": "", "marketing_team": "", "graphic_team": "", "translation_team": "", "community_legend": "", "platinum_sponsor": "", "gold_sponsor": "", "silver_sponsor": "", "bronze_sponsor": "", "server_booster": "", "web_client_beta": ""}
     r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
+    newReservedColor = []
     if r.status_code == 200:
         d = json.loads(r.text)
         for dd in d:
             for role in ROLES.keys():
                 if dd["id"] == ROLES[role]:
                     ROLE_COLOR[role] = dd["color"]
+                    newReservedColor.append(dd["color"])
                     break
+    global reservedColor
+    reservedColor = newReservedColor
 
     after = 0
     while True:
@@ -120,6 +151,20 @@ def updateRolesCache():
             break
         time.sleep(0.1)
 
+def updateUserConfigCache():
+    global userConfigCache
+    
+    ucur.execute("SELECT discordid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url FROM users")
+    t = ucur.fetchall()
+    user_config = {}
+    for tt in t:
+        if tt[0] not in user_config.keys():
+            user_config[tt[0]] = [{"abbr": tt[1], "name_color": "#" + str(hex(tt[2]))[2:], "profile_upper_color": "#" + str(hex(tt[3]))[2:], "profile_lower_color": "#" + str(hex(tt[4]))[2:], "profile_banner_url": tt[5]}]
+        else:
+            user_config[tt[0]].append({"abbr": tt[1], "name_color": "#" + str(hex(tt[2]))[2:], "profile_upper_color": "#" + str(hex(tt[3]))[2:], "profile_lower_color": "#" + str(hex(tt[4]))[2:], "profile_banner_url": tt[5]})
+    
+    userConfigCache = user_config
+
 @app.get("/roles")
 async def getRoles():
     global rolesLU
@@ -127,6 +172,14 @@ async def getRoles():
         rolesLU = time.time()
         updateRolesCache()
     return rolesCache
+
+@app.get("/config/user")
+async def getConfigUser():
+    global userConfigLU
+    if time.time() - userConfigLU >= 5:
+        userConfigLU = time.time()
+        updateUserConfigCache()
+    return userConfigCache
 
 @app.get("/truckersmp")
 async def getTruckersMP(mpid: int, response: Response):
@@ -143,6 +196,78 @@ async def getTruckersMP(mpid: int, response: Response):
             time.sleep(0.01)
     return {"error": "Service Unavailable"}
     
+@app.patch("/config/user")
+async def patchUserConfig(domain:str, request: Request, response: Response, authorization: str = Header(None)):
+    # Validate domain
+    if not os.path.exists(f"/var/hub/config/{domain}.json"):
+        response.status_code = 400
+        return {"error": "Not Found"}
+    
+    config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
+    abbr = config["abbr"]
+    api_host = config["api_host"]
+
+    # Authorization
+    if authorization is None:
+        response.status_code = 401
+        return {"error": "No Authorization Header"}
+    if len(authorization.split(" ")) != 2:
+        response.status_code = 401
+        return {"error": "Invalid Authorization Header"}
+
+    tokentype = authorization.split(" ")[0]
+    if tokentype.lower() != "ticket":
+        response.status_code = 401
+        return {"error": "Invalid Authorization Header"}
+    token = authorization.split(" ")[1]
+
+    if not api_host.endswith("charlws.com"):
+        response.status_code = 400
+        return {"error": "Invalid API Domain"}
+
+    ok = False
+    try:
+        r = requests.get(f"{api_host}/{abbr}/auth/ticket?token="+token, timeout = 3)
+        if r.status_code != 200:
+            response.status_code = r.status_code
+            return {"error": json.loads(r.text)["descriptor"]}
+        resp = json.loads(r.text)
+        ok = True
+    except:
+        response.status_code = 503
+        return {"error": "API Unavailable"}
+
+    if not ok:
+        response.status_code = 401
+        return {"error": "Unauthorized"}
+    discordid = resp["discordid"]
+
+    data = await request.json()
+    try:
+        name_color = int(data["name_color"])
+        profile_upper_color = int(data["profile_upper_color"])
+        profile_lower_color = int(data["profile_lower_color"])
+        profile_banner_url = data["profile_banner_url"]
+    except:
+        response.status_code = 400
+        return {"error": "Invalid JSON data"}
+    
+    if name_color != -1:
+        for color in reservedColor:
+            if color_similarity(str(hex(color))[2:], str(hex(name_color))[2:]) >= 0.8:
+                response.status_code = 400
+                return {"error": "Name color is reserved, please use another one!"}
+
+    ucur.execute(f"SELECT discordid FROM users WHERE discordid = {discordid} AND abbr = '{abbr}'")
+    t = ucur.fetchall()
+    if len(t) != 0:
+        ucur.execute(f"UPDATE users SET name_color = ?, profile_upper_color = ?, profile_lower_color = ?, profile_banner_url = ? WHERE discordid = ? AND abbr = ?", (name_color, profile_upper_color, profile_lower_color, profile_banner_url, discordid, abbr, ))
+    else:
+        ucur.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (discordid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url, ))
+    uconn.commit()
+
+    return Response(status_code=204)
+
 @app.get("/config")
 async def getConfig(domain: str, request: Request, response: Response):
     if os.path.exists(f"/var/hub/config/suspended-{domain}.json"):

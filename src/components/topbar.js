@@ -113,7 +113,7 @@ const TopBar = (props) => {
     }, [isPlaying]);
     useEffect(() => {
         const interval = setInterval(async () => {
-            if (isPlaying) {
+            if (radioRef.current !== null && !radioRef.current.paused) {
                 try {
                     if (vars.userSettings.radio_type === "tsr") {
                         let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
@@ -159,7 +159,7 @@ const TopBar = (props) => {
             }
         }, 10000);
         return () => { clearInterval(interval); };
-    }, [isPlaying, vars.userSettings]);
+    }, [vars.userSettings]);
     useEffect(() => {
         loadRadio();
     }, [vars.userSettings.radio]);
@@ -331,31 +331,7 @@ const TopBar = (props) => {
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
-
-    if (window.location.hostname !== "localhost") {
-        loggedInBtns = (<Menu
-            anchorEl={anchorEl}
-            anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            id='topbar-dropdown-menu'
-            keepMounted
-            transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-            }}
-            open={isMenuOpen}
-            onClose={handleMenuClose}
-            sx={{ top: "50px" }}
-        >
-            <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-            <Link to="/beta/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
-            <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-            <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
-        </Menu>);
-    }
-
+    
     return (
         <div do-reload={reload}>
             <UserCard user={vars.userInfo} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(1); }} />

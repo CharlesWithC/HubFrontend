@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -12,7 +12,7 @@ import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 import { HexColorPicker, HexColorInput } from "react-colorful";
 
-import { makeRequestsWithAuth, customAxios as axios, getAuthToken } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, getAuthToken, makeRequestsAuto } from '../functions';
 import { useRef } from 'react';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
@@ -270,6 +270,72 @@ const Settings = () => {
         const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});
         window.dispatchEvent(radioVolumeUpdated);
     }, [userSettings]);
+
+    const DEFAULT_USER_CONFIG = { "name_color": "/", "profile_upper_color": "/", "profile_lower_color": "/", "profile_banner_url": "/" };
+    const [remoteUserConfig, setRemoteUserConfig] = useState(DEFAULT_USER_CONFIG);
+    useEffect(() => {
+        if (Object.keys(vars.userConfig).includes(vars.userInfo.discordid)) {
+            for (let i = 0; i < vars.userConfig[vars.userInfo.discordid].length; i++) {
+                if (vars.userConfig[vars.userInfo.discordid][i].abbr === vars.dhconfig.abbr) {
+                    let uc = JSON.parse(JSON.stringify(vars.userConfig[vars.userInfo.discordid][i]));
+                    if (uc.name_color === "#x1") {
+                        uc.name_color = "/";
+                    }
+                    if (uc.profile_upper_color === "#x1") {
+                        uc.profile_upper_color = "/";
+                    }
+                    if (uc.profile_lower_color === "#x1") {
+                        uc.profile_lower_color = "/";
+                    }
+                    setRemoteUserConfig(uc);
+                }
+            }
+        }
+    }, []);
+    const [remoteUserConfigDisabled, setRemoteUserConfigDisabled] = useState(false);
+    const updateRemoteUserConfig = useCallback(async () => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setRemoteUserConfigDisabled(true);
+
+        let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status !== 200) {
+            setRemoteUserConfigDisabled(false);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+            setSnackbarContent(`Failed to generate auth ticket, try again later...`);
+            setSnackbarSeverity("error");
+            return;
+        }
+        let ticket = resp.data.token;
+
+        function parse_color(s) {
+            if (s.startsWith("#")) {
+                return parseInt(s.substring(1), 16);
+            } else {
+                return -1;
+            }
+        }
+
+        resp = await axios({ url: `https://config.chub.page/config/user?domain=${vars.dhconfig.domain}`, data: { name_color: parse_color(remoteUserConfig.name_color), profile_upper_color: parse_color(remoteUserConfig.profile_upper_color), profile_lower_color: parse_color(remoteUserConfig.profile_lower_color), profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`Appearance settings updated!`);
+            setSnackbarSeverity("success");
+            const [newUserConfig] = await makeRequestsAuto([{ url: "https://config.chub.page/config/user", auth: false }]);
+            if (newUserConfig) {
+                vars.userConfig = newUserConfig;
+                const userUpdated = new CustomEvent('userUpdated', {});
+                window.dispatchEvent(userUpdated);
+            }
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setRemoteUserConfigDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, [remoteUserConfig]);
 
     let trackers = [];
     for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
@@ -1121,6 +1187,9 @@ const Settings = () => {
             </Grid>
         </TabPanel>
         <TabPanel value={tab} index={1}>
+            <Typography variant="h7" sx={{ fontWeight: 800 }}>Local Settings</Typography>
+            <Typography variant="body2">These settings are stored locally and will only apply to the current client.</Typography>
+            <br />
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
@@ -1168,6 +1237,64 @@ const Settings = () => {
                     <br />
                     <HexColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} />
                     <HexColorPicker color={userSettings.theme_background} onChange={updateThemeBackgroundColor} />
+                </Grid>
+            </Grid>
+            <Divider sx={{ mt: "20px", mb: "20px" }} />
+            <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings</Typography>
+            <Typography variant="body2">These settings are synced to a remote server and will be displayed on other users' clients.</Typography>
+            <Typography variant="body2">You must click "save" to sync settings to the remote server, otherwise the settings will be lost once you refresh or close this tab.</Typography>
+            <Typography variant="body2">To use default color, enter color code "/".</Typography>
+            <br />
+            <Grid container spacing={2}>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color</Typography>
+                    <br />
+                    <input type="text" value={remoteUserConfig.name_color.replaceAll("#", "")} onChange={(event) => {
+                        const newValue = event.target.value.replaceAll("#", "");
+                        if ((newValue.length <= 6 && !isNaN(parseInt(newValue, 16)))) {
+                            setRemoteUserConfig({ ...remoteUserConfig, name_color: "#" + newValue });
+                        } else if (newValue === "/" || newValue === "") {
+                            setRemoteUserConfig({ ...remoteUserConfig, name_color: newValue });
+                        }
+                    }} />
+                    {remoteUserConfig.name_color !== "/" && <HexColorPicker color={remoteUserConfig.name_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} />}
+                </Grid>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Popover Color (Upper)</Typography>
+                    <br />
+                    <input type="text" value={remoteUserConfig.profile_upper_color.replaceAll("#", "")} onChange={(event) => {
+                        const newValue = event.target.value.replaceAll("#", "");
+                        if ((newValue.length <= 6 && !isNaN(parseInt(newValue, 16)))) {
+                            setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: "#" + newValue });
+                        } else if (newValue === "/" || newValue === "") {
+                            setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: newValue });
+                        }
+                    }} />
+                    {remoteUserConfig.profile_upper_color !== "/" && <HexColorPicker color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} />}
+                </Grid>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Popover Color (Lower)</Typography>
+                    <br />
+                    <input type="text" value={remoteUserConfig.profile_lower_color.replaceAll("#", "")} onChange={(event) => {
+                        const newValue = event.target.value.replaceAll("#", "");
+                        if ((newValue.length <= 6 && !isNaN(parseInt(newValue, 16)))) {
+                            setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: "#" + newValue });
+                        } else if (newValue === "/" || newValue === "") {
+                            setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: newValue });
+                        }
+                    }} />
+                    {remoteUserConfig.profile_lower_color !== "/" && <HexColorPicker color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} />}
+                </Grid>
+                <Grid item xs={12} sm={12} md={8} lg={8}>
+                    <TextField
+                        label="Profile Banner URL"
+                        value={remoteUserConfig.profile_banner_url}
+                        onChange={(e) => { setRemoteUserConfig({ ...remoteUserConfig, profile_banner_url: e.target.value }); }}
+                        fullWidth size="small"
+                    />
+                </Grid>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} fullWidth disabled={remoteUserConfigDisabled}>Save</Button>
                 </Grid>
             </Grid>
         </TabPanel>

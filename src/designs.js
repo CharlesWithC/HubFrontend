@@ -1,4 +1,4 @@
-function darkenColor(hex, factor = 0.2) {
+export function darkenColor(hex, factor = 0.2) {
     // Ensure the factor is between 0 and 1
     const clampedFactor = Math.min(1, Math.max(0, factor));
 
@@ -120,13 +120,6 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
                 },
             },
         },
-        MuiCard: {
-            styleOverrides: {
-                root: {
-                    backgroundColor: darkenColor(bgBase[customMode].paper, darkenRatio[customMode]),
-                }
-            }
-        },
         MuiPaper: {
             styleOverrides: {
                 root: {
@@ -134,10 +127,16 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
                 }
             }
         },
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: darkenColor(bgBase[customMode].paper, darkenRatio[customMode]),
+                }
+            }
+        },
         MuiToolbar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: darkenColor(bgBase[customMode].default, 0.15),
                     '& .user-profile:hover': {
                         backgroundColor: darkenColor(bgBase[customMode].default, 0.15),
                     },

@@ -76,6 +76,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 const urlsBatch1 = [
                     { url: `${vars.dhpath}`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
+                    { url: "https://config.chub.page/config/user", auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
                     { url: `${vars.dhpath}/member/roles`, auth: false },
                     { url: `${vars.dhpath}/member/perms`, auth: false },
@@ -93,7 +94,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/economy/merch`, auth: true },
                 ];
 
-                const [index, specialRoles, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
+                const [index, specialRoles, userConfig, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -109,6 +110,9 @@ const Loader = ({ onLoaderLoaded }) => {
                             vars.specialRolesMap[user.id].push({ "role": roleName, "color": user.color });
                         }
                     }
+                }
+                if (userConfig) {
+                    vars.userConfig = userConfig;
                 }
                 if (config) {
                     vars.discordClientID = config.config.discord_client_id;
