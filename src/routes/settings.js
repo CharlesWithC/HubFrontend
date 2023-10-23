@@ -10,7 +10,7 @@ import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
-import { HexColorPicker } from "react-colorful";
+import { HexColorPicker, HexColorInput } from "react-colorful";
 
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken } from '../functions';
 import { useRef } from 'react';
@@ -226,19 +226,19 @@ const Settings = () => {
         window.dispatchEvent(themeUpdated);
     }, [userSettings]);
 
-    const updateThemePrimaryColor = useCallback((to) => {
-        vars.userSettings.theme_primary = to;
+    const updateThemeBackgroundColor = useCallback((to) => {
+        vars.userSettings.theme_background = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, theme_primary: to });
+        setUserSettings({ ...userSettings, theme_background: to });
 
         const themeUpdated = new CustomEvent('themeUpdated', {});
         window.dispatchEvent(themeUpdated);
     }, [userSettings]);
 
-    const updateThemeSecondaryColor = useCallback((to) => {
-        vars.userSettings.theme_secondary = to;
+    const updateThemeMainColor = useCallback((to) => {
+        vars.userSettings.theme_main = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, theme_secondary: to });
+        setUserSettings({ ...userSettings, theme_main: to });
 
         const themeUpdated = new CustomEvent('themeUpdated', {});
         window.dispatchEvent(themeUpdated);
@@ -936,13 +936,45 @@ const Settings = () => {
         </Box>
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={12} lg={12}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
                     <br />
                     <ButtonGroup>
                         {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
                         {trackers.includes("tracksim") && <Button variant="contained" color={tracker === "tracksim" ? "info" : "secondary"} onClick={() => { updateTracker("tracksim"); }}>TrackSim</Button>}
                     </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
+                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
+                    <br />
+                    <CreatableSelect
+                        defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
+                        name="colors"
+                        options={Object.keys(RADIO_TYPES).map((radioType) => ({ value: radioType, label: RADIO_TYPES[radioType] !== undefined ? RADIO_TYPES[radioType] : radioType }))}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        styles={customSelectStyles(theme)}
+                        value={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
+                        onChange={(item) => { updateRadioType(item.value); }}
+                        menuPortalTarget={document.body}
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
+                    <br />
+                    <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1125,47 +1157,17 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Primary Color</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color</Typography>
                     <br />
-                    <HexColorPicker color={userSettings.theme_primary !== null ? userSettings.theme_primary : "#ffffff"} onChange={updateThemePrimaryColor} />
+                    <HexColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} />
+                    <HexColorPicker color={userSettings.theme_main} onChange={updateThemeMainColor} />
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Secondary Color</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
                     <br />
-                    <HexColorPicker color={userSettings.theme_secondary !== null ? userSettings.theme_secondary : "#ffffff"} onChange={updateThemeSecondaryColor} />
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={3} lg={3}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
-                    <br />
-                    <ButtonGroup>
-                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
-                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
-                    </ButtonGroup>
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
-                    <br />
-                    <CreatableSelect
-                        defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
-                        name="colors"
-                        options={Object.keys(RADIO_TYPES).map((radioType) => ({ value: radioType, label: RADIO_TYPES[radioType] !== undefined ? RADIO_TYPES[radioType] : radioType }))}
-                        className="basic-multi-select"
-                        classNamePrefix="select"
-                        styles={customSelectStyles(theme)}
-                        value={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
-                        onChange={(item) => { updateRadioType(item.value); }}
-                        menuPortalTarget={document.body}
-                    />
-                </Grid>
-
-                <Grid item xs={12} sm={12} md={5} lg={5}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
-                    <br />
-                    <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
+                    <HexColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} />
+                    <HexColorPicker color={userSettings.theme_background} onChange={updateThemeBackgroundColor} />
                 </Grid>
             </Grid>
         </TabPanel>

@@ -60,8 +60,8 @@ export function customSelectStyles(theme) {
 };
 
 
-export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_primary = null, theme_secondary = null, darken_ratio = null) {
-    if (theme_primary !== null && theme_secondary !== null && darken_ratio !== null && use_custom_theme) {
+export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null) {
+    if (theme_background !== null && theme_main !== null && darken_ratio !== null && use_custom_theme) {
         customMode = "custom";
     }
     let bgBase = {
@@ -78,8 +78,8 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
             paper: '#C33922',
         },
         custom: {
-            default: theme_primary,
-            paper: theme_secondary
+            default: theme_background,
+            paper: theme_main
         },
     };
     let darkenRatio = {
