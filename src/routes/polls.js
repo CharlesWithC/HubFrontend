@@ -794,7 +794,7 @@ const Poll = () => {
                 <DialogTitle>Delete Poll</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this poll?</Typography>
-                    <PollCard poll={toDelete !== null ? toDelete : {}} />
+                    {toDelete !== null && toDelete.choices !== undefined && <PollCard poll={toDelete !== null ? toDelete : {}} />}
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
