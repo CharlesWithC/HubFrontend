@@ -10,12 +10,12 @@ import { faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
+import { makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
 import { ButtonGroup } from 'react-bootstrap';
 
 var vars = require("../variables");
 
-const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
+const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     const [poll, setPoll] = useState(inputPoll);
     useEffect(() => {
         setPoll(inputPoll);
@@ -245,7 +245,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-
+                                {(checkUserPerm(["admin", "poll"]) || config.show_voter && (config.show_stats && poll.voted || config.show_stats_before_vote || config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label="Edit" onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
                             </div>}
                             {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
@@ -362,7 +362,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete }) => {
     }
 };
 
-const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete }) => {
+const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete, onPollVoters }) => {
     let halfCnt = 0;
     return <Grid container spacing={3}>
         {polls.map((poll, index) => {
@@ -403,6 +403,7 @@ const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete }) => {
                     key={index}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    onPollVoters={onPollVoters}
                 />
             );
         })}
@@ -448,6 +449,9 @@ const Poll = () => {
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
+
+    const [dialogVoters, setDialogVoters] = useState(false);
+    const [pollDetails, setPollDetails] = useState({});
 
     const [editId, setEditId] = useState(null);
     const [title, setTitle] = useState('');
@@ -578,13 +582,30 @@ const Poll = () => {
         }
     }, [doLoad]);
 
+    const handlePollVoters = useCallback(async (poll) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            setPollDetails(resp.data);
+            setDialogVoters(true);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, []);
+
     useEffect(() => {
         doLoad();
     }, [doLoad]);
 
     return (
         <>
-            <PollGrid polls={polls} lastUpdate={lastUpdate} onEdit={editPoll} onDelete={deletePoll} />
+            <PollGrid polls={polls} lastUpdate={lastUpdate} onEdit={editPoll} onDelete={deletePoll} onPollVoters={handlePollVoters} />
             {polls.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
             <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -810,6 +831,27 @@ const Poll = () => {
                     <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
                 </DialogActions>
             </Dialog>
+            {pollDetails.choices !== undefined && <Dialog open={dialogVoters} onClose={() => setDialogVoters(false)} fullWidth>
+                <DialogTitle>Poll Voters</DialogTitle>
+                <DialogContent>
+                    {pollDetails.choices.map((choice) => (
+                        <>
+                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                {choice.content}
+                            </Typography>
+                            <Typography variant="body2" sx={{ mb: "10px" }}>
+                                {choice.voters.map((user) => (
+                                    <UserCard user={user} />
+                                ))}
+                                {choice.voters.length === 0 && <i>No votes</i>}
+                            </Typography>
+                        </>
+                    ))}
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="primary" onClick={() => { setDialogVoters(false); }}>Close</Button>
+                </DialogActions>
+            </Dialog>}
             <SpeedDial
                 ariaLabel="Controls"
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
