@@ -96,13 +96,13 @@ function GetActivity(activity) {
 }
 
 const UserCard = (props) => {
-    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
+    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], tracker: "unknown", ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
     if (props.user !== undefined && props.user !== null) {
-        ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
+        ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban } = props.user);
         if (vars.users[uid] === undefined) vars.users[uid] = props.user;
         ({ size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
     } else {
-        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
+        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
     }
 
     if (size === undefined) {
@@ -322,7 +322,7 @@ const UserCard = (props) => {
     const [newAboutMe, setNewAboutMe] = useState(bio);
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
     const [newBan, setNewBan] = useState({ expire: +new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000) / 1000, reason: "" });
-    const [trackerInUse, setTrackerInUse] = useState(vars.userInfo.tracker !== "unknown" ? vars.userInfo.tracker : trackers[0]);
+    const [trackerInUse, setTrackerInUse] = useState(tracker !== "unknown" ? tracker : trackers[0]);
     const [roleHistory, setRoleHistory] = useState(undefined);
     const [banHistory, setBanHistory] = useState(undefined);
     const [newNote, setNewNote] = useState(note);
@@ -454,6 +454,7 @@ const UserCard = (props) => {
             setTrackerInUse(resp.data.tracker);
             setRoleHistory(resp.data.role_history);
             setBanHistory(resp.data.ban_history);
+            setTrackerInUse(resp.data.tracker);
             for (let i = 0; i < vars.members.length; i++) {
                 if (vars.members[i].uid === uid) {
                     vars.members[i] = resp.data;
@@ -492,6 +493,7 @@ const UserCard = (props) => {
                 setTrackerInUse(vars.users[uid].tracker);
                 setRoleHistory(vars.users[uid].role_history);
                 setBanHistory(vars.users[uid].ban_history);
+                setTrackerInUse(vars.users[uid].tracker);
             }
         };
         window.addEventListener("userUpdated", userUpdated);
