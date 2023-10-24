@@ -200,7 +200,7 @@ const AllApplication = () => {
                     <b>Steam: </b><a href={`https://steamcommunity.com/profiles/${detailApp.creator.steamid}`} target="_blank" rel="noreferrer">{detailApp.creator.steamid}</a>
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b>TruckersMP: </b><a href={`https://steamcommunity.com/profiles/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
+                    <b>TruckersMP: </b><a href={`https://truckersmp.com/user/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
                 </Typography>
                 <br />
                 {Object.entries(detailApp.application).map(([question, answer]) => (
