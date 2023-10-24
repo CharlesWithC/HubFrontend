@@ -23,7 +23,7 @@ import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit, downloadLocal } from '../functions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear, faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear, faShoppingCart, faWarehouse } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -45,6 +45,17 @@ const leaderboardColumns = [
     { id: 'rank', label: 'Rank' },
     { id: 'user', label: 'User' },
     { id: 'balance', label: 'Balance' },
+];
+const truckColumns = [
+    { id: 'model', label: 'Model' },
+    { id: 'garage', label: 'Garage' },
+    { id: 'owner', label: 'Owner' },
+    { id: 'income', label: 'Income' },
+];
+const garageColumns = [
+    { id: 'location', label: 'Location' },
+    { id: 'owner', label: 'Owner' },
+    { id: 'income', label: 'Income' },
 ];
 const merchColumns = [
     { id: 'name', label: 'Name' },
@@ -707,7 +718,55 @@ const Economy = () => {
         doLoad();
     }, [leaderboardPage, leaderboardPageSize]);
 
-    const [merchList, setMerchList] = useState(null);
+    const [truckList, setTruckList] = useState([]);
+    const [truckTotal, setTruckTotal] = useState(0);
+    const [truckPage, setTruckPage] = useState(1);
+    const [truckPageSize, setTruckPageSize] = useState(5);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?order_by=income&order=desc&page=${truckPage}&page_size=${truckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let newTruckList = [];
+            for (let i = 0; i < resp.data.list.length; i++) {
+                let truck = resp.data.list[i];
+                newTruckList.push({ model: truck.truck.brand + " " + truck.truck.model, garage: vars.economyGaragesMap[truck.garageid] !== undefined ? <a className="hover-underline" style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModalGarage(vars.economyGaragesMap[truck.garageid]); setModalGarageDetails(null); handleGarageClick(vars.economyGaragesMap[truck.garageid]); setDialogAction("garage"); }}>{vars.economyGaragesMap[truck.garageid].name}</a> : truck.garageid, owner: <UserCard user={truck.owner} />, income: TSep(truck.income), data: truck });
+            }
+            setTruckList(newTruckList);
+            setTruckTotal(resp.data.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [truckPage, truckPageSize]);
+
+    const [garageList, setGarageList] = useState([]);
+    const [garageTotal, setGarageTotal] = useState(0);
+    const [garagePage, setGaragePage] = useState(1);
+    const [garagePageSize, setGaragePageSize] = useState(5);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+
+            let resp = await axios({ url: `${vars.dhpath}/economy/garages/list?order_by=income&order=desc&page=${garagePage}&page_size=${garagePageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let newGarageList = [];
+            for (let i = 0; i < resp.data.list.length; i++) {
+                let garage = resp.data.list[i];
+                newGarageList.push({ location: vars.economyGaragesMap[garage.garageid] !== undefined ? vars.economyGaragesMap[garage.garageid].name : garage.garageid, owner: <UserCard user={garage.garage_owner} />, income: TSep(garage.income), data: garage });
+            }
+            setGarageList(newGarageList);
+            setGarageTotal(resp.data.total_items);
+
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        doLoad();
+    }, [garagePage, garagePageSize]);
+
+    const [merchList, setMerchList] = useState([]);
     const [merchTotal, setMerchTotal] = useState(0);
     const [merchPage, setMerchPage] = useState(1);
     const [merchPageSize, setMerchPageSize] = useState(5);
@@ -737,7 +796,7 @@ const Economy = () => {
     const [selectedMerch, setSelectedMerch] = useState({});
     const purchaseMerch = useCallback(async () => {
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${selectedMerch.merch.id}/purchase`, data: { owner:  "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/economy/merch/${selectedMerch.merch.id}/purchase`, data: { owner: "self" }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             setSnackbarContent(`Merch purchased! Balance: ${resp.data.balance}`);
             setSnackbarSeverity("success");
@@ -1299,6 +1358,9 @@ const Economy = () => {
         </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
+                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;Balance Leaderboard</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(["admin", "economy_manager", "balance_manager"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
                     <CardContent>
                         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -1340,14 +1402,17 @@ const Economy = () => {
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
+                <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;Top Garages</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (vars.economyGaragesMap[row.data.garageid] !== undefined) { setModalGarage(vars.economyGaragesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
+                <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Top Trucks</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
                 <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;My Trucks</>} nameRight={<IconButton onClick={() => { setTruckReferer(""); setDialogAction("purchase-truck"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={myTruckColumns} data={myTruckList} totalItems={myTruckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={myTruckPageSize} onPageChange={setMyTruckPage} onRowsPerPageChange={setMyTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />
             </Grid>
-            {leaderboard.length !== 0 && <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;Balance Leaderboard</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(["admin", "economy_manager", "balance_manager"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
-            </Grid>}
-            {merchList !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+            <Grid item xs={12} sm={12} md={6} lg={6}>
                 <CustomTable name={<><FontAwesomeIcon icon={faShoppingCart} />&nbsp;&nbsp;Owned Merchandise</>} nameRight={<IconButton onClick={() => { setDialogAction("purchase-merch"); }}><FontAwesomeIcon icon={faPlus} /></IconButton>} columns={merchColumns} data={merchList} totalItems={merchTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={merchPageSize} onPageChange={setMerchPage} onRowsPerPageChange={setMerchPageSize} />
-            </Grid>}
+            </Grid>
         </Grid>
         <Portal>
             <Snackbar
