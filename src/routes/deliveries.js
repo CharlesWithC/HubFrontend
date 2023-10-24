@@ -1,12 +1,12 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
 import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, useTheme } from '@mui/material';
-import { LocalShippingRounded, WidgetsRounded, PublicRounded, VerifiedOutlined } from '@mui/icons-material';
+import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileExport, faTruckFront } from '@fortawesome/free-solid-svg-icons';
+import { faFileExport, faTowerObservation, faTruckFront } from '@fortawesome/free-solid-svg-icons';
 
 import Podium from "../components/podium";
 import CustomTable from "../components/table";
@@ -240,6 +240,12 @@ const Deliveries = () => {
         navigate(`/beta/delivery/${data.logid}`);
     }
 
+    function replaceUnderscores(str) {
+        return str.split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
     return <>
         {detailStats.truck !== undefined && detailStats !== "loading" && <>
             <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -261,9 +267,9 @@ const Deliveries = () => {
                 <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <PublicRounded />&nbsp;&nbsp;Top Plate Countries
+                            <FontAwesomeIcon icon={faTowerObservation} />&nbsp;&nbsp;Top Offence
                         </Typography>
-                    } first={{ name: detailStats.plate_country[0].name, stat: detailStats.plate_country[0].count }} second={{ name: detailStats.plate_country[1].name, stat: detailStats.plate_country[1].count }} third={{ name: detailStats.plate_country[2].name, stat: detailStats.plate_country[2].count }} fixWidth={true} />
+                    } first={{ name: replaceUnderscores(detailStats.fine[0].unique_id), stat: detailStats.fine[0].count }} second={{ name: replaceUnderscores(detailStats.fine[1].unique_id), stat: detailStats.fine[1].count }} third={{ name: replaceUnderscores(detailStats.fine[2].unique_id), stat: detailStats.fine[2].count }} fixWidth={true} />
                 </Grid>
             </Grid>
             <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
