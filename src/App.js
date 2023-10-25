@@ -3,8 +3,8 @@ import { useMemo, useState, useEffect, useCallback } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from "@mui/material/CssBaseline";
-import { useLocation, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent } from '@mui/material';
+import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
+import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme } from '@mui/material';
 
 import AuthLogin from './routes/auth/login';
 import TokenAuth from './routes/auth/tokenAuth';
@@ -75,6 +75,8 @@ function App() {
         () => createTheme(designTokens, muiTheme[themeMode]),
         [designTokens, themeMode],
     );
+    const uTheme = useTheme();
+    const isMd = useMediaQuery(uTheme.breakpoints.up('md'));
 
     useEffect(() => {
         const handleUpdateTheme = () => {
@@ -98,14 +100,17 @@ function App() {
 
     const location = useLocation();
     const navigate = useNavigate();
+    const [sidebarForceHidden, setSidebarForceHidden] = useState(false);
     const [sidebarHidden, setSidebarHidden] = useState(window.innerWidth < 600);
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
         const handle = () => {
             if (["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname)) {
+                setSidebarForceHidden(true);
                 setSidebarHidden(true);
                 setTopbarHidden(true);
             } else {
+                setSidebarForceHidden(false);
                 if (window.innerWidth >= 600) {
                     setSidebarHidden(false);
                 } else {
@@ -156,7 +161,7 @@ function App() {
                 {!topbarHidden &&
                     <TopBar sidebarWidth={260}></TopBar>
                 }
-                {!sidebarHidden &&
+                {!sidebarForceHidden &&
                     <SideBar width={260}></SideBar>
                 }
                 {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
@@ -266,7 +271,7 @@ function App() {
                             </DialogActions>
                         </Dialog>
                         <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
-                            <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
+                            {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                     <br />
@@ -277,7 +282,16 @@ function App() {
                                     <br />
                                     API: v{vars.apiversion} | Client: v3 (beta)
                                 </Typography>
-                            </div>
+                            </div>}
+                            {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
+                                <Typography variant="body2" sx={{  fontWeight: 800 }}>
+                                    &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
+                                    <br />
+                                    API: v{vars.apiversion} | Client: v3 (beta)
+                                    <br />
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/beta/supporters"); }} style={{ cursor: "pointer" }} />
+                                </Typography>
+                            </div>}
                         </footer>
                     </SimpleBar>
                 </div>

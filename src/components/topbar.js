@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
-import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, useTheme } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, useTheme } from "@mui/material";
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded } from '@mui/icons-material';
+import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -331,7 +331,7 @@ const TopBar = (props) => {
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);
-    
+
     return (
         <div do-reload={reload}>
             <UserCard user={vars.userInfo} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(1); }} />
@@ -349,7 +349,13 @@ const TopBar = (props) => {
                     }}>
                         <Toolbar>
                             <Box sx={{ display: "flex", flexGrow: 1, alignItems: "center" }}>
-                                <Typography variant="body2"><NotificationsPopover /></Typography>
+                                <Typography variant="body2">
+                                    {isSm && <IconButton onClick={() => {
+                                        const toggleSidebar = new CustomEvent('toggleSidebar', {});
+                                        window.dispatchEvent(toggleSidebar);
+                                    }}><MenuRounded /></IconButton>}
+                                    <NotificationsPopover />
+                                </Typography>
                                 {radioURL !== "" &&
                                     <div className="user-profile" style={{ cursor: "default" }}>
                                         <div className="user-avatar">

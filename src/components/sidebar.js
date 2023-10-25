@@ -77,6 +77,12 @@ const SideBar = (props) => {
             window.removeEventListener("reloadSideBar", handleReloadEvent);
         };
     }, []);
+    useEffect(() => {
+        window.addEventListener("toggleSidebar", handleDrawerToggle);
+        return () => {
+            window.removeEventListener("toggleSidebar", handleDrawerToggle);
+        };
+    }, []);
 
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event", "poll"];
@@ -196,8 +202,6 @@ const SideBar = (props) => {
                     keepMounted: true, // Better open performance on mobile.
                 }}
                 sx={{
-                    bgcolor: "#222222",
-                    color: "#ffffff",
                     display: { xs: 'block', sm: 'none' },
                     '& .MuiDrawer-paper': { boxSizing: 'border-box', width: props.width },
                 }}
@@ -209,8 +213,6 @@ const SideBar = (props) => {
             <Drawer
                 variant="permanent"
                 sx={{
-                    bgcolor: "#222222",
-                    color: "#ffffff",
                     display: { xs: 'none', sm: 'block' },
                     '& .MuiDrawer-paper': { boxSizing: 'border-box', width: props.width },
                     overflow: "hidden",

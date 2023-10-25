@@ -143,12 +143,21 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
                 },
             },
         },
+        MuiDrawer: {
+            styleOverrides: {
+                paper: {
+                    backgroundColor: bgBase[customMode].paper,
+                    backgroundImage: `linear-gradient(${bgBase[customMode].paper}, ${bgBase[customMode].paper})`,
+                }
+            }
+        }
     };
 
     return {
         typography: {
             fontFamily: 'Open Sans, sans-serif',
         },
+        darkenRatio: darkenRatio[customMode],
         palette: {
             mode, ...(mode === 'light'
                 ? {
