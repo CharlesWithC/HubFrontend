@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu, TextField } from '@mui/material';
 
+import useLongPress from './useLongPress';
+
 const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
@@ -54,15 +56,13 @@ const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOp
         setAnchorPosition({});
     };
 
-    const [touchStart, setTouchStart] = useState(null);
-    const handleTouchStart = () => {
-        setTouchStart(+new Date());
-    };
-    const handleTouchEnd = (e, row_idx) => {
-        if (+new Date() - touchStart >= 1000) {
-            handleContextMenu(e, row_idx);
+    const rowRefs = Array.from({ length: data.length }).map(() => React.createRef());
+    data.forEach((_, row_idx) => {
+        const ref = rowRefs[row_idx];
+        if (ref.current) {
+            useLongPress(ref, (e) => handleContextMenu(e, row_idx), 1000);
         }
-    };
+    });
 
     return (
         <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
@@ -97,7 +97,7 @@ const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOp
                         </TableHead>
                         <TableBody key={`table-body`}>
                             {data.map((row, row_idx) => (
-                                <TableRow key={`row-${row_idx}`} onClick={() => { if (onRowClick === undefined || onRowClick === null) return; onRowClick(row); }} onContextMenu={(e) => handleContextMenu(e, row_idx)} onTouchStart={handleTouchStart} onTouchEnd={(e) => handleTouchEnd(e, row_idx)} hover style={(onRowClick !== undefined && onRowClick !== null) ? { cursor: 'pointer' } : {}}>
+                                <TableRow key={`row-${row_idx}`} onClick={() => { if (onRowClick === undefined || onRowClick === null) return; onRowClick(row); }} onContextMenu={(e) => handleContextMenu(e, row_idx)} ref={rowRefs[row_idx]} hover style={(onRowClick !== undefined && onRowClick !== null) ? { cursor: 'pointer' } : {}}>
                                     {columns.map((column, col_idx) => (
                                         <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
                                     ))}

@@ -9,6 +9,7 @@ import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUser
 
 import SimpleBar from 'simplebar-react';
 
+import useLongPress from './useLongPress';
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
 import MarkdownRenderer from './markdown';
@@ -105,7 +106,9 @@ const UserCard = (props) => {
         ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
     }
 
-    roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+    if(roles !== undefined && roles !== null){
+        roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+    }
 
     if (size === undefined) {
         size = "20";
@@ -216,15 +219,8 @@ const UserCard = (props) => {
     }, []);
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
-    const [touchStart, setTouchStart] = useState(null);
-    const handleTouchStart = () => {
-        setTouchStart(+new Date());
-    };
-    const handleTouchEnd = (e) => {
-        if (+new Date() - touchStart >= 1000) {
-            handleContextMenu(e);
-        }
-    };
+    const userCardRef = useRef(null);
+    useLongPress(userCardRef, handleContextMenu, 1000);
 
     const [tmpLastOnline, setTmpLastOnline] = useState(null);
     const [chartStats, setChartStats] = useState(null);
@@ -1041,13 +1037,12 @@ const UserCard = (props) => {
                 }}
                 onClick={handleClick}
                 onContextMenu={handleContextMenu}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
+                ref={userCardRef}
             />
                 &nbsp;</>}
             {uid !== null && <>
-                {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>{nameRef.current}</span>}
-                {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>{nameRef.current}</span>}
+                {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}>{nameRef.current}</span>}
+                {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}>{nameRef.current}</span>}
             </>}
         </>}
         {useChip && <>
@@ -1057,7 +1052,7 @@ const UserCard = (props) => {
                 label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
-                onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
+                onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}
             />
         </>}
         {showContextMenu && <Menu
