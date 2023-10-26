@@ -249,7 +249,7 @@ const Deliveries = () => {
     return <>
         {detailStats.truck !== undefined && detailStats !== "loading" && <>
             <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
-                {detailStats.truck !== undefined && detailStats.truck.length >= 2 && <Grid item xs={12} sm={12} md={6} lg={4}>
+                {detailStats.truck !== undefined && detailStats.truck.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                             <LocalShippingRounded />&nbsp;&nbsp;Top Trucks
@@ -257,14 +257,14 @@ const Deliveries = () => {
                     }
                         first={{ name: detailStats.truck[0].name, stat: detailStats.truck[0].count }} second={{ name: detailStats.truck[1].name, stat: detailStats.truck[1].count }} third={{ name: detailStats.truck[2].name, stat: detailStats.truck[2].count }} fixWidth={true} />
                 </Grid>}
-                {detailStats.cargo !== undefined && detailStats.cargo.length >= 2 && <Grid item xs={12} sm={12} md={6} lg={4}>
+                {detailStats.cargo !== undefined && detailStats.cargo.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                             <WidgetsRounded />&nbsp;&nbsp;Top Cargos
                         </Typography>
                     } first={{ name: detailStats.cargo[0].name, stat: detailStats.cargo[0].count }} second={{ name: detailStats.cargo[1].name, stat: detailStats.cargo[1].count }} third={{ name: detailStats.cargo[2].name, stat: detailStats.cargo[2].count }} fixWidth={true} />
                 </Grid>}
-                {detailStats.fine !== undefined && detailStats.fine.length >= 2 && <Grid item xs={12} sm={12} md={6} lg={4}>
+                {detailStats.fine !== undefined && detailStats.fine.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                             <FontAwesomeIcon icon={faTowerObservation} />&nbsp;&nbsp;Top Offence
