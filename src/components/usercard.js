@@ -214,6 +214,16 @@ const UserCard = (props) => {
     }, []);
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
+    const [touchStart, setTouchStart] = useState(null);
+    const handleTouchStart = () => {
+        setTouchStart(+new Date());
+    };
+    const handleTouchEnd = (e) => {
+        if (+new Date() - touchStart >= 1000) {
+            handleContextMenu(e);
+        }
+    };
+
     const [tmpLastOnline, setTmpLastOnline] = useState(null);
     const [chartStats, setChartStats] = useState(null);
     const [overallStats, setOverallStats] = useState(null);
@@ -1029,11 +1039,13 @@ const UserCard = (props) => {
                 }}
                 onClick={handleClick}
                 onContextMenu={handleContextMenu}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
             />
                 &nbsp;</>}
             {uid !== null && <>
-                {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
-                {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu}>{nameRef.current}</span>}
+                {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>{nameRef.current}</span>}
+                {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>{nameRef.current}</span>}
             </>}
         </>}
         {useChip && <>
@@ -1043,7 +1055,7 @@ const UserCard = (props) => {
                 label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
-                onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu}
+                onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}
             />
         </>}
         {showContextMenu && <Menu

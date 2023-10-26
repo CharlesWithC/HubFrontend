@@ -54,6 +54,16 @@ const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOp
         setAnchorPosition({});
     };
 
+    const [touchStart, setTouchStart] = useState(null);
+    const handleTouchStart = () => {
+        setTouchStart(+new Date());
+    };
+    const handleTouchEnd = (e, row_idx) => {
+        if (+new Date() - touchStart >= 1000) {
+            handleContextMenu(e, row_idx);
+        }
+    };
+
     return (
         <Card className="PaperShadow" sx={style} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
             <CardContent sx={name === undefined ? { p: 0 } : {}} style={{ paddingBottom: 0 }}>
@@ -87,7 +97,7 @@ const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOp
                         </TableHead>
                         <TableBody key={`table-body`}>
                             {data.map((row, row_idx) => (
-                                <TableRow key={`row-${row_idx}`} onClick={() => { if (onRowClick === undefined || onRowClick === null) return; onRowClick(row); }} onContextMenu={(e) => handleContextMenu(e, row_idx)} hover style={(onRowClick !== undefined && onRowClick !== null) ? { cursor: 'pointer' } : {}}>
+                                <TableRow key={`row-${row_idx}`} onClick={() => { if (onRowClick === undefined || onRowClick === null) return; onRowClick(row); }} onContextMenu={(e) => handleContextMenu(e, row_idx)} onTouchStart={handleTouchStart} onTouchEnd={(e) => handleTouchEnd(e, row_idx)} hover style={(onRowClick !== undefined && onRowClick !== null) ? { cursor: 'pointer' } : {}}>
                                     {columns.map((column, col_idx) => (
                                         <TableCell key={`${row_idx}-${col_idx}`}>{row[column.id]}</TableCell>
                                     ))}
