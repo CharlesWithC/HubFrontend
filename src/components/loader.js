@@ -123,6 +123,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     for (let i = 0; i < roles.length; i++) {
                         vars.roles[roles[i].id] = roles[i];
                     }
+                    vars.orderedRoles = roles.sort((a, b) => a.order_id - b.order_id).map(role => role.id);
                 }
                 if (memberPerms) {
                     vars.perms = memberPerms;

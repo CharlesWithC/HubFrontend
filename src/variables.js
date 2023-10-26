@@ -75,9 +75,11 @@ var discordClientID = null;
 exports.discordClientID = discordClientID;
 
 var roles = {};
+var orderedRoles = [];
 var perms = {};
 var ranks = {};
 exports.roles = roles;
+exports.orderedRoles = orderedRoles;
 exports.perms = perms;
 exports.ranks = ranks;
 
