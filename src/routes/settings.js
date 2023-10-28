@@ -338,9 +338,9 @@ const Settings = () => {
     }, [remoteUserConfig]);
 
     let trackers = [];
-    for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
-        if (!trackers.includes(vars.apiconfig.tracker[i].type)) {
-            trackers.push(vars.apiconfig.tracker[i].type);
+    for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
+        if (!trackers.includes(vars.apiconfig.trackers[i].type)) {
+            trackers.push(vars.apiconfig.trackers[i].type);
         }
     }
     const [tracker, setTracker] = useState(vars.userInfo.tracker);

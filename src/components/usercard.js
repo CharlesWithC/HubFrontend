@@ -317,9 +317,9 @@ const UserCard = (props) => {
     }, [dlogPage, dlogPageSize, ctxAction, showProfileModal]);
 
     let trackers = [];
-    for (let i = 0; i < vars.apiconfig.tracker.length; i++) {
-        if (!trackers.includes(vars.apiconfig.tracker[i].type)) {
-            trackers.push(vars.apiconfig.tracker[i].type);
+    for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
+        if (!trackers.includes(vars.apiconfig.trackers[i].type)) {
+            trackers.push(vars.apiconfig.trackers[i].type);
         }
     }
     const trackerMapping = { "tracksim": "TrackSim", "trucky": "Trucky" };

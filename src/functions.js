@@ -480,3 +480,18 @@ export function removeNullValues(obj) {
 
     return newObj;
 };
+
+export function compareVersions(version1, version2) {
+    const v1 = version1.replace('.dev', '').split('.').map(Number);
+    const v2 = version2.replace('.dev', '').split('.').map(Number);
+
+    for (let i = 0; i < v1.length; i++) {
+        if (v1[i] < v2[i]) {
+            return -1;
+        } else if (v1[i] > v2[i]) {
+            return 1;
+        }
+    }
+
+    return 0;
+}

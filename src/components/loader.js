@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 
-import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, getAuthToken, compareVersions } from '../functions';
 import { useTheme } from '@emotion/react';
 
 var vars = require('../variables');
@@ -117,6 +117,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (config) {
                     vars.discordClientID = config.config.discord_client_id;
                     vars.apiconfig = config.config;
+                    if (compareVersions(vars.apiversion, "2.8.6") < 0) {
+                        vars.apiconfig.trackers = vars.apiconfig.tracker;
+                    }
                 }
                 if (memberRoles) {
                     let roles = memberRoles;
@@ -173,19 +176,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
 
                 await FetchProfile();
-
-                if (window.location.hostname !== "localhost" && !["hub.atmvtc.com", "hub.gokboru.net.tr", "hub.movezenvtc.com", "hub.lightninglogisticsvtc.com", "hub.logisticaxtnt.com", "hub.plvtc.com", "md.chub.page", "hub.routevtc.com.tr", "hub.globaltrucking.uk", "midlandgloballogistics.chub.page"].includes(domain)) {
-                    if (!vars.isLoggedIn) {
-                        setLoaderAnimation(false);
-                        setLoadMessage("You must login from alpha web client first!");
-                        return;
-                    }
-                    if (!Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
-                        setLoaderAnimation(false);
-                        setLoadMessage("You are not eligible for CHub Web Client V3 Early Access!");
-                        return;
-                    }
-                }
 
                 onLoaderLoaded();
             } catch (error) {
