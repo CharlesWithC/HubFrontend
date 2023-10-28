@@ -267,7 +267,7 @@ const Deliveries = () => {
                 {detailStats.fine !== undefined && detailStats.fine.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <FontAwesomeIcon icon={faTowerObservation} />&nbsp;&nbsp;Top Offence
+                            <FontAwesomeIcon icon={faTowerObservation} />&nbsp;&nbsp;Top Offences
                         </Typography>
                     } first={{ name: replaceUnderscores(detailStats.fine[0].unique_id), stat: detailStats.fine[0].count }} second={{ name: replaceUnderscores(detailStats.fine[1].unique_id), stat: detailStats.fine[1].count }} third={{ name: replaceUnderscores(detailStats.fine[2].unique_id), stat: detailStats.fine[2].count }} fixWidth={true} />
                 </Grid>}

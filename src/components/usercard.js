@@ -967,11 +967,11 @@ const UserCard = (props) => {
                                 </Grid>
                                 {detailStats !== null && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favoriate Truck</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favorite Truck</Typography>
                                         <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count})</Typography>
                                     </Grid>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favoriate Cargo</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favorite Cargo</Typography>
                                         <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count})</Typography>
                                     </Grid>
                                 </>}
