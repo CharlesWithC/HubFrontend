@@ -101,7 +101,7 @@ const Overview = () => {
         <Grid item xs={12} sm={12} md={6} lg={4}>
             <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
         </Grid>
-        {vars.isLoggedIn && newestMember !== null && latestDelivery !== null &&
+        {vars.isLoggedIn && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
             <><Grid item xs={12} sm={12} md={6} lg={4}>
                 <Card>
                     <CardContent>
