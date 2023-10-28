@@ -36,7 +36,7 @@ const EmailAuth = () => {
         if (resp.status === 204) {
             setPasswordColor(theme.palette.success.main);
             setPasswordText("Password updated! Redirecting to login...");
-            setTimeout(function () { navigate("/beta/auth/login"); }, 500);
+            setTimeout(function () { navigate("/auth/login"); }, 500);
         } else {
             setPasswordError(true);
             setPasswordColor(theme.palette.error.main);
@@ -58,7 +58,7 @@ const EmailAuth = () => {
             let resp = await axios({ url: `${vars.dhpath}/auth/email?secret=${secret}`, method: `POST` });
             if (resp.status === 204) {
                 setMessage("Email confirmed! Redirecting to overview...");
-                setTimeout(function () { navigate("/beta/"); }, 500);
+                setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setMessage(`Error: ${resp.data.error}`);
             }

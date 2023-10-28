@@ -136,7 +136,7 @@ const SideBar = (props) => {
             routeIndex[menuRoute[menu[i][j]]] = i * 10 + j;
         }
     }
-    let path = window.location.pathname.replace("/beta", "");
+    let path = window.location.pathname;
     let matchedPath = false;
     if (Object.keys(routeIndex).includes("/" + path.split("/")[1])) {
         matchedPath = true;
@@ -162,7 +162,7 @@ const SideBar = (props) => {
             <div key={`navlist-${subMenu}-${subIndex}`}>
                 <List sx={{ margin: "0px 10px 0 10px" }}>
                     {subMenu.map((menuID, btnIndex) => (
-                        <Link key={`navlink-${menuID}-${btnIndex}`} to={`/beta${menuRoute[menuID]}`}>
+                        <Link key={`navlink-${menuID}-${btnIndex}`} to={`${menuRoute[menuID]}`}>
                             <ListItem key={`navbtn-${menuID}-${btnIndex}`} disablePadding>
                                 <ListItemButton selected={selectedIndex === subIndex * 10 + btnIndex}
                                     onClick={(event) => handleListItemClick(event, subIndex * 10 + btnIndex)}>

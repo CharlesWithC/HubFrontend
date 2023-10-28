@@ -52,11 +52,11 @@ const AuthLogin = () => {
                 if (resp.data.mfa) {
                     setSnackbarContent("Success! Redirecting to Multiple Factor Authentication...");
                     setSnackbarSeverity("success");
-                    setTimeout(function () { navigate(`/beta/auth/mfa?token=${resp.data.token}`); }, 3000);
+                    setTimeout(function () { navigate(`/auth/mfa?token=${resp.data.token}`); }, 3000);
                 } else {
                     setSnackbarContent("Success! Please wait...");
                     setSnackbarSeverity("success");
-                    setTimeout(function () { navigate(`/beta/auth?token=${resp.data.token}`); }, 3000);
+                    setTimeout(function () { navigate(`/auth?token=${resp.data.token}`); }, 3000);
                 }
             } else {
                 setSnackbarContent(resp.data.error);
@@ -67,7 +67,7 @@ const AuthLogin = () => {
             if (resp.status === 200) {
                 setSnackbarContent("Success! Account registered! Check your email for confirmation link before the account get closed automatically!");
                 setSnackbarSeverity("success");
-                setTimeout(function () { navigate(`/beta/auth?token=${resp.data.token}`); }, 3000);
+                setTimeout(function () { navigate(`/auth?token=${resp.data.token}`); }, 3000);
             } else {
                 setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
@@ -92,7 +92,7 @@ const AuthLogin = () => {
                 <CardContent sx={{ padding: { xs: "20px", sm: "30px", md: "40px", lg: "40px" }, mb: "20px" }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={12} md={8} lg={8}>
-                            <Typography variant="h3" sx={{ fontWeight: 800 }}>Welcome back! <IconButton variant="contained" color="primary" onClick={() => { navigate("/beta/"); }}><FontAwesomeIcon icon={faClose} /></IconButton></Typography>
+                            <Typography variant="h3" sx={{ fontWeight: 800 }}>Welcome back! <IconButton variant="contained" color="primary" onClick={() => { navigate("/"); }}><FontAwesomeIcon icon={faClose} /></IconButton></Typography>
                             <TextField label="Email" variant="outlined" fullWidth margin="normal" value={email} onChange={(e) => { setEmail(e.target.value); }} />
                             <TextField label="Password" variant="outlined" fullWidth margin="normal" type="password" value={password} onChange={(e) => { setPassword(e.target.value); }} />
                             <Typography variant="body2" onClick={() => { if (validateEP()) { setAction("reset-password"); setModalCaptcha(true); } }} sx={{ cursor: "pointer", width: "fit-content" }}>Forgot your password?</Typography>
@@ -114,10 +114,10 @@ const AuthLogin = () => {
                             <br />
                             <Typography variant="body2" sx={{ mb: "5px" }}>Register or login with:</Typography>
                             <ButtonGroup fullWidth>
-                                <Button variant="contained" color="primary" onClick={() => { navigate("/beta/auth/discord/redirect"); }}>
+                                <Button variant="contained" color="primary" onClick={() => { navigate("/auth/discord/redirect"); }}>
                                     <FontAwesomeIcon icon={faDiscord} />&nbsp;&nbsp;Discord
                                 </Button>
-                                <Button variant="contained" color="primary" onClick={() => { navigate("/beta/auth/steam/redirect"); }}>
+                                <Button variant="contained" color="primary" onClick={() => { navigate("/auth/steam/redirect"); }}>
                                     <FontAwesomeIcon icon={faSteam} />&nbsp;&nbsp;Steam
                                 </Button>
                             </ButtonGroup>

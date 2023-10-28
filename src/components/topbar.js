@@ -214,7 +214,7 @@ const TopBar = (props) => {
     const isMenuOpen = Boolean(anchorEl);
     const handleProfileMenuOpen = (event) => {
         if (!vars.isLoggedIn) {
-            navigate("/beta/auth/login");
+            navigate("/auth/login");
         }
         setAnchorEl(event.currentTarget);
     };
@@ -289,7 +289,7 @@ const TopBar = (props) => {
         try {
             let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${bearerToken}` }, method: `DELETE` });
             localStorage.removeItem("token");
-            navigate("/beta/");
+            navigate("/");
             if (parseInt(resp.status / 100) === 2) {
                 setSnackbarSeverity("success");
                 setSnackbarContent("You are logged out");
@@ -325,9 +325,9 @@ const TopBar = (props) => {
         sx={{ top: "50px" }}
     >
         <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
-        <Link to="/beta/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
+        <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-        <Link to="/beta/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Sponsor</MenuItem></Link>
+        <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Sponsor</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);

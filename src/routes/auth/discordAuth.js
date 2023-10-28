@@ -22,7 +22,7 @@ const DiscordAuth = () => {
     const [doingUpdate, setDoingUpdate] = useState(false);
 
     useEffect(() => {
-        let callback_url = `${window.location.protocol}//${window.location.host}/beta/auth/discord/callback`;
+        let callback_url = `${window.location.protocol}//${window.location.host}/auth/discord/callback`;
         if (vars.discordClientID === 1120997206938361877) {
             callback_url = `https://shared-discord-application.chub.page/discord-auth`;
         }
@@ -38,9 +38,9 @@ const DiscordAuth = () => {
                             setMessage("You are authorized 🎉");
                             await FetchProfile();
                             setContinue(true);
-                            setTimeout(function () { navigate('/beta/'); }, 500);
+                            setTimeout(function () { navigate('/'); }, 500);
                         } else {
-                            navigate("/beta/auth/mfa?token=" + resp.data.token);
+                            navigate("/auth/mfa?token=" + resp.data.token);
                             setMessage("MFA OTP Required 🔑");
                         }
                     } else {
@@ -53,7 +53,7 @@ const DiscordAuth = () => {
                     if (resp.status === 204) {
                         setContinue(true);
                         localStorage.removeItem("update-discord");
-                        setTimeout(function () { navigate("/beta/settings"); }, 3000);
+                        setTimeout(function () { navigate("/settings"); }, 3000);
                         setMessage("Discord Account Updated");
                     } else {
                         setContinue(true);
@@ -73,7 +73,7 @@ const DiscordAuth = () => {
             setMessage(`❌ Discord Error: ${discordError}`);
             return;
         } else if (discordCode === null) {
-            navigate("/beta/auth/discord/redirect");
+            navigate("/auth/discord/redirect");
             return;
         } else {
             validateDiscordAuth();
@@ -82,9 +82,9 @@ const DiscordAuth = () => {
 
     function handleContinue() {
         if (doingUpdate) {
-            navigate('/beta/settings');
+            navigate('/settings');
         } else {
-            navigate('/beta/');
+            navigate('/');
         }
     }
 

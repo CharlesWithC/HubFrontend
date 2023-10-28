@@ -69,27 +69,27 @@ function GetActivity(activity) {
         let name = activity.status;
         if (name.startsWith("dlog_")) {
             const deliveryId = name.split("_")[1];
-            return <Link to={`/beta/delivery/${deliveryId}`}>Viewing Delivery #{deliveryId}</Link>;
+            return <Link to={`/delivery/${deliveryId}`}>Viewing Delivery #{deliveryId}</Link>;
         } else if (name === "dlog") {
-            return <Link to="/beta/delivery">Viewing Deliveries</Link>;
+            return <Link to="/delivery">Viewing Deliveries</Link>;
         } else if (name === "index") {
-            return <Link to="/beta/">Viewing Overview</Link>;
+            return <Link to="/">Viewing Overview</Link>;
         } else if (name === "leaderboard") {
-            return <Link to="/beta/leaderboard">Viewing Leaderboard</Link>;
+            return <Link to="/leaderboard">Viewing Leaderboard</Link>;
         } else if (name === "member") {
-            return <Link to="/beta/member">Viewing Members</Link>;
+            return <Link to="/member">Viewing Members</Link>;
         } else if (name === "announcement") {
-            return <Link to="/beta/announcement">Viewing Announcements</Link>;
+            return <Link to="/announcement">Viewing Announcements</Link>;
         } else if (name === "application") {
-            return <Link to="/beta/application/my">Viewing Applications</Link>;
+            return <Link to="/application/my">Viewing Applications</Link>;
         } else if (name === "challenge") {
-            return <Link to="/beta/challenge">Viewing Challenges</Link>;
+            return <Link to="/challenge">Viewing Challenges</Link>;
         } else if (name === "division") {
-            return <Link to="/beta/division">Viewing Divisions</Link>;
+            return <Link to="/division">Viewing Divisions</Link>;
         } else if (name === "downloads") {
-            return <Link to="/beta/downloads">Viewing Downloads</Link>;
+            return <Link to="/downloads">Viewing Downloads</Link>;
         } else if (name === "event") {
-            return <Link to="/beta/event">Viewing Events</Link>;
+            return <Link to="/event">Viewing Events</Link>;
         } else {
             return <></>;
         }
@@ -1006,7 +1006,7 @@ const UserCard = (props) => {
                         </TabPanel>
                         <TabPanel value={tab} index={2}>
                             {dlogList !== null &&
-                                <CustomTable columns={dlogColumns} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/beta/delivery/${data.logid}`); }} />}
+                                <CustomTable columns={dlogColumns} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/delivery/${data.logid}`); }} />}
                         </TabPanel>
                     </SimpleBar>
                 </CardContent>

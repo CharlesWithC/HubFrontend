@@ -34,7 +34,7 @@ const MfaAuth = () => {
                 setOtpText("You are authorized 🎉");
                 setOtpReadOnly(true);
                 await FetchProfile();
-                setTimeout(function () { navigate("/beta/"); }, 500);
+                setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);
                 setOtpColor(theme.palette.error.main);

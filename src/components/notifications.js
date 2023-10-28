@@ -133,7 +133,7 @@ const NotificationsPopover = () => {
                         <IconButton onClick={handleAllRead}>
                             <DoneAllRounded />
                         </IconButton>
-                        <IconButton onClick={() => { navigate("/beta/notifications"); }}>
+                        <IconButton onClick={() => { navigate("/notifications"); }}>
                             <FontAwesomeIcon icon={faExpand} />
                         </IconButton>
                     </ListItem>

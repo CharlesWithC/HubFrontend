@@ -24,7 +24,7 @@ const TokenAuth = () => {
                     setMessage("You are authorized 🎉");
                     await FetchProfile();
                     setContinue(true);
-                    setTimeout(function () { navigate('/beta/'); }, 500);
+                    setTimeout(function () { navigate('/'); }, 500);
                 } else if (resp.status === 401) {
                     setMessage("Invalid token ❌");
                     setContinue(true);
@@ -47,7 +47,7 @@ const TokenAuth = () => {
     }, [token, navigate]);
 
     function handleContinue() {
-        navigate('/beta/');
+        navigate('/');
     }
 
     return (

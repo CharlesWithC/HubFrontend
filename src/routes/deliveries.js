@@ -237,7 +237,7 @@ const Deliveries = () => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/beta/delivery/${data.logid}`);
+        navigate(`/delivery/${data.logid}`);
     }
 
     function replaceUnderscores(str) {

@@ -149,7 +149,7 @@ const DivisionsDlog = memo(({ doReload }) => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/beta/delivery/${data.logid}`);
+        navigate(`/delivery/${data.logid}`);
     }
 
     return <>
@@ -193,7 +193,7 @@ const DivisionsPending = memo(({ doReload }) => {
 
     const navigate = useNavigate();
     function handleClick(data) {
-        navigate(`/beta/delivery/${data.logid}`);
+        navigate(`/delivery/${data.logid}`);
     }
 
     return <>

@@ -32,9 +32,9 @@ const SteamAuth = () => {
                             setMessage("You are authorized 🎉");
                             await FetchProfile();
                             setContinue(true);
-                            setTimeout(function () { navigate('/beta/'); }, 500);
+                            setTimeout(function () { navigate('/'); }, 500);
                         } else {
-                            navigate("/beta/auth/mfa?token=" + resp.data.token);
+                            navigate("/auth/mfa?token=" + resp.data.token);
                             setMessage("MFA OTP Required 🔑");
                         }
                     } else {
@@ -47,7 +47,7 @@ const SteamAuth = () => {
                     if (resp.status === 204) {
                         setContinue(true);
                         localStorage.removeItem("update-steam");
-                        setTimeout(function () { navigate("/beta/settings"); }, 3000);
+                        setTimeout(function () { navigate("/settings"); }, 3000);
                         setMessage("Steam Account Updated");
                     } else {
                         setContinue(true);
@@ -64,9 +64,9 @@ const SteamAuth = () => {
 
     function handleContinue() {
         if (doingUpdate) {
-            navigate('/beta/settings');
+            navigate('/settings');
         } else {
-            navigate('/beta/');
+            navigate('/');
         }
     }
 

@@ -105,7 +105,7 @@ function App() {
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
         const handle = () => {
-            if (["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname)) {
+            if (["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname)) {
                 setSidebarForceHidden(true);
                 setSidebarHidden(true);
                 setTopbarHidden(true);
@@ -194,42 +194,42 @@ function App() {
                     </>}
                     <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                         <Routes>
-                            <Route path="/beta/auth/login" element={<AuthLogin />} />
-                            <Route path="/beta/auth" element={<TokenAuth />} />
-                            <Route path="/beta/auth/discord/callback" element={<DiscordAuth />} />
-                            {vars.discordClientID !== 1120997206938361877 && <Route path="/beta/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fbeta%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} />} />}
-                            {vars.discordClientID === 1120997206938361877 && <Route path="/beta/auth/discord/redirect" element={<Redirect to={`https://shared-discord-application.chub.page/discord-auth?domain=${window.location.host}`} />} />}
-                            <Route path="/beta/auth/steam/callback" element={<SteamAuth />} />
-                            <Route path="/beta/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
-                            <Route path="/beta/auth/mfa" element={<MfaAuth />} />
-                            <Route path="/beta/auth/email" element={<EmailAuth />} />
-                            <Route path="/beta/" exact element={<Overview />}></Route>
-                            <Route path="/beta/overview" element={<Overview />}></Route>
-                            <Route path="/beta/sponsor" element={<UpgradeCard />}></Route>
-                            <Route path="/beta/announcement" element={<Announcement />}></Route>
-                            <Route path="/beta/downloads" element={<Downloads />}></Route>
-                            <Route path="/beta/map" element={<Map />}></Route>
-                            <Route path="/beta/delivery" element={<Deliveries />}></Route>
-                            <Route path="/beta/delivery/:logid" element={<Delivery />} />
-                            <Route path="/beta/event" element={<Events />}></Route>
-                            <Route path="/beta/challenge" element={<Challenges />}></Route>
-                            <Route path="/beta/division" element={<Divisions />}></Route>
-                            <Route path="/beta/member" element={<Members />}></Route>
-                            <Route path="/beta/leaderboard" element={<Leaderboard />}></Route>
-                            <Route path="/beta/ranking" element={<Ranking />}></Route>
-                            <Route path="/beta/application/new" element={<NewApplication />}></Route>
-                            <Route path="/beta/apply" element={<NewApplication />}></Route>
-                            <Route path="/beta/application/my" element={<MyApplication />}></Route>
-                            <Route path="/beta/application/all" element={<AllApplication />}></Route>
-                            <Route path="/beta/member-list" element={<MemberList />}></Route>
-                            <Route path="/beta/external-user" element={<ExternalUsers />}></Route>
-                            <Route path="/beta/audit-log" element={<AuditLog />}></Route>
-                            <Route path="/beta/config" element={<Configuration />}></Route>
-                            <Route path="/beta/settings" element={<Settings />}></Route>
-                            <Route path="/beta/notifications" element={<Notifications />}></Route>
-                            <Route path="/beta/poll" element={<Poll />}></Route>
-                            <Route path="/beta/economy" element={<Economy />}></Route>
-                            <Route path="/beta/supporters" element={<Supporters />}></Route>
+                            <Route path="/auth/login" element={<AuthLogin />} />
+                            <Route path="/auth" element={<TokenAuth />} />
+                            <Route path="/auth/discord/callback" element={<DiscordAuth />} />
+                            {vars.discordClientID !== 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fbeta%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} />} />}
+                            {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://shared-discord-application.chub.page/discord-auth?domain=${window.location.host}`} />} />}
+                            <Route path="/auth/steam/callback" element={<SteamAuth />} />
+                            <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fbeta%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
+                            <Route path="/auth/mfa" element={<MfaAuth />} />
+                            <Route path="/auth/email" element={<EmailAuth />} />
+                            <Route path="/" exact element={<Overview />}></Route>
+                            <Route path="/overview" element={<Overview />}></Route>
+                            <Route path="/sponsor" element={<UpgradeCard />}></Route>
+                            <Route path="/announcement" element={<Announcement />}></Route>
+                            <Route path="/downloads" element={<Downloads />}></Route>
+                            <Route path="/map" element={<Map />}></Route>
+                            <Route path="/delivery" element={<Deliveries />}></Route>
+                            <Route path="/delivery/:logid" element={<Delivery />} />
+                            <Route path="/event" element={<Events />}></Route>
+                            <Route path="/challenge" element={<Challenges />}></Route>
+                            <Route path="/division" element={<Divisions />}></Route>
+                            <Route path="/member" element={<Members />}></Route>
+                            <Route path="/leaderboard" element={<Leaderboard />}></Route>
+                            <Route path="/ranking" element={<Ranking />}></Route>
+                            <Route path="/application/new" element={<NewApplication />}></Route>
+                            <Route path="/apply" element={<NewApplication />}></Route>
+                            <Route path="/application/my" element={<MyApplication />}></Route>
+                            <Route path="/application/all" element={<AllApplication />}></Route>
+                            <Route path="/member-list" element={<MemberList />}></Route>
+                            <Route path="/external-user" element={<ExternalUsers />}></Route>
+                            <Route path="/audit-log" element={<AuditLog />}></Route>
+                            <Route path="/config" element={<Configuration />}></Route>
+                            <Route path="/settings" element={<Settings />}></Route>
+                            <Route path="/notifications" element={<Notifications />}></Route>
+                            <Route path="/poll" element={<Poll />}></Route>
+                            <Route path="/economy" element={<Economy />}></Route>
+                            <Route path="/supporters" element={<Supporters />}></Route>
                         </Routes>
                         <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
                             <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
@@ -270,26 +270,26 @@ function App() {
                                 <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>Close</Button>
                             </DialogActions>
                         </Dialog>
-                        <footer style={{ display: ["/beta/auth", "/beta/auth/login", "/beta/auth/email", "/beta/auth/discord/callback", "/beta/auth/discord/redirect", "/beta/auth/steam/callback", "/beta/auth/steam/redirect", "/beta/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
+                        <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
                             {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                 <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                     <br />
-                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/beta/supporters"); }} style={{ cursor: "pointer" }} />
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
                                 </Typography>
                                 <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800 }}>
                                     {vars.dhconfig.name}
                                     <br />
-                                    API: v{vars.apiversion} | Client: v3 (beta)
+                                    API: v{vars.apiversion} | Client: v3.0.0
                                 </Typography>
                             </div>}
                             {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                 <Typography variant="body2" sx={{  fontWeight: 800 }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                     <br />
-                                    API: v{vars.apiversion} | Client: v3 (beta)
+                                    API: v{vars.apiversion} | Client: v3.0.0
                                     <br />
-                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/beta/supporters"); }} style={{ cursor: "pointer" }} />
+                                    <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
                                 </Typography>
                             </div>}
                         </footer>
