@@ -195,9 +195,15 @@ export function CalcInterval(start_time, end_time) {
 
 export const loadImageAsBase64 = async (imageUrl) => {
     try {
-        const response = await customAxios.get(imageUrl, {
+        let response = await customAxios.get(imageUrl, {
             responseType: 'blob' // Set the response type to blob
         });
+
+        if (response.status === 404) {
+            response = await customAxios.get("https://cdn.chub.page/assets/logo.png", {
+                responseType: 'blob' // Set the response type to blob
+            });
+        }
 
         const blob = response.data;
         const reader = new FileReader();

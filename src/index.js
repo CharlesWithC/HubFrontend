@@ -23,8 +23,24 @@ Sentry.init({
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+class ErrorBoundary extends React.Component {
+    componentDidCatch(error, errorInfo) {
+        Sentry.withScope(scope => {
+            scope.setExtras(errorInfo);
+            Sentry.captureException(error);
+        });
+    }
+
+    render() {
+        return this.props.children;
+    }
+}
 root.render(
-    <Router><App /></Router>
+    <ErrorBoundary>
+        <Router>
+            <App />
+        </Router>
+    </ErrorBoundary>
 );
 
 // If you want to start measuring performance in your app, pass a function

@@ -66,11 +66,11 @@ const TopBar = (props) => {
                     setRadioSpotifyId(undefined);
                     setRadioURL(vars.userSettings.radio_type);
                     setRadioName("Custom Radio");
-                    setRadioImage("https://drivershub.charlws.com/images/logo.png");
+                    setRadioImage("https://cdn.chub.page/assets/logo.png");
                     navigator.mediaSession.metadata = new MediaMetadata({
                         title: "Custom Radio",
                         artwork: [
-                            { src: "https://drivershub.charlws.com/images/logo.png", sizes: '500x500', type: 'image/jpeg' }
+                            { src: "https://cdn.chub.page/assets/logo.png", sizes: '500x500', type: 'image/jpeg' }
                         ]
                     });
                     radioOK = true;

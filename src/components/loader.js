@@ -48,7 +48,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (resp.status !== 200) {
                     setLoaderAnimation(false);
                     setTitle("CHub - Drivers Hub");
-                    vars.dhlogo = await loadImageAsBase64(`https://drivershub.charlws.com/images/logo.png`);
+                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/logo.png`);
                     setLogoSrc(vars.dhlogo);
                     if (resp.data.error === "Service Suspended") {
                         setLoadMessage(<>Drivers Hub Suspended<br />Please ask the owner to complete the payment for CHub<br /><br /><a href="https://drivershub.charlws.com/">CHub - Drivers Hub</a></>);
@@ -74,7 +74,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
 
                 const urlsBatch1 = [
-                    { url: `${vars.dhpath}`, auth: false },
+                    { url: `${vars.dhpath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/config/user", auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
