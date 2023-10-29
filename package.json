@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.10.6",
@@ -28,7 +28,6 @@
     "chart.js": "^4.3.0",
     "hammerjs": "^2.0.8",
     "jsoneditor": "^9.10.2",
-    "jsoneditor-react": "^3.1.2",
     "lodash": "^4.17.21",
     "ol": "^7.4.0",
     "qr-code-styling": "^1.6.0-rc.1",

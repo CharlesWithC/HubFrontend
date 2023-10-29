@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid } from '@mui/material';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Card, CardContent, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel } from '@mui/material';
 import { Portal } from '@mui/base';
-import { JsonEditor } from 'jsoneditor-react';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faClockRotateLeft, faFingerprint, faDesktop } from '@fortawesome/free-solid-svg-icons';
 
 import { customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
+import { useTheme } from '@emotion/react';
 
 var vars = require("../variables");
 
 const Configuration = () => {
+    const theme = useTheme();
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback(() => {
@@ -55,11 +56,8 @@ const Configuration = () => {
     const [apiConfig, setApiConfig] = useState(null);
     const [apiBackup, setApiBackup] = useState(null);
     const [apiLastModify, setApiLastModify] = useState(0);
-    const [apiLastChange, setApiLastChange] = useState(0);
-    const updateApiConfig = useCallback((e) => {
-        setApiConfig(e.target.value);
-        setApiLastChange(+new Date()); // to ensure json updates correctly when needed
-    }, [setApiConfig]);
+    const [apiConfigSelectionStart, setApiConfigSelectionStart] = useState(null);
+    const [apiConfigDisabled, setApiConfigDisabled] = useState(false);
 
     const [reloadModalOpen, setReloadModalOpen] = useState(false);
     function handleCloseReloadModal() {
@@ -67,14 +65,37 @@ const Configuration = () => {
     }
 
     const saveApiConfig = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
-
-        let config = apiConfig;
-        const secret_keys = ["tracker_api_token", "tracker_webhook_secret", "discord_client_secret", "discord_bot_token", "steam_api_key", "smtp_port", "smtp_passwd"];
+        let config = {};
+        try {
+            config = JSON.parse(apiConfig);
+        } catch (error) {
+            if (error instanceof SyntaxError) {
+                setSnackbarContent(`${error.message}`);
+            } else {
+                setSnackbarContent(error);
+            }
+            setSnackbarSeverity("error");
+            return;
+        }
+        const secret_keys = ["discord_client_secret", "discord_bot_token", "steam_api_key", "smtp_port", "smtp_passwd"];
         for (let i = 0; i < secret_keys.length; i++) {
             if (config[secret_keys[i]] === "") delete config[secret_keys[i]];
         }
+        let doDeleteTracker = false;
+        if (config["trackers"]) {
+            for (let i = 0; i < config["trackers"].length; i++) {
+                if (config["trackers"][i]["api_token"] === "" || config["trackers"][i]["webhook_secret"] === "") {
+                    doDeleteTracker = true;
+                }
+            }
+            if (doDeleteTracker) {
+                delete config["trackers"];
+            }
+        }
+
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setApiConfigDisabled(true);
 
         let resp = await axios({ url: `${vars.dhpath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -85,6 +106,7 @@ const Configuration = () => {
             setSnackbarSeverity("error");
         }
 
+        setApiConfigDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
     }, [apiConfig]);
@@ -103,6 +125,7 @@ const Configuration = () => {
             setSnackbarSeverity("error");
             return;
         }
+        setApiConfigDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/config/reload`, method: "POST", data: { otp: otp }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(`Config reloaded!`);
@@ -111,8 +134,10 @@ const Configuration = () => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
+        setApiConfigDisabled(false);
     }, [mfaOtp]);
     const enableDiscordRoleConnection = useCallback(async () => {
+        setApiConfigDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/discord/role-connection/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(`Success!`);
@@ -121,8 +146,10 @@ const Configuration = () => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
+        setApiConfigDisabled(false);
     }, []);
     const disableDiscordRoleConnection = useCallback(async () => {
+        setApiConfigDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/discord/role-connection/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(`Success!`);
@@ -131,6 +158,7 @@ const Configuration = () => {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
+        setApiConfigDisabled(false);
     }, []);
 
     useEffect(() => {
@@ -142,8 +170,8 @@ const Configuration = () => {
                 { url: `${vars.dhpath}/config`, auth: true },
             ]);
 
-            setApiConfig(_apiConfig.config);
-            setApiBackup(_apiConfig.backup);
+            setApiConfig(JSON.stringify(_apiConfig.config, null, 4));
+            setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
             setApiLastModify(_apiConfig.config_last_modified);
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -226,22 +254,31 @@ const Configuration = () => {
                     <br />
                     <FontAwesomeIcon icon={faClockRotateLeft} /> Last Modified: <TimeAgo key={apiLastModify} timestamp={apiLastModify * 1000} />
                 </Typography>
-                {apiConfig !== null && <JsonEditor
-                    key={apiLastChange}
-                    value={apiConfig}
-                    onChange={updateApiConfig}
-                />}
+                {apiConfig !== null && <div sx={{ position: "relative" }}>
+                    <TextField
+                        label="JSON Config"
+                        value={apiConfig}
+                        onChange={(e) => { setApiConfig(e.target.value); setApiConfigSelectionStart(e.target.selectionStart); }}
+                        onClick={(e) => { setApiConfigSelectionStart(e.target.selectionStart); }}
+                        fullWidth rows={20} maxRows={20} multiline
+                        sx={{ mt: "8px" }} placeholder={`{...}`}
+                        spellCheck={false}
+                    />
+                    {apiConfigSelectionStart !== null && !isNaN(apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)) && <InputLabel sx={{ color: theme.palette.text.secondary, fontSize: "12px", mb: "8px" }}>
+                        Line {apiConfig.substr(0, apiConfigSelectionStart).split('\n').length}, Column {apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)}
+                    </InputLabel>}
+                </div>}
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Box sx={{ display: 'grid', justifyItems: 'start' }}>
-                        <ButtonGroup sx={{ mt: "5px" }}>
+                        <ButtonGroup sx={{ mt: "5px" }} disabled={apiConfigDisabled}>
                             <Button variant="contained" color="success" onClick={() => { enableDiscordRoleConnection(); }}>Enable</Button>
                             <Button variant="contained" color="error" onClick={() => { disableDiscordRoleConnection(); }}>Disable</Button>
                             <Button variant="contained" color="secondary">Discord Role Connection</Button>
                         </ButtonGroup>
                     </Box>
                     <Box sx={{ display: 'grid', justifyItems: 'end' }}>
-                        <ButtonGroup sx={{ mt: "5px" }}>
-                            <Button variant="contained" color="secondary" onClick={() => { setApiConfig(apiBackup); setApiLastChange(+new Date()); }}>Revert</Button>
+                        <ButtonGroup sx={{ mt: "5px" }} disabled={apiConfigDisabled}>
+                            <Button variant="contained" color="secondary" onClick={() => { setApiConfig(apiBackup); }}>Revert</Button>
                             <Button variant="contained" color="success" onClick={() => { saveApiConfig(); }}>Save</Button>
                             <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
                         </ButtonGroup>
