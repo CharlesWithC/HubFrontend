@@ -167,8 +167,8 @@ function App() {
                 {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
                 <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })
                     || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
-                    {cookieSettings === null && <>
-                        <Card sx={{ position: "fixed", zIndex: 1000, bottom: "10px", right: "10px", width: "400px" }}>
+                    {cookieSettings === null && !sidebarForceHidden && <>
+                        <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
                             <CardContent>
                                 <Typography variant="h6">
                                     We value your privacy
@@ -284,7 +284,7 @@ function App() {
                                 </Typography>
                             </div>}
                             {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
-                                <Typography variant="body2" sx={{  fontWeight: 800 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                     <br />
                                     API: v{vars.apiversion} | Client: v3.0.0
