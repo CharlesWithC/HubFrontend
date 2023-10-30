@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card, CardContent, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,6 +11,34 @@ import { useTheme } from '@emotion/react';
 
 var vars = require("../variables");
 
+function tabBtnProps(index, current, theme) {
+    return {
+        id: `map-tab-${index}`,
+        'aria-controls': `map-tabpanel-${index}`,
+        style: { color: current === index ? theme.palette.info.main : 'inherit' }
+    };
+}
+
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`map-tabpanel-${index}`}
+            aria-labelledby={`map-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box sx={{ p: 3 }}>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
+}
+
 const Configuration = () => {
     const theme = useTheme();
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -18,6 +46,11 @@ const Configuration = () => {
     const handleCloseSnackbar = useCallback(() => {
         setSnackbarContent("");
     }, []);
+
+    const [tab, setTab] = React.useState(0);
+    const handleTabChange = (event, newValue) => {
+        setTab(newValue);
+    };
 
     const [mfaOtp, setMfaOtp] = useState("");
 
@@ -135,6 +168,7 @@ const Configuration = () => {
             setSnackbarSeverity("error");
         }
         setApiConfigDisabled(false);
+        setReloadModalOpen(false);
     }, [mfaOtp]);
     const enableDiscordRoleConnection = useCallback(async () => {
         setApiConfigDisabled(true);
@@ -182,10 +216,55 @@ const Configuration = () => {
 
     return (<>
         <Card>
-            <CardContent>
-                <Typography variant="h5" component="div">
-                    <FontAwesomeIcon icon={faDesktop} /> Web Config
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+                <Tabs value={tab} onChange={handleTabChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />API (JSON)</>} {...tabBtnProps(0, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />Web</>} {...tabBtnProps(1, tab, theme)} />
+                </Tabs>
+            </Box>
+            <TabPanel value={tab} index={0}>
+                <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
+                    - This is the advanced mode of config editing with JSON.
+                    <br />
+                    - You must reload config after saving to make it take effect.
+                    <br />
+                    - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
+                    <br />
+                    <br />
+                    <FontAwesomeIcon icon={faClockRotateLeft} /> Last Modified: <TimeAgo key={apiLastModify} timestamp={apiLastModify * 1000} />
                 </Typography>
+                {apiConfig !== null && <div sx={{ position: "relative" }}>
+                    <TextField
+                        label="JSON Config"
+                        value={apiConfig}
+                        onChange={(e) => { setApiConfig(e.target.value); setApiConfigSelectionStart(e.target.selectionStart); }}
+                        onClick={(e) => { setApiConfigSelectionStart(e.target.selectionStart); }}
+                        fullWidth rows={20} maxRows={20} multiline
+                        sx={{ mt: "8px" }} placeholder={`{...}`}
+                        spellCheck={false}
+                    />
+                    {apiConfigSelectionStart !== null && !isNaN(apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)) && <InputLabel sx={{ color: theme.palette.text.secondary, fontSize: "12px", mb: "8px" }}>
+                        Line {apiConfig.substr(0, apiConfigSelectionStart).split('\n').length}, Column {apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)}
+                    </InputLabel>}
+                </div>}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'grid', justifyItems: 'start' }}>
+                        <ButtonGroup sx={{ mt: "5px" }} disabled={apiConfigDisabled}>
+                            <Button variant="contained" color="success" onClick={() => { enableDiscordRoleConnection(); }}>Enable</Button>
+                            <Button variant="contained" color="error" onClick={() => { disableDiscordRoleConnection(); }}>Disable</Button>
+                            <Button variant="contained" color="secondary">Discord Role Connection</Button>
+                        </ButtonGroup>
+                    </Box>
+                    <Box sx={{ display: 'grid', justifyItems: 'end' }}>
+                        <ButtonGroup sx={{ mt: "5px" }} disabled={apiConfigDisabled}>
+                            <Button variant="contained" color="secondary" onClick={() => { setApiConfig(apiBackup); }}>Revert</Button>
+                            <Button variant="contained" color="success" onClick={() => { saveApiConfig(); }}>Save</Button>
+                            <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                        </ButtonGroup>
+                    </Box>
+                </div>
+            </TabPanel>
+            <TabPanel value={tab} index={1}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
                     - Web config does not affect company name, color and logo attributes in API Config.
                     <br />
@@ -233,58 +312,7 @@ const Configuration = () => {
                         <Button variant="contained" color="success" onClick={() => { saveWebConfig(); }} disabled={webConfigDisabled}>Save</Button>
                     </ButtonGroup>
                 </Box>
-            </CardContent>
-        </Card>
-        <br />
-        <Card>
-            <CardContent>
-                <Typography variant="h5" component="div">
-                    <FontAwesomeIcon icon={faServer} /> API Config
-                </Typography>
-                <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
-                    - You must reload config after saving to make it take effect.
-                    <br />
-                    - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
-                    <br />
-                    <br />
-                    - Certain attributes such as "tracker[].api_token" are not visible due to security concerns, they are saved but will not be returned.
-                    <br />
-                    - Thus, when you get api_token and webhook_secret from the tracker app, remember to double save them elsewhere because they need to be provided again when you add a new tracker.
-                    <br />
-                    <br />
-                    <FontAwesomeIcon icon={faClockRotateLeft} /> Last Modified: <TimeAgo key={apiLastModify} timestamp={apiLastModify * 1000} />
-                </Typography>
-                {apiConfig !== null && <div sx={{ position: "relative" }}>
-                    <TextField
-                        label="JSON Config"
-                        value={apiConfig}
-                        onChange={(e) => { setApiConfig(e.target.value); setApiConfigSelectionStart(e.target.selectionStart); }}
-                        onClick={(e) => { setApiConfigSelectionStart(e.target.selectionStart); }}
-                        fullWidth rows={20} maxRows={20} multiline
-                        sx={{ mt: "8px" }} placeholder={`{...}`}
-                        spellCheck={false}
-                    />
-                    {apiConfigSelectionStart !== null && !isNaN(apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)) && <InputLabel sx={{ color: theme.palette.text.secondary, fontSize: "12px", mb: "8px" }}>
-                        Line {apiConfig.substr(0, apiConfigSelectionStart).split('\n').length}, Column {apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)}
-                    </InputLabel>}
-                </div>}
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'grid', justifyItems: 'start' }}>
-                        <ButtonGroup sx={{ mt: "5px" }} disabled={apiConfigDisabled}>
-                            <Button variant="contained" color="success" onClick={() => { enableDiscordRoleConnection(); }}>Enable</Button>
-                            <Button variant="contained" color="error" onClick={() => { disableDiscordRoleConnection(); }}>Disable</Button>
-                            <Button variant="contained" color="secondary">Discord Role Connection</Button>
-                        </ButtonGroup>
-                    </Box>
-                    <Box sx={{ display: 'grid', justifyItems: 'end' }}>
-                        <ButtonGroup sx={{ mt: "5px" }} disabled={apiConfigDisabled}>
-                            <Button variant="contained" color="secondary" onClick={() => { setApiConfig(apiBackup); }}>Revert</Button>
-                            <Button variant="contained" color="success" onClick={() => { saveApiConfig(); }}>Save</Button>
-                            <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
-                        </ButtonGroup>
-                    </Box>
-                </div>
-            </CardContent>
+            </TabPanel>
         </Card >
         <Dialog open={reloadModalOpen} onClose={handleCloseReloadModal}>
             <DialogTitle>
