@@ -74,10 +74,12 @@ exports.userConfig = userConfig;
 var discordClientID = null;
 exports.discordClientID = discordClientID;
 
+var languages = [];
 var roles = {};
 var orderedRoles = [];
 var perms = {};
 var ranks = {};
+exports.languages = languages;
 exports.roles = roles;
 exports.orderedRoles = orderedRoles;
 exports.perms = perms;

@@ -877,9 +877,8 @@ const Settings = () => {
 
     useEffect(() => {
         async function doLoad() {
-            const [_notificationSettings, _languages, _userLanguage] = await makeRequestsWithAuth([
+            const [_notificationSettings, _userLanguage] = await makeRequestsWithAuth([
                 `${vars.dhpath}/user/notification/settings`,
-                `${vars.dhpath}/languages`,
                 `${vars.dhpath}/user/language`]);
             let newNotificationSettings = [];
             for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
@@ -888,7 +887,7 @@ const Settings = () => {
                 }
             }
             setNotificationSettings(newNotificationSettings);
-            setSupportedLanguages(_languages.supported);
+            setSupportedLanguages(vars.languages);
             setUserLanguage(_userLanguage.language);
         }
         doLoad();

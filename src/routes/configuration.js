@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab } from '@mui/material';
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem } from '@mui/material';
+import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,12 +10,61 @@ import { customAxios as axios, makeRequestsAuto, getAuthToken } from '../functio
 import TimeAgo from '../components/timeago';
 import { useTheme } from '@emotion/react';
 
+const LANGUAGES = {
+    'ar': 'Arabic (العربية)',
+    'be': 'Belarusian (беларуская)',
+    'bg': 'Bulgarian (български)',
+    'cs': 'Czech (čeština)',
+    'cy': 'Welsh (Cymraeg)',
+    'da': 'Danish (dansk)',
+    'de': 'German (Deutsch)',
+    'el': 'Greek (Ελληνικά)',
+    'en': 'English',
+    'eo': 'Esperanto',
+    'es': 'Spanish (Español)',
+    'et': 'Estonian (eesti keel)',
+    'fi': 'Finnish (suomi)',
+    'fr': 'French (français)',
+    'ga': 'Irish (Gaeilge)',
+    'gd': 'Scottish (Gàidhlig)',
+    'hu': 'Hungarian (magyar)',
+    'hy': 'Armenian (Հայերեն)',
+    'id': 'Indonesian (Bahasa Indonesia)',
+    'is': 'Icelandic (íslenska)',
+    'it': 'Italian (italiano)',
+    'ja': 'Japanese (日本語)',
+    'ko': 'Korean (한국어)',
+    'lt': 'Lithuanian (lietuvių kalba)',
+    'lv': 'Latvian (latviešu valoda)',
+    'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)',
+    'mn': 'Mongolian (Монгол)',
+    'mo': 'Moldavian (Moldova)',
+    'ne': 'Nepali (नेपाली)',
+    'nl': 'Dutch (Nederlands)',
+    'nn': 'Norwegian (norsk nynorsk)',
+    'pl': 'Polish (polski)',
+    'pt': 'Portuguese (Português)',
+    'ro': 'Romanian (română)',
+    'ru': 'Russian (русский)',
+    'sk': 'Slovak (slovenčina)',
+    'sl': 'Slovenian (slovenščina)',
+    'sq': 'Albanian (Shqip)',
+    'sr': 'Serbian (српски)',
+    'sv': 'Swedish (Svenska)',
+    'th': 'Thai (ไทย)',
+    'tr': 'Turkish (Türkçe)',
+    'uk': 'Ukrainian (українська)',
+    'vi': 'Vietnamese (Tiếng Việt)',
+    'yi': 'Yiddish (ייִדיש)',
+    'zh': 'Chinese (中文)'
+};
+
 var vars = require("../variables");
 
 function tabBtnProps(index, current, theme) {
     return {
-        id: `map-tab-${index}`,
-        'aria-controls': `map-tabpanel-${index}`,
+        id: `config-tab-${index}`,
+        'aria-controls': `config-tabpanel-${index}`,
         style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
 }
@@ -26,8 +76,8 @@ function TabPanel(props) {
         <div
             role="tabpanel"
             hidden={value !== index}
-            id={`map-tabpanel-${index}`}
-            aria-labelledby={`map-tab-${index}`}
+            id={`config-tabpanel-${index}`}
+            aria-labelledby={`config-tab-${index}`}
             {...other}
         >
             {value === index && (
@@ -50,6 +100,15 @@ const Configuration = () => {
     const [tab, setTab] = React.useState(0);
     const handleTabChange = (event, newValue) => {
         setTab(newValue);
+    };
+
+    const [formOpenStates, setFormOpenStates] = useState([true, false]);
+    const handleFormToggle = (index) => {
+        setFormOpenStates((prevOpenStates) => {
+            const newOpenStates = [...prevOpenStates];
+            newOpenStates[index] = !newOpenStates[index];
+            return newOpenStates;
+        });
     };
 
     const [mfaOtp, setMfaOtp] = useState("");
@@ -87,6 +146,7 @@ const Configuration = () => {
     }, [webConfig]);
 
     const [apiConfig, setApiConfig] = useState(null);
+    const [formConfig, setFormConfig] = useState(null);
     const [apiBackup, setApiBackup] = useState(null);
     const [apiLastModify, setApiLastModify] = useState(0);
     const [apiConfigSelectionStart, setApiConfigSelectionStart] = useState(null);
@@ -134,6 +194,8 @@ const Configuration = () => {
         if (resp.status === 204) {
             setSnackbarContent(`API config updated! Remember to reload to make changes take effect!`);
             setSnackbarSeverity("success");
+            setFormConfig(config);
+            setApiLastModify(+new Date() / 1000);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -205,6 +267,7 @@ const Configuration = () => {
             ]);
 
             setApiConfig(JSON.stringify(_apiConfig.config, null, 4));
+            setFormConfig(_apiConfig.config);
             setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
             setApiLastModify(_apiConfig.config_last_modified);
 
@@ -214,15 +277,89 @@ const Configuration = () => {
         doLoad();
     }, []);
 
+    const setFormConfigVal = useCallback((key, val) => {
+        setFormConfig({ ...formConfig, [key]: val });
+    }, [formConfig]);
+
     return (<>
         <Card>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                 <Tabs value={tab} onChange={handleTabChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                    <Tab label={<><FontAwesomeIcon icon={faServer} />API (JSON)</>} {...tabBtnProps(0, tab, theme)} />
-                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />Web</>} {...tabBtnProps(1, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />API (Form)</>} {...tabBtnProps(0, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />API (JSON)</>} {...tabBtnProps(1, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />Web</>} {...tabBtnProps(2, tab, theme)} />
                 </Tabs>
             </Box>
             <TabPanel value={tab} index={0}>
+                <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
+                    - This is the simple mode of config editing with Form.
+                    <br />
+                    - You must reload config after saving to make it take effect.
+                    <br />
+                    - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
+                    <br />
+                    <br />
+                    {formConfig !== null &&
+                        <>
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(0)}>
+                                <div style={{ flexGrow: 1 }}>General</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            <Collapse in={formOpenStates[0]}>
+                                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                                    <Grid item xs={12} sm={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Company Name"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.name}
+                                            onChange={(e) => { setFormConfigVal("name", e.target.value); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Language"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.language}
+                                            onChange={(e) => { setFormConfigVal("language", e.target.value); }}
+                                            select
+                                        >
+                                            {vars.languages.map((language) => (
+                                                <MenuItem key={language} value={language}>
+                                                    {LANGUAGES[language]}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Distance Unit"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.distance_unit}
+                                            onChange={(e) => { setFormConfigVal("distance_unit", e.target.value); }}
+                                            select
+                                        >
+                                            <MenuItem key="metric" value="metric">
+                                                Metric
+                                            </MenuItem>
+                                            <MenuItem key="imperial" value="imperial">
+                                                Imperial
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>
+                        </>}
+                </Typography>
+            </TabPanel>
+            <TabPanel value={tab} index={1}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
                     - This is the advanced mode of config editing with JSON.
                     <br />
@@ -264,7 +401,7 @@ const Configuration = () => {
                     </Box>
                 </div>
             </TabPanel>
-            <TabPanel value={tab} index={1}>
+            <TabPanel value={tab} index={2}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
                     - Web config does not affect company name, color and logo attributes in API Config.
                     <br />

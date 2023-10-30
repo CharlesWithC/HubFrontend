@@ -75,6 +75,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/config/user", auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
+                    { url: `${vars.dhpath}/languages`, auth: false },
                     { url: `${vars.dhpath}/member/roles`, auth: false },
                     { url: `${vars.dhpath}/member/perms`, auth: false },
                     { url: `${vars.dhpath}/member/ranks`, auth: false },
@@ -91,7 +92,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/economy/merch`, auth: true },
                 ];
 
-                const [index, specialRoles, userConfig, config, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
+                const [index, specialRoles, userConfig, config, languages, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -117,6 +118,9 @@ const Loader = ({ onLoaderLoaded }) => {
                     if (compareVersions(vars.apiversion, "2.8.6") < 0) {
                         vars.apiconfig.trackers = vars.apiconfig.tracker;
                     }
+                }
+                if (languages) {
+                    vars.languages = languages.supported;
                 }
                 if (memberRoles) {
                     let roles = memberRoles;
