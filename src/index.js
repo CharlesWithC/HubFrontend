@@ -6,6 +6,7 @@ import './fonts/orbitron/orbitron.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
+import Crashed from "./components/crashed";
 
 import * as Sentry from "@sentry/react";
 
@@ -24,6 +25,16 @@ Sentry.init({
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error) {
+        // Update state so the next render will show the fallback UI.
+        return { hasError: true };
+    }
+
     componentDidCatch(error, errorInfo) {
         Sentry.withScope(scope => {
             scope.setExtras(errorInfo);
@@ -32,6 +43,9 @@ class ErrorBoundary extends React.Component {
     }
 
     render() {
+        if (this.state.hasError) {
+            return <Crashed />;
+        }
         return this.props.children;
     }
 }

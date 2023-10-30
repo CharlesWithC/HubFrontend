@@ -47,7 +47,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build && npm run sentry:sourcemaps",
     "postbuild": "bash ./scripts/post-build.sh",
-    "fast": "react-scripts build && serve -s build",
+    "fast": "react-scripts build && serve -s build --port 3001",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "sentry:sourcemaps": "npx sentry-cli sourcemaps inject --org charlws --project chub-frontend-v3 ./build && npx sentry-cli sourcemaps upload --org charlws --project chub-frontend-v3 ./build"

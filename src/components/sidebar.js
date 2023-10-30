@@ -118,7 +118,7 @@ const SideBar = (props) => {
             } else {
                 toRemove = toRemove.filter(item => item !== "all_application");
             }
-            if (!vars.userPerm.includes("audit")) {
+            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("audit")) {
                 toRemove.push("audit_log");
             } else {
                 toRemove = toRemove.filter(item => item !== "audit_log");

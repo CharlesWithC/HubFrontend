@@ -106,7 +106,7 @@ const UserCard = (props) => {
         ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
     }
 
-    if(roles !== undefined && roles !== null){
+    if (roles !== undefined && roles !== null) {
         roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
     }
 

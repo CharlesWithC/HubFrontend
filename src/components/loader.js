@@ -11,9 +11,6 @@ if (domain === null) {
     domain = window.location.host;
 }
 
-// TODO Consider returning the assets links in config.chub.page rather than directly using cdn.chub.page (static)
-// Also TODO, rename navio_company_id to tracker_company_id
-
 const Loader = ({ onLoaderLoaded }) => {
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
