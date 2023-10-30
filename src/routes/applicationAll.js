@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 
-import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, FormControl, MenuItem, Select, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, FormControl, MenuItem, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../components/table';
@@ -226,19 +226,17 @@ const AllApplication = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogOpen(false); }}>Close</Button>
                 <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>Delete</Button>
-                <FormControl component="fieldset">
-                    <Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }}>
-                        <MenuItem key="0" value="0">
-                            Pending
-                        </MenuItem>
-                        <MenuItem key="1" value="1">
-                            Accepted
-                        </MenuItem>
-                        <MenuItem key="2" value="2">
-                            Declined
-                        </MenuItem>
-                    </Select>
-                </FormControl>
+                <TextField select label="Status" value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
+                    <MenuItem key="0" value="0">
+                        Pending
+                    </MenuItem>
+                    <MenuItem key="1" value="1">
+                        Accepted
+                    </MenuItem>
+                    <MenuItem key="2" value="2">
+                        Declined
+                    </MenuItem>
+                </TextField>
                 <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >Respond</Button>
             </DialogActions>
         </Dialog>}

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Grid, Card, CardContent, Typography, TextField, Select, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert } from '@mui/material';
+import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { customAxios as axios, getAuthToken } from '../functions';
@@ -53,7 +53,7 @@ var vars = require("../variables");
 // ];
 
 const CustomForm = ({ config, formData, setFormData }) => {
-    if (config === undefined) return <Typography>Please select an application type in the dropdown on the top-right corner</Typography>;
+    if (config === undefined) return <Typography>Please select the type of application in the dropdown on the top-right corner</Typography>;
 
     let defaultResp = {};
     for (let i = 0; i < config.length; i++) {
@@ -203,20 +203,19 @@ const CustomForm = ({ config, formData, setFormData }) => {
 
                         case 'dropdown':
                             ret = (
-                                <FormControl component="fieldset">
-                                    <FormLabel component="legend">{field.label}</FormLabel>
-                                    <Select
-                                        key={field.label}
-                                        name={field.label}
-                                        value={formData[field.label]}
-                                        onChange={handleChange}
-                                        sx={{ marginTop: "6px", height: "30px" }}
-                                    >
-                                        {field.choices.map(choice => (
-                                            <MenuItem key={choice} value={choice}>{choice}</MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
+                                <TextField select
+                                    label={field.label}
+                                    key={field.label}
+                                    name={field.label}
+                                    value={formData[field.label]}
+                                    onChange={handleChange}
+                                    sx={{ marginTop: "6px", height: "30px" }}
+                                    size="small" fullWidth
+                                >
+                                    {field.choices.map(choice => (
+                                        <MenuItem key={choice} value={choice}>{choice}</MenuItem>
+                                    ))}
+                                </TextField>
                             );
                             break;
 
@@ -318,8 +317,8 @@ const NewApplication = () => {
         }
 
         if (enableNotifications) {
-            await axios({ url: `${vars.dhpath}/user/notification/settings/discord/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }});
-            await axios({ url: `${vars.dhpath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }});
+            await axios({ url: `${vars.dhpath}/user/notification/settings/discord/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            await axios({ url: `${vars.dhpath}/user/notification/settings/application/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         }
 
         let resp = await axios({ url: `${vars.dhpath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "type": selectedType, "application": modFormData } });
@@ -340,17 +339,18 @@ const NewApplication = () => {
             <Typography variant="h5" sx={{ flexGrow: 1 }}>
                 New Application
             </Typography>
-            <Select
+            <TextField select
                 key="Application Type"
                 name="Application Type"
                 value={selectedType}
                 onChange={(e) => { setSelectedType(e.target.value); setFormData(null); }}
                 sx={{ marginTop: "6px", height: "30px" }}
+                size="small"
             >
                 {listTypes.map(type => (
                     <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
                 ))}
-            </Select>
+            </TextField>
         </div>
         <CardContent>
             <CustomForm config={selectedType !== null ? vars.applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} />

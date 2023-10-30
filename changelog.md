@@ -8,6 +8,7 @@
 4. Fixed audit log sidebar button not showing for hrm/hr
 5. Added crash error page
 6. Added tab switching for configuration tab
+7. Improved display for MUI Select (replaced with TextField-select)
 
 ## v3.0.0
 

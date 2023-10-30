@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Select, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
+import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
 import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, VerifiedOutlined } from "@mui/icons-material";
 import { Portal } from '@mui/base';
 import { Link, useNavigate } from 'react-router-dom';
@@ -1215,13 +1215,13 @@ const UserCard = (props) => {
                         <Typography variant="body2">- This will change the tracker we listen data from for the user.</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
                             <FormLabel component="legend">Tracker:</FormLabel>
-                            <Select value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
+                            <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
                                 {trackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
                                         {trackerMapping[tracker]}
                                     </MenuItem>
                                 ))}
-                            </Select>
+                            </TextField>
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
@@ -1238,13 +1238,13 @@ const UserCard = (props) => {
                         <Typography variant="body2">- This will not affect the user's initial roles or application status. They must be updated manually at this point. (We may support partial automations in the future.)</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
                             <FormLabel component="legend">Select the tracker the user will use (This may be changed later):</FormLabel>
-                            <Select value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
+                            <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
                                 {trackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
                                         {trackerMapping[tracker]}
                                     </MenuItem>
                                 ))}
-                            </Select>
+                            </TextField>
                         </FormControl>
                     </DialogContent>
                     <DialogActions>

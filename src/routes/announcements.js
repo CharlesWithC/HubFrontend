@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, memo } from 'react';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Select, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
@@ -423,16 +423,13 @@ const Announcement = () => {
                             <Grid item xs={12}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={6}>
-                                        <FormControl component="fieldset">
-                                            <FormLabel component="legend">Announcement Type</FormLabel>
-                                            <Select value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
-                                                {(vars.announcementTypes).map((option) => (
-                                                    <MenuItem key={option.id} value={option.id}>
-                                                        {option.name}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </FormControl>
+                                        <TextField select label="Announcement Type" value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }} fullWidth>
+                                            {(vars.announcementTypes).map((option) => (
+                                                <MenuItem key={option.id} value={option.id}>
+                                                    {option.name}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset">
@@ -447,14 +444,12 @@ const Announcement = () => {
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={6}>
-                                        <FormControl component="fieldset">
-                                            <TextField
-                                                label="Order ID"
-                                                value={orderId}
-                                                onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
-                                                fullWidth
-                                            />
-                                        </FormControl>
+                                        <TextField
+                                            label="Order ID"
+                                            value={orderId}
+                                            onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
+                                            fullWidth
+                                        />
                                     </Grid>
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset" sx={{ mb: "10px" }}>

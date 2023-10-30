@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, Select, MenuItem, useTheme } from '@mui/material';
+import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, useTheme } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react/dist';
@@ -601,16 +601,16 @@ const Delivery = memo(() => {
             <DialogContent>
                 {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) && <>
                     <Typography variant="body">To request division validation, please select a division:</Typography>
-                    <Select
+                    <TextField select
                         value={`${selectedDivision}`}
                         onChange={handleDivisionChange}
-                        sx={{ marginTop: "6px", height: "30px" }}
-                        fullWidth
+                        sx={{ marginTop: "6px", marginBottom: "6px", height: "30px" }}
+                        fullWidth size="small"
                     >
                         {vars.userDivisionIDs.map((divisionID, index) => (
                             <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
                         ))}
-                    </Select>
+                    </TextField>
                 </>}
                 {(divisionStatus !== -1) && <>
                     <Typography variant="body">Division validation request submitted <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
@@ -627,16 +627,17 @@ const Delivery = memo(() => {
                     <Typography variant="body"><b>Update validation result</b></Typography>
                     <br />
                     <FormControl fullWidth>
-                        <Select
+                        <TextField select
+                            label="Division"
                             value={`${selectedDivision}`}
                             onChange={handleDivisionChange}
-                            sx={{ marginTop: "6px", height: "30px" }}
-                            fullWidth
+                            sx={{ marginTop: "6px", marginBottom: "6px", height: "30px" }}
+                            fullWidth size="small"
                         >
                             {Object.keys(vars.divisions).map((divisionID, index) => (
                                 <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
                             ))}
-                        </Select>
+                        </TextField>
                     </FormControl>
                     <FormControl component="fieldset">
                         <RadioGroup

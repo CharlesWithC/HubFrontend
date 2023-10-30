@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, Button } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
 import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -213,22 +213,22 @@ const Ranking = () => {
         </Grid>
         <Dialog open={modalCRTOpen} onClose={handleModalCRTClose}>
             <DialogTitle>
-                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
                     <AltRouteRounded />&nbsp;&nbsp;Change Rank Type
                 </Typography>
             </DialogTitle>
             <DialogContent>
-                <Typography variant="body">Rank Type</Typography>
-                <Select
+                <TextField select
+                    label="Rank Type"
                     value={`${curRankTypeId}`}
                     onChange={handleRankTypeIdChange}
                     sx={{ marginTop: "6px", height: "30px" }}
-                    fullWidth
+                    fullWidth size="small"
                 >
                     {vars.ranks.map((ranktype, index) => (
                         <MenuItem value={`${ranktype.id}`} key={index}>{ranktype.name}</MenuItem>
                     ))}
-                </Select>
+                </TextField>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleModalCRTClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
