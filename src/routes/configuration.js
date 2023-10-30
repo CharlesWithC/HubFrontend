@@ -309,7 +309,7 @@ const Configuration = () => {
                             </Typography>
                             <Collapse in={formOpenStates[0]}>
                                 <Grid container spacing={2} sx={{ mt: "5px" }}>
-                                    <Grid item xs={12} sm={6}>
+                                    <Grid item xs={12} md={6}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
                                             label="Company Name"
@@ -353,6 +353,65 @@ const Configuration = () => {
                                                 Imperial
                                             </MenuItem>
                                         </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Security"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.security_level}
+                                            onChange={(e) => { setFormConfigVal("security_level", e.target.value); }}
+                                            select
+                                        >
+                                            <MenuItem key="0" value={0}>
+                                                Regular - Session token always usable
+                                            </MenuItem>
+                                            <MenuItem key="1" value={1}>
+                                                Strict - Session token revoked when IP country changes
+                                            </MenuItem>
+                                            <MenuItem key="2" value={2}>
+                                                Very Strict - Session token revoked when IP range changes
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Privacy"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.privacy}
+                                            onChange={(e) => { setFormConfigVal("privacy", e.target.value); }}
+                                            select
+                                        >
+                                            <MenuItem key="false" value={false}>
+                                                User profile visible to everyone
+                                            </MenuItem>
+                                            <MenuItem key="true" value={true}>
+                                                User profile visible to only members
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} sm={9}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Logo URL"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.logo_url}
+                                            onChange={(e) => { setFormConfigVal("logo_url", e.target.value); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            label="Hex Color"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.hex_color}
+                                            onChange={(e) => { setFormConfigVal("hex_color", e.target.value); }}
+                                        />
                                     </Grid>
                                 </Grid>
                             </Collapse>
