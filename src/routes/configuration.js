@@ -2,6 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
+import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
+import { customSelectStyles } from '../designs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faClockRotateLeft, faFingerprint, faDesktop } from '@fortawesome/free-solid-svg-icons';
@@ -59,7 +62,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"] };
+
+const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
 var vars = require("../variables");
 
@@ -104,7 +109,7 @@ const Configuration = () => {
         setTab(newValue);
     };
 
-    const [formOpenStates, setFormOpenStates] = useState([true, false]);
+    const [formOpenStates, setFormOpenStates] = useState([false, false]);
     const handleFormToggle = (index) => {
         setFormOpenStates((prevOpenStates) => {
             const newOpenStates = [...prevOpenStates];
@@ -196,7 +201,6 @@ const Configuration = () => {
         if (resp.status === 204) {
             setSnackbarContent(`API config updated! Remember to reload to make changes take effect!`);
             setSnackbarSeverity("success");
-            setFormConfig(config);
             setApiLastModify(+new Date() / 1000);
         } else {
             setSnackbarContent(resp.data.error);
@@ -337,6 +341,7 @@ const Configuration = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="name"
                                             label="Company Name"
                                             variant="outlined"
                                             fullWidth
@@ -347,6 +352,7 @@ const Configuration = () => {
                                     <Grid item xs={6} md={3}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="language"
                                             label="Language"
                                             variant="outlined"
                                             fullWidth
@@ -364,6 +370,7 @@ const Configuration = () => {
                                     <Grid item xs={6} md={3}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="distance_unit"
                                             label="Distance Unit"
                                             variant="outlined"
                                             fullWidth
@@ -382,6 +389,7 @@ const Configuration = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="security_level"
                                             label="Security"
                                             variant="outlined"
                                             fullWidth
@@ -403,6 +411,7 @@ const Configuration = () => {
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="privacy"
                                             label="Privacy"
                                             variant="outlined"
                                             fullWidth
@@ -421,6 +430,7 @@ const Configuration = () => {
                                     <Grid item xs={12} sm={9}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="logo_url"
                                             label="Logo URL"
                                             variant="outlined"
                                             fullWidth
@@ -431,6 +441,7 @@ const Configuration = () => {
                                     <Grid item xs={12} sm={3}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
+                                            key="hex_color"
                                             label="Hex Color"
                                             variant="outlined"
                                             fullWidth
@@ -443,6 +454,171 @@ const Configuration = () => {
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
                                                 <Button variant="contained" color="success" onClick={() => { saveFormConfig("general"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(1)}>
+                                <div style={{ flexGrow: 1 }}>Account & Profile</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            <Collapse in={formOpenStates[1]}>
+                                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                                    <Grid item xs={6} md={4}>
+                                        <TextField select
+                                            style={{ marginBottom: '16px' }}
+                                            key="sync_discord_email"
+                                            label="Always sync user Discord email?"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.sync_discord_email}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, sync_discord_email: e.target.value });; }}
+                                        >
+                                            <MenuItem key={true} value={true}>
+                                                Enabled
+                                            </MenuItem>
+                                            <MenuItem key={false} value={false}>
+                                                Disabled
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={6} md={4}>
+                                        <TextField select
+                                            style={{ marginBottom: '16px' }}
+                                            key="must_join_guild"
+                                            label="User must join Discord server?"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.must_join_guild}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, must_join_guild: e.target.value });; }}
+                                        >
+                                            <MenuItem key={true} value={true}>
+                                                Enabled
+                                            </MenuItem>
+                                            <MenuItem key={false} value={false}>
+                                                Disabled
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={6} md={4}>
+                                        <TextField select
+                                            style={{ marginBottom: '16px' }}
+                                            key="use_server_nickname"
+                                            label="Use Discord server nickname?"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.use_server_nickname}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, use_server_nickname: e.target.value });; }}
+                                        >
+                                            <MenuItem key={true} value={true}>
+                                                Enabled
+                                            </MenuItem>
+                                            <MenuItem key={false} value={false}>
+                                                Disabled
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={6} md={6}>
+                                        <TextField select
+                                            style={{ marginBottom: '16px' }}
+                                            key="allow_custom_profile"
+                                            label="Enable custom profile?"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.allow_custom_profile}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, allow_custom_profile: e.target.value });; }}
+                                        >
+                                            <MenuItem key={true} value={true}>
+                                                Enabled
+                                            </MenuItem>
+                                            <MenuItem key={false} value={false}>
+                                                Disabled
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={6} md={6}>
+                                        <TextField select
+                                            style={{ marginBottom: '16px' }}
+                                            key="use_custom_activity"
+                                            label="Enable custom activity (*not supported)?"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.use_custom_activity}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, use_custom_activity: e.target.value });; }}
+                                        >
+                                            <MenuItem key={true} value={true}>
+                                                Enabled
+                                            </MenuItem>
+                                            <MenuItem key={false} value={false}>
+                                                Disabled
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} md={12}>
+                                        <Typography variant="body2">Avatar Domain Whitelist</Typography>
+                                        <CreatableSelect
+                                            isMulti
+                                            name="colors"
+                                            className="basic-multi-select"
+                                            classNamePrefix="select"
+                                            styles={customSelectStyles(theme)}
+                                            value={formConfig.avatar_domain_whitelist.map((domain) => ({ value: domain, label: domain }))}
+                                            onChange={(newItems) => {
+                                                setFormConfig({
+                                                    ...formConfig,
+                                                    avatar_domain_whitelist: newItems.map((item) => (item.value)),
+                                                });
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Typography variant="body2">Required connections for new members</Typography>
+                                        <Select
+                                            isMulti
+                                            name="colors"
+                                            className="basic-multi-select"
+                                            classNamePrefix="select"
+                                            styles={customSelectStyles(theme)}
+                                            options={Object.keys(CONNECTION_NAME).map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                                            value={formConfig.required_connections.map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                                            onChange={(newItems) => {
+                                                setFormConfig({
+                                                    ...formConfig,
+                                                    required_connections: newItems.map((item) => (item.value)),
+                                                });
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <Typography variant="body2">Enabled registration methods</Typography>
+                                        <Select
+                                            isMulti
+                                            name="colors"
+                                            className="basic-multi-select"
+                                            classNamePrefix="select"
+                                            styles={customSelectStyles(theme)}
+                                            options={Object.keys(CONNECTION_NAME).map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                                            value={formConfig.register_methods.map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                                            onChange={(newItems) => {
+                                                setFormConfig({
+                                                    ...formConfig,
+                                                    connection: newItems.map((item) => (item.value)),
+                                                });
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("profile"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
                                             </Grid>
                                         </Grid>
                                     </Grid>

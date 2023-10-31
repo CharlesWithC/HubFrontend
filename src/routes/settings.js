@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, Select as MUISelect, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -1067,7 +1067,7 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Language (API & Notifications Only)</Typography>
                     <br />
-                    <MUISelect
+                    <TextField select size="small"
                         key="user-language"
                         name="User Language"
                         value={userLanguage}
@@ -1078,7 +1078,7 @@ const Settings = () => {
                         {supportedLanguages.map(language => (
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
                         ))}
-                    </MUISelect>
+                    </TextField>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={12} lg={12}>

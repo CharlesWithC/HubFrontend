@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, Select as MUISelect, MenuItem, RadioGroup, Radio, Chip, Checkbox } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress,  MenuItem, RadioGroup, Radio, Chip, Checkbox } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Portal } from '@mui/base';
@@ -686,7 +686,8 @@ const Challenges = () => {
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
                                 <FormLabel component="legend">Challenge Type</FormLabel>
-                                <MUISelect
+                                <TextField
+                                    select size="small"
                                     value={modalChallenge.type}
                                     onChange={(e) => setModalChallenge({ ...modalChallenge, type: e.target.value })}
                                     sx={{ marginTop: "6px", height: "30px" }}
@@ -696,7 +697,7 @@ const Challenges = () => {
                                     <MenuItem value={3}>Personal (Recurring)</MenuItem>
                                     <MenuItem value={4}>Personal (Distance-based)</MenuItem>
                                     <MenuItem value={5}>Company (Distance-based)</MenuItem>
-                                </MUISelect>
+                                </TextField>
                             </FormControl>
                         </Grid>
                         <Grid item xs={6}>
