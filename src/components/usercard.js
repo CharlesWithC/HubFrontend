@@ -168,9 +168,7 @@ const UserCard = (props) => {
                 try {
                     new URL(uc.profile_banner_url);
                     profile_banner_url = uc.profile_banner_url;
-                } catch {
-                    console.error("Invalid custom profile banner url...");
-                }
+                } catch { }
             }
         }
     }

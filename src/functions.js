@@ -104,9 +104,8 @@ export async function FetchProfile() {
             const allPerms = Object.keys(vars.perms);
             for (let i = 0; i < vars.userInfo.roles.length; i++) {
                 for (let j = 0; j < allPerms.length; j++) {
-                    if (vars.perms[allPerms[j]].includes(vars.userInfo.roles[i])) {
+                    if (vars.perms[allPerms[j]].includes(vars.userInfo.roles[i]) && !vars.userPerm.includes(allPerms[j])) {
                         vars.userPerm.push(allPerms[j]);
-                        break;
                     }
                 }
             }
@@ -138,7 +137,7 @@ export async function FetchProfile() {
                     }
                 }
             }
-        } else {
+        } else if (resp.status === 401) {
             localStorage.removeItem("token");
             vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
         }

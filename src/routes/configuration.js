@@ -298,8 +298,9 @@ const Configuration = () => {
                     <br />
                     - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
                     <br />
+                    {window.location.hostname !== "localhost" && <>- UNDER CONSTRUCTION</>}
                     <br />
-                    {formConfig !== null &&
+                    {window.location.hostname === "localhost" && formConfig !== null &&
                         <>
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(0)}>
                                 <div style={{ flexGrow: 1 }}>General</div>
@@ -365,13 +366,13 @@ const Configuration = () => {
                                             select
                                         >
                                             <MenuItem key="0" value={0}>
-                                                Regular - Session token always usable
+                                                Regular - Session token doesn't revoke automatically
                                             </MenuItem>
                                             <MenuItem key="1" value={1}>
-                                                Strict - Session token revoked when IP country changes
+                                                Strict - Session token revokes when IP country changes
                                             </MenuItem>
                                             <MenuItem key="2" value={2}>
-                                                Very Strict - Session token revoked when IP range changes
+                                                Very Strict - Session token revokes when IP range changes
                                             </MenuItem>
                                         </TextField>
                                     </Grid>
