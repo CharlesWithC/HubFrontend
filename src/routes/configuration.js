@@ -7,7 +7,7 @@ import CreatableSelect from 'react-select/creatable';
 import { customSelectStyles } from '../designs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faServer, faClockRotateLeft, faFingerprint, faDesktop } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 import { customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
@@ -62,7 +62,7 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"] };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -95,6 +95,80 @@ function TabPanel(props) {
         </div>
     );
 }
+
+const TrackerForm = ({ theme, tracker, onUpdate }) => {
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={6} md={6}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="type"
+                label="Type"
+                variant="outlined"
+                fullWidth
+                value={tracker.type}
+                onChange={(e) => { onUpdate({ ...tracker, type: e.target.value });; }}
+            >
+                <MenuItem key="trucky" value="trucky">
+                    Trucky
+                </MenuItem>
+                <MenuItem key="tracksim" value="tracksim">
+                    TrackSim
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="company_id"
+                label="Company ID"
+                variant="outlined"
+                fullWidth
+                value={tracker.company_id}
+                onChange={(e) => { onUpdate({ ...tracker, company_id: e.target.value });; }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="api_token"
+                label="API Token"
+                variant="outlined"
+                fullWidth
+                value={tracker.api_token}
+                onChange={(e) => { onUpdate({ ...tracker, api_token: e.target.value });; }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="webhook_secret"
+                label="Webhook Secret"
+                variant="outlined"
+                fullWidth
+                value={tracker.webhook_secret}
+                onChange={(e) => { onUpdate({ ...tracker, webhook_secret: e.target.value });; }}
+            />
+        </Grid>
+        <Grid item xs={12} md={12}>
+            <Typography variant="body2">Webhook IP Whitelist</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={tracker.ip_whitelist.map((ip) => ({ value: ip, label: ip }))}
+                onChange={(newItems) => {
+                    setFormConfig({
+                        ...tracker,
+                        ip_whitelist: newItems.map((item) => (item.value)),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+    </Grid>;
+};
 
 const Configuration = () => {
     const theme = useTheme();
@@ -326,9 +400,8 @@ const Configuration = () => {
                     <br />
                     - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
                     <br />
-                    {window.location.hostname !== "localhost" && <>- UNDER CONSTRUCTION</>}
                     <br />
-                    {window.location.hostname === "localhost" && formConfig !== null &&
+                    {formConfig !== null &&
                         <>
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(0)}>
                                 <div style={{ flexGrow: 1 }}>General</div>
@@ -337,7 +410,7 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                             <Collapse in={formOpenStates[0]}>
-                                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
                                     <Grid item xs={12} md={6}>
                                         <TextField
                                             style={{ marginBottom: '16px' }}
@@ -467,7 +540,7 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                             <Collapse in={formOpenStates[1]}>
-                                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
                                     <Grid item xs={6} md={4}>
                                         <TextField select
                                             style={{ marginBottom: '16px' }}
@@ -558,7 +631,7 @@ const Configuration = () => {
                                             </MenuItem>
                                         </TextField>
                                     </Grid>
-                                    <Grid item xs={12} md={12}>
+                                    <Grid item xs={12} md={12} sx={{ pb: "15px" }}>
                                         <Typography variant="body2">Avatar Domain Whitelist</Typography>
                                         <CreatableSelect
                                             isMulti
@@ -576,7 +649,7 @@ const Configuration = () => {
                                             menuPortalTarget={document.body}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} md={6}>
+                                    <Grid item xs={12} md={6} sx={{ pb: "15px" }}>
                                         <Typography variant="body2">Required connections for new members</Typography>
                                         <Select
                                             isMulti
@@ -595,7 +668,7 @@ const Configuration = () => {
                                             menuPortalTarget={document.body}
                                         />
                                     </Grid>
-                                    <Grid item xs={12} md={6}>
+                                    <Grid item xs={12} md={6} sx={{ pb: "15px" }}>
                                         <Typography variant="body2">Enabled registration methods</Typography>
                                         <Select
                                             isMulti
@@ -620,6 +693,69 @@ const Configuration = () => {
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
                                                 <Button variant="contained" color="success" onClick={() => { saveFormConfig("profile"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
                                             </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(2)}>
+                                <div style={{ flexGrow: 1 }}>Tracker</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            <Collapse in={formOpenStates[2]}>
+                                <Typography variant="body2" sx={{ mb: "10px" }}>
+                                    NOTE: API Token & Webhook Secret attributes are shown empty for security purpose. They should be saved server-end.<br />
+                                    If you want to update tracker config, you must fill all the empty fields. Hence, it's recommended to store relevant data elsewhere securely for easier config modification.
+                                </Typography>
+                                {formConfig.trackers.map((tracker, index) => (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                                                Tracker #{index + 1}
+                                            </Typography>
+                                            <div>
+                                                <IconButton variant="contained" color="success" onClick={() => {
+                                                    let newTrackers = [...formConfig.trackers];
+                                                    newTrackers.splice(index + 1, 0, { type: "trucky", company_id: "", api_token: "", webhook_secret: "", ip_whitelist: [] });
+                                                    setFormConfig({ ...formConfig, trackers: newTrackers });
+                                                }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.trackers.length >= 10} /></IconButton>
+                                                <IconButton variant="contained" color="error" onClick={() => {
+                                                    let newTrackers = [...formConfig.trackers];
+                                                    newTrackers.splice(index, 1);
+                                                    setFormConfig({ ...formConfig, trackers: newTrackers });
+                                                }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.trackers.length <= 1} /></IconButton>
+                                                <IconButton variant="contained" color="info" onClick={() => {
+                                                    if (index >= 1) {
+                                                        let newTrackers = [...formConfig.trackers];
+                                                        newTrackers[index] = newTrackers[index - 1];
+                                                        newTrackers[index - 1] = tracker;
+                                                        setFormConfig({ ...formConfig, trackers: newTrackers });
+                                                    }
+                                                }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                                                <IconButton variant="contained" color="warning" onClick={() => {
+                                                    if (index <= formConfig.trackers.length - 2) {
+                                                        let newTrackers = [...formConfig.trackers];
+                                                        newTrackers[index] = newTrackers[index + 1];
+                                                        newTrackers[index + 1] = tracker;
+                                                        setFormConfig({ ...formConfig, trackers: newTrackers });
+                                                    }
+                                                }} disabled={index === formConfig.trackers.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                                            </div>
+                                        </div>
+                                        <TrackerForm theme={theme} tracker={tracker} onUpdate={(newTracker) => {
+                                            let newTrackers = [...formConfig.trackers];
+                                            newTrackers[index] = newTracker;
+                                            setFormConfig({ ...formConfig, trackers: newTrackers });
+                                        }} />
+                                    </>
+                                ))}
+                                <Grid item xs={12}>
+                                    <Grid container>
+                                        <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                        <Grid item xs={12} sm={6} md={4} lg={2}>
+                                            <Button variant="contained" color="success" onClick={() => { saveFormConfig("tracker"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
                                         </Grid>
                                     </Grid>
                                 </Grid>
