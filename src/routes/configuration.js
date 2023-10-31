@@ -59,6 +59,8 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"] };
+
 var vars = require("../variables");
 
 function tabBtnProps(index, current, theme) {
@@ -277,8 +279,30 @@ const Configuration = () => {
         doLoad();
     }, []);
 
-    const setFormConfigVal = useCallback((key, val) => {
-        setFormConfig({ ...formConfig, [key]: val });
+    const saveFormConfig = useCallback(async (section) => {
+        let config = {};
+        for (let i = 0; i < CONFIG_SECTIONS[section].length; i++) {
+            if (formConfig[CONFIG_SECTIONS[section][i]] !== "")
+                config[CONFIG_SECTIONS[section][i]] = formConfig[CONFIG_SECTIONS[section][i]];
+        }
+
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+        setApiConfigDisabled(true);
+
+        let resp = await axios({ url: `${vars.dhpath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(`API config updated! Remember to reload to make changes take effect!`);
+            setSnackbarSeverity("success");
+            setApiLastModify(+new Date() / 1000);
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        setApiConfigDisabled(false);
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
     }, [formConfig]);
 
     return (<>
@@ -317,7 +341,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.name}
-                                            onChange={(e) => { setFormConfigVal("name", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, name: e.target.value });; }}
                                         />
                                     </Grid>
                                     <Grid item xs={6} md={3}>
@@ -327,7 +351,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.language}
-                                            onChange={(e) => { setFormConfigVal("language", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, language: e.target.value });; }}
                                             select
                                         >
                                             {vars.languages.map((language) => (
@@ -344,7 +368,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.distance_unit}
-                                            onChange={(e) => { setFormConfigVal("distance_unit", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, distance_unit: e.target.value });; }}
                                             select
                                         >
                                             <MenuItem key="metric" value="metric">
@@ -362,7 +386,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.security_level}
-                                            onChange={(e) => { setFormConfigVal("security_level", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, security_level: e.target.value });; }}
                                             select
                                         >
                                             <MenuItem key="0" value={0}>
@@ -383,7 +407,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.privacy}
-                                            onChange={(e) => { setFormConfigVal("privacy", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, privacy: e.target.value });; }}
                                             select
                                         >
                                             <MenuItem key="false" value={false}>
@@ -401,7 +425,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.logo_url}
-                                            onChange={(e) => { setFormConfigVal("logo_url", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, logo_url: e.target.value });; }}
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={3}>
@@ -411,8 +435,16 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.hex_color}
-                                            onChange={(e) => { setFormConfigVal("hex_color", e.target.value); }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, hex_color: e.target.value });; }}
                                         />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("general"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </Collapse>
