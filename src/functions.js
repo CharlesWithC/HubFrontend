@@ -365,6 +365,17 @@ export function checkUserRole(roles) {
     return false;
 }
 
+export function getRolePerms(role, permsConfig = vars.perms) {
+    let perms = [];
+    let allPerms = Object.keys(permsConfig);
+    for (let i = 0; i < allPerms.length; i++) {
+        if (permsConfig[allPerms[i]].includes(role)) {
+            perms.push(allPerms[i]);
+        }
+    }
+    return perms;
+}
+
 export function checkPerm(roles, perms) {
     if (roles === undefined) return false;
     // any matches in perms will return true
@@ -451,7 +462,7 @@ export function b62decode(num62) {
         num62 = num62.slice(1);
     }
     let ret = 0;
-    let l = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let l = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOQRSTUVWXYZ";
     for (var i = 0; i < num62.length; i++) {
         ret += l.indexOf(num62[i]) * 62 ** (num62.length - i - 1);
     }

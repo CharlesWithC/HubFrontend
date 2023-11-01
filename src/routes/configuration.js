@@ -9,7 +9,7 @@ import { customSelectStyles } from '../designs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
-import { customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
+import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
 import { useTheme } from '@emotion/react';
 
@@ -62,11 +62,13 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"] };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
 const REALISTIC_SETTINGS = ["bad_weather_factor", "detected", "detours", "fatigue", "fuel_simulation", "hardcore_simulation", "hub_speed_limit", "parking_difficulty", "police", "road_event", "show_game_blockers", "simple_parking_doubles", "traffic_enabled", "trailer_advanced_coupling"];
+
+const ALL_PERMISSIONS = { "admin": "Administrator", "config": "Update Config", "reload_config": "Reload Config", "hrm": "Human Resources Manager", "disable_user_mfa": "Disable User MFA", "update_user_connections": "Update Connections", "delete_user": "Delete Users", "update_application_positions": "Update Application Positions", "delete_application": "Delete Applications", "import_dlog": "Import Delivery Logs", "delete_dlog": "Delete Delivery Logs", "delete_notifications": "Delete Notifications", "hr": "Human Resources", "manage_profile": "Manage User Profile", "get_user_global_note": "Get User Global Note", "update_user_global_note": "Update User Global Note", "get_sensitive_profile": "Get Sensitive Part of Profile", "get_privacy_protected_data": "Get Privacy Protected Data", "add_member": "Accept User as Member", "update_member_roles": "Update Member Roles", "update_member_points": "Update Member Points", "dismiss_member": "Dismiss Member", "get_pending_user_list": "Get External User List", "ban_user": "Ban User", "audit": "Read Audit Log", "economy_manager": "Economy Manager", "balance_manager": "Balance Manager", "truck_manager": "Truck Manager", "garage_manager": "Garage Manager", "merch_manager": "Merch Manager", "announcement": "Announcement Manager", "challenge": "Challenge Manager", "division": "Division Manager", "downloads": "Downloads Manager", "event": "Event Manager", "poll": "Poll Manager", "driver": "Driver" };
 
 var vars = require("../variables");
 
@@ -173,6 +175,96 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                     });
                 }}
                 menuPortalTarget={document.body}
+            />
+        </Grid>
+    </Grid>;
+};
+
+const RoleForm = ({ theme, role, perms, onUpdate }) => {
+    if (role.discord_role_id === undefined) role.discord_role_id = "";
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={12} md={3}>
+            <TextField size="small"
+                style={{ marginBottom: '16px' }}
+                key="name"
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={role.name}
+                onChange={(e) => { onUpdate({ ...role, name: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={9} sx={{ mt: "-20px" }}>
+            <Typography variant="body2">Permissions</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                options={Object.keys(ALL_PERMISSIONS).map((perm) => ({ value: perm, label: ALL_PERMISSIONS[perm] !== undefined ? ALL_PERMISSIONS[perm] : perm }))}
+                value={getRolePerms(role.id, perms).map((perm) => ({ value: perm, label: ALL_PERMISSIONS[perm] !== undefined ? ALL_PERMISSIONS[perm] : perm }))}
+                onChange={(newItems) => {
+                    let rolePerms = newItems.map((item) => (item.value));
+                    let allPerms = Object.keys(perms);
+                    let newPermsConfig = JSON.parse(JSON.stringify(perms));
+                    // remove current role from all permissions
+                    for (let i = 0; i < allPerms.length; i++) {
+                        if (newPermsConfig[allPerms[i]].includes(role.id)) {
+                            newPermsConfig[allPerms[i]].splice(newPermsConfig[allPerms[i]].indexOf(role.id), 1);
+                        }
+                    }
+                    // add current role to relevant permissions
+                    for (let i = 0; i < rolePerms.length; i++) {
+                        newPermsConfig[rolePerms[i]].push(role.id);
+                    }
+                    onUpdate({ isPerms: true, newPerms: newPermsConfig });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="id"
+                label="ID"
+                variant="outlined"
+                fullWidth
+                value={role.id}
+                onChange={(e) => { onUpdate({ ...role, id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="order_id"
+                label="Order ID"
+                variant="outlined"
+                fullWidth
+                value={role.order_id}
+                onChange={(e) => { onUpdate({ ...role, order_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="color"
+                label="Color"
+                variant="outlined"
+                fullWidth
+                value={role.color}
+                onChange={(e) => { onUpdate({ ...role, color: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="discord_role_id"
+                label="Discord Role ID"
+                variant="outlined"
+                fullWidth
+                value={role.discord_role_id}
+                onChange={(e) => { onUpdate({ ...role, discord_role_id: e.target.value }); }}
             />
         </Grid>
     </Grid>;
@@ -993,6 +1085,92 @@ const Configuration = () => {
                                     </Grid>
                                 </Grid>
                             </Collapse>
+                            
+                            {/* extreme lag in development mode - only available for production */}
+                            {window.location.hostname !== "localhost" && <>
+                                <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(5)}>
+                                    <div style={{ flexGrow: 1 }}>Roles</div>
+                                    <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                        <ExpandMoreRounded />
+                                    </IconButton>
+                                </Typography>
+                                <Collapse in={formOpenStates[5]}>
+                                    <Typography variant="body2" sx={{ mb: "15px" }}>
+                                        NOTE: ID, Order ID must be integer. Smaller Order ID means higher role. Discord Role ID can be used to sync roles of members in Drivers Hub to Discord.
+                                    </Typography>
+                                    {formConfig.roles.map((role, index) => (
+                                        <>
+                                            <div key={`role-form-div-${role.id}`} style={{ display: 'flex', alignItems: 'center' }}>
+                                                <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1, color: role.color }}>
+                                                    {role.name}
+                                                </Typography>
+                                                <div key={`role-control-div-${role.id}`}>
+                                                    <IconButton variant="contained" color="success" onClick={() => {
+                                                        let newRoles = [...formConfig.roles];
+                                                        let nextAvailableId = role.id + 1;
+                                                        let allUsedIds = [];
+                                                        for (let i = 0; i < formConfig.roles.length; i++) {
+                                                            if (!isNaN(formConfig.roles[i].id)) {
+                                                                allUsedIds.push(Number(formConfig.roles[i].id));
+                                                            }
+                                                        }
+                                                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                                                        for (let i = 0; i < allUsedIds.length; i++) {
+                                                            if (allUsedIds[i] > role.id) {
+                                                                if (allUsedIds[i] === nextAvailableId) {
+                                                                    nextAvailableId += 1;
+                                                                } else {
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                        newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "", color: "" });
+                                                        setFormConfig({ ...formConfig, roles: newRoles });
+                                                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.roles.length >= 10} /></IconButton>
+                                                    <IconButton variant="contained" color="error" onClick={() => {
+                                                        let newRoles = [...formConfig.roles];
+                                                        newRoles.splice(index, 1);
+                                                        setFormConfig({ ...formConfig, roles: newRoles });
+                                                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.roles.length <= 1} /></IconButton>
+                                                    <IconButton variant="contained" color="info" onClick={() => {
+                                                        if (index >= 1) {
+                                                            let newRoles = [...formConfig.roles];
+                                                            newRoles[index] = newRoles[index - 1];
+                                                            newRoles[index - 1] = role;
+                                                            setFormConfig({ ...formConfig, roles: newRoles });
+                                                        }
+                                                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                                                    <IconButton variant="contained" color="warning" onClick={() => {
+                                                        if (index <= formConfig.roles.length - 2) {
+                                                            let newRoles = [...formConfig.roles];
+                                                            newRoles[index] = newRoles[index + 1];
+                                                            newRoles[index + 1] = role;
+                                                            setFormConfig({ ...formConfig, roles: newRoles });
+                                                        }
+                                                    }} disabled={index === formConfig.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                                                </div>
+                                            </div>
+                                            <RoleForm key={`role-input-div-${role.id}`} theme={theme} role={role} perms={formConfig.perms} onUpdate={(item) => {
+                                                if (item.isPerms) {
+                                                    setFormConfig({ ...formConfig, perms: item.newPerms });
+                                                    return;
+                                                }
+                                                let newRoles = [...formConfig.roles];
+                                                newRoles[index] = item;
+                                                setFormConfig({ ...formConfig, roles: newRoles });
+                                            }} />
+                                        </>
+                                    ))}
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Collapse>
+                            </>}
                         </>}
                 </Typography>
             </TabPanel>
