@@ -62,7 +62,7 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log_log", "delivery_webhook_image_urls"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"] };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -779,6 +779,9 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                             <Collapse in={formOpenStates[3]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    NOTE: Max. Warp and Required Realistic Settings are only available when Trucky is used as tracker. They will be not be considered when the job is not logged by Trucky.
+                                </Typography>
                                 <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
                                     <Grid item xs={6} md={3}>
                                         <TextField
@@ -853,11 +856,11 @@ const Configuration = () => {
                                             <MenuItem key="bypass" value="bypass">
                                                 Keep Job
                                             </MenuItem>
-                                            <MenuItem key="block" value="block">
-                                                Block Job
-                                            </MenuItem>
                                             <MenuItem key="drop" value="drop">
                                                 Drop Data
+                                            </MenuItem>
+                                            <MenuItem key="block" value="block">
+                                                Block Job
                                             </MenuItem>
                                         </TextField>
                                     </Grid>
@@ -906,6 +909,85 @@ const Configuration = () => {
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
                                                 <Button variant="contained" color="success" onClick={() => { saveFormConfig("dlog"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>
+
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(4)}>
+                                <div style={{ flexGrow: 1 }}>Discord & Steam API</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            <Collapse in={formOpenStates[4]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    NOTE: Discord Client Secret, Discord Bot Token, Steam API Key are shown empty for security purpose. They should be saved server-end.<br />
+                                    HINT: Discord Server ID is your VTC's Discord Server's ID, Discord Client ID (Application ID) is the ID for the application you created on Discord Developers Portal, they are NOT your own user ID.
+                                </Typography>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="discord_guild_id"
+                                            label="Discord Server ID"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.discord_guild_id}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_guild_id: e.target.value }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="discord_client_id"
+                                            label="Discord Client ID (Application ID)"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.discord_client_id}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_client_id: e.target.value }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="discord_client_id"
+                                            label="Discord Client Secret"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.discord_client_secret}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_client_secret: e.target.value }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="discord_client_id"
+                                            label="Discord Bot Token"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.discord_bot_token}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_bot_token: e.target.value }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={12}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="steam_api_key"
+                                            label="Steam API Key"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.steam_api_key}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, steam_api_key: e.target.value }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("discord-steam"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
                                             </Grid>
                                         </Grid>
                                     </Grid>
