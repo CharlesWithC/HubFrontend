@@ -62,9 +62,11 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log_log", "delivery_webhook_image_urls"] };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
+
+const REALISTIC_SETTINGS = ["bad_weather_factor", "detected", "detours", "fatigue", "fuel_simulation", "hardcore_simulation", "hub_speed_limit", "parking_difficulty", "police", "road_event", "show_game_blockers", "simple_parking_doubles", "traffic_enabled", "trailer_advanced_coupling"];
 
 var vars = require("../variables");
 
@@ -74,6 +76,12 @@ function tabBtnProps(index, current, theme) {
         'aria-controls': `config-tabpanel-${index}`,
         style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
+}
+
+function replaceUnderscores(str) {
+    return str.split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 }
 
 function TabPanel(props) {
@@ -106,7 +114,7 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={tracker.type}
-                onChange={(e) => { onUpdate({ ...tracker, type: e.target.value });; }}
+                onChange={(e) => { onUpdate({ ...tracker, type: e.target.value }); }}
             >
                 <MenuItem key="trucky" value="trucky">
                     Trucky
@@ -124,7 +132,7 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={tracker.company_id}
-                onChange={(e) => { onUpdate({ ...tracker, company_id: e.target.value });; }}
+                onChange={(e) => { onUpdate({ ...tracker, company_id: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -135,7 +143,7 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={tracker.api_token}
-                onChange={(e) => { onUpdate({ ...tracker, api_token: e.target.value });; }}
+                onChange={(e) => { onUpdate({ ...tracker, api_token: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -146,7 +154,7 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={tracker.webhook_secret}
-                onChange={(e) => { onUpdate({ ...tracker, webhook_secret: e.target.value });; }}
+                onChange={(e) => { onUpdate({ ...tracker, webhook_secret: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={12} md={12}>
@@ -346,6 +354,9 @@ const Configuration = () => {
                 { url: `${vars.dhpath}/config`, auth: true },
             ]);
 
+            if (_apiConfig.config.delivery_rules.required_realistic_settings === undefined) {
+                _apiConfig.config.delivery_rules.required_realistic_settings = [];
+            }
             setApiConfig(JSON.stringify(_apiConfig.config, null, 4));
             setFormConfig(_apiConfig.config);
             setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
@@ -419,7 +430,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.name}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, name: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, name: e.target.value }); }}
                                         />
                                     </Grid>
                                     <Grid item xs={6} md={3}>
@@ -430,7 +441,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.language}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, language: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, language: e.target.value }); }}
                                             select
                                         >
                                             {vars.languages.map((language) => (
@@ -448,7 +459,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.distance_unit}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, distance_unit: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, distance_unit: e.target.value }); }}
                                             select
                                         >
                                             <MenuItem key="metric" value="metric">
@@ -467,7 +478,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.security_level}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, security_level: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, security_level: e.target.value }); }}
                                             select
                                         >
                                             <MenuItem key="0" value={0}>
@@ -489,7 +500,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.privacy}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, privacy: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, privacy: e.target.value }); }}
                                             select
                                         >
                                             <MenuItem key="false" value={false}>
@@ -508,7 +519,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.logo_url}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, logo_url: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, logo_url: e.target.value }); }}
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={3}>
@@ -519,7 +530,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.hex_color}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, hex_color: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, hex_color: e.target.value }); }}
                                         />
                                     </Grid>
                                     <Grid item xs={12}>
@@ -549,7 +560,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.sync_discord_email}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, sync_discord_email: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, sync_discord_email: e.target.value }); }}
                                         >
                                             <MenuItem key={true} value={true}>
                                                 Enabled
@@ -567,7 +578,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.must_join_guild}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, must_join_guild: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, must_join_guild: e.target.value }); }}
                                         >
                                             <MenuItem key={true} value={true}>
                                                 Enabled
@@ -585,7 +596,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.use_server_nickname}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, use_server_nickname: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, use_server_nickname: e.target.value }); }}
                                         >
                                             <MenuItem key={true} value={true}>
                                                 Enabled
@@ -603,7 +614,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.allow_custom_profile}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, allow_custom_profile: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, allow_custom_profile: e.target.value }); }}
                                         >
                                             <MenuItem key={true} value={true}>
                                                 Enabled
@@ -621,7 +632,7 @@ const Configuration = () => {
                                             variant="outlined"
                                             fullWidth
                                             value={formConfig.use_custom_activity}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, use_custom_activity: e.target.value });; }}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, use_custom_activity: e.target.value }); }}
                                         >
                                             <MenuItem key={true} value={true}>
                                                 Enabled
@@ -756,6 +767,146 @@ const Configuration = () => {
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                         <Grid item xs={12} sm={6} md={4} lg={2}>
                                             <Button variant="contained" color="success" onClick={() => { saveFormConfig("tracker"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(3)}>
+                                <div style={{ flexGrow: 1 }}>Job Logging</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            <Collapse in={formOpenStates[3]}>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="max_speed"
+                                            label="Max. Speed"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.delivery_rules.max_speed}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_speed: e.target.value } }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="max_profit"
+                                            label="Max. Profit"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.delivery_rules.max_profit}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_profit: e.target.value } }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="max_xp"
+                                            label="Max. XP"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.delivery_rules.max_xp}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_xp: e.target.value } }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="max_warp"
+                                            label="Max. Warp (0 for no-warp)"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.delivery_rules.max_warp}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_warp: e.target.value } }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} md={9}>
+                                        <Typography variant="body2">Required Realistic Settings</Typography>
+                                        <CreatableSelect
+                                            isMulti
+                                            name="colors"
+                                            className="basic-multi-select"
+                                            classNamePrefix="select"
+                                            styles={customSelectStyles(theme)}
+                                            options={REALISTIC_SETTINGS.map((attr) => ({ value: attr, label: replaceUnderscores(attr) }))}
+                                            value={formConfig.delivery_rules.required_realistic_settings.map((attr) => ({ value: attr, label: replaceUnderscores(attr) }))}
+                                            onChange={(newItems) => {
+                                                setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, required_realistic_settings: newItems.map((item) => (item.value)) } });
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6} md={3}>
+                                        <TextField select size="small"
+                                            key="action"
+                                            label="Action"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.delivery_rules.action}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, action: e.target.value } }); }}
+                                            sx={{ marginTop: "20px", marginBottom: "16px" }}
+                                        >
+                                            <MenuItem key="bypass" value="bypass">
+                                                Keep Job
+                                            </MenuItem>
+                                            <MenuItem key="block" value="block">
+                                                Block Job
+                                            </MenuItem>
+                                            <MenuItem key="drop" value="drop">
+                                                Drop Data
+                                            </MenuItem>
+                                        </TextField>
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="hook_delivery_log_channel_id"
+                                            label="Discord Channel ID"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.hook_delivery_log.channel_id}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, hook_delivery_log: { ...formConfig.hook_delivery_log, channel_id: e.target.value } }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            style={{ marginBottom: '16px' }}
+                                            key="hook_delivery_log_webhook"
+                                            label="Discord Webhook (Alternative)"
+                                            variant="outlined"
+                                            fullWidth
+                                            value={formConfig.hook_delivery_log.webhook}
+                                            onChange={(e) => { setFormConfig({ ...formConfig, hook_delivery_log: { ...formConfig.hook_delivery_log, webhook: e.target.value } }); }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={12} sx={{ marginBottom: '16px' }}>
+                                        <Typography variant="body2">Random Embed Images</Typography>
+                                        <CreatableSelect
+                                            isMulti
+                                            name="colors"
+                                            className="basic-multi-select"
+                                            classNamePrefix="select"
+                                            styles={customSelectStyles(theme)}
+                                            value={formConfig.delivery_webhook_image_urls.map((url) => ({ value: url, label: url }))}
+                                            onChange={(newItems) => {
+                                                setFormConfig({
+                                                    ...formConfig,
+                                                    delivery_webhook_image_urls: newItems.map((item) => (item.value)),
+                                                });
+                                            }}
+                                            menuPortalTarget={document.body}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("dlog"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Grid>
