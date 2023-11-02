@@ -769,72 +769,148 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
     </>;
 });
 
-const MemoRoleForm = memo(({ theme, formConfig }) => {
-    return <>{
-        formConfig.state.roles.map((role, index) => (
-            <>
-                <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1, color: role.color }}>
-                        {role.name}
-                    </Typography>
-                    <div key={`role-control-div-${index}`}>
-                        <IconButton variant="contained" color="success" onClick={() => {
-                            let newRoles = [...formConfig.state.roles];
-                            let nextAvailableId = role.id + 1;
-                            let allUsedIds = [];
-                            for (let i = 0; i < formConfig.state.roles.length; i++) {
-                                if (!isNaN(formConfig.state.roles[i].id)) {
-                                    allUsedIds.push(Number(formConfig.state.roles[i].id));
+const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex }) => {
+    const RoleItem = memo(({ role, index }) => {
+        return <>
+            <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: role.color }} onClick={() => roleOpenIndex === index ? setRoleOpenIndex(-1) : setRoleOpenIndex(index)}>
+                    {role.name}
+                </Typography>
+                <div key={`role-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: roleOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRoleOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        let newRoles = [...formConfig.state.roles];
+                        let nextAvailableId = role.id + 1;
+                        let allUsedIds = [];
+                        for (let i = 0; i < formConfig.state.roles.length; i++) {
+                            if (!isNaN(formConfig.state.roles[i].id)) {
+                                allUsedIds.push(Number(formConfig.state.roles[i].id));
+                            }
+                        }
+                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                        for (let i = 0; i < allUsedIds.length; i++) {
+                            if (allUsedIds[i] > role.id) {
+                                if (allUsedIds[i] === nextAvailableId) {
+                                    nextAvailableId += 1;
+                                } else {
+                                    break;
                                 }
                             }
-                            allUsedIds = allUsedIds.sort((a, b) => a - b);
-                            for (let i = 0; i < allUsedIds.length; i++) {
-                                if (allUsedIds[i] > role.id) {
-                                    if (allUsedIds[i] === nextAvailableId) {
-                                        nextAvailableId += 1;
-                                    } else {
-                                        break;
-                                    }
-                                }
-                            }
-                            newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "", color: "" });
-                            formConfig.setState({ ...formConfig.state, roles: newRoles });
-                        }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
-                        <IconButton variant="contained" color="error" onClick={() => {
+                        }
+                        setRoleOpenIndex(index + 1);
+                        newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "New Role", color: "" });
+                        formConfig.setState({ ...formConfig.state, roles: newRoles });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newRoles = [...formConfig.state.roles];
+                        newRoles.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, roles: newRoles });
+                        setRoleOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.roles.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
                             let newRoles = [...formConfig.state.roles];
-                            newRoles.splice(index, 1);
+                            newRoles[index] = newRoles[index - 1];
+                            newRoles[index - 1] = role;
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
-                        }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.roles.length <= 1} /></IconButton>
-                        <IconButton variant="contained" color="info" onClick={() => {
-                            if (index >= 1) {
-                                let newRoles = [...formConfig.state.roles];
-                                newRoles[index] = newRoles[index - 1];
-                                newRoles[index - 1] = role;
-                                formConfig.setState({ ...formConfig.state, roles: newRoles });
-                            }
-                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
-                        <IconButton variant="contained" color="warning" onClick={() => {
-                            if (index <= formConfig.state.roles.length - 2) {
-                                let newRoles = [...formConfig.state.roles];
-                                newRoles[index] = newRoles[index + 1];
-                                newRoles[index + 1] = role;
-                                formConfig.setState({ ...formConfig.state, roles: newRoles });
-                            }
-                        }} disabled={index === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
-                    </div>
+                            if (roleOpenIndex === index) setRoleOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.roles.length - 2) {
+                            let newRoles = [...formConfig.state.roles];
+                            newRoles[index] = newRoles[index + 1];
+                            newRoles[index + 1] = role;
+                            formConfig.setState({ ...formConfig.state, roles: newRoles });
+                            if (roleOpenIndex === index) setRoleOpenIndex(index + 1);
+                        }
+                    }} disabled={index === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
-                <RoleForm key={`role-input-div-${index}`} theme={theme} role={role} perms={formConfig.state.perms} onUpdate={(item) => {
-                    if (item.isPerms) {
-                        formConfig.setState({ ...formConfig.state, perms: item.newPerms });
-                        return;
-                    }
-                    let newRoles = [...formConfig.state.roles];
-                    newRoles[index] = item;
-                    formConfig.setState({ ...formConfig.state, roles: newRoles });
-                }} />
-            </>
-        ))
-    }</>;
+            </div>
+        </>;
+    });
+    const BeforeOpen = memo(({ roleOpenIndex }) =>
+        (<>{formConfig.state.roles.map((role, index) => ((index < roleOpenIndex || roleOpenIndex === -1) && <RoleItem role={role} index={index} />))}</>)
+    );
+    const AfterOpen = memo(({ roleOpenIndex }) =>
+        (<>{formConfig.state.roles.map((role, index) => ((index > roleOpenIndex && roleOpenIndex !== -1) && <RoleItem role={role} index={index} />))}</>)
+    );
+    let role = formConfig.state.roles[roleOpenIndex];
+    let index = roleOpenIndex;
+    return <>
+        {(roleOpenIndex > 0 || roleOpenIndex === -1) && <BeforeOpen roleOpenIndex={roleOpenIndex} />}
+        {roleOpenIndex !== -1 && <>
+            <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: role.color }} onClick={() => roleOpenIndex === index ? setRoleOpenIndex(-1) : setRoleOpenIndex(index)}>
+                    {role.name}
+                </Typography>
+                <div key={`role-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: roleOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRoleOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={(e) => {
+                        let newRoles = [...formConfig.state.roles];
+                        let nextAvailableId = role.id + 1;
+                        let allUsedIds = [];
+                        for (let i = 0; i < formConfig.state.roles.length; i++) {
+                            if (!isNaN(formConfig.state.roles[i].id)) {
+                                allUsedIds.push(Number(formConfig.state.roles[i].id));
+                            }
+                        }
+                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                        for (let i = 0; i < allUsedIds.length; i++) {
+                            if (allUsedIds[i] > role.id) {
+                                if (allUsedIds[i] === nextAvailableId) {
+                                    nextAvailableId += 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        setRoleOpenIndex(index + 1);
+                        newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "", color: "" });
+                        formConfig.setState({ ...formConfig.state, roles: newRoles });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newRoles = [...formConfig.state.roles];
+                        newRoles.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, roles: newRoles });
+                        setRoleOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.roles.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newRoles = [...formConfig.state.roles];
+                            newRoles[index] = newRoles[index - 1];
+                            newRoles[index - 1] = role;
+                            formConfig.setState({ ...formConfig.state, roles: newRoles });
+                            if (roleOpenIndex !== -1) setRoleOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.roles.length - 2) {
+                            let newRoles = [...formConfig.state.roles];
+                            newRoles[index] = newRoles[index + 1];
+                            newRoles[index + 1] = role;
+                            formConfig.setState({ ...formConfig.state, roles: newRoles });
+                            if (roleOpenIndex !== -1) setRoleOpenIndex(index + 1);
+                        }
+                    }} disabled={index === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+            <RoleForm key={`role-input-div-${index}`} theme={theme} role={role} perms={formConfig.state.perms} onUpdate={(item) => {
+                if (item.isPerms) {
+                    formConfig.setState({ ...formConfig.state, perms: item.newPerms });
+                    return;
+                }
+                let newRoles = [...formConfig.state.roles];
+                newRoles[index] = item;
+                formConfig.setState({ ...formConfig.state, roles: newRoles });
+            }} />
+        </>}
+        {roleOpenIndex !== -1 && roleOpenIndex < formConfig.state.roles.length - 1 && <AfterOpen roleOpenIndex={roleOpenIndex} />}
+    </>;
 });
 
 const Configuration = () => {
@@ -882,6 +958,7 @@ const Configuration = () => {
             });
         }
     };
+    const [roleOpenIndex, setRoleOpenIndex] = useState(-1);
 
     const [mfaOtp, setMfaOtp] = useState("");
 
@@ -1233,7 +1310,7 @@ const Configuration = () => {
                                     NOTE: ID, Order ID must be integer. Smaller Order ID means higher role. Discord Role ID can be used to sync roles of members in Drivers Hub to Discord.<br />
                                     NOTE: You must use JSON Editor to change role ID. Changing role ID could lead to members with the role lose it before their role is updated.
                                 </Typography>
-                                <MemoRoleForm theme={theme} formConfig={formConfig[5]} />
+                                <MemoRoleForm theme={theme} formConfig={formConfig[5]} roleOpenIndex={roleOpenIndex} setRoleOpenIndex={setRoleOpenIndex} />
                                 <Grid item xs={12}>
                                     <Grid container>
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
