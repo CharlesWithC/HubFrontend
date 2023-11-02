@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
@@ -62,7 +62,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"] };
+
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -169,7 +171,7 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
                 styles={customSelectStyles(theme)}
                 value={tracker.ip_whitelist.map((ip) => ({ value: ip, label: ip }))}
                 onChange={(newItems) => {
-                    setFormConfig({
+                    formConfig.setState({
                         ...tracker,
                         ip_whitelist: newItems.map((item) => (item.value)),
                     });
@@ -231,7 +233,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={role.id}
-                onChange={(e) => { onUpdate({ ...role, id: e.target.value }); }}
+                disabled
             />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -242,7 +244,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={role.order_id}
-                onChange={(e) => { onUpdate({ ...role, order_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value) || e.target.value === "-") onUpdate({ ...role, order_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={12} md={3}>
@@ -264,11 +266,576 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={role.discord_role_id}
-                onChange={(e) => { onUpdate({ ...role, discord_role_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...role, discord_role_id: e.target.value }); }}
             />
         </Grid>
     </Grid>;
 };
+
+const MemoGeneralForm = memo(({ theme, formConfig }) => {
+    return <><Grid item xs={12} md={6}>
+        <TextField
+            style={{ marginBottom: '16px' }}
+            key="name"
+            label="Company Name"
+            variant="outlined"
+            fullWidth
+            value={formConfig.state.name}
+            onChange={(e) => { formConfig.setState({ ...formConfig.state, name: e.target.value }); }}
+        />
+    </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="language"
+                label="Language"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.language}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, language: e.target.value }); }}
+                select
+            >
+                {vars.languages.map((language) => (
+                    <MenuItem key={language} value={language}>
+                        {LANGUAGES[language]}
+                    </MenuItem>
+                ))}
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="distance_unit"
+                label="Distance Unit"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.distance_unit}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, distance_unit: e.target.value }); }}
+                select
+            >
+                <MenuItem key="metric" value="metric">
+                    Metric
+                </MenuItem>
+                <MenuItem key="imperial" value="imperial">
+                    Imperial
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="security_level"
+                label="Security"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.security_level}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, security_level: e.target.value }); }}
+                select
+            >
+                <MenuItem key="0" value={0}>
+                    Regular - Session token doesn't revoke automatically
+                </MenuItem>
+                <MenuItem key="1" value={1}>
+                    Strict - Session token revokes when IP country changes
+                </MenuItem>
+                <MenuItem key="2" value={2}>
+                    Very Strict - Session token revokes when IP range changes
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="privacy"
+                label="Privacy"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.privacy}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, privacy: e.target.value }); }}
+                select
+            >
+                <MenuItem key="false" value={false}>
+                    User profile visible to everyone
+                </MenuItem>
+                <MenuItem key="true" value={true}>
+                    User profile visible to only members
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} sm={9}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="logo_url"
+                label="Logo URL"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.logo_url}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, logo_url: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="hex_color"
+                label="Hex Color"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.hex_color}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, hex_color: e.target.value }); }}
+            />
+        </Grid>
+    </>;
+});
+
+const MemoProfileForm = memo(({ theme, formConfig }) => {
+    return <>
+        <Grid item xs={6} md={4}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="sync_discord_email"
+                label="Always sync user Discord email?"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.sync_discord_email}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, sync_discord_email: e.target.value }); }}
+            >
+                <MenuItem key={true} value={true}>
+                    Enabled
+                </MenuItem>
+                <MenuItem key={false} value={false}>
+                    Disabled
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="must_join_guild"
+                label="User must join Discord server?"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.must_join_guild}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, must_join_guild: e.target.value }); }}
+            >
+                <MenuItem key={true} value={true}>
+                    Enabled
+                </MenuItem>
+                <MenuItem key={false} value={false}>
+                    Disabled
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="use_server_nickname"
+                label="Use Discord server nickname?"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.use_server_nickname}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, use_server_nickname: e.target.value }); }}
+            >
+                <MenuItem key={true} value={true}>
+                    Enabled
+                </MenuItem>
+                <MenuItem key={false} value={false}>
+                    Disabled
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={6}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="allow_custom_profile"
+                label="Enable custom profile?"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.allow_custom_profile}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, allow_custom_profile: e.target.value }); }}
+            >
+                <MenuItem key={true} value={true}>
+                    Enabled
+                </MenuItem>
+                <MenuItem key={false} value={false}>
+                    Disabled
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={6}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="use_custom_activity"
+                label="Enable custom activity (*not supported)?"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.use_custom_activity}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, use_custom_activity: e.target.value }); }}
+            >
+                <MenuItem key={true} value={true}>
+                    Enabled
+                </MenuItem>
+                <MenuItem key={false} value={false}>
+                    Disabled
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} md={12} sx={{ pb: "15px" }}>
+            <Typography variant="body2">Avatar Domain Whitelist</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={formConfig.state.avatar_domain_whitelist.map((domain) => ({ value: domain, label: domain }))}
+                onChange={(newItems) => {
+                    formConfig.setState({
+                        ...formConfig.state,
+                        avatar_domain_whitelist: newItems.map((item) => (item.value)),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={12} md={6} sx={{ pb: "15px" }}>
+            <Typography variant="body2">Required connections for new members</Typography>
+            <Select
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                options={Object.keys(CONNECTION_NAME).map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                value={formConfig.state.required_connections.map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                onChange={(newItems) => {
+                    formConfig.setState({
+                        ...formConfig.state,
+                        required_connections: newItems.map((item) => (item.value)),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={12} md={6} sx={{ pb: "15px" }}>
+            <Typography variant="body2">Enabled registration methods</Typography>
+            <Select
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                options={Object.keys(CONNECTION_NAME).map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                value={formConfig.state.register_methods.map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
+                onChange={(newItems) => {
+                    formConfig.setState({
+                        ...formConfig.state,
+                        connection: newItems.map((item) => (item.value)),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+    </>;
+});
+
+const MemoTrackerForm = memo(({ theme, formConfig }) => {
+    return <>{formConfig.state.trackers.map((tracker, index) => (
+        <>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                    Tracker #{index + 1}
+                </Typography>
+                <div>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        let newTrackers = [...formConfig.state.trackers];
+                        newTrackers.splice(index + 1, 0, { type: "trucky", company_id: "", api_token: "", webhook_secret: "", ip_whitelist: [] });
+                        formConfig.setState({ ...formConfig.state, trackers: newTrackers });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.trackers.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newTrackers = [...formConfig.state.trackers];
+                        newTrackers.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, trackers: newTrackers });
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.trackers.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newTrackers = [...formConfig.state.trackers];
+                            newTrackers[index] = newTrackers[index - 1];
+                            newTrackers[index - 1] = tracker;
+                            formConfig.setState({ ...formConfig.state, trackers: newTrackers });
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.trackers.length - 2) {
+                            let newTrackers = [...formConfig.state.trackers];
+                            newTrackers[index] = newTrackers[index + 1];
+                            newTrackers[index + 1] = tracker;
+                            formConfig.setState({ ...formConfig.state, trackers: newTrackers });
+                        }
+                    }} disabled={index === formConfig.state.trackers.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+            <TrackerForm theme={theme} tracker={tracker} onUpdate={(newTracker) => {
+                let newTrackers = [...formConfig.state.trackers];
+                newTrackers[index] = newTracker;
+                formConfig.setState({ ...formConfig.state, trackers: newTrackers });
+            }} />
+        </>
+    ))
+    }</>;
+});
+
+const MemoDlogForm = memo(({ theme, formConfig }) => {
+    return <><Grid item xs={6} md={3}>
+        <TextField
+            style={{ marginBottom: '16px' }}
+            key="max_speed"
+            label="Max. Speed"
+            variant="outlined"
+            fullWidth
+            value={formConfig.state.delivery_rules.max_speed}
+            onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_speed: e.target.value } }); }}
+        />
+    </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="max_profit"
+                label="Max. Profit"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.delivery_rules.max_profit}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_profit: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="max_xp"
+                label="Max. XP"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.delivery_rules.max_xp}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_xp: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="max_warp"
+                label="Max. Warp (0 for no-warp)"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.delivery_rules.max_warp}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_warp: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={9}>
+            <Typography variant="body2">Required Realistic Settings</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                options={REALISTIC_SETTINGS.map((attr) => ({ value: attr, label: replaceUnderscores(attr) }))}
+                value={formConfig.state.delivery_rules.required_realistic_settings.map((attr) => ({ value: attr, label: replaceUnderscores(attr) }))}
+                onChange={(newItems) => {
+                    formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, required_realistic_settings: newItems.map((item) => (item.value)) } });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField select size="small"
+                key="action"
+                label="Action"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.delivery_rules.action}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, action: e.target.value } }); }}
+                sx={{ marginTop: "20px", marginBottom: "16px" }}
+            >
+                <MenuItem key="bypass" value="bypass">
+                    Keep Job
+                </MenuItem>
+                <MenuItem key="drop" value="drop">
+                    Drop Data
+                </MenuItem>
+                <MenuItem key="block" value="block">
+                    Block Job
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="hook_delivery_log_channel_id"
+                label="Discord Channel ID"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.hook_delivery_log.channel_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_delivery_log: { ...formConfig.state.hook_delivery_log, channel_id: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="hook_delivery_log_webhook"
+                label="Discord Webhook (Alternative)"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.hook_delivery_log.webhook}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, hook_delivery_log: { ...formConfig.state.hook_delivery_log, webhook: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={12} sx={{ marginBottom: '16px' }}>
+            <Typography variant="body2">Random Embed Images</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={formConfig.state.delivery_webhook_image_urls.map((url) => ({ value: url, label: url }))}
+                onChange={(newItems) => {
+                    formConfig.setState({
+                        ...formConfig.state,
+                        delivery_webhook_image_urls: newItems.map((item) => (item.value)),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+    </>;
+});
+
+const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
+    return <>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="discord_guild_id"
+                label="Discord Server ID"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.discord_guild_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_guild_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="discord_client_id"
+                label="Discord Client ID (Application ID)"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.discord_client_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_client_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="discord_client_secret"
+                label="Discord Client Secret"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.discord_client_secret}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_client_secret: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="discord_bot_token"
+                label="Discord Bot Token"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.discord_bot_token}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, discord_bot_token: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={12}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="steam_api_key"
+                label="Steam API Key"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.steam_api_key}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, steam_api_key: e.target.value }); }}
+            />
+        </Grid>
+    </>;
+});
+
+const MemoRoleForm = memo(({ theme, formConfig }) => {
+    return <>{
+        formConfig.state.roles.map((role, index) => (
+            <>
+                <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1, color: role.color }}>
+                        {role.name}
+                    </Typography>
+                    <div key={`role-control-div-${index}`}>
+                        <IconButton variant="contained" color="success" onClick={() => {
+                            let newRoles = [...formConfig.state.roles];
+                            let nextAvailableId = role.id + 1;
+                            let allUsedIds = [];
+                            for (let i = 0; i < formConfig.state.roles.length; i++) {
+                                if (!isNaN(formConfig.state.roles[i].id)) {
+                                    allUsedIds.push(Number(formConfig.state.roles[i].id));
+                                }
+                            }
+                            allUsedIds = allUsedIds.sort((a, b) => a - b);
+                            for (let i = 0; i < allUsedIds.length; i++) {
+                                if (allUsedIds[i] > role.id) {
+                                    if (allUsedIds[i] === nextAvailableId) {
+                                        nextAvailableId += 1;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                            newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "", color: "" });
+                            formConfig.setState({ ...formConfig.state, roles: newRoles });
+                        }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
+                        <IconButton variant="contained" color="error" onClick={() => {
+                            let newRoles = [...formConfig.state.roles];
+                            newRoles.splice(index, 1);
+                            formConfig.setState({ ...formConfig.state, roles: newRoles });
+                        }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.roles.length <= 1} /></IconButton>
+                        <IconButton variant="contained" color="info" onClick={() => {
+                            if (index >= 1) {
+                                let newRoles = [...formConfig.state.roles];
+                                newRoles[index] = newRoles[index - 1];
+                                newRoles[index - 1] = role;
+                                formConfig.setState({ ...formConfig.state, roles: newRoles });
+                            }
+                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                        <IconButton variant="contained" color="warning" onClick={() => {
+                            if (index <= formConfig.state.roles.length - 2) {
+                                let newRoles = [...formConfig.state.roles];
+                                newRoles[index] = newRoles[index + 1];
+                                newRoles[index + 1] = role;
+                                formConfig.setState({ ...formConfig.state, roles: newRoles });
+                            }
+                        }} disabled={index === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    </div>
+                </div>
+                <RoleForm key={`role-input-div-${index}`} theme={theme} role={role} perms={formConfig.state.perms} onUpdate={(item) => {
+                    if (item.isPerms) {
+                        formConfig.setState({ ...formConfig.state, perms: item.newPerms });
+                        return;
+                    }
+                    let newRoles = [...formConfig.state.roles];
+                    newRoles[index] = item;
+                    formConfig.setState({ ...formConfig.state, roles: newRoles });
+                }} />
+            </>
+        ))
+    }</>;
+});
 
 const Configuration = () => {
     const theme = useTheme();
@@ -283,13 +850,37 @@ const Configuration = () => {
         setTab(newValue);
     };
 
-    const [formOpenStates, setFormOpenStates] = useState([false, false]);
+    // this could make animations show
+    const [formSectionRender, setFormSectionRender] = useState(new Array(Object.keys(CONFIG_SECTIONS).length).fill(false));
+    const [formSectionOpen, setFormSectionOpen] = useState(new Array(Object.keys(CONFIG_SECTIONS).length).fill(false));
     const handleFormToggle = (index) => {
-        setFormOpenStates((prevOpenStates) => {
-            const newOpenStates = [...prevOpenStates];
-            newOpenStates[index] = !newOpenStates[index];
-            return newOpenStates;
-        });
+        if (!formSectionRender[index]) {
+            setFormSectionRender((prevStates) => {
+                const newStates = [...prevStates];
+                newStates[index] = !newStates[index];
+                return newStates;
+            });
+            setTimeout(function () {
+                setFormSectionOpen((prevStates) => {
+                    const newStates = [...prevStates];
+                    newStates[index] = !newStates[index];
+                    return newStates;
+                });
+            }, 5);
+        } else {
+            setTimeout(function () {
+                setFormSectionRender((prevStates) => {
+                    const newStates = [...prevStates];
+                    newStates[index] = !newStates[index];
+                    return newStates;
+                });
+            }, 500);
+            setFormSectionOpen((prevStates) => {
+                const newStates = [...prevStates];
+                newStates[index] = !newStates[index];
+                return newStates;
+            });
+        }
     };
 
     const [mfaOtp, setMfaOtp] = useState("");
@@ -327,7 +918,11 @@ const Configuration = () => {
     }, [webConfig]);
 
     const [apiConfig, setApiConfig] = useState(null);
-    const [formConfig, setFormConfig] = useState(null);
+    const formConfig = Array.from({ length: Object.keys(CONFIG_SECTIONS).length }, () => {
+        const [state, setState] = React.useState(null);
+        return { state, setState };
+    });
+    const [formConfigReady, setFormConfigReady] = useState(false);
     const [apiBackup, setApiBackup] = useState(null);
     const [apiLastModify, setApiLastModify] = useState(0);
     const [apiConfigSelectionStart, setApiConfigSelectionStart] = useState(null);
@@ -450,7 +1045,17 @@ const Configuration = () => {
                 _apiConfig.config.delivery_rules.required_realistic_settings = [];
             }
             setApiConfig(JSON.stringify(_apiConfig.config, null, 4));
-            setFormConfig(_apiConfig.config);
+
+            let sections = Object.keys(CONFIG_SECTIONS);
+            for (let i = 0; i < sections.length; i++) {
+                let partialConfig = {};
+                let section_keys = CONFIG_SECTIONS[sections[i]];
+                for (let j = 0; j < section_keys.length; j++) {
+                    partialConfig[section_keys[j]] = _apiConfig.config[section_keys[j]];
+                }
+                formConfig[i].setState(partialConfig);
+            }
+            setFormConfigReady(true);
             setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
             setApiLastModify(_apiConfig.config_last_modified);
 
@@ -461,10 +1066,12 @@ const Configuration = () => {
     }, []);
 
     const saveFormConfig = useCallback(async (section) => {
-        let config = {};
-        for (let i = 0; i < CONFIG_SECTIONS[section].length; i++) {
-            if (formConfig[CONFIG_SECTIONS[section][i]] !== "")
-                config[CONFIG_SECTIONS[section][i]] = formConfig[CONFIG_SECTIONS[section][i]];
+        let config = formConfig[CONFIG_SECTIONS_INDEX[section]].state;
+        let configKeys = Object.keys(config);
+        for (let i = 0; i < configKeys.length; i++) {
+            if (config[configKeys[i]] === "") {
+                delete config[configKeys[i]];
+            }
         }
 
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -504,127 +1111,17 @@ const Configuration = () => {
                     - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
                     <br />
                     <br />
-                    {formConfig !== null &&
+                    {formConfigReady &&
                         <>
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(0)}>
                                 <div style={{ flexGrow: 1 }}>General</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            <Collapse in={formOpenStates[0]}>
+                            {formSectionRender[0] && <Collapse in={formSectionOpen[0]}>
                                 <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="name"
-                                            label="Company Name"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.name}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, name: e.target.value }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="language"
-                                            label="Language"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.language}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, language: e.target.value }); }}
-                                            select
-                                        >
-                                            {vars.languages.map((language) => (
-                                                <MenuItem key={language} value={language}>
-                                                    {LANGUAGES[language]}
-                                                </MenuItem>
-                                            ))}
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="distance_unit"
-                                            label="Distance Unit"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.distance_unit}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, distance_unit: e.target.value }); }}
-                                            select
-                                        >
-                                            <MenuItem key="metric" value="metric">
-                                                Metric
-                                            </MenuItem>
-                                            <MenuItem key="imperial" value="imperial">
-                                                Imperial
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="security_level"
-                                            label="Security"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.security_level}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, security_level: e.target.value }); }}
-                                            select
-                                        >
-                                            <MenuItem key="0" value={0}>
-                                                Regular - Session token doesn't revoke automatically
-                                            </MenuItem>
-                                            <MenuItem key="1" value={1}>
-                                                Strict - Session token revokes when IP country changes
-                                            </MenuItem>
-                                            <MenuItem key="2" value={2}>
-                                                Very Strict - Session token revokes when IP range changes
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="privacy"
-                                            label="Privacy"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.privacy}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, privacy: e.target.value }); }}
-                                            select
-                                        >
-                                            <MenuItem key="false" value={false}>
-                                                User profile visible to everyone
-                                            </MenuItem>
-                                            <MenuItem key="true" value={true}>
-                                                User profile visible to only members
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={12} sm={9}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="logo_url"
-                                            label="Logo URL"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.logo_url}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, logo_url: e.target.value }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="hex_color"
-                                            label="Hex Color"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.hex_color}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, hex_color: e.target.value }); }}
-                                        />
-                                    </Grid>
+                                    <MemoGeneralForm theme={theme} formConfig={formConfig[0]} />
                                     <Grid item xs={12}>
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -634,162 +1131,17 @@ const Configuration = () => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </Collapse>
+                            </Collapse>}
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(1)}>
                                 <div style={{ flexGrow: 1 }}>Account & Profile</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            <Collapse in={formOpenStates[1]}>
+                            {formSectionRender[1] && <Collapse in={formSectionOpen[1]}>
                                 <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
-                                    <Grid item xs={6} md={4}>
-                                        <TextField select
-                                            style={{ marginBottom: '16px' }}
-                                            key="sync_discord_email"
-                                            label="Always sync user Discord email?"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.sync_discord_email}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, sync_discord_email: e.target.value }); }}
-                                        >
-                                            <MenuItem key={true} value={true}>
-                                                Enabled
-                                            </MenuItem>
-                                            <MenuItem key={false} value={false}>
-                                                Disabled
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={6} md={4}>
-                                        <TextField select
-                                            style={{ marginBottom: '16px' }}
-                                            key="must_join_guild"
-                                            label="User must join Discord server?"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.must_join_guild}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, must_join_guild: e.target.value }); }}
-                                        >
-                                            <MenuItem key={true} value={true}>
-                                                Enabled
-                                            </MenuItem>
-                                            <MenuItem key={false} value={false}>
-                                                Disabled
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={6} md={4}>
-                                        <TextField select
-                                            style={{ marginBottom: '16px' }}
-                                            key="use_server_nickname"
-                                            label="Use Discord server nickname?"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.use_server_nickname}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, use_server_nickname: e.target.value }); }}
-                                        >
-                                            <MenuItem key={true} value={true}>
-                                                Enabled
-                                            </MenuItem>
-                                            <MenuItem key={false} value={false}>
-                                                Disabled
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={6} md={6}>
-                                        <TextField select
-                                            style={{ marginBottom: '16px' }}
-                                            key="allow_custom_profile"
-                                            label="Enable custom profile?"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.allow_custom_profile}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, allow_custom_profile: e.target.value }); }}
-                                        >
-                                            <MenuItem key={true} value={true}>
-                                                Enabled
-                                            </MenuItem>
-                                            <MenuItem key={false} value={false}>
-                                                Disabled
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={6} md={6}>
-                                        <TextField select
-                                            style={{ marginBottom: '16px' }}
-                                            key="use_custom_activity"
-                                            label="Enable custom activity (*not supported)?"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.use_custom_activity}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, use_custom_activity: e.target.value }); }}
-                                        >
-                                            <MenuItem key={true} value={true}>
-                                                Enabled
-                                            </MenuItem>
-                                            <MenuItem key={false} value={false}>
-                                                Disabled
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={12} md={12} sx={{ pb: "15px" }}>
-                                        <Typography variant="body2">Avatar Domain Whitelist</Typography>
-                                        <CreatableSelect
-                                            isMulti
-                                            name="colors"
-                                            className="basic-multi-select"
-                                            classNamePrefix="select"
-                                            styles={customSelectStyles(theme)}
-                                            value={formConfig.avatar_domain_whitelist.map((domain) => ({ value: domain, label: domain }))}
-                                            onChange={(newItems) => {
-                                                setFormConfig({
-                                                    ...formConfig,
-                                                    avatar_domain_whitelist: newItems.map((item) => (item.value)),
-                                                });
-                                            }}
-                                            menuPortalTarget={document.body}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={6} sx={{ pb: "15px" }}>
-                                        <Typography variant="body2">Required connections for new members</Typography>
-                                        <Select
-                                            isMulti
-                                            name="colors"
-                                            className="basic-multi-select"
-                                            classNamePrefix="select"
-                                            styles={customSelectStyles(theme)}
-                                            options={Object.keys(CONNECTION_NAME).map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
-                                            value={formConfig.required_connections.map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
-                                            onChange={(newItems) => {
-                                                setFormConfig({
-                                                    ...formConfig,
-                                                    required_connections: newItems.map((item) => (item.value)),
-                                                });
-                                            }}
-                                            menuPortalTarget={document.body}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={6} sx={{ pb: "15px" }}>
-                                        <Typography variant="body2">Enabled registration methods</Typography>
-                                        <Select
-                                            isMulti
-                                            name="colors"
-                                            className="basic-multi-select"
-                                            classNamePrefix="select"
-                                            styles={customSelectStyles(theme)}
-                                            options={Object.keys(CONNECTION_NAME).map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
-                                            value={formConfig.register_methods.map((connection) => ({ value: connection, label: CONNECTION_NAME[connection] }))}
-                                            onChange={(newItems) => {
-                                                setFormConfig({
-                                                    ...formConfig,
-                                                    connection: newItems.map((item) => (item.value)),
-                                                });
-                                            }}
-                                            menuPortalTarget={document.body}
-                                        />
-                                    </Grid>
+                                    <MemoProfileForm theme={theme} formConfig={formConfig[1]} />
                                     <Grid item xs={12}>
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -799,61 +1151,20 @@ const Configuration = () => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </Collapse>
+                            </Collapse>}
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(2)}>
                                 <div style={{ flexGrow: 1 }}>Tracker</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            <Collapse in={formOpenStates[2]}>
+                            {formSectionRender[2] && <Collapse in={formSectionOpen[2]}>
                                 <Typography variant="body2" sx={{ mb: "10px" }}>
                                     NOTE: API Token & Webhook Secret attributes are shown empty for security purpose. They should be saved server-end.<br />
                                     If you want to update tracker config, you must fill all the empty fields. Hence, it's recommended to store relevant data elsewhere securely for easier config modification.
                                 </Typography>
-                                {formConfig.trackers.map((tracker, index) => (
-                                    <>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
-                                                Tracker #{index + 1}
-                                            </Typography>
-                                            <div>
-                                                <IconButton variant="contained" color="success" onClick={() => {
-                                                    let newTrackers = [...formConfig.trackers];
-                                                    newTrackers.splice(index + 1, 0, { type: "trucky", company_id: "", api_token: "", webhook_secret: "", ip_whitelist: [] });
-                                                    setFormConfig({ ...formConfig, trackers: newTrackers });
-                                                }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.trackers.length >= 10} /></IconButton>
-                                                <IconButton variant="contained" color="error" onClick={() => {
-                                                    let newTrackers = [...formConfig.trackers];
-                                                    newTrackers.splice(index, 1);
-                                                    setFormConfig({ ...formConfig, trackers: newTrackers });
-                                                }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.trackers.length <= 1} /></IconButton>
-                                                <IconButton variant="contained" color="info" onClick={() => {
-                                                    if (index >= 1) {
-                                                        let newTrackers = [...formConfig.trackers];
-                                                        newTrackers[index] = newTrackers[index - 1];
-                                                        newTrackers[index - 1] = tracker;
-                                                        setFormConfig({ ...formConfig, trackers: newTrackers });
-                                                    }
-                                                }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
-                                                <IconButton variant="contained" color="warning" onClick={() => {
-                                                    if (index <= formConfig.trackers.length - 2) {
-                                                        let newTrackers = [...formConfig.trackers];
-                                                        newTrackers[index] = newTrackers[index + 1];
-                                                        newTrackers[index + 1] = tracker;
-                                                        setFormConfig({ ...formConfig, trackers: newTrackers });
-                                                    }
-                                                }} disabled={index === formConfig.trackers.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
-                                            </div>
-                                        </div>
-                                        <TrackerForm theme={theme} tracker={tracker} onUpdate={(newTracker) => {
-                                            let newTrackers = [...formConfig.trackers];
-                                            newTrackers[index] = newTracker;
-                                            setFormConfig({ ...formConfig, trackers: newTrackers });
-                                        }} />
-                                    </>
-                                ))}
+                                <MemoTrackerForm theme={theme} formConfig={formConfig[2]} />
                                 <Grid item xs={12}>
                                     <Grid container>
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -862,140 +1173,20 @@ const Configuration = () => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </Collapse>
+                            </Collapse>}
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(3)}>
                                 <div style={{ flexGrow: 1 }}>Job Logging</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            <Collapse in={formOpenStates[3]}>
+                            {formSectionRender[3] && <Collapse in={formSectionOpen[3]}>
                                 <Typography variant="body2" sx={{ mb: "15px" }}>
                                     NOTE: Max. Warp and Required Realistic Settings are only available when Trucky is used as tracker. They will be not be considered when the job is not logged by Trucky.
                                 </Typography>
                                 <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="max_speed"
-                                            label="Max. Speed"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.delivery_rules.max_speed}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_speed: e.target.value } }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="max_profit"
-                                            label="Max. Profit"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.delivery_rules.max_profit}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_profit: e.target.value } }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="max_xp"
-                                            label="Max. XP"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.delivery_rules.max_xp}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_xp: e.target.value } }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="max_warp"
-                                            label="Max. Warp (0 for no-warp)"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.delivery_rules.max_warp}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, max_warp: e.target.value } }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} md={9}>
-                                        <Typography variant="body2">Required Realistic Settings</Typography>
-                                        <CreatableSelect
-                                            isMulti
-                                            name="colors"
-                                            className="basic-multi-select"
-                                            classNamePrefix="select"
-                                            styles={customSelectStyles(theme)}
-                                            options={REALISTIC_SETTINGS.map((attr) => ({ value: attr, label: replaceUnderscores(attr) }))}
-                                            value={formConfig.delivery_rules.required_realistic_settings.map((attr) => ({ value: attr, label: replaceUnderscores(attr) }))}
-                                            onChange={(newItems) => {
-                                                setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, required_realistic_settings: newItems.map((item) => (item.value)) } });
-                                            }}
-                                            menuPortalTarget={document.body}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={6} md={3}>
-                                        <TextField select size="small"
-                                            key="action"
-                                            label="Action"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.delivery_rules.action}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, delivery_rules: { ...formConfig.delivery_rules, action: e.target.value } }); }}
-                                            sx={{ marginTop: "20px", marginBottom: "16px" }}
-                                        >
-                                            <MenuItem key="bypass" value="bypass">
-                                                Keep Job
-                                            </MenuItem>
-                                            <MenuItem key="drop" value="drop">
-                                                Drop Data
-                                            </MenuItem>
-                                            <MenuItem key="block" value="block">
-                                                Block Job
-                                            </MenuItem>
-                                        </TextField>
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="hook_delivery_log_channel_id"
-                                            label="Discord Channel ID"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.hook_delivery_log.channel_id}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, hook_delivery_log: { ...formConfig.hook_delivery_log, channel_id: e.target.value } }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="hook_delivery_log_webhook"
-                                            label="Discord Webhook (Alternative)"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.hook_delivery_log.webhook}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, hook_delivery_log: { ...formConfig.hook_delivery_log, webhook: e.target.value } }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={12} sx={{ marginBottom: '16px' }}>
-                                        <Typography variant="body2">Random Embed Images</Typography>
-                                        <CreatableSelect
-                                            isMulti
-                                            name="colors"
-                                            className="basic-multi-select"
-                                            classNamePrefix="select"
-                                            styles={customSelectStyles(theme)}
-                                            value={formConfig.delivery_webhook_image_urls.map((url) => ({ value: url, label: url }))}
-                                            onChange={(newItems) => {
-                                                setFormConfig({
-                                                    ...formConfig,
-                                                    delivery_webhook_image_urls: newItems.map((item) => (item.value)),
-                                                });
-                                            }}
-                                            menuPortalTarget={document.body}
-                                        />
-                                    </Grid>
+                                    <MemoDlogForm theme={theme} formConfig={formConfig[3]} />
                                     <Grid item xs={12}>
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -1005,76 +1196,21 @@ const Configuration = () => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </Collapse>
-
+                            </Collapse>}
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(4)}>
                                 <div style={{ flexGrow: 1 }}>Discord & Steam API</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            <Collapse in={formOpenStates[4]}>
+                            {formSectionRender[4] && <Collapse in={formSectionOpen[4]}>
                                 <Typography variant="body2" sx={{ mb: "15px" }}>
                                     NOTE: Discord Client Secret, Discord Bot Token, Steam API Key are shown empty for security purpose. They should be saved server-end.<br />
                                     HINT: Discord Server ID is your VTC's Discord Server's ID, Discord Client ID (Application ID) is the ID for the application you created on Discord Developers Portal, they are NOT your own user ID.
                                 </Typography>
                                 <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="discord_guild_id"
-                                            label="Discord Server ID"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.discord_guild_id}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_guild_id: e.target.value }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="discord_client_id"
-                                            label="Discord Client ID (Application ID)"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.discord_client_id}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_client_id: e.target.value }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="discord_client_id"
-                                            label="Discord Client Secret"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.discord_client_secret}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_client_secret: e.target.value }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={6}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="discord_client_id"
-                                            label="Discord Bot Token"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.discord_bot_token}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, discord_bot_token: e.target.value }); }}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={12}>
-                                        <TextField
-                                            style={{ marginBottom: '16px' }}
-                                            key="steam_api_key"
-                                            label="Steam API Key"
-                                            variant="outlined"
-                                            fullWidth
-                                            value={formConfig.steam_api_key}
-                                            onChange={(e) => { setFormConfig({ ...formConfig, steam_api_key: e.target.value }); }}
-                                        />
-                                    </Grid>
+                                    <MemoDiscordSteamForm theme={theme} formConfig={formConfig[4]} />
                                     <Grid item xs={12}>
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -1084,93 +1220,29 @@ const Configuration = () => {
                                         </Grid>
                                     </Grid>
                                 </Grid>
-                            </Collapse>
-                            
-                            {/* extreme lag in development mode - only available for production */}
-                            {window.location.hostname !== "localhost" && <>
-                                <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(5)}>
-                                    <div style={{ flexGrow: 1 }}>Roles</div>
-                                    <IconButton style={{ transition: 'transform 0.2s', transform: formOpenStates[0] ? 'rotate(180deg)' : 'none' }}>
-                                        <ExpandMoreRounded />
-                                    </IconButton>
+                            </Collapse>}
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(5)}>
+                                <div style={{ flexGrow: 1 }}>Roles</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            {formSectionRender[5] && <Collapse in={formSectionOpen[5]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    NOTE: ID, Order ID must be integer. Smaller Order ID means higher role. Discord Role ID can be used to sync roles of members in Drivers Hub to Discord.<br />
+                                    NOTE: You must use JSON Editor to change role ID. Changing role ID could lead to members with the role lose it before their role is updated.
                                 </Typography>
-                                <Collapse in={formOpenStates[5]}>
-                                    <Typography variant="body2" sx={{ mb: "15px" }}>
-                                        NOTE: ID, Order ID must be integer. Smaller Order ID means higher role. Discord Role ID can be used to sync roles of members in Drivers Hub to Discord.
-                                    </Typography>
-                                    {formConfig.roles.map((role, index) => (
-                                        <>
-                                            <div key={`role-form-div-${role.id}`} style={{ display: 'flex', alignItems: 'center' }}>
-                                                <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1, color: role.color }}>
-                                                    {role.name}
-                                                </Typography>
-                                                <div key={`role-control-div-${role.id}`}>
-                                                    <IconButton variant="contained" color="success" onClick={() => {
-                                                        let newRoles = [...formConfig.roles];
-                                                        let nextAvailableId = role.id + 1;
-                                                        let allUsedIds = [];
-                                                        for (let i = 0; i < formConfig.roles.length; i++) {
-                                                            if (!isNaN(formConfig.roles[i].id)) {
-                                                                allUsedIds.push(Number(formConfig.roles[i].id));
-                                                            }
-                                                        }
-                                                        allUsedIds = allUsedIds.sort((a, b) => a - b);
-                                                        for (let i = 0; i < allUsedIds.length; i++) {
-                                                            if (allUsedIds[i] > role.id) {
-                                                                if (allUsedIds[i] === nextAvailableId) {
-                                                                    nextAvailableId += 1;
-                                                                } else {
-                                                                    break;
-                                                                }
-                                                            }
-                                                        }
-                                                        newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "", color: "" });
-                                                        setFormConfig({ ...formConfig, roles: newRoles });
-                                                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.roles.length >= 10} /></IconButton>
-                                                    <IconButton variant="contained" color="error" onClick={() => {
-                                                        let newRoles = [...formConfig.roles];
-                                                        newRoles.splice(index, 1);
-                                                        setFormConfig({ ...formConfig, roles: newRoles });
-                                                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.roles.length <= 1} /></IconButton>
-                                                    <IconButton variant="contained" color="info" onClick={() => {
-                                                        if (index >= 1) {
-                                                            let newRoles = [...formConfig.roles];
-                                                            newRoles[index] = newRoles[index - 1];
-                                                            newRoles[index - 1] = role;
-                                                            setFormConfig({ ...formConfig, roles: newRoles });
-                                                        }
-                                                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
-                                                    <IconButton variant="contained" color="warning" onClick={() => {
-                                                        if (index <= formConfig.roles.length - 2) {
-                                                            let newRoles = [...formConfig.roles];
-                                                            newRoles[index] = newRoles[index + 1];
-                                                            newRoles[index + 1] = role;
-                                                            setFormConfig({ ...formConfig, roles: newRoles });
-                                                        }
-                                                    }} disabled={index === formConfig.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
-                                                </div>
-                                            </div>
-                                            <RoleForm key={`role-input-div-${role.id}`} theme={theme} role={role} perms={formConfig.perms} onUpdate={(item) => {
-                                                if (item.isPerms) {
-                                                    setFormConfig({ ...formConfig, perms: item.newPerms });
-                                                    return;
-                                                }
-                                                let newRoles = [...formConfig.roles];
-                                                newRoles[index] = item;
-                                                setFormConfig({ ...formConfig, roles: newRoles });
-                                            }} />
-                                        </>
-                                    ))}
-                                    <Grid item xs={12}>
-                                        <Grid container>
-                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
-                                            <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
-                                            </Grid>
+                                <MemoRoleForm theme={theme} formConfig={formConfig[5]} />
+                                <Grid item xs={12}>
+                                    <Grid container>
+                                        <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                        <Grid item xs={12} sm={6} md={4} lg={2}>
+                                            <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
                                         </Grid>
                                     </Grid>
-                                </Collapse>
-                            </>}
+                                </Grid>
+                            </Collapse>}
                         </>}
                 </Typography>
             </TabPanel>

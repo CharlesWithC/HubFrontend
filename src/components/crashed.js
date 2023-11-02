@@ -23,8 +23,8 @@ const Crashed = ({ errorUploaded }) => {
                 <img src={vars.dhlogo} className={`loader`} alt="" />
                 <p>
                     Oops, Drivers Hub crashed...<br />
-                    The error should have been reported to the CHub Team if not blocked.<br />
-                    You may also create a ticket in Discord to report the problem.
+                    The error report should have been uploaded.<br />
+                    You may also share details in CHub Discord server.
                 </p>
                 <Button variant="contained" color="primary" onClick={() => window.location.reload()}>Reload</Button>
             </div>

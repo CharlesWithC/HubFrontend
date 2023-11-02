@@ -47,7 +47,7 @@ class ErrorBoundary extends React.Component {
     }
 
     render() {
-        if (this.state.hasError && window.location.hostname !== "localhost") {
+        if (this.state.hasError) {
             return <Crashed />;
         }
         return this.props.children;
