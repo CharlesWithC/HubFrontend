@@ -62,7 +62,7 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_passwd", "email_template"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_passwd", "email_template"] };
 
 const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "smtp": 6 };
 
@@ -216,6 +216,28 @@ const MemoGeneralForm = memo(({ theme, formConfig }) => {
                 fullWidth
                 value={formConfig.state.hex_color}
                 onChange={(e) => { formConfig.setState({ ...formConfig.state, hex_color: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="hook_audit_log_channel_id"
+                label="Audit Log Discord Channel ID"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.hook_audit_log.channel_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_audit_log: { ...formConfig.state.hook_audit_log, channel_id: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="hook_audit_log_webhook"
+                label="Audit Log Discord Webhook (Alternative)"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.hook_audit_log.webhook_url}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, hook_audit_log: { ...formConfig.state.hook_audit_log, webhook_url: e.target.value } }); }}
             />
         </Grid>
     </>;
@@ -592,8 +614,8 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
                 label="Discord Webhook (Alternative)"
                 variant="outlined"
                 fullWidth
-                value={formConfig.state.hook_delivery_log.webhook}
-                onChange={(e) => { formConfig.setState({ ...formConfig.state, hook_delivery_log: { ...formConfig.state.hook_delivery_log, webhook: e.target.value } }); }}
+                value={formConfig.state.hook_delivery_log.webhook_url}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, hook_delivery_log: { ...formConfig.state.hook_delivery_log, webhook_url: e.target.value } }); }}
             />
         </Grid>
         <Grid item xs={12} md={12} sx={{ marginBottom: '16px' }}>
