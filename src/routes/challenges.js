@@ -179,7 +179,7 @@ function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) 
 }
 
 const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, onEdit, onDelete }) => {
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admin", "challenge"]));
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_challenges"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleShowDetails = useCallback(() => {
@@ -230,7 +230,7 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
 const ChallengeManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "challenge"])) {
+        if (checkPerm(vars.members[i].roles, ["administrator", "manage_challenges"])) {
             managers.push(vars.members[i]);
         }
     }
@@ -301,7 +301,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["admin", "challenge"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
+        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["admininistrator", "manage_challenges"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
     </>;
 });
 
@@ -891,7 +891,7 @@ const Challenges = () => {
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {checkUserPerm(["admin", "challenge"]) && <SpeedDialAction
+            {checkUserPerm(["admininistrator", "manage_challenges"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
                 tooltipTitle="Create"

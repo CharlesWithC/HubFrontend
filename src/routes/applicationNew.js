@@ -72,7 +72,7 @@ const CustomForm = ({ config, formData, setFormData }) => {
                 }
             } else if (config[i].type === "position") {
                 config[i].type = "dropdown";
-                config[i].choices = vars.applicationPositions;
+                config[i].choices = [];
             }
         }
     }

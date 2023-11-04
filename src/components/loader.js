@@ -80,7 +80,6 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/member/perms`, auth: false },
                     { url: `${vars.dhpath}/member/ranks`, auth: false },
                     { url: `${vars.dhpath}/announcements/types`, auth: false },
-                    { url: `${vars.dhpath}/applications/positions`, auth: false },
                     { url: `${vars.dhpath}/applications/types`, auth: false },
                     { url: `${vars.dhpath}/divisions/list`, auth: false },
                 ];
@@ -92,7 +91,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/economy/merch`, auth: true },
                 ];
 
-                const [index, specialRoles, userConfig, config, languages, memberRoles, memberPerms, memberRanks, announcementTypes, applicationPositions, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
+                const [index, specialRoles, userConfig, config, languages, memberRoles, memberPerms, memberRanks, announcementTypes, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -137,9 +136,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 if (announcementTypes) {
                     vars.announcementTypes = announcementTypes;
-                }
-                if (applicationPositions) {
-                    vars.applicationPositions = applicationPositions;
                 }
                 if (applicationTypes) {
                     for (let i = 0; i < applicationTypes.length; i++) {

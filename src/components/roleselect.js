@@ -32,7 +32,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
         divisionRoles.push(vars.divisions[divisionIds[i]].role_id);
     }
     let divisionOnly = false;
-    if (checkUserPerm(["division"]) && !checkUserPerm(["admin", "hrm", "hr", "update_member_roles"])) {
+    if (checkUserPerm(["division"]) && !checkUserPerm(["admininistrator", "update_roles"])) {
         divisionOnly = true;
     }
 

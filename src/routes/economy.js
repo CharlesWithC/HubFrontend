@@ -896,8 +896,8 @@ const Economy = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogAction(""); }}>Close</Button>
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
-                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>Sell</Button>}
-                    {(checkUserPerm(["admin", "economy_manager", "garage_manager"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>Transfer</Button>}
+                    {(checkUserPerm(["admininistrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>Sell</Button>}
+                    {(checkUserPerm(["admininistrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>Transfer</Button>}
                     <Button variant="contained" color="info" onClick={() => { setSlotList([]); setDialogAction("slot"); }}>Show Slots</Button>
                 </>}
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>Purchase</Button>}
@@ -1053,7 +1053,7 @@ const Economy = () => {
                             <Typography variant="body2">{TRUCK_STATUS[activeTruck.status]}</Typography>
                         </Grid>
                     </Grid>
-                    {(checkUserPerm(["admin", "economy_manager", "truck_manager"]) || activeTruck.owner.userid === vars.userInfo.userid) && <>
+                    {(checkUserPerm(["admininistrator", "manage_economy", "manage_truck"]) || activeTruck.owner.userid === vars.userInfo.userid) && <>
                         <ButtonGroup fullWidth sx={{ mt: "10px" }}>
                             <Button variant="contained" color="success" onClick={() => { activateTruck(); }} disabled={activeTruck.status !== "inactive" || dialogDisabled}>Activate</Button>
                             <Button variant="contained" color="warning" onClick={() => { deactivateTruck(); }} disabled={activeTruck.status !== "active" || dialogDisabled}>Deactivate</Button>
@@ -1358,7 +1358,7 @@ const Economy = () => {
         </Dialog>
         <Grid container spacing={2} sx={{ mt: "10px" }}>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;Balance Leaderboard</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(["admin", "economy_manager", "balance_manager"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
+                <CustomTable name={<><FontAwesomeIcon icon={faRankingStar} />&nbsp;&nbsp;Balance Leaderboard</>} columns={leaderboardColumns} data={leaderboard} totalItems={leaderboardTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={leaderboardPageSize} onPageChange={setLeaderboardPage} onRowsPerPageChange={setLeaderboardPageSize} onRowClick={checkUserPerm(["admininistrator", "manage_economy", "manage_balance"]) ? (row) => { setManageTransferFrom(row.data); setManageBalance(row.balance); setDialogAction("manage-balance"); } : undefined} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
@@ -1368,7 +1368,7 @@ const Economy = () => {
                             <Typography variant="h6" component="div" style={{ display: 'flex', alignItems: 'center' }}>
                                 {balanceVisibility === "public" && <IconButton onClick={() => { updateBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
                                 {balanceVisibility === "private" && <IconButton onClick={() => { updateBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}
-                                {checkUserPerm(["admin", "economy_manager", "balance_manager"]) && <IconButton onClick={() => { setDialogAction("manage-balance"); }}><FontAwesomeIcon icon={faUserGear} /></IconButton>}
+                                {checkUserPerm(["admininistrator", "manage_economy", "manage_balance"]) && <IconButton onClick={() => { setDialogAction("manage-balance"); }}><FontAwesomeIcon icon={faUserGear} /></IconButton>}
                                 {<IconButton onClick={() => { setDialogAction("export-transaction"); }}><FontAwesomeIcon icon={faFileExport} /></IconButton>}
                             </Typography>
                         </div>

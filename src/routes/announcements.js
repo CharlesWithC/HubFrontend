@@ -18,7 +18,7 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> };
     const icon = ICONS[announcement.type.id];
 
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "announcement"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_announcements"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -224,7 +224,7 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
 const AnnouncementManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "announcement"])) {
+        if (checkPerm(vars.members[i].roles, ["administrator", "manage_announcements"])) {
             managers.push(vars.members[i]);
         }
     }
@@ -501,7 +501,7 @@ const Announcement = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["admin", "announcement"]) && <SpeedDialAction
+                {checkUserPerm(["admininistrator", "manage_announcements"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"

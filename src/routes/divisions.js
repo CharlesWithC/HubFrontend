@@ -153,7 +153,7 @@ const DivisionsDlog = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(["admin", "division"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;Recent Validated Division Deliveries</>} />}
+        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(["admininistrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;Recent Validated Division Deliveries</>} />}
     </>;
 });
 
@@ -204,7 +204,7 @@ const DivisionsPending = memo(({ doReload }) => {
 const DivisionManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "division"])) {
+        if (checkPerm(vars.members[i].roles, ["administrator", "manage_divisions"])) {
             managers.push(vars.members[i]);
         }
     }

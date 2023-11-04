@@ -509,13 +509,13 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     tooltipTitle="Details"
                     icon={<InfoRounded />}
                     onClick={handleDetail} />
-                {divisionMeta !== null && ((checkUserPerm(["admin", "division"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+                {divisionMeta !== null && ((checkUserPerm(["admininistrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
                     key="division"
                     tooltipTitle="Division"
                     icon={<WarehouseRounded />}
                     onClick={handleDivision}
                 />}
-                {(checkUserPerm(["admin", "hrm", "delete_dlog"])) &&
+                {(checkUserPerm(["admininistrator", "delete_dlogs"])) &&
                     <SpeedDialAction
                         key="delete"
                         tooltipTitle="Delete"
@@ -622,7 +622,7 @@ const Delivery = memo(() => {
                         {divisionMeta.update_message !== "" && <><br /><Typography variant="body">Message: {divisionMeta.update_message}</Typography></>}
                     </>}
                 </>}
-                {(checkUserPerm(["admin", "division"]) && divisionStatus !== -1) && <>
+                {(checkUserPerm(["admininistrator", "manage_divisions"]) && divisionStatus !== -1) && <>
                     <hr />
                     <Typography variant="body"><b>Update validation result</b></Typography>
                     <br />
@@ -662,7 +662,7 @@ const Delivery = memo(() => {
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
                     Close
                 </Button>
-                {(checkUserPerm(["admin", "division"]) && divisionStatus !== -1) &&
+                {(checkUserPerm(["admininistrator", "manage_divisions"]) && divisionStatus !== -1) &&
                     <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
                         Update
                     </Button>}

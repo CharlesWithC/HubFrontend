@@ -12,7 +12,7 @@ var vars = require("../variables");
 
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admin", "downloads"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_downloads"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [downloading, setDownloading] = useState(false);
@@ -238,7 +238,7 @@ const DownloadableItemGrid = memo(({ downloadableItems, lastUpdate, onEdit, onDe
 const DownloadableItemManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "downloads"])) {
+        if (checkPerm(vars.members[i].roles, ["administrator", "manage_downloads"])) {
             managers.push(vars.members[i]);
         }
     }
@@ -511,7 +511,7 @@ const DownloadableItem = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["admin", "downloads"]) && <SpeedDialAction
+                {checkUserPerm(["admininistrator", "manage_downloads"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"

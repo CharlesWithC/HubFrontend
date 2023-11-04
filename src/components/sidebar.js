@@ -97,28 +97,28 @@ const SideBar = (props) => {
         menu = [["overview", "announcement"], ["live_map", "delivery", "event"]];
     } else {
         menu = [["overview", "announcement", "downloads", "poll"], ["live_map", "delivery", "challenge", "division", "event", "economy"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
-        if (!vars.userPerm.includes("admin")) {
+        if (!vars.userPerm.includes("administrator")) {
             if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
                 toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
             }
-            if (!vars.userPerm.includes("config") && !vars.userPerm.includes("reload_config") && !vars.userPerm.includes("restart")) {
+            if (!vars.userPerm.includes("update_config") && !vars.userPerm.includes("reload_config")) {
                 toRemove.push("configuration");
             } else {
                 toRemove = toRemove.filter(item => item !== "configuration");
             }
-            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("manage_profile") && !vars.userPerm.includes("get_external_user_list") && !vars.userPerm.includes("ban_user") && !vars.userPerm.includes("disable_user_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_user")) {
+            if (!vars.userPerm.includes("manage_profiles") && !vars.userPerm.includes("view_external_user_list") && !vars.userPerm.includes("ban_users") && !vars.userPerm.includes("disable_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_users")) {
                 toRemove.push("external_user");
                 toRemove.push("member_list");
             } else {
                 toRemove = toRemove.filter(item => item !== "external_user");
                 toRemove = toRemove.filter(item => item !== "member_list");
             }
-            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("application")) {
+            if (!vars.userPerm.includes("manage_applications")) {
                 toRemove.push("all_application");
             } else {
                 toRemove = toRemove.filter(item => item !== "all_application");
             }
-            if (!vars.userPerm.includes("hrm") && !vars.userPerm.includes("hr") && !vars.userPerm.includes("audit")) {
+            if (!vars.userPerm.includes("view_audit_log")) {
                 toRemove.push("audit_log");
             } else {
                 toRemove = toRemove.filter(item => item !== "audit_log");

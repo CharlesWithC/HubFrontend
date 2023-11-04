@@ -70,8 +70,6 @@ const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Stea
 
 const REALISTIC_SETTINGS = ["bad_weather_factor", "detected", "detours", "fatigue", "fuel_simulation", "hardcore_simulation", "hub_speed_limit", "parking_difficulty", "police", "road_event", "show_game_blockers", "simple_parking_doubles", "traffic_enabled", "trailer_advanced_coupling"];
 
-const ALL_PERMISSIONS = { "admin": "Administrator", "config": "Update Config", "reload_config": "Reload Config", "hrm": "Human Resources Manager", "disable_user_mfa": "Disable User MFA", "update_user_connections": "Update Connections", "delete_user": "Delete Users", "update_application_positions": "Update Application Positions", "delete_application": "Delete Applications", "import_dlog": "Import Delivery Logs", "delete_dlog": "Delete Delivery Logs", "delete_notifications": "Delete Notifications", "hr": "Human Resources", "manage_profile": "Manage User Profile", "get_user_global_note": "Get User Global Note", "update_user_global_note": "Update User Global Note", "get_sensitive_profile": "Get Sensitive Part of Profile", "get_privacy_protected_data": "Get Privacy Protected Data", "add_member": "Accept User as Member", "update_member_roles": "Update Member Roles", "update_member_points": "Update Member Points", "dismiss_member": "Dismiss Member", "get_pending_user_list": "Get External User List", "ban_user": "Ban User", "audit": "Read Audit Log", "economy_manager": "Economy Manager", "balance_manager": "Balance Manager", "truck_manager": "Truck Manager", "garage_manager": "Garage Manager", "merch_manager": "Merch Manager", "announcement": "Announcement Manager", "challenge": "Challenge Manager", "division": "Division Manager", "downloads": "Downloads Manager", "event": "Event Manager", "poll": "Poll Manager", "driver": "Driver" };
-
 var vars = require("../variables");
 
 function tabBtnProps(index, current, theme) {
@@ -204,8 +202,8 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 className="basic-multi-select"
                 classNamePrefix="select"
                 styles={customSelectStyles(theme)}
-                options={Object.keys(ALL_PERMISSIONS).map((perm) => ({ value: perm, label: ALL_PERMISSIONS[perm] !== undefined ? ALL_PERMISSIONS[perm] : perm }))}
-                value={getRolePerms(role.id, perms).map((perm) => ({ value: perm, label: ALL_PERMISSIONS[perm] !== undefined ? ALL_PERMISSIONS[perm] : perm }))}
+                options={Object.keys(vars.perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
+                value={getRolePerms(role.id, perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
                 onChange={(newItems) => {
                     let rolePerms = newItems.map((item) => (item.value));
                     let allPerms = Object.keys(perms);

@@ -88,9 +88,7 @@ exports.ranks = ranks;
 var announcementTypes = [];
 exports.announcementTypes = announcementTypes;
 
-var applicationPositions = [];
 var applicationTypes = {};
-exports.applicationPositions = applicationPositions;
 exports.applicationTypes = applicationTypes;
 
 var divisions = {};

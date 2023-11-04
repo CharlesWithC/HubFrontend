@@ -46,7 +46,7 @@ function getDefaultDateRange() {
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admin", "event"]));
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_events"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleVote = useCallback(() => {
@@ -501,7 +501,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 const EventManagers = memo(() => {
     let managers = [];
     for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["admin", "event"])) {
+        if (checkPerm(vars.members[i].roles, ["administrator", "manage_events"])) {
             managers.push(vars.members[i]);
         }
     }
@@ -831,7 +831,7 @@ const Events = () => {
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {checkUserPerm(["admin", "event"]) && <SpeedDialAction
+            {checkUserPerm(["admininistrator", "manage_events"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
                 tooltipTitle="Create"

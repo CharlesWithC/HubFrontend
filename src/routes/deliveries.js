@@ -390,7 +390,7 @@ const Deliveries = () => {
                 tooltipTitle="Export"
                 icon={<FontAwesomeIcon icon={faFileExport} />}
                 onClick={() => { setDialogOpen("export"); }} />
-            {checkUserPerm(["admin", "hrm", "hr", "import_dlog"]) && <SpeedDialAction
+            {checkUserPerm(["admininistrator", "import_dlogs"]) && <SpeedDialAction
                 key="import"
                 tooltipTitle="Import Trucky Jobs"
                 icon={<FontAwesomeIcon icon={faTruckFront} />}
