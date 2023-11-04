@@ -22,7 +22,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     }, [inputPoll]);
 
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_polls"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_polls"]));
     let initialChoices = [];
     for (let i = 0; i < poll.choices.length; i++) {
         if (poll.choices[i].voted) {
@@ -245,7 +245,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                {(checkUserPerm(["admininistrator", "manage_polls"]) || config.show_voter && (config.show_stats && poll.voted || config.show_stats_before_vote || config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label="Edit" onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
+                                {(checkUserPerm(["administrator", "manage_polls"]) || config.show_voter && (config.show_stats && poll.voted || config.show_stats_before_vote || config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label="Edit" onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
                             </div>}
                             {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
@@ -857,7 +857,7 @@ const Poll = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["admininistrator", "manage_polls"]) && <SpeedDialAction
+                {checkUserPerm(["administrator", "manage_polls"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"

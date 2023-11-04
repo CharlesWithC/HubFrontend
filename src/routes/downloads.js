@@ -12,7 +12,7 @@ var vars = require("../variables");
 
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_downloads"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_downloads"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [downloading, setDownloading] = useState(false);
@@ -511,7 +511,7 @@ const DownloadableItem = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["admininistrator", "manage_downloads"]) && <SpeedDialAction
+                {checkUserPerm(["administrator", "manage_downloads"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle="Create"

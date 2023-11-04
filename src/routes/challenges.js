@@ -179,7 +179,7 @@ function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) 
 }
 
 const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, onEdit, onDelete }) => {
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_challenges"]));
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_challenges"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleShowDetails = useCallback(() => {
@@ -301,7 +301,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["admininistrator", "manage_challenges"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
+        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["administrator", "manage_challenges"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
     </>;
 });
 
@@ -891,7 +891,7 @@ const Challenges = () => {
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {checkUserPerm(["admininistrator", "manage_challenges"]) && <SpeedDialAction
+            {checkUserPerm(["administrator", "manage_challenges"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
                 tooltipTitle="Create"

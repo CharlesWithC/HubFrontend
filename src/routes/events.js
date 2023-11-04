@@ -46,7 +46,7 @@ function getDefaultDateRange() {
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["admininistrator", "manage_events"]));
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_events"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleVote = useCallback(() => {
@@ -831,7 +831,7 @@ const Events = () => {
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {checkUserPerm(["admininistrator", "manage_events"]) && <SpeedDialAction
+            {checkUserPerm(["administrator", "manage_events"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
                 tooltipTitle="Create"

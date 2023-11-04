@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem } from '@mui/material';
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 import Select from 'react-select';
@@ -1060,6 +1060,197 @@ const MemoSmtpForm = memo(({ theme, formConfig }) => {
         </Grid>
     </>;
 });
+
+const DiscordEmbedForm = ({ embed, onUpdate }) => {
+    const handleFieldChange = (index, field) => {
+        const newFields = [...embed.fields];
+        newFields[index] = field;
+        onUpdate({ ...embed, fields: newFields });
+    };
+
+    return (
+        <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    label="Title"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.title}
+                    onChange={(e) => onUpdate({ ...embed, title: e.target.value })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    label="URL"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.url}
+                    onChange={(e) => onUpdate({ ...embed, url: e.target.value })}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <TextField
+                    label="Description"
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={5}
+                    value={embed.description}
+                    onChange={(e) => onUpdate({ ...embed, description: e.target.value })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    label="Author Name"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.author.name}
+                    onChange={(e) => onUpdate({ ...embed, author: { ...embed.author, name: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    label="Author Icon URL"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.author.icon_url}
+                    onChange={(e) => onUpdate({ ...embed, author: { ...embed.author, icon_url: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    label="Footer Text"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.footer.text}
+                    onChange={(e) => onUpdate({ ...embed, footer: { ...embed.footer, text: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+                <TextField
+                    label="Footer Icon URL"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.footer.icon_url}
+                    onChange={(e) => onUpdate({ ...embed, footer: { ...embed.footer, icon_url: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+                <TextField
+                    label="Thumbnail URL"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.thumbnail.url}
+                    onChange={(e) => onUpdate({ ...embed, thumbnail: { ...embed.thumbnail, url: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+                <TextField
+                    label="Image URL"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.image.url}
+                    onChange={(e) => onUpdate({ ...embed, image: { ...embed.image, url: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12} sm={4}>
+                <TextField
+                    label="Video URL"
+                    variant="outlined"
+                    fullWidth
+                    value={embed.video.url}
+                    onChange={(e) => onUpdate({ ...embed, image: { ...embed.video, url: e.target.value } })}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <TextField
+                    label="Color"
+                    variant="outlined"
+                    fullWidth
+                    value={"#" + parseInt(embed.color, 16)}
+                    onChange={(e) => onUpdate({ ...embed, color: parseInt("0x" + e.target.value.replaceAll("#", "")) })}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <FormControlLabel
+                    control={<Checkbox checked={embed.timestamp} onChange={(e) => onUpdate({ ...embed, timestamp: e.target.checked })} />}
+                    label="Include Timestamp"
+                />
+            </Grid>
+            {embed.fields.map((field, index) => (
+                <Grid item xs={12} key={index}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                        Field #{index + 1}
+                    </Typography>
+                    <div>
+                        <IconButton variant="contained" color="success" onClick={() => {
+                            let newFields = [...embed.fields];
+                            newFields.splice(index + 1, 0, { "name": "New Field", "value": "", "inline": true });
+                            onUpdate({ ...embed, fields: newFields });
+                        }}><FontAwesomeIcon icon={faPlus} disabled={embed.fields.length >= 9} /></IconButton>
+                        <IconButton variant="contained" color="error" onClick={() => {
+                            let newFields = [...embed.fields];
+                            newFields.splice(index, 1);
+                            onUpdate({ ...embed, fields: newFields });
+                        }}><FontAwesomeIcon icon={faMinus} disabled={embed.fields.length <= 1} /></IconButton>
+                        <IconButton variant="contained" color="info" onClick={() => {
+                            if (index >= 1) {
+                                let newFields = [...embed.fields];
+                                newFields[index] = newFields[index - 1];
+                                newFields[index - 1] = tracker;
+                                onUpdate({ ...embed, fields: newFields });
+                            }
+                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                        <IconButton variant="contained" color="warning" onClick={() => {
+                            if (index <= embed.fields.length - 2) {
+                                let newFields = [...embed.fields];
+                                newFields[index] = newFields[index + 1];
+                                newFields[index + 1] = tracker;
+                                onUpdate({ ...embed, fields: newFields });
+                            }
+                        }} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    </div>
+                    <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+                        <Grid item xs={6}>
+                            <TextField
+                                label={`Name`}
+                                variant="outlined"
+                                fullWidth
+                                value={field.name}
+                                onChange={(e) => handleFieldChange(index, { ...field, name: e.target.value })}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField select
+                                label={`Inline?`}
+                                variant="outlined"
+                                fullWidth
+                                value={field.inline}
+                                onChange={(e) => handleFieldChange(index, { ...field, inline: e.target.value })}
+                            >
+                                <MenuItem key="true" value={true}>
+                                    True
+                                </MenuItem>
+                                <MenuItem key="false" value={false}>
+                                    False
+                                </MenuItem>
+                            </TextField>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                label={`Field ${index + 1} Value`}
+                                variant="outlined"
+                                fullWidth
+                                value={field.value}
+                                onChange={(e) => handleFieldChange(index, { ...field, value: e.target.value })}
+                            />
+                        </Grid>
+                    </Grid>
+                </Grid>
+            ))}
+        </Grid>
+    );
+};
 
 const Configuration = () => {
     const theme = useTheme();
