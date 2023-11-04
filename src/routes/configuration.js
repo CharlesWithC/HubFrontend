@@ -216,6 +216,9 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                     }
                     // add current role to relevant permissions
                     for (let i = 0; i < rolePerms.length; i++) {
+                        if(newPermsConfig[rolePerms[i]] === undefined){
+                            newPermsConfig[rolePerms[i]] = [];
+                        }
                         newPermsConfig[rolePerms[i]].push(role.id);
                     }
                     onUpdate({ isPerms: true, newPerms: newPermsConfig });
