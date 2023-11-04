@@ -10,7 +10,7 @@
 6. Added tab switching for configuration tab
 7. Improved display for MUI Select (replaced with TextField-select)
 8. Fixed incorrect user permissions being calculated
-9. Fixed user session being revoked upon network issue
+9. Fixed user session being revoked upon network error
 
 ## v3.0.0
 

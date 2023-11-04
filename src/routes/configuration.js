@@ -62,9 +62,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_passwd", "email_template"] };
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "smtp": 6 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -105,173 +105,6 @@ function TabPanel(props) {
         </div>
     );
 }
-
-const TrackerForm = ({ theme, tracker, onUpdate }) => {
-    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
-        <Grid item xs={6} md={6}>
-            <TextField select
-                style={{ marginBottom: '16px' }}
-                key="type"
-                label="Type"
-                variant="outlined"
-                fullWidth
-                value={tracker.type}
-                onChange={(e) => { onUpdate({ ...tracker, type: e.target.value }); }}
-            >
-                <MenuItem key="trucky" value="trucky">
-                    Trucky
-                </MenuItem>
-                <MenuItem key="tracksim" value="tracksim">
-                    TrackSim
-                </MenuItem>
-            </TextField>
-        </Grid>
-        <Grid item xs={6} md={6}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="company_id"
-                label="Company ID"
-                variant="outlined"
-                fullWidth
-                value={tracker.company_id}
-                onChange={(e) => { onUpdate({ ...tracker, company_id: e.target.value }); }}
-            />
-        </Grid>
-        <Grid item xs={12} md={6}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="api_token"
-                label="API Token"
-                variant="outlined"
-                fullWidth
-                value={tracker.api_token}
-                onChange={(e) => { onUpdate({ ...tracker, api_token: e.target.value }); }}
-            />
-        </Grid>
-        <Grid item xs={12} md={6}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="webhook_secret"
-                label="Webhook Secret"
-                variant="outlined"
-                fullWidth
-                value={tracker.webhook_secret}
-                onChange={(e) => { onUpdate({ ...tracker, webhook_secret: e.target.value }); }}
-            />
-        </Grid>
-        <Grid item xs={12} md={12}>
-            <Typography variant="body2">Webhook IP Whitelist</Typography>
-            <CreatableSelect
-                isMulti
-                name="colors"
-                className="basic-multi-select"
-                classNamePrefix="select"
-                styles={customSelectStyles(theme)}
-                value={tracker.ip_whitelist.map((ip) => ({ value: ip, label: ip }))}
-                onChange={(newItems) => {
-                    formConfig.setState({
-                        ...tracker,
-                        ip_whitelist: newItems.map((item) => (item.value)),
-                    });
-                }}
-                menuPortalTarget={document.body}
-            />
-        </Grid>
-    </Grid>;
-};
-
-const RoleForm = ({ theme, role, perms, onUpdate }) => {
-    if (role.discord_role_id === undefined) role.discord_role_id = "";
-    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
-        <Grid item xs={12} md={3}>
-            <TextField size="small"
-                style={{ marginBottom: '16px' }}
-                key="name"
-                label="Name"
-                variant="outlined"
-                fullWidth
-                value={role.name}
-                onChange={(e) => { onUpdate({ ...role, name: e.target.value }); }}
-            />
-        </Grid>
-        <Grid item xs={12} md={9} sx={{ mt: "-20px" }}>
-            <Typography variant="body2">Permissions</Typography>
-            <CreatableSelect
-                isMulti
-                name="colors"
-                className="basic-multi-select"
-                classNamePrefix="select"
-                styles={customSelectStyles(theme)}
-                options={Object.keys(vars.perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
-                value={getRolePerms(role.id, perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
-                onChange={(newItems) => {
-                    let rolePerms = newItems.map((item) => (item.value));
-                    let allPerms = Object.keys(perms);
-                    let newPermsConfig = JSON.parse(JSON.stringify(perms));
-                    // remove current role from all permissions
-                    for (let i = 0; i < allPerms.length; i++) {
-                        if (newPermsConfig[allPerms[i]].includes(role.id)) {
-                            newPermsConfig[allPerms[i]].splice(newPermsConfig[allPerms[i]].indexOf(role.id), 1);
-                        }
-                    }
-                    // add current role to relevant permissions
-                    for (let i = 0; i < rolePerms.length; i++) {
-                        if(newPermsConfig[rolePerms[i]] === undefined){
-                            newPermsConfig[rolePerms[i]] = [];
-                        }
-                        newPermsConfig[rolePerms[i]].push(role.id);
-                    }
-                    onUpdate({ isPerms: true, newPerms: newPermsConfig });
-                }}
-                menuPortalTarget={document.body}
-            />
-        </Grid>
-        <Grid item xs={6} md={3}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="id"
-                label="ID"
-                variant="outlined"
-                fullWidth
-                value={role.id}
-                disabled
-            />
-        </Grid>
-        <Grid item xs={6} md={3}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="order_id"
-                label="Order ID"
-                variant="outlined"
-                fullWidth
-                value={role.order_id}
-                onChange={(e) => { if (!isNaN(e.target.value) || e.target.value === "-") onUpdate({ ...role, order_id: parseInt(e.target.value) }); }}
-            />
-        </Grid>
-        <Grid item xs={12} md={3}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="color"
-                label="Color"
-                variant="outlined"
-                fullWidth
-                value={role.color}
-                onChange={(e) => { onUpdate({ ...role, color: e.target.value }); }}
-            />
-        </Grid>
-        <Grid item xs={6} md={3}>
-            <TextField
-                style={{ marginBottom: '16px' }}
-                key="discord_role_id"
-                label="Discord Role ID"
-                variant="outlined"
-                fullWidth
-                value={role.discord_role_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...role, discord_role_id: e.target.value }); }}
-            />
-        </Grid>
-    </Grid>;
-};
 
 const MemoGeneralForm = memo(({ theme, formConfig }) => {
     return <><Grid item xs={12} md={6}>
@@ -539,6 +372,80 @@ const MemoProfileForm = memo(({ theme, formConfig }) => {
     </>;
 });
 
+const TrackerForm = ({ theme, tracker, onUpdate }) => {
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={6} md={6}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                key="type"
+                label="Type"
+                variant="outlined"
+                fullWidth
+                value={tracker.type}
+                onChange={(e) => { onUpdate({ ...tracker, type: e.target.value }); }}
+            >
+                <MenuItem key="trucky" value="trucky">
+                    Trucky
+                </MenuItem>
+                <MenuItem key="tracksim" value="tracksim">
+                    TrackSim
+                </MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="company_id"
+                label="Company ID"
+                variant="outlined"
+                fullWidth
+                value={tracker.company_id}
+                onChange={(e) => { onUpdate({ ...tracker, company_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="api_token"
+                label="API Token"
+                variant="outlined"
+                fullWidth
+                value={tracker.api_token}
+                onChange={(e) => { onUpdate({ ...tracker, api_token: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="webhook_secret"
+                label="Webhook Secret"
+                variant="outlined"
+                fullWidth
+                value={tracker.webhook_secret}
+                onChange={(e) => { onUpdate({ ...tracker, webhook_secret: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={12}>
+            <Typography variant="body2">Webhook IP Whitelist</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={tracker.ip_whitelist.map((ip) => ({ value: ip, label: ip }))}
+                onChange={(newItems) => {
+                    formConfig.setState({
+                        ...tracker,
+                        ip_whitelist: newItems.map((item) => (item.value)),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+    </Grid>;
+};
+
 const MemoTrackerForm = memo(({ theme, formConfig }) => {
     return <>{formConfig.state.trackers.map((tracker, index) => (
         <>
@@ -770,6 +677,99 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
     </>;
 });
 
+const RoleForm = ({ theme, role, perms, onUpdate }) => {
+    if (role.discord_role_id === undefined) role.discord_role_id = "";
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={12} md={3}>
+            <TextField size="small"
+                style={{ marginBottom: '16px' }}
+                key="name"
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={role.name}
+                onChange={(e) => { onUpdate({ ...role, name: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={9} sx={{ mt: "-20px" }}>
+            <Typography variant="body2">Permissions</Typography>
+            <CreatableSelect
+                isMulti
+                name="colors"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                options={Object.keys(vars.perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
+                value={getRolePerms(role.id, perms).map((perm) => ({ value: perm, label: replaceUnderscores(perm) }))}
+                onChange={(newItems) => {
+                    let rolePerms = newItems.map((item) => (item.value));
+                    let allPerms = Object.keys(perms);
+                    let newPermsConfig = JSON.parse(JSON.stringify(perms));
+                    // remove current role from all permissions
+                    for (let i = 0; i < allPerms.length; i++) {
+                        if (newPermsConfig[allPerms[i]].includes(role.id)) {
+                            newPermsConfig[allPerms[i]].splice(newPermsConfig[allPerms[i]].indexOf(role.id), 1);
+                        }
+                    }
+                    // add current role to relevant permissions
+                    for (let i = 0; i < rolePerms.length; i++) {
+                        if (newPermsConfig[rolePerms[i]] === undefined) {
+                            newPermsConfig[rolePerms[i]] = [];
+                        }
+                        newPermsConfig[rolePerms[i]].push(role.id);
+                    }
+                    onUpdate({ isPerms: true, newPerms: newPermsConfig });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="id"
+                label="ID"
+                variant="outlined"
+                fullWidth
+                value={role.id}
+                disabled
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="order_id"
+                label="Order ID"
+                variant="outlined"
+                fullWidth
+                value={role.order_id}
+                onChange={(e) => { if (!isNaN(e.target.value) || e.target.value === "-") onUpdate({ ...role, order_id: parseInt(e.target.value) }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="color"
+                label="Color"
+                variant="outlined"
+                fullWidth
+                value={role.color}
+                onChange={(e) => { onUpdate({ ...role, color: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="discord_role_id"
+                label="Discord Role ID"
+                variant="outlined"
+                fullWidth
+                value={role.discord_role_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...role, discord_role_id: e.target.value }); }}
+            />
+        </Grid>
+    </Grid>;
+};
+
 const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex }) => {
     const RoleItem = memo(({ role, index }) => {
         return <>
@@ -911,6 +911,131 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
             }} />
         </>}
         {roleOpenIndex !== -1 && roleOpenIndex < formConfig.state.roles.length - 1 && <AfterOpen roleOpenIndex={roleOpenIndex} />}
+    </>;
+});
+
+const EmailTemplateForm = ({ theme, template, onUpdate }) => {
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={6} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="subject"
+                label="Subject"
+                variant="outlined"
+                fullWidth
+                value={template.subject}
+                onChange={(e) => { onUpdate({ ...template, subject: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="from_email"
+                label="From (Name <Email>)"
+                variant="outlined"
+                fullWidth
+                value={template.from_email}
+                onChange={(e) => { onUpdate({ ...template, from_email: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="html"
+                label="HTML Content"
+                variant="outlined"
+                fullWidth
+                value={template.html}
+                onChange={(e) => { onUpdate({ ...template, html: e.target.value }); }}
+                multiline rows={5}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="plain"
+                label="Plain Text Content"
+                variant="outlined"
+                fullWidth
+                value={template.plain}
+                onChange={(e) => { onUpdate({ ...template, plain: e.target.value }); }}
+                multiline rows={5}
+            />
+        </Grid>
+    </Grid>;
+};
+
+const MemoSmtpForm = memo(({ theme, formConfig }) => {
+    return <>
+        <Grid item xs={9}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="smtp_host"
+                label="SMTP Host"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.smtp_host}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, smtp_host: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="smtp_port"
+                label="SMTP Port"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.smtp_port}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, smtp_port: parseInt(e.target.value) }); }}
+            />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="smtp_email"
+                label="SMTP Email"
+                variant="outlined"
+                fullWidth
+                value={formConfig.state.smtp_email}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, smtp_email: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} sm={6}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="smtp_password"
+                label="SMTP Password"
+                variant="outlined"
+                type="password"
+                fullWidth
+                value={formConfig.state.smtp_password}
+                onChange={(e) => { formConfig.setState({ ...formConfig.state, smtp_password: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                Template for Register Account
+            </Typography>
+            <EmailTemplateForm theme={theme} template={formConfig.state.email_template.register} onUpdate={(newTemplate) => {
+                formConfig.setState({ ...formConfig.state, email_template: { ...formConfig.state.email_template, register: newTemplate } });
+            }} />
+        </Grid>
+        <Grid item xs={12}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                Template for Update Email
+            </Typography>
+            <EmailTemplateForm theme={theme} template={formConfig.state.email_template.update_email} onUpdate={(newTemplate) => {
+                formConfig.setState({ ...formConfig.state, email_template: { ...formConfig.state.email_template, update_email: newTemplate } });
+            }} />
+        </Grid>
+        <Grid item xs={12}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                Template for Reset Password
+            </Typography>
+            <EmailTemplateForm theme={theme} template={formConfig.state.email_template.reset_password} onUpdate={(newTemplate) => {
+                formConfig.setState({ ...formConfig.state, email_template: { ...formConfig.state.email_template, reset_password: newTemplate } });
+            }} />
+        </Grid>
     </>;
 });
 
@@ -1182,7 +1307,7 @@ const Configuration = () => {
             </Box>
             <TabPanel value={tab} index={0}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
-                    - This is the simple mode of config editing with Form.
+                    - This is the simple mode of config editing with form.
                     <br />
                     - You must reload config after saving to make it take effect.
                     <br />
@@ -1213,7 +1338,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(1)}>
                                 <div style={{ flexGrow: 1 }}>Account & Profile</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[1] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -1233,7 +1358,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(2)}>
                                 <div style={{ flexGrow: 1 }}>Tracker</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[2] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -1255,7 +1380,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(3)}>
                                 <div style={{ flexGrow: 1 }}>Job Logging</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[3] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -1278,7 +1403,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(4)}>
                                 <div style={{ flexGrow: 1 }}>Discord & Steam API</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[4] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -1302,7 +1427,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(5)}>
                                 <div style={{ flexGrow: 1 }}>Roles</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[0] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[5] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -1317,6 +1442,30 @@ const Configuration = () => {
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                         <Grid item xs={12} sm={6} md={4} lg={2}>
                                             <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>}
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(6)}>
+                                <div style={{ flexGrow: 1 }}>SMTP & Email</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[6] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            {formSectionRender[6] && <Collapse in={formSectionOpen[6]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    NOTE: Password is shown empty for security purpose. It should be saved server-end.<br />
+                                    HINT: When SMTP is correctly configured, email register and password reset will be unlocked.
+                                </Typography>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
+                                    <MemoSmtpForm theme={theme} formConfig={formConfig[6]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("smtp"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Grid>
