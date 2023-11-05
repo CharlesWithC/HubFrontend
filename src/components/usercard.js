@@ -17,7 +17,7 @@ import StatCard from './statcard';
 import CustomTable from './table';
 import { darkenColor } from '../designs';
 
-import { customAxios as axios, getAuthToken, checkPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
+import { customAxios as axios, getAuthToken, checkUserPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 var vars = require("../variables");
@@ -744,7 +744,7 @@ const UserCard = (props) => {
                             {badges.map((badge) => { return <>{badge}&nbsp;</>; })}
                             {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
-                            {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                            {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                         </Typography>
                     </div>
                     <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
@@ -1061,23 +1061,23 @@ const UserCard = (props) => {
         >
             {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>}
             {(userid === null || userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
-            {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["administrator", "manage_profiles"]))) && <Divider />}
+            {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
             {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}
-            {(uid === vars.userInfo.uid || (uid !== -1 && checkPerm(vars.userInfo.roles, ["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
+            {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
             <Divider />
-            {checkPerm(vars.userInfo.roles, ["administrator", "update_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon> Update Global Note</MenuItem>}
-            {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
-            {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["administrator", "update_member_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
+            {checkUserPerm(["administrator", "update_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon> Update Global Note</MenuItem>}
+            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
+            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
             <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>
-            {((userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["administrator", "accept_members"]) || checkPerm(vars.userInfo.roles, ["administrator", "update_connections"]) || checkPerm(vars.userInfo.roles, ["administrator", "disable_mfa"])) && <Divider />}
-            {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
-            {checkPerm(vars.userInfo.roles, ["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
-            {checkPerm(vars.userInfo.roles, ["administrator", "disable_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
-            {((userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["administrator", "ban_users"]) || userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["administrator", "dismiss_members"]) || checkPerm(vars.userInfo.roles, ["administrator", "delete_users"])) && <Divider />}
-            {(userid === null || userid < 0) && ban === null && checkPerm(vars.userInfo.roles, ["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon> Ban</MenuItem>}
-            {(userid === null || userid < 0) && ban !== null && checkPerm(vars.userInfo.roles, ["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon> Unban</MenuItem>}
-            {userid !== null && userid >= 0 && checkPerm(vars.userInfo.roles, ["administrator", "dismiss_members"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon> Dismiss Member</MenuItem>}
-            {checkPerm(vars.userInfo.roles, ["administrator", "delete_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon> Delete User</MenuItem>}
+            {((userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) || checkUserPerm(["administrator", "update_connections"]) || checkUserPerm(["administrator", "disable_mfa"])) && <Divider />}
+            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
+            {checkUserPerm(["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
+            {checkUserPerm(["administrator", "disable_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
+            {((userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) || userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) || checkUserPerm(["administrator", "delete_users"])) && <Divider />}
+            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon> Ban</MenuItem>}
+            {(userid === null || userid < 0) && ban !== null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon> Unban</MenuItem>}
+            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon> Dismiss Member</MenuItem>}
+            {checkUserPerm(["administrator", "delete_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon> Delete User</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-profile" &&

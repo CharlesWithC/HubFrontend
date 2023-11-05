@@ -1010,7 +1010,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Assignee</Typography>
-                            <Typography variant="body2">{activeTruck.owner.userid === null ? <UserCard user={activeTruck.assignee} /> : "/"}</Typography>
+                            <Typography variant="body2">{activeTruck.owner.userid === null ? <UserCard user={activeTruck.assignee} /> : "Not Applicable"}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>Parking At</Typography>
