@@ -90,7 +90,7 @@ function App() {
         };
     }, [updateThemeMode]);
 
-    const [, setRerender] = useState(false);
+    const [loaded, setRerender] = useState(false);
 
     const runRerender = () => {
         setTimeout(function () { setRerender(true); }, 500);
@@ -147,7 +147,18 @@ function App() {
         }
     }, [cookieSettings]);
 
-    if (vars.dhconfig == null) {
+    const [chubRecruitmentModalOpen, setCHubRecruitmentModalOpen] = useState(localStorage.getItem("chub-team-recruitment-202311-modal-shown") === null);
+    const [countdown, setCountdown] = useState(10);
+    useEffect(() => {
+        if (loaded && chubRecruitmentModalOpen) {
+            const timer = setInterval(() => {
+                setCountdown(prevCountdown => prevCountdown > 0 ? prevCountdown - 1 : 0);
+            }, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [loaded, chubRecruitmentModalOpen]);
+
+    if (!loaded) {
         return (
             <ThemeProvider theme={theme}>
                 <CssBaseline />
@@ -268,6 +279,46 @@ function App() {
                             </DialogContent>
                             <DialogActions>
                                 <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>Close</Button>
+                            </DialogActions>
+                        </Dialog>
+                        <Dialog open={chubRecruitmentModalOpen} onClose={() => { if (countdown === 0) { localStorage.setItem("chub-team-recruitment-202311-modal-shown", true); setCHubRecruitmentModalOpen(false); } }}>
+                            <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
+                                <img src="https://cdn.chub.page/assets/logo.png" alt="" width="20px" height="20px" />&nbsp;&nbsp;CHub Team Recruitment
+                            </DialogTitle>
+                            <DialogContent>
+                                <Typography variant="body2">
+                                    <span style={{ color: "#2fc1f7" }}>The Drivers Hub Project (CHub)</span> is looking for new team members!
+                                </Typography><br />
+                                <Typography variant="body2">
+                                    We currently have two teams with recruitment plans: <span style={{ color: "#b12773" }}>Support Team</span> and <span style={{ color: "#11b17f" }}>Graphic Team</span>.
+                                </Typography>
+                                <Typography variant="body2">
+                                    Members of <span style={{ color: "#b12773" }}>Support Team</span> would help subscribers in Discord and members of <span style={{ color: "#11b17f" }}>Graphic Team</span> would design banners for announcements & social media posts.
+                                </Typography><br />
+                                <Typography variant="body2">
+                                    Read more or apply at <a href="https://apply.chub.page/" target="_blank" rel="noreferrer" style={{ color: "#2fc1f7" }}>https://apply.chub.page/</a>
+                                </Typography>
+                                <Typography variant="body2">
+                                    Join our Discord: <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer" style={{ color: "#2fc1f7" }}>https://discord.gg/KRFsymnVKm</a>
+                                </Typography>
+                                <Typography variant="body2" fontWeight="bold">
+                                    We are waiting for you and let's thrive together!
+                                </Typography><br />
+                                <Typography variant="body2">
+                                    <i>Secret: All CHub staff would receive a special name color and a special profile badge on Drivers Hubs, and given free access to Platinum Perks.</i><br />
+                                    <i>This dialog will not show again once you close it - *it just disappears like air*</i>
+                                </Typography>
+                            </DialogContent>
+                            <DialogActions>
+                                {countdown > 0
+                                    ? <Button variant="primary" disabled>Wait {countdown} seconds</Button>
+                                    : <Button variant="primary" onClick={() => {
+                                        localStorage.setItem("chub-team-recruitment-202311-modal-shown", true);
+                                        setCHubRecruitmentModalOpen(false);
+                                    }}>
+                                        OK
+                                    </Button>
+                                }
                             </DialogActions>
                         </Dialog>
                         <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block" }}>
