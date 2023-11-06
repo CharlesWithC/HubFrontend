@@ -415,8 +415,10 @@ const UserCard = (props) => {
             banRef.current = ban;
         }
     }, [uid, userid, bio, note, global_note, discordid, email, steamid, truckersmpid, name, avatar, roles, ban,]);
+    const [_, setDoRerender] = useState(+new Date());
     useEffect(() => {
         if (props.user !== undefined && props.user !== null) {
+            setDoRerender(+new Date());
             ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
             uidRef.current = uid;
             useridRef.current = userid;

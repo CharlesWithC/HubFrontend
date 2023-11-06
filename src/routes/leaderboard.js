@@ -88,7 +88,6 @@ const Leaderboard = () => {
                 ]);
                 setMonthly(_monthly.list);
                 setAllTime(_allTime.list);
-                setPage(0);
             } else {
                 [_leaderboard] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
@@ -261,7 +260,7 @@ const Leaderboard = () => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>Update</Button>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(0); }}>Update</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
