@@ -1461,7 +1461,10 @@ const Configuration = () => {
                 _apiConfig.config.delivery_rules.required_realistic_settings = [];
             }
             setApiConfig(JSON.stringify(_apiConfig.config, null, 4));
+            setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
+            setApiLastModify(_apiConfig.config_last_modified);
 
+            if (_apiConfig.config.trackers.length === 0) _apiConfig.config.trackers = [{ "type": "trucky", "company_id": "", "api_token": "", "webhook_secret": "", ip_whitelist: [] }];
             let sections = Object.keys(CONFIG_SECTIONS);
             for (let i = 0; i < sections.length; i++) {
                 let partialConfig = {};
@@ -1472,8 +1475,6 @@ const Configuration = () => {
                 formConfig[i].setState(partialConfig);
             }
             setFormConfigReady(true);
-            setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
-            setApiLastModify(_apiConfig.config_last_modified);
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
