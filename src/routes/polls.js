@@ -245,7 +245,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                {(checkUserPerm(["administrator", "manage_polls"]) || config.show_voter && (config.show_stats && poll.voted || config.show_stats_before_vote || config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label="Edit" onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
+                                {(checkUserPerm(["administrator", "manage_polls"]) || poll.config.show_voter && (poll.config.show_stats && poll.voted || poll.config.show_stats_before_vote || poll.config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label="Edit" onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
                             </div>}
                             {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
