@@ -6,7 +6,7 @@ import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
-const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false }) => {
+const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined }) => {
     let formattedInit = [];
     for (let i = 0; i < initialUsers.length; i++) {
         formattedInit.push({ value: initialUsers[i].userid, label: initialUsers[i].name });
@@ -29,6 +29,7 @@ const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeComp
     const [selectedUsers, setSelectedUsers] = useState(formattedInit !== undefined ? formattedInit : []);
 
     const handleInputChange = (val) => {
+        if (limit !== undefined && limit > 0 && !isNaN(limit)) val = val.splice(0, limit);
         setSelectedUsers(val);
         if (isMulti) onUpdate(val.map((item) => (memberMap[item.value])));
         else onUpdate(memberMap[val.value]);

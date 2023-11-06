@@ -1,18 +1,18 @@
 import React from 'react';
 import { useEffect, useState, useCallback } from 'react';
-import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, useTheme } from '@mui/material';
+import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileExport, faTowerObservation, faTruckFront } from '@fortawesome/free-solid-svg-icons';
+import { faFileExport, faGears, faTowerObservation, faTruckFront } from '@fortawesome/free-solid-svg-icons';
 
 import Podium from "../components/podium";
 import CustomTable from "../components/table";
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
-import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm } from '../functions';
+import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
 
@@ -35,6 +35,8 @@ const Deliveries = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
+    const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: 0, before: 32503680000, game: 0, status: 0 });
+    const [listParam, setListParam] = useState({});
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -201,16 +203,18 @@ const Deliveries = () => {
                 myPage += 1;
             }
 
+            let processedParam = removeNUEValues(listParam);
+
             if (page === -1) {
                 [detailS, dlogL] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: "prefer" },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
                 ]);
 
                 setDetailStats(detailS);
             } else {
                 [dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}`, auth: "prefer" },
+                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
                 ]);
             }
 
@@ -233,7 +237,7 @@ const Deliveries = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize, theme]);
+    }, [page, pageSize, listParam, theme]);
 
     const navigate = useNavigate();
     function handleClick(data) {
@@ -278,7 +282,7 @@ const Deliveries = () => {
         {detailStats.truck === undefined && detailStats !== "loading" &&
             <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
         <Dialog open={dialogOpen === "export"} onClose={() => setDialogOpen("")}>
-            <DialogTitle>Export Delivery Logs</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;Export Delivery Logs</DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You may export delivery logs of a range of up to 90 days each time.</Typography>
                 <Grid container spacing={2} style={{ marginTop: "3px" }}>
@@ -308,7 +312,7 @@ const Deliveries = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "import-trucky"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle>Import Trucky Jobs</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faTruckFront} />&nbsp;&nbsp;Import Trucky Jobs</DialogTitle>
             <DialogContent>
                 <Typography variant="body2" >- You may either import a single job or multiple jobs from a Trucky VTC automatically.</Typography>
                 <Typography variant="body2">- If you get an error like "User Not Found", then the user who submitted the job on Trucky is not a member of the Drivers Hub.</Typography>
@@ -380,11 +384,104 @@ const Deliveries = () => {
                 </Grid>
             </DialogContent>
         </Dialog>
+        <Dialog open={dialogOpen === "settings"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }} fullWidth>
+            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;Settings</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">
+                    - Change what data to show and how to order them.
+                </Typography>
+                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label="Order By"
+                            value={tempListParam.order_by}
+                            onChange={(e) => { setTempListParam({ ...tempListParam, order_by: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value="logid">Log ID</MenuItem>
+                            <MenuItem value="distance">Distance</MenuItem>
+                            <MenuItem value="fuel">Fuel</MenuItem>
+                            <MenuItem value="views">Views</MenuItem>
+                            <MenuItem value="max_speed">Max. Speed</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label="Order"
+                            value={tempListParam.order}
+                            onChange={(e) => { setTempListParam({ ...tempListParam, order: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value="asc">Ascending</MenuItem>
+                            <MenuItem value="desc">Descending</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            type="datetime-local"
+                            label="After"
+                            value={new Date(new Date(tempListParam.after * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, after: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            type="datetime-local"
+                            label="Before"
+                            value={new Date(new Date(tempListParam.before * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, before: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Speed Limit (km/h)"
+                            value={tempListParam.speed_limit}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label="Game"
+                            value={tempListParam.game}
+                            onChange={(e) => { setTempListParam({ ...tempListParam, game: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value="0">Both</MenuItem>
+                            <MenuItem value="1">ETS2</MenuItem>
+                            <MenuItem value="2">ATS</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label="Status"
+                            value={tempListParam.status}
+                            onChange={(e) => { setTempListParam({ ...tempListParam, status: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value="0">All</MenuItem>
+                            <MenuItem value="1">Delivered</MenuItem>
+                            <MenuItem value="2">Cancelled</MenuItem>
+                        </TextField>
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>Update</Button>
+            </DialogActions>
+        </Dialog>
         <SpeedDial
             ariaLabel="Controls"
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
+            <SpeedDialAction
+                key="settings"
+                tooltipTitle="Settings"
+                icon={<FontAwesomeIcon icon={faGears} />}
+                onClick={() => { setDialogOpen("settings"); }} />
             <SpeedDialAction
                 key="export"
                 tooltipTitle="Export"

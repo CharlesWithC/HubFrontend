@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Card, CardContent, Typography, Avatar, Grid, Box } from '@mui/material';
+import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon } from '@mui/material';
+import { useTheme } from '@emotion/react';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGears } from '@fortawesome/free-solid-svg-icons';
+
+import Select from 'react-select';
 
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
+import UserSelect from '../components/userselect';
 
-import { getRankName, makeRequestsAuto, getMonthUTC, TSep, getCurrentMonthName } from '../functions';
+import { customSelectStyles } from '../designs';
+import { getRankName, makeRequestsAuto, getMonthUTC, TSep, getCurrentMonthName, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
+
+function replaceUnderscores(str) {
+    return str.split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
 
 const LargeUserCard = ({ user, color }) => {
     return (
@@ -35,6 +48,9 @@ const columns = [
 ];
 
 const Leaderboard = () => {
+    const [dialogOpen, setDialogOpen] = useState("");
+    const theme = useTheme();
+
     const [monthly, setMonthly] = useState([]);
     const [allTime, setAllTime] = useState([]);
 
@@ -42,6 +58,8 @@ const Leaderboard = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
+    const [tempListParam, setTempListParam] = useState({ after: 0, before: 32503680000, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
+    const [listParam, setListParam] = useState({ userids: [], users: [] });
 
     useEffect(() => {
         async function doLoad() {
@@ -57,17 +75,23 @@ const Leaderboard = () => {
                 myPage += 1;
             }
 
+            let processedParam = JSON.parse(JSON.stringify(listParam));
+            processedParam.userids = processedParam.users.map(user => user.userid);
+            delete processedParam.users;
+            processedParam = removeNUEValues(processedParam);
+
             if (page === -1) {
                 [_monthly, _allTime, _leaderboard] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=3&after=` + getMonthUTC() / 1000, auth: true },
                     { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=3`, auth: true },
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setMonthly(_monthly.list);
                 setAllTime(_allTime.list);
+                setPage(0);
             } else {
                 [_leaderboard] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newLeaderboard = [];
@@ -83,7 +107,7 @@ const Leaderboard = () => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize]);
+    }, [page, pageSize, listParam]);
 
     return <>
         {monthly.length === 3 && <>
@@ -151,6 +175,106 @@ const Leaderboard = () => {
         </>
         }
         {leaderboard.length > 0 && <CustomTable columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
+        <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
+            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;Settings</DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">
+                    - Change what data to show and how to order them.
+                </Typography>
+                <Grid container spacing={2} sx={{ mt: "5px" }}>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="Minimum Points"
+                            value={tempListParam.min_point}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, min_point: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="Maximum Points"
+                            value={tempListParam.max_point}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, max_point: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            type="datetime-local"
+                            label="After"
+                            value={new Date(new Date(tempListParam.after * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, after: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            type="datetime-local"
+                            label="Before"
+                            value={new Date(new Date(tempListParam.before * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, before: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            label="Speed Limit (km/h)"
+                            value={tempListParam.speed_limit}
+                            onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <TextField select
+                            label="Game"
+                            value={tempListParam.game}
+                            onChange={(e) => { setTempListParam({ ...tempListParam, game: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value="0">Both</MenuItem>
+                            <MenuItem value="1">ETS2</MenuItem>
+                            <MenuItem value="2">ATS</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body2">Point Types</Typography>
+                        <Select
+                            isMulti
+                            name="colors"
+                            options={["bonus", "distance", "challenge", "division", "event"].map((item) => ({ value: item, label: replaceUnderscores(item) }))}
+                            className="basic-multi-select"
+                            classNamePrefix="select"
+                            styles={customSelectStyles(theme)}
+                            value={tempListParam.point_types.map((item) => ({ value: item, label: replaceUnderscores(item) }))}
+                            onChange={(newItems) => {
+                                setTempListParam({
+                                    ...tempListParam,
+                                    point_types: newItems.map((item) => (item.value))
+                                });
+                            }}
+                            menuPortalTarget={document.body}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <UserSelect label="Users (Up to 10)" initialUsers={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>Update</Button>
+            </DialogActions>
+        </Dialog>
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            <SpeedDialAction
+                key="settings"
+                tooltipTitle="Settings"
+                icon={<FontAwesomeIcon icon={faGears} />}
+                onClick={() => { setDialogOpen("settings"); }} />
+        </SpeedDial>
     </>;
 };
 

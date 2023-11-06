@@ -497,6 +497,18 @@ export function removeNullValues(obj) {
     return newObj;
 };
 
+export function removeNUEValues(obj) { // NUE => null + undefined + empty string
+    const newObj = {};
+
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== "") {
+            newObj[key] = obj[key];
+        }
+    }
+
+    return newObj;
+};
+
 export function compareVersions(version1, version2) {
     const v1 = version1.replace('.dev', '').split('.').map(Number);
     const v2 = version2.replace('.dev', '').split('.').map(Number);
