@@ -5,7 +5,7 @@ import { Portal } from '@mui/base';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleBar from 'simplebar-react';
 
@@ -647,9 +647,10 @@ const UserCard = (props) => {
         setDialogBtnDisabled(false);
     }, [uid, newConnections, updateUserInfo]);
 
+    const [otp, setOtp] = useState("");
     const disableMFA = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${uid}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             updateUserInfo();
             setSnackbarContent("MFA disabled");
@@ -1356,10 +1357,37 @@ const UserCard = (props) => {
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="error" onClick={() => { disableMFA(); }} disabled={dialogBtnDisabled}>Disable</Button>
+                        {vars.userInfo.mfa && <Button variant="contained" color="error" onClick={() => { setCtxAction("disable-mfa-require-otp"); }} disabled={dialogBtnDisabled}>Disable</Button>}
+                        {!vars.userInfo.mfa && <Button variant="contained" color="error" disabled={true}>Enable MFA for yourself first</Button>}
                     </DialogActions>
                 </Dialog>
             }
+            {ctxAction === "disable-mfa-require-otp" &&
+                <Dialog open={true} onClose={(e) => { setCtxAction(""); }}>
+                    <DialogTitle>
+                        <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                            <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Attention Required
+                        </Typography>
+                    </DialogTitle>
+                    <DialogContent>
+                        <Typography variant="body2">For security purposes, you must prove your identity with Multiple Factor Authentication.</Typography>
+                        <TextField
+                            sx={{ mt: "15px" }}
+                            label="MFA OTP"
+                            value={otp}
+                            onChange={(e) => setOtp(e.target.value)}
+                            fullWidth
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={(e) => { setCtxAction(""); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                            Close
+                        </Button>
+                        <Button onClick={() => { disableMFA(); }} variant="contained" color="success" sx={{ ml: 'auto' }} disabled={dialogBtnDisabled}>
+                            Verify
+                        </Button>
+                    </DialogActions>
+                </Dialog>}
             {ctxAction === "ban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
                     <DialogTitle>Ban User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>

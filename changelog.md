@@ -18,6 +18,7 @@
 14. Added timezone sync to API
 15. Fixed UserCard unique key warning (badge)
 16. Added customizable display timezone (DateTimeField / getFormattedDate)
+17. Added OTP Input when disabling MFA of other users (as required by API)
 
 ## v3.0.0
 
