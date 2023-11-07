@@ -15,6 +15,7 @@
 11. Added table options for deliveries & leaderboard
 12. Added partial form-based api config
 13. Fixed datetime-local input issues
+14. Added timezone sync to API
 
 ## v3.0.0
 
