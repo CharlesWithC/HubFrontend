@@ -300,12 +300,23 @@ export function getCurrentMonthName() {
     return months[date.getMonth()];
 }
 
+export function getTimezoneOffset(timezone) {
+    const date = new Date();
+    const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+    const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }));
+    return (utcDate - tzDate) / (1000 * 60);
+}
+
 export function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
     if (date === undefined || date === null) return "";
     if (!isNaN(date)) {
         if (date < 2000000000) date = date * 1000;
         date = new Date(date);
     }
+    
+    // convert display timezone
+    date = new Date(new Date(date.getTime() - getTimezoneOffset(vars.userSettings.display_timezone) * 60000).toISOString().slice(0, 16));
+
     const day = date.getDate();
     const month = MONTH_NAMES[date.getMonth()];
     const year = date.getFullYear();

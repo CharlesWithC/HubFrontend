@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
+import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 import { HexColorPicker, HexColorInput } from "react-colorful";
@@ -184,6 +185,13 @@ const Settings = () => {
         vars.userSettings.unit = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
         setUserSettings({ ...userSettings, unit: to });
+    }, [userSettings]);
+
+    const allTimeZones = moment.tz.names();
+    const updateDisplayTimezone = useCallback((to) => { // Display = DateTimeField
+        vars.userSettings.display_timezone = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, display_timezone: to });
     }, [userSettings]);
 
     const updateTheme = useCallback((to) => {
@@ -1011,6 +1019,21 @@ const Settings = () => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Display Timezone</Typography>
+                    <br />
+                    <Select
+                        name="colors"
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        styles={customSelectStyles(theme)}
+                        options={allTimeZones.map((zone) => ({ value: zone, label: zone }))}
+                        value={{ value: userSettings.display_timezone, label: userSettings.display_timezone }}
+                        onChange={(item) => { updateDisplayTimezone(item.value); }}
+                        menuPortalTarget={document.body}
+                    />
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={3}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
                     <br />
                     <ButtonGroup>
@@ -1020,7 +1043,7 @@ const Settings = () => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={4} lg={3}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
                     <br />
                     <CreatableSelect
@@ -1036,7 +1059,7 @@ const Settings = () => {
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={4} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
                     <br />
                     <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />

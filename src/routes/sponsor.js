@@ -4,7 +4,7 @@ import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListIt
 const UpgradeCard = () => {
     const bronze = ["A Special Discord Role", "A Special Thank You"];
     const silver = ["Silver Name", "Custom Color Theme", "More Radio Stations"];
-    const gold = ["Gold Name", "Custom Profile Theme", "Custom Profile Banner", "Sponsor Support"];
+    const gold = ["Gold Name", "Custom Profile Theme", "Custom Profile Banner", "Configurable Display Timezone", "Sponsor Support"];
     const platinum = ["More Name Color", "Any Radio Stations (Radio URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Sponsor Priority Support"];
 
     return (

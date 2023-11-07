@@ -29,6 +29,7 @@
     "hammerjs": "^2.0.8",
     "jsoneditor": "^9.10.2",
     "lodash": "^4.17.21",
+    "moment-timezone": "^0.5.43",
     "ol": "^7.4.0",
     "qr-code-styling": "^1.6.0-rc.1",
     "react": "^18.2.0",

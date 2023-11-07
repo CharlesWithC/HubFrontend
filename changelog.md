@@ -17,6 +17,7 @@
 13. Fixed datetime-local input issues
 14. Added timezone sync to API
 15. Fixed UserCard unique key warning (badge)
+16. Added customizable display timezone (DateTimeField / getFormattedDate)
 
 ## v3.0.0
 
