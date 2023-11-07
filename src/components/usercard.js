@@ -260,7 +260,7 @@ const UserCard = (props) => {
         setChartStats(newCharts);
         setOverallStats(_overall);
         if (_details.truck !== undefined) setDetailStats(_details);
-        setPointStats(_point.list[0].points);
+        if (_point.list.length !== 0) setPointStats(_point.list[0].points);
 
         let newDlogList = [];
         for (let i = 0; i < _dlogList.list.length; i++) {
@@ -742,11 +742,11 @@ const UserCard = (props) => {
             <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
                     <div style={{ display: "flex", flexDirection: "row" }}>
-                        <Typography key="name" variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
                             {nameRef.current}
                         </Typography>
-                        <Typography key="badge" variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                            {badges.map((badge) => { return <>{badge}&nbsp;</>; })}
+                        <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                            {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
                             {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
@@ -759,7 +759,7 @@ const UserCard = (props) => {
                             <Tab label="Deliveries" {...tabBtnProps(2, tab, theme)} />
                         </Tabs>
                     </Box>
-                    <SimpleBar style={{ height: "40vh" }}>
+                    <SimpleBar style={{ height: "45vh" }}>
                         <TabPanel value={tab} index={0}>
                             {bioRef.current !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -970,16 +970,16 @@ const UserCard = (props) => {
                                 </Grid>
                                 {detailStats !== null && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favorite Truck</Typography>
-                                        <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count})</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Most Driven Truck</Typography>
+                                        <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count} times)</Typography>
                                     </Grid>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Favorite Cargo</Typography>
-                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count})</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Most Delivered Cargo</Typography>
+                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count} times)</Typography>
                                     </Grid>
                                 </>}
                             </Grid>}
-                            {pointStats !== null && <Divider sx={{ mt: "6px", mb: "6px" }} />}
+                            {pointStats !== null && <Divider sx={{ mt: "12px", mb: "12px" }} />}
                             {pointStats !== null && <Grid container spacing={2}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Points</Typography>
@@ -1454,7 +1454,7 @@ const UserCard = (props) => {
                                 {nameRef.current}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                {badges.map((badge) => { return <>{badge}&nbsp;</>; })}
+                                {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
                                 {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             </Typography>

@@ -16,6 +16,7 @@
 12. Added partial form-based api config
 13. Fixed datetime-local input issues
 14. Added timezone sync to API
+15. Fixed UserCard unique key warning (badge)
 
 ## v3.0.0
 
