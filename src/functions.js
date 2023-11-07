@@ -300,6 +300,10 @@ export function getCurrentMonthName() {
 
 export function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
     if (date === undefined || date === null) return "";
+    if (!isNaN(date)) {
+        if (date < 2000000000) date = date * 1000;
+        date = new Date(date);
+    }
     const day = date.getDate();
     const month = MONTH_NAMES[date.getMonth()];
     const year = date.getFullYear();

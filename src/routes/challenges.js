@@ -1,12 +1,13 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress,  MenuItem, RadioGroup, Radio, Chip, Checkbox } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Portal } from '@mui/base';
 
 import CreatableSelect from 'react-select/creatable';
 
+import DateTimeField from '../components/datetime';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
@@ -325,7 +326,7 @@ const Challenges = () => {
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
-    const [modalChallenge, setModalChallenge] = useState({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
+    const [modalChallenge, setModalChallenge] = useState({ title: "", description: "", start_time: undefined, end_time: undefined, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
 
     const [modalUpdateDlogOpen, setModalUpdateDlogOpen] = useState(false);
     const [updateDlogChallenge, setUpdateDlogChallenge] = useState({});
@@ -470,7 +471,7 @@ const Challenges = () => {
     }, [updateDlogChallenge.challengeid, dlogID, modalChallenge]);
 
     const clearModal = useCallback(() => {
-        setModalChallenge({ title: "", description: "", start_time: parseInt(+new Date() / 1000), end_time: parseInt(+new Date() / 1000) + 1, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
+        setModalChallenge({ title: "", description: "", start_time: undefined, end_time: undefined, type: 1, delivery_count: 1, required_roles: [], required_distance: 0, reward_points: 750, public_details: false, orderid: 0, is_pinned: false, job_requirements: DEFAULT_JOB_REQUIREMENTS });
     }, []);
 
     const handleSubmit = useCallback(async (e) => {
@@ -666,20 +667,18 @@ const Challenges = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            <DateTimeField
                                 label="Start Time"
-                                type="datetime-local"
-                                value={new Date(new Date(modalChallenge.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                                onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setModalChallenge({ ...modalChallenge, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                                defaultValue={modalChallenge.start_time}
+                                onChange={(timestamp) => { setModalChallenge({ ...modalChallenge, start_time: timestamp }); }}
                                 fullWidth
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            <DateTimeField
                                 label="End Time"
-                                type="datetime-local"
-                                value={new Date(new Date(modalChallenge.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                                onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setModalChallenge({ ...modalChallenge, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                                defaultValue={modalChallenge.end_time}
+                                onChange={(timestamp) => { setModalChallenge({ ...modalChallenge, end_time: timestamp }); }}
                                 fullWidth
                             />
                         </Grid>

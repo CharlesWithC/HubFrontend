@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle as faCircleSolid, fa1, faN, faUsers, faUsersSlash, faPenToSquare, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { faCircle, faCircleCheck } from '@fortawesome/free-regular-svg-icons';
 
+import DateTimeField from '../components/datetime';
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
@@ -458,7 +459,7 @@ const Poll = () => {
     const [description, setContent] = useState('');
     const [choices, setChoices] = useState([{ content: "" }, { content: "" }, { content: "" }, { content: "" }]);
     const [config, setConfig] = useState({ max_choice: 1, allow_modify_vote: false, show_stats: true, show_stats_before_vote: false, show_voter: false, show_stats_when_ended: false });
-    const [endTime, setEndTime] = useState(parseInt(+new Date() / 1000 + 86400 * 7));
+    const [endTime, setEndTime] = useState(undefined);
     const [noEndTime, setNoEndTime] = useState(false);
     const [orderId, setOrderId] = useState(0);
     const [isPinned, setIsPinned] = useState(false);
@@ -468,7 +469,7 @@ const Poll = () => {
         setContent('');
         setChoices([{ content: "" }, { content: "" }, { content: "" }, { content: "" }]);
         setConfig({ max_choice: 1, allow_modify_vote: false, show_stats: true, show_stats_before_vote: false, show_voter: false, show_stats_when_ended: true });
-        setEndTime(parseInt(+new Date() / 1000 + 86400 * 7));
+        setEndTime(undefined);
         setNoEndTime(false);
         setOrderId(0);
         setIsPinned(false);
@@ -544,7 +545,7 @@ const Poll = () => {
         setContent(poll.description);
         setChoices(poll.choices);
         if (poll.end_time === null) {
-            setEndTime(parseInt(+new Date() / 1000 + 86400 * 7));
+            setEndTime(undefined);
             setNoEndTime(true);
         } else {
             setEndTime(poll.end_time);
@@ -668,11 +669,10 @@ const Poll = () => {
                             </Grid>
                             <Grid item xs={6}>
                                 <FormControl component="fieldset">
-                                    <TextField
+                                    <DateTimeField
                                         label="End Time"
-                                        type="datetime-local"
-                                        value={new Date(new Date(endTime * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                                        onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setEndTime(parseInt((+new Date(e.target.value)) / 1000)); }}
+                                        defaultValue={endTime}
+                                        onChange={(timestamp) => { setEndTime(timestamp); }}
                                         fullWidth
                                         disabled={noEndTime === true}
                                     />

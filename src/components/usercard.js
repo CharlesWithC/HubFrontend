@@ -9,6 +9,7 @@ import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUser
 
 import SimpleBar from 'simplebar-react';
 
+import DateTimeField from './datetime';
 import useLongPress from './useLongPress';
 import RoleSelect from './roleselect';
 import TimeAgo from './timeago';
@@ -329,7 +330,7 @@ const UserCard = (props) => {
     const [newProfile, setNewProfile] = useState({ name: name, avatar: avatar });
     const [newAboutMe, setNewAboutMe] = useState(bio);
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
-    const [newBan, setNewBan] = useState({ expire: +new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000) / 1000, reason: "" });
+    const [newBan, setNewBan] = useState({ expire: 1698890178, reason: "" });
     const [trackerInUse, setTrackerInUse] = useState(tracker !== "unknown" ? tracker : trackers[0]);
     const [roleHistory, setRoleHistory] = useState(undefined);
     const [banHistory, setBanHistory] = useState(undefined);
@@ -1365,11 +1366,10 @@ const UserCard = (props) => {
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={6}>
-                                <TextField
+                                <DateTimeField
                                     label="Expire Datetime"
-                                    type="datetime-local"
-                                    value={new Date(new Date(newBan.expire * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                                    onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setNewBan({ ...newBan, expire: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                                    defaultValue={newBan.expire}
+                                    onChange={(timestamp) => { setNewBan({ ...newBan, expire: timestamp }); }}
                                     fullWidth
                                 />
                             </Grid>

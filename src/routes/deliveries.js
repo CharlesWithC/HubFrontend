@@ -8,6 +8,7 @@ import { Portal } from '@mui/base';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileExport, faGears, faTowerObservation, faTruckFront } from '@fortawesome/free-solid-svg-icons';
 
+import DateTimeField from '../components/datetime';
 import Podium from "../components/podium";
 import CustomTable from "../components/table";
 import UserCard from '../components/usercard';
@@ -35,7 +36,7 @@ const Deliveries = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
-    const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: 0, before: 32503680000, game: 0, status: 0 });
+    const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 });
     const [listParam, setListParam] = useState({});
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -49,8 +50,13 @@ const Deliveries = () => {
     const [dialogOpen, setDialogOpen] = useState("");
     const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
 
-    const [exportRange, setExportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
+    const [exportRange, setExportRange] = useState({ start_time: undefined, end_time: undefined });
     const exportDlog = useCallback(async () => {
+        if (isNaN(exportRange.end_time - exportRange.start_time)) {
+            setSnackbarContent("Invalid date range.");
+            setSnackbarSeverity("error");
+            return;
+        }
         if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
             setSnackbarContent("The date range must be smaller than 90 days.");
             setSnackbarSeverity("error");
@@ -90,7 +96,7 @@ const Deliveries = () => {
     }, [truckyJobID, bypassTrackerCheck]);
     const [truckyImportLog, setTruckyImportLog] = useState("");
     const [truckyCompanyID, setTruckyCompanyID] = useState("");
-    const [truckyImportRange, setTruckyImportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
+    const [truckyImportRange, setTruckyImportRange] = useState({ start_time: undefined, end_time: undefined });
     const [truckyBatchImportTotal, setTruckyBatchImportTotal] = useState(0);
     const [truckyBatchImportCurrent, setTruckyBatchImportCurrent] = useState(0);
     const [truckyBatchImportSuccess, setTruckyBatchImportSuccess] = useState(0);
@@ -98,6 +104,11 @@ const Deliveries = () => {
         resolve => setTimeout(resolve, ms)
     );
     const importFromTruckyMultiple = useCallback(async () => {
+        if (isNaN(truckyImportRange.end_time - truckyImportRange.start_time)) {
+            setSnackbarContent("Invalid date range.");
+            setSnackbarSeverity("error");
+            return;
+        }
         if (isNaN(truckyCompanyID) || truckyCompanyID.replaceAll(" ", "") === "") {
             setTruckyImportLog("Invalid Company ID");
             setSnackbarSeverity("error");
@@ -287,20 +298,18 @@ const Deliveries = () => {
                 <Typography variant="body2">- You may export delivery logs of a range of up to 90 days each time.</Typography>
                 <Grid container spacing={2} style={{ marginTop: "3px" }}>
                     <Grid item xs={6}>
-                        <TextField
+                        <DateTimeField
                             label="Start Time"
-                            type="datetime-local"
-                            value={new Date(new Date(exportRange.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setExportRange({ ...exportRange, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={exportRange.start_time}
+                            onChange={(timestamp) => { setExportRange({ ...exportRange, start_time: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
+                        <DateTimeField
                             label="End Time"
-                            type="datetime-local"
-                            value={new Date(new Date(exportRange.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setExportRange({ ...exportRange, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={exportRange.end_time}
+                            onChange={(timestamp) => { setExportRange({ ...exportRange, end_time: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
@@ -360,20 +369,18 @@ const Deliveries = () => {
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
+                        <DateTimeField
                             label="Start Time"
-                            type="datetime-local"
-                            value={new Date(new Date(truckyImportRange.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTruckyImportRange({ ...truckyImportRange, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={truckyImportRange.start_time}
+                            onChange={(timestamp) => { setTruckyImportRange({ ...truckyImportRange, start_time: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
+                        <DateTimeField
                             label="End Time"
-                            type="datetime-local"
-                            value={new Date(new Date(truckyImportRange.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTruckyImportRange({ ...truckyImportRange, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={truckyImportRange.end_time}
+                            onChange={(timestamp) => { setTruckyImportRange({ ...truckyImportRange, end_time: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
@@ -417,20 +424,18 @@ const Deliveries = () => {
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
-                            type="datetime-local"
+                        <DateTimeField
                             label="After"
-                            value={new Date(new Date(tempListParam.after * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, after: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={tempListParam.after}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
-                            type="datetime-local"
+                        <DateTimeField
                             label="Before"
-                            value={new Date(new Date(tempListParam.before * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, before: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={tempListParam.before}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
                             fullWidth
                         />
                     </Grid>

@@ -11,6 +11,10 @@
 7. Improved display for MUI Select (replaced with TextField-select)
 8. Fixed incorrect user permissions being calculated
 9. Fixed user session being revoked upon network error
+10. Fixed UserCard re-render issues
+11. Added table options for deliveries & leaderboard
+12. Added partial form-based api config
+13. Fixed datetime-local input issues
 
 ## v3.0.0
 

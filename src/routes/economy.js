@@ -16,6 +16,7 @@ import { Portal } from '@mui/base';
 
 import Select from 'react-select';
 
+import DateTimeField from '../components/datetime';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
@@ -675,7 +676,7 @@ const Economy = () => {
             setSnackbarSeverity("error");
         }
     }, [manageTransferFrom, manageBalanceVisibility]);
-    const [exportRange, setExportRange] = useState({ start_time: + new Date() / 1000 - 86400 * 28, end_time: +new Date() / 1000 });
+    const [exportRange, setExportRange] = useState({ start_time: undefined, end_time: undefined });
     const exportTransaction = useCallback(async () => {
         if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
             setSnackbarContent("The date range must be smaller than 90 days.");
@@ -1265,20 +1266,18 @@ const Economy = () => {
                 <Typography variant="body2">- You may export transaction history of a range of up to 90 days each time.</Typography>
                 <Grid container spacing={2} style={{ marginTop: "3px" }}>
                     <Grid item xs={6}>
-                        <TextField
+                        <DateTimeField
                             label="Start Time"
-                            type="datetime-local"
-                            value={new Date(new Date(exportRange.start_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setExportRange({ ...exportRange, start_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={exportRange.start_time}
+                            onChange={(timestamp) => { setExportRange({ ...exportRange, start_time: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
+                        <DateTimeField
                             label="End Time"
-                            type="datetime-local"
-                            value={new Date(new Date(exportRange.end_time * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setExportRange({ ...exportRange, end_time: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={exportRange.end_time}
+                            onChange={(timestamp) => { setExportRange({ ...exportRange, end_time: timestamp }); }}
                             fullWidth
                         />
                     </Grid>

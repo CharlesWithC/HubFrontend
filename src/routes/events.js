@@ -6,6 +6,7 @@ import { Portal } from '@mui/base';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 
+import DateTimeField from '../components/datetime';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
@@ -115,12 +116,12 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
                 <Grid container>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LocalParkingRounded />&nbsp;&nbsp;{meetupTime}
+                            <LocalParkingRounded />&nbsp;&nbsp;{getFormattedDate(meetupTime * 1000)}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TimeToLeaveRounded />&nbsp;&nbsp;{departureTime}
+                            <TimeToLeaveRounded />&nbsp;&nbsp;{getFormattedDate(departureTime * 1000)}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
@@ -422,8 +423,8 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                         title={modalEvent.title}
                         description={modalEvent.description}
                         link={modalEvent.link}
-                        meetupTime={getFormattedDate(new Date(modalEvent.meetup_timestamp * 1000))}
-                        departureTime={getFormattedDate(new Date(modalEvent.departure_timestamp * 1000))}
+                        meetupTime={modalEvent.meetup_timestamp}
+                        departureTime={modalEvent.departure_timestamp}
                         departure={modalEvent.departure}
                         destination={modalEvent.destination}
                         distance={modalEvent.distance}
@@ -441,7 +442,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setOpenEventDetals(false) }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setOpenEventDetals(false); }}>Close</Button>
                 </DialogActions>
             </Dialog>
             {upcomingEvents.length !== 0 &&
@@ -454,8 +455,8 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             title={upcomingEvents[0].title}
                             description={upcomingEvents[0].description}
                             link={upcomingEvents[0].link}
-                            meetupTime={getFormattedDate(new Date(upcomingEvents[0].meetup_timestamp * 1000))}
-                            departureTime={getFormattedDate(new Date(upcomingEvents[0].departure_timestamp * 1000))}
+                            meetupTime={upcomingEvents[0].meetup_timestamp}
+                            departureTime={upcomingEvents[0].departure_timestamp}
                             departure={upcomingEvents[0].departure}
                             destination={upcomingEvents[0].destination}
                             distance={upcomingEvents[0].distance}
@@ -477,8 +478,8 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                             title={upcomingEvents[1].title}
                             description={upcomingEvents[1].description}
                             link={upcomingEvents[1].link}
-                            meetupTime={getFormattedDate(new Date(upcomingEvents[1].meetup_timestamp * 1000))}
-                            departureTime={getFormattedDate(new Date(upcomingEvents[1].departure_timestamp * 1000))}
+                            meetupTime={upcomingEvents[1].meetup_timestamp}
+                            departureTime={upcomingEvents[1].departure_timestamp}
                             departure={upcomingEvents[1].departure}
                             destination={upcomingEvents[1].destination}
                             distance={upcomingEvents[1].distance}
@@ -511,7 +512,7 @@ const EventManagers = memo(() => {
             <UserCard user={user} useChip={true} inline={true} />
         ))
     }</>;
-})
+});
 
 const Events = () => {
     const [upcomingEvents, setUpcomingEvents] = useState([]);
@@ -542,8 +543,8 @@ const Events = () => {
     const [departure, setDeparture] = useState('');
     const [destination, setDestination] = useState('');
     const [distance, setDistance] = useState('');
-    const [meetupTime, setMeetupTime] = useState(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
-    const [departureTime, setDepartureTime] = useState(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+    const [meetupTime, setMeetupTime] = useState(undefined);
+    const [departureTime, setDepartureTime] = useState(undefined);
     const [visibility, setVisibility] = useState('public');
     const [orderId, setOrderId] = useState('');
     const [isPinned, setIsPinned] = useState('false');
@@ -560,8 +561,8 @@ const Events = () => {
         setDeparture('');
         setDestination('');
         setDistance('');
-        setMeetupTime(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
-        setDepartureTime(new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        setMeetupTime(undefined);
+        setDepartureTime(undefined);
         setVisibility('public');
         setOrderId('');
         setIsPinned('false');
@@ -586,8 +587,8 @@ const Events = () => {
         setDeparture(event.departure);
         setDestination(event.destination);
         setDistance(event.distance);
-        setMeetupTime(new Date(event.meetup_timestamp * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
-        setDepartureTime(new Date(event.departure_timestamp * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+        setMeetupTime(event.meetup_timestamp);
+        setDepartureTime(event.departure_timestamp);
         setVisibility(event.is_private ? "private" : "public");
         setOrderId(0);
         setIsPinned(false);
@@ -626,8 +627,8 @@ const Events = () => {
             departure,
             destination,
             distance,
-            meetup_timestamp: new Date(meetupTime).getTime() / 1000,
-            departure_timestamp: new Date(departureTime).getTime() / 1000,
+            meetup_timestamp: meetupTime,
+            departure_timestamp: departureTime,
             is_private: visibility === "private",
         };
 
@@ -765,20 +766,18 @@ const Events = () => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            <DateTimeField
                                 label="Meetup Time"
-                                type="datetime-local"
-                                value={meetupTime}
-                                onChange={(e) => setMeetupTime(e.target.value)}
+                                defaultValue={meetupTime}
+                                onChange={(timestamp) => setMeetupTime(timestamp)}
                                 fullWidth
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField
+                            <DateTimeField
                                 label="Departure Time"
-                                type="datetime-local"
-                                value={departureTime}
-                                onChange={(e) => setDepartureTime(e.target.value)}
+                                defaultValue={departureTime}
+                                onChange={(timestamp) => setDepartureTime(timestamp)}
                                 fullWidth
                             />
                         </Grid>
@@ -800,7 +799,7 @@ const Events = () => {
                                 <TextField
                                     label="Order ID"
                                     value={orderId}
-                                    onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")) }}
+                                    onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                     fullWidth
                                 />
                             </FormControl>
@@ -868,7 +867,7 @@ const Events = () => {
                     />}
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false) }}>Cancel</Button>
+                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
                 <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
             </DialogActions>
         </Dialog>
@@ -884,7 +883,7 @@ const Events = () => {
                             <TextField
                                 label="Points"
                                 value={points}
-                                onChange={(e) => { let f = e.target.value.startsWith("-"); setPoints((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")) }}
+                                onChange={(e) => { let f = e.target.value.startsWith("-"); setPoints((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                 fullWidth
                             />
                         </Grid>
@@ -892,7 +891,7 @@ const Events = () => {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setOpenAttendeeEvent(false) }}>Close</Button>
+                <Button variant="primary" onClick={() => { setOpenAttendeeEvent(false); }}>Close</Button>
                 <Button variant="contained" onClick={handleUpdateAttendees} disabled={submitLoading}>Update</Button>
             </DialogActions>
         </Dialog>
@@ -902,7 +901,7 @@ const Events = () => {
                 <EventManagers />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false) }}>Close</Button>
+                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
             </DialogActions>
         </Dialog>
         <Portal>

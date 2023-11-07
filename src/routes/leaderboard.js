@@ -7,6 +7,7 @@ import { faGears } from '@fortawesome/free-solid-svg-icons';
 
 import Select from 'react-select';
 
+import DateTimeField from '../components/datetime';
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
 import UserSelect from '../components/userselect';
@@ -58,7 +59,7 @@ const Leaderboard = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
-    const [tempListParam, setTempListParam] = useState({ after: 0, before: 32503680000, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
+    const [tempListParam, setTempListParam] = useState({ after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
     const [listParam, setListParam] = useState({ userids: [], users: [] });
 
     useEffect(() => {
@@ -198,20 +199,18 @@ const Leaderboard = () => {
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
-                            type="datetime-local"
+                        <DateTimeField
                             label="After"
-                            value={new Date(new Date(tempListParam.after * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, after: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={tempListParam.after}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
-                            type="datetime-local"
+                        <DateTimeField
                             label="Before"
-                            value={new Date(new Date(tempListParam.before * 1000).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                            onChange={(e) => { if (!isNaN(parseInt((+new Date(e.target.value)) / 1000))) setTempListParam({ ...tempListParam, before: parseInt((+new Date(e.target.value)) / 1000) }); }}
+                            defaultValue={tempListParam.before}
+                            onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
                             fullWidth
                         />
                     </Grid>
