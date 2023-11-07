@@ -19,6 +19,7 @@
 15. Fixed UserCard unique key warning (badge)
 16. Added customizable display timezone (DateTimeField / getFormattedDate)
 17. Added OTP Input when disabling MFA of other users (as required by API)
+18. Added "Accepted as driver" option when accepting applications
 
 ## v3.0.0
 

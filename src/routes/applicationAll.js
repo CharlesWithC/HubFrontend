@@ -153,12 +153,34 @@ const AllApplication = () => {
 
     const updateStatus = useCallback(async () => {
         setSubmitLoading(true);
-        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus, "message": message } });
+        let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== "3" ? newStatus : "1", "message": message } });
         if (resp.status === 204) {
             setSnackbarContent("Status updated!");
             setSnackbarSeverity("success");
             setDoReload(+new Date());
             showDetail(detailApp);
+            if (newStatus === "3" && (detailApp.creator.userid === null || detailApp.creator.userid === -1)) {
+                let resp = await axios({ url: `${vars.dhpath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                if (resp.status === 200) {
+                    let newUserID = resp.data.userid;
+                    setSnackbarContent("User accepted as member");
+                    setSnackbarSeverity("success");
+
+                    let resp = await axios({ url: `${vars.dhpath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [vars.perms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 204) {
+                        setSnackbarContent("Driver role assigned");
+                        setSnackbarSeverity("success");
+                    } else {
+                        setSnackbarContent(resp.data.error);
+                        setSnackbarSeverity("error");
+                        setDialogBtnDisabled(false);
+                    }
+                } else {
+                    setSnackbarContent(resp.data.error);
+                    setSnackbarSeverity("error");
+                    setDialogBtnDisabled(false);
+                }
+            }
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -235,6 +257,9 @@ const AllApplication = () => {
                     </MenuItem>
                     <MenuItem key="2" value="2">
                         Declined
+                    </MenuItem>
+                    <MenuItem key="3" value="3">
+                        Accepted as driver
                     </MenuItem>
                 </TextField>
                 <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >Respond</Button>

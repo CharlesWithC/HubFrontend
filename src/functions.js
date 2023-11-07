@@ -309,13 +309,17 @@ export function getTimezoneOffset(timezone) {
 
 export function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
     if (date === undefined || date === null) return "";
-    if (!isNaN(date)) {
+    if (typeof date === "number") {
         if (date < 2000000000) date = date * 1000;
         date = new Date(date);
     }
-    
+
     // convert display timezone
-    date = new Date(new Date(date.getTime() - getTimezoneOffset(vars.userSettings.display_timezone) * 60000).toISOString().slice(0, 16));
+    try {
+        date = new Date(new Date(date.getTime() - getTimezoneOffset(vars.userSettings.display_timezone) * 60000).toISOString().slice(0, 16));
+    } catch {
+        return "";
+    }
 
     const day = date.getDate();
     const month = MONTH_NAMES[date.getMonth()];

@@ -617,7 +617,7 @@ const UserCard = (props) => {
     const acceptUser = useCallback(async () => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/${uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 204) {
+        if (resp.status === 200) {
             setSnackbarContent("User accepted as member");
             setSnackbarSeverity("success");
             updateUserInfo();

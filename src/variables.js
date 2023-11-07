@@ -54,6 +54,8 @@ if (localStorage.getItem("client-settings") !== null) {
         console.error("Unable to parse client settings in local storage:");
         console.error(error);
     }
+} else {
+    localStorage.setItem("client-settings", JSON.stringify(userSettings));
 }
 exports.userSettings = userSettings;
 
