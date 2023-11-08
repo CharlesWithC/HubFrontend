@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Card, CardContent, TablePagination, Typography, Menu, TextField } from '@mui/material';
 
 import useLongPress from './useLongPress';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowDown, faArrowUp, faArrowsUpDown } from '@fortawesome/free-solid-svg-icons';
 
-const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
+const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
 
@@ -91,7 +93,14 @@ const CustomTable = ({ columns, name, nameRight, data, totalItems, rowsPerPageOp
                         <TableHead key={`table-head`}>
                             <TableRow key={`row-head`}>
                                 {columns.map((column, idx) => (
-                                    <TableCell key={`cell-${idx}`}>{column.label}</TableCell>
+                                    <TableCell key={`cell-${idx}`}>
+                                        {column.label}
+                                        {column.orderKey !== undefined && <>&nbsp;
+                                            {column.orderKey !== orderBy && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, column.defaultOrder)} icon={faArrowsUpDown} style={{ opacity: 0.5, cursor: "pointer" }} />}
+                                            {column.orderKey === orderBy && order === "asc" && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "desc")} icon={faArrowUp} style={{ cursor: "pointer" }} />}
+                                            {column.orderKey === orderBy && order === "desc" && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, "asc")} icon={faArrowDown} style={{ cursor: "pointer" }} />}
+                                        </>}
+                                    </TableCell>
                                 ))}
                             </TableRow>
                         </TableHead>

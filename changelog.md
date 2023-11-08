@@ -20,6 +20,7 @@
 16. Added customizable display timezone (DateTimeField / getFormattedDate)
 17. Added OTP Input when disabling MFA of other users (as required by API)
 18. Added "Accepted as driver" option when accepting applications
+19. Added table ordering buttons (Deliveries, Challenges, My Applications, All Applications, Member List, External Users, Banned Users)
 
 ## v3.0.0
 

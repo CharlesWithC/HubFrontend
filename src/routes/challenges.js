@@ -12,7 +12,7 @@ import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
 import ListModal from '../components/listmodal';
-import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue, removeNUEValues } from '../functions';
 import RoleSelect from '../components/roleselect';
 import { customSelectStyles } from '../designs';
 
@@ -79,20 +79,20 @@ const DEFAULT_JOB_REQUIREMENTS = {
 };
 
 const columns = [
-    { id: 'challengeid', label: 'ID' },
-    { id: 'title', label: 'Title' },
+    { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
+    { id: 'title', label: 'Title', orderKey: 'title', defaultOrder: 'asc' },
     { id: 'metaType', label: 'Type' },
-    { id: 'reward_points', label: 'Reward' },
-    { id: 'metaProgress', label: 'Progress' },
+    { id: 'reward_points', label: 'Reward', orderKey: 'reward', defaultOrder: 'desc' },
+    { id: 'metaProgress', label: 'Progress', orderKey: 'delivery_count', defaultOrder: 'asc' },
     { id: 'metaStatus', label: 'Status' },
 ];
 
 const staffColumns = [
-    { id: 'challengeid', label: 'ID' },
-    { id: 'title', label: 'Title' },
+    { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
+    { id: 'title', label: 'Title', orderKey: 'title', defaultOrder: 'asc' },
     { id: 'metaType', label: 'Type' },
-    { id: 'reward_points', label: 'Reward' },
-    { id: 'metaProgress', label: 'Progress' },
+    { id: 'reward_points', label: 'Reward', orderKey: 'reward', defaultOrder: 'desc' },
+    { id: 'metaProgress', label: 'Progress', orderKey: 'delivery_count', defaultOrder: 'asc' },
     { id: 'metaStatus', label: 'Status' },
     { id: 'metaControls', label: 'Operations' },
 ];
@@ -247,6 +247,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
+    const [listParam, setListParam] = useState({ order_by: "challengeid", order: "desc" });
 
     const theme = useTheme();
 
@@ -254,6 +255,8 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
+
+            let processedParam = removeNUEValues(listParam);
 
             let myPage = page;
             if (myPage === -1) {
@@ -266,7 +269,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 let urls = [
                     `${vars.dhpath}/challenges/list?page_size=2&page=1&start_after=${parseInt(+new Date() / 1000)}`,
                     `${vars.dhpath}/challenges/list?page_size=250&page=1&start_before=${parseInt(+new Date() / 1000)}&end_after=${parseInt(+new Date() / 1000)}`,
-                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&order_by=end_time&order=desc`,
+                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 let [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
                 setUpcomingChallenges(ParseChallenges(_upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
@@ -275,7 +278,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 setTotalItems(_challengeList.total_items);
             } else {
                 let urls = [
-                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&order_by=end_time&order=desc`,
+                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 let [_challengeList] = await makeRequestsWithAuth(urls);
                 setChallengeList(ParseChallenges(_challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
@@ -286,7 +289,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [doReload, setUpcomingChallenges, setActiveChallenges, pageSize, page, setChallengeList, theme, onUpdateDelivery, onEdit, onDelete]);
+    }, [doReload, setUpcomingChallenges, setActiveChallenges, pageSize, page, setChallengeList, theme, onUpdateDelivery, onEdit, onDelete, listParam]);
 
     return <>
         <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -302,7 +305,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 <ChallengeCard challenge={challenge} onShowDetails={onShowDetails} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />
             </Grid>)}
         </Grid>
-        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["administrator", "manage_challenges"]) ? staffColumns : columns} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
+        {challengeList.length !== 0 && <CustomTable columns={checkUserPerm(["administrator", "manage_challenges"]) ? staffColumns : columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={challengeList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={onShowDetails} pstyle={{ marginRight: "60px" }} />}
     </>;
 });
 

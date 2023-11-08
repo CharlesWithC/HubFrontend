@@ -18,11 +18,11 @@ import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAu
 var vars = require("../variables");
 
 const columns = [
-    { id: 'display_logid', label: 'ID' },
+    { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
     { id: 'driver', label: 'Driver' },
     { id: 'source', label: 'Source' },
     { id: 'destination', label: 'Destination' },
-    { id: 'distance', label: 'Distance' },
+    { id: 'distance', label: 'Distance', orderKey: 'distance', defaultOrder: 'desc' },
     { id: 'cargo', label: 'Cargo' },
     { id: 'profit', label: 'Profit' },
     { id: 'time', label: 'Time' },
@@ -287,11 +287,11 @@ const Deliveries = () => {
                     } first={{ name: replaceUnderscores(detailStats.fine[0].unique_id), stat: detailStats.fine[0].count }} second={{ name: replaceUnderscores(detailStats.fine[1].unique_id), stat: detailStats.fine[1].count }} third={{ name: replaceUnderscores(detailStats.fine[2].unique_id), stat: detailStats.fine[2].count }} fixWidth={true} />
                 </Grid>}
             </Grid>
-            <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
+            <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />
         </>
         }
         {detailStats.truck === undefined && detailStats !== "loading" &&
-            <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+            <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
         <Dialog open={dialogOpen === "export"} onClose={() => setDialogOpen("")}>
             <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;Export Delivery Logs</DialogTitle>
             <DialogContent>

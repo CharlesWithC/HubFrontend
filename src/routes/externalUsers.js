@@ -8,26 +8,27 @@ import { faUserPlus, faBan } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken } from '../functions';
+import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 import UserCard from '../components/usercard';
 
 var vars = require("../variables");
 
 const puColumns = [
-    { id: 'uid', label: 'UID' },
-    { id: 'user', label: 'User' },
-    { id: 'discordid', label: 'Discord ID' },
-    { id: 'steamid', label: 'Steam ID' },
-    { id: 'truckersmpid', label: 'TruckersMP ID' },
-    { id: 'joined', label: 'Joined' }
+    { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
+    { id: 'user', label: 'User', orderKey: 'name', defaultOrder: 'asc' },
+    { id: 'email', label: 'Email', orderKey: 'email', defaultOrder: 'asc' },
+    { id: 'discordid', label: 'Discord ID', orderKey: 'discordid', defaultOrder: 'asc' },
+    { id: 'steamid', label: 'Steam ID', orderKey: 'steamid', defaultOrder: 'asc' },
+    { id: 'truckersmpid', label: 'TruckersMP ID', orderKey: 'truckersmpid', defaultOrder: 'asc' },
+    { id: 'joined', label: 'Joined', orderKey: 'join_timestamp', defaultOrder: 'asc' }
 ];
 const buColumns = [
-    { id: 'uid', label: 'UID' },
-    { id: 'user', label: 'User' },
-    { id: 'email', label: 'Email' },
-    { id: 'discordid', label: 'Discord ID' },
-    { id: 'steamid', label: 'Steam ID' },
-    { id: 'truckersmpid', label: 'TruckersMP ID' },
+    { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
+    { id: 'user', label: 'User', orderKey: 'name', defaultOrder: 'asc' },
+    { id: 'email', label: 'Email', orderKey: 'email', defaultOrder: 'asc' },
+    { id: 'discordid', label: 'Discord ID', orderKey: 'discordid', defaultOrder: 'asc' },
+    { id: 'steamid', label: 'Steam ID', orderKey: 'steamid', defaultOrder: 'asc' },
+    { id: 'truckersmpid', label: 'TruckersMP ID', orderKey: 'truckersmpid', defaultOrder: 'asc' },
     { id: 'reason', label: 'Ban Reason' },
     { id: 'expire', label: 'Expire' }
 ];
@@ -46,12 +47,14 @@ const ExternalUsers = () => {
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
     const [search, setSearch] = useState("");
+    const [listParam, setListParam] = useState({ order_by: "uid", order: "desc" });
 
     const [banList, setBanList] = useState([]);
     const [banTotalItems, setBanTotalItems] = useState(0);
     const [banPage, setBanPage] = useState(-1);
     const [banPageSize, setBanPageSize] = useState(10);
     const [banSearch, setBanSearch] = useState("");
+    const [banListParam, setBanListParam] = useState({ order_by: "uid", order: "desc" });
 
     const unbanUser = useCallback(async (meta) => {
         meta = removeNullValues(meta);
@@ -72,14 +75,16 @@ const ExternalUsers = () => {
         let myPage = page;
         myPage === -1 ? myPage = 1 : myPage += 1;
 
+        let processedParam = removeNUEValues(listParam);
+
         let [_userList] = [{}];
         if (search === "")
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/list?order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}`, auth: true },
+                { url: `${vars.dhpath}/user/list?order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/list?query=${search}&order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}`, auth: true },
+                { url: `${vars.dhpath}/user/list?query=${search}&order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
             let [_userProfile] = await makeRequestsAuto([
@@ -97,7 +102,7 @@ const ExternalUsers = () => {
                 let user = _userList.list[i];
                 let banMark = <></>;
                 if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
-                newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} /> });
+                newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} /> });
             }
             setUserList(newUserList);
             setTotalItems(_userList.total_items);
@@ -105,7 +110,7 @@ const ExternalUsers = () => {
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [theme, page, pageSize, search]);
+    }, [theme, page, pageSize, search, listParam]);
     const doLoadBan = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
@@ -113,14 +118,16 @@ const ExternalUsers = () => {
         let myBanPage = banPage;
         myBanPage === -1 ? myBanPage = 1 : myBanPage += 1;
 
+        let processedParam = removeNUEValues(banListParam);
+
         let [_banList] = [{}];
         if (banSearch === "")
             [_banList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/ban/list?order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}`, auth: true },
+                { url: `${vars.dhpath}/user/ban/list?order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (isNaN(banSearch) || !isNaN(banSearch) && (banSearch.length < 17 || banSearch.length > 19)) // not discord id
             [_banList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/ban/list?query=${banSearch}&order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}`, auth: true },
+                { url: `${vars.dhpath}/user/ban/list?query=${banSearch}&order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
             let [_banProfile] = await makeRequestsAuto([
@@ -147,7 +154,7 @@ const ExternalUsers = () => {
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [theme, banPage, banPageSize, banSearch]);
+    }, [theme, banPage, banPageSize, banSearch, banListParam]);
     useEffect(() => {
         doLoadUser();
     }, [doLoadUser]);
@@ -167,8 +174,8 @@ const ExternalUsers = () => {
     }, [doLoadUser, doLoadBan]);
 
     return <>
-        <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;External Users</>} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(-1); setSearch(content); }} searchHint="Search by username or discord id" />
-        <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;Banned Users</>} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(-1); setBanSearch(content); }} searchHint="Search by ban reason or discord id" />
+        <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;External Users</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(-1); setSearch(content); }} searchHint="Search by username or discord id" />
+        <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;Banned Users</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(-1); setBanSearch(content); }} searchHint="Search by ban reason or discord id" />
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

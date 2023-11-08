@@ -7,18 +7,18 @@ import CustomTable from '../components/table';
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
 
 const columns = [
-    { id: 'id', label: 'ID' },
-    { id: 'type', label: 'Type' },
-    { id: 'submit', label: 'Submit' },
-    { id: 'update', label: 'Update' },
-    { id: 'user', label: 'User' },
-    { id: 'staff', label: 'Staff' },
-    { id: 'status', label: 'Status' }
+    { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
+    { id: 'type', label: 'Type', orderKey: 'type', defaultOrder: 'asc' },
+    { id: 'submit', label: 'Submit Time', orderKey: 'submit_timestamp', defaultOrder: 'desc' },
+    { id: 'update', label: 'Update Time', orderKey: 'respond_timestamp', defaultOrder: 'desc' },
+    { id: 'user', label: 'User (Order by UID)', orderKey: 'applicant_uid', defaultOrder: 'desc' },
+    { id: 'staff', label: 'Staff (Order by User ID)', orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
+    { id: 'status', label: 'Status', orderKey: 'status', defaultOrder: 'asc' }
 ];
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
@@ -28,6 +28,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
+    const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();
     const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
@@ -36,6 +37,8 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
+
+            let processedParam = removeNUEValues(listParam);
 
             let [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = [{}, {}];
 
@@ -53,12 +56,12 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=2`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${vars.userInfo.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${vars.userInfo.userid}`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${myPage}&page_size=${pageSize}&order_by=submit_timestamp&order=desc`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setStats([_pending.total_items, _accepted.total_items, _declined.total_items, _respondedM.total_items, _respondedAT.total_items]);
             } else {
                 [_applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${myPage}&page_size=${pageSize}&order_by=submit_timestamp&order=desc`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newApplications = [];
@@ -74,7 +77,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize, STATUS, doReload]);
+    }, [page, pageSize, STATUS, doReload, listParam]);
 
     function handleClick(data) {
         showDetail(data.application);
@@ -113,7 +116,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                 </Card>
             </Grid>
         </Grid>}
-        {applications.length > 0 && <CustomTable columns={columns} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        {applications.length > 0 && <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
     </>;
 });
 

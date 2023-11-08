@@ -7,17 +7,17 @@ import CustomTable from '../components/table';
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
 
 const columns = [
-    { id: 'id', label: 'ID' },
-    { id: 'type', label: 'Type' },
-    { id: 'submit', label: 'Submit' },
-    { id: 'update', label: 'Update' },
-    { id: 'staff', label: 'Staff' },
-    { id: 'status', label: 'Status' }
+    { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
+    { id: 'type', label: 'Type', orderKey: 'type', defaultOrder: 'asc' },
+    { id: 'submit', label: 'Submit Time', orderKey: 'submit_timestamp', defaultOrder: 'desc' },
+    { id: 'update', label: 'Update Time', orderKey: 'respond_timestamp', defaultOrder: 'desc' },
+    { id: 'staff', label: 'Staff (Order by User ID)', orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
+    { id: 'status', label: 'Status', orderKey: 'status', defaultOrder: 'asc' }
 ];
 
 const ApplicationTable = memo(({ showDetail }) => {
@@ -27,6 +27,7 @@ const ApplicationTable = memo(({ showDetail }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(-1);
     const [pageSize, setPageSize] = useState(10);
+    const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();
     const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
@@ -35,6 +36,8 @@ const ApplicationTable = memo(({ showDetail }) => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
+
+            let processedParam = removeNUEValues(listParam);
 
             let [_recent, _applications] = [{}, {}];
 
@@ -48,12 +51,12 @@ const ApplicationTable = memo(({ showDetail }) => {
             if (page === -1) {
                 [_recent, _applications] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/applications/list?page=1&page_size=2&order_by=submit_timestamp&order=desc`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&order_by=submit_timestamp&order=desc`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setRecent(_recent.list);
             } else {
                 [_applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&order_by=submit_timestamp&order=desc`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newApplications = [];
@@ -69,7 +72,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             window.dispatchEvent(loadingEnd);
         }
         doLoad();
-    }, [page, pageSize, STATUS]);
+    }, [page, pageSize, STATUS, listParam]);
 
     function handleClick(data) {
         showDetail(data.application);
@@ -110,7 +113,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 </Grid>
             }
         </Grid>}
-        {applications !== null && <CustomTable columns={columns} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
+        {applications !== null && <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} data={applications} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
     </>;
 });
 
