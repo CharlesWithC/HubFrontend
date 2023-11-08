@@ -21,6 +21,10 @@
 17. Added OTP Input when disabling MFA of other users (as required by API)
 18. Added "Accepted as driver" option when accepting applications
 19. Added table ordering buttons (Deliveries, Challenges, My Applications, All Applications, Member List, External Users, Banned Users)
+20. Improved challenge tab
+    - Added tooltip over status icon
+    - Added ID after company/city/cargo name when updating job requirements
+    - Prevented showing default values like -1 when attribute is not set in job requirements
 
 ## v3.0.0
 

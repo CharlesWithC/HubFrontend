@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox } from '@mui/material';
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { Portal } from '@mui/base';
@@ -75,7 +75,7 @@ const DEFAULT_JOB_REQUIREMENTS = {
     must_be_special: "0",
     minimum_warp: "-1",
     maximum_warp: "-1",
-    required_realistic_settings: "-1"
+    enabled_realistic_settings: "-1"
 };
 
 const columns = [
@@ -158,21 +158,36 @@ function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) 
         let qualified = checkUserRole(challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
         let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
         let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
-            ? <PlayCircleRounded sx={{ color: theme.palette.success.main }} />
+            ? <Tooltip key={`ongoing-status`} placement="top" arrow title="Ongoing"
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                <PlayCircleRounded sx={{ color: theme.palette.success.main }} />
+            </Tooltip>
             : challenge.start_time * 1000 > Date.now()
-                ? challenge.start_time * 1000 > Date.now() + 86400 ? <ScheduleRounded sx={{ color: theme.palette.info.main }} /> :
-                    <HourglassBottomRounded sx={{ color: theme.palette.info.main }} />
-                : <StopCircleRounded sx={{ color: theme.palette.error.main }} />;
+                ? challenge.start_time * 1000 > Date.now() + 86400 ? <Tooltip key={`upcoming-status`} placement="top" arrow title="Upcoming"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <ScheduleRounded sx={{ color: theme.palette.info.main }} />
+                </Tooltip> :
+                    <Tooltip key={`upcoming-status`} placement="top" arrow title="Upcoming"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <HourglassBottomRounded sx={{ color: theme.palette.info.main }} />
+                    </Tooltip>
+                : <Tooltip key={`ended-status`} placement="top" arrow title="Ended"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <StopCircleRounded sx={{ color: theme.palette.error.main }} />
+                </Tooltip>;
         challenges[i].metaStatus = <>{statusIcon}&nbsp;
-            {qualified && <>
+            {qualified && <Tooltip key={`qualified-status`} placement="top" arrow title="Qualified"
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <DoneOutlineRounded sx={{ color: theme.palette.success.main }} />&nbsp;
-            </>}
-            {!qualified && <>
+            </Tooltip>}
+            {!qualified && <Tooltip key={`not-qualified-status`} placement="top" arrow title="Not Qualified"
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <BlockRounded sx={{ color: theme.palette.error.main }} />&nbsp;
-            </>}
-            {completed && <>
+            </Tooltip>}
+            {completed && <Tooltip key={`completed-status`} placement="top" arrow title="Completed"
+                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <TaskAltRounded sx={{ color: theme.palette.warning.main }} />&nbsp;
-            </>}</>;
+            </Tooltip>}</>;
 
         challenges[i].metaControls = <ControlButtons challenge={challenges[i]} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />;
     }
@@ -566,7 +581,7 @@ const Challenges = () => {
             must_be_special: "Must Be Special",
             minimum_warp: "Minimum Warp",
             maximum_warp: "Maximum Warp",
-            required_realistic_settings: "Required Realistic Settings (Trucky)"
+            enabled_realistic_settings: "Enabled Realistic Settings (Trucky)"
         };
 
         return fieldNames[key] || key;
@@ -771,7 +786,7 @@ const Challenges = () => {
                     </Grid>
                 </form>
                 {/* Job Requirements section */}
-                <Typography variant="h6" style={{ marginTop: "20px" }}>
+                <Typography variant="h6" style={{ marginTop: "20px", marginBottom: "5px" }}>
                     Job Requirements
                 </Typography>
                 <Grid container spacing={2}>
@@ -780,14 +795,14 @@ const Challenges = () => {
                             <Grid item xs={12} sm={6} key={key}>
                                 <Typography variant="body2">{formatFieldName(key)}</Typography>
                                 <CreatableSelect
-                                    defaultValue={value.split(",").splice(Number(value === "")).map((cityID) => ({ value: cityID, label: cityIDs[cityID] !== undefined ? cityIDs[cityID] : cityID }))}
+                                    defaultValue={value.split(",").splice(Number(value === "")).map((cityID) => ({ value: cityID, label: cityIDs[cityID] !== undefined ? `${cityIDs[cityID]} (${cityID})` : cityID }))}
                                     isMulti
                                     name="colors"
-                                    options={Object.keys(cityIDs).map((cityID) => ({ value: cityID, label: cityIDs[cityID] }))}
+                                    options={Object.keys(cityIDs).map((cityID) => ({ value: cityID, label: `${cityIDs[cityID]} (${cityID})` }))}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     styles={customSelectStyles(theme)}
-                                    value={value.split(",").splice(Number(value === "")).map((cityID) => ({ value: cityID, label: cityIDs[cityID] !== undefined ? cityIDs[cityID] : cityID }))}
+                                    value={value.split(",").splice(Number(value === "")).map((cityID) => ({ value: cityID, label: cityIDs[cityID] !== undefined ? `${cityIDs[cityID]} (${cityID})` : cityID }))}
                                     onChange={(newIDs) => {
                                         setModalChallenge({
                                             ...modalChallenge,
@@ -802,14 +817,14 @@ const Challenges = () => {
                             <Grid item xs={12} sm={6} key={key}>
                                 <Typography variant="body2">{formatFieldName(key)}</Typography>
                                 <CreatableSelect
-                                    defaultValue={value.split(",").splice(Number(value === "")).map((companyID) => ({ value: companyID, label: companyIDs[companyID] !== undefined ? companyIDs[companyID] : companyID }))}
+                                    defaultValue={value.split(",").splice(Number(value === "")).map((companyID) => ({ value: companyID, label: companyIDs[companyID] !== undefined ? `${companyIDs[companyID]} (${companyID})` : companyID }))}
                                     isMulti
                                     name="colors"
-                                    options={Object.keys(companyIDs).map((companyID) => ({ value: companyID, label: companyIDs[companyID] }))}
+                                    options={Object.keys(companyIDs).map((companyID) => ({ value: companyID, label: `${companyIDs[companyID]} (${companyID})` }))}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     styles={customSelectStyles(theme)}
-                                    value={value.split(",").splice(Number(value === "")).map((companyID) => ({ value: companyID, label: companyIDs[companyID] !== undefined ? companyIDs[companyID] : companyID }))}
+                                    value={value.split(",").splice(Number(value === "")).map((companyID) => ({ value: companyID, label: companyIDs[companyID] !== undefined ? `${companyIDs[companyID]} (${companyID})` : companyID }))}
                                     onChange={(newIDs) => {
                                         setModalChallenge({
                                             ...modalChallenge,
@@ -824,14 +839,14 @@ const Challenges = () => {
                             <Grid item xs={12} sm={6} key={key} style={{ paddingTop: "5px" }}>
                                 <Typography variant="body2">{formatFieldName(key)}</Typography>
                                 <CreatableSelect
-                                    defaultValue={value.split(",").splice(Number(value === "")).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] !== undefined ? cargoIDs[cargoID] : cargoID }))}
+                                    defaultValue={value.split(",").splice(Number(value === "")).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] !== undefined ? `${cargoIDs[cargoID]} (${cargoID})` : cargoID }))}
                                     isMulti
                                     name="colors"
-                                    options={Object.keys(cargoIDs).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] }))}
+                                    options={Object.keys(cargoIDs).map((cargoID) => ({ value: cargoID, label: `${cargoIDs[cargoID]} (${cargoID})` }))}
                                     className="basic-multi-select"
                                     classNamePrefix="select"
                                     styles={customSelectStyles(theme)}
-                                    value={value.split(",").splice(Number(value === "")).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] !== undefined ? cargoIDs[cargoID] : cargoID }))}
+                                    value={value.split(",").splice(Number(value === "")).map((cargoID) => ({ value: cargoID, label: cargoIDs[cargoID] !== undefined ? `${cargoIDs[cargoID]} (${cargoID})` : cargoID }))}
                                     onChange={(newIDs) => {
                                         setModalChallenge({
                                             ...modalChallenge,
@@ -846,7 +861,7 @@ const Challenges = () => {
                             <Grid item xs={12} sm={6} key={key}>
                                 <TextField
                                     label={formatFieldName(key)}
-                                    value={value}
+                                    defaultValue={value !== DEFAULT_JOB_REQUIREMENTS[key] && value !== parseInt(DEFAULT_JOB_REQUIREMENTS[key]) ? value : ""}
                                     onChange={(e) =>
                                         setModalChallenge({
                                             ...modalChallenge,
