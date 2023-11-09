@@ -59,6 +59,9 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
     for (let i = 0; i < config.length; i++) {
         if (config[i].type !== "info") {
             defaultResp[config[i].label] = "";
+            if (config[i].x_must_be !== undefined && config[i].x_must_be.label !== undefined && config[i].x_must_be.value !== undefined) {
+                fieldReq[config[i].label] = { ...fieldReq[config[i].label], x_must_be: config[i].x_must_be };
+            }
             if (["text", "textarea"].includes(config[i].type)) {
                 fieldReq[config[i].label] = { ...fieldReq[config[i].label], min_length: config[i].min_length };
             }
@@ -91,6 +94,47 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         formData = defaultResp;
     }
 
+    let modified = false;
+    let newFormData = JSON.parse(JSON.stringify(formData));
+    let allLabels = [];
+    let duplicateLabels = [];
+    for (let i = 0; i < config.length; i++) {
+        let field = config[i];
+        allLabels.push(field.label);
+    }
+    for (let i = 0; i < allLabels.length; i++) {
+        for (let j = i + 1; j < allLabels.length; j++) {
+            if (allLabels[i] === allLabels[j]) {
+                duplicateLabels.push(allLabels[i]);
+            }
+        }
+    }
+    for (let i = 0; i < config.length; i++) {
+        let field = config[i];
+        if (duplicateLabels.includes(field.label)) {
+            continue;
+        }
+        if (field.x_must_be !== undefined) {
+            if (formData[field.x_must_be.label] !== field.x_must_be.value) {
+                if (formData[field.label] !== undefined) {
+                    // set it to undefined for submit handler to filter the field out
+                    newFormData[field.label] = undefined;
+                    modified = true;
+                }
+            } else {
+                if (formData[field.label] === undefined) {
+                    newFormData[field.label] = "";
+                    modified = true;
+                }
+            }
+        }
+    }
+    if (modified) {
+        setSubmitDisabled(true);
+        setFormData(newFormData);
+        return <></>;
+    }
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(data => ({ ...data, [name]: value }));
@@ -98,7 +142,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         const formKeys = Object.keys(newFormData);
         let allOk = true;
         for (let i = 0; i < formKeys.length; i++) {
-            if (fieldReq[formKeys[i]] !== undefined) {
+            if (fieldReq[formKeys[i]] !== undefined && newFormData[formKeys[i]] !== undefined) {
                 if (fieldReq[formKeys[i]].min_length !== undefined) {
                     if (newFormData[formKeys[i]].length < fieldReq[formKeys[i]].min_length) {
                         setSubmitDisabled(true);
@@ -160,6 +204,11 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
         <form>
             <Grid container spacing={2}>
                 {config.map(field => {
+                    if (field.x_must_be !== undefined) {
+                        if (formData[field.x_must_be.label] !== field.x_must_be.value) {
+                            return <></>;
+                        }
+                    }
                     let ret = <></>;
                     switch (field.type) {
                         case 'info':
@@ -254,7 +303,6 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                                     name={field.label}
                                     value={formData[field.label]}
                                     onChange={handleChange}
-                                    sx={{ marginTop: "6px", height: "30px" }}
                                     size="small" fullWidth
                                 >
                                     {field.choices.map(choice => (
@@ -338,8 +386,8 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
 const NewApplication = () => {
     // FOR LOCAL TESTING PURPOSE
-    if (window.location.pathname === "localhost") {
-        applicationTypes = [
+    if (window.location.hostname === "localhost") {
+        let applicationTypes = [
             {
                 "id": 1,
                 "name": "Driver",
@@ -467,9 +515,198 @@ const NewApplication = () => {
             },
             {
                 "id": 4,
-                "name": "Division"
+                "name": "Division",
+                "form": [
+                    {
+                        "type": "dropdown",
+                        "label": "Choose a division",
+                        "choices": ["Agricultural", "Chilled", "Construction", "Hazmat"],
+                        "must_input": true
+                    },
+
+
+                    {
+                        "type": "radio",
+                        "label": "Have you read the Construction Division Handbook?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "Why do you want to join the Construction Division?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the biggest difference between hauling construction loads (heavy haulage & flatbed) compared to normal loads?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is a flatbed trailer designed to haul?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "After the first 50 miles, how often should you stop and check your load?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the only time it is appropriate to stop on the shoulder of the road?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+                    {
+                        "type": "radio",
+                        "label": "In the Construction Division, you are required to complete 5 deliveries of 95+ miles / 152+ km with construction loads per month. Do you agree to meet the monthly requirement?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Construction" }
+                    },
+
+
+                    {
+                        "type": "radio",
+                        "label": "Have you read the Chilled Division Handbook?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "Why do you want to join the Chilled Division?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the minimum number of miles driven in order for a delivery to be considered a division delivery?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What temperature should you set the trailer at when you are transporting fresh meats?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "When should you set the temperature for your trailer?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What temperature should you set the trailer when you are transporting small plants?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+                    {
+                        "type": "radio",
+                        "label": "In the Chilled Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Chilled" }
+                    },
+
+
+                    {
+                        "type": "radio",
+                        "label": "Have you read the Hazmat Division Handbook?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "Why do you want to join the Hazmat Division?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the minimum number of miles driven in order for a delivery to be considered a division delivery?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the max damage accepted to be validated for a Hazmat Division delivery? (Please provide in %)",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "In the event of an emergency, what do you have to do?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the requirement when there is bad weather and vision is less than 200 meters?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+                    {
+                        "type": "radio",
+                        "label": "In the Hazmat Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Hazmat" }
+                    },
+
+
+                    {
+                        "type": "radio",
+                        "label": "Have you read the Agricultural Division Handbook?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Agricultural" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "Why do you want to join the Agricultural Division?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Agricultural" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "What is the minimum number of miles driven in order for a delivery to be considered a division delivery?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Agricultural" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "If using a Refrigerated trailer for a delivery, what temperature would it need to be to transport Beef?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Agricultural" }
+                    },
+                    {
+                        "type": "text",
+                        "label": "In a curtainsider, how often would you use straps?",
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Agricultural" }
+                    },
+                    {
+                        "type": "radio",
+                        "label": "In the Agricultural Division, you are required to meet a certain requirement to remain in the Division. Do you agree to meet the monthly requirement?",
+                        "choices": ["Yes", "No"],
+                        "must_input": true,
+                        "x_must_be": { "label": "Choose a division", "value": "Agricultural" }
+                    }
+                ]
             }
         ];
+        for (let i = 0; i < applicationTypes.length; i++) {
+            vars.applicationTypes[applicationTypes[i].id] = applicationTypes[i];
+        }
     }
 
     const theme = useTheme();
@@ -489,11 +726,14 @@ const NewApplication = () => {
     const handleSubmit = useCallback(async () => {
         setSubmitDisabled(true);
 
-        let modFormData = formData;
+        let modFormData = JSON.parse(JSON.stringify(formData));
         let keys = Object.keys(modFormData);
         for (let i = 0; i < keys.length; i++) {
             if (modFormData[keys[i]] instanceof Array) {
                 modFormData[keys[i]] = modFormData[keys[i]].join(", ");
+            }
+            if (modFormData[keys[i]] === undefined) {
+                delete modFormData[keys[i]];
             }
         }
 
@@ -524,7 +764,7 @@ const NewApplication = () => {
                 key="Application Type"
                 name="Application Type"
                 value={selectedType}
-                onChange={(e) => { setSelectedType(e.target.value); setFormData(null); }}
+                onChange={(e) => { setSelectedType(e.target.value); setSubmitDisabled(true); setFormData(null); }}
                 sx={{ marginTop: "6px", height: "30px" }}
                 size="small"
             >

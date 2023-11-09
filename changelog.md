@@ -29,6 +29,7 @@
     - Added `min_length` attribute for `text`, `textarea`
     - Added `must_input` attribute for `text`, `textarea`, `date`, `datetime`, `number`, `dropdown`, `radio`, `checkbox`
     - Added `min_value` and `max_value` attribute for `number`
+    - Added `x_must_be = {"key": "{label}", "value": "..."}` attribute to show field when a certain field has a certain value
 
 ## v3.0.0
 
