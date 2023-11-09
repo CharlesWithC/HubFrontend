@@ -25,6 +25,10 @@
     - Added tooltip over status icon
     - Added ID after company/city/cargo name when updating job requirements
     - Prevented showing default values like -1 when attribute is not set in job requirements
+21. Improved application form configuration
+    - Added `min_length` attribute for `text`, `textarea`
+    - Added `must_input` attribute for `text`, `textarea`, `date`, `datetime`, `number`, `dropdown`, `radio`, `checkbox`
+    - Added `min_value` and `max_value` attribute for `number`
 
 ## v3.0.0
 

@@ -18,3 +18,4 @@ Brand new start: V3 with ReactJS!
 4. (TODO) Batch update roles
 5. (TODO) Prune users (inactive non-members)
 6. (TODO) Batch dismiss members (manual select / support auto select based on activity like last job or last online)
+7. Advanced form builder
