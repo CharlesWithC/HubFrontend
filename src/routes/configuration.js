@@ -1543,7 +1543,10 @@ const Configuration = () => {
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("general"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("general"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -1563,7 +1566,10 @@ const Configuration = () => {
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("profile"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("profile"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -1586,7 +1592,10 @@ const Configuration = () => {
                                     <Grid container>
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                         <Grid item xs={12} sm={6} md={4} lg={2}>
-                                            <Button variant="contained" color="success" onClick={() => { saveFormConfig("tracker"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            <ButtonGroup fullWidth>
+                                                <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("tracker"); }} disabled={apiConfigDisabled}>Save</Button>
+                                            </ButtonGroup>
                                         </Grid>
                                     </Grid>
                                 </Grid>
@@ -1608,7 +1617,10 @@ const Configuration = () => {
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("dlog"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("dlog"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -1632,7 +1644,10 @@ const Configuration = () => {
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("discord-steam"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("discord-steam"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -1655,7 +1670,10 @@ const Configuration = () => {
                                     <Grid container>
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                         <Grid item xs={12} sm={6} md={4} lg={2}>
-                                            <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                            <ButtonGroup fullWidth>
+                                                <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} disabled={apiConfigDisabled}>Save</Button>
+                                            </ButtonGroup>
                                         </Grid>
                                     </Grid>
                                 </Grid>
@@ -1678,7 +1696,10 @@ const Configuration = () => {
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
                                             <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("smtp"); }} fullWidth disabled={apiConfigDisabled}>Save</Button>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("smtp"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
                                             </Grid>
                                         </Grid>
                                     </Grid>
