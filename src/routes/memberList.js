@@ -16,8 +16,8 @@ const columns = [
     { id: 'userid', label: 'User ID', orderKey: 'userid', defaultOrder: 'asc' },
     { id: 'user', label: 'User', orderKey: 'name', defaultOrder: 'asc' },
     { id: 'discordid', label: 'Discord ID', orderKey: 'discordid', defaultOrder: 'asc' },
-    { id: 'steamid', label: 'Steam ID' },
-    { id: 'truckersmpid', label: 'TruckersMP ID' },
+    { id: 'steamid', label: 'Steam ID', orderKey: 'steamid', defaultOrder: 'asc' },
+    { id: 'truckersmpid', label: 'TruckersMP ID', orderKey: 'truckersmpid', defaultOrder: 'asc' },
     { id: 'joined', label: 'Joined', orderKey: 'join_timestamp', defaultOrder: 'asc' },
     { id: 'last_seen', label: 'Last Seen', orderKey: 'last_seen', defaultOrder: 'desc' }
 ];
@@ -86,7 +86,7 @@ const MemberList = () => {
 
         let myPage = page;
         myPage === -1 ? myPage = 1 : myPage += 1;
-        
+
         let processedParam = removeNUEValues(listParam);
 
         let [_userList] = [{}];
@@ -96,7 +96,7 @@ const MemberList = () => {
             ]);
         else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/member/list?query=${search}&order=desc&order_by=userid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${vars.dhpath}/member/list?name=${search}&order=desc&order_by=userid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
             let [_userProfile] = await makeRequestsAuto([

@@ -13,11 +13,11 @@ var vars = require("../variables");
 
 const columns = [
     { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
-    { id: 'type', label: 'Type', orderKey: 'type', defaultOrder: 'asc' },
+    { id: 'type', label: 'Type' },
     { id: 'submit', label: 'Submit Time', orderKey: 'submit_timestamp', defaultOrder: 'desc' },
     { id: 'update', label: 'Update Time', orderKey: 'respond_timestamp', defaultOrder: 'desc' },
     { id: 'staff', label: 'Staff (Order by User ID)', orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
-    { id: 'status', label: 'Status', orderKey: 'status', defaultOrder: 'asc' }
+    { id: 'status', label: 'Status' }
 ];
 
 const ApplicationTable = memo(({ showDetail }) => {

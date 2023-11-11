@@ -84,7 +84,7 @@ const ExternalUsers = () => {
             ]);
         else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/list?query=${search}&order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${vars.dhpath}/user/list?name=${search}&order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
             let [_userProfile] = await makeRequestsAuto([
@@ -127,7 +127,7 @@ const ExternalUsers = () => {
             ]);
         else if (isNaN(banSearch) || !isNaN(banSearch) && (banSearch.length < 17 || banSearch.length > 19)) // not discord id
             [_banList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/ban/list?query=${banSearch}&order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${vars.dhpath}/user/ban/list?name=${banSearch}&order=desc&order_by=uid&page=${myBanPage}&page_size=${banPageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(banSearch) && banSearch.length >= 17 && banSearch.length <= 19) { // is discord id
             let [_banProfile] = await makeRequestsAuto([
@@ -175,7 +175,7 @@ const ExternalUsers = () => {
 
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;External Users</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(-1); setSearch(content); }} searchHint="Search by username or discord id" />
-        <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;Banned Users</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(-1); setBanSearch(content); }} searchHint="Search by ban reason or discord id" />
+        <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;Banned Users</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(-1); setBanSearch(content); }} searchHint="Search by username or discord id" />
         <Portal>
             <Snackbar
                 open={!!snackbarContent}

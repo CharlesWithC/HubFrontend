@@ -93,7 +93,7 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
                         <TableHead key={`table-head`}>
                             <TableRow key={`row-head`}>
                                 {columns.map((column, idx) => (
-                                    <TableCell key={`cell-${idx}`}>
+                                    <TableCell key={`cell-${idx}`} onClick={(e) => { e.preventDefault(); column.orderKey !== undefined ? (column.orderKey !== orderBy ? onOrderingUpdate(column.orderKey, column.defaultOrder) : (column.orderKey === orderBy && order === "asc" ? onOrderingUpdate(column.orderKey, "desc") : onOrderingUpdate(column.orderKey, "asc"))) : undefined; }} sx={column.orderKey !== undefined ? { cursor: "pointer" } : {}}>
                                         {column.label}
                                         {column.orderKey !== undefined && <>&nbsp;
                                             {column.orderKey !== orderBy && <FontAwesomeIcon onClick={() => onOrderingUpdate(column.orderKey, column.defaultOrder)} icon={faArrowsUpDown} style={{ opacity: 0.5, cursor: "pointer" }} />}
