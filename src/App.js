@@ -158,6 +158,8 @@ function App() {
         }
     }, [loaded, chubRecruitmentModalOpen]);
 
+    const hasSpeedDial = (["/announcement", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
+
     if (!loaded) {
         return (
             <ThemeProvider theme={theme}>
@@ -329,7 +331,7 @@ function App() {
                                         <br />
                                         <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
                                     </Typography>
-                                    <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800 }}>
+                                    <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                         {vars.dhconfig.name}
                                         <br />
                                         API: v{vars.apiversion} | Client: v3.0.1
