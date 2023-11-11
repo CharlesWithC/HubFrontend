@@ -362,6 +362,7 @@ const UserCard = (props) => {
         }
     }, [uid, setRoleHistory, setBanHistory]);
 
+    const bannerRef = useRef(null);
     const uidRef = useRef(uid);
     const useridRef = useRef(userid);
     const bioRef = useRef(bio);
@@ -731,7 +732,8 @@ const UserCard = (props) => {
 
     let profileModal = <Dialog open={true} onClose={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); }} fullWidth >
         <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
-            <CardMedia
+            {!vars.userSettings.data_saver && <CardMedia
+                ref={bannerRef}
                 component="img"
                 image={profile_banner_url}
                 onError={(event) => {
@@ -739,28 +741,30 @@ const UserCard = (props) => {
                 }}
                 alt=""
                 sx={{ borderRadius: "5px 5px 0 0" }}
-            />
+            />}
             <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                        <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            {nameRef.current}
-                        </Typography>
-                        <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                            {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
-                            {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
-                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
-                            {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
-                        </Typography>
+                    <div>
+                        <div style={{ display: "flex", flexDirection: "row" }}>
+                            <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                {nameRef.current}
+                            </Typography>
+                            <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                                {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
+                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
+                                {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                            </Typography>
+                        </div>
+                        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
+                            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
+                                <Tab label="User Info" {...tabBtnProps(0, tab, theme)} />
+                                <Tab label="Statistics" {...tabBtnProps(1, tab, theme)} />
+                                <Tab label="Deliveries" {...tabBtnProps(2, tab, theme)} />
+                            </Tabs>
+                        </Box>
                     </div>
-                    <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
-                        <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                            <Tab label="User Info" {...tabBtnProps(0, tab, theme)} />
-                            <Tab label="Statistics" {...tabBtnProps(1, tab, theme)} />
-                            <Tab label="Deliveries" {...tabBtnProps(2, tab, theme)} />
-                        </Tabs>
-                    </Box>
-                    <SimpleBar style={{ height: "45vh" }}>
+                    <SimpleBar style={{ height: `calc(100vh - 310px - ${(bannerRef.current !== null && bannerRef.current.height !== 0 ? bannerRef.current.height : 104.117)}px)` }}>
                         <TabPanel value={tab} index={0}>
                             {bioRef.current !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
@@ -880,8 +884,12 @@ const UserCard = (props) => {
                                     {truckersmpidRef.current !== undefined && truckersmpidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
                                         <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
-                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/img/avatar.png" /></Tooltip>}
-                                            label={<>{truckersmpidRef.current} {tmpLastOnline !== null ? <><br />(Last seen: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} />)</> : <></>}</>}
+                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="https://truckersmp.com/assets/icons/favicon-32x32.png" /></Tooltip>}
+                                            label={<>{tmpLastOnline === null ? truckersmpidRef.current : <Tooltip placement="top" arrow
+                                                title={<>Last seen: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
+                                                PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                                                {truckersmpidRef.current}
+                                            </Tooltip>}</>}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -1466,7 +1474,7 @@ const UserCard = (props) => {
             onClose={(e) => { updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
             <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
-                <CardMedia
+                {!vars.userSettings.data_saver && <CardMedia
                     component="img"
                     image={profile_banner_url}
                     onError={(event) => {
@@ -1474,7 +1482,7 @@ const UserCard = (props) => {
                     }}
                     alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}
-                />
+                />}
                 <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
                     <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
                         <div style={{ display: "flex", flexDirection: "row" }}>

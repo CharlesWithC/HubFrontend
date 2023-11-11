@@ -11,10 +11,10 @@ import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
-import { HexColorPicker, HexColorInput } from "react-colorful";
 
 import { makeRequestsWithAuth, customAxios as axios, getAuthToken, makeRequestsAuto } from '../functions';
 import { useRef } from 'react';
+import ColorInput from '../components/colorInput';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } from '@fortawesome/free-brands-svg-icons';
@@ -1268,15 +1268,13 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color</Typography>
                     <br />
-                    <HexColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} />
-                    <HexColorPicker color={userSettings.theme_main} onChange={updateThemeMainColor} />
+                    <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} disableDefault={true} />
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
                     <br />
-                    <HexColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} />
-                    <HexColorPicker color={userSettings.theme_background} onChange={updateThemeBackgroundColor} />
+                    <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} disableDefault={true} />
                 </Grid>
             </Grid>
             <Divider sx={{ mt: "20px", mb: "20px" }} />
@@ -1289,41 +1287,17 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color</Typography>
                     <br />
-                    <input type="text" value={remoteUserConfig.name_color.replaceAll("#", "")} onChange={(event) => {
-                        const newValue = event.target.value.replaceAll("#", "");
-                        if ((newValue.length <= 6 && !isNaN(parseInt(newValue, 16)))) {
-                            setRemoteUserConfig({ ...remoteUserConfig, name_color: "#" + newValue });
-                        } else if (newValue === "/" || newValue === "") {
-                            setRemoteUserConfig({ ...remoteUserConfig, name_color: newValue });
-                        }
-                    }} />
-                    {remoteUserConfig.name_color !== "/" && <HexColorPicker color={remoteUserConfig.name_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} />}
+                    <ColorInput color={remoteUserConfig.name_color} onChange={(val) => { console.log(val); setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Popover Color (Upper)</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Upper)</Typography>
                     <br />
-                    <input type="text" value={remoteUserConfig.profile_upper_color.replaceAll("#", "")} onChange={(event) => {
-                        const newValue = event.target.value.replaceAll("#", "");
-                        if ((newValue.length <= 6 && !isNaN(parseInt(newValue, 16)))) {
-                            setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: "#" + newValue });
-                        } else if (newValue === "/" || newValue === "") {
-                            setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: newValue });
-                        }
-                    }} />
-                    {remoteUserConfig.profile_upper_color !== "/" && <HexColorPicker color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} />}
+                    <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { console.log(val); setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Popover Color (Lower)</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Lower)</Typography>
                     <br />
-                    <input type="text" value={remoteUserConfig.profile_lower_color.replaceAll("#", "")} onChange={(event) => {
-                        const newValue = event.target.value.replaceAll("#", "");
-                        if ((newValue.length <= 6 && !isNaN(parseInt(newValue, 16)))) {
-                            setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: "#" + newValue });
-                        } else if (newValue === "/" || newValue === "") {
-                            setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: newValue });
-                        }
-                    }} />
-                    {remoteUserConfig.profile_lower_color !== "/" && <HexColorPicker color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} />}
+                    <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} />
                 </Grid>
                 <Grid item xs={12} sm={12} md={8} lg={8}>
                     <TextField
