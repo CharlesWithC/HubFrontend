@@ -4,6 +4,7 @@ import { Portal } from '@mui/base';
 
 import { customAxios as axios, getAuthToken } from '../functions';
 import { useTheme } from '@emotion/react';
+import { useNavigate } from 'react-router-dom';
 
 var vars = require("../variables");
 
@@ -710,6 +711,7 @@ const NewApplication = () => {
     }
 
     const theme = useTheme();
+    const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState(null);
     const listTypes = Object.values(vars.applicationTypes);
     const [enableNotifications, setEnableNotifications] = useState(true);
@@ -747,6 +749,7 @@ const NewApplication = () => {
             setSnackbarContent("Application submitted!");
             setSnackbarSeverity("success");
             setFormData(null);
+            navigate("/application/my");
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
