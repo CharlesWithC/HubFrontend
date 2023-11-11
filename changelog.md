@@ -32,6 +32,7 @@
     - Added `x_must_be = {"key": "{label}", "value": "..."}` attribute to show field when a certain field has a certain value
 22. Added data saver mode
 23. Improved color picker
+24. Added font size settings (experimental)
 
 ## v3.0.0
 

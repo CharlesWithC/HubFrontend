@@ -70,7 +70,7 @@ function App() {
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const [themeMode, updateThemeMode] = useState(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
-    const [designTokens, setDesignTokens] = useState(getDesignTokens(themeMode, muiTheme[themeMode], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio));
+    const [designTokens, setDesignTokens] = useState(getDesignTokens(themeMode, muiTheme[themeMode], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio, vars.userSettings.font_size));
     const theme = useMemo(
         () => createTheme(designTokens, muiTheme[themeMode]),
         [designTokens, themeMode],
@@ -82,7 +82,7 @@ function App() {
         const handleUpdateTheme = () => {
             const tm = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
             updateThemeMode(tm);
-            setDesignTokens(getDesignTokens(tm, muiTheme[tm], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio));
+            setDesignTokens(getDesignTokens(tm, muiTheme[tm], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio, vars.userSettings.font_size));
         };
         window.addEventListener("themeUpdated", handleUpdateTheme);
         return () => {
@@ -183,7 +183,7 @@ function App() {
                     {cookieSettings === null && !sidebarForceHidden && <>
                         <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
                             <CardContent>
-                                <Typography variant="h6">
+                                <Typography variant="h6" fontWeight="bold">
                                     We value your privacy
                                 </Typography>
                                 <Typography variant="body2" sx={{ marginBottom: "10px" }}>
@@ -324,7 +324,7 @@ function App() {
                                     }
                                 </DialogActions>
                             </Dialog>
-                            <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto" }}>
+                            <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
                                 {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                     <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                         &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>

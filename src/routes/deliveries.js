@@ -235,7 +235,7 @@ const Deliveries = () => {
                 if (dlogL.list[i].division.divisionid !== undefined) {
                     divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
+                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                     </Tooltip>;
                 }
                 newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });

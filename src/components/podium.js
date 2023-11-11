@@ -24,14 +24,14 @@ const Podium = ({ title, first, second, third, fixWidth }) => {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            padding: '10px', fontSize: '15px',
+                            padding: '10px',
                             margin: "0 15px 0 15px",
                             background: calculateBackgroundColor(1),
                         }}
                     >
                         <Typography variant="body1" style={{ display: 'flex', alignItems: 'center', marginRight: '8px', fontWeight: 'bold', width: '100%' }}>
                             <span style={{ flexGrow: 1 }}>{first.name}</span>
-                            <Typography variant="caption" style={{ fontSize: '12px', opacity: 0.7 }}>
+                            <Typography variant="caption" style={{ fontSize: '0.8em', opacity: 0.7 }}>
                                 {TSep(first.stat)}
                             </Typography>
                         </Typography>
@@ -43,14 +43,14 @@ const Podium = ({ title, first, second, third, fixWidth }) => {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            padding: '10px', fontSize: '15px',
+                            padding: '10px',
                             margin: "0 15px 0 15px",
                             background: calculateBackgroundColor(2),
                         }}
                     >
                         <Typography variant="body1" style={{ display: 'flex', alignItems: 'center', marginRight: '8px', fontWeight: 'bold', width: '100%' }}>
                             <span style={{ flexGrow: 1 }}>{second.name}</span>
-                            <Typography variant="caption" style={{ fontSize: '12px', opacity: 0.7 }}>
+                            <Typography variant="caption" style={{ fontSize: '0.8em', opacity: 0.7 }}>
                                 {TSep(second.stat)}
                             </Typography>
                         </Typography>
@@ -62,14 +62,14 @@ const Podium = ({ title, first, second, third, fixWidth }) => {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            padding: '10px', fontSize: '15px',
+                            padding: '10px',
                             margin: "0 15px 0 15px",
                             background: calculateBackgroundColor(3),
                         }}
                     >
                         <Typography variant="body1" style={{ display: 'flex', alignItems: 'center', marginRight: '8px', fontWeight: 'bold', width: '100%' }}>
                             <span style={{ flexGrow: 1 }}>{third.name}</span>
-                            <Typography variant="caption" style={{ fontSize: '12px', opacity: 0.7 }}>
+                            <Typography variant="caption" style={{ fontSize: '0.8em', opacity: 0.7 }}>
                                 {TSep(third.stat)}
                             </Typography>
                         </Typography>

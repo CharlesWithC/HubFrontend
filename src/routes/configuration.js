@@ -1729,7 +1729,7 @@ const Configuration = () => {
                         sx={{ mt: "8px" }} placeholder={`{...}`}
                         spellCheck={false}
                     />
-                    {apiConfigSelectionStart !== null && !isNaN(apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)) && <InputLabel sx={{ color: theme.palette.text.secondary, fontSize: "12px", mb: "8px" }}>
+                    {apiConfigSelectionStart !== null && !isNaN(apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)) && <InputLabel sx={{ color: theme.palette.text.secondary, fontSize: "0.8em", mb: "8px" }}>
                         Line {apiConfig.substr(0, apiConfigSelectionStart).split('\n').length}, Column {apiConfigSelectionStart - apiConfig.lastIndexOf('\n', apiConfigSelectionStart - 1)}
                     </InputLabel>}
                 </div>}

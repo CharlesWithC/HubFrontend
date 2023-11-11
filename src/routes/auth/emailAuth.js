@@ -74,7 +74,7 @@ const EmailAuth = () => {
                 <Typography variant="h5" sx={{ fontWeight: 800 }}>
                     {title}
                 </Typography>
-                {op !== "rp" && <Typography variant="body2" sx={{ fontSize: "16px", mt: "20px" }}>
+                {op !== "rp" && <Typography variant="body2" sx={{ mt: "20px" }}>
                     {message}
                 </Typography>}
                 {op === "rp" && <TextField label="New Password" variant="outlined" type="password" onChange={(e) => { setPassword(e.target.value); }} error={passwordError} helperText={passwordText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: passwordColor } }} disabled={updateDisabled} />}

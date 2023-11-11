@@ -148,7 +148,7 @@ const NotificationsPopover = () => {
                             ))}
                             <ListItem key="last" sx={{ margin: 0, textAlign: "center" }}>
                                 <ListItemText primary="--- Only the latest 250 notifications are shown ---"
-                                    primaryTypographyProps={{ style: { color: "grey", fontSize: "15px" } }} />
+                                    primaryTypographyProps={{ style: { color: "grey", fontSize: "0.8em" } }} />
                             </ListItem>
                         </SimpleBar>
                     }

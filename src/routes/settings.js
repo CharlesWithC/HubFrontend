@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider } from '@mui/material';
+import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -185,6 +185,15 @@ const Settings = () => {
         vars.userSettings.unit = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
         setUserSettings({ ...userSettings, unit: to });
+    }, [userSettings]);
+
+    const updateFontSize = useCallback((to) => {
+        vars.userSettings.font_size = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, font_size: to });
+
+        const themeUpdated = new CustomEvent('themeUpdated', {});
+        window.dispatchEvent(themeUpdated);
     }, [userSettings]);
 
     const allTimeZones = moment.tz.names();
@@ -1021,7 +1030,7 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
                     <br />
-                    <ButtonGroup>
+                    <ButtonGroup fullWidth>
                         {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
                         {trackers.includes("tracksim") && <Button variant="contained" color={tracker === "tracksim" ? "info" : "secondary"} onClick={() => { updateTracker("tracksim"); }}>TrackSim</Button>}
                     </ButtonGroup>
@@ -1045,7 +1054,7 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Data Saver Mode</Typography>
                     <br />
-                    <ButtonGroup>
+                    <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.data_saver === true ? "info" : "secondary"} onClick={() => { updateDataSaver(true); }}>Enabled</Button>
                         <Button variant="contained" color={userSettings.data_saver === false ? "info" : "secondary"} onClick={() => { updateDataSaver(false); }}>Disabled</Button>
                     </ButtonGroup>
@@ -1054,7 +1063,7 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
                     <br />
-                    <ButtonGroup>
+                    <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
                         <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
                         <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
@@ -1158,7 +1167,7 @@ const Settings = () => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Account Connections</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
-                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <Grid item xs={8} sm={8} md={8} lg={8}>
                             <TextField
                                 label="Email"
                                 value={newEmail}
@@ -1166,36 +1175,36 @@ const Settings = () => {
                                 fullWidth size="small"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Grid item xs={4} sm={4} md={4} lg={4}>
                             <Button variant="contained" onClick={() => { updateEmail(); }} disabled={newEmailDisabled} fullWidth>Update</Button>
                         </Grid>
                     </Grid>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
-                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <Grid item xs={8} sm={8} md={8} lg={8}>
                             <TextField
                                 label="Discord"
                                 value={vars.userInfo.discordid}
                                 fullWidth disabled size="small"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Grid item xs={4} sm={4} md={4} lg={4}>
                             <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/auth/discord/redirect"); }} fullWidth>Update (OAuth)</Button>
                         </Grid>
                     </Grid>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
-                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <Grid item xs={8} sm={8} md={8} lg={8}>
                             <TextField
                                 label="Steam"
                                 value={vars.userInfo.steamid}
                                 fullWidth disabled size="small"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Grid item xs={4} sm={4} md={4} lg={4}>
                             <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/auth/steam/redirect"); }} fullWidth>Update (OAuth)</Button>
                         </Grid>
                     </Grid>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
-                        <Grid item xs={12} sm={12} md={8} lg={8}>
+                        <Grid item xs={8} sm={8} md={8} lg={8}>
                             <TextField
                                 label="TruckersMP"
                                 value={newTruckersMPID}
@@ -1203,7 +1212,7 @@ const Settings = () => {
                                 fullWidth size="small"
                             />
                         </Grid>
-                        <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Grid item xs={4} sm={4} md={4} lg={4}>
                             <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={newTruckersMPDisabled} fullWidth>Update</Button>
                         </Grid>
                     </Grid>
@@ -1231,30 +1240,39 @@ const Settings = () => {
             <Typography variant="body2">These settings are stored locally and will only apply to the current client.</Typography>
             <br />
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
                     <br />
-                    <ButtonGroup>
+                    <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.unit === "metric" ? "info" : "secondary"} onClick={() => { updateUnit("metric"); }}>Metric</Button>
                         <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>Imperial</Button>
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={6} lg={6}>
+                <Grid item xs={12} sm={12} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Font Size <Chip sx={{ bgcolor: "#387aff", height: "16px", borderRadius: "5px", marginTop: "-3px" }} label="Experimental" /></Typography>
+                    <br />
+                    <ButtonGroup fullWidth>
+                        <Button variant="contained" color={userSettings.font_size === "smaller" ? "info" : "secondary"} onClick={() => { updateFontSize("smaller"); }}>Smaller</Button>
+                        <Button variant="contained" color={userSettings.font_size === "regular" ? "info" : "secondary"} onClick={() => { updateFontSize("regular"); }}>Regular</Button>
+                        <Button variant="contained" color={userSettings.font_size === "larger" ? "info" : "secondary"} onClick={() => { updateFontSize("larger"); }}>Larger</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
                     <br />
-                    <ButtonGroup>
+                    <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
                         <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { updateTheme("dark"); }}>Dark</Button>
                         <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
-                        <Button variant="contained" color={userSettings.theme === "halloween" ? "info" : "secondary"} onClick={() => { updateTheme("halloween"); }} sx={{ color: "#DF5120" }}>Halloween (Limited Time)</Button>
                     </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme</Typography>
                     <br />
-                    <ButtonGroup>
+                    <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }}>Enabled</Button>
                         <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }}>Disabled</Button>
                     </ButtonGroup>
@@ -1265,13 +1283,13 @@ const Settings = () => {
                     <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={6} sm={6} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color</Typography>
                     <br />
                     <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} disableDefault={true} />
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={6} sm={6} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
                     <br />
                     <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} disableDefault={true} />

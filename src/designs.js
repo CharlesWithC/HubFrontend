@@ -23,7 +23,7 @@ export function customSelectStyles(theme) {
         control: (base) => ({
             ...base,
             backgroundColor: "transparent",
-            borderColor: theme.palette.text.secondary
+            borderColor: theme.palette.text.secondary + "88"
         }),
         option: (base) => ({
             ...base,
@@ -60,7 +60,7 @@ export function customSelectStyles(theme) {
 };
 
 
-export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null) {
+export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (theme_background !== null && theme_main !== null && darken_ratio !== null && use_custom_theme) {
         customMode = "custom";
     }
@@ -90,6 +90,80 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
     };
 
     let compoBase = {
+        MuiTypography: {
+            styleOverrides: {
+                h1: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                h2: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                h3: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                h4: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                h5: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                h6: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                subtitle1: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                subtitle2: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                body1: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                body2: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                button: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                caption: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                overline: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                },
+                root: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                }
+            }
+        },
+        MuiButton: {
+            styleOverrides: {
+                root: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                }
+            }
+        },
+        MuiTab: {
+            styleOverrides: {
+                root: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                }
+            }
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    fontSize: (font_size === "larger" ? "1.1em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                }
+            }
+        },
+        MuiSvgIcon: {
+            styleOverrides: {
+                root: {
+                    fontSize: (font_size === "larger" ? "1.5em" : (font_size === "smaller" ? "0.9em !important" : undefined)),
+                }
+            }
+        },
         MuiDialogTitle: {
             styleOverrides: {
                 root: {

@@ -268,7 +268,7 @@ const UserCard = (props) => {
             if (_dlogList.list[i].division.divisionid !== undefined) {
                 divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                    <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
+                    <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                 </Tooltip>;
             }
             newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
@@ -300,7 +300,7 @@ const UserCard = (props) => {
                 if (_dlogList.list[i].division.divisionid !== undefined) {
                     divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "18px" }} />
+                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                     </Tooltip>;
                 }
                 newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
@@ -1271,12 +1271,12 @@ const UserCard = (props) => {
                     <DialogContent>
                         <Box display="flex" alignItems="center">
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>Role History</Typography>
-                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? `Visible` : `Loading`)}</Typography>
+                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? `Visible` : `Loading`)}</Typography>
                         </Box>
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
-                            {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role].name}</Typography>))}
-                            {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role].name}</Typography>))}
+                            {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}</Typography>))}
+                            {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}</Typography>))}
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
@@ -1284,7 +1284,7 @@ const UserCard = (props) => {
 
                         <Box display="flex" alignItems="center" sx={{ mt: "10px" }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>Ban History</Typography>
-                            <Typography variant="body2" style={{ fontSize: '0.75rem', marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? `Visible` : `Loading`)}</Typography>
+                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? `Visible` : `Loading`)}</Typography>
                         </Box>
                         {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
