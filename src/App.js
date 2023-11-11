@@ -39,6 +39,7 @@ import Notifications from './routes/notifications';
 import Poll from './routes/polls';
 import Economy from './routes/economy';
 import Supporters from './routes/supporters';
+import NotFound from './routes/notFound';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClover, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
@@ -208,6 +209,7 @@ function App() {
                     <SimpleBar style={{ padding: "20px", height: "100%", backgroundColor: theme.palette.background.default }} >
                         <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
                             <Routes>
+                                <Route path="/" exact element={<Overview />}></Route>
                                 <Route path="/auth/login" element={<AuthLogin />} />
                                 <Route path="/auth" element={<TokenAuth />} />
                                 <Route path="/auth/discord/callback" element={<DiscordAuth />} />
@@ -217,17 +219,19 @@ function App() {
                                 <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
                                 <Route path="/auth/mfa" element={<MfaAuth />} />
                                 <Route path="/auth/email" element={<EmailAuth />} />
-                                <Route path="/" exact element={<Overview />}></Route>
+                                <Route path="/settings" element={<Settings />}></Route>
+                                <Route path="/notifications" element={<Notifications />}></Route>
                                 <Route path="/overview" element={<Overview />}></Route>
-                                <Route path="/sponsor" element={<UpgradeCard />}></Route>
                                 <Route path="/announcement" element={<Announcement />}></Route>
                                 <Route path="/downloads" element={<Downloads />}></Route>
+                                <Route path="/poll" element={<Poll />}></Route>
                                 <Route path="/map" element={<Map />}></Route>
                                 <Route path="/delivery" element={<Deliveries />}></Route>
                                 <Route path="/delivery/:logid" element={<Delivery />} />
-                                <Route path="/event" element={<Events />}></Route>
                                 <Route path="/challenge" element={<Challenges />}></Route>
                                 <Route path="/division" element={<Divisions />}></Route>
+                                <Route path="/event" element={<Events />}></Route>
+                                <Route path="/economy" element={<Economy />}></Route>
                                 <Route path="/member" element={<Members />}></Route>
                                 <Route path="/leaderboard" element={<Leaderboard />}></Route>
                                 <Route path="/ranking" element={<Ranking />}></Route>
@@ -239,11 +243,9 @@ function App() {
                                 <Route path="/external-user" element={<ExternalUsers />}></Route>
                                 <Route path="/audit-log" element={<AuditLog />}></Route>
                                 <Route path="/config" element={<Configuration />}></Route>
-                                <Route path="/settings" element={<Settings />}></Route>
-                                <Route path="/notifications" element={<Notifications />}></Route>
-                                <Route path="/poll" element={<Poll />}></Route>
-                                <Route path="/economy" element={<Economy />}></Route>
+                                <Route path="/sponsor" element={<UpgradeCard />}></Route>
                                 <Route path="/supporters" element={<Supporters />}></Route>
+                                <Route path="*" element={<NotFound />}></Route>
                             </Routes>
                             <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
                                 <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>

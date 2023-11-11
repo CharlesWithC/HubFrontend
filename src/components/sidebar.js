@@ -11,11 +11,12 @@ import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 import PropTypes from 'prop-types';
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 var vars = require('../variables');
 
 const SideBar = (props) => {
+    const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -68,6 +69,7 @@ const SideBar = (props) => {
     }, [bannerRef]);
 
     const [reload, setReload] = useState(+new Date());
+    const [reload404, setReload404] = useState(false);
     useEffect(() => {
         const handleReloadEvent = () => {
             setReload(+new Date());
@@ -130,27 +132,44 @@ const SideBar = (props) => {
     menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
     menu = menu.filter(subMenu => subMenu.length > 0);
 
-    let routeIndex = {};
-    for (let i = 0; i < menu.length; i++) {
-        for (let j = 0; j < menu[i].length; j++) {
-            routeIndex[menuRoute[menu[i][j]]] = i * 10 + j;
+    useEffect(() => {
+        let routeIndex = {};
+        for (let i = 0; i < menu.length; i++) {
+            for (let j = 0; j < menu[i].length; j++) {
+                routeIndex[menuRoute[menu[i][j]]] = i * 10 + j;
+            }
         }
-    }
-    let path = window.location.pathname;
-    let matchedPath = false;
-    if (Object.keys(routeIndex).includes("/" + path.split("/")[1])) {
-        matchedPath = true;
-        if (selectedIndex !== routeIndex["/" + path.split("/")[1]]) {
-            setSelectedIndex(routeIndex["/" + path.split("/")[1]]);
+        let path = window.location.pathname;
+        let matchedPath = false;
+        if (Object.keys(routeIndex).includes("/" + path.split("/")[1])) {
+            matchedPath = true;
+            if (selectedIndex !== routeIndex["/" + path.split("/")[1]]) {
+                setSelectedIndex(routeIndex["/" + path.split("/")[1]]);
+            }
         }
-    }
-    if (Object.keys(routeIndex).includes("/" + path.split("/")[1] + "/" + path.split("/")[2])) {
-        matchedPath = true;
-        if (selectedIndex !== routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]) {
-            setSelectedIndex(routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]);
+        if (Object.keys(routeIndex).includes("/" + path.split("/")[1] + "/" + path.split("/")[2])) {
+            matchedPath = true;
+            if (selectedIndex !== routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]) {
+                setSelectedIndex(routeIndex["/" + path.split("/")[1] + "/" + path.split("/")[2]]);
+            }
         }
-    }
-    if (!matchedPath && selectedIndex !== -1) { setSelectedIndex(-1); }
+        if (!matchedPath) {
+            // off-the-sidebar-paths
+            if (!["/settings", "/notifications", "/sponsor", "/supporters"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
+                if (!reload404) {
+                    navigate("/404");
+                    setReload404(true);
+                    setTimeout(function () {
+                        const loadingEnd = new CustomEvent('loadingEnd', {});
+                        window.dispatchEvent(loadingEnd);
+                    }, 500);
+                }
+            }
+            if (selectedIndex !== -1) {
+                setSelectedIndex(-1);
+            }
+        }
+    }, []);
 
     const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
         <List key="0" sx={{ paddingTop: 0 }}>
