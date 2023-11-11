@@ -252,6 +252,15 @@ const Settings = () => {
         window.dispatchEvent(themeUpdated);
     }, [userSettings]);
 
+    const updateDataSaver = useCallback((to) => {
+        vars.userSettings.data_saver = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, data_saver: to });
+
+        const dataSaverUpdated = new CustomEvent('dataSaverUpdated', { detail: { enabled: to } });
+        window.dispatchEvent(dataSaverUpdated);
+    }, [userSettings]);
+
     const updateRadio = useCallback((to) => {
         vars.userSettings.radio = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
@@ -1033,7 +1042,16 @@ const Settings = () => {
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={3}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Data Saver Mode</Typography>
+                    <br />
+                    <ButtonGroup>
+                        <Button variant="contained" color={userSettings.data_saver === true ? "info" : "secondary"} onClick={() => { updateDataSaver(true); }}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.data_saver === false ? "info" : "secondary"} onClick={() => { updateDataSaver(false); }}>Disabled</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
                     <br />
                     <ButtonGroup>
@@ -1043,7 +1061,7 @@ const Settings = () => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={3}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
                     <br />
                     <CreatableSelect
@@ -1059,7 +1077,7 @@ const Settings = () => {
                     />
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={6}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
                     <br />
                     <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />

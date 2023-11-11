@@ -6,7 +6,7 @@ var vars = require("../variables");
 const LargeUserCard = ({ user, color }) => {
     return (
         <Card sx={{ minWidth: 150 }}>
-            <Avatar src={user.avatar} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
+            <Avatar src={!vars.userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
                 <Typography variant="h6" align="center">
                     <span style={{ color: color }}>{user.name}</span>

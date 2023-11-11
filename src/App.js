@@ -334,14 +334,14 @@ function App() {
                                     <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                         {vars.dhconfig.name}
                                         <br />
-                                        API: v{vars.apiversion} | Client: v3.0.1
+                                        API: v{vars.apiversion} | Client: v3.1.0
                                     </Typography>
                                 </div>}
                                 {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                         &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                         <br />
-                                        API: v{vars.apiversion} | Client: v3.0.1
+                                        API: v{vars.apiversion} | Client: v3.1.0
                                         <br />
                                         <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
                                     </Typography>

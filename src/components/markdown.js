@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 
+var vars = require("../variables");
+
 const MarkdownRenderer = ({ children }) => {
     const preprocessContent = (content) => {
         if (content === undefined) return "";
@@ -11,7 +13,7 @@ const MarkdownRenderer = ({ children }) => {
         p: (props) => {
             return <span>{props.children}<br /></span>;
         },
-        img: (props) => <img {...props} style={{ width: '100%' }} alt=" " />,
+        img: (props) => <>{!vars.userSettings.data_saver && <img {...props} style={{ width: '100%' }} alt=" " />}</>,
     };
 
     const preprocessedContent = preprocessContent(children);

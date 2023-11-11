@@ -1021,7 +1021,7 @@ const UserCard = (props) => {
     if (showProfileModal === 2) return <>{profileModal}</>;
     else if (showProfileModal === 1) return <></>;
 
-    if (uid === null) return <><Avatar src={avatarRef.current}
+    if (uid === null) return <><Avatar src={!vars.userSettings.data_saver ? avatarRef.current : ""}
         style={{
             width: `${size}px`,
             height: `${size}px`,
@@ -1032,7 +1032,7 @@ const UserCard = (props) => {
 
     let content = <>
         {!useChip && <>
-            {!textOnly && <><Avatar src={avatarRef.current}
+            {!textOnly && <><Avatar src={!vars.userSettings.data_saver ? avatarRef.current : ""}
                 style={{
                     width: `${size}px`,
                     height: `${size}px`,
@@ -1052,7 +1052,7 @@ const UserCard = (props) => {
         {useChip && <>
             <Chip
                 key={`user-${uid}-${Math.random()}`}
-                avatar={textOnly ? undefined : <Avatar alt="" src={avatarRef.current} />}
+                avatar={textOnly ? undefined : <Avatar alt="" src={!vars.userSettings.data_saver ? avatarRef.current : ""} />}
                 label={nameRef.current}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
