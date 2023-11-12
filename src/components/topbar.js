@@ -118,37 +118,40 @@ const TopBar = (props) => {
                     if (vars.userSettings.radio_type === "tsr") {
                         let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
                         setRadioSongName(resp.data.song.title);
-                        setRadioImage(resp.data.song.graphic.medium);
+                        if (!vars.userSettings.data_saver) setRadioImage(resp.data.song.graphic.medium);
+                        else setRadioImage(radioImages[vars.userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: resp.data.song.title,
                             artist: resp.data.song.artist,
                             album: resp.data.song.album,
-                            artwork: [
+                            artwork: vars.userSettings.data_saver ? [] : [
                                 { src: resp.data.song.graphic.medium, sizes: '300x300', type: 'image/jpeg' }
                             ]
                         });
                     } else if (vars.userSettings.radio_type === "tfm") {
                         let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
                         setRadioSongName(resp.data.data.title);
-                        setRadioImage(resp.data.data.album_art);
+                        if (!vars.userSettings.data_saver) setRadioImage(resp.data.data.album_art);
+                        else setRadioImage(radioImages[vars.userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.data.link.split("/").pop());
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: resp.data.data.title,
                             artist: resp.data.data.artist,
-                            artwork: [
+                            artwork: vars.userSettings.data_saver ? [] : [
                                 { src: resp.data.data.album_art, sizes: '300x300', type: 'image/jpeg' }
                             ]
                         });
                     } else if (vars.userSettings.radio_type === "simhit") {
                         let resp = await axios({ url: `https://api.simulatorhits.com/now-playing` });
                         setRadioSongName(resp.data.song.title);
-                        setRadioImage(resp.data.song.artwork);
+                        if (!vars.userSettings.data_saver) setRadioImage(resp.data.song.artwork);
+                        else setRadioImage(radioImages[vars.userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.song.identifier.spotify);
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: resp.data.song.title,
                             artist: resp.data.song.artist,
-                            artwork: [
+                            artwork: vars.userSettings.data_saver ? [] : [
                                 { src: resp.data.song.artwork, sizes: '640x640', type: 'image/jpeg' }
                             ]
                         });

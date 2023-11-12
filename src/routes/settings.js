@@ -268,6 +268,8 @@ const Settings = () => {
 
         const dataSaverUpdated = new CustomEvent('dataSaverUpdated', { detail: { enabled: to } });
         window.dispatchEvent(dataSaverUpdated);
+        const radioUpdated = new CustomEvent('radioUpdated', {});
+        window.dispatchEvent(radioUpdated);
     }, [userSettings]);
 
     const updateRadio = useCallback((to) => {
