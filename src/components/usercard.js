@@ -18,7 +18,7 @@ import StatCard from './statcard';
 import CustomTable from './table';
 import { darkenColor } from '../designs';
 
-import { customAxios as axios, getAuthToken, checkUserPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
+import { customAxios as axios, getAuthToken, checkUserPerm, removeNullValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep, removeNUEValues } from '../functions';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 var vars = require("../variables");
@@ -629,13 +629,15 @@ const UserCard = (props) => {
         }
     }, [uid, trackerInUse, updateUserInfo]);
 
-    const updateConnections = useCallback(async (action = "update") => {
+    const updateConnections = useCallback(async (action = "update", connection = "") => {
         setDialogBtnDisabled(true);
         let resp = undefined;
         if (action === "update") {
-            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections`, method: "PATCH", data: newConnections, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let processedNC = removeNUEValues(newConnections);
+            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (action === "delete") {
-            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            setNewConnections(newConnections => ({ ...newConnections, [connection]: "" }));
         }
         if (resp.status === 204) {
             await updateUserInfo();
@@ -1344,7 +1346,11 @@ const UserCard = (props) => {
                     <DialogActions sx={{ justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'grid', justifyItems: 'start' }}>
                             <ButtonGroup>
-                                <Button variant="contained" color="error" onClick={() => { updateConnections("delete"); }} disabled={dialogBtnDisabled}>Delete Connections</Button>
+                                <Button variant="contained" color="primary">Disconnect</Button>
+                                <Button variant="contained" color="error" onClick={() => { updateConnections("delete", "email"); }} disabled={dialogBtnDisabled}>Email</Button>
+                                <Button variant="contained" color="warning" onClick={() => { updateConnections("delete", "discordid"); }} disabled={dialogBtnDisabled}>Discord</Button>
+                                <Button variant="contained" color="success" onClick={() => { updateConnections("delete", "steamid"); }} disabled={dialogBtnDisabled}>Steam</Button>
+                                <Button variant="contained" color="info" onClick={() => { updateConnections("delete", "truckersmpid"); }} disabled={dialogBtnDisabled}>TruckersMP</Button>
                             </ButtonGroup>
                         </Box>
                         <Box sx={{ display: 'grid', justifyItems: 'end' }}>
