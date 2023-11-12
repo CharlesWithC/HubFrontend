@@ -233,6 +233,7 @@ function App() {
                                 <Route path="/event" element={<Events />}></Route>
                                 <Route path="/economy" element={<Economy />}></Route>
                                 <Route path="/member" element={<Members />}></Route>
+                                <Route path="/member/:userid" element={<Overview />} />
                                 <Route path="/leaderboard" element={<Leaderboard />}></Route>
                                 <Route path="/ranking" element={<Ranking />}></Route>
                                 <Route path="/application/new" element={<NewApplication />}></Route>

@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react';
+import { useParams } from 'react-router-dom';
 
 import TimeAgo from '../components/timeago';
 import { TSep, ConvertUnit, makeRequestsAuto, getTodayUTC, getMonthUTC } from '../functions';
@@ -11,6 +12,14 @@ import UserCard from '../components/usercard';
 var vars = require("../variables");
 
 const Overview = () => {
+    // for member profile display
+    const { userid } = useParams();
+    let memberIdx = -1;
+    if (typeof vars.members === "object") {
+        memberIdx = vars.members.findIndex(member => member.userid === parseInt(userid));
+    }
+    const [showProfileModal, setShowProfileModal] = useState(memberIdx !== -1 ? 2 : 0);
+
     const [latest, setLatest] = useState({ driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 });
     const [charts, setCharts] = useState({ driver: [], job: [], distance: [], fuel: [], profit_euro: [], profit_dollar: [] });
     const [leaderboard, setLeaderboard] = useState([]);
@@ -19,12 +28,13 @@ const Overview = () => {
     const [latestDelivery, setLatestDelivery] = useState(null);
 
     useEffect(() => {
+        if (userid !== undefined && memberIdx === -1) window.history.pushState("", "", "/");
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
             const [_, chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
-                { url: `${vars.dhpath}`, auth: true }, // access the index url to update status
+                { url: `${vars.dhpath}`, auth: true }, // access the index url to update user status
                 { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: false },
                 { url: `${vars.dhpath}/dlog/statistics/chart?ranges=7&interval=86400&sum_up=true`, auth: false },
                 { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=5&after=` + getMonthUTC() / 1000, auth: true },
@@ -82,119 +92,92 @@ const Overview = () => {
         doLoad();
     }, []);
 
-    return (<Grid container spacing={2}>
-        <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<PermContactCalendarRounded />} title={"Drivers"} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<LocalShippingRounded />} title={"Jobs"} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<RouteRounded />} title={"Distance"} latest={ConvertUnit("km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
-        </Grid>
-        <Grid item xs={12} sm={12} md={6} lg={4}>
-            <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
-        </Grid>
-        {vars.isLoggedIn && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
-            <><Grid item xs={12} sm={12} md={6} lg={4}>
-                <Card>
-                    <CardContent>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                            <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                <EmojiPeopleRounded />&nbsp;&nbsp;Newest Member
-                            </Typography>
-                        </div>
-                        <br></br>
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                            <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                <UserCard size="40" user={newestMember} />
-                            </Typography>
-                        </div>
-                    </CardContent>
-                </Card>
+    return (<>
+        {showProfileModal !== 0 && vars.members[memberIdx] !== undefined && <UserCard user={vars.members[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); window.history.pushState("", "", "/"); window.history.pushState("", "", "/"); }} />}
+        <Grid container spacing={2}>
+            <Grid item xs={12} sm={12} md={6} lg={4}>
+                <StatCard icon={<PermContactCalendarRounded />} title={"Drivers"} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />
             </Grid>
-                <Grid item xs={12} sm={12} md={6} lg={8}>
+            <Grid item xs={12} sm={12} md={6} lg={4}>
+                <StatCard icon={<LocalShippingRounded />} title={"Jobs"} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={4}>
+                <StatCard icon={<RouteRounded />} title={"Distance"} latest={ConvertUnit("km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={4}>
+                <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={4}>
+                <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
+            </Grid>
+            <Grid item xs={12} sm={12} md={6} lg={4}>
+                <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
+            </Grid>
+            {vars.isLoggedIn && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
+                <><Grid item xs={12} sm={12} md={6} lg={4}>
                     <Card>
                         <CardContent>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <LocalShippingRounded />&nbsp;&nbsp;Latest Delivery
+                                    <EmojiPeopleRounded />&nbsp;&nbsp;Newest Member
                                 </Typography>
                             </div>
                             <br></br>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    {latestDelivery.cargo}: {latestDelivery.source_city} {'->'} {latestDelivery.destination_city} ({ConvertUnit("km", latestDelivery.distance)})
-                                </Typography>
-                                <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                    --- By&nbsp;&nbsp;<UserCard size="40" user={latestDelivery.user} />
+                                    <UserCard size="40" user={newestMember} />
                                 </Typography>
                             </div>
                         </CardContent>
                     </Card>
                 </Grid>
-                {leaderboard.length !== 0 && recentVisitors.length != 0 && <><Grid item xs={12} sm={12} md={6} lg={8}>
-                    <Card>
-                        <CardContent>
-                            <div style={{ display: "flex", flexDirection: "row" }}>
-                                <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <LeaderboardRounded />&nbsp;&nbsp;Monthly Leaderboard
-                                </Typography>
-                            </div>
-                            <SimpleBar style={{ overflowY: "hidden" }}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>Driver</TableCell>
-                                            <TableCell align="right">Points</TableCell>
-                                            <TableCell align="left">Rank (1 month)</TableCell>
-                                            <TableCell align="right">Points</TableCell>
-                                            <TableCell align="left">Rank (all time)</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {leaderboard.map((row, idx) => {
-                                            return (<TableRow key={`leaderboard-${idx}`}>
-                                                <TableCell>{row.user}</TableCell>
-                                                <TableCell align="right">{row.points}</TableCell>
-                                                <TableCell align="left">#{row.rank}</TableCell>
-                                                <TableCell align="right">{row.total_points}</TableCell>
-                                                <TableCell align="left">#{row.total_rank}</TableCell>
-                                            </TableRow>);
-                                        })}
-                                    </TableBody>
-                                </Table>
-                            </SimpleBar>
-                        </CardContent>
-                    </Card >
-                </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={4}>
+                    <Grid item xs={12} sm={12} md={6} lg={8}>
                         <Card>
                             <CardContent>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                        <DirectionsRunRounded />&nbsp;&nbsp;Recent Visitors
+                                        <LocalShippingRounded />&nbsp;&nbsp;Latest Delivery
+                                    </Typography>
+                                </div>
+                                <br></br>
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                        {latestDelivery.cargo}: {latestDelivery.source_city} {'->'} {latestDelivery.destination_city} ({ConvertUnit("km", latestDelivery.distance)})
+                                    </Typography>
+                                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                                        --- By&nbsp;&nbsp;<UserCard size="40" user={latestDelivery.user} />
+                                    </Typography>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    {leaderboard.length !== 0 && recentVisitors.length != 0 && <><Grid item xs={12} sm={12} md={6} lg={8}>
+                        <Card>
+                            <CardContent>
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                    <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                        <LeaderboardRounded />&nbsp;&nbsp;Monthly Leaderboard
                                     </Typography>
                                 </div>
                                 <SimpleBar style={{ overflowY: "hidden" }}>
                                     <Table>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>User</TableCell>
-                                                <TableCell align="right">Last Seen</TableCell>
+                                                <TableCell>Driver</TableCell>
+                                                <TableCell align="right">Points</TableCell>
+                                                <TableCell align="left">Rank (1 month)</TableCell>
+                                                <TableCell align="right">Points</TableCell>
+                                                <TableCell align="left">Rank (all time)</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {recentVisitors.map((row, idx) => {
-                                                return (<TableRow key={`recent-visitors-${idx}`}>
+                                            {leaderboard.map((row, idx) => {
+                                                return (<TableRow key={`leaderboard-${idx}`}>
                                                     <TableCell>{row.user}</TableCell>
-                                                    <TableCell align="right"><TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /></TableCell>
+                                                    <TableCell align="right">{row.points}</TableCell>
+                                                    <TableCell align="left">#{row.rank}</TableCell>
+                                                    <TableCell align="right">{row.total_points}</TableCell>
+                                                    <TableCell align="left">#{row.total_rank}</TableCell>
                                                 </TableRow>);
                                             })}
                                         </TableBody>
@@ -202,9 +185,38 @@ const Overview = () => {
                                 </SimpleBar>
                             </CardContent>
                         </Card >
-                    </Grid></>}</>
-        }
-    </Grid>);
+                    </Grid>
+                        <Grid item xs={12} sm={12} md={6} lg={4}>
+                            <Card>
+                                <CardContent>
+                                    <div style={{ display: "flex", flexDirection: "row" }}>
+                                        <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                            <DirectionsRunRounded />&nbsp;&nbsp;Recent Visitors
+                                        </Typography>
+                                    </div>
+                                    <SimpleBar style={{ overflowY: "hidden" }}>
+                                        <Table>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>User</TableCell>
+                                                    <TableCell align="right">Last Seen</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {recentVisitors.map((row, idx) => {
+                                                    return (<TableRow key={`recent-visitors-${idx}`}>
+                                                        <TableCell>{row.user}</TableCell>
+                                                        <TableCell align="right"><TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /></TableCell>
+                                                    </TableRow>);
+                                                })}
+                                            </TableBody>
+                                        </Table>
+                                    </SimpleBar>
+                                </CardContent>
+                            </Card >
+                        </Grid></>}</>
+            }
+        </Grid></>);
 };
 
 export default memo(Overview);

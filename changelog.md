@@ -34,6 +34,7 @@
 23. Improved color picker
 24. Added font size settings (experimental)
 25. Added 404 page and redirect no-access tabs to /404
+26. Added view member profile with URL (`/member/{userid}`)
 
 ## v3.0.0
 

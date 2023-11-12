@@ -277,7 +277,7 @@ const TopBar = (props) => {
         };
     }, []);
 
-    const openProfileModal = () => { setShowProfileModal(2); };
+    const openProfileModal = () => { setShowProfileModal(2); window.history.pushState("", "", `/member/${vars.userInfo.userid}`); };
 
     async function logout() {
         const bearerToken = getAuthToken();
@@ -327,7 +327,7 @@ const TopBar = (props) => {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>
+        {vars.userInfo.userid !== -1 && vars.userInfo.userid !== null && <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>}
         <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Sponsor</MenuItem></Link>

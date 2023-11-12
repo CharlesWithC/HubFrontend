@@ -169,7 +169,7 @@ const SideBar = (props) => {
                 setSelectedIndex(-1);
             }
         }
-    }, []);
+    }, [window.location.pathname]);
 
     const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
         <List key="0" sx={{ paddingTop: 0 }}>
