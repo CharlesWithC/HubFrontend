@@ -19,9 +19,6 @@ const LargeUserCard = ({ user, color }) => {
 };
 
 const Members = () => {
-    if (vars.membersTabCache !== undefined) {
-        return vars.membersTabCache;
-    }
     let members = vars.members;
     let roles = Object.values(vars.roles);
     roles.sort((a, b) => a.order_id - b.order_id);
@@ -48,7 +45,7 @@ const Members = () => {
         groups.push({ "group": "No Role", "description": "These users have no role assigned.", "users": norole_group });
     }
 
-    vars.membersTabCache = (<div style={{ width: "100%" }}>
+    return (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
             <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : "No description"}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
@@ -69,7 +66,6 @@ const Members = () => {
         ))
         }
     </div >);
-    return vars.membersTabCache;
 };
 
 export default Members;

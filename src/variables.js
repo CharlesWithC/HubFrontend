@@ -98,7 +98,5 @@ exports.divisions = divisions;
 
 var members = [];
 exports.members = members;
-var membersTabCache = undefined;
-exports.membersTabCache = membersTabCache;
 var users = {}; // uid:user | this will not be fully-loaded, we'll write in when there's new user loaded
 exports.users = users;
