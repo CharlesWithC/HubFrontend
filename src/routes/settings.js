@@ -1,28 +1,30 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip } from '@mui/material';
+import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh, faFingerprint } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faCrown, faClover } from '@fortawesome/free-solid-svg-icons';
 
 import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 
-import { makeRequestsWithAuth, customAxios as axios, getAuthToken, makeRequestsAuto } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, getAuthToken, makeRequestsAuto, getFormattedDate } from '../functions';
 import { useRef } from 'react';
 import ColorInput from '../components/colorInput';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
+import MarkdownRenderer from '../components/markdown';
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } from '@fortawesome/free-brands-svg-icons';
 
 import { customSelectStyles } from '../designs';
 var vars = require("../variables");
 
 const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
+const trackerMapping = { "tracksim": "TrackSim", "trucky": "Trucky" };
 
 function tabBtnProps(index, current, theme) {
     return {
@@ -1018,6 +1020,47 @@ const Settings = () => {
         window.dispatchEvent(loadingEnd);
     }, []);
 
+    const [badges, setBadges] = useState([]);
+    const [badgeNames, setBadgeNames] = useState([]);
+    useEffect(() => {
+        if (Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
+            let newBadges = [];
+            let newBadgeNames = [];
+            for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
+                let sr = vars.specialRolesMap[vars.userInfo.discordid][i];
+                let badge = null;
+                let badgeName = null;
+                if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-chub}`} placement="top" arrow title="CHub Staff"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
+                    </Tooltip>;
+                    badgeName = "chub";
+                }
+                if (['community_legend'].includes(sr.role)) {
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-legend`} placement="top" arrow title="CHub Community Legend"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
+                    </Tooltip>;
+                    badgeName = "legend";
+                }
+                if (['platinum_sponsor', 'gold_sponsor', 'silver_sponsor', 'bronze_sponsor', 'server_booster', 'translation_team', 'web_client_beta'].includes(sr.role)) {
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title="CHub Supporter"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
+                    </Tooltip>;
+                    badgeName = "supporter";
+                }
+                if (badge !== null && !badgeNames.includes(badgeName)) {
+                    newBadges.push(badge);
+                    newBadgeNames.push(badgeName);
+                    setBadges(newBadges);
+                    setBadgeNames(newBadgeNames);
+                }
+            }
+        }
+    }, []);
+
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
@@ -1301,34 +1344,96 @@ const Settings = () => {
             <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings</Typography>
             <Typography variant="body2">These settings are synced to a remote server and will be displayed on other users' clients.</Typography>
             <Typography variant="body2">You must click "save" to sync settings to the remote server, otherwise the settings will be lost once you refresh or close this tab.</Typography>
-            <Typography variant="body2">To use default color, enter color code "/".</Typography>
             <br />
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color</Typography>
                     <br />
                     <ColorInput color={remoteUserConfig.name_color} onChange={(val) => { console.log(val); setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Upper)</Typography>
                     <br />
                     <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { console.log(val); setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Lower)</Typography>
                     <br />
                     <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} />
-                </Grid>
-                <Grid item xs={12} sm={12} md={8} lg={8}>
                     <TextField
                         label="Profile Banner URL"
                         value={remoteUserConfig.profile_banner_url}
                         onChange={(e) => { setRemoteUserConfig({ ...remoteUserConfig, profile_banner_url: e.target.value }); }}
                         fullWidth size="small"
+                        sx={{ mt: "10px" }}
                     />
+                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} fullWidth disabled={remoteUserConfigDisabled} sx={{ mt: "10px" }}>Save</Button>
                 </Grid>
+                <Grid item xs={0} sm={0} md={1} lg={1}></Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} fullWidth disabled={remoteUserConfigDisabled}>Save</Button>
+                    <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${remoteUserConfig.profile_upper_color}, ${remoteUserConfig.profile_lower_color})` }}>
+                        <CardMedia
+                            component="img"
+                            image={remoteUserConfig.profile_banner_url}
+                            onError={(event) => {
+                                event.target.src = `${vars.dhpath}/member/banner?userid=${vars.userInfo.userid}`;
+                            }}
+                            alt=""
+                            sx={{ borderRadius: "5px 5px 0 0" }}
+                        />
+                        <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                                        {vars.userInfo.name}
+                                    </Typography>
+                                    <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
+                                        {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
+                                        {vars.userInfo.userid !== null && vars.userInfo.userid !== undefined && vars.userInfo.userid >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{vars.userInfo.userid}</Typography></Tooltip>}
+                                    </Typography>
+                                </div>
+                                <Divider sx={{ mt: "8px", mb: "8px" }} />
+                                {newAboutMe !== "" && <>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        ABOUT ME
+                                    </Typography>
+                                    <Typography variant="body2">
+                                        <MarkdownRenderer>{newAboutMe}</MarkdownRenderer>
+                                    </Typography>
+                                </>}
+                                <Grid container sx={{ mt: "10px" }}>
+                                    <Grid item xs={6}>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                            MEMBER SINCE
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                            {getFormattedDate(new Date(vars.userInfo.join_timestamp * 1000)).split(" at ")[0]}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                            TRACKER
+                                        </Typography>
+                                        <Typography variant="body2">
+                                            {trackerMapping[tracker]}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                                {vars.userInfo.roles !== null && vars.userInfo.roles !== undefined && <Box sx={{ mt: "10px" }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                                        {vars.userInfo.roles.length > 1 ? `ROLES` : `ROLE`}
+                                    </Typography>
+                                    {vars.userInfo.roles.map((role) => (
+                                        <Chip
+                                            key={`role-${role}`}
+                                            avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
+                                            label={vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}
+                                            variant="outlined"
+                                            size="small"
+                                            sx={{ borderRadius: "5px", margin: "3px" }}
+                                        />
+                                    ))}
+                                </Box>}
+                            </CardContent>
+                        </CardContent>
+                    </Card>
                 </Grid>
             </Grid>
         </TabPanel>
