@@ -287,7 +287,7 @@ function App() {
                                     <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>Close</Button>
                                 </DialogActions>
                             </Dialog>
-                            <Dialog open={chubRecruitmentModalOpen && +new Date() < 1700006400000} onClose={() => { if (countdown === 0) { localStorage.setItem("chub-team-recruitment-202311-modal-shown", true); setCHubRecruitmentModalOpen(false); } }}>
+                            <Dialog open={chubRecruitmentModalOpen && +new Date() < 1700524800000} onClose={() => { if (countdown === 0) { localStorage.setItem("chub-team-recruitment-202311-modal-shown", true); setCHubRecruitmentModalOpen(false); } }}>
                                 <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
                                     <img src="https://cdn.chub.page/assets/logo.png" alt="" width="20px" height="20px" />&nbsp;&nbsp;CHub Team Recruitment
                                 </DialogTitle>
@@ -296,10 +296,7 @@ function App() {
                                         <span style={{ color: "#2fc1f7" }}>The Drivers Hub Project (CHub)</span> is looking for new team members!
                                     </Typography><br />
                                     <Typography variant="body2">
-                                        We currently have two teams with recruitment plans: <span style={{ color: "#b12773" }}>Support Team</span> and <span style={{ color: "#11b17f" }}>Graphic Team</span>.
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        Members of <span style={{ color: "#b12773" }}>Support Team</span> would help subscribers in Discord and members of <span style={{ color: "#11b17f" }}>Graphic Team</span> would design banners for announcements & social media posts.
+                                        We currently have one team with recruitment plan: <span style={{ color: "#b12773" }}>Support Team</span>.
                                     </Typography><br />
                                     <Typography variant="body2">
                                         Read more or apply at <a href="https://apply.chub.page/" target="_blank" rel="noreferrer" style={{ color: "#2fc1f7" }}>https://apply.chub.page/</a>
