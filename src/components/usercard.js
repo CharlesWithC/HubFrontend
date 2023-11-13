@@ -475,37 +475,38 @@ const UserCard = (props) => {
             }
             vars.users[uid] = resp.data;
 
-            const userUpdated = new CustomEvent('userUpdated', {});
+            const userUpdated = new CustomEvent('userUpdated', { detail: { user: resp.data } });
             window.dispatchEvent(userUpdated);
         }
     }, [uid]);
 
     useEffect(() => {
-        const userUpdated = () => {
-            if (vars.users[uid] !== undefined) {
-                uidRef.current = vars.users[uid].uid;
-                useridRef.current = vars.users[uid].userid;
-                discordidRef.current = vars.users[uid].discordid;
-                emailRef.current = vars.users[uid].email;
-                steamidRef.current = vars.users[uid].steamid;
-                truckersmpidRef.current = vars.users[uid].truckersmpid;
-                nameRef.current = vars.users[uid].name;
-                bioRef.current = vars.users[uid].bio;
-                noteRef.current = vars.users[uid].note;
-                globalNoteRef.current = vars.users[uid].global_note;
-                avatarRef.current = vars.users[uid].avatar;
-                rolesRef.current = vars.users[uid].roles;
-                banRef.current = vars.users[uid].ban;
-                setNewProfile({ name: vars.users[uid].name, avatar: vars.users[uid].avatar });
-                setNewAboutMe(vars.users[uid].bio);
-                setNewNote(vars.users[uid].note);
-                setNewGlobalNote(vars.users[uid].global_note);
-                setNewRoles(vars.users[uid].roles);
-                setNewConnections({ email: vars.users[uid].email, discordid: vars.users[uid].discordid, steamid: vars.users[uid].steamid, truckersmpid: vars.users[uid].truckersmpid });
-                setTrackerInUse(vars.users[uid].tracker);
-                setRoleHistory(vars.users[uid].role_history);
-                setBanHistory(vars.users[uid].ban_history);
-                setTrackerInUse(vars.users[uid].tracker);
+        const userUpdated = (e) => {
+            if (e.detail !== undefined && e.detail.uid === uidRef.current) {
+                let user = e.detail.user;
+                uidRef.current = user.uid;
+                useridRef.current = user.userid;
+                discordidRef.current = user.discordid;
+                emailRef.current = user.email;
+                steamidRef.current = user.steamid;
+                truckersmpidRef.current = user.truckersmpid;
+                nameRef.current = user.name;
+                bioRef.current = user.bio;
+                noteRef.current = user.note;
+                globalNoteRef.current = user.global_note;
+                avatarRef.current = user.avatar;
+                rolesRef.current = user.roles;
+                banRef.current = user.ban;
+                setNewProfile({ name: user.name, avatar: user.avatar });
+                setNewAboutMe(user.bio);
+                setNewNote(user.note);
+                setNewGlobalNote(user.global_note);
+                setNewRoles(user.roles);
+                setNewConnections({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
+                setTrackerInUse(user.tracker);
+                setRoleHistory(user.role_history);
+                setBanHistory(user.ban_history);
+                setTrackerInUse(user.tracker);
             }
         };
         window.addEventListener("userUpdated", userUpdated);
@@ -549,11 +550,11 @@ const UserCard = (props) => {
         for (let i = 0; i < vars.members.length; i++) {
             if (vars.members[i].uid === uid) {
                 vars.members[i].note = newNote;
+                const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.members[i] } });
+                window.dispatchEvent(userUpdated);
                 break;
             }
         }
-        const userUpdated = new CustomEvent('userUpdated', {});
-        window.dispatchEvent(userUpdated);
 
         await axios({ url: `${vars.dhpath}/user/${uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         updateUserInfo();

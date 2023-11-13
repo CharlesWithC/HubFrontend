@@ -354,8 +354,6 @@ const Settings = () => {
             const [newUserConfig] = await makeRequestsAuto([{ url: "https://config.chub.page/config/user", auth: false }]);
             if (newUserConfig) {
                 vars.userConfig = newUserConfig;
-                const userUpdated = new CustomEvent('userUpdated', {});
-                window.dispatchEvent(userUpdated);
             }
         } else {
             setSnackbarContent(resp.data.error);
@@ -382,7 +380,7 @@ const Settings = () => {
             vars.userInfo.tracker = tracker;
             setTracker(to);
             vars.users[vars.userInfo.uid] = vars.userInfo;
-            const userUpdated = new CustomEvent('userUpdated', {});
+            const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
             window.dispatchEvent(userUpdated);
         } else {
             setSnackbarContent(resp.data.error);
@@ -768,7 +766,7 @@ const Settings = () => {
                 setMfaEnabled(true);
                 setModalEnableMfa(false);
                 vars.users[vars.userInfo.uid] = vars.userInfo;
-                const userUpdated = new CustomEvent('userUpdated', {});
+                const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
                 window.dispatchEvent(userUpdated);
             } else {
                 setSnackbarContent(`Failed to enable MFA: ` + resp.data.error);
@@ -809,7 +807,7 @@ const Settings = () => {
             vars.userInfo.mfa = false;
             setMfaEnabled(false);
             vars.users[vars.userInfo.uid] = vars.userInfo;
-            const userUpdated = new CustomEvent('userUpdated', {});
+            const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
             window.dispatchEvent(userUpdated);
         } else {
             setSnackbarContent(`Failed to disable MFA: ` + resp.data.error);
