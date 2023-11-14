@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useTheme } from '@mui/material';
 
 import TimeAgo from '../components/timeago';
@@ -22,25 +22,22 @@ const puColumns = [
 const AuditLog = () => {
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPageAL] = useState(-1);
-    const [pageSize, setPageSizeAL] = useState(10);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const theme = useTheme();
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
             const [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/audit/list?order=desc&order_by=uid&page=${myPage}&page_size=${pageSize}`, auth: true },
+                { url: `${vars.dhpath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}`, auth: true },
             ]);
 
             let newUserList = [];
@@ -49,8 +46,10 @@ const AuditLog = () => {
                 newUserList.push({ uid: row.user.uid, userid: row.user.userid, user: <UserCard user={row.user} />, discordid: row.user.discordid, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} />, operation: <MarkdownRenderer>{row.operation}</MarkdownRenderer> });
             }
 
-            setUserList(newUserList);
-            setTotalItems(_userList.total_items);
+            if (pageRef.current === page) {
+                setUserList(newUserList);
+                setTotalItems(_userList.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -60,7 +59,7 @@ const AuditLog = () => {
 
     return <>
         {userList.length !== 0 &&
-            <CustomTable columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPageAL} onRowsPerPageChange={setPageSizeAL} />
+            <CustomTable columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
         }
     </>;
 };

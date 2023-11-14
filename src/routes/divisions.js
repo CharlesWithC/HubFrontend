@@ -1,4 +1,4 @@
-import { useEffect, useState, memo } from 'react';
+import { useRef, useEffect, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, useTheme } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
@@ -114,32 +114,31 @@ const DivisionsMemo = memo(({ doReload }) => {
 const DivisionsDlog = memo(({ doReload }) => {
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
 
     const theme = useTheme();
 
     useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+    useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
-            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}&division=only`]);
+            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&division=only`]);
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
                 newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} /></Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
-            setDlogList(newDlogList);
-            setTotalItems(dlogL.total_items);
+            if (pageRef.current === page) {
+                setDlogList(newDlogList);
+                setTotalItems(dlogL.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -160,20 +159,17 @@ const DivisionsDlog = memo(({ doReload }) => {
 const DivisionsPending = memo(({ doReload }) => {
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
-
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
 
             const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${myPage}`]);
 
@@ -182,8 +178,10 @@ const DivisionsPending = memo(({ doReload }) => {
                 newDlogList.push({ logid: dlogL.list[i].logid, display_logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, division: vars.divisions[dlogL.list[i].divisionid].name });
             }
 
-            setDlogList(newDlogList);
-            setTotalItems(dlogL.total_items);
+            if (pageRef.current === page) {
+                setDlogList(newDlogList);
+                setTotalItems(dlogL.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

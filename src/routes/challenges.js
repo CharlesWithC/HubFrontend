@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useRef, useState, useEffect, useCallback, memo } from 'react';
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
@@ -259,13 +259,18 @@ const ChallengeManagers = memo(() => {
 });
 
 const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
-    const [page, setPage] = useState(-1);
-    const [pageSize, setPageSize] = useState(10);
+    const inited = useRef(false);
     const [totalItems, setTotalItems] = useState(0);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
+    const [pageSize, setPageSize] = useState(10);
     const [listParam, setListParam] = useState({ order_by: "challengeid", order: "desc" });
 
     const theme = useTheme();
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -273,29 +278,25 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
 
             let processedParam = removeNUEValues(listParam);
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
-            if (page === -1 || +new Date() - doReload <= 1000) {
+            let [_upcomingChallenges, _activeChallenges, _challengeList] = [{}, {}, {}];
+            if (!inited.current || +new Date() - doReload <= 1000) {
                 let urls = [
                     `${vars.dhpath}/challenges/list?page_size=2&page=1&start_after=${parseInt(+new Date() / 1000)}`,
                     `${vars.dhpath}/challenges/list?page_size=250&page=1&start_before=${parseInt(+new Date() / 1000)}&end_after=${parseInt(+new Date() / 1000)}`,
-                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&${new URLSearchParams(processedParam).toString()}`,
+                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
-                let [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
+                [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
                 setUpcomingChallenges(ParseChallenges(_upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
                 setActiveChallenges(ParseChallenges(_activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
-                setChallengeList(ParseChallenges(_challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
-                setTotalItems(_challengeList.total_items);
+                inited.current = true;
             } else {
                 let urls = [
-                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${myPage}&${new URLSearchParams(processedParam).toString()}`,
+                    `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
-                let [_challengeList] = await makeRequestsWithAuth(urls);
+                [_challengeList] = await makeRequestsWithAuth(urls);
+            }
+
+            if (pageRef.current === page) {
                 setChallengeList(ParseChallenges(_challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
                 setTotalItems(_challengeList.total_items);
             }

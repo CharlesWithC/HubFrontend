@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useTheme } from '@mui/material';
 
 import TimeAgo from '../components/timeago';
@@ -20,25 +20,22 @@ const columns = [
 const Notifications = () => {
     const [notiList, setNotiList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
 
     const theme = useTheme();
 
     useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+    useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
             const [_notiList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/user/notification/list?order=desc&order_by=notificationid&page=${myPage}&page_size=${pageSize}`, auth: true },
+                { url: `${vars.dhpath}/user/notification/list?order=desc&order_by=notificationid&page=${page}&page_size=${pageSize}`, auth: true },
             ]);
 
             let newNotiList = [];
@@ -47,8 +44,10 @@ const Notifications = () => {
                 newNotiList.push({ id: row.notificationid, content: <MarkdownRenderer>{row.content}</MarkdownRenderer>, time: <TimeAgo key={row.notificationid} timestamp={row.timestamp * 1000} /> });
             }
 
-            setNotiList(newNotiList);
-            setTotalItems(_notiList.total_items);
+            if (pageRef.current === page) {
+                setNotiList(newNotiList);
+                setTotalItems(_notiList.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

@@ -228,14 +228,12 @@ const UserCard = (props) => {
     const [pointStats, setPointStats] = useState(null);
     const [dlogList, setDlogList] = useState(null);
     const [dlogTotalItems, setDlogTotalItems] = useState(0);
-    const [dlogPage, setDlogPage] = useState(-1);
+    const [dlogPage, setDlogPage] = useState(1);
+    const dlogPageRef = useRef(1);
     const [dlogPageSize, setDlogPageSize] = useState(10);
     const loadStats = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
-
-        let myPage = dlogPage;
-        myPage === -1 ? myPage = 1 : myPage += 1;
 
         const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
             { url: `https://config.chub.page/truckersmp?mpid=${truckersmpidRef.current}`, auth: false },
@@ -243,7 +241,7 @@ const UserCard = (props) => {
             { url: `${vars.dhpath}/dlog/statistics/summary?userid=${userid}`, auth: true },
             { url: `${vars.dhpath}/dlog/statistics/details?userid=${userid}`, auth: true },
             { url: `${vars.dhpath}/dlog/leaderboard?userids=${userid}`, auth: true },
-            { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${myPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+            { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
         ]);
 
         if (_tmp.error === undefined && _tmp.last_online !== undefined) {
@@ -284,15 +282,15 @@ const UserCard = (props) => {
             loadStats();
     }, [chartStats, ctxAction, showProfileModal]);
     useEffect(() => {
+        dlogPageRef.current = dlogPage;
+    }, [dlogPage]);
+    useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            let myPage = dlogPage;
-            myPage === -1 ? myPage = 1 : myPage += 1;
-
             const [_dlogList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${myPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+                { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
             ]);
             let newDlogList = [];
             for (let i = 0; i < _dlogList.list.length; i++) {
@@ -305,8 +303,10 @@ const UserCard = (props) => {
                 }
                 newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
             }
-            setDlogList(newDlogList);
-            setDlogTotalItems(_dlogList.total_items);
+            if (dlogPageRef.current === dlogPage) {
+                setDlogList(newDlogList);
+                setDlogTotalItems(_dlogList.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

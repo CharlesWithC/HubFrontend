@@ -31,7 +31,7 @@ const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRigh
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        onPageChange(newPage);
+        onPageChange(newPage + 1);
     };
 
     const handleChangeRowsPerPage = (event) => {

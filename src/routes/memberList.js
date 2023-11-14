@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -25,11 +25,14 @@ const columns = [
 const MemberList = () => {
     const theme = useTheme();
 
+    const inited = useRef(false);
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
     const [search, setSearch] = useState("");
+    const searchRef = useRef("");
     const [listParam, setListParam] = useState({ order_by: "userid", order: "asc" });
 
     const [dialogOpen, setDialogOpen] = useState("");
@@ -80,23 +83,26 @@ const MemberList = () => {
         setDialogButtonDisabled(false);
     }, []);
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+    useEffect(() => {
+        searchRef.current = search;
+    }, [search]);
     const doLoad = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
-
-        let myPage = page;
-        myPage === -1 ? myPage = 1 : myPage += 1;
 
         let processedParam = removeNUEValues(listParam);
 
         let [_userList] = [{}];
         if (search === "")
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/member/list?order=desc&order_by=userid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${vars.dhpath}/member/list?order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (isNaN(search) || !isNaN(search) && (search.length < 17 || search.length > 19)) // not discord id
             [_userList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/member/list?name=${search}&order=desc&order_by=userid&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                { url: `${vars.dhpath}/member/list?name=${search}&order=desc&order_by=userid&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
             ]);
         else if (!isNaN(search) && search.length >= 17 && search.length <= 19) { // is discord id
             let [_userProfile] = await makeRequestsAuto([
@@ -114,8 +120,10 @@ const MemberList = () => {
                 let user = _userList.list[i];
                 newUserList.push({ userid: `${user.userid}`, user: <UserCard key={user.uid} user={user} />, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} />, last_seen: user.activity !== null && user.activity.last_seen !== undefined ? <TimeAgo key={`${+new Date()}`} timestamp={user.activity.last_seen * 1000} /> : "/" });
             }
-            setUserList(newUserList);
-            setTotalItems(_userList.total_items);
+            if (pageRef.current === page && searchRef.current === search) {
+                setUserList(newUserList);
+                setTotalItems(_userList.total_items);
+            }
         }
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -126,7 +134,7 @@ const MemberList = () => {
     }, [doLoad]);
 
     return <>
-        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;Members&nbsp;&nbsp;<IconButton onClick={() => { setDialogOpen("sync-profile"); }}><FontAwesomeIcon icon={faArrowsRotate} /></IconButton></>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(-1); setSearch(content); }} searchHint="Search by username or discord id" />
+        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;Members&nbsp;&nbsp;<IconButton onClick={() => { setDialogOpen("sync-profile"); }}><FontAwesomeIcon icon={faArrowsRotate} /></IconButton></>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint="Search by username or discord id" />
         <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
             <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;Sync Profiles</DialogTitle>
             <DialogContent>

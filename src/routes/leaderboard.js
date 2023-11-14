@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon } from '@mui/material';
 import { useTheme } from '@emotion/react';
 
@@ -55,13 +55,18 @@ const Leaderboard = () => {
     const [monthly, setMonthly] = useState([]);
     const [allTime, setAllTime] = useState([]);
 
+    const inited = useRef(false);
     const [leaderboard, setLeaderboard] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
     const [tempListParam, setTempListParam] = useState({ after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
     const [listParam, setListParam] = useState({ userids: [], users: [] });
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -69,29 +74,23 @@ const Leaderboard = () => {
 
             let [_monthly, _allTime, _leaderboard] = [{}, {}, {}];
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
             let processedParam = JSON.parse(JSON.stringify(listParam));
             processedParam.userids = processedParam.users.map(user => user.userid);
             delete processedParam.users;
             processedParam = removeNUEValues(processedParam);
 
-            if (page === -1) {
+            if (!inited.current) {
                 [_monthly, _allTime, _leaderboard] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=3&after=` + getMonthUTC() / 1000, auth: true },
                     { url: `${vars.dhpath}/dlog/leaderboard?page=1&page_size=3`, auth: true },
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/leaderboard?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setMonthly(_monthly.list);
                 setAllTime(_allTime.list);
+                inited.current = true;
             } else {
                 [_leaderboard] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/leaderboard?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${vars.dhpath}/dlog/leaderboard?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newLeaderboard = [];
@@ -100,8 +99,10 @@ const Leaderboard = () => {
                 newLeaderboard.push({ rankorder: points.rank, member: <UserCard user={_leaderboard.list[i].user} inline={true} />, rankname: getRankName(points.total), distance: TSep(points.distance), challenge: TSep(points.challenge), event: TSep(points.event), division: TSep(points.division), bonus: TSep(points.bonus), total: TSep(points.total), userid: _leaderboard.list[i].user.userid });
             }
 
-            setLeaderboard(newLeaderboard);
-            setTotalItems(_leaderboard.total_items);
+            if (pageRef.current === page) {
+                setLeaderboard(newLeaderboard);
+                setTotalItems(_leaderboard.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

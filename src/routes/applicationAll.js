@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
 
-import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, FormControl, MenuItem, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, MenuItem, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import CustomTable from '../components/table';
@@ -25,14 +25,19 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     const [stats, setStats] = useState([]);
     const [applications, setApplications] = useState([]);
 
+    const inited = useRef(false);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
     const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();
     const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -42,26 +47,20 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
             let [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = [{}, {}];
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
-            if (page === -1 || +new Date() - doReload <= 1000) {
+            if (!inited.current || +new Date() - doReload <= 1000) {
                 [_pending, _accepted, _declined, _respondedM, _respondedAT, _applications] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=0`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=1`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=2`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${vars.userInfo.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${vars.userInfo.userid}`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setStats([_pending.total_items, _accepted.total_items, _declined.total_items, _respondedM.total_items, _respondedAT.total_items]);
+                inited.current = true;
             } else {
                 [_applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newApplications = [];
@@ -70,8 +69,10 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                 newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? "Unknown", submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
-            setApplications(newApplications);
-            setTotalItems(_applications.total_items);
+            if (pageRef.current === page) {
+                setApplications(newApplications);
+                setTotalItems(_applications.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

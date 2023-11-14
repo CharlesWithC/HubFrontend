@@ -335,9 +335,13 @@ const Economy = () => {
     const [slotList, setSlotList] = useState([]);
     const [slotTotal, setSlotTotal] = useState(0);
     const [slotPage, setSlotPage] = useState(1);
+    const slotPageRef = useRef(1);
     const [slotPageSize, setSlotPageSize] = useState(10);
 
     const [activeSlot, setActiveSlot] = useState({});
+    useEffect(() => {
+        slotPageRef.current = slotPage;
+    }, [slotPage]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -354,8 +358,10 @@ const Economy = () => {
                     newSlotList.push({ slotid: slot.slotid, owner: <UserCard key={`${slotPage}-i`} user={slot.slot_owner} />, truck: <a className="hover-underline" style={{ cursor: "pointer" }} onClick={() => { setTruckSlotId(slot.slotid); setTruckReferer("slot"); setDialogAction("purchase-truck"); }}>Empty Slot</a>, odometer: "/", income: "/", contextMenu: ctxMenu });
                 }
             }
-            setSlotList(newSlotList);
-            setSlotTotal(resp.data.total_items);
+            if (slotPageRef.current === slotPage) {
+                setSlotList(newSlotList);
+                setSlotTotal(resp.data.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -551,8 +557,12 @@ const Economy = () => {
     const [myTruckList, setMyTruckList] = useState([]);
     const [myTruckTotal, setMyTruckTotal] = useState(0);
     const [myTruckPage, setMyTruckPage] = useState(1);
+    const myTruckPageRef = useRef(1);
     const [myTruckPageSize, setMyTruckPageSize] = useState(5);
     const [loadMyTruck, setLoadMyTruck] = useState(0);
+    useEffect(() => {
+        myTruckPageRef.current = myTruckPage;
+    }, [myTruckPage]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -564,8 +574,10 @@ const Economy = () => {
                 let truck = resp.data.list[i];
                 newTruckList.push({ truck: <>{truck.truck.brand} {truck.truck.model}</>, garage: vars.economyGaragesMap[truck.garageid] !== undefined ? vars.economyGaragesMap[truck.garageid].name : "Unknown Garage", odometer: TSep(truck.odometer), income: TSep(truck.income), status: TRUCK_STATUS[truck.status], data: truck });
             }
-            setMyTruckList(newTruckList);
-            setMyTruckTotal(resp.data.total_items);
+            if (myTruckPageRef.current === myTruckPage) {
+                setMyTruckList(newTruckList);
+                setMyTruckTotal(resp.data.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -699,7 +711,11 @@ const Economy = () => {
     const [leaderboard, setLeaderboard] = useState([]);
     const [leaderboardTotal, setLeaderboardTotal] = useState(0);
     const [leaderboardPage, setLeaderboardPage] = useState(1);
+    const leaderboardPageRef = useRef(1);
     const [leaderboardPageSize, setLeaderboardPageSize] = useState(5);
+    useEffect(() => {
+        leaderboardPageRef.current = leaderboardPage;
+    }, [leaderboardPage]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -710,8 +726,10 @@ const Economy = () => {
             for (let i = 0; i < resp.data.list.length; i++) {
                 newLeaderboard.push({ rank: (leaderboardPage - 1) * leaderboardPageSize + i + 1, user: <UserCard key={`${leaderboardPage}-i`} user={resp.data.list[i].user} />, balance: TSep(resp.data.list[i].balance), data: resp.data.list[i].user });
             }
-            setLeaderboard(newLeaderboard);
-            setLeaderboardTotal(resp.data.total_items);
+            if (leaderboardPageRef.current === leaderboardPage) {
+                setLeaderboard(newLeaderboard);
+                setLeaderboardTotal(resp.data.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -722,7 +740,11 @@ const Economy = () => {
     const [truckList, setTruckList] = useState([]);
     const [truckTotal, setTruckTotal] = useState(0);
     const [truckPage, setTruckPage] = useState(1);
+    const truckPageRef = useRef(1);
     const [truckPageSize, setTruckPageSize] = useState(5);
+    useEffect(() => {
+        truckPageRef.current = truckPage;
+    }, [truckPage]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -734,8 +756,10 @@ const Economy = () => {
                 let truck = resp.data.list[i];
                 newTruckList.push({ model: truck.truck.brand + " " + truck.truck.model, garage: vars.economyGaragesMap[truck.garageid] !== undefined ? <a className="hover-underline" style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModalGarage(vars.economyGaragesMap[truck.garageid]); setModalGarageDetails(null); handleGarageClick(vars.economyGaragesMap[truck.garageid]); setDialogAction("garage"); }}>{vars.economyGaragesMap[truck.garageid].name}</a> : truck.garageid, owner: <UserCard user={truck.owner} />, income: TSep(truck.income), data: truck });
             }
-            setTruckList(newTruckList);
-            setTruckTotal(resp.data.total_items);
+            if (truckPageRef.current === truckPage) {
+                setTruckList(newTruckList);
+                setTruckTotal(resp.data.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -746,7 +770,11 @@ const Economy = () => {
     const [garageList, setGarageList] = useState([]);
     const [garageTotal, setGarageTotal] = useState(0);
     const [garagePage, setGaragePage] = useState(1);
+    const garagePageRef = useRef(1);
     const [garagePageSize, setGaragePageSize] = useState(5);
+    useEffect(() => {
+        garagePageRef.current = garagePage;
+    }, [garagePage]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -758,8 +786,10 @@ const Economy = () => {
                 let garage = resp.data.list[i];
                 newGarageList.push({ location: vars.economyGaragesMap[garage.garageid] !== undefined ? vars.economyGaragesMap[garage.garageid].name : garage.garageid, owner: <UserCard user={garage.garage_owner} />, income: TSep(garage.income), data: garage });
             }
-            setGarageList(newGarageList);
-            setGarageTotal(resp.data.total_items);
+            if (garagePageRef.current === garagePage) {
+                setGarageList(newGarageList);
+                setGarageTotal(resp.data.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
@@ -770,8 +800,12 @@ const Economy = () => {
     const [merchList, setMerchList] = useState([]);
     const [merchTotal, setMerchTotal] = useState(0);
     const [merchPage, setMerchPage] = useState(1);
+    const merchPageRef = useRef(1);
     const [merchPageSize, setMerchPageSize] = useState(5);
     const [loadMerch, setLoadMerch] = useState(0);
+    useEffect(() => {
+        merchPageRef.current = merchPage;
+    }, [merchPage]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -784,8 +818,10 @@ const Economy = () => {
                 let ctxMenu = <><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("transfer-merch"); }} sx={{ color: theme.palette.warning.main }}>Transfer Merch</MenuItem><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("sell-merch"); }} sx={{ color: theme.palette.error.main }}>Sell Merch</MenuItem></>;
                 newMerchList.push({ name: vars.economyMerchMap[merch.merchid] !== undefined ? vars.economyMerchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeAgo timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
             }
-            setMerchList(newMerchList);
-            setMerchTotal(resp.data.total_items);
+            if (merchPageRef.current === merchPage) {
+                setMerchList(newMerchList);
+                setMerchTotal(resp.data.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

@@ -923,23 +923,26 @@ const Settings = () => {
 
     const [sessions, setSessions] = useState([]);
     const [sessionsTotalItems, setSessionsTotalItems] = useState(0);
-    const [sessionsPage, setSessionsPage] = useState(-1);
+    const [sessionsPage, setSessionsPage] = useState(1);
+    const sessionsPageRef = useRef(1);
     const [sessionsPageSize, setSessionsPageSize] = useState(10);
 
     const [appSessions, setAppSessions] = useState([]);
     const [appSessionsTotalItems, setAppSessionsTotalItems] = useState(0);
-    const [appSessionsPage, setAppSessionsPage] = useState(-1);
+    const [appSessionsPage, setAppSessionsPage] = useState(1);
+    const appSessionsPageRef = useRef(1);
     const [appSessionsPageSize, setAppSessionsPageSize] = useState(10);
 
+    useEffect(() => {
+        sessionsPageRef.current = sessionsPage;
+    }, [sessionsPage]);
+    useEffect(() => {
+        appSessionsPageRef.current = appSessionsPage;
+    }, [appSessionsPage]);
     async function loadSessions() {
-        let mySessionsPage = sessionsPage;
-        mySessionsPage === -1 ? mySessionsPage = 1 : mySessionsPage += 1;
-        let myAppSessionsPage = appSessionsPage;
-        myAppSessionsPage === -1 ? myAppSessionsPage = 1 : myAppSessionsPage += 1;
-
         const [_sessions, _appSessions] = await makeRequestsWithAuth([
-            `${vars.dhpath}/token/list?page=${mySessionsPage}&page_size=${sessionsPageSize}`,
-            `${vars.dhpath}/token/application/list?page=${myAppSessionsPage}&page_size=${appSessionsPageSize}`]);
+            `${vars.dhpath}/token/list?page=${sessionsPage}&page_size=${sessionsPageSize}`,
+            `${vars.dhpath}/token/application/list?page=${appSessionsPage}&page_size=${appSessionsPageSize}`]);
 
         function getDeviceIcon(userAgent) {
             if (userAgent.indexOf("Chrome") != -1) return <FontAwesomeIcon icon={faChrome} />;
@@ -967,14 +970,18 @@ const Settings = () => {
                 ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>Revoke</MenuItem>) : (<MenuItem disabled > Current Session</MenuItem >)
             });
         };
-        setSessions(newSessions);
-        setSessionsTotalItems(_sessions.total_items);
+        if (sessionsPageRef.current === sessionsPage) {
+            setSessions(newSessions);
+            setSessionsTotalItems(_sessions.total_items);
+        }
         let newAppSessions = [];
         for (let i = 0; i < _appSessions.list.length; i++) {
             newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>Revoke</MenuItem> });
         }
-        setAppSessions(newAppSessions);
-        setAppSessionsTotalItems(_appSessions.total_items);
+        if (appSessionsPageRef.current === appSessionsPage) {
+            setAppSessions(newAppSessions);
+            setAppSessionsTotalItems(_appSessions.total_items);
+        }
     };
     useEffect(() => {
         loadSessions();
@@ -1340,8 +1347,8 @@ const Settings = () => {
             </Grid>
             <Divider sx={{ mt: "20px", mb: "20px" }} />
             <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings</Typography>
-            <Typography variant="body2">These settings are synced to a remote server and will be displayed on other users' clients.</Typography>
-            <Typography variant="body2">You must click "save" to sync settings to the remote server, otherwise the settings will be lost once you refresh or close this tab.</Typography>
+            <Typography variant="body2">These settings are synced to cloud and will be displayed on other users' clients.</Typography>
+            <Typography variant="body2">You must click "save" to sync settings to cloud, otherwise the settings will be lost once you refresh or close this tab.</Typography>
             <br />
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={4} lg={4}>

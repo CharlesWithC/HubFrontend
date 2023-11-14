@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -31,10 +31,12 @@ const columns = [
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
+    const inited = useRef(false);
     const [detailStats, setDetailStats] = useState("loading");
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
     const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 });
     const [listParam, setListParam] = useState({});
@@ -201,31 +203,28 @@ const Deliveries = () => {
     }, [truckyCompanyID, truckyImportRange, bypassTrackerCheck]);
 
     useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
+    useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
             let [detailS, dlogL] = [{}, {}];
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
             let processedParam = removeNUEValues(listParam);
 
-            if (page === -1) {
+            if (!inited.current) {
                 [detailS, dlogL] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/dlog/statistics/details?after=` + getMonthUTC() / 1000, auth: true },
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
+                    { url: `${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
                 ]);
 
                 setDetailStats(detailS);
+                inited.current = true;
             } else {
                 [dlogL] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/dlog/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
+                    { url: `${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: "prefer" },
                 ]);
             }
 
@@ -241,8 +240,10 @@ const Deliveries = () => {
                 newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
-            setDlogList(newDlogList);
-            setTotalItems(dlogL.total_items);
+            if (pageRef.current === page) {
+                setDlogList(newDlogList);
+                setTotalItems(dlogL.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

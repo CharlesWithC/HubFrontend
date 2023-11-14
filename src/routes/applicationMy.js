@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
@@ -24,14 +24,19 @@ const ApplicationTable = memo(({ showDetail }) => {
     const [recent, setRecent] = useState([]);
     const [applications, setApplications] = useState(null);
 
+    const inited = useRef(false);
     const [totalItems, setTotalItems] = useState(0);
-    const [page, setPage] = useState(-1);
+    const [page, setPage] = useState(1);
+    const pageRef = useRef(1);
     const [pageSize, setPageSize] = useState(10);
     const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();
     const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
 
+    useEffect(() => {
+        pageRef.current = page;
+    }, [page]);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -41,22 +46,16 @@ const ApplicationTable = memo(({ showDetail }) => {
 
             let [_recent, _applications] = [{}, {}];
 
-            let myPage = page;
-            if (myPage === -1) {
-                myPage = 1;
-            } else {
-                myPage += 1;
-            }
-
-            if (page === -1) {
+            if (!inited.current) {
                 [_recent, _applications] = await makeRequestsAuto([
                     { url: `${vars.dhpath}/applications/list?page=1&page_size=2&order_by=submit_timestamp&order=desc`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setRecent(_recent.list);
+                inited.current = true;
             } else {
                 [_applications] = await makeRequestsAuto([
-                    { url: `${vars.dhpath}/applications/list?page=${myPage}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
             }
             let newApplications = [];
@@ -65,8 +64,10 @@ const ApplicationTable = memo(({ showDetail }) => {
                 newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? "Unknown", submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
-            setApplications(newApplications);
-            setTotalItems(_applications.total_items);
+            if (pageRef.current === page) {
+                setApplications(newApplications);
+                setTotalItems(_applications.total_items);
+            }
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);

@@ -36,6 +36,7 @@
 25. Added 404 page and redirect no-access tabs to /404
 26. Added view member profile with URL (`/member/{userid}`)
 27. Added preview profile appearance
+28. Fixed table shows data of incorrect page when user changes the page too quickly
 
 ## v3.0.0
 
