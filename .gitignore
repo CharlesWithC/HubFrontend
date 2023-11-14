@@ -26,3 +26,5 @@ yarn-error.log*
 
 # Sentry Auth Token
 .sentryclirc
+
+.ruff_cache

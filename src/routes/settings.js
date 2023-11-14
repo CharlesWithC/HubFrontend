@@ -308,13 +308,13 @@ const Settings = () => {
             for (let i = 0; i < vars.userConfig[vars.userInfo.discordid].length; i++) {
                 if (vars.userConfig[vars.userInfo.discordid][i].abbr === vars.dhconfig.abbr) {
                     let uc = JSON.parse(JSON.stringify(vars.userConfig[vars.userInfo.discordid][i]));
-                    if (uc.name_color === "#x1") {
+                    if (uc.name_color === null) {
                         uc.name_color = "/";
                     }
-                    if (uc.profile_upper_color === "#x1") {
+                    if (uc.profile_upper_color === null) {
                         uc.profile_upper_color = "/";
                     }
-                    if (uc.profile_lower_color === "#x1") {
+                    if (uc.profile_lower_color === null) {
                         uc.profile_lower_color = "/";
                     }
                     setRemoteUserConfig(uc);

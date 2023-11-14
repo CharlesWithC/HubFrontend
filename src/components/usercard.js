@@ -160,10 +160,10 @@ const UserCard = (props) => {
         for (let i = 0; i < vars.userConfig[discordid].length; i++) {
             if (vars.userConfig[discordid][i].abbr === vars.dhconfig.abbr) {
                 let uc = vars.userConfig[discordid][i];
-                if (uc.name_color !== "#x1") {
+                if (uc.name_color !== null) {
                     specialColor = uc.name_color;
                 }
-                if (uc.profile_upper_color !== "#x1" && uc.profile_lower_color !== "#x1") {
+                if (uc.profile_upper_color !== null && uc.profile_lower_color !== null) {
                     profile_background = [uc.profile_upper_color, uc.profile_lower_color];
                 }
                 try {

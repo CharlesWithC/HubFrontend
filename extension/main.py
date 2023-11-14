@@ -31,7 +31,12 @@ uconn = sqlite3.connect("user-settings.db", check_same_thread=False)
 ucur = uconn.cursor()
 # user-settings => set name color + profile upper/lower theme + profile banner url
 # these data are synced into /roles endpoint
-ucur.execute(f"CREATE TABLE IF NOT EXISTS users (discordid BIGINT UNSIGNED PRIMARY KEY, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT)")
+ucur.execute("CREATE TABLE IF NOT EXISTS users (discordid BIGINT UNSIGNED, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT)")
+try:
+    ucur.execute("CREATE INDEX users_discordid ON users (discordid)")
+    ucur.execute("CREATE INDEX users_abbr ON users (abbr)")
+except:
+    pass
 
 def color_similarity(hex1, hex2):
     # Convert hex codes to RGB values
@@ -50,7 +55,7 @@ def color_similarity(hex1, hex2):
 def truckersmp_online_data():
     conn = sqlite3.connect("truckersmp.db", check_same_thread=False)
     cur = conn.cursor()
-    cur.execute(f"CREATE TABLE IF NOT EXISTS players (mpid INT PRIMARY KEY, name VARCHAR(64), last_online BIGINT UNSIGNED)")
+    cur.execute("CREATE TABLE IF NOT EXISTS players (mpid INT PRIMARY KEY, name VARCHAR(64), last_online BIGINT UNSIGNED)")
 
     recent_online = {}
     cur.execute(f"SELECT mpid, last_online FROM players WHERE last_online >= {int(time.time()) - 3600}")
@@ -90,11 +95,11 @@ def truckersmp_online_data():
             for (op, mpid, name, timestamp) in updates:
                 try:
                     if op == 0:
-                        cur.execute(f"INSERT INTO players VALUES (?, ?, ?)", (mpid, name, timestamp, ))
+                        cur.execute("INSERT INTO players VALUES (?, ?, ?)", (mpid, name, timestamp, ))
                     elif op == 1:
-                        cur.execute(f"UPDATE players SET name = ?, last_online = ? WHERE mpid = ?", (name, timestamp, mpid, ))
+                        cur.execute("UPDATE players SET name = ?, last_online = ? WHERE mpid = ?", (name, timestamp, mpid, ))
                     elif op == 2:
-                        cur.execute(f"UPDATE players SET last_online = ? WHERE mpid = ?", (timestamp, mpid, ))
+                        cur.execute("UPDATE players SET last_online = ? WHERE mpid = ?", (timestamp, mpid, ))
                 except:
                     pass
             conn.commit()
@@ -109,12 +114,18 @@ def truckersmp_online_data():
 async def index():
     return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
 
+def convertToHex(intColor):
+    if intColor == -1:
+        return None
+    else:
+        return "#" + str(hex(intColor))[2:]
+    
 def updateRolesCache():
     global rolesCache
     rolesCache = {"lead_developer": [], "project_manager": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "support_team": [], "marketing_team": [], "graphic_team": [], "translation_team": [], "community_legend": [], "platinum_sponsor": [], "gold_sponsor": [], "silver_sponsor": [], "bronze_sponsor": [], "server_booster": [], "web_client_beta": []}
     ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "translation_team": "1041362203728683051", "community_legend": "992781163477344326", "platinum_sponsor": "1128329358218633268", "gold_sponsor": "1128329030106615969", "silver_sponsor": "1031947700419186779", "bronze_sponsor": "1128328748110975006", "server_booster": "988263021010898995", "web_client_beta": "1127416037076389960"}
     ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_manager": "", "marketing_manager": "", "support_team": "", "marketing_team": "", "graphic_team": "", "translation_team": "", "community_legend": "", "platinum_sponsor": "", "gold_sponsor": "", "silver_sponsor": "", "bronze_sponsor": "", "server_booster": "", "web_client_beta": ""}
-    r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
+    r = requests.get("https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
     newReservedColor = []
     if r.status_code == 200:
         d = json.loads(r.text)
@@ -143,7 +154,7 @@ def updateRolesCache():
                 
                 for role in ROLES.keys():
                     if ROLES[role] in dd["roles"]:
-                        rolesCache[role].append({"id": dd["user"]["id"], "name": username, "avatar": dd["user"]["avatar"], "color": "#" + str(hex(ROLE_COLOR[role]))[2:]})
+                        rolesCache[role].append({"id": dd["user"]["id"], "name": username, "avatar": dd["user"]["avatar"], "color": convertToHex(ROLE_COLOR[role])})
 
             if len(d) < 1000:
                 break
@@ -159,9 +170,9 @@ def updateUserConfigCache():
     user_config = {}
     for tt in t:
         if tt[0] not in user_config.keys():
-            user_config[tt[0]] = [{"abbr": tt[1], "name_color": "#" + str(hex(tt[2]))[2:], "profile_upper_color": "#" + str(hex(tt[3]))[2:], "profile_lower_color": "#" + str(hex(tt[4]))[2:], "profile_banner_url": tt[5]}]
+            user_config[tt[0]] = [{"abbr": tt[1], "name_color": convertToHex(tt[2]), "profile_upper_color": convertToHex(tt[3]), "profile_lower_color": convertToHex(tt[4]), "profile_banner_url": tt[5]}]
         else:
-            user_config[tt[0]].append({"abbr": tt[1], "name_color": "#" + str(hex(tt[2]))[2:], "profile_upper_color": "#" + str(hex(tt[3]))[2:], "profile_lower_color": "#" + str(hex(tt[4]))[2:], "profile_banner_url": tt[5]})
+            user_config[tt[0]].append({"abbr": tt[1], "name_color": convertToHex(tt[2]), "profile_upper_color": convertToHex(tt[3]), "profile_lower_color": convertToHex(tt[4]), "profile_banner_url": tt[5]})
     
     userConfigCache = user_config
 
@@ -261,9 +272,9 @@ async def patchUserConfig(domain:str, request: Request, response: Response, auth
     ucur.execute(f"SELECT discordid FROM users WHERE discordid = {discordid} AND abbr = '{abbr}'")
     t = ucur.fetchall()
     if len(t) != 0:
-        ucur.execute(f"UPDATE users SET name_color = ?, profile_upper_color = ?, profile_lower_color = ?, profile_banner_url = ? WHERE discordid = ? AND abbr = ?", (name_color, profile_upper_color, profile_lower_color, profile_banner_url, discordid, abbr, ))
+        ucur.execute("UPDATE users SET name_color = ?, profile_upper_color = ?, profile_lower_color = ?, profile_banner_url = ? WHERE discordid = ? AND abbr = ?", (name_color, profile_upper_color, profile_lower_color, profile_banner_url, discordid, abbr, ))
     else:
-        ucur.execute(f"INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (discordid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url, ))
+        ucur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (discordid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url, ))
     uconn.commit()
 
     return Response(status_code=204)
@@ -334,7 +345,7 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
             return {"error": json.loads(r.text)["descriptor"]}
         resp = json.loads(r.text)
         perms = resp
-        if not "admin" in perms:
+        if "admin" not in perms:
             response.status_code = 503
             return {"error": "Invalid Permission Configuration"}
 
@@ -410,12 +421,12 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
         
         newconfig_keys = list(newconfig.keys())
         for t in newconfig_keys:
-            if not t in config.keys():
+            if t not in config.keys():
                 del newconfig[t]
         
         config_keys = list(config.keys())
         for t in config_keys:
-            if not t in newconfig.keys():
+            if t not in newconfig.keys():
                 newconfig[t] = config[t]
         
         if logo_key != "":
