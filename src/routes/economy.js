@@ -257,6 +257,46 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
 const Economy = () => {
     const theme = useTheme();
 
+    const [configLoaded, setConfigLoaded] = useState(vars.economyConfig !== null);
+    useEffect(() => {
+        async function doLoad() {
+            const loadingStart = new CustomEvent('loadingStart', {});
+            window.dispatchEvent(loadingStart);
+            const urlsBatch = [
+                { url: `${vars.dhpath}/economy`, auth: true },
+                { url: `${vars.dhpath}/economy/garages`, auth: true },
+                { url: `${vars.dhpath}/economy/trucks`, auth: true },
+                { url: `${vars.dhpath}/economy/merch`, auth: true },
+            ];
+            const [economyConfig, economyGarages, economyTrucks, economyMerch] = await makeRequestsAuto(urlsBatch);
+            if (economyConfig) {
+                vars.economyConfig = economyConfig;
+            }
+            if (economyGarages) {
+                vars.economyGarages = economyGarages;
+                for (let i = 0; i < economyGarages.length; i++) {
+                    vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
+                }
+            }
+            if (economyTrucks) {
+                vars.economyTrucks = economyTrucks;
+            }
+            if (economyMerch) {
+                vars.economyMerch = economyMerch;
+                for (let i = 0; i < economyMerch.length; i++) {
+                    vars.economyMerchMap[economyMerch[i].id] = economyMerch[i];
+                }
+            }
+
+            setConfigLoaded(true);
+            const loadingEnd = new CustomEvent('loadingEnd', {});
+            window.dispatchEvent(loadingEnd);
+        }
+        if (vars.economyConfig === null) {
+            doLoad();
+        }
+    }, [vars.economyConfig]);
+
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback(() => {
@@ -582,8 +622,10 @@ const Economy = () => {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        doLoad();
-    }, [myTruckPage, myTruckPageSize, loadMyTruck]);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded, myTruckPage, myTruckPageSize, loadMyTruck]);
 
     const [selectedTruck, setSelectedTruck] = useState({});
     const purchaseTruck = useCallback(async () => {
@@ -624,8 +666,10 @@ const Economy = () => {
             setBalance(resp.data.balance);
             setBalanceVisibility(resp.data.visibility);
         }
-        doLoad();
-    }, []);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded]);
     const updateBalanceVisibility = useCallback(async (visibility) => {
         setBalanceVisibility(visibility);
         let resp = await axios({ url: `${vars.dhpath}/economy/balance/${vars.userInfo.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -651,8 +695,10 @@ const Economy = () => {
                 setManageBalanceVisibility(resp.data.visibility);
             }
         }
-        doLoad();
-    }, [manageTransferFrom]);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded, manageTransferFrom]);
     const manageTransferMoney = useCallback(async () => {
         setDialogDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/economy/balance/transfer`, data: { from_userid: manageTransferFrom.userid, to_userid: manageTransferTo.userid, amount: manageTransferAmount, message: manageTransferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -734,8 +780,10 @@ const Economy = () => {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        doLoad();
-    }, [leaderboardPage, leaderboardPageSize]);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded, leaderboardPage, leaderboardPageSize]);
 
     const [truckList, setTruckList] = useState([]);
     const [truckTotal, setTruckTotal] = useState(0);
@@ -764,8 +812,10 @@ const Economy = () => {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        doLoad();
-    }, [truckPage, truckPageSize]);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded, truckPage, truckPageSize]);
 
     const [garageList, setGarageList] = useState([]);
     const [garageTotal, setGarageTotal] = useState(0);
@@ -794,8 +844,10 @@ const Economy = () => {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        doLoad();
-    }, [garagePage, garagePageSize]);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded, garagePage, garagePageSize]);
 
     const [merchList, setMerchList] = useState([]);
     const [merchTotal, setMerchTotal] = useState(0);
@@ -826,8 +878,10 @@ const Economy = () => {
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
         }
-        doLoad();
-    }, [merchPage, merchPageSize, loadMerch]);
+        if (configLoaded) {
+            doLoad();
+        }
+    }, [configLoaded, merchPage, merchPageSize, loadMerch]);
     const [activeMerch, setActiveMerch] = useState({});
     const [merchOwner, setMerchOwner] = useState({});
     const [selectedMerch, setSelectedMerch] = useState({});
@@ -879,7 +933,7 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [activeMerch]);
 
-    return <>
+    return <>{configLoaded && <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={"Europe"} onGarageClick={handleGarageClick} />
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
             <DialogTitle>{modalGarage.name}</DialogTitle>
@@ -1461,7 +1515,7 @@ const Economy = () => {
                 </Alert>
             </Snackbar>
         </Portal>
-    </>;
+    </>}</>;
 };
 
 export default Economy;

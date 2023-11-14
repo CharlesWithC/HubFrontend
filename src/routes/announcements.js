@@ -6,7 +6,7 @@ import { Portal } from '@mui/base';
 import UserCard from '../components/usercard';
 import MarkdownRenderer from '../components/markdown';
 import TimeAgo from '../components/timeago';
-import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken } from '../functions';
+import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios, checkPerm, getAuthToken, makeRequestsAuto } from '../functions';
 
 var vars = require("../variables");
 
@@ -280,6 +280,16 @@ const Announcement = () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
+        if (vars.announcementTypes === null) {
+            const urlsBatch = [
+                { url: `${vars.dhpath}/announcements/types`, auth: false }
+            ];
+            const [announcementTypes] = await makeRequestsAuto(urlsBatch);
+            if (announcementTypes) {
+                vars.announcementTypes = announcementTypes;
+            }
+        }
+
         let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
 
         var newAnns = [];
@@ -393,7 +403,7 @@ const Announcement = () => {
     }, [doLoad]);
 
     return (
-        <>
+        <>{vars.announcementTypes !== null && <>
             <AnnouncementGrid announcements={announcements} lastUpdate={lastUpdate} onEdit={editAnnouncement} onDelete={deleteAnnouncement} />
             {announcements.length !== 0 && <Pagination count={totalPages} onChange={handlePagination}
                 sx={{ display: "flex", justifyContent: "flex-end", marginTop: "10px", marginRight: "10px" }} />}
@@ -532,7 +542,7 @@ const Announcement = () => {
                     </Alert>
                 </Snackbar>
             </Portal>
-        </>
+        </>}</>
     );
 };
 

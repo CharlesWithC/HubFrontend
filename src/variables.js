@@ -21,7 +21,7 @@ exports.userDivisionIDs = userDivisionIDs;
 var userStats = {};
 exports.userStats = userStats;
 
-var economyConfig = {};
+var economyConfig = null;
 exports.economyConfig = economyConfig;
 var economyGarages = [];
 exports.economyGarages = economyGarages;
@@ -87,7 +87,7 @@ exports.orderedRoles = orderedRoles;
 exports.perms = perms;
 exports.ranks = ranks;
 
-var announcementTypes = [];
+var announcementTypes = null;
 exports.announcementTypes = announcementTypes;
 
 var applicationTypes = {};

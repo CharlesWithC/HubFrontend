@@ -70,7 +70,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 localStorage.setItem("preload-title", vars.dhconfig.name);
                 localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
 
-                const urlsBatch1 = [
+                const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
                     { url: "https://config.chub.page/config/user", auth: false },
@@ -79,19 +79,12 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/member/roles`, auth: false },
                     { url: `${vars.dhpath}/member/perms`, auth: false },
                     { url: `${vars.dhpath}/member/ranks`, auth: false },
-                    { url: `${vars.dhpath}/announcements/types`, auth: false },
                     { url: `${vars.dhpath}/applications/types`, auth: false },
                     { url: `${vars.dhpath}/divisions/list`, auth: false },
-                ];
-                const urlsBatch2 = [
                     { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
-                    { url: `${vars.dhpath}/economy`, auth: true },
-                    { url: `${vars.dhpath}/economy/garages`, auth: true },
-                    { url: `${vars.dhpath}/economy/trucks`, auth: true },
-                    { url: `${vars.dhpath}/economy/merch`, auth: true },
                 ];
 
-                const [index, specialRoles, userConfig, config, languages, memberRoles, memberPerms, memberRanks, announcementTypes, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch1);
+                const [index, specialRoles, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -134,9 +127,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (memberRanks) {
                     vars.ranks = memberRanks;
                 }
-                if (announcementTypes) {
-                    vars.announcementTypes = announcementTypes;
-                }
                 if (applicationTypes) {
                     for (let i = 0; i < applicationTypes.length; i++) {
                         vars.applicationTypes[applicationTypes[i].id] = applicationTypes[i];
@@ -147,29 +137,8 @@ const Loader = ({ onLoaderLoaded }) => {
                         vars.divisions[divisions[i].id] = divisions[i];
                     }
                 }
-                if (getAuthToken() !== null) {
-                    const [dlogDetails, economyConfig, economyGarages, economyTrucks, economyMerch] = await makeRequestsAuto(urlsBatch2);
-                    if (dlogDetails && dlogDetails.error === undefined) {
-                        vars.dlogDetails = dlogDetails;
-                    }
-                    if (economyConfig) {
-                        vars.economyConfig = economyConfig;
-                    }
-                    if (economyGarages) {
-                        vars.economyGarages = economyGarages;
-                        for (let i = 0; i < economyGarages.length; i++) {
-                            vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
-                        }
-                    }
-                    if (economyTrucks) {
-                        vars.economyTrucks = economyTrucks;
-                    }
-                    if (economyMerch) {
-                        vars.economyMerch = economyMerch;
-                        for (let i = 0; i < economyMerch.length; i++) {
-                            vars.economyMerchMap[economyMerch[i].id] = economyMerch[i];
-                        }
-                    }
+                if (dlogDetails && dlogDetails.error === undefined) {
+                    vars.dlogDetails = dlogDetails;
                 }
 
                 await FetchProfile();
