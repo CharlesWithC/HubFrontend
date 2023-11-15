@@ -363,22 +363,32 @@ const Challenges = () => {
     const [listModalItems, setListModalItems] = useState([]);
 
     let cityIDs = {};
-    for (let i = 0; i < vars.dlogDetails["source_city"].length; i++) {
-        cityIDs[vars.dlogDetails["source_city"][i]["unique_id"]] = vars.dlogDetails["source_city"][i]["name"];
+    if (vars.dlogDetails.source_city !== undefined) {
+        for (let i = 0; i < vars.dlogDetails["source_city"].length; i++) {
+            cityIDs[vars.dlogDetails["source_city"][i]["unique_id"]] = vars.dlogDetails["source_city"][i]["name"];
+        }
     }
-    for (let i = 0; i < vars.dlogDetails["destination_city"].length; i++) {
-        cityIDs[vars.dlogDetails["destination_city"][i]["unique_id"]] = vars.dlogDetails["destination_city"][i]["name"];
+    if (vars.dlogDetails.destination_city !== undefined) {
+        for (let i = 0; i < vars.dlogDetails["destination_city"].length; i++) {
+            cityIDs[vars.dlogDetails["destination_city"][i]["unique_id"]] = vars.dlogDetails["destination_city"][i]["name"];
+        }
     }
     let companyIDs = {};
-    for (let i = 0; i < vars.dlogDetails["source_company"].length; i++) {
-        companyIDs[vars.dlogDetails["source_company"][i]["unique_id"]] = vars.dlogDetails["source_company"][i]["name"];
+    if (vars.dlogDetails.source_company !== undefined) {
+        for (let i = 0; i < vars.dlogDetails["source_company"].length; i++) {
+            companyIDs[vars.dlogDetails["source_company"][i]["unique_id"]] = vars.dlogDetails["source_company"][i]["name"];
+        }
     }
-    for (let i = 0; i < vars.dlogDetails["destination_company"].length; i++) {
-        companyIDs[vars.dlogDetails["destination_company"][i]["unique_id"]] = vars.dlogDetails["destination_company"][i]["name"];
+    if (vars.dlogDetails.destination_company !== undefined) {
+        for (let i = 0; i < vars.dlogDetails["destination_company"].length; i++) {
+            companyIDs[vars.dlogDetails["destination_company"][i]["unique_id"]] = vars.dlogDetails["destination_company"][i]["name"];
+        }
     }
     let cargoIDs = {};
-    for (let i = 0; i < vars.dlogDetails["cargo"].length; i++) {
-        cargoIDs[vars.dlogDetails["cargo"][i]["unique_id"]] = vars.dlogDetails["cargo"][i]["name"];
+    if (vars.dlogDetails.cargo !== undefined) {
+        for (let i = 0; i < vars.dlogDetails["cargo"].length; i++) {
+            cargoIDs[vars.dlogDetails["cargo"][i]["unique_id"]] = vars.dlogDetails["cargo"][i]["name"];
+        }
     }
 
     const showChallengeDetails = useCallback(async (challenge) => {

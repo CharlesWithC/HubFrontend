@@ -171,7 +171,7 @@ const DivisionsPending = memo(({ doReload }) => {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
 
-            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${myPage}`]);
+            const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
