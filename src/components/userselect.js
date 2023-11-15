@@ -6,7 +6,7 @@ import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
-const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined }) => {
+const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {} }) => {
     let formattedInit = [];
     for (let i = 0; i < initialUsers.length; i++) {
         formattedInit.push({ value: initialUsers[i].userid, label: initialUsers[i].name });
@@ -38,7 +38,7 @@ const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeComp
     const theme = useTheme();
 
     return (
-        <>
+        <div style={style}>
             {label && <Typography variant="body2">{label}</Typography>}
             <Select
                 defaultValue={formattedInit}
@@ -52,7 +52,7 @@ const UserSelect = ({ label, initialUsers, onUpdate, isMulti = true, includeComp
                 onChange={handleInputChange}
                 menuPortalTarget={document.body}
             />
-        </>
+        </div>
     );
 };
 

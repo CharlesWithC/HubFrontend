@@ -1,14 +1,16 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button } from '@mui/material';
+import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faIdCard, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 import UserCard from '../components/usercard';
+import UserSelect from '../components/userselect';
+import RoleSelect from '../components/roleselect';
 
 var vars = require("../variables");
 
@@ -25,7 +27,6 @@ const columns = [
 const MemberList = () => {
     const theme = useTheme();
 
-    const inited = useRef(false);
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -42,11 +43,14 @@ const MemberList = () => {
         resolve => setTimeout(resolve, ms)
     );
 
-    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const [logSeverity, setLogSeverity] = useState("success");
+
     const [syncProfileLog, setSyncProfileLog] = useState("");
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
     const syncProfile = useCallback(async () => {
         setDialogButtonDisabled(true);
+        setSyncProfileLog("");
+        setSyncProfileCurrent(0);
         for (let i = 0; i < vars.members.length; i++) {
             let sync_to = undefined;
             if (vars.members[i].avatar.startsWith("https://cdn.discordapp.com/")) {
@@ -64,17 +68,18 @@ const MemberList = () => {
             let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${vars.members[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setSyncProfileLog(`Synced ${vars.members[i].name}'s profile`);
-                setSnackbarSeverity("success");
+                setLogSeverity("success");
                 setSyncProfileCurrent(i + 1);
             } else {
                 if (resp.data.retry_after !== undefined) {
                     setSyncProfileLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
-                    setSnackbarSeverity("warning");
+                    setLogSeverity("warning");
                     await sleep((resp.data.retry_after + 1) * 1000);
                     i -= 1;
                 } else {
                     setSyncProfileLog(`Failed to sync ${vars.members[i].name}'s profile: ${resp.data.error}`);
-                    setSnackbarSeverity("error");
+                    setLogSeverity("error");
+                    setSyncProfileCurrent(i + 1);
                 }
             }
             let ed = +new Date();
@@ -82,6 +87,85 @@ const MemberList = () => {
         }
         setDialogButtonDisabled(false);
     }, []);
+
+    const [batchRoleUpdateUsers, setBatchRoleUpdateUsers] = useState([]);
+    const [batchRoleUpdateRoles, setBatchRoleUpdateRoles] = useState([]);
+    const [batchRoleUpdateMode, setBatchRoleUpdateMode] = useState("add");
+    const [batchRoleUpdateLog, setBatchRoleUpdateLog] = useState("");
+    const [batchRoleUpdateCurrent, setBatchRoleUpdateCurrent] = useState(0);
+    const batchUpdateRoles = useCallback(async () => {
+        setDialogButtonDisabled(true);
+        setBatchRoleUpdateLog("");
+        setBatchRoleUpdateCurrent(0);
+        if (batchRoleUpdateMode === "overwrite") {
+            for (let i = 0; i < batchRoleUpdateUsers.length; i++) {
+                let st = +new Date();
+                let resp = await axios({ url: `${vars.dhpath}/member/${batchRoleUpdateUsers[i].userid}/roles`, method: "PATCH", data: { roles: batchRoleUpdateRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                if (resp.status === 204) {
+                    setBatchRoleUpdateLog(`Overwritten roles of ${batchRoleUpdateUsers[i].name}`);
+                    setLogSeverity("success");
+                    setBatchRoleUpdateCurrent(i + 1);
+                } else {
+                    if (resp.data.retry_after !== undefined) {
+                        setBatchRoleUpdateLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                        setLogSeverity("warning");
+                        await sleep((resp.data.retry_after + 1) * 1000);
+                        i -= 1;
+                    } else {
+                        setBatchRoleUpdateLog(`Failed to update ${vars.members[i].name}'s roles: ${resp.data.error}`);
+                        setLogSeverity("error");
+                        setBatchRoleUpdateCurrent(i + 1);
+                    }
+                }
+                let ed = +new Date();
+                if (ed - st < 1000) await sleep(1000 - (ed - st));
+            }
+        } else if (batchRoleUpdateMode === "add" || batchRoleUpdateMode === "remove") {
+            for (let i = 0; i < batchRoleUpdateUsers.length; i++) {
+                let st = +new Date();
+                let resp = await axios({ url: `${vars.dhpath}/user/profile?userid=${batchRoleUpdateUsers[i].userid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                if (resp.status === 200) {
+                    let newRoles = resp.data.roles;
+                    if (batchRoleUpdateMode === "add") {
+                        newRoles = [...new Set([...newRoles, ...batchRoleUpdateRoles])];
+                    } else if (batchRoleUpdateMode === "remove") {
+                        newRoles = newRoles.filter((role) => (!batchRoleUpdateRoles.includes(role)));
+                    }
+                    resp = await axios({ url: `${vars.dhpath}/member/${batchRoleUpdateUsers[i].userid}/roles`, method: "PATCH", data: { roles: newRoles }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+                    if (resp.status === 204) {
+                        setBatchRoleUpdateLog(`Updated roles of ${batchRoleUpdateUsers[i].name}`);
+                        setLogSeverity("success");
+                        setBatchRoleUpdateCurrent(i + 1);
+                    } else {
+                        if (resp.data.retry_after !== undefined) {
+                            setBatchRoleUpdateLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                            setLogSeverity("warning");
+                            await sleep((resp.data.retry_after + 1) * 1000);
+                            i -= 1;
+                        } else {
+                            setBatchRoleUpdateLog(`Failed to update ${vars.members[i].name}'s roles: ${resp.data.error}`);
+                            setLogSeverity("error");
+                            setBatchRoleUpdateCurrent(i + 1);
+                        }
+                    }
+                } else {
+                    if (resp.data.retry_after !== undefined) {
+                        setBatchRoleUpdateLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                        setLogSeverity("warning");
+                        await sleep((resp.data.retry_after + 1) * 1000);
+                        i -= 1;
+                    } else {
+                        setBatchRoleUpdateLog(`Failed to fetch ${vars.members[i].name}'s current roles: ${resp.data.error}`);
+                        setLogSeverity("error");
+                        setBatchRoleUpdateCurrent(i + 1);
+                    }
+                }
+                let ed = +new Date();
+                if (ed - st < 1000) await sleep(1000 - (ed - st));
+            }
+        }
+        setDialogButtonDisabled(false);
+    }, [batchRoleUpdateUsers, batchRoleUpdateRoles, batchRoleUpdateMode]);
 
     useEffect(() => {
         pageRef.current = page;
@@ -134,22 +218,72 @@ const MemberList = () => {
     }, [doLoad]);
 
     return <>
-        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;Members&nbsp;&nbsp;<IconButton onClick={() => { setDialogOpen("sync-profile"); }}><FontAwesomeIcon icon={faArrowsRotate} /></IconButton></>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint="Search by username or discord id" />
+        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;Members</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint="Search by username or discord id" />
         <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
             <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;Sync Profiles</DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- The profiles of all users will be updated to to the current one in Discord, Steam or TruckersMP.</Typography>
                 <Typography variant="body2">- This function is mainly used to sync outdated profile. Custom profiles will not be synced.</Typography>
-                <Typography variant="body2">- When importing syncing profiles, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When importing syncing profiles, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
                 <br />
-                <Typography variant="body2" gutterBottom>Completed {syncProfileCurrent} / {vars.members.length}</Typography>
-                <LinearProgress variant="determinate" value={syncProfileCurrent / vars.members.list} />
-                <Typography variant="body2" sx={{ color: theme.palette[snackbarSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
+                {dialogButtonDisabled && <>
+                    <Typography variant="body2" gutterBottom>Completed {syncProfileCurrent} / {vars.members.length}</Typography>
+                    <LinearProgress variant="determinate" value={syncProfileCurrent / vars.members.list} />
+                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
+                </>}
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" color="info" onClick={() => { syncProfile(); }} disabled={dialogButtonDisabled}>Sync</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Role Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Experimental" /></DialogTitle>
+            <DialogContent>
+                <Typography variant="body2" sx={{ color: theme.palette.info.main }}>- This is an experimental function and it may break.</Typography>
+                <Typography variant="body2">- You may add / remove / overwrite roles for a list of members.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
+                <UserSelect label="Users" initialUsers={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} />
+                <RoleSelect label="Roles" initialRoles={batchRoleUpdateRoles} onUpdate={(newRoles) => setBatchRoleUpdateRoles(newRoles.map((role) => (role.id)))} style={{ marginBottom: "12px" }} />
+                <TextField select size="small"
+                    label="Mode"
+                    value={batchRoleUpdateMode}
+                    onChange={(e) => { setBatchRoleUpdateMode(e.target.value); }}
+                    fullWidth
+                >
+                    <MenuItem value="add">Add selected roles</MenuItem>
+                    <MenuItem value="remove">Remove selected roles</MenuItem>
+                    <MenuItem value="overwrite">Overwrite current roles</MenuItem>
+                </TextField>
+                {dialogButtonDisabled && <>
+                    <Typography variant="body2" gutterBottom  sx={{ mt: "5px" }}>Completed {batchRoleUpdateCurrent} / {batchRoleUpdateUsers.length}</Typography>
+                    <LinearProgress variant="determinate" value={batchRoleUpdateCurrent / batchRoleUpdateUsers.length} />
+                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchRoleUpdateLog}</Typography>
+                </>}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="info" onClick={() => { batchUpdateRoles(); }} disabled={dialogButtonDisabled}>Update</Button>
+            </DialogActions>
+        </Dialog>
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            <SpeedDialAction
+                key="batch-role-update"
+                icon={<FontAwesomeIcon icon={faIdCard} />}
+                tooltipTitle="Batch Role Update"
+                onClick={() => setDialogOpen("batch-role-update")}
+            />
+            <SpeedDialAction
+                key="sync-profile"
+                icon={<FontAwesomeIcon icon={faArrowsRotate} />}
+                tooltipTitle="Sync Profiles"
+                onClick={() => setDialogOpen("sync-profile")}
+            />
+        </SpeedDial>
     </>;
 };
 

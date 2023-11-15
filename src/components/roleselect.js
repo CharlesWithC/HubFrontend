@@ -17,7 +17,7 @@ const getRole = (roleId) => {
     }
 };
 
-const RoleSelect = ({ label, initialRoles, onUpdate }) => {
+const RoleSelect = ({ label, initialRoles, onUpdate, style = {} }) => {
     let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
     for (let i = 0; i < vars.userInfo.roles.length; i++) {
@@ -52,7 +52,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
     const theme = useTheme();
 
     return (
-        <>
+        <div style={style}>
             {label && <Typography variant="body2">{label}</Typography>}
             <Select
                 defaultValue={formattedInit}
@@ -74,7 +74,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate }) => {
                 onChange={handleInputChange}
                 menuPortalTarget={document.body}
             />
-        </>
+        </div>
     );
 };
 

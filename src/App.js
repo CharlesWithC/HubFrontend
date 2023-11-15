@@ -63,9 +63,8 @@ const drivershub = `    ____       _                         __  __      __
 function App() {
     useEffect(() => {
         console.log(drivershub);
-        console.log("Drivers Hub: Frontend");
+        console.log("Drivers Hub: Frontend (v3.2.0)");
         console.log(`Copyright (C) ${new Date().getFullYear()} CharlesWithC All rights reserved.`);
-        console.log("This is the beta build. Functions may be updated or removed.");
     }, []);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -159,7 +158,7 @@ function App() {
         }
     }, [loaded, chubRecruitmentModalOpen]);
 
-    const hasSpeedDial = (["/announcement", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
+    const hasSpeedDial = (["/announcement", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
 
     if (!loaded) {
         return (
@@ -334,14 +333,14 @@ function App() {
                                     <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                         {vars.dhconfig.name}
                                         <br />
-                                        API: v{vars.apiversion} | Client: v3.1.0
+                                        API: v{vars.apiversion} | Client: v3.2.0
                                     </Typography>
                                 </div>}
                                 {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                         &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                         <br />
-                                        API: v{vars.apiversion} | Client: v3.1.0
+                                        API: v{vars.apiversion} | Client: v3.2.0
                                         <br />
                                         <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
                                     </Typography>
