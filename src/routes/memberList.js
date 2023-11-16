@@ -3,7 +3,7 @@ import { useRef, useEffect, useState, useCallback } from 'react';
 import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faIdCard, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faIdCard, faTruck, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
@@ -112,7 +112,7 @@ const MemberList = () => {
                         await sleep((resp.data.retry_after + 1) * 1000);
                         i -= 1;
                     } else {
-                        setBatchRoleUpdateLog(`Failed to update ${vars.members[i].name}'s roles: ${resp.data.error}`);
+                        setBatchRoleUpdateLog(`Failed to update ${batchRoleUpdateUsers[i].name}'s roles: ${resp.data.error}`);
                         setLogSeverity("error");
                         setBatchRoleUpdateCurrent(i + 1);
                     }
@@ -143,7 +143,7 @@ const MemberList = () => {
                             await sleep((resp.data.retry_after + 1) * 1000);
                             i -= 1;
                         } else {
-                            setBatchRoleUpdateLog(`Failed to update ${vars.members[i].name}'s roles: ${resp.data.error}`);
+                            setBatchRoleUpdateLog(`Failed to update ${batchRoleUpdateUsers[i].name}'s roles: ${resp.data.error}`);
                             setLogSeverity("error");
                             setBatchRoleUpdateCurrent(i + 1);
                         }
@@ -155,7 +155,7 @@ const MemberList = () => {
                         await sleep((resp.data.retry_after + 1) * 1000);
                         i -= 1;
                     } else {
-                        setBatchRoleUpdateLog(`Failed to fetch ${vars.members[i].name}'s current roles: ${resp.data.error}`);
+                        setBatchRoleUpdateLog(`Failed to fetch ${batchRoleUpdateUsers[i].name}'s current roles: ${resp.data.error}`);
                         setLogSeverity("error");
                         setBatchRoleUpdateCurrent(i + 1);
                     }
@@ -164,8 +164,41 @@ const MemberList = () => {
                 if (ed - st < 1000) await sleep(1000 - (ed - st));
             }
         }
-        setDialogButtonDisabled(false);
+        setTimeout(function () { setBatchRoleUpdateLog(""); setDialogButtonDisabled(false); }, 3000);
     }, [batchRoleUpdateUsers, batchRoleUpdateRoles, batchRoleUpdateMode]);
+
+    const [batchTrackerUpdateUsers, setBatchTrackerUpdateUsers] = useState([]);
+    const [batchTrackerUpdateTo, setBatchTrackerUpdateTo] = useState("trucky");
+    const [batchTrackerUpdateLog, setBatchTrackerUpdateLog] = useState("");
+    const [batchTrackerUpdateCurrent, setBatchTrackerUpdateCurrent] = useState(0);
+    const batchUpdateTrackers = useCallback(async () => {
+        setDialogButtonDisabled(true);
+        setBatchTrackerUpdateLog("");
+        setBatchTrackerUpdateCurrent(0);
+        for (let i = 0; i < batchTrackerUpdateUsers.length; i++) {
+            let st = +new Date();
+            let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${batchTrackerUpdateUsers[i].uid}`, method: "POST", data: { tracker: batchTrackerUpdateTo }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (resp.status === 204) {
+                setBatchTrackerUpdateLog(`Updated tracker of ${batchTrackerUpdateUsers[i].name}`);
+                setLogSeverity("success");
+                setBatchTrackerUpdateCurrent(i + 1);
+            } else {
+                if (resp.data.retry_after !== undefined) {
+                    setBatchTrackerUpdateLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                    setLogSeverity("warning");
+                    await sleep((resp.data.retry_after + 1) * 1000);
+                    i -= 1;
+                } else {
+                    setBatchTrackerUpdateLog(`Failed to update ${batchTrackerUpdateUsers[i].name}'s tracker: ${resp.data.error}`);
+                    setLogSeverity("error");
+                    setBatchTrackerUpdateCurrent(i + 1);
+                }
+            }
+            let ed = +new Date();
+            if (ed - st < 1000) await sleep(1000 - (ed - st));
+        }
+        setTimeout(function () { setBatchTrackerUpdateLog(""); setDialogButtonDisabled(false); }, 3000);
+    }, [batchTrackerUpdateUsers, batchTrackerUpdateTo]);
 
     useEffect(() => {
         pageRef.current = page;
@@ -229,7 +262,7 @@ const MemberList = () => {
                 <br />
                 {dialogButtonDisabled && <>
                     <Typography variant="body2" gutterBottom>Completed {syncProfileCurrent} / {vars.members.length}</Typography>
-                    <LinearProgress variant="determinate" value={syncProfileCurrent / vars.members.list} />
+                    <LinearProgress variant="determinate" color="info" value={syncProfileCurrent / vars.members.length * 100} />
                     <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
                 </>}
             </DialogContent>
@@ -255,14 +288,40 @@ const MemberList = () => {
                     <MenuItem value="remove">Remove selected roles</MenuItem>
                     <MenuItem value="overwrite">Overwrite current roles</MenuItem>
                 </TextField>
-                {dialogButtonDisabled && <>
+                {(dialogButtonDisabled || batchRoleUpdateCurrent !== 0 && batchRoleUpdateCurrent == batchRoleUpdateUsers.length) && <>
                     <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Completed {batchRoleUpdateCurrent} / {batchRoleUpdateUsers.length}</Typography>
-                    <LinearProgress variant="determinate" value={batchRoleUpdateCurrent / batchRoleUpdateUsers.length} />
+                    <LinearProgress variant="determinate" color="info" value={batchRoleUpdateCurrent / batchRoleUpdateUsers.length * 100} />
                     <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchRoleUpdateLog}</Typography>
                 </>}
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" color="info" onClick={() => { batchUpdateRoles(); }} disabled={dialogButtonDisabled}>Update</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Tracker Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px" }} label="Beta" /></DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">- You may set the tracker for a list of members.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
+                <UserSelect label="Users" initialUsers={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} />
+                <TextField select size="small"
+                    label="Tracker"
+                    value={batchTrackerUpdateTo}
+                    onChange={(e) => { setBatchTrackerUpdateTo(e.target.value); }}
+                    fullWidth
+                >
+                    <MenuItem value="trucky">Trucky</MenuItem>
+                    <MenuItem value="tracksim">TrackSim</MenuItem>
+                </TextField>
+                {(dialogButtonDisabled || batchTrackerUpdateCurrent !== 0 && batchTrackerUpdateCurrent == batchTrackerUpdateUsers.length) && <>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Completed {batchTrackerUpdateCurrent} / {batchTrackerUpdateUsers.length}</Typography>
+                    <LinearProgress variant="determinate" color="info" value={batchTrackerUpdateCurrent / batchTrackerUpdateUsers.length * 100} />
+                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchTrackerUpdateLog}</Typography>
+                </>}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="info" onClick={() => { batchUpdateTrackers(); }} disabled={dialogButtonDisabled}>Update</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
@@ -275,6 +334,12 @@ const MemberList = () => {
                 icon={<FontAwesomeIcon icon={faIdCard} />}
                 tooltipTitle="Batch Role Update"
                 onClick={() => setDialogOpen("batch-role-update")}
+            />
+            <SpeedDialAction
+                key="batch-tracker-update"
+                icon={<FontAwesomeIcon icon={faTruck} />}
+                tooltipTitle="Batch Tracker Update"
+                onClick={() => setDialogOpen("batch-tracker-update")}
             />
             <SpeedDialAction
                 key="sync-profile"

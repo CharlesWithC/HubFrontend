@@ -3,6 +3,7 @@
 ## v3.2.0
 
 1. Added batch role update (advanced staff function)
+2. Added batch tracker update (advanced staff function)
 
 ## v3.1.0
 

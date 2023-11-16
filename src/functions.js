@@ -137,6 +137,9 @@ export async function FetchProfile() {
                     let resps = await makeRequestsWithAuth(urlsBatch);
                     for (let i = 0; i < resps.length; i++) {
                         vars.members.push(...resps[i].list);
+                        for (let j = 0; j < resps[i].list.length; j++) {
+                            vars.users[resps[i].list[j].uid] = resps[i].list[j];
+                        }
                     }
                 }
             }
