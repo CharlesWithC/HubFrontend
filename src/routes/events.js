@@ -877,7 +877,7 @@ const Events = () => {
                 <form onSubmit={handleUpdateAttendees} style={{ marginTop: "5px" }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <UserSelect label="Attendees" initialUsers={eventAttendees} onUpdate={setEventAttendees} />
+                            <UserSelect label="Attendees" users={eventAttendees} onUpdate={setEventAttendees} />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField

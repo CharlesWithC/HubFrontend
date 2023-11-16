@@ -5,7 +5,7 @@ import { getTimezoneOffset } from '../functions';
 var vars = require("../variables");
 
 // all in seconds, not milliseconds
-const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, sx = {}, disabled = false }) => {
+const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false }) => {
     const defaultValueConverted = defaultValue !== undefined ? new Date(new Date(defaultValue * 1000).getTime() - getTimezoneOffset(vars.userSettings.display_timezone) * 60000).toISOString().slice(0, 16) : undefined; // ISO gives UTC time, we need to calculate the timezone offset
 
     const handleChange = (event) => {
@@ -25,6 +25,7 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, sx = 
             fullWidth={fullWidth}
             sx={sx}
             disabled={disabled}
+            size={size}
         />
     );
 };

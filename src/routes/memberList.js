@@ -1,9 +1,9 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip } from '@mui/material';
+import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip, Grid } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faIdCard, faTruck, faUserGroup } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
@@ -11,6 +11,7 @@ import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues }
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import RoleSelect from '../components/roleselect';
+import DateTimeField from '../components/datetime';
 
 var vars = require("../variables");
 
@@ -200,6 +201,39 @@ const MemberList = () => {
         setTimeout(function () { setBatchTrackerUpdateLog(""); setDialogButtonDisabled(false); }, 3000);
     }, [batchTrackerUpdateUsers, batchTrackerUpdateTo]);
 
+    const [batchDismissUsers, setBatchDismissUsers] = useState([]);
+    const [batchDismissLastOnline, setBatchDismissLastOnline] = useState(undefined);
+    const [batchDismissLog, setBatchDismissLog] = useState("");
+    const [batchDismissCurrent, setBatchDismissCurrent] = useState(0);
+    const batchDismiss = useCallback(async () => {
+        setDialogButtonDisabled(true);
+        setBatchDismissLog("");
+        setBatchDismissCurrent(0);
+        for (let i = 0; i < batchDismissUsers.length; i++) {
+            let st = +new Date();
+            let resp = await axios({ url: `${vars.dhpath}/member/${batchDismissUsers[i].userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (resp.status === 204) {
+                setBatchDismissLog(`Dismissed ${batchDismissUsers[i].name}`);
+                setLogSeverity("success");
+                setBatchDismissCurrent(i + 1);
+            } else {
+                if (resp.data.retry_after !== undefined) {
+                    setBatchDismissLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                    setLogSeverity("warning");
+                    await sleep((resp.data.retry_after + 1) * 1000);
+                    i -= 1;
+                } else {
+                    setBatchDismissLog(`Failed to dismiss ${batchDismissUsers[i].name}: ${resp.data.error}`);
+                    setLogSeverity("error");
+                    setBatchDismissCurrent(i + 1);
+                }
+            }
+            let ed = +new Date();
+            if (ed - st < 1000) await sleep(1000 - (ed - st));
+        }
+        setTimeout(function () { setBatchDismissLog(""); setDialogButtonDisabled(false); }, 3000);
+    }, [batchDismissUsers]);
+
     useEffect(() => {
         pageRef.current = page;
     }, [page]);
@@ -271,12 +305,12 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Role Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Role Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
             <DialogContent>
-                <Typography variant="body2">- You may add / remove / overwrite roles for a list of members.</Typography>
+                <Typography variant="body2">- You could add / remove / overwrite roles for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
-                <UserSelect label="Users" initialUsers={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} />
+                <UserSelect label="Users" users={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} />
                 <RoleSelect label="Roles" initialRoles={batchRoleUpdateRoles} onUpdate={(newRoles) => setBatchRoleUpdateRoles(newRoles.map((role) => (role.id)))} style={{ marginBottom: "12px" }} />
                 <TextField select size="small"
                     label="Mode"
@@ -299,12 +333,12 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Tracker Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Tracker Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
             <DialogContent>
-                <Typography variant="body2">- You may set the tracker for a list of members.</Typography>
+                <Typography variant="body2">- You could set the tracker for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
-                <UserSelect label="Users" initialUsers={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} />
+                <UserSelect label="Users" users={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} />
                 <TextField select size="small"
                     label="Tracker"
                     value={batchTrackerUpdateTo}
@@ -324,22 +358,70 @@ const MemberList = () => {
                 <Button variant="contained" color="info" onClick={() => { batchUpdateTrackers(); }} disabled={dialogButtonDisabled}>Update</Button>
             </DialogActions>
         </Dialog>
+        <Dialog open={dialogOpen === "batch-dismiss-member"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Member  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">- You could dismiss a list of members.</Typography>
+                <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive members to dismiss. Note that members whose last online was a long time ago might not be detected.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
+                <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
+                    <Grid item xs={8}>
+                        <DateTimeField size="small"
+                            label="Last Online Before"
+                            defaultValue={batchDismissLastOnline}
+                            onChange={(timestamp) => { setBatchDismissLastOnline(timestamp); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Button variant="contained" color="info" onClick={() => {
+                            if (batchDismissLastOnline === undefined) return;
+                            let newList = [];
+                            for (let i = 0; i < vars.members.length; i++) {
+                                if (vars.members[i].activity !== null && vars.members[i].activity.last_seen < batchDismissLastOnline) {
+                                    newList.push(vars.members[i]);
+                                }
+                            }
+                            setBatchDismissUsers(newList);
+                        }} disabled={dialogButtonDisabled} fullWidth>Select</Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <UserSelect label="Users" users={batchDismissUsers} isMulti={true} onUpdate={setBatchDismissUsers} />
+                    </Grid>
+                </Grid>
+                {(dialogButtonDisabled || batchDismissCurrent !== 0 && batchDismissCurrent == batchDismissUsers.length) && <>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Completed {batchDismissCurrent} / {batchDismissUsers.length}</Typography>
+                    <LinearProgress variant="determinate" color="info" value={batchDismissCurrent / batchDismissUsers.length * 100} />
+                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDismissLog}</Typography>
+                </>}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="error" onClick={() => { batchDismiss(); }} disabled={dialogButtonDisabled}>Dismiss</Button>
+            </DialogActions>
+        </Dialog>
         <SpeedDial
             ariaLabel="Controls"
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
-                key="batch-role-update"
-                icon={<FontAwesomeIcon icon={faIdCard} />}
-                tooltipTitle="Batch Role Update"
-                onClick={() => setDialogOpen("batch-role-update")}
+                key="batch-dismiss-member"
+                icon={<FontAwesomeIcon icon={faUsersSlash} />}
+                tooltipTitle="Batch Dismiss"
+                onClick={() => setDialogOpen("batch-dismiss-member")}
             />
             <SpeedDialAction
                 key="batch-tracker-update"
                 icon={<FontAwesomeIcon icon={faTruck} />}
                 tooltipTitle="Batch Tracker Update"
                 onClick={() => setDialogOpen("batch-tracker-update")}
+            />
+            <SpeedDialAction
+                key="batch-role-update"
+                icon={<FontAwesomeIcon icon={faIdCard} />}
+                tooltipTitle="Batch Role Update"
+                onClick={() => setDialogOpen("batch-role-update")}
             />
             <SpeedDialAction
                 key="sync-profile"

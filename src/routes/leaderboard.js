@@ -255,7 +255,7 @@ const Leaderboard = () => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <UserSelect label="Users (Up to 10)" initialUsers={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
+                        <UserSelect label="Users (Up to 10)" users={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
                     </Grid>
                 </Grid>
             </DialogContent>

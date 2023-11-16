@@ -1001,7 +1001,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>New garage owner</Typography>
-                            <Typography variant="body2"><UserSelect initialUsers={[modalGarageDetails.garage_owner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[modalGarageDetails.garage_owner]} isMulti={false} includeCompany={true} onUpdate={setGarageOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1053,7 +1053,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>New slot owner</Typography>
-                            <Typography variant="body2"><UserSelect initialUsers={[activeSlot.slot_owner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[activeSlot.slot_owner]} isMulti={false} includeCompany={true} onUpdate={setSlotOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1188,7 +1188,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>New truck owner</Typography>
-                            <Typography variant="body2"><UserSelect initialUsers={[activeTruck.owner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[activeTruck.owner]} isMulti={false} includeCompany={true} onUpdate={setTruckOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1211,7 +1211,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>New truck assignee</Typography>
-                            <Typography variant="body2"><UserSelect initialUsers={[activeTruck.assignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[activeTruck.assignee]} isMulti={false} includeCompany={true} onUpdate={setTruckAssignee} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1302,7 +1302,7 @@ const Economy = () => {
             <DialogTitle><FontAwesomeIcon icon={faCoins} />&nbsp;&nbsp;Manage Balance</DialogTitle>
             <DialogContent>
                 <Typography variant="body2" sx={{ fontWeight: "bold" }}>User</Typography>
-                <Typography variant="body2"><UserSelect initialUsers={[manageTransferFrom]} isMulti={false} includeCompany={true} onUpdate={setManageTransferFrom} /></Typography>
+                <Typography variant="body2"><UserSelect users={[manageTransferFrom]} isMulti={false} includeCompany={true} onUpdate={setManageTransferFrom} /></Typography>
                 <br />
                 <Typography variant="body">Current Balance: {TSep(manageBalance)} {vars.economyConfig.currency_name}
                     {manageBalanceVisibility === "public" && <IconButton onClick={() => { updateManageBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
@@ -1325,7 +1325,7 @@ const Economy = () => {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Recipent</Typography>
-                        <Typography variant="body2"><UserSelect initialUsers={[manageTransferTo]} isMulti={false} includeCompany={true} includeBlackhole={true} onUpdate={setManageTransferTo} /></Typography>
+                        <Typography variant="body2"><UserSelect users={[manageTransferTo]} isMulti={false} includeCompany={true} includeBlackhole={true} onUpdate={setManageTransferTo} /></Typography>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
                         <TextField
@@ -1385,7 +1385,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>New owner</Typography>
-                            <Typography variant="body2"><UserSelect initialUsers={[activeMerch.owner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
+                            <Typography variant="body2"><UserSelect users={[activeMerch.owner]} isMulti={false} includeCompany={true} onUpdate={setMerchOwner} /></Typography>
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -1467,7 +1467,7 @@ const Economy = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={6} lg={6}>
                                 <Typography variant="body2" sx={{ fontWeight: "bold" }}>Recipent</Typography>
-                                <Typography variant="body2"><UserSelect initialUsers={[transferTo]} isMulti={false} includeCompany={true} onUpdate={setTransferTo} /></Typography>
+                                <Typography variant="body2"><UserSelect users={[transferTo]} isMulti={false} includeCompany={true} onUpdate={setTransferTo} /></Typography>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={6}>
                                 <TextField
