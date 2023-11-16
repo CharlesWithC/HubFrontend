@@ -75,7 +75,7 @@ const DEFAULT_JOB_REQUIREMENTS = {
     must_be_special: "0",
     minimum_warp: "-1",
     maximum_warp: "-1",
-    enabled_realistic_settings: "-1"
+    enabled_realistic_settings: ""
 };
 
 const columns = [

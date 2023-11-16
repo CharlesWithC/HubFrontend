@@ -238,9 +238,8 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Role Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Experimental" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Role Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px" }} label="Beta" /></DialogTitle>
             <DialogContent>
-                <Typography variant="body2" sx={{ color: theme.palette.info.main }}>- This is an experimental function and it may break.</Typography>
                 <Typography variant="body2">- You may add / remove / overwrite roles for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
@@ -257,7 +256,7 @@ const MemberList = () => {
                     <MenuItem value="overwrite">Overwrite current roles</MenuItem>
                 </TextField>
                 {dialogButtonDisabled && <>
-                    <Typography variant="body2" gutterBottom  sx={{ mt: "5px" }}>Completed {batchRoleUpdateCurrent} / {batchRoleUpdateUsers.length}</Typography>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Completed {batchRoleUpdateCurrent} / {batchRoleUpdateUsers.length}</Typography>
                     <LinearProgress variant="determinate" value={batchRoleUpdateCurrent / batchRoleUpdateUsers.length} />
                     <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchRoleUpdateLog}</Typography>
                 </>}

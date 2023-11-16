@@ -345,11 +345,11 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
             return {"error": json.loads(r.text)["descriptor"]}
         resp = json.loads(r.text)
         perms = resp
-        if "admin" not in perms:
+        if "administrator" not in perms:
             response.status_code = 503
             return {"error": "Invalid Permission Configuration"}
 
-        for role in perms["admin"]:
+        for role in perms["administrator"]:
             if int(role) in roles:
                 ok = True
     except:

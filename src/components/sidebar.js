@@ -157,12 +157,30 @@ const SideBar = (props) => {
             // off-the-sidebar-paths
             if (!["/settings", "/notifications", "/sponsor", "/supporters"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
                 if (!reload404) {
-                    navigate("/404");
-                    setReload404(true);
-                    setTimeout(function () {
-                        const loadingEnd = new CustomEvent('loadingEnd', {});
-                        window.dispatchEvent(loadingEnd);
-                    }, 500);
+                    if (Object.values(menuRoute).includes(path)) {
+                        navigate("/404");
+                        setReload404(true);
+                        setTimeout(function () {
+                            const loadingEnd = new CustomEvent('loadingEnd', {});
+                            window.dispatchEvent(loadingEnd);
+                        }, 500);
+                    } else {
+                        setTimeout(function () {
+                            // check again later, in case sidebar should be hidden
+                            if (!["/settings", "/notifications", "/sponsor", "/supporters"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
+                                if (!reload404) {
+                                    if (Object.values(menuRoute).includes(path)) {
+                                        navigate("/404");
+                                        setReload404(true);
+                                        setTimeout(function () {
+                                            const loadingEnd = new CustomEvent('loadingEnd', {});
+                                            window.dispatchEvent(loadingEnd);
+                                        }, 500);
+                                    }
+                                }
+                            }
+                        }, 500);
+                    }
                 }
             }
             if (selectedIndex !== -1) {
