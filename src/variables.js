@@ -100,3 +100,5 @@ var members = [];
 exports.members = members;
 var users = {}; // uid:user | this will not be fully-loaded, we'll write in when there's new user loaded
 exports.users = users;
+var allUsers = [];
+exports.allUsers = allUsers;

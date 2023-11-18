@@ -10,6 +10,10 @@ import Crashed from "./components/crashed";
 
 import * as Sentry from "@sentry/react";
 
+if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
+    window.location.href = window.location.href.replace('http', 'https');
+}
+
 if (window.location.hostname !== "localhost") {
     Sentry.init({
         dsn: "https://0a444a46a3cc99853e971ac04d7f8b3a@o4504067357409280.ingest.sentry.io/4505984184745984",
@@ -47,7 +51,7 @@ class ErrorBoundary extends React.Component {
     }
 
     render() {
-        if (this.state.hasError && window.location.hostname !== "localhost") {
+        if (this.state.hasError) {
             return <Crashed />;
         }
         return this.props.children;

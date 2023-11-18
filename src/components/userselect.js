@@ -6,20 +6,22 @@ import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
-const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {} }) => {
+const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false }) => {
     const [memberMap, setMemberMap] = useState({});
     const [options, setOptions] = useState([]);
+
+    userList = (userList !== undefined ? userList : vars.members);
 
     useEffect(() => {
         let memberMap = {};
         memberMap[-1000] = { userid: -1000, name: vars.dhconfig.name };
         memberMap[-1005] = { userid: -1005, name: "Blackhole" };
-        for (let i = 0; i < vars.members.length; i++) {
-            memberMap[vars.members[i].userid] = vars.members[i];
+        for (let i = 0; i < userList.length; i++) {
+            memberMap[userList[i].userid !== null ? userList[i].userid : userList[i].uid] = userList[i];
         }
         setMemberMap(memberMap);
 
-        let options = vars.members.map((user) => ({ value: user.userid, label: user.name }));
+        let options = userList.map((user) => ({ value: user.userid !== null ? user.userid : user.uid, label: `${user.name} (${user.userid !== null ? user.userid : `UID: ${user.uid}`})` }));
         if (includeCompany) {
             options.unshift({ value: -1000, label: vars.dhconfig.name });
         }
@@ -33,7 +35,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
     useEffect(() => {
         let formattedInit = [];
         for (let i = 0; i < users.length; i++) {
-            formattedInit.push({ value: users[i].userid, label: users[i].name });
+            formattedInit.push({ value: users[i].userid !== null ? users[i].userid : users[i].uid, label: `${users[i].name} (${users[i].userid !== null ? users[i].userid : `UID: ${users[i].uid}`})` });
         }
         if (selectedUsers !== formattedInit) {
             setSelectedUsers(formattedInit);
@@ -62,6 +64,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
                 value={selectedUsers}
                 onChange={handleInputChange}
                 menuPortalTarget={document.body}
+                isDisabled={disabled}
             />
         </div>
     );

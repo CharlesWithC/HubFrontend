@@ -5,6 +5,7 @@
 1. Added batch role update (advanced staff function)
 2. Added batch tracker update (advanced staff function)
 3. Added batch dismiss member (advanced staff function)
+4. Added prune users (advanced staff function)
 
 ## v3.1.0
 

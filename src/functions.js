@@ -133,12 +133,15 @@ export async function FetchProfile() {
                     let urlsBatch = [];
                     for (let i = 2; i <= totalPages; i++) {
                         urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
-                    }
-                    let resps = await makeRequestsWithAuth(urlsBatch);
-                    for (let i = 0; i < resps.length; i++) {
-                        vars.members.push(...resps[i].list);
-                        for (let j = 0; j < resps[i].list.length; j++) {
-                            vars.users[resps[i].list[j].uid] = resps[i].list[j];
+                        if (urlsBatch.length === 5 || i === totalPages) {
+                            let resps = await makeRequestsWithAuth(urlsBatch);
+                            for (let j = 0; j < resps.length; j++) {
+                                vars.members.push(...resps[j].list);
+                                for (let k = 0; k < resps[j].list.length; k++) {
+                                    vars.users[resps[j].list[k].uid] = resps[j].list[k];
+                                }
+                            }
+                            urlsBatch = [];
                         }
                     }
                 }
@@ -152,6 +155,25 @@ export async function FetchProfile() {
         vars.userInfo = {};
         vars.userPerm = [];
         vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
+    }
+}
+
+export async function loadAllUsers() {
+    let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/user/list?page=1&page_size=250`]);
+    let totalPages = resp.total_pages;
+    vars.allUsers = resp.list;
+    if (totalPages > 1) {
+        let urlsBatch = [];
+        for (let i = 2; i <= totalPages; i++) {
+            urlsBatch.push(`${vars.dhpath}/user/list?page=${i}&page_size=250`);
+            if (urlsBatch.length === 5 || i === totalPages) {
+                let resps = await makeRequestsWithAuth(urlsBatch);
+                for (let i = 0; i < resps.length; i++) {
+                    vars.allUsers.push(...resps[i].list);
+                }
+                urlsBatch = [];
+            }
+        }
     }
 }
 

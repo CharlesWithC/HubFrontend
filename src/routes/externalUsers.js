@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
+import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Chip, Grid, Button, LinearProgress } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,8 +8,10 @@ import { faUserPlus, faBan, faUsersSlash } from '@fortawesome/free-solid-svg-ico
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues, loadAllUsers } from '../functions';
 import UserCard from '../components/usercard';
+import UserSelect from '../components/userselect';
+import DateTimeField from '../components/datetime';
 
 var vars = require("../variables");
 
@@ -41,6 +43,51 @@ const ExternalUsers = () => {
     const handleCloseSnackbar = useCallback(() => {
         setSnackbarContent("");
     }, []);
+
+    const [dialogOpen, setDialogOpen] = useState("");
+    const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
+    const [logSeverity, setLogSeverity] = useState("info");
+
+    const [batchDeleteUsers, setBatchDeleteUsers] = useState([]);
+    const [batchDeleteLastOnline, setBatchDeleteLastOnline] = useState(undefined);
+    const [batchDeleteLog, setBatchDeleteLog] = useState("");
+    const [batchDeleteCurrent, setBatchDeleteCurrent] = useState(0);
+    const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
+    const batchDelete = useCallback(async () => {
+        setDialogButtonDisabled(true);
+        setBatchDeleteLog("");
+        setBatchDeleteCurrent(0);
+        for (let i = 0; i < batchDeleteUsers.length; i++) {
+            let st = +new Date();
+            let resp = await axios({ url: `${vars.dhpath}/user/${batchDeleteUsers[i].uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            if (resp.status === 204) {
+                setBatchDeleteLog(`Deleted ${batchDeleteUsers[i].name}`);
+                setLogSeverity("success");
+                setBatchDeleteCurrent(i + 1);
+            } else {
+                if (resp.data.retry_after !== undefined) {
+                    setBatchDeleteLog(`We are being rate limited by Drivers Hub API. We will continue after ${resp.data.retry_after} seconds...`);
+                    setLogSeverity("warning");
+                    await sleep((resp.data.retry_after + 1) * 1000);
+                    i -= 1;
+                } else {
+                    setBatchDeleteLog(`Failed to delete ${batchDeleteUsers[i].name}: ${resp.data.error}`);
+                    setLogSeverity("error");
+                    setBatchDeleteCurrent(i + 1);
+                }
+            }
+            let ed = +new Date();
+            if (ed - st < 1000) await sleep(1000 - (ed - st));
+        }
+        setTimeout(function () { setBatchDeleteLog(""); setDialogButtonDisabled(false); }, 3000);
+    }, [batchDeleteUsers]);
+    const loadUserList = useCallback(async () => {
+        if (vars.allUsers.length === 0) {
+            setBatchDeleteLoading(true);
+            await loadAllUsers();
+            setBatchDeleteLoading(false);
+        }
+    }, [vars.allUsers]);
 
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -111,8 +158,6 @@ const ExternalUsers = () => {
                 if (user.ban !== null) banMark = <FontAwesomeIcon icon={faBan} style={{ color: theme.palette.error.main }} />;
                 newUserList.push({ uid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{user.uid}</span>&nbsp;{banMark}</Typography>, user: <UserCard key={user.uid} user={user} />, email: user.email, discordid: user.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer" >{user.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer" >{user.truckersmpid}</a>, joined: <TimeAgo key={`${+new Date()}`} timestamp={user.join_timestamp * 1000} /> });
             }
-            console.log(searchRef.current);
-            console.log(search);
             if (pageRef.current === page && searchRef.current === search) {
                 setUserList(newUserList);
                 setTotalItems(_userList.total_items);
@@ -204,6 +249,55 @@ const ExternalUsers = () => {
                 </Alert>
             </Snackbar>
         </Portal>
+        <Dialog open={dialogOpen === "prune-user"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Prune Users  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogContent>
+                <Typography variant="body2">- You could delete a list of users.</Typography>
+                <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive users to delete. Note that users whose last online was a long time ago might not be detected.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
+                <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
+                    <Grid item xs={8}>
+                        <DateTimeField size="small"
+                            label="Last Online Before"
+                            defaultValue={batchDeleteLastOnline}
+                            onChange={(timestamp) => { setBatchDeleteLastOnline(timestamp); }}
+                            fullWidth
+                            disabled={batchDeleteLoading}
+                        />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Button variant="contained" color="info" onClick={() => {
+                            if (batchDeleteLastOnline === undefined) return;
+                            let newList = [];
+                            for (let i = 0; i < vars.allUsers.length; i++) {
+                                if (vars.allUsers[i].activity !== null && vars.allUsers[i].activity.last_seen < batchDeleteLastOnline) {
+                                    newList.push(vars.allUsers[i]);
+                                }
+                            }
+                            setBatchDeleteUsers(newList);
+                        }} disabled={dialogButtonDisabled || batchDeleteLoading} fullWidth>Select</Button>
+                    </Grid>
+                    <Grid item xs={12}>
+                        {/*This has to be done because UserSelect does not support update on userList*/}
+                        {vars.allUsers.length === 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} />}
+                        {vars.allUsers.length !== 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} />}
+                    </Grid>
+                </Grid>
+                {(dialogButtonDisabled || batchDeleteCurrent !== 0 && batchDeleteCurrent == batchDeleteUsers.length) && <>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Completed {batchDeleteCurrent} / {batchDeleteUsers.length}</Typography>
+                    <LinearProgress variant="determinate" color="info" value={batchDeleteCurrent / batchDeleteUsers.length * 100} />
+                    <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDeleteLog}</Typography>
+                </>}
+                {batchDeleteLoading && <>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Loading user list, please wait...</Typography>
+                    <LinearProgress variant="indeterminate" color="info" />
+                </>}
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="error" onClick={() => { batchDelete(); }} disabled={dialogButtonDisabled || batchDeleteLoading}>Delete</Button>
+            </DialogActions>
+        </Dialog>
         <SpeedDial
             ariaLabel="Controls"
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
@@ -213,7 +307,7 @@ const ExternalUsers = () => {
                 key="prune-user"
                 icon={<FontAwesomeIcon icon={faUsersSlash} />}
                 tooltipTitle="Prune Users"
-                onClick={() => setDialogOpen("prune-user")}
+                onClick={() => { loadUserList(); setDialogOpen("prune-user"); }}
             />
         </SpeedDial>
     </>;
