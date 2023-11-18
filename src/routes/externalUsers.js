@@ -1,10 +1,10 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Typography, MenuItem, Snackbar, Alert } from '@mui/material';
+import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserPlus, faBan } from '@fortawesome/free-solid-svg-icons';
+import { faUserPlus, faBan, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
@@ -204,6 +204,18 @@ const ExternalUsers = () => {
                 </Alert>
             </Snackbar>
         </Portal>
+        <SpeedDial
+            ariaLabel="Controls"
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            <SpeedDialAction
+                key="prune-user"
+                icon={<FontAwesomeIcon icon={faUsersSlash} />}
+                tooltipTitle="Prune Users"
+                onClick={() => setDialogOpen("prune-user")}
+            />
+        </SpeedDial>
     </>;
 };
 

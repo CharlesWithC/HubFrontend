@@ -1,8 +1,15 @@
 {
-  "short_name": "Drivers Hub",
-  "name": "Powered by The Drivers Hub Project (CHub)",
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#2fc1f7",
-  "background_color": "#2e3035"
+    "short_name": "Drivers Hub",
+    "name": "Powered by The Drivers Hub Project (CHub)",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#2fc1f7",
+    "background_color": "#2e3035",
+    "icons": [
+        {
+            "src": "https://cdn.chub.page/assets/logo.png",
+            "sizes": "500x500",
+            "type": "image/png"
+        }
+    ]
 }

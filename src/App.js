@@ -158,7 +158,7 @@ function App() {
         }
     }, [loaded, chubRecruitmentModalOpen]);
 
-    const hasSpeedDial = (["/announcement", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
+    const hasSpeedDial = (["/announcement", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
 
     if (!loaded) {
         return (

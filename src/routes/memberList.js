@@ -358,8 +358,8 @@ const MemberList = () => {
                 <Button variant="contained" color="info" onClick={() => { batchUpdateTrackers(); }} disabled={dialogButtonDisabled}>Update</Button>
             </DialogActions>
         </Dialog>
-        <Dialog open={dialogOpen === "batch-dismiss-member"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Member  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+        <Dialog open={dialogOpen === "batch-member-dismiss"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Member Dismiss  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could dismiss a list of members.</Typography>
                 <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive members to dismiss. Note that members whose last online was a long time ago might not be detected.</Typography>
@@ -406,10 +406,10 @@ const MemberList = () => {
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
-                key="batch-dismiss-member"
+                key="batch-member-dismiss"
                 icon={<FontAwesomeIcon icon={faUsersSlash} />}
-                tooltipTitle="Batch Dismiss"
-                onClick={() => setDialogOpen("batch-dismiss-member")}
+                tooltipTitle="Batch Member Dismiss"
+                onClick={() => setDialogOpen("batch-member-dismiss")}
             />
             <SpeedDialAction
                 key="batch-tracker-update"

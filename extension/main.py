@@ -8,6 +8,7 @@ import sqlite3
 import threading
 import time
 import uuid
+import urllib
 
 import requests
 import uvicorn
@@ -300,6 +301,49 @@ async def getConfig(domain: str, request: Request, response: Response):
     config = {key: config[key] for key in sorted_keys}
     
     return {"config": config}
+
+DEFAULT_MANIFEST = {
+    "short_name": "Drivers Hub",
+    "name": "Powered by The Drivers Hub Project (CHub)",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#2fc1f7",
+    "background_color": "#2e3035",
+    "icons": [
+        {
+            "src": "https://cdn.chub.page/assets/logo.png",
+            "sizes": "500x500",
+            "type": "image/png"
+        }
+    ]
+}
+@app.get("/manifest")
+async def getManifest(request: Request, response: Response):
+    referer = request.headers.get('Referer')
+    if referer is None:
+        return DEFAULT_MANIFEST
+    else:
+        domain = urllib.parse.urlparse(referer).netloc
+    
+    if not os.path.exists(f"/var/hub/config/{domain}.json"):
+        return DEFAULT_MANIFEST
+    
+    config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
+
+    return {
+        "short_name": "Drivers Hub",
+        "name": config["name"],
+        "start_url": ".",
+        "display": "standalone",
+        "theme_color": config["color"],
+        "background_color": config["color"],
+        "icons": [
+            {
+                "src": f"https://cdn.chub.page/assets/{config['abbr']}/logo.png?{config['logo_key']}",
+                "type": "image/png"
+            }
+        ]
+    }
 
 @app.patch("/config")
 async def patchConfig(domain: str, request: Request, response: Response, authorization: str = Header(None)):

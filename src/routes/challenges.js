@@ -20,7 +20,7 @@ var vars = require("../variables");
 
 const CHALLENGE_TYPES = ["", "Personal (One-time)", "Company (One-time)", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
 const DEFAULT_JOB_REQUIREMENTS = {
-    game: "eut2",
+    game: "",
     market: "",
     source_city_id: "",
     source_company_id: "",
@@ -68,9 +68,9 @@ const DEFAULT_JOB_REQUIREMENTS = {
     maximum_toll_paid: "-1",
     minimum_collision: "-1",
     maximum_collision: "-1",
-    allow_overspeed: "0",
-    allow_auto_park: "0",
-    allow_auto_load: "0",
+    allow_overspeed: "1",
+    allow_auto_park: "1",
+    allow_auto_load: "1",
     must_not_be_late: "0",
     must_be_special: "0",
     minimum_warp: "-1",

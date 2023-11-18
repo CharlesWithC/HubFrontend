@@ -782,7 +782,7 @@ const UserCard = (props) => {
                             <Grid container sx={{ mt: "10px" }}>
                                 <Grid item xs={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        MEMBER SINCE
+                                        {userid !== null && userid !== -1 ? `MEMBER` : `USER`} SINCE
                                     </Typography>
                                     {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
                                         {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
@@ -1517,7 +1517,7 @@ const UserCard = (props) => {
                         <Grid container sx={{ mt: "10px" }}>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    MEMBER SINCE
+                                    {userid !== null && userid !== -1 ? `MEMBER` : `USER`} SINCE
                                 </Typography>
                                 {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
                                     {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}

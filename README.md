@@ -14,8 +14,8 @@ Brand new start: V3 with ReactJS!
 
 1. Trucky job batch import
 2. Batch sync user profile
-3. Batch update tracker
-4. Batch update roles
-5. (TODO) Prune users (inactive non-members)
-6. (TODO) Batch dismiss members (manual select / support auto select based on activity like last job or last online)
+3. Batch tracker update
+4. Batch role update
+5. Batch member dismiss
+6. Prune users
 7. (TODO) Advanced form builder
