@@ -305,7 +305,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Role Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Update Roles  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could add / remove / overwrite roles for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
@@ -333,7 +333,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Tracker Update  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Update Tracker  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could set the tracker for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
@@ -359,7 +359,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-member-dismiss"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Member Dismiss  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Members  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could dismiss a list of members.</Typography>
                 <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive members to dismiss. Note that members whose last online was a long time ago might not be detected.</Typography>
@@ -408,25 +408,25 @@ const MemberList = () => {
             <SpeedDialAction
                 key="batch-member-dismiss"
                 icon={<FontAwesomeIcon icon={faUsersSlash} />}
-                tooltipTitle="Batch Member Dismiss"
+                tooltipTitle="Batch Dismiss Members"
                 onClick={() => setDialogOpen("batch-member-dismiss")}
             />
             <SpeedDialAction
                 key="batch-tracker-update"
                 icon={<FontAwesomeIcon icon={faTruck} />}
-                tooltipTitle="Batch Tracker Update"
+                tooltipTitle="Batch Update Tracker"
                 onClick={() => setDialogOpen("batch-tracker-update")}
             />
             <SpeedDialAction
                 key="batch-role-update"
                 icon={<FontAwesomeIcon icon={faIdCard} />}
-                tooltipTitle="Batch Role Update"
+                tooltipTitle="Batch Update Roles"
                 onClick={() => setDialogOpen("batch-role-update")}
             />
             <SpeedDialAction
                 key="sync-profile"
                 icon={<FontAwesomeIcon icon={faArrowsRotate} />}
-                tooltipTitle="Sync Profiles"
+                tooltipTitle="Sync Member Profiles"
                 onClick={() => setDialogOpen("sync-profile")}
             />
         </SpeedDial>

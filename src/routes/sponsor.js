@@ -105,9 +105,38 @@ const UpgradeCard = () => {
                     <CardContent>
                         <List>
                             {platinum.map((feature) => (
-                                <ListItem key={feature}>
-                                    <ListItemText primary={feature} />
-                                </ListItem>
+                                <>
+                                    {feature !== "Advanced Staff Functions" && <ListItem key={feature}>
+                                        <ListItemText primary={feature} />
+                                    </ListItem>}
+                                    {feature === "Advanced Staff Functions" &&
+                                        <>
+                                            <ListItem key={feature} style={{ paddingBottom: 0 }}>
+                                                <ListItemText primary={feature} />
+                                            </ListItem>
+                                            <List style={{ marginLeft: '20px', paddingTop: 0 }}>
+                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                    <ListItemText primary="Auto Import Multiple Trucky Jobs" />
+                                                </ListItem>
+                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                    <ListItemText primary="Sync Member Profiles" />
+                                                </ListItem>
+                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                    <ListItemText primary="Batch Update Tracker" />
+                                                </ListItem>
+                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                    <ListItemText primary="Batch Update Roles" />
+                                                </ListItem>
+                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                    <ListItemText primary="Batch Dismiss Members" />
+                                                </ListItem>
+                                                <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                    <ListItemText primary="Prune Users" />
+                                                </ListItem>
+                                            </List>
+                                        </>
+                                    }
+                                </>
                             ))}
                         </List>
                         <Typography variant="h5" align="center" gutterBottom>

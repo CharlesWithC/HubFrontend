@@ -12,10 +12,10 @@ Brand new start: V3 with ReactJS!
 
 ## Advanced Staff Functions
 
-1. Trucky job batch import
-2. Batch sync user profile
-3. Batch tracker update
-4. Batch role update
-5. Batch member dismiss
+1. Auto import mulitple trucky jobs
+2. Sync member profiles
+3. Batch update tracker
+4. Batch update roles
+5. Batch dismiss members
 6. Prune users
 7. (TODO) Advanced form builder

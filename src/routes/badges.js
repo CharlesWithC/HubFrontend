@@ -13,7 +13,7 @@ const Badges = () => {
             icon: faScrewdriverWrench,
             color: '#2fc1f7',
             description:
-                'The most mysterious badge! Users with this badge are team members of The Drivers Hub Project (CHub). The project that powers the website you are currently viewing.\nLearn more about the project at [https://drivershub.charlws.com](drivershub.charlws.com).',
+                'The most mysterious badge! Users with this badge are team members of The Drivers Hub Project (CHub). The project that powers the website you are currently viewing.\nLearn more about the project at [drivershub.charlws.com](https://drivershub.charlws.com).',
         },
         {
             title: 'Community Legend',
@@ -32,9 +32,9 @@ const Badges = () => {
         {
             title: 'Supporter',
             icon: faClover,
-            color: '#5ae9e1',
+            color: '#f47fff',
             description:
-                'Supporters play a crucial role in sustaining The Drivers Hub Project (CHub). They can be sponsors on Patreon, server boosters in Discord, or beta testers providing valuable feedback during project development.\nIf you are interested in becoming a sponsor, visit [https://patreon.com/charlws](patreon.com/charlws).',
+                'Supporters play a crucial role in sustaining The Drivers Hub Project (CHub). They can be sponsors on Patreon, server boosters in Discord, or beta testers providing valuable feedback during project development.\nIf you are interested in becoming a sponsor, visit [patreon.com/charlws](https://patreon.com/charlws).',
         },
     ];
 
