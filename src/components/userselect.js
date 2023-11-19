@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import Select from 'react-select';
+import Select, { components } from 'react-select';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheckSquare } from '@fortawesome/free-solid-svg-icons';
 import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
-const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false }) => {
+const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
     const [memberMap, setMemberMap] = useState({});
     const [options, setOptions] = useState([]);
 
@@ -49,6 +51,24 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
         else onUpdate(memberMap[val.value]);
     };
 
+    const handleSelectAll = () => {
+        setSelectedUsers(options);
+        onUpdate(options.map((item) => (memberMap[item.value])));
+    };
+
+    const DropdownIndicator = props => {
+        return (
+            components.DropdownIndicator && (
+                <components.DropdownIndicator {...props}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <components.DownChevron {...props} />
+                        {allowSelectAll && <FontAwesomeIcon icon={faCheckSquare} onClick={handleSelectAll} style={{ marginLeft: "5px" }} />}
+                    </div>
+                </components.DropdownIndicator>
+            )
+        );
+    };
+
     const theme = useTheme();
 
     return (
@@ -65,6 +85,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
                 onChange={handleInputChange}
                 menuPortalTarget={document.body}
                 isDisabled={disabled}
+                components={{ DropdownIndicator }}
             />
         </div>
     );

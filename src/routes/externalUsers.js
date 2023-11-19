@@ -280,8 +280,8 @@ const ExternalUsers = () => {
                     </Grid>
                     <Grid item xs={12}>
                         {/*This has to be done because UserSelect does not support update on userList*/}
-                        {vars.allUsers.length === 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} />}
-                        {vars.allUsers.length !== 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} />}
+                        {vars.allUsers.length === 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                        {vars.allUsers.length !== 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
                     </Grid>
                 </Grid>
                 {(dialogButtonDisabled || batchDeleteCurrent !== 0 && batchDeleteCurrent == batchDeleteUsers.length) && <>

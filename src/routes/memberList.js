@@ -310,7 +310,7 @@ const MemberList = () => {
                 <Typography variant="body2">- You could add / remove / overwrite roles for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
-                <UserSelect label="Users" users={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} />
+                <UserSelect label="Users" users={batchRoleUpdateUsers} isMulti={true} onUpdate={setBatchRoleUpdateUsers} style={{ marginTop: "5px", marginBottom: "5px" }} allowSelectAll={true} />
                 <RoleSelect label="Roles" initialRoles={batchRoleUpdateRoles} onUpdate={(newRoles) => setBatchRoleUpdateRoles(newRoles.map((role) => (role.id)))} style={{ marginBottom: "12px" }} />
                 <TextField select size="small"
                     label="Mode"
@@ -338,7 +338,7 @@ const MemberList = () => {
                 <Typography variant="body2">- You could set the tracker for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
-                <UserSelect label="Users" users={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} />
+                <UserSelect label="Users" users={batchTrackerUpdateUsers} isMulti={true} onUpdate={setBatchTrackerUpdateUsers} style={{ marginTop: "5px", marginBottom: "12px" }} allowSelectAll={true} />
                 <TextField select size="small"
                     label="Tracker"
                     value={batchTrackerUpdateTo}
@@ -387,7 +387,7 @@ const MemberList = () => {
                         }} disabled={dialogButtonDisabled} fullWidth>Select</Button>
                     </Grid>
                     <Grid item xs={12}>
-                        <UserSelect label="Users" users={batchDismissUsers} isMulti={true} onUpdate={setBatchDismissUsers} />
+                        <UserSelect label="Users" users={batchDismissUsers} isMulti={true} onUpdate={setBatchDismissUsers} allowSelectAll={true} />
                     </Grid>
                 </Grid>
                 {(dialogButtonDisabled || batchDismissCurrent !== 0 && batchDismissCurrent == batchDismissUsers.length) && <>
