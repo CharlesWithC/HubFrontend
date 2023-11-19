@@ -1049,6 +1049,13 @@ const Settings = () => {
                     </Tooltip>;
                     badgeName = "legend";
                 }
+                if (['network_partner'].includes(sr.role)) {
+                    badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title="CHub Network Partner"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
+                    </Tooltip>;
+                    badgeName = "legend";
+                }
                 if (['platinum_sponsor', 'gold_sponsor', 'silver_sponsor', 'bronze_sponsor', 'server_booster', 'translation_team', 'web_client_beta'].includes(sr.role)) {
                     badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title="CHub Supporter"
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>

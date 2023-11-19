@@ -5,7 +5,7 @@ import { Portal } from '@mui/base';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleBar from 'simplebar-react';
 
@@ -138,6 +138,13 @@ const UserCard = (props) => {
                 badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="CHub Community Legend"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
+                </Tooltip>;
+                badgeName = "legend";
+            }
+            if (['network_partner'].includes(sr.role)) {
+                badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title="CHub Network Partner"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                 </Tooltip>;
                 badgeName = "legend";
             }
