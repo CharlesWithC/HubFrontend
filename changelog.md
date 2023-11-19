@@ -6,6 +6,7 @@
 2. Added batch tracker update (advanced staff function)
 3. Added batch dismiss member (advanced staff function)
 4. Added prune users (advanced staff function)
+5. Added tab to explain all badges
 
 ## v3.1.0
 

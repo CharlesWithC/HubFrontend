@@ -14,6 +14,7 @@ const MarkdownRenderer = ({ children }) => {
             return <span>{props.children}<br /></span>;
         },
         img: (props) => <>{!vars.userSettings.data_saver && <img {...props} style={{ width: '100%' }} alt=" " />}</>,
+        a: ({ node, ...props }) => <a {...props} target="_blank" rel="noreferrer" />, // Added this line
     };
 
     const preprocessedContent = preprocessContent(children);

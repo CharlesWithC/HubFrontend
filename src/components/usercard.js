@@ -128,28 +128,28 @@ const UserCard = (props) => {
             let badge = null;
             let badgeName = null;
             if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
-                badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title="CHub Staff"
-                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title="CHub Team"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }} >
                     <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                 </Tooltip>;
                 badgeName = "chub";
             }
             if (['community_legend'].includes(sr.role)) {
-                badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="CHub Community Legend"
+                badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="Community Legend"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                 </Tooltip>;
                 badgeName = "legend";
             }
             if (['network_partner'].includes(sr.role)) {
-                badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title="CHub Network Partner"
+                badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title="Network Partner"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                 </Tooltip>;
                 badgeName = "legend";
             }
             if (['platinum_sponsor', 'gold_sponsor', 'silver_sponsor', 'bronze_sponsor', 'server_booster', 'translation_team', 'web_client_beta'].includes(sr.role)) {
-                badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="CHub Supporter"
+                badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="Supporter"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                 </Tooltip>;
@@ -762,7 +762,7 @@ const UserCard = (props) => {
                                 {nameRef.current}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
+                                {badges.map((badge, index) => { return <a key={index} onClick={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
                                 {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                                 {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
@@ -1506,7 +1506,7 @@ const UserCard = (props) => {
                                 {nameRef.current}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                {badges.map((badge, index) => { return <span key={index}>{badge}&nbsp;</span>; })}
+                                {badges.map((badge, index) => { return <a key={index} onClick={() => { navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
                                 {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             </Typography>

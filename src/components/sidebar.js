@@ -155,7 +155,7 @@ const SideBar = (props) => {
         }
         if (!matchedPath) {
             // off-the-sidebar-paths
-            if (!["/settings", "/notifications", "/sponsor", "/supporters"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
+            if (!["/settings", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
                 if (!reload404) {
                     if (Object.values(menuRoute).includes(path)) {
                         navigate("/404");
@@ -167,7 +167,7 @@ const SideBar = (props) => {
                     } else {
                         setTimeout(function () {
                             // check again later, in case sidebar should be hidden
-                            if (!["/settings", "/notifications", "/sponsor", "/supporters"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
+                            if (!["/settings", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
                                 if (!reload404) {
                                     if (Object.values(menuRoute).includes(path)) {
                                         navigate("/404");

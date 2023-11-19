@@ -39,6 +39,7 @@ import Notifications from './routes/notifications';
 import Poll from './routes/polls';
 import Economy from './routes/economy';
 import Supporters from './routes/supporters';
+import Badges from './routes/badges';
 import NotFound from './routes/notFound';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -245,6 +246,7 @@ function App() {
                                 <Route path="/config" element={<Configuration />}></Route>
                                 <Route path="/sponsor" element={<UpgradeCard />}></Route>
                                 <Route path="/supporters" element={<Supporters />}></Route>
+                                <Route path="/badges" element={<Badges />}></Route>
                                 <Route path="*" element={<NotFound />}></Route>
                             </Routes>
                             <Dialog open={aboutCHubModal} onClose={() => setAboutCHubModal(false)}>
