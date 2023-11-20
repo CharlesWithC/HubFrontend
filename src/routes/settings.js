@@ -6,7 +6,7 @@ import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faCrown, faClover } from '@fortawesome/free-solid-svg-icons';
+import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmericas, faCrown, faClover } from '@fortawesome/free-solid-svg-icons';
 
 import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';

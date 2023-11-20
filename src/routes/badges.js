@@ -20,7 +20,7 @@ const Badges = () => {
             icon: faCrown,
             color: '#b2db80',
             description:
-                'The hardest badge to get! Community Legends are individuals who have contributed extensively to the TrackSim community. They could be leaders of large VTCs, managers of reputable projects, or other legendary and respected people.',
+                'The hardest badge to get! Community Legends are individuals who have contributed extensively to the TruckSim community. They could be leaders of large VTCs, managers of reputable projects, or other legendary and respected people.',
         },
         {
             title: 'Network Partner',
