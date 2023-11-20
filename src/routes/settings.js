@@ -117,6 +117,8 @@ const appSessionsColumns = [
     { id: 'last_used_time', label: 'Last Used' },
 ];
 
+const settingsRoutes = ["/general", "/appearance", "/security", "/sessions"];
+
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -137,11 +139,17 @@ function TabPanel(props) {
     );
 }
 
-const Settings = () => {
-    const [tab, setTab] = useState(0);
+const Settings = ({ defaultTab = 0 }) => {
+    const [tab, setTab] = useState(defaultTab);
     const handleChange = (event, newValue) => {
+        window.history.pushState("", "", "/settings" + settingsRoutes[newValue]);
         setTab(newValue);
     };
+    useEffect(() => {
+        if (window.location.pathname !== "/settings" + settingsRoutes[tab]) {
+            window.history.pushState("", "", "/settings" + settingsRoutes[tab]);
+        }
+    }, []);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
