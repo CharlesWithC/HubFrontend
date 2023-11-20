@@ -253,6 +253,9 @@ async def patchUserConfig(domain:str, request: Request, response: Response, auth
         response.status_code = 401
         return {"error": "Unauthorized"}
     discordid = resp["discordid"]
+    if discordid is None:
+        response.status_code = 400
+        return {"error": "You must connect your Discord account first!"}
 
     data = await request.json()
     try:

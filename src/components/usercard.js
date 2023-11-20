@@ -740,8 +740,21 @@ const UserCard = (props) => {
         }
     }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
 
+    const customizeProfileAck = !(localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"));
+    const ackCustomizeProfile = useCallback(() => {
+        if (vars.userInfo.uid === uid && (localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"))) {
+            if (localStorage.getItem("ack") === null) {
+                localStorage.setItem("ack", JSON.stringify(["customize-profile"]));
+            } else {
+                let ack = JSON.parse(localStorage.getItem("ack"));
+                ack.push("customize-profile");
+                localStorage.setItem("ack", JSON.stringify(ack));
+            }
+        }
+    }, []);
+
     let profileModal = <Dialog open={true} onClose={() => {
-        setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length > 1) { window.history.go(-1); } else { window.history.pushState("", "", "/"); } }, 250);
+        ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length > 1) { window.history.go(-1); } else { window.history.pushState("", "", "/"); } }, 250);
     }} fullWidth >
         <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
             {!vars.userSettings.data_saver && <CardMedia
@@ -768,6 +781,7 @@ const UserCard = (props) => {
                                 {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                             </Typography>
                         </div>
+                        {uid === vars.userInfo.uid && !customizeProfileAck && !Object.keys(vars.userConfig).includes(discordidRef.current) && <Typography variant="body2">Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
                         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
                             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
                                 <Tab label="User Info" {...tabBtnProps(0, tab, theme)} />
@@ -1487,7 +1501,7 @@ const UserCard = (props) => {
             anchorReference="anchorPosition"
             anchorPosition={anchorPosition}
             onContextMenu={(e) => { e.stopPropagation(); }}
-            onClose={(e) => { updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
+            onClose={(e) => { ackCustomizeProfile(); updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
             <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
                 {!vars.userSettings.data_saver && <CardMedia
@@ -1512,6 +1526,7 @@ const UserCard = (props) => {
                             </Typography>
                         </div>
                         {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
+                        {uid === vars.userInfo.uid && !customizeProfileAck && !Object.keys(vars.userConfig).includes(discordidRef.current) && <Typography variant="body2">Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
                         {bioRef.current !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
