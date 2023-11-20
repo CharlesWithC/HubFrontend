@@ -20,10 +20,11 @@ export function darkenColor(hex, factor = 0.2) {
 
 export function customSelectStyles(theme) {
     return {
-        control: (base) => ({
+        control: (base, state) => ({
             ...base,
             backgroundColor: "transparent",
-            borderColor: theme.palette.text.secondary + "88"
+            borderColor: theme.palette.text.secondary + "88",
+            opacity: state.isDisabled ? 0.4 : 1
         }),
         option: (base) => ({
             ...base,

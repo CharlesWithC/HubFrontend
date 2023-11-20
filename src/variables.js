@@ -71,6 +71,8 @@ var supportersTabCache = undefined;
 exports.supportersTabCache = supportersTabCache;
 var userConfig = {};
 exports.userConfig = userConfig;
+var userLevel = 0;
+exports.userLevel = userLevel;
 
 // DriversHub
 var discordClientID = null;

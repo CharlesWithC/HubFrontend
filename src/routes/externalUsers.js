@@ -54,6 +54,11 @@ const ExternalUsers = () => {
     const [batchDeleteCurrent, setBatchDeleteCurrent] = useState(0);
     const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
     const batchDelete = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Prune Users is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarSeverity("warning");
+            return;
+        }
         setDialogButtonDisabled(true);
         setBatchDeleteLog("");
         setBatchDeleteCurrent(0);
@@ -250,7 +255,7 @@ const ExternalUsers = () => {
             </Snackbar>
         </Portal>
         <Dialog open={dialogOpen === "prune-user"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Prune Users  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Prune Users  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could delete a list of users.</Typography>
                 <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive users to delete. Note that users whose last online was a long time ago might not be detected.</Typography>

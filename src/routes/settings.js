@@ -1081,6 +1081,15 @@ const Settings = ({ defaultTab = 0 }) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (vars.userLevel < 3 && userSettings.display_timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) {
+            updateDisplayTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        }
+        if (vars.userLevel < 2 && userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+            updateRadioType("tsr");
+        }
+    }, []);
+
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
@@ -1102,7 +1111,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Display Timezone</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Display Timezone&nbsp;&nbsp;<Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Gold" /></Typography>
                     <br />
                     <Select
                         name="colors"
@@ -1113,6 +1122,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         value={{ value: userSettings.display_timezone, label: userSettings.display_timezone }}
                         onChange={(item) => { updateDisplayTimezone(item.value); }}
                         menuPortalTarget={document.body}
+                        isDisabled={vars.userLevel < 3}
                     />
                 </Grid>
 
@@ -1136,7 +1146,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider&nbsp;&nbsp;<Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Silver" /></Typography>
                     <br />
                     <CreatableSelect
                         defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
@@ -1146,8 +1156,27 @@ const Settings = ({ defaultTab = 0 }) => {
                         classNamePrefix="select"
                         styles={customSelectStyles(theme)}
                         value={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
-                        onChange={(item) => { updateRadioType(item.value); }}
+                        onChange={(item) => {
+                            const isOptionExists = Object.keys(RADIO_TYPES).includes(item.value);
+                            if (!isOptionExists) {
+                                if (vars.userLevel < 4) {
+                                    setSnackbarContent("Using URL for radio is a Platinum Perk! Sponsor at patreon.com/charlws");
+                                    setSnackbarSeverity("warning");
+                                    return;
+                                }
+                                try {
+                                    new URL(item.value);
+                                } catch {
+                                    setSnackbarContent("Invalid URL for radio!");
+                                    setSnackbarSeverity("warning");
+                                    return;
+                                }
+                            }
+                            updateRadioType(item.value);
+                        }}
                         menuPortalTarget={document.body}
+                        formatCreateLabel={(inputValue) => `[Platinum] Use URL: ${inputValue}`}
+                        isDisabled={vars.userLevel < 2}
                     />
                 </Grid>
 
@@ -1335,7 +1364,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;<Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Silver" /></Typography>
                     <br />
                     <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }}>Enabled</Button>
@@ -1361,7 +1390,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
             </Grid>
             <Divider sx={{ mt: "20px", mb: "20px" }} />
-            <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings</Typography>
+            <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings&nbsp;&nbsp;<Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Gold" /></Typography>
             <Typography variant="body2">These settings are synced to cloud and will be displayed on other users' clients.</Typography>
             <Typography variant="body2">You must click "save" to sync settings to cloud, otherwise the settings will be lost once you refresh or close this tab.</Typography>
             <br />

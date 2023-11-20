@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip, Grid } from '@mui/material';
+import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip, Grid, Snackbar, Alert } from '@mui/material';
+import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowsRotate, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
@@ -39,6 +40,11 @@ const MemberList = () => {
 
     const [dialogOpen, setDialogOpen] = useState("");
     const [dialogButtonDisabled, setDialogButtonDisabled] = useState(false);
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
 
     const sleep = ms => new Promise(
         resolve => setTimeout(resolve, ms)
@@ -49,6 +55,11 @@ const MemberList = () => {
     const [syncProfileLog, setSyncProfileLog] = useState("");
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
     const syncProfile = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Sync Profiles is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarSeverity("warning");
+            return;
+        }
         setDialogButtonDisabled(true);
         setSyncProfileLog("");
         setSyncProfileCurrent(0);
@@ -95,6 +106,11 @@ const MemberList = () => {
     const [batchRoleUpdateLog, setBatchRoleUpdateLog] = useState("");
     const [batchRoleUpdateCurrent, setBatchRoleUpdateCurrent] = useState(0);
     const batchUpdateRoles = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Batch Update Roles is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarSeverity("warning");
+            return;
+        }
         setDialogButtonDisabled(true);
         setBatchRoleUpdateLog("");
         setBatchRoleUpdateCurrent(0);
@@ -173,6 +189,11 @@ const MemberList = () => {
     const [batchTrackerUpdateLog, setBatchTrackerUpdateLog] = useState("");
     const [batchTrackerUpdateCurrent, setBatchTrackerUpdateCurrent] = useState(0);
     const batchUpdateTrackers = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Batch Update Tracker is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarSeverity("warning");
+            return;
+        }
         setDialogButtonDisabled(true);
         setBatchTrackerUpdateLog("");
         setBatchTrackerUpdateCurrent(0);
@@ -206,6 +227,11 @@ const MemberList = () => {
     const [batchDismissLog, setBatchDismissLog] = useState("");
     const [batchDismissCurrent, setBatchDismissCurrent] = useState(0);
     const batchDismiss = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Batch Dismiss Members is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarSeverity("warning");
+            return;
+        }
         setDialogButtonDisabled(true);
         setBatchDismissLog("");
         setBatchDismissCurrent(0);
@@ -305,7 +331,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Update Roles  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Update Roles  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could add / remove / overwrite roles for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
@@ -333,7 +359,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Update Tracker  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Update Tracker  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could set the tracker for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
@@ -359,7 +385,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-member-dismiss"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Members  <Chip sx={{ bgcolor: "#387aff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Beta" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Members  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could dismiss a list of members.</Typography>
                 <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive members to dismiss. Note that members whose last online was a long time ago might not be detected.</Typography>
@@ -430,6 +456,18 @@ const MemberList = () => {
                 onClick={() => setDialogOpen("sync-profile")}
             />
         </SpeedDial>
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </>;
 };
 

@@ -110,6 +110,17 @@ export async function FetchProfile() {
                 }
             }
             vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
+
+            let LEVEL_MAP = { "bronze": 1, "silver": 2, "gold": 3, "platinum": 4 };
+            if (vars.userInfo.discordid !== null) {
+                for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
+                    let role = vars.specialRolesMap[vars.userInfo.discordid][i];
+                    if (Object.keys(LEVEL_MAP).includes(role)) {
+                        vars.userLevel = Math.max(vars.userLevel, LEVEL_MAP[role]);
+                    }
+                }
+            }
+
             if (vars.userInfo.userid !== -1) {
                 const divisionIDs = Object.keys(vars.divisions);
                 vars.userDivisionIDs = [];

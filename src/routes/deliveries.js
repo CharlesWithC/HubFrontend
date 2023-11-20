@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
+import { Typography, Chip, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
@@ -106,6 +106,11 @@ const Deliveries = () => {
         resolve => setTimeout(resolve, ms)
     );
     const importFromTruckyMultiple = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Auto Import Multiple Trucky Jobs is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarSeverity("warning");
+            return;
+        }
         if (isNaN(truckyImportRange.end_time - truckyImportRange.start_time)) {
             setSnackbarContent("Invalid date range.");
             setSnackbarSeverity("error");
@@ -358,7 +363,7 @@ const Deliveries = () => {
                     </Grid>
                 </Grid>
                 <Divider sx={{ mt: "10px", mb: "10px" }} />
-                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}&nbsp;&nbsp;<Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></Typography>
 
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
                     <Grid item xs={12}>

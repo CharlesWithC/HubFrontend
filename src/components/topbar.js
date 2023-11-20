@@ -48,6 +48,9 @@ const TopBar = (props) => {
     async function loadRadio() {
         if (vars.userSettings.radio !== "disabled") {
             let radioOK = false;
+            if (vars.userLevel < 2 && vars.userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(vars.userSettings.radio_type)) {
+                vars.userSettings.radio_type = "tsr";
+            }
             if (Object.keys(radioURLs).includes(vars.userSettings.radio_type)) {
                 setRadioURL(radioURLs[vars.userSettings.radio_type]);
                 setRadioName(radioNames[vars.userSettings.radio_type]);
@@ -115,6 +118,9 @@ const TopBar = (props) => {
         const interval = setInterval(async () => {
             if (radioRef.current !== null && !radioRef.current.paused) {
                 try {
+                    if (vars.userLevel < 2 && vars.userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(vars.userSettings.radio_type)) {
+                        vars.userSettings.radio_type = "tsr";
+                    }
                     if (vars.userSettings.radio_type === "tsr") {
                         let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
                         setRadioSongName(resp.data.song.title);
