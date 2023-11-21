@@ -158,7 +158,7 @@ const SideBar = (props) => {
             if (!["/settings", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications"].includes(path) && !vars.isLoggedIn) {
                 if (!reload404) {
                     if (Object.values(menuRoute).includes(path)) {
-                        navigate("/404");
+                        if (!vars.isLoggedIn) navigate("/auth/login");
                         setReload404(true);
                         setTimeout(function () {
                             const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -170,7 +170,7 @@ const SideBar = (props) => {
                             if (!["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
                                 if (!reload404) {
                                     if (Object.values(menuRoute).includes(path)) {
-                                        navigate("/404");
+                                        if (!vars.isLoggedIn) navigate("/auth/login");
                                         setReload404(true);
                                         setTimeout(function () {
                                             const loadingEnd = new CustomEvent('loadingEnd', {});
