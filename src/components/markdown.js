@@ -5,7 +5,7 @@ var vars = require("../variables");
 
 const MarkdownRenderer = ({ children }) => {
     const preprocessContent = (content) => {
-        if (content === undefined) return "";
+        if (content === undefined || content === null) return "";
         return content.replace(/\n/g, '\n\n');
     };
 
