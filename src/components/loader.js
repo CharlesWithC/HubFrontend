@@ -44,13 +44,13 @@ const Loader = ({ onLoaderLoaded }) => {
                 let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
                 if (resp.status !== 200) {
                     setLoaderAnimation(false);
-                    setTitle("CHub - Drivers Hub");
+                    setTitle("The Drivers Hub Project (CHub)");
                     vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/logo.png`);
                     setLogoSrc(vars.dhlogo);
                     if (resp.data.error === "Service Suspended") {
-                        setLoadMessage(<>Drivers Hub Suspended<br />Please ask the owner to complete the payment for CHub<br /><br /><a href="https://drivershub.charlws.com/">CHub - Drivers Hub</a></>);
+                        setLoadMessage(<>Drivers Hub Suspended<br />Please ask the owner to complete the payment to CHub<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
                     } else if (resp.data.error === "Not Found") {
-                        setLoadMessage(<>Drivers Hub Not Found<br />We currently do not operate Drivers Hub under this domain<br /><br /><a href="https://drivershub.charlws.com/">CHub - Drivers Hub</a></>);
+                        setLoadMessage(<>Drivers Hub Not Found<br />We currently do not operate Drivers Hub under this domain<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
                     }
                     return;
                 }
