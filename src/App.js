@@ -43,7 +43,7 @@ import Badges from './routes/badges';
 import NotFound from './routes/notFound';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClover, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getDesignTokens } from './designs';
 import SimpleBar from 'simplebar-react';
@@ -286,7 +286,7 @@ function App() {
                                     <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                         &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                         <br />
-                                        <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
+                                        <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                     </Typography>
                                     <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                         {vars.dhconfig.name}
@@ -300,7 +300,7 @@ function App() {
                                         <br />
                                         API: v{vars.apiversion} | Client: v3.2.0
                                         <br />
-                                        <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} /> <FontAwesomeIcon icon={faClover} onClick={() => { navigate("/supporters"); }} style={{ cursor: "pointer" }} />
+                                        <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                     </Typography>
                                 </div>}
                             </footer>

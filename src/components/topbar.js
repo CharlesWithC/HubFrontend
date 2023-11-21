@@ -7,7 +7,7 @@ import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRo
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePlay, faCirclePause } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlay, faCirclePause, faClover } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleBar from 'simplebar-react';
 import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
@@ -337,6 +337,7 @@ const TopBar = (props) => {
         <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Sponsor</MenuItem></Link>
+        <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>Supporters</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
     </Menu>);

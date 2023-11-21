@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip } from '@mui/material';
+import { CheckRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -1035,7 +1036,6 @@ const Settings = ({ defaultTab = 0 }) => {
     }, []);
 
     const [badges, setBadges] = useState([]);
-    const [badgeNames, setBadgeNames] = useState([]);
     useEffect(() => {
         if (Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
             let newBadges = [];
@@ -1072,11 +1072,10 @@ const Settings = ({ defaultTab = 0 }) => {
                     </Tooltip>;
                     badgeName = "supporter";
                 }
-                if (badge !== null && !badgeNames.includes(badgeName)) {
+                if (badge !== null && !newBadgeNames.includes(badgeName)) {
                     newBadges.push(badge);
                     newBadgeNames.push(badgeName);
                     setBadges(newBadges);
-                    setBadgeNames(newBadgeNames);
                 }
             }
         }
@@ -1088,6 +1087,9 @@ const Settings = ({ defaultTab = 0 }) => {
         }
         if (vars.userLevel < 2 && userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
             updateRadioType("tsr");
+        }
+        if (vars.userLevel < 3) {
+            updateUseCustomTheme(false);
         }
     }, []);
 
@@ -1147,7 +1149,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider&nbsp;&nbsp;<SponsorBadge level={2} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                     <br />
                     <CreatableSelect
                         defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
@@ -1161,7 +1163,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             const isOptionExists = Object.keys(RADIO_TYPES).includes(item.value);
                             if (!isOptionExists) {
                                 if (vars.userLevel < 4) {
-                                    setSnackbarContent("Using URL for radio is a Platinum Perk! Sponsor at patreon.com/charlws");
+                                    setSnackbarContent("Using URL for radio is a Platinum Perk! Sponsor at charl.ws/patreon");
                                     setSnackbarSeverity("warning");
                                     return;
                                 }
@@ -1367,7 +1369,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;<SponsorBadge level={2} /></Typography>
                     <br />
-                    <ButtonGroup fullWidth>
+                    <ButtonGroup fullWidth disabled={vars.userLevel < 3}>
                         <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }}>Enabled</Button>
                         <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }}>Disabled</Button>
                     </ButtonGroup>
@@ -1375,45 +1377,60 @@ const Settings = ({ defaultTab = 0 }) => {
                     <br />
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Darken Ratio</Typography>
                     <br />
-                    <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
+                    <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} disabled={vars.userLevel < 3} />
                 </Grid>
 
                 <Grid item xs={6} sm={6} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color</Typography>
                     <br />
-                    <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} disableDefault={true} />
+                    <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                 </Grid>
 
                 <Grid item xs={6} sm={6} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
                     <br />
-                    <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} disableDefault={true} />
+                    <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} F />
                 </Grid>
             </Grid>
             <Divider sx={{ mt: "20px", mb: "20px" }} />
-            <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+            <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings</Typography>
             <Typography variant="body2">These settings are synced to cloud and will be displayed on other users' clients.</Typography>
             <Typography variant="body2">You must click "save" to sync settings to cloud, otherwise the settings will be lost once you refresh or close this tab.</Typography>
             <br />
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                     <br />
-                    <ColorInput color={remoteUserConfig.name_color} onChange={(val) => { console.log(val); setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} />
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Upper)</Typography>
+                    {vars.userLevel >= 2 && <Box display="flex" flexDirection="row">
+                        {vars.userLevel >= 2 && <Tooltip placement="bottom" arrow title="Silver"
+                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <Box width="120px" height="60px" bgcolor="#c0c0c0" p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: "#c0c0c0" }); }} style={{ cursor: 'pointer' }}>
+                                {remoteUserConfig.name_color === '#c0c0c0' && <CheckRounded />}
+                            </Box>
+                        </Tooltip>}
+                        {vars.userLevel >= 3 && <Tooltip placement="bottom" arrow title="Gold"
+                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <Box width="120px" height="60px" bgcolor="#ffd700" p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: "#ffd700" }); }} style={{ cursor: 'pointer' }}>
+                                {remoteUserConfig.name_color === '#ffd700' && <CheckRounded />}
+                            </Box>
+                        </Tooltip>}
+                    </Box>}
+                    <ColorInput color={remoteUserConfig.name_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} customTooltip="Custom Color (Platinum)" disableDefault={vars.userLevel < 2} disableCustom={vars.userLevel < 4} />
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Upper)&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
-                    <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { console.log(val); setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} />
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Lower)</Typography>
+                    <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Color (Lower)&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
-                    <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} />
+                    <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                     <TextField
-                        label="Profile Banner URL"
+                        label={<>Profile Banner URL&nbsp;&nbsp;<SponsorBadge level={3} /></>}
                         value={remoteUserConfig.profile_banner_url}
                         onChange={(e) => { setRemoteUserConfig({ ...remoteUserConfig, profile_banner_url: e.target.value }); }}
                         fullWidth size="small"
                         sx={{ mt: "10px" }}
+                        disabled={vars.userLevel < 3}
                     />
-                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} fullWidth disabled={remoteUserConfigDisabled} sx={{ mt: "10px" }}>Save</Button>
+                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} fullWidth disabled={remoteUserConfigDisabled || vars.userLevel < 2} sx={{ mt: "10px" }}>Save</Button>
                 </Grid>
                 <Grid item xs={0} sm={0} md={1} lg={1}></Grid>
                 <Grid item xs={12} sm={12} md={4} lg={4}>

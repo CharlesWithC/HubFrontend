@@ -56,7 +56,7 @@ const ExternalUsers = () => {
     const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
     const batchDelete = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Prune Users is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarContent("Prune Users is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
         }

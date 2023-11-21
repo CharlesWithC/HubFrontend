@@ -1,5 +1,6 @@
 import React from 'react';
 import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const UpgradeCard = () => {
     const bronze = ["A Special Discord Role", "A Special Thank You"];
@@ -7,13 +8,15 @@ const UpgradeCard = () => {
     const gold = ["Gold Name", "Custom Profile Theme", "Custom Profile Banner", "Configurable Display Timezone", "Sponsor Support"];
     const platinum = ["More Name Color", "Any Radio Stations (Radio URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Sponsor Priority Support"];
 
+    const navigate = useNavigate();
+
     return (
         <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12}>
                 <Card>
                     <CardHeader
                         title="Become a Sponsor"
-                        subheader={<>To support The Drivers Hub Project (CHub)<br />All features are currently unlocked during beta, but you may still support us by sponsoring!</>}
+                        subheader={<>To support The Drivers Hub Project (CHub) | <a style={{ cursor: "pointer" }} onClick={() => { navigate("/supporters"); }}>View current supporters</a><br />All features are currently unlocked during beta, but you may still support us by sponsoring!</>}
                         titleTypographyProps={{ align: 'center' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -38,7 +41,7 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $1/mo.
                         </Typography>
-                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                        <a href="https://charl.ws/patreon" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
                             Sponsor
                         </Button></a>
                     </CardContent>
@@ -63,7 +66,7 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $3/mo.
                         </Typography>
-                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                        <a href="https://charl.ws/patreon" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
                             Sponsor
                         </Button></a>
                     </CardContent>
@@ -88,7 +91,7 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $5/mo.
                         </Typography>
-                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                        <a href="https://charl.ws/patreon" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
                             Sponsor
                         </Button></a>
                     </CardContent>
@@ -142,7 +145,7 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $8/mo.
                         </Typography>
-                        <a href="https://patreon.com/charlws" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
+                        <a href="https://charl.ws/patreon" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
                             Sponsor
                         </Button></a>
                     </CardContent>

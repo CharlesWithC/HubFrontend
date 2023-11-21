@@ -108,7 +108,7 @@ const Deliveries = () => {
     );
     const importFromTruckyMultiple = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Auto Import Multiple Trucky Jobs is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarContent("Auto Import Multiple Trucky Jobs is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
         }

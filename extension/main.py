@@ -267,11 +267,12 @@ async def patchUserConfig(domain:str, request: Request, response: Response, auth
         response.status_code = 400
         return {"error": "Invalid JSON data"}
     
-    if name_color != -1:
-        for color in reservedColor:
-            if color_similarity(str(hex(color))[2:], str(hex(name_color))[2:]) >= 0.8:
-                response.status_code = 400
-                return {"error": "Name color is reserved, please use another one!"}
+    # reserved color is no longer checked
+    # if name_color != -1:
+    #     for color in reservedColor:
+    #         if color_similarity(str(hex(color))[2:], str(hex(name_color))[2:]) >= 0.8:
+    #             response.status_code = 400
+    #             return {"error": "Name color is reserved, please use another one!"}
 
     ucur.execute(f"SELECT discordid FROM users WHERE discordid = {discordid} AND abbr = '{abbr}'")
     t = ucur.fetchall()

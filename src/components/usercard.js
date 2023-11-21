@@ -121,8 +121,10 @@ const UserCard = (props) => {
     let specialColor = null;
     let badges = [];
     let badgeNames = [];
+    let inCHubTeam = false;
     if (Object.keys(vars.specialRolesMap).includes(discordid)) {
-        specialColor = vars.specialRolesMap[discordid][0].color;
+        // special color disabled as we are now fully using user-customized settings
+        // specialColor = vars.specialRolesMap[discordid][0].color;
         for (let i = 0; i < vars.specialRolesMap[discordid].length; i++) {
             let sr = vars.specialRolesMap[discordid][i];
             let badge = null;
@@ -133,6 +135,7 @@ const UserCard = (props) => {
                     <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                 </Tooltip>;
                 badgeName = "chub";
+                inCHubTeam = true;
             }
             if (['community_legend'].includes(sr.role)) {
                 badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="Community Legend"
@@ -164,19 +167,40 @@ const UserCard = (props) => {
     let profile_background = [darkenColor(theme.palette.background.paper, 0.5), darkenColor(theme.palette.background.paper, 0.5)];
     let profile_banner_url = `${vars.dhpath}/member/banner?userid=${userid}`;
     if (Object.keys(vars.userConfig).includes(discordid)) {
-        for (let i = 0; i < vars.userConfig[discordid].length; i++) {
-            if (vars.userConfig[discordid][i].abbr === vars.dhconfig.abbr) {
-                let uc = vars.userConfig[discordid][i];
-                if (uc.name_color !== null) {
-                    specialColor = uc.name_color;
+        let LEVEL_MAP = { "bronze": 1, "silver": 2, "gold": 3, "platinum": 4 };
+        let userLevel = 0;
+        if (discordid !== null && Object.keys(vars.specialRolesMap).includes(discordid)) {
+            for (let i = 0; i < vars.specialRolesMap[discordid].length; i++) {
+                let role = vars.specialRolesMap[discordid][i];
+                if (Object.keys(LEVEL_MAP).includes(role)) {
+                    userLevel = Math.max(userLevel, LEVEL_MAP[role]);
                 }
-                if (uc.profile_upper_color !== null && uc.profile_lower_color !== null) {
-                    profile_background = [uc.profile_upper_color, uc.profile_lower_color];
+            }
+        }
+
+        userLevel = vars.defaultUserLevel;
+        if (inCHubTeam) userLevel = 4;
+
+        if (userLevel !== 0) {
+            for (let i = 0; i < vars.userConfig[discordid].length; i++) {
+                if (vars.userConfig[discordid][i].abbr === vars.dhconfig.abbr) {
+                    let uc = vars.userConfig[discordid][i];
+                    if (uc.name_color !== null) {
+                        specialColor = uc.name_color;
+                        if (userLevel < 2 || userLevel === 2 && specialColor !== "#c0c0c0" || userLevel === 3 && !["#c0c0c0", "#ffd700"].includes(specialColor)) {
+                            specialColor = null;
+                        }
+                    }
+                    if (userLevel >= 3 && uc.profile_upper_color !== null && uc.profile_lower_color !== null) {
+                        profile_background = [uc.profile_upper_color, uc.profile_lower_color];
+                    }
+                    try {
+                        new URL(uc.profile_banner_url);
+                        if (userLevel >= 3) {
+                            profile_banner_url = uc.profile_banner_url;
+                        }
+                    } catch { }
                 }
-                try {
-                    new URL(uc.profile_banner_url);
-                    profile_banner_url = uc.profile_banner_url;
-                } catch { }
             }
         }
     }

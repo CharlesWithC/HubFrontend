@@ -71,6 +71,8 @@ var supportersTabCache = undefined;
 exports.supportersTabCache = supportersTabCache;
 var userConfig = {};
 exports.userConfig = userConfig;
+var defaultUserLevel = 4; // this affects all users;
+exports.defaultUserLevel = defaultUserLevel;
 var userLevel = 0;
 exports.userLevel = userLevel;
 

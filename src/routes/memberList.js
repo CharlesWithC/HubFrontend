@@ -57,7 +57,7 @@ const MemberList = () => {
     const [syncProfileCurrent, setSyncProfileCurrent] = useState(0);
     const syncProfile = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Sync Profiles is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarContent("Sync Profiles is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
         }
@@ -108,7 +108,7 @@ const MemberList = () => {
     const [batchRoleUpdateCurrent, setBatchRoleUpdateCurrent] = useState(0);
     const batchUpdateRoles = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Batch Update Roles is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarContent("Batch Update Roles is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
         }
@@ -191,7 +191,7 @@ const MemberList = () => {
     const [batchTrackerUpdateCurrent, setBatchTrackerUpdateCurrent] = useState(0);
     const batchUpdateTrackers = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Batch Update Tracker is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarContent("Batch Update Tracker is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
         }
@@ -229,7 +229,7 @@ const MemberList = () => {
     const [batchDismissCurrent, setBatchDismissCurrent] = useState(0);
     const batchDismiss = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Batch Dismiss Members is a Platinum Perk! Sponsor at patreon.com/charlws");
+            setSnackbarContent("Batch Dismiss Members is a Platinum Perk! Sponsor at charl.ws/patreon");
             setSnackbarSeverity("warning");
             return;
         }

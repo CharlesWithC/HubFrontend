@@ -120,6 +120,17 @@ export async function FetchProfile() {
                     }
                 }
             }
+            vars.userLevel = vars.defaultUserLevel;
+
+            if (Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
+                for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
+                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[vars.userInfo.discordid][i].role)) {
+                        // Team member get Platinum Perks
+                        vars.userLevel = 4;
+                        break;
+                    }
+                }
+            }
 
             if (vars.userInfo.userid !== -1) {
                 const divisionIDs = Object.keys(vars.divisions);

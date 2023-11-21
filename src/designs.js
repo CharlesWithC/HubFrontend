@@ -1,3 +1,5 @@
+var vars = require("./variables");
+
 export function darkenColor(hex, factor = 0.2) {
     // Ensure the factor is between 0 and 1
     const clampedFactor = Math.min(1, Math.max(0, factor));
@@ -62,6 +64,9 @@ export function customSelectStyles(theme) {
 
 
 export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
+    if (vars.userLevel < 3) {
+        use_custom_theme = false;
+    }
     if (theme_background !== null && theme_main !== null && darken_ratio !== null && use_custom_theme) {
         customMode = "custom";
     }
