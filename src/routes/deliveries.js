@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { Typography, Chip, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
+import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Portal } from '@mui/base';
@@ -13,6 +13,7 @@ import Podium from "../components/podium";
 import CustomTable from "../components/table";
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
+import SponsorBadge from '../components/sponsorBadge';
 import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAuthToken, downloadLocal, checkUserPerm, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
@@ -363,7 +364,7 @@ const Deliveries = () => {
                     </Grid>
                 </Grid>
                 <Divider sx={{ mt: "10px", mb: "10px" }} />
-                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}&nbsp;&nbsp;<Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}&nbsp;&nbsp;<SponsorBadge level={4} /></Typography>
 
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
                     <Grid item xs={12}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Chip, Grid, Button, LinearProgress } from '@mui/material';
+import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +12,7 @@ import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as ax
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import DateTimeField from '../components/datetime';
+import SponsorBadge from '../components/sponsorBadge';
 
 var vars = require("../variables");
 
@@ -255,7 +256,7 @@ const ExternalUsers = () => {
             </Snackbar>
         </Portal>
         <Dialog open={dialogOpen === "prune-user"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Prune Users  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Prune Users  <SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could delete a list of users.</Typography>
                 <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive users to delete. Note that users whose last online was a long time ago might not be detected.</Typography>

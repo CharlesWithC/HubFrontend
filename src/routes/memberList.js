@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Chip, Grid, Snackbar, Alert } from '@mui/material';
+import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,6 +13,7 @@ import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import RoleSelect from '../components/roleselect';
 import DateTimeField from '../components/datetime';
+import SponsorBadge from '../components/sponsorBadge';
 
 var vars = require("../variables");
 
@@ -331,7 +332,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Update Roles  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faIdCard} />&nbsp;&nbsp;Batch Update Roles  <SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could add / remove / overwrite roles for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
@@ -359,7 +360,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-tracker-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Update Tracker  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;Batch Update Tracker  <SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could set the tracker for a list of members.</Typography>
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
@@ -385,7 +386,7 @@ const MemberList = () => {
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-member-dismiss"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Members  <Chip sx={{ color: "#2F3136", bgcolor: "#f47fff", height: "20px", borderRadius: "5px", marginTop: "-3px" }} label="Platinum" /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Batch Dismiss Members  <SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">- You could dismiss a list of members.</Typography>
                 <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive members to dismiss. Note that members whose last online was a long time ago might not be detected.</Typography>
