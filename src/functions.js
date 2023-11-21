@@ -112,7 +112,7 @@ export async function FetchProfile() {
             vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
 
             let LEVEL_MAP = { "bronze": 1, "silver": 2, "gold": 3, "platinum": 4 };
-            if (vars.userInfo.discordid !== null) {
+            if (vars.userInfo.discordid !== null && vars.userInfo.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid) && vars.specialRolesMap[vars.userInfo.discordid] !== undefined) {
                 for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
                     let role = vars.specialRolesMap[vars.userInfo.discordid][i];
                     if (Object.keys(LEVEL_MAP).includes(role)) {
@@ -122,7 +122,7 @@ export async function FetchProfile() {
             }
             vars.userLevel = vars.defaultUserLevel;
 
-            if (Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
+            if (vars.userInfo.discordid !== null && vars.userInfo.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid) && vars.specialRolesMap[vars.userInfo.discordid] !== undefined) {
                 for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
                     if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[vars.userInfo.discordid][i].role)) {
                         // Team member get Platinum Perks
