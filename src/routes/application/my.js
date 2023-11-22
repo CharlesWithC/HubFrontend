@@ -3,13 +3,13 @@ import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from '
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
 
-import CustomTable from '../components/table';
-import UserCard from '../components/usercard';
-import TimeAgo from '../components/timeago';
+import CustomTable from '../../components/table';
+import UserCard from '../../components/usercard';
+import TimeAgo from '../../components/timeago';
 
-import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../../functions';
 
-var vars = require("../variables");
+var vars = require("../../variables");
 
 const columns = [
     { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },

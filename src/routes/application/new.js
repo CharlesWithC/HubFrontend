@@ -2,11 +2,11 @@ import { useState, useCallback } from 'react';
 import { Grid, Card, CardContent, Typography, TextField, RadioGroup, FormControl, FormLabel, FormControlLabel, MenuItem, Radio, Checkbox, Button, Box, Snackbar, Alert } from '@mui/material';
 import { Portal } from '@mui/base';
 
-import { customAxios as axios, getAuthToken } from '../functions';
+import { customAxios as axios, getAuthToken } from '../../functions';
 import { useTheme } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 
-var vars = require("../variables");
+var vars = require("../../variables");
 
 // [
 //     {
