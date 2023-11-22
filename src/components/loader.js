@@ -58,11 +58,24 @@ const Loader = ({ onLoaderLoaded }) => {
                 vars.dhconfig = loadedConfig.config;
                 vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
 
+                if (vars.dhconfig.api_host === "https://drivershub.charlws.com") {
+                    vars.vtcLevel = 3;
+                } else if (vars.dhconfig.api_host === "https://drivershub05.charlws.com") {
+                    vars.vtcLevel = 1;
+                } else if (vars.dhconfig.api_host === "https://drivershub.charlws.com") {
+                    vars.vtcLevel = 0;
+                }
+
                 setTitle(vars.dhconfig.name);
                 try {
                     vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
                 } catch {
                     vars.dhlogo = "";
+                }
+                try {
+                    vars.dhbgimage = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
+                } catch {
+                    vars.dhbgimage = "";
                 }
                 setLogoSrc(vars.dhlogo);
                 setLoadMessage(`Loading`);
@@ -73,7 +86,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
-                    { url: "https://config.chub.page/config/user", auth: false },
+                    { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
                     { url: `${vars.dhpath}/languages`, auth: false },
                     { url: `${vars.dhpath}/member/roles`, auth: false },

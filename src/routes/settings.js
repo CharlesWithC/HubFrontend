@@ -1369,9 +1369,10 @@ const Settings = ({ defaultTab = 0 }) => {
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;<SponsorBadge level={2} /></Typography>
                     <br />
-                    <ButtonGroup fullWidth disabled={vars.userLevel < 3}>
-                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }}>Disabled</Button>
+                    <ButtonGroup fullWidth>
+                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 3}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 3}>Disabled</Button>
+                        {vars.vtcLevel >= 1 && vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Custom</Button>}
                     </ButtonGroup>
                     <br />
                     <br />
@@ -1394,13 +1395,19 @@ const Settings = ({ defaultTab = 0 }) => {
             </Grid>
             <Divider sx={{ mt: "20px", mb: "20px" }} />
             <Typography variant="h7" sx={{ fontWeight: 800 }}>User Appearance Settings</Typography>
-            <Typography variant="body2">These settings are synced to cloud and will be displayed on other users' clients.</Typography>
+            <Typography variant="body2">These settings are synced to cloud and will be displayed on all clients.</Typography>
             <Typography variant="body2">You must click "save" to sync settings to cloud, otherwise the settings will be lost once you refresh or close this tab.</Typography>
             <br />
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                     <br />
+                    {vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null && <Tooltip placement="bottom" arrow title="VTC Name Color"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <Box width="120px" height="60px" bgcolor={vars.dhconfig.name_color} p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: vars.dhconfig.name_color }); }} style={{ cursor: 'pointer' }}>
+                            {remoteUserConfig.name_color === vars.dhconfig.name_color && <CheckRounded />}
+                        </Box>
+                    </Tooltip>}
                     {vars.userLevel >= 2 && <Box display="flex" flexDirection="row">
                         {vars.userLevel >= 2 && <Tooltip placement="bottom" arrow title="Silver"
                             PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>

@@ -3,9 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
 import TextField from '@mui/material/TextField';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFingerprint } from '@fortawesome/free-solid-svg-icons';
-
 import { customAxios as axios } from '../../functions';
 
 var vars = require('../../variables');
@@ -19,7 +16,8 @@ const EmailAuth = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
-    const secret = searchParams.get('secret');
+    let secret = searchParams.get('secret');
+    if (secret === null) secret = "";
     const op = secret.substring(0, 2);
 
     const [title, setTitle] = useState("");
@@ -69,21 +67,33 @@ const EmailAuth = () => {
     }, [op, secret]);
 
     return (
-        <Card sx={{ width: 450, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-            <CardContent>
-                <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                    {title}
-                </Typography>
-                {op !== "rp" && <Typography variant="body2" sx={{ mt: "20px" }}>
-                    {message}
-                </Typography>}
-                {op === "rp" && <TextField label="New Password" variant="outlined" type="password" onChange={(e) => { setPassword(e.target.value); }} error={passwordError} helperText={passwordText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: passwordColor } }} disabled={updateDisabled} />}
-            </CardContent>
-            {op === "rp" && <CardActions>
-                <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                    onClick={handleUpdatePassword} disabled={updateDisabled}>Update</Button>
-            </CardActions>}
-        </Card >
+        <div style={{
+            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+        }}>
+            <Card sx={{ backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", width: 450, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                <CardContent>
+                    <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                        {title}
+                    </Typography>
+                    {op !== "rp" && <Typography variant="body2" sx={{ mt: "20px" }}>
+                        {message}
+                    </Typography>}
+                    {op === "rp" && <TextField label="New Password" variant="outlined" type="password" onChange={(e) => { setPassword(e.target.value); }} error={passwordError} helperText={passwordText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: passwordColor } }} disabled={updateDisabled} />}
+                </CardContent>
+                {op === "rp" && <CardActions>
+                    <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
+                        onClick={handleUpdatePassword} disabled={updateDisabled}>Update</Button>
+                </CardActions>}
+            </Card>
+        </div >
     );
 };
 

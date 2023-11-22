@@ -67,7 +67,14 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
     if (vars.userLevel < 3) {
         use_custom_theme = false;
     }
-    if (theme_background !== null && theme_main !== null && darken_ratio !== null && use_custom_theme) {
+    if (use_custom_theme === "vtc" && vars.vtcLevel >= 1 && vars.dhconfig !== null) {
+        use_custom_theme = true;
+        theme_background = vars.dhconfig.theme_background_color;
+        theme_main = vars.dhconfig.theme_main_color;
+        darken_ratio = vars.dhconfig.theme_darken_ratio;
+        customMode = "custom";
+    }
+    if (theme_background !== null && theme_main !== null && darken_ratio !== null && use_custom_theme === true) {
         customMode = "custom";
     }
     let bgBase = {

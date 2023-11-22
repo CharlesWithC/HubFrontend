@@ -14,6 +14,7 @@ import requests
 import uvicorn
 from fastapi import FastAPI, Header, Request, Response
 from fastapi.responses import RedirectResponse
+from typing import Optional
 
 app = FastAPI()
 
@@ -186,12 +187,20 @@ async def getRoles():
     return rolesCache
 
 @app.get("/config/user")
-async def getConfigUser():
+async def getConfigUser(abbr: Optional[str] = None):
     global userConfigLU
     if time.time() - userConfigLU >= 5:
         userConfigLU = time.time()
         updateUserConfigCache()
-    return userConfigCache
+    ret = {}
+    if abbr is not None:
+        for user in userConfigCache.keys():
+            for config in userConfigCache[user]:
+                if config["abbr"] == abbr:
+                    ret[user] = [config]
+    else:
+        ret = userConfigCache
+    return ret
 
 @app.get("/truckersmp")
 async def getTruckersMP(mpid: int, response: Response):
@@ -296,13 +305,25 @@ async def getConfig(domain: str, request: Request, response: Response):
     
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
 
-    config_whitelist = ["abbr", "name", "color", "distance_unit", "domain", "api_host", "plugins", "logo_key", "banner_key"]
+    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
     config_keys = list(config.keys())
     for k in config_keys:
         if k not in config_whitelist:
             del config[k]
     sorted_keys = sorted(config.keys(), key=lambda x: config_whitelist.index(x))
     config = {key: config[key] for key in sorted_keys}
+    try:
+        config["name_color"] = convertToHex(config["name_color"])
+        config["theme_main_color"] = convertToHex(config["theme_main_color"])
+        config["theme_background_color"] = convertToHex(config["theme_background_color"])
+    except:
+        config["name_color"] = None
+        config["theme_main_color"] = None
+        config["theme_background_color"] = None
+    if "theme_darken_ratio" not in config.keys():
+        config["theme_darken_ratio"] = 0
+    if "bgimage_key" not in config.keys():
+        config["bgimage_key"] = ""
     
     return {"config": config}
 
@@ -415,6 +436,7 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     # Update assets
     logo_key = ""
     banner_key = ""
+    bgimage_key = ""
     try:
         if "logo_url" in data["config"].keys() and data["config"]["logo_url"].replace(" ", "") != "":
             resp = requests.head(data["config"]["logo_url"], headers=headers)
@@ -459,17 +481,49 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     except:
         response.status_code = 400
         return {"error": "Error occurred when downloading banner"}
+    try:
+        if "bgimage_url" in data["config"].keys() and data["config"]["bgimage_url"].replace(" ", "") != "":
+            resp = requests.head(data["config"]["bgimage_url"], headers=headers)
+            if resp.status_code == 200:
+                fs = int(resp.headers['Content-Length'])
+                if fs > 1024 * 2048:
+                    response.status_code = 400
+                    return {"error": "Banner must not be larger than 2MB"}
+                resp = requests.get(data["config"]["bgimage_url"], headers=headers)
+                if resp.status_code == 200:
+                    with open(f"/var/hub/cdn/assets/{abbr}/bgimage.png", "wb") as f:
+                        f.write(resp.content)
+                    bgimage_key = str(uuid.uuid4())[:8]
+                else:
+                    response.status_code = 400
+                    return {"error": "Error occurred when downloading background image"}
+            else:
+                response.status_code = 400
+                return {"error": "Error occurred when downloading background image"}
+    except:
+        response.status_code = 400
+        return {"error": "Error occurred when downloading background image"}
     
     try:
         newconfig = data["config"]
+        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
         toremove = ["abbr", "domain", "api_host", "plugins"]
         for t in toremove:
             if t in newconfig.keys():
                 newconfig[t] = config[t]
+
+        try:
+            newconfig["name_color"] = int(newconfig["name_color"])
+            newconfig["theme_main_color"] = int(newconfig["theme_main_color"])
+            newconfig["theme_background_color"] = int(newconfig["theme_background_color"])
+            newconfig["theme_darken_ratio"] = float(newconfig["theme_darken_ratio"])
+        except:
+            response.status_code = 400
+            return {"error": "Invalid JSON data"}
         
         newconfig_keys = list(newconfig.keys())
         for t in newconfig_keys:
-            if t not in config.keys():
+            if t not in config_whitelist or t in toremove:
                 del newconfig[t]
         
         config_keys = list(config.keys())
@@ -481,8 +535,9 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
             newconfig["logo_key"] = logo_key
         if banner_key != "":
             newconfig["banner_key"] = banner_key
+        if bgimage_key != "":
+            newconfig["bgimage_key"] = bgimage_key
         
-        config_whitelist = ["abbr", "name", "color", "distance_unit", "domain", "api_host", "plugins", "logo_key", "banner_key"]
         config_keys = list(newconfig.keys())
         for k in config_keys:
             if k not in config_whitelist:

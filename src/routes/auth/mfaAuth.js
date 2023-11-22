@@ -65,18 +65,30 @@ const MfaAuth = () => {
     });
 
     return (
-        <Card sx={{ width: 450, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-            <CardContent>
-                <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication
-                </Typography>
-                <TextField label="OTP" variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
-            </CardContent>
-            <CardActions>
-                <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                    onClick={handleVerify} disabled={!allowVerify}>Verify</Button>
-            </CardActions>
-        </Card >
+        <div style={{
+            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+        }}>
+            <Card sx={{ backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", width: 450, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                <CardContent>
+                    <Typography variant="h5" sx={{ fontWeight: 800 }}>
+                        <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication
+                    </Typography>
+                    <TextField label="OTP" variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
+                </CardContent>
+                <CardActions>
+                    <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
+                        onClick={handleVerify} disabled={!allowVerify}>Verify</Button>
+                </CardActions>
+            </Card>
+        </div>
     );
 };
 

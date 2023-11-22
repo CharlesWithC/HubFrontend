@@ -181,26 +181,27 @@ const UserCard = (props) => {
         userLevel = vars.defaultUserLevel;
         if (inCHubTeam) userLevel = 4;
 
-        if (userLevel !== 0) {
-            for (let i = 0; i < vars.userConfig[discordid].length; i++) {
-                if (vars.userConfig[discordid][i].abbr === vars.dhconfig.abbr) {
-                    let uc = vars.userConfig[discordid][i];
-                    if (uc.name_color !== null) {
-                        specialColor = uc.name_color;
+        for (let i = 0; i < vars.userConfig[discordid].length; i++) {
+            if (vars.userConfig[discordid][i].abbr === vars.dhconfig.abbr) {
+                let uc = vars.userConfig[discordid][i];
+                if (uc.name_color !== null) {
+                    specialColor = uc.name_color;
+                    if (!(vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null && vars.dhconfig.name_color === specialColor)) {
+                        // not using vtc name color
                         if (userLevel < 2 || userLevel === 2 && specialColor !== "#c0c0c0" || userLevel === 3 && !["#c0c0c0", "#ffd700"].includes(specialColor)) {
                             specialColor = null;
                         }
                     }
-                    if (userLevel >= 3 && uc.profile_upper_color !== null && uc.profile_lower_color !== null) {
-                        profile_background = [uc.profile_upper_color, uc.profile_lower_color];
-                    }
-                    try {
-                        new URL(uc.profile_banner_url);
-                        if (userLevel >= 3) {
-                            profile_banner_url = uc.profile_banner_url;
-                        }
-                    } catch { }
                 }
+                if (userLevel >= 3 && uc.profile_upper_color !== null && uc.profile_lower_color !== null) {
+                    profile_background = [uc.profile_upper_color, uc.profile_lower_color];
+                }
+                try {
+                    new URL(uc.profile_banner_url);
+                    if (userLevel >= 3) {
+                        profile_banner_url = uc.profile_banner_url;
+                    }
+                } catch { }
             }
         }
     }
@@ -805,7 +806,7 @@ const UserCard = (props) => {
                                 {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                             </Typography>
                         </div>
-                        {uid === vars.userInfo.uid && !customizeProfileAck && !Object.keys(vars.userConfig).includes(discordidRef.current) && <Typography variant="body2">Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
+                        {uid === vars.userInfo.uid && !customizeProfileAck && !Object.keys(vars.userConfig).includes(discordidRef.current) && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
                         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
                             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
                                 <Tab label="User Info" {...tabBtnProps(0, tab, theme)} />
@@ -1550,7 +1551,7 @@ const UserCard = (props) => {
                             </Typography>
                         </div>
                         {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
-                        {uid === vars.userInfo.uid && !customizeProfileAck && !Object.keys(vars.userConfig).includes(discordidRef.current) && <Typography variant="body2">Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
+                        {uid === vars.userInfo.uid && !customizeProfileAck && !Object.keys(vars.userConfig).includes(discordidRef.current) && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
                         {bioRef.current !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>

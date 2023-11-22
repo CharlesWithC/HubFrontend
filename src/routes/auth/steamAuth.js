@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSteam } from '@fortawesome/free-brands-svg-icons';
@@ -12,6 +12,7 @@ import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '
 var vars = require('../../variables');
 
 const SteamAuth = () => {
+    const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -71,20 +72,32 @@ const SteamAuth = () => {
     }
 
     return (
-        <Card sx={{ width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-            <CardContent>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
-                    <FontAwesomeIcon icon={faSteam} />&nbsp;&nbsp;Steam Authorization
-                </Typography>
-                <Typography variant="body">
-                    {message}
-                </Typography>
-            </CardContent>
-            <CardActions>
-                <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                    onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
-            </CardActions>
-        </Card>
+        <div style={{
+            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+        }}>
+            <Card sx={{ backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                <CardContent>
+                    <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
+                        <FontAwesomeIcon icon={faSteam} />&nbsp;&nbsp;Steam Authorization
+                    </Typography>
+                    <Typography variant="body">
+                        {message}
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
+                        onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
+                </CardActions>
+            </Card>
+        </div>
     );
 };
 

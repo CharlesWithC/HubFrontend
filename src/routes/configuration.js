@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel } from '@mui/material';
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 import Select from 'react-select';
@@ -11,6 +11,8 @@ import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus,
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
+import ColorInput from '../components/colorInput';
+import SponsorBadge from '../components/sponsorBadge';
 import { useTheme } from '@emotion/react';
 
 const LANGUAGES = {
@@ -1301,12 +1303,22 @@ const Configuration = () => {
 
     const [mfaOtp, setMfaOtp] = useState("");
 
-    const [webConfig, setWebConfig] = useState(vars.dhconfig);
+    const [webConfig, setWebConfig] = useState({ ...vars.dhconfig, name_color: vars.dhconfig.name_color !== null ? vars.dhconfig.name_color : "/", theme_main_color: vars.dhconfig.theme_main_color !== null ? vars.dhconfig.theme_main_color : "/", theme_background_color: vars.dhconfig.theme_background_color !== null ? vars.dhconfig.theme_background_color : "/" });
     const [webConfigDisabled, setWebConfigDisabled] = useState(false);
     const saveWebConfig = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
         setWebConfigDisabled(true);
+
+        function parse_color(s) {
+            if (s.startsWith("#")) {
+                return parseInt(s.substring(1), 16);
+            } else {
+                return -1;
+            }
+        }
+
+        let newWebConfig = { ...webConfig, name_color: parse_color(webConfig.name_color), theme_main_color: parse_color(webConfig.theme_main_color), theme_background_color: parse_color(webConfig.theme_background_color) };
 
         let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
@@ -1319,7 +1331,7 @@ const Configuration = () => {
         }
         let ticket = resp.data.token;
 
-        resp = await axios({ url: `https://config.chub.page/config?domain=${vars.dhconfig.domain}`, data: { config: webConfig }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
+        resp = await axios({ url: `https://config.chub.page/config?domain=${vars.dhconfig.domain}`, data: { config: newWebConfig }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
         if (resp.status === 204) {
             setSnackbarContent(`Web config updated!`);
             setSnackbarSeverity("success");
@@ -1757,7 +1769,12 @@ const Configuration = () => {
                     <br />
                     - A valid URL must be provided to download logo or banner from if you want to update them.
                     <br />
-                    - Logo and banner must be smaller than 2MB in size.
+                    - Logo, banner and background image must be smaller than 2MB in size.
+                    <br />
+                    <br />
+                    - Name color, theme color and background image are only avaialble for Premium Plan.
+                    <br />
+                    - User may choose to enable VTC name color and theme.
                 </Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1776,7 +1793,7 @@ const Configuration = () => {
                             fullWidth
                         />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
                             label="Logo Download URL"
                             value={webConfig.logo_url}
@@ -1784,13 +1801,41 @@ const Configuration = () => {
                             fullWidth
                         />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
                             label="Banner Download URL"
                             value={webConfig.banner_url}
                             onChange={(e) => { setWebConfig({ ...webConfig, banner_url: e.target.value }); }}
                             fullWidth
                         />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <TextField
+                            label={<>Login Background Image Download URL&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></>}
+                            value={webConfig.bgimage_url}
+                            onChange={(e) => { setWebConfig({ ...webConfig, bgimage_url: e.target.value }); }}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
+                        <br />
+                        <ColorInput color={webConfig.name_color} onChange={(to) => { setWebConfig({ ...webConfig, name_color: to }); }} />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Darken Ratio&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
+                        <br />
+                        <Slider value={webConfig.theme_darken_ratio * 100} onChange={(e, val) => { setWebConfig({ ...webConfig, theme_darken_ratio: val / 100 }); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
+                        <br />
+                        <ColorInput color={webConfig.theme_main_color} onChange={(to) => { setWebConfig({ ...webConfig, theme_main_color: to }); }} />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
+                        <br />
+                        <ColorInput color={webConfig.theme_background_color} onChange={(to) => { setWebConfig({ ...webConfig, theme_background_color: to }); }} />
                     </Grid>
                 </Grid>
                 <Box sx={{ display: 'grid', justifyItems: 'end' }}>

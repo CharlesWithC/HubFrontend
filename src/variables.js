@@ -3,11 +3,13 @@ var dhconfig = null;
 var apiconfig = null;
 var dhpath = "";
 var dhlogo = "";
+var dhbgimage = "";
 exports.apiversion = apiversion;
 exports.dhconfig = dhconfig;
 exports.apiconfig = apiconfig;
 exports.dhpath = dhpath;
 exports.dhlogo = dhlogo;
+exports.dhbgimage = dhbgimage;
 
 var isLoggedIn = false;
 exports.isLoggedIn = isLoggedIn;
@@ -73,6 +75,8 @@ var userConfig = {};
 exports.userConfig = userConfig;
 var defaultUserLevel = 4; // this affects all users;
 exports.defaultUserLevel = defaultUserLevel;
+var vtcLevel = 0; // 0: regular / 1: premium / 3: special
+exports.vtcLevel = vtcLevel;
 var userLevel = 0;
 exports.userLevel = userLevel;
 

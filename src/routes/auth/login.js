@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Button, Card, Grid, Typography, TextField, CardContent, ButtonGroup, Box, IconButton, Dialog, DialogTitle, DialogContent, Snackbar, Alert } from '@mui/material';
+import { Button, Card, Grid, Typography, TextField, CardContent, ButtonGroup, Box, IconButton, Dialog, DialogTitle, DialogContent, Snackbar, Alert, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,6 +17,7 @@ const AuthLogin = () => {
     const navigate = useNavigate();
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const themeMode = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
+    const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -87,8 +88,18 @@ const AuthLogin = () => {
     }, [action, email, password]);
 
     return (
-        <>
-            <Card sx={{ width: { xs: "100%", sm: "80%", md: "80%", lg: "60%" }, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+        <div style={{
+            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+        }}>
+            <Card sx={{ width: { xs: "100%", sm: "80%", md: "80%", lg: "60%" }, backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent sx={{ padding: { xs: "20px", sm: "30px", md: "40px", lg: "40px" }, mb: "20px" }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={12} md={8} lg={8}>
@@ -147,7 +158,7 @@ const AuthLogin = () => {
                     </Alert>
                 </Snackbar>
             </Portal>
-        </>
+        </div>
     );
 };
 

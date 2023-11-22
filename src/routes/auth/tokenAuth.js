@@ -1,4 +1,4 @@
-import { Card, CardContent, CardActions, Button } from '@mui/material';
+import { Card, CardContent, CardActions, Button, useTheme } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ import { FetchProfile, customAxios as axios, setAuthToken } from '../../function
 var vars = require('../../variables');
 
 const TokenAuth = () => {
+    const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -51,17 +52,29 @@ const TokenAuth = () => {
     }
 
     return (
-        <Card sx={{ width: 350, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
-            <CardContent>
-                <h2>Authorization</h2>
-                <div><p>{message}</p></div>
-            </CardContent>
-            <CardActions>
-                <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                    onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
-            </CardActions>
-        </Card>
+        <div style={{
+            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+        }}>
+            <Card sx={{ backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", width: 350, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                <CardContent>
+                    <h2>Authorization</h2>
+                    <div><p>{message}</p></div>
+                </CardContent>
+                <CardActions>
+                    <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
+                        onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
+                </CardActions>
+            </Card>
+        </div>
     );
-}
+};
 
 export default TokenAuth;
