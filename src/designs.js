@@ -1,6 +1,9 @@
 var vars = require("./variables");
 
-export function darkenColor(hex, factor = 0.2) {
+export function darkenColor(hex, factor = 0.2, use_custom_theme) {
+    if (hex === null) return null;
+    if (factor === 0) return hex;
+
     // Ensure the factor is between 0 and 1
     const clampedFactor = Math.min(1, Math.max(0, factor));
 
@@ -15,8 +18,10 @@ export function darkenColor(hex, factor = 0.2) {
     b = Math.round(b * (1 - clampedFactor));
 
     // Convert back to hex format
-    const darkenedHex = `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
-
+    let darkenedHex = `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+    if (vars.vtcLevel >= 1 && vars.dhbgimage !== "" && use_custom_theme === "vtcbg") {
+        darkenedHex = darkenedHex + "cc";
+    }
     return darkenedHex;
 }
 
@@ -68,13 +73,16 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         use_custom_theme = false;
     }
     if (use_custom_theme === "vtc" && vars.vtcLevel >= 1 && vars.dhconfig !== null) {
-        use_custom_theme = true;
         theme_background = vars.dhconfig.theme_background_color;
         theme_main = vars.dhconfig.theme_main_color;
         darken_ratio = vars.dhconfig.theme_darken_ratio;
-        customMode = "custom";
     }
-    if (theme_background !== null && theme_main !== null && darken_ratio !== null && use_custom_theme === true) {
+    if (use_custom_theme === "vtcbg" && vars.vtcLevel >= 1 && vars.dhbgimage !== "") {
+        theme_background = "#2F313666";
+        theme_main = "#21252966";
+        darken_ratio = 0;
+    }
+    if (use_custom_theme !== false) {
         customMode = "custom";
     }
     let bgBase = {
@@ -199,10 +207,10 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
                 root: {
                     borderRadius: '5px',
                     '&.Mui-selected': {
-                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode]),
+                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode], use_custom_theme),
                     },
                     '&.Mui-selected:hover': {
-                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode]),
+                        backgroundColor: darkenColor(bgBase[customMode].default, darkenRatio[customMode], use_custom_theme),
                     },
                 },
             },
@@ -217,7 +225,7 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         MuiCard: {
             styleOverrides: {
                 root: {
-                    backgroundColor: darkenColor(bgBase[customMode].paper, darkenRatio[customMode]),
+                    backgroundColor: darkenColor(bgBase[customMode].paper, darkenRatio[customMode], use_custom_theme),
                 }
             }
         },
@@ -225,7 +233,7 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
             styleOverrides: {
                 root: {
                     '& .user-profile:hover': {
-                        backgroundColor: darkenColor(bgBase[customMode].default, 0.15),
+                        backgroundColor: darkenColor(bgBase[customMode].default, 0.15, use_custom_theme),
                     },
                 },
             },

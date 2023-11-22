@@ -74,6 +74,10 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 try {
                     vars.dhbgimage = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
+                    setTimeout(function () {
+                        const themeUpdated = new CustomEvent('themeUpdated', {});
+                        window.dispatchEvent(themeUpdated);
+                    }, 100);
                 } catch {
                     vars.dhbgimage = "";
                 }

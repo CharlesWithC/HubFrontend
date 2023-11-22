@@ -1372,22 +1372,23 @@ const Settings = ({ defaultTab = 0 }) => {
                     <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 3}>Enabled</Button>
                         <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 3}>Disabled</Button>
-                        {vars.vtcLevel >= 1 && vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Custom</Button>}
                     </ButtonGroup>
-                    <br />
-                    <br />
+                    {vars.vtcLevel >= 1 && (vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null || vars.dhbgimage !== "") && <ButtonGroup fullWidth>
+                        {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Theme</Button>}
+                        {vars.dhbgimage !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
+                    </ButtonGroup>}
+                </Grid>
+                <Grid item xs={12} sm={12} md={2} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Darken Ratio</Typography>
                     <br />
-                    <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} disabled={vars.userLevel < 3} />
+                    <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vars.userLevel < 3} />
                 </Grid>
-
-                <Grid item xs={6} sm={6} md={4} lg={4}>
+                <Grid item xs={6} sm={6} md={3} lg={2}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color</Typography>
                     <br />
                     <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                 </Grid>
-
-                <Grid item xs={6} sm={6} md={4} lg={4}>
+                <Grid item xs={6} sm={6} md={3} lg={2}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
                     <br />
                     <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} F />
