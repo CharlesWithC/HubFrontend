@@ -1771,6 +1771,8 @@ const Configuration = () => {
                     <br />
                     - Logo, banner and background image must be smaller than 2MB in size.
                     <br />
+                    - The "URL" refers to a valid URL to download the image from, default empty for no changes.
+                    <br />
                     <br />
                     - Name color, theme color and background image are only avaialble for Premium Plan.
                     <br />
@@ -1795,7 +1797,7 @@ const Configuration = () => {
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
-                            label="Logo Download URL"
+                            label="Logo URL"
                             value={webConfig.logo_url}
                             onChange={(e) => { setWebConfig({ ...webConfig, logo_url: e.target.value }); }}
                             fullWidth
@@ -1803,7 +1805,7 @@ const Configuration = () => {
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
-                            label="Banner Download URL"
+                            label="Banner URL"
                             value={webConfig.banner_url}
                             onChange={(e) => { setWebConfig({ ...webConfig, banner_url: e.target.value }); }}
                             fullWidth
@@ -1811,7 +1813,7 @@ const Configuration = () => {
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
-                            label={<>Login Background Image Download URL&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></>}
+                            label={<>Background URL&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></>}
                             value={webConfig.bgimage_url}
                             onChange={(e) => { setWebConfig({ ...webConfig, bgimage_url: e.target.value }); }}
                             fullWidth

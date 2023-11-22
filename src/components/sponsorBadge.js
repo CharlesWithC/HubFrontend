@@ -17,7 +17,7 @@ const SponsorBadge = ({ level = undefined, vtclevel = undefined, plus = false })
                 marginTop: "-3px",
                 cursor: "pointer"
             }}
-            label={`${VTC_LEVEL_TEXT[level]}${plus ? "+" : ""}`}
+            label={`${VTC_LEVEL_TEXT[vtclevel]}${plus ? "+" : ""}`}
         />;
     } else if (level !== undefined) {
         return (
