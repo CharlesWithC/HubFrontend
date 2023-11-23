@@ -79,7 +79,7 @@ const NotificationsPopover = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             loadNotifications();
-        }, vars.userSettings.notificationRefresh * 1000);
+        }, vars.userSettings.notification_refresh_interval * 1000);
 
         return () => { clearInterval(interval); };
     }, [loadNotifications]);

@@ -23,6 +23,17 @@ import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 var vars = require("../variables");
 
+const PROFILE_COLOR = {
+    light: {
+        default: '#fafafa',
+        paper: '#f0f0f0',
+    },
+    dark: {
+        default: '#2F3136',
+        paper: '#212529',
+    }
+};
+
 function tabBtnProps(index, current, theme) {
     return {
         id: `map-tab-${index}`,
@@ -164,7 +175,7 @@ const UserCard = (props) => {
             }
         }
     }
-    let profile_background = [darkenColor(theme.palette.background.paper, 0.5), darkenColor(theme.palette.background.paper, 0.5)];
+    let profile_background = [darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)];
     let profile_banner_url = `${vars.dhpath}/member/banner?userid=${userid}`;
     if (Object.keys(vars.userConfig).includes(discordid)) {
         let LEVEL_MAP = { "bronze": 1, "silver": 2, "gold": 3, "platinum": 4 };
@@ -792,8 +803,8 @@ const UserCard = (props) => {
                 alt=""
                 sx={{ borderRadius: "5px 5px 0 0" }}
             />}
-            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
+            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
                     <div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
@@ -1538,8 +1549,8 @@ const UserCard = (props) => {
                     alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}
                 />}
-                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}A0, ${theme.palette.background.paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-                    <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${theme.palette.background.paper}E0, ${theme.palette.background.paper}E0)`, borderRadius: "5px" }}>
+                <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                    <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
                                 {nameRef.current}

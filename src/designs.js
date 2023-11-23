@@ -67,7 +67,6 @@ export function customSelectStyles(theme) {
     };
 };
 
-
 export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (vars.userLevel < 3) {
         use_custom_theme = false;
@@ -78,9 +77,17 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         darken_ratio = vars.dhconfig.theme_darken_ratio;
     }
     if (use_custom_theme === "vtcbg" && vars.vtcLevel >= 1 && vars.dhbgimage !== "") {
-        theme_background = "#2F313666";
-        theme_main = "#21252966";
-        darken_ratio = 0;
+        function intToHex(intValue) {
+            const scaledInt = Math.floor(intValue * 255 / 100);
+            let hexValue = scaledInt.toString(16);
+            if (hexValue.length === 1) hexValue = '0' + hexValue;
+            return hexValue;
+        }
+        if (darken_ratio === null) darken_ratio = 0.4;
+        if (theme_background === null) theme_background = "#212529";
+        if (theme_main === null) theme_main = "#2F3136";
+        theme_background = theme_background + intToHex(darken_ratio * 100);
+        theme_main = theme_main + intToHex(darken_ratio * 100);
     }
     if (use_custom_theme !== false) {
         customMode = "custom";
@@ -253,6 +260,7 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
             fontFamily: 'Open Sans, sans-serif',
         },
         darkenRatio: darkenRatio[customMode],
+        mode: mode,
         palette: {
             mode, ...(mode === 'light'
                 ? {
