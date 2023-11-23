@@ -76,10 +76,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 try {
                     vars.dhbgimage = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
-                    setTimeout(function () {
-                        const themeUpdated = new CustomEvent('themeUpdated', {});
-                        window.dispatchEvent(themeUpdated);
-                    }, 100);
                 } catch {
                     vars.dhbgimage = "";
                 }
@@ -164,6 +160,9 @@ const Loader = ({ onLoaderLoaded }) => {
 
                 await FetchProfile();
 
+                const themeUpdated = new CustomEvent('themeUpdated', {});
+                window.dispatchEvent(themeUpdated);
+
                 onLoaderLoaded();
             } catch (error) {
                 setLoaderAnimation(false);
@@ -174,6 +173,13 @@ const Loader = ({ onLoaderLoaded }) => {
         }
         doLoad();
     }, [onLoaderLoaded]);
+
+    function intToHex(intValue) {
+        const scaledInt = Math.floor(intValue * 255 / 100);
+        let hexValue = scaledInt.toString(16);
+        if (hexValue.length === 1) hexValue = '0' + hexValue;
+        return hexValue;
+    }
 
     return (
         <div style={{
@@ -187,7 +193,7 @@ const Loader = ({ onLoaderLoaded }) => {
             width: '100%',
             height: '100%',
         }}>
-            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + "66" }}>
+            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + (vars.userSettings.theme_darken_ratio !== null ? intToHex(vars.userSettings.theme_darken_ratio * 100) : "66") }}>
                 <HelmetProvider>
                     <Helmet>
                         <title>{title}</title>
