@@ -38,7 +38,7 @@ const Deliveries = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
     const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 });
     const [listParam, setListParam] = useState({});
 

@@ -210,6 +210,12 @@ const Settings = ({ defaultTab = 0 }) => {
         setUserSettings({ ...userSettings, unit: to });
     }, [userSettings]);
 
+    const updateRPP = useCallback((to) => {
+        vars.userSettings.default_row_per_page = to;
+        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        setUserSettings({ ...userSettings, default_row_per_page: to });
+    }, [userSettings]);
+
     const updateFontSize = useCallback((to) => {
         vars.userSettings.font_size = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
@@ -946,13 +952,13 @@ const Settings = ({ defaultTab = 0 }) => {
     const [sessionsTotalItems, setSessionsTotalItems] = useState(0);
     const [sessionsPage, setSessionsPage] = useState(1);
     const sessionsPageRef = useRef(1);
-    const [sessionsPageSize, setSessionsPageSize] = useState(10);
+    const [sessionsPageSize, setSessionsPageSize] = useState(vars.userSettings.default_row_per_page);
 
     const [appSessions, setAppSessions] = useState([]);
     const [appSessionsTotalItems, setAppSessionsTotalItems] = useState(0);
     const [appSessionsPage, setAppSessionsPage] = useState(1);
     const appSessionsPageRef = useRef(1);
-    const [appSessionsPageSize, setAppSessionsPageSize] = useState(10);
+    const [appSessionsPageSize, setAppSessionsPageSize] = useState(vars.userSettings.default_row_per_page);
 
     useEffect(() => {
         sessionsPageRef.current = sessionsPage;
@@ -1141,6 +1147,21 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Default Table Row-Per-Page</Typography>
+                    <br />
+                    <TextField select size="small"
+                        value={userSettings.default_row_per_page}
+                        onChange={(e) => { updateRPP(e.target.value); }}
+                        sx={{ marginTop: "6px", height: "30px" }}
+                        fullWidth
+                    >
+                        {[10, 25, 50, 100, 250].map(count => (
+                            <MenuItem key={count} value={count}>{count}</MenuItem>
+                        ))}
+                    </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Data Saver Mode</Typography>
                     <br />
                     <ButtonGroup fullWidth>
@@ -1158,6 +1179,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
                     </ButtonGroup>
                 </Grid>
+                <Grid item xs={0} sm={0} md={6} lg={6}></Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>

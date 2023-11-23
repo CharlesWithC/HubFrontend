@@ -99,7 +99,7 @@ const ExternalUsers = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
     const [search, setSearch] = useState("");
     const searchRef = useRef("");
     const [listParam, setListParam] = useState({ order_by: "uid", order: "desc" });
@@ -108,7 +108,7 @@ const ExternalUsers = () => {
     const [banTotalItems, setBanTotalItems] = useState(0);
     const [banPage, setBanPage] = useState(1);
     const banPageRef = useRef(1);
-    const [banPageSize, setBanPageSize] = useState(10);
+    const [banPageSize, setBanPageSize] = useState(vars.userSettings.default_row_per_page);
     const [banSearch, setBanSearch] = useState("");
     const banSearchRef = useRef("");
     const [banListParam, setBanListParam] = useState({ order_by: "uid", order: "desc" });

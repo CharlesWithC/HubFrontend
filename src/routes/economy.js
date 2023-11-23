@@ -376,7 +376,7 @@ const Economy = () => {
     const [slotTotal, setSlotTotal] = useState(0);
     const [slotPage, setSlotPage] = useState(1);
     const slotPageRef = useRef(1);
-    const [slotPageSize, setSlotPageSize] = useState(10);
+    const [slotPageSize, setSlotPageSize] = useState(vars.userSettings.default_row_per_page);
 
     const [activeSlot, setActiveSlot] = useState({});
     useEffect(() => {

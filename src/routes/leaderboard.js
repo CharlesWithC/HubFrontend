@@ -60,7 +60,7 @@ const Leaderboard = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
     const [tempListParam, setTempListParam] = useState({ after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
     const [listParam, setListParam] = useState({ userids: [], users: [] });
 

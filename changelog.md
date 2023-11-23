@@ -9,6 +9,7 @@
 5. Added tab to explain all badges
 6. Added custom image background (vtc)
 7. Added highest-role-color as name-color (special guest)
+8. Added row-per-page settings
 
 ## v3.1.0
 

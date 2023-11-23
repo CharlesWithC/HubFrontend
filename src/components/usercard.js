@@ -185,7 +185,7 @@ const UserCard = (props) => {
     const [dlogTotalItems, setDlogTotalItems] = useState(0);
     const [dlogPage, setDlogPage] = useState(1);
     const dlogPageRef = useRef(1);
-    const [dlogPageSize, setDlogPageSize] = useState(10);
+    const [dlogPageSize, setDlogPageSize] = useState(vars.userSettings.default_row_per_page);
     const loadStats = useCallback(async () => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);

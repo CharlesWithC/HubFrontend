@@ -199,6 +199,13 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
                 }
             }
         },
+        MuiMenu: {
+            styleOverrides: {
+                list: {
+                    backgroundColor: bgBase[customMode].default.substring(0, 7) // no opacity
+                }
+            }
+        },
         MuiDialogTitle: {
             styleOverrides: {
                 root: {

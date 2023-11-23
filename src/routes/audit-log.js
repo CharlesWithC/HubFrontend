@@ -24,7 +24,7 @@ const AuditLog = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
 
     const theme = useTheme();
 
