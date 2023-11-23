@@ -33,13 +33,15 @@ export function customSelectStyles(theme) {
             borderColor: theme.palette.text.secondary + "88",
             opacity: state.isDisabled ? 0.4 : 1
         }),
-        option: (base) => ({
+        option: (base, state) => ({
             ...base,
-            color: '#3c3c3c'
+            color: theme.palette.text.primary,
+            backgroundColor: state.isFocused ? theme.palette.background.paper.substring(0, 7) : base.backgroundColor,
         }),
         menu: (base) => ({
             ...base,
             zIndex: 100005,
+            backgroundColor: theme.palette.background.default.substring(0, 7)
         }),
         menuPortal: (base) => ({
             ...base,

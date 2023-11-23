@@ -28,7 +28,7 @@ var vars = require("../variables");
 const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
 const trackerMapping = { "tracksim": "TrackSim", "trucky": "Trucky" };
 
-const PROFILE_COLOR = {
+const DEFAULT_BGCOLOR = {
     light: {
         default: '#fafafa',
         paper: '#f0f0f0',
@@ -1408,7 +1408,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     </ButtonGroup>
                     {vars.vtcLevel >= 1 && (vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null || vars.dhbgimage !== "") && <ButtonGroup fullWidth>
                         {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Theme</Button>}
-                        {vars.dhbgimage !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor("#2F3136"); updateThemeBackgroundColor("#212529"); updateThemeDarkenRatio(0.4); updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
+                        {vars.dhbgimage !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); updateThemeDarkenRatio(0.4); updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
                     </ButtonGroup>}
                 </Grid>
                 <Grid item xs={12} sm={12} md={2} lg={4}>
@@ -1485,8 +1485,8 @@ const Settings = ({ defaultTab = 0 }) => {
                             alt=""
                             sx={{ borderRadius: "5px 5px 0 0" }}
                         />
-                        <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}A0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
-                            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
+                        <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.mode].paper}A0, ${DEFAULT_BGCOLOR[theme.mode].paper}E0)`, borderRadius: "0 0 5px 5px" }}>
+                            <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.mode].paper}E0, ${DEFAULT_BGCOLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
                                         {vars.userInfo.name}

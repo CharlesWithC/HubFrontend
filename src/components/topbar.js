@@ -348,6 +348,7 @@ const TopBar = (props) => {
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar ref={appBarRef} position="static"
                     sx={{
+                        backgroundColor: theme.palette.background.default,
                         width: { sm: `calc(100% - ${props.sidebarWidth}px)` },
                         ml: { sm: `${props.sidebarWidth}px` },
                         position: "fixed",
