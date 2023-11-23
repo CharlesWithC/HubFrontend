@@ -7,6 +7,8 @@
 3. Added batch dismiss member (advanced staff function)
 4. Added prune users (advanced staff function)
 5. Added tab to explain all badges
+6. Added custom image background (vtc)
+7. Added highest-role-color as name-color (special guest)
 
 ## v3.1.0
 

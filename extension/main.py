@@ -14,7 +14,6 @@ import requests
 import uvicorn
 from fastapi import FastAPI, Header, Request, Response
 from fastapi.responses import RedirectResponse
-from typing import Optional
 
 app = FastAPI()
 
@@ -187,9 +186,9 @@ async def getRoles():
     return rolesCache
 
 @app.get("/config/user")
-async def getConfigUser(abbr: Optional[str] = None):
+async def getConfigUser(abbr: str):
     global userConfigLU
-    if time.time() - userConfigLU >= 5:
+    if time.time() - userConfigLU >= 30:
         userConfigLU = time.time()
         updateUserConfigCache()
     ret = {}
@@ -305,7 +304,7 @@ async def getConfig(domain: str, request: Request, response: Response):
     
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
 
-    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
+    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
     config_keys = list(config.keys())
     for k in config_keys:
         if k not in config_whitelist:
@@ -324,6 +323,8 @@ async def getConfig(domain: str, request: Request, response: Response):
         config["theme_darken_ratio"] = 0
     if "bgimage_key" not in config.keys():
         config["bgimage_key"] = ""
+    if "use_highest_role_color" not in config.keys():
+        config["use_highest_role_color"] = True
     
     return {"config": config}
 
@@ -506,7 +507,7 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     
     try:
         newconfig = data["config"]
-        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
+        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
         toremove = ["abbr", "domain", "api_host", "plugins"]
         for t in toremove:
             if t in newconfig.keys():

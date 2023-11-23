@@ -1779,7 +1779,7 @@ const Configuration = () => {
                     - User may choose to enable VTC name color and theme.
                 </Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
                             label="Company Name"
                             value={webConfig.name}
@@ -1787,13 +1787,24 @@ const Configuration = () => {
                             fullWidth
                         />
                     </Grid>
-                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
                             label="Theme Color"
                             value={webConfig.color}
                             onChange={(e) => { setWebConfig({ ...webConfig, color: e.target.value }); }}
                             fullWidth
                         />
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <TextField select
+                            label={<>Name Color&nbsp;&nbsp;<SponsorBadge vtclevel={3} /></>}
+                            value={webConfig.use_highest_role_color}
+                            onChange={(e) => { setWebConfig({ ...webConfig, use_highest_role_color: e.target.value }); }}
+                            fullWidth
+                        >
+                            <MenuItem value={false}>Default</MenuItem>
+                            <MenuItem value={true}>Highest role color when not customized</MenuItem>
+                        </TextField>
                     </Grid>
                     <Grid item xs={12} sm={12} md={4} lg={4}>
                         <TextField
