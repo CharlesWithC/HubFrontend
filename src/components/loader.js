@@ -15,6 +15,7 @@ const Loader = ({ onLoaderLoaded }) => {
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
     const [logoSrc, setLogoSrc] = useState(null);
+    const [bgSrc, setBgSrc] = useState(null);
     const [title, setTitle] = useState("Drivers Hub");
     const [loadMessage, setLoadMessage] = useState("Loading");
 
@@ -22,6 +23,7 @@ const Loader = ({ onLoaderLoaded }) => {
         && title === "Drivers Hub" && logoSrc === null) {
         setTitle(localStorage.getItem("preload-title"));
         setLogoSrc(localStorage.getItem("preload-icon"));
+        setBgSrc(localStorage.getItem("preload-background"));
     }
 
     const searchParams = new URLSearchParams(window.location.search);
@@ -82,10 +84,12 @@ const Loader = ({ onLoaderLoaded }) => {
                     vars.dhbgimage = "";
                 }
                 setLogoSrc(vars.dhlogo);
+                setBgSrc(vars.dhbgimage);
                 setLoadMessage(`Loading`);
 
                 localStorage.setItem("preload-title", vars.dhconfig.name);
-                localStorage.setItem("preload-icon", `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
+                localStorage.setItem("preload-icon", vars.dhlogo !== null ? vars.dhlogo : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
+                localStorage.setItem("preload-background", vars.dhbgimage !== null ? vars.dhbgimage : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
 
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
@@ -172,18 +176,30 @@ const Loader = ({ onLoaderLoaded }) => {
     }, [onLoaderLoaded]);
 
     return (
-        <div className="loading-div" style={{ backgroundColor: theme.palette.background.default }}>
-            <HelmetProvider>
-                <Helmet>
-                    <title>{title}</title>
-                    {logoSrc && <link rel="icon" href={logoSrc} type="image/x-icon" />}
-                    {logoSrc && <link rel="apple-touch-icon" href={logoSrc} />}
-                </Helmet>
-            </HelmetProvider>
-            {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" />}
-            <p>
-                {loadMessage}
-            </p>
+        <div style={{
+            backgroundImage: `url(${bgSrc})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+        }}>
+            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + "66" }}>
+                <HelmetProvider>
+                    <Helmet>
+                        <title>{title}</title>
+                        {logoSrc && <link rel="icon" href={logoSrc} type="image/x-icon" />}
+                        {logoSrc && <link rel="apple-touch-icon" href={logoSrc} />}
+                    </Helmet>
+                </HelmetProvider>
+                {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" />}
+                <p>
+                    {loadMessage}
+                </p>
+            </div>
         </div>
     );
 };
