@@ -28,7 +28,6 @@ const Overview = () => {
     const [latestDelivery, setLatestDelivery] = useState(null);
 
     useEffect(() => {
-        if (userid !== undefined && memberIdx === -1) window.history.pushState("", "", "/");
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
             window.dispatchEvent(loadingStart);
@@ -93,7 +92,7 @@ const Overview = () => {
     }, []);
 
     return (<>
-        {showProfileModal !== 0 && vars.members[memberIdx] !== undefined && <UserCard user={vars.members[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); window.history.pushState("", "", "/"); window.history.pushState("", "", "/"); }} />}
+        {showProfileModal !== 0 && vars.members[memberIdx] !== undefined && <UserCard user={vars.members[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); }} />}
         <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
                 <StatCard icon={<PermContactCalendarRounded />} title={"Drivers"} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />

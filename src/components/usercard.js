@@ -807,7 +807,7 @@ const UserCard = (props) => {
     }, []);
 
     let profileModal = <Dialog open={true} onClose={() => {
-        ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length > 1) { window.history.go(-1); } else { window.history.pushState("", "", "/"); } }, 250);
+        ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length == 0) window.history.pushState("", "", "/"); }, 250);
     }} fullWidth >
         <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
             {!vars.userSettings.data_saver && <CardMedia
@@ -1152,7 +1152,7 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); window.history.pushState("", "", `/member/${userid}`); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>}
+            {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>}
             {(userid === null || userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
             {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}

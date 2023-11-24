@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip } from '@mui/material';
-import { CheckRounded } from '@mui/icons-material';
+import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip, useMediaQuery } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { CheckRounded, CloudUploadRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 
 import Select from 'react-select';
@@ -132,6 +133,18 @@ const appSessionsColumns = [
 
 const settingsRoutes = ["/general", "/appearance", "/security", "/sessions"];
 
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
+
 function TabPanel(props) {
     const { children, value, index, ...other } = props;
 
@@ -163,6 +176,8 @@ const Settings = ({ defaultTab = 0 }) => {
             window.history.pushState("", "", "/settings" + settingsRoutes[tab]);
         }
     }, []);
+
+    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -207,126 +222,132 @@ const Settings = ({ defaultTab = 0 }) => {
     const updateUnit = useCallback((to) => {
         vars.userSettings.unit = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, unit: to });
-    }, [userSettings]);
+        setUserSettings(prevSettings => ({ ...prevSettings, unit: to}));
+    }, []);
 
     const updateRPP = useCallback((to) => {
         vars.userSettings.default_row_per_page = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, default_row_per_page: to });
-    }, [userSettings]);
+        setUserSettings(prevSettings => ({ ...prevSettings, default_row_per_page: to}));
+    }, []);
 
-    const updateFontSize = useCallback((to) => {
+    const updateFontSize = useCallback((to, rerender = true) => {
         vars.userSettings.font_size = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, font_size: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, font_size: to}));
 
-        const themeUpdated = new CustomEvent('themeUpdated', {});
-        window.dispatchEvent(themeUpdated);
-    }, [userSettings]);
+        if (rerender) {
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        }
+    }, []);
 
     const allTimeZones = moment.tz.names();
     const updateDisplayTimezone = useCallback((to) => { // Display = DateTimeField
         vars.userSettings.display_timezone = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, display_timezone: to });
-    }, [userSettings]);
+        setUserSettings(prevSettings => ({ ...prevSettings, display_timezone: to}));
+    }, []);
 
-    const updateTheme = useCallback((to) => {
+    const updateTheme = useCallback((to, rerender = true) => {
         vars.userSettings.theme = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, theme: to });
-        if (userSettings.use_custom_theme) {
-            if (!["auto", "dark", "light"].includes(to)) {
-                vars.userSettings.use_custom_theme = false;
-                setUserSettings({ ...userSettings, theme: to, use_custom_theme: false });
-            }
+        setUserSettings(prevSettings => ({ ...prevSettings, theme: to}));
+
+        if (rerender) {
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
         }
+    }, []);
 
-        const themeUpdated = new CustomEvent('themeUpdated', {});
-        window.dispatchEvent(themeUpdated);
-    }, [userSettings]);
-
-    const updateUseCustomTheme = useCallback((to) => {
+    const updateUseCustomTheme = useCallback((to, rerender = true) => {
         vars.userSettings.use_custom_theme = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, use_custom_theme: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, use_custom_theme: to}));
 
         if (to === true) {
             if (userSettings.theme === "halloween") {
                 vars.userSettings.theme = "dark";
-                setUserSettings({ ...userSettings, use_custom_theme: to, theme: "dark" });
+                setUserSettings(prevSettings => ({ ...prevSettings, use_custom_theme: to, theme: "dark"}));
             }
         }
 
-        const themeUpdated = new CustomEvent('themeUpdated', {});
-        window.dispatchEvent(themeUpdated);
-    }, [userSettings]);
+        if (rerender) {
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        }
+    }, []);
 
-    const updateThemeDarkenRatio = useCallback((to) => {
+    const updateThemeDarkenRatio = useCallback((to, rerender = true) => {
         vars.userSettings.theme_darken_ratio = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, theme_darken_ratio: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, theme_darken_ratio: to}));
 
-        const themeUpdated = new CustomEvent('themeUpdated', {});
-        window.dispatchEvent(themeUpdated);
-    }, [userSettings]);
+        if (rerender) {
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        }
+    }, []);
 
-    const updateThemeBackgroundColor = useCallback((to) => {
+    const updateThemeBackgroundColor = useCallback((to, rerender = true) => {
         vars.userSettings.theme_background = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, theme_background: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, theme_background: to}));
 
-        const themeUpdated = new CustomEvent('themeUpdated', {});
-        window.dispatchEvent(themeUpdated);
-    }, [userSettings]);
+        if (rerender) {
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        }
+    }, []);
 
-    const updateThemeMainColor = useCallback((to) => {
+    const updateThemeMainColor = useCallback((to, rerender = true) => {
         vars.userSettings.theme_main = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, theme_main: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, theme_main: to}));
 
-        const themeUpdated = new CustomEvent('themeUpdated', {});
-        window.dispatchEvent(themeUpdated);
-    }, [userSettings]);
+        if (rerender) {
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        }
+    }, []);
 
     const updateDataSaver = useCallback((to) => {
         vars.userSettings.data_saver = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, data_saver: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, data_saver: to}));
 
         const dataSaverUpdated = new CustomEvent('dataSaverUpdated', { detail: { enabled: to } });
         window.dispatchEvent(dataSaverUpdated);
         const radioUpdated = new CustomEvent('radioUpdated', {});
         window.dispatchEvent(radioUpdated);
-    }, [userSettings]);
+    }, []);
 
     const updateRadio = useCallback((to) => {
         vars.userSettings.radio = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, radio: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, radio: to}));
 
         const radioUpdated = new CustomEvent('radioUpdated', {});
         window.dispatchEvent(radioUpdated);
-    }, [userSettings]);
+    }, []);
 
     const updateRadioType = useCallback((to) => {
         vars.userSettings.radio_type = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, radio_type: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, radio_type: to}));
 
         const radioTypeUpdated = new CustomEvent('radioTypeUpdated', {});
         window.dispatchEvent(radioTypeUpdated);
-    }, [userSettings]);
+    }, []);
 
     const updateRadioVolume = useCallback((to) => {
         vars.userSettings.radio_volume = to;
         localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
-        setUserSettings({ ...userSettings, radio_volume: to });
+        setUserSettings(prevSettings => ({ ...prevSettings, radio_volume: to}));
 
         const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});
         window.dispatchEvent(radioVolumeUpdated);
-    }, [userSettings]);
+    }, []);
 
     const DEFAULT_USER_CONFIG = { "name_color": "/", "profile_upper_color": "/", "profile_lower_color": "/", "profile_banner_url": "/" };
     const [remoteUserConfig, setRemoteUserConfig] = useState(DEFAULT_USER_CONFIG);
@@ -1110,6 +1131,35 @@ const Settings = ({ defaultTab = 0 }) => {
         }
     }, []);
 
+    const [customBackground, setCustomBackground] = useState(vars.dhcustombg);
+    const handleCustomBackground = (event) => {
+        const file = event.target.files[0];
+        const fileSizeInMegabytes = file.size / (1024 * 1024);
+
+        if (!file.type.startsWith('image/')) {
+            setSnackbarContent("Not a valid image");
+            setSnackbarSeverity("warning");
+            return;
+        }
+
+        if (fileSizeInMegabytes > 2) {
+            setSnackbarContent("Image size must be smaller than 2MB");
+            setSnackbarSeverity("warning");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setCustomBackground(e.target.result);
+            localStorage.setItem('custom-background', e.target.result);
+            vars.dhcustombg = e.target.result;
+
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        };
+        reader.readAsDataURL(file);
+    };
+
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
@@ -1393,26 +1443,25 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { updateTheme("auto"); }}>Auto (Device)</Button>
-                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { updateTheme("dark"); }}>Dark</Button>
-                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { updateTheme("light"); }}>Light</Button>
+                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("auto"); }}>Auto (Device)</Button>
+                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("dark"); }}>Dark</Button>
+                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("light"); }}>Light</Button>
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;<SponsorBadge level={2} /></Typography>
                     <br />
                     <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 3}>Enabled</Button>
                         <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 3}>Disabled</Button>
-                    </ButtonGroup>
-                    {vars.vtcLevel >= 1 && (vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null || vars.dhbgimage !== "") && <ButtonGroup fullWidth>
+                        <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }}>Custom Background</Button>
                         {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Theme</Button>}
-                        {vars.dhbgimage !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); updateThemeDarkenRatio(0.4); updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
-                    </ButtonGroup>}
+                        {vars.dhbgimage !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
+                    </ButtonGroup>
                 </Grid>
                 <Grid item xs={12} sm={12} md={2} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Darken Ratio</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Opacity</Typography>
                     <br />
                     <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vars.userLevel < 3} />
                 </Grid>
@@ -1424,7 +1473,22 @@ const Settings = ({ defaultTab = 0 }) => {
                 <Grid item xs={6} sm={6} md={3} lg={2}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
                     <br />
-                    <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} F />
+                    <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
+                </Grid>
+                <Grid item xs={6} sm={6} md={4} lg={4}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Background Image&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                    <br />
+                    <Box display="flex" flexDirection="row">
+                        {customBackground !== "" &&
+                            <img src={customBackground} height="60px" style={{ display: "flex", borderRadius: "5px", marginRight: "10px", opacity: vars.userLevel >= 3 ? 1 : 0.8 }} />
+                        }
+                        <Tooltip title="Update Image" placement="bottom" arrow PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <Button component="label" variant="contained" startIcon={<CloudUploadRounded />} sx={{ width: "120px", height: "60px" }} disabled={vars.userLevel < 3}>
+                                Update
+                                <VisuallyHiddenInput type="file" property={{ accept: 'image/png, image/jpeg' }} onChange={handleCustomBackground} />
+                            </Button>
+                        </Tooltip>
+                    </Box>
                 </Grid>
             </Grid>
             <Divider sx={{ mt: "20px", mb: "20px" }} />

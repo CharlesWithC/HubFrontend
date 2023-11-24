@@ -283,7 +283,7 @@ const TopBar = (props) => {
         };
     }, []);
 
-    const openProfileModal = () => { setShowProfileModal(2); window.history.pushState("", "", `/member/${vars.userInfo.userid}`); };
+    const openProfileModal = () => { setShowProfileModal(2); };
 
     async function logout() {
         const bearerToken = getAuthToken();

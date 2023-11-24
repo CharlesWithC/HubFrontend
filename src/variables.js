@@ -4,12 +4,16 @@ var apiconfig = null;
 var dhpath = "";
 var dhlogo = "";
 var dhbgimage = "";
+var dhvtcbg = "";
+var dhcustombg = (localStorage.getItem("custom-background") !== null ? localStorage.getItem("custom-background") : "");
 exports.apiversion = apiversion;
 exports.dhconfig = dhconfig;
 exports.apiconfig = apiconfig;
 exports.dhpath = dhpath;
 exports.dhlogo = dhlogo;
 exports.dhbgimage = dhbgimage;
+exports.dhvtcbg = dhvtcbg;
+exports.dhcustombg = dhcustombg;
 
 var isLoggedIn = false;
 exports.isLoggedIn = isLoggedIn;
@@ -77,7 +81,7 @@ var defaultUserLevel = 4; // this affects all users;
 exports.defaultUserLevel = defaultUserLevel;
 var vtcLevel = 0; // 0: regular / 1: premium / 3: special
 exports.vtcLevel = vtcLevel;
-var userLevel = 0;
+var userLevel = -1;
 exports.userLevel = userLevel;
 
 // DriversHub

@@ -75,17 +75,17 @@ const Loader = ({ onLoaderLoaded }) => {
                     vars.dhlogo = "";
                 }
                 try {
-                    vars.dhbgimage = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
+                    vars.dhvtcbg = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
                 } catch {
-                    vars.dhbgimage = "";
+                    vars.dhvtcbg = "";
                 }
                 setLogoSrc(vars.dhlogo);
-                setBgSrc(vars.dhbgimage);
+                setBgSrc(vars.dhvtcbg);
                 setLoadMessage(`Loading`);
 
                 localStorage.setItem("preload-title", vars.dhconfig.name);
                 localStorage.setItem("preload-icon", vars.dhlogo !== null ? vars.dhlogo : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
-                localStorage.setItem("preload-background", vars.dhbgimage !== null ? vars.dhbgimage : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
+                localStorage.setItem("preload-background", vars.dhvtcbg !== null ? vars.dhvtcbg : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
 
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },

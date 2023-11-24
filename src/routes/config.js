@@ -1836,7 +1836,7 @@ const Configuration = () => {
                         <ColorInput color={webConfig.name_color} onChange={(to) => { setWebConfig({ ...webConfig, name_color: to }); }} />
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Darken Ratio&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Opacity&nbsp;&nbsp;<SponsorBadge vtclevel={1} /></Typography>
                         <br />
                         <Slider value={webConfig.theme_darken_ratio * 100} onChange={(e, val) => { setWebConfig({ ...webConfig, theme_darken_ratio: val / 100 }); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} />
                     </Grid>

@@ -4,6 +4,8 @@ export function darkenColor(hex, factor = 0.2, use_custom_theme) {
     if (hex === null) return null;
     if (factor === 0) return hex;
 
+    let opacity = hex.substring(7, 9);
+
     // Ensure the factor is between 0 and 1
     const clampedFactor = Math.min(1, Math.max(0, factor));
 
@@ -19,8 +21,8 @@ export function darkenColor(hex, factor = 0.2, use_custom_theme) {
 
     // Convert back to hex format
     let darkenedHex = `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
-    if (vars.vtcLevel >= 1 && vars.dhbgimage !== "" && use_custom_theme === "vtcbg") {
-        darkenedHex = darkenedHex + "cc";
+    if (opacity !== "") {
+        darkenedHex += opacity;
     }
     return darkenedHex;
 }
@@ -69,6 +71,13 @@ export function customSelectStyles(theme) {
     };
 };
 
+function intToHex(intValue) {
+    const scaledInt = Math.floor(intValue * 255 / 100);
+    let hexValue = scaledInt.toString(16);
+    if (hexValue.length === 1) hexValue = '0' + hexValue;
+    return hexValue;
+}
+
 export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (vars.userLevel < 3) {
         use_custom_theme = false;
@@ -78,18 +87,31 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         theme_main = vars.dhconfig.theme_main_color;
         darken_ratio = vars.dhconfig.theme_darken_ratio;
     }
-    if (use_custom_theme === "vtcbg" && vars.vtcLevel >= 1 && vars.dhbgimage !== "") {
-        function intToHex(intValue) {
-            const scaledInt = Math.floor(intValue * 255 / 100);
-            let hexValue = scaledInt.toString(16);
-            if (hexValue.length === 1) hexValue = '0' + hexValue;
-            return hexValue;
-        }
+    if (use_custom_theme === "vtcbg" && vars.vtcLevel >= 1 && vars.dhvtcbg !== "") {
         if (darken_ratio === null) darken_ratio = 0.4;
-        if (theme_background === null) theme_background = "#212529";
-        if (theme_main === null) theme_main = "#2F3136";
-        theme_background = theme_background + intToHex(darken_ratio * 100);
-        theme_main = theme_main + intToHex(darken_ratio * 100);
+        if (mode === "dark") {
+            if (theme_background === null) theme_background = "#212529";
+            if (theme_main === null) theme_main = "#2F3136";
+        } else if (mode === "light") {
+            if (theme_background === null) theme_background = "#fafafa";
+            if (theme_main === null) theme_main = "#f0f0f0";
+        }
+        theme_background = theme_background.substring(0, 7) + intToHex(darken_ratio * 100);
+        theme_main = theme_main.substring(0, 7) + intToHex(darken_ratio * 100);
+        vars.dhbgimage = vars.dhvtcbg;
+    }
+    if (use_custom_theme === "custombg" && (vars.userLevel === -1 || vars.userLevel >= 3) && vars.dhcustombg !== "") {
+        if (darken_ratio === null) darken_ratio = 0.4;
+        if (mode === "dark") {
+            if (theme_background === null) theme_background = "#212529";
+            if (theme_main === null) theme_main = "#2F3136";
+        } else if (mode === "light") {
+            if (theme_background === null) theme_background = "#fafafa";
+            if (theme_main === null) theme_main = "#f0f0f0";
+        }
+        theme_background = theme_background.substring(0, 7) + intToHex(darken_ratio * 100);
+        theme_main = theme_main.substring(0, 7) + intToHex(darken_ratio * 100);
+        vars.dhbgimage = vars.dhcustombg;
     }
     if (use_custom_theme !== false) {
         customMode = "custom";
