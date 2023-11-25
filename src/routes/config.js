@@ -64,9 +64,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"] };
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "smtp": 6 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -1063,6 +1063,331 @@ const MemoSmtpForm = memo(({ theme, formConfig }) => {
     </>;
 });
 
+const RankForm = ({ theme, rank, onUpdate }) => {
+    if (rank.discord_role_id === undefined) rank.discord_role_id = "";
+    return <Grid container spacing={2} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={12} md={3}>
+            <TextField size="small"
+                key="name"
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={rank.name}
+                onChange={(e) => { onUpdate({ ...rank, name: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={3}>
+            <TextField size="small"
+                key="points"
+                label="Points"
+                variant="outlined"
+                fullWidth
+                value={rank.points}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, points: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={3}>
+            <TextField size="small"
+                key="color"
+                label="Color"
+                variant="outlined"
+                fullWidth
+                value={rank.color}
+                onChange={(e) => { onUpdate({ ...rank, color: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField size="small"
+                key="discord_role_id"
+                label="Discord Role ID"
+                variant="outlined"
+                fullWidth
+                value={rank.discord_role_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, discord_role_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12}>
+            <Typography variant="body2" fontWeight="bold">
+                Daily Bonus
+            </Typography>
+        </Grid>
+        <Grid item xs={6} md={6}>
+            <TextField select size="small"
+                label="Type"
+                variant="outlined"
+                fullWidth
+                value={rank.daily_bonus.type}
+                onChange={(e) => { onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, type: e.target.value } }); }}
+            >
+                <MenuItem value="streak">Streak</MenuItem>
+                <MenuItem value="fixed">Fixed</MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={6}>
+            <TextField size="small"
+                label="Base Reward"
+                variant="outlined"
+                fullWidth
+                value={rank.daily_bonus.base}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, base: e.target.value } }); }}
+            />
+        </Grid>
+        {rank.daily_bonus.type === "streak" && <>
+            <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 6}>
+                <TextField select size="small"
+                    label="Streak Mode"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.daily_bonus.streak_type}
+                    onChange={(e) => { onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_type: e.target.value } }); }}
+                >
+                    <MenuItem value="algo">Algo</MenuItem>
+                    <MenuItem value="fixed">Fixed</MenuItem>
+                </TextField>
+            </Grid>
+            <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 6}>
+                <TextField size="small"
+                    label={rank.daily_bonus.streak_type === "algo" ? "Rate" : "Value"}
+                    variant="outlined"
+                    fullWidth
+                    value={rank.daily_bonus.streak_value}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_value: e.target.value } }); }}
+                />
+            </Grid>
+            <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 0}>
+                <TextField size="small"
+                    label="Offset"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.daily_bonus.algo_offset}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, algo_offset: e.target.value } }); }}
+                />
+            </Grid>
+        </>}
+        <Grid item xs={12}>
+            <Typography variant="body2" fontWeight="bold">
+                Distance Bonus
+            </Typography>
+        </Grid>
+        <Grid item xs={4}>
+            <TextField size="small"
+                label="Probability"
+                variant="outlined"
+                fullWidth
+                value={rank.distance_bonus.probability}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, probability: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={4}>
+            <TextField size="small"
+                label="Minimum Distance"
+                variant="outlined"
+                fullWidth
+                value={rank.distance_bonus.min_distance}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min_distance: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={4}>
+            <TextField size="small"
+                label="Maximum Distance"
+                variant="outlined"
+                fullWidth
+                value={rank.distance_bonus.max_distance}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max_distance: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={4}>
+            <TextField select size="small"
+                label="Type"
+                variant="outlined"
+                fullWidth
+                value={rank.distance_bonus.type}
+                onChange={(e) => { onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, type: e.target.value } }); }}
+            >
+                <MenuItem value="fixed_value">Fixed Value</MenuItem>
+                <MenuItem value="fixed_percentage">Fixed Percent of Distance</MenuItem>
+                <MenuItem value="random_value">Random Value</MenuItem>
+                <MenuItem value="random_percentage">Random Percent of Distance</MenuItem>
+            </TextField>
+        </Grid>
+        {rank.distance_bonus.type.startsWith("fixed") && <>
+            <Grid item xs={4}>
+                <TextField size="small"
+                    label="Value / Percent"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.distance_bonus.value}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, value: e.target.value } }); }}
+                />
+            </Grid>
+        </>}
+        {rank.distance_bonus.type.startsWith("random") && <>
+            <Grid item xs={4}>
+                <TextField size="small"
+                    label="Minimum Value / Percent"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.distance_bonus.min}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min: e.target.value } }); }}
+                />
+            </Grid>
+            <Grid item xs={4}>
+                <TextField size="small"
+                    label="Maximum Value / Percent"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.distance_bonus.max}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max: e.target.value } }); }}
+                />
+            </Grid>
+        </>}
+    </Grid>;
+};
+
+const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex }) => {
+    const RankItem = memo(({ rank, index }) => {
+        return <>
+            <div key={`rank-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: rank.color }} onClick={() => rankOpenIndex === index ? setRankOpenIndex(-1) : setRankOpenIndex(index)}>
+                    {rank.name}
+                </Typography>
+                <div key={`rank-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: rankOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRankOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        let newRanks = [...formConfig.state.ranks];
+                        let nextAvailableId = rank.id + 1;
+                        let allUsedIds = [];
+                        for (let i = 0; i < formConfig.state.ranks.length; i++) {
+                            if (!isNaN(formConfig.state.ranks[i].id)) {
+                                allUsedIds.push(Number(formConfig.state.ranks[i].id));
+                            }
+                        }
+                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                        for (let i = 0; i < allUsedIds.length; i++) {
+                            if (allUsedIds[i] > rank.id) {
+                                if (allUsedIds[i] === nextAvailableId) {
+                                    nextAvailableId += 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        setRankOpenIndex(index + 1);
+                        newRanks.splice(index + 1, 0, { id: nextAvailableId, order_id: rank.order_id + 1, name: "New Rank", color: "" });
+                        formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newRanks = [...formConfig.state.ranks];
+                        newRanks.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                        setRankOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.ranks.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newRanks = [...formConfig.state.ranks];
+                            newRanks[index] = newRanks[index - 1];
+                            newRanks[index - 1] = rank;
+                            formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                            if (rankOpenIndex === index) setRankOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.ranks.length - 2) {
+                            let newRanks = [...formConfig.state.ranks];
+                            newRanks[index] = newRanks[index + 1];
+                            newRanks[index + 1] = rank;
+                            formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                            if (rankOpenIndex === index) setRankOpenIndex(index + 1);
+                        }
+                    }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+        </>;
+    });
+    const BeforeOpen = memo(({ rankOpenIndex }) =>
+        (<>{formConfig.state.ranks.map((rank, index) => ((index < rankOpenIndex || rankOpenIndex === -1) && <RankItem rank={rank} index={index} />))}</>)
+    );
+    const AfterOpen = memo(({ rankOpenIndex }) =>
+        (<>{formConfig.state.ranks.map((rank, index) => ((index > rankOpenIndex && rankOpenIndex !== -1) && <RankItem rank={rank} index={index} />))}</>)
+    );
+    let rank = formConfig.state.ranks[rankOpenIndex];
+    let index = rankOpenIndex;
+    return <>
+        {(rankOpenIndex > 0 || rankOpenIndex === -1) && <BeforeOpen rankOpenIndex={rankOpenIndex} />}
+        {rankOpenIndex !== -1 && <>
+            <div key={`rank-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: rank.color }} onClick={() => rankOpenIndex === index ? setRankOpenIndex(-1) : setRankOpenIndex(index)}>
+                    {rank.name}
+                </Typography>
+                <div key={`rank-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: rankOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRankOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={(e) => {
+                        let newRanks = [...formConfig.state.ranks];
+                        let nextAvailableId = rank.id + 1;
+                        let allUsedIds = [];
+                        for (let i = 0; i < formConfig.state.ranks.length; i++) {
+                            if (!isNaN(formConfig.state.ranks[i].id)) {
+                                allUsedIds.push(Number(formConfig.state.ranks[i].id));
+                            }
+                        }
+                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                        for (let i = 0; i < allUsedIds.length; i++) {
+                            if (allUsedIds[i] > rank.id) {
+                                if (allUsedIds[i] === nextAvailableId) {
+                                    nextAvailableId += 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        setRankOpenIndex(index + 1);
+                        newRanks.splice(index + 1, 0, { id: nextAvailableId, order_id: rank.order_id + 1, name: "", color: "" });
+                        formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newRanks = [...formConfig.state.ranks];
+                        newRanks.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                        setRankOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.ranks.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newRanks = [...formConfig.state.ranks];
+                            newRanks[index] = newRanks[index - 1];
+                            newRanks[index - 1] = rank;
+                            formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                            if (rankOpenIndex !== -1) setRankOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.ranks.length - 2) {
+                            let newRanks = [...formConfig.state.ranks];
+                            newRanks[index] = newRanks[index + 1];
+                            newRanks[index + 1] = rank;
+                            formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                            if (rankOpenIndex !== -1) setRankOpenIndex(index + 1);
+                        }
+                    }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+            <RankForm key={`rank-input-div-${index}`} theme={theme} rank={rank} perms={formConfig.state.perms} onUpdate={(item) => {
+                if (item.isPerms) {
+                    formConfig.setState({ ...formConfig.state, perms: item.newPerms });
+                    return;
+                }
+                let newRanks = [...formConfig.state.ranks];
+                newRanks[index] = item;
+                formConfig.setState({ ...formConfig.state, ranks: newRanks });
+            }} />
+        </>}
+        {rankOpenIndex !== -1 && rankOpenIndex < formConfig.state.ranks.length - 1 && <AfterOpen rankOpenIndex={rankOpenIndex} />}
+    </>;
+});
+
 const DiscordEmbedForm = ({ embed, onUpdate }) => {
     const handleFieldChange = (index, field) => {
         const newFields = [...embed.fields];
@@ -1300,6 +1625,7 @@ const Configuration = () => {
         }
     };
     const [roleOpenIndex, setRoleOpenIndex] = useState(-1);
+    const [rankOpenIndex, setRankOpenIndex] = useState(-1);
 
     const [mfaOtp, setMfaOtp] = useState("");
 
@@ -1350,6 +1676,7 @@ const Configuration = () => {
         const [state, setState] = React.useState(null);
         return { state, setState };
     });
+    const [formConfigOrg, setFormConfigOrg] = useState({});
     const [formConfigReady, setFormConfigReady] = useState(false);
     const [apiBackup, setApiBackup] = useState(null);
     const [apiLastModify, setApiLastModify] = useState(0);
@@ -1472,6 +1799,7 @@ const Configuration = () => {
             if (_apiConfig.config.delivery_rules.required_realistic_settings === undefined) {
                 _apiConfig.config.delivery_rules.required_realistic_settings = [];
             }
+            setFormConfigOrg(_apiConfig.config);
             setApiConfig(JSON.stringify(_apiConfig.config, null, 4));
             setApiBackup(JSON.stringify(_apiConfig.backup, null, 4));
             setApiLastModify(_apiConfig.config_last_modified);
@@ -1484,7 +1812,11 @@ const Configuration = () => {
                 for (let j = 0; j < section_keys.length; j++) {
                     partialConfig[section_keys[j]] = _apiConfig.config[section_keys[j]];
                 }
-                formConfig[i].setState(partialConfig);
+                console.log(partialConfig);
+                if (sections[i] === "rank") {
+                    partialConfig = { ranks: partialConfig.rank_types && partialConfig.rank_types.length > 0 ? partialConfig.rank_types[0].details : [] };
+                }
+                formConfig[CONFIG_SECTIONS_INDEX[sections[i]]].setState(partialConfig);
             }
             setFormConfigReady(true);
 
@@ -1501,6 +1833,14 @@ const Configuration = () => {
             if (config[configKeys[i]] === "") {
                 delete config[configKeys[i]];
             }
+        }
+
+        if (section === "rank") {
+            let rankTypes = [...formConfigOrg.rank_types];
+            if (rankTypes.length > 0) {
+                rankTypes[0].details = config.ranks;
+            }
+            config = {rank_types: rankTypes};
         }
 
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -1520,7 +1860,7 @@ const Configuration = () => {
         setApiConfigDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, [formConfig]);
+    }, [formConfig, formConfigOrg]);
 
     return (<>
         <Card>
@@ -1685,6 +2025,30 @@ const Configuration = () => {
                                             <ButtonGroup fullWidth>
                                                 <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
                                                 <Button variant="contained" color="success" onClick={() => { saveFormConfig("role"); }} disabled={apiConfigDisabled}>Save</Button>
+                                            </ButtonGroup>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>}
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(7)}>
+                                <div style={{ flexGrow: 1 }}>Ranks</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[5] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            {formSectionRender[7] && <Collapse in={formSectionOpen[7]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    NOTE: The form config editor only supports editing one type of rank. If you are willing to configure multiple types of ranks, like distance ranking and event ranking, you will have to use JSON config editor.
+                                </Typography>
+                                <MemoRankForm theme={theme} formConfig={formConfig[7]} rankOpenIndex={rankOpenIndex} setRankOpenIndex={setRankOpenIndex} />
+                                <Grid item xs={12}>
+                                    <Grid container>
+                                        <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                        <Grid item xs={12} sm={6} md={4} lg={2}>
+                                            <ButtonGroup fullWidth>
+                                                <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("rank"); }} disabled={apiConfigDisabled}>Save</Button>
                                             </ButtonGroup>
                                         </Grid>
                                     </Grid>
