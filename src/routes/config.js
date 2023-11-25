@@ -13,6 +13,7 @@ import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } fr
 import TimeAgo from '../components/timeago';
 import ColorInput from '../components/colorInput';
 import SponsorBadge from '../components/sponsorBadge';
+import RoleSelect from '../components/roleselect';
 import { useTheme } from '@emotion/react';
 
 const LANGUAGES = {
@@ -64,9 +65,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"] };
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -1579,6 +1580,80 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
     );
 };
 
+const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="ID"
+                variant="outlined"
+                fullWidth
+                value={announcement_type.id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...announcement_type, id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={announcement_type.name}
+                onChange={(e) => { onUpdate({ ...announcement_type, name: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...modalChallenge, announcement_type: newRoles.map((role) => (role.id)) })} label="Staff Roles" />
+        </Grid>
+    </Grid>;
+};
+
+const MemoAnnouncementTypeForm = memo(({ theme, formConfig }) => {
+    return <>{formConfig.state.announcement_types.map((announcement_type, index) => (
+        <>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                    Announcement Type #{index + 1}
+                </Typography>
+                <div>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        let newAnnouncementTypes = [...formConfig.state.announcement_types];
+                        newAnnouncementTypes.splice(index + 1, 0, { type: "trucky", company_id: "", api_token: "", webhook_secret: "", ip_whitelist: [] });
+                        formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.announcement_types.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newAnnouncementTypes = [...formConfig.state.announcement_types];
+                        newAnnouncementTypes.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.announcement_types.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newAnnouncementTypes = [...formConfig.state.announcement_types];
+                            newAnnouncementTypes[index] = newAnnouncementTypes[index - 1];
+                            newAnnouncementTypes[index - 1] = announcement_type;
+                            formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.announcement_types.length - 2) {
+                            let newAnnouncementTypes = [...formConfig.state.announcement_types];
+                            newAnnouncementTypes[index] = newAnnouncementTypes[index + 1];
+                            newAnnouncementTypes[index + 1] = announcement_type;
+                            formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
+                        }
+                    }} disabled={index === formConfig.state.announcement_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+            <AnnouncementTypeForm theme={theme} announcement_type={announcement_type} onUpdate={(newAnnouncementType) => {
+                let newAnnouncementTypes = [...formConfig.state.announcement_types];
+                newAnnouncementTypes[index] = newAnnouncementType;
+                formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
+            }} />
+        </>
+    ))
+    }</>;
+});
+
 const Configuration = () => {
     const theme = useTheme();
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -1840,7 +1915,7 @@ const Configuration = () => {
             if (rankTypes.length > 0) {
                 rankTypes[0].details = config.ranks;
             }
-            config = {rank_types: rankTypes};
+            config = { rank_types: rankTypes };
         }
 
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -2006,6 +2081,33 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(6)}>
+                                <div style={{ flexGrow: 1 }}>SMTP & Email</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[6] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            {formSectionRender[6] && <Collapse in={formSectionOpen[6]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    NOTE: Password is shown empty for security purpose. It should be saved server-end.<br />
+                                    HINT: When SMTP is correctly configured, email register and password reset will be unlocked.
+                                </Typography>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
+                                    <MemoSmtpForm theme={theme} formConfig={formConfig[6]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("smtp"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>}
+
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(5)}>
                                 <div style={{ flexGrow: 1 }}>Roles</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[5] ? 'rotate(180deg)' : 'none' }}>
@@ -2055,28 +2157,22 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
-                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(6)}>
-                                <div style={{ flexGrow: 1 }}>SMTP & Email</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[6] ? 'rotate(180deg)' : 'none' }}>
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                                <div style={{ flexGrow: 1 }}>Announcement</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[8] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            {formSectionRender[6] && <Collapse in={formSectionOpen[6]}>
-                                <Typography variant="body2" sx={{ mb: "15px" }}>
-                                    NOTE: Password is shown empty for security purpose. It should be saved server-end.<br />
-                                    HINT: When SMTP is correctly configured, email register and password reset will be unlocked.
-                                </Typography>
-                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
-                                    <MemoSmtpForm theme={theme} formConfig={formConfig[6]} />
-                                    <Grid item xs={12}>
-                                        <Grid container>
-                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
-                                            <Grid item xs={12} sm={6} md={4} lg={2}>
-                                                <ButtonGroup fullWidth>
-                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
-                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("smtp"); }} disabled={apiConfigDisabled}>Save</Button>
-                                                </ButtonGroup>
-                                            </Grid>
+                            {formSectionRender[8] && <Collapse in={formSectionOpen[8]}>
+                                <MemoAnnouncementTypeForm theme={theme} formConfig={formConfig[8]} />
+                                <Grid item xs={12}>
+                                    <Grid container>
+                                        <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                        <Grid item xs={12} sm={6} md={4} lg={2}>
+                                            <ButtonGroup fullWidth>
+                                                <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("announcement"); }} disabled={apiConfigDisabled}>Save</Button>
+                                            </ButtonGroup>
                                         </Grid>
                                     </Grid>
                                 </Grid>
