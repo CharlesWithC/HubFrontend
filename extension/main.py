@@ -2,7 +2,6 @@
 # Author: @CharlesWithC
 
 import json
-import math
 import os
 import sqlite3
 import threading
@@ -17,13 +16,14 @@ from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 
-reservedColor = [3129847, 14398740, 14977209, 16023551, 11721600, 15161175, 11609971, 14846019, 15512708, 16023551, 4826287, 16143002, 1159551, 10118082, 16023551, 16023551, 16023551, 16568598, 5958113]
 rolesCache = []
 rolesLU = 0
 userConfigCache = []
 userConfigLU = 0
 
 discord_bot_token = os.getenv("BOT_TOKEN")
+
+patron_campaign_ids = {"bronze": 9973080, "silver": 9360617, "gold": 9973090, "platinum": 9973097}
 
 gconn = sqlite3.connect("truckersmp.db", check_same_thread=False)
 gcur = gconn.cursor()
@@ -32,28 +32,76 @@ uconn = sqlite3.connect("user-settings.db", check_same_thread=False)
 ucur = uconn.cursor()
 # user-settings => set name color + profile upper/lower theme + profile banner url
 # these data are synced into /roles endpoint
-ucur.execute("CREATE TABLE IF NOT EXISTS users (discordid BIGINT UNSIGNED, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT)")
+ucur.execute("CREATE TABLE IF NOT EXISTS users (uid BIGINT UNSIGNED, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT, patreon_id BIGINT, patreon_name TEXT, patreon_email TEXT)")
+ucur.execute("CREATE TABLE IF NOT EXISTS patreon_tokens (patreon_id BIGINT, patreon_access_token TEXT, patreon_refresh_token TEXT, patreon_token_expire_timestamp BIGINT)")
 try:
-    ucur.execute("CREATE INDEX users_discordid ON users (discordid)")
+    ucur.execute("CREATE INDEX users_uid ON users (uid)")
     ucur.execute("CREATE INDEX users_abbr ON users (abbr)")
+    ucur.execute("CREATE INDEX patreon_tokens_id ON patreon_tokens (patreon_id)")
 except:
     pass
 
-def color_similarity(hex1, hex2):
-    # Convert hex codes to RGB values
-    r1, g1, b1 = tuple(int(hex1[i:i+2], 16) for i in (0, 2, 4))
-    r2, g2, b2 = tuple(int(hex2[i:i+2], 16) for i in (0, 2, 4))
+def convertToHex(intColor):
+    if intColor == -1:
+        return None
+    else:
+        return "#" + str(hex(intColor))[2:]
 
-    # Calculate Euclidean distance between RGB values
-    distance = math.sqrt((r1 - r2) ** 2 + (g1 - g2) ** 2 + (b1 - b2) ** 2)
+@app.get("/")
+async def index():
+    return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
+    
+def updateRolesCache():
+    global rolesCache
+    rolesCache = {"lead_developer": [], "project_manager": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "support_team": [], "marketing_team": [], "graphic_team": [], "community_legend": [], "network_partner": [], "translation_team": [], "server_booster": []}
+    ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "community_legend": "992781163477344326", "network_partner": "1175115674994102363", "translation_team": "1041362203728683051", "server_booster": "988263021010898995"}
+    ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_manager": "", "marketing_manager": "", "support_team": "", "marketing_team": "", "graphic_team": "", "community_legend": "", "network_partner": "", "translation_team": "", "server_booster": ""}
+    r = requests.get("https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
+    newReservedColor = []
+    if r.status_code == 200:
+        d = json.loads(r.text)
+        for dd in d:
+            for role in ROLES.keys():
+                if dd["id"] == ROLES[role]:
+                    ROLE_COLOR[role] = dd["color"]
+                    newReservedColor.append(dd["color"])
+                    break
+    global reservedColor
+    reservedColor = newReservedColor
 
-    # Normalize distance to a value between 0 and 1
-    max_distance = math.sqrt((255 ** 2) * 3)
-    similarity = 1 - (distance / max_distance)
+    after = 0
+    while True:
+        r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/members?limit=1000&after={after}", headers={"Authorization": f"Bot {discord_bot_token}"})
+        if r.status_code == 200:
+            d = json.loads(r.text)
+            after = d[-1]["user"]["id"]
 
-    return similarity
+            for dd in d:
+                username = dd["user"]["username"]
+                if dd["nick"] is not None:
+                    username = dd["nick"]
+                elif dd["user"]["global_name"] is not None:
+                    username = dd["user"]["global_name"]
+                
+                for role in ROLES.keys():
+                    if ROLES[role] in dd["roles"]:
+                        rolesCache[role].append({"id": dd["user"]["id"], "name": username, "avatar": dd["user"]["avatar"], "color": convertToHex(ROLE_COLOR[role])})
 
-def truckersmp_online_data():
+            if len(d) < 1000:
+                break
+        else:
+            break
+        time.sleep(0.1)
+
+@app.get("/roles")
+async def getRoles():
+    global rolesLU
+    if time.time() - rolesLU >= 60:
+        rolesLU = time.time()
+        updateRolesCache()
+    return rolesCache
+
+def updateTruckersMP():
     conn = sqlite3.connect("truckersmp.db", check_same_thread=False)
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS players (mpid INT PRIMARY KEY, name VARCHAR(64), last_online BIGINT UNSIGNED)")
@@ -111,96 +159,6 @@ def truckersmp_online_data():
             
         time.sleep(60)
 
-@app.get("/")
-async def index():
-    return RedirectResponse(url="https://drivershub.charlws.com", status_code=302)
-
-def convertToHex(intColor):
-    if intColor == -1:
-        return None
-    else:
-        return "#" + str(hex(intColor))[2:]
-    
-def updateRolesCache():
-    global rolesCache
-    rolesCache = {"lead_developer": [], "project_manager": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "support_team": [], "marketing_team": [], "graphic_team": [], "translation_team": [], "community_legend": [], "network_partner": [], "platinum_sponsor": [], "gold_sponsor": [], "silver_sponsor": [], "bronze_sponsor": [], "server_booster": [], "web_client_beta": []}
-    ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "translation_team": "1041362203728683051", "community_legend": "992781163477344326", "network_partner": "1175115674994102363", "platinum_sponsor": "1128329358218633268", "gold_sponsor": "1128329030106615969", "silver_sponsor": "1031947700419186779", "bronze_sponsor": "1128328748110975006", "server_booster": "988263021010898995", "web_client_beta": "1127416037076389960"}
-    ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_manager": "", "marketing_manager": "", "support_team": "", "marketing_team": "", "graphic_team": "", "translation_team": "", "community_legend": "", "network_partner": "", "platinum_sponsor": "", "gold_sponsor": "", "silver_sponsor": "", "bronze_sponsor": "", "server_booster": "", "web_client_beta": ""}
-    r = requests.get("https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
-    newReservedColor = []
-    if r.status_code == 200:
-        d = json.loads(r.text)
-        for dd in d:
-            for role in ROLES.keys():
-                if dd["id"] == ROLES[role]:
-                    ROLE_COLOR[role] = dd["color"]
-                    newReservedColor.append(dd["color"])
-                    break
-    global reservedColor
-    reservedColor = newReservedColor
-
-    after = 0
-    while True:
-        r = requests.get(f"https://discord.com/api/v10/guilds/955721720440975381/members?limit=1000&after={after}", headers={"Authorization": f"Bot {discord_bot_token}"})
-        if r.status_code == 200:
-            d = json.loads(r.text)
-            after = d[-1]["user"]["id"]
-
-            for dd in d:
-                username = dd["user"]["username"]
-                if dd["nick"] is not None:
-                    username = dd["nick"]
-                elif dd["user"]["global_name"] is not None:
-                    username = dd["user"]["global_name"]
-                
-                for role in ROLES.keys():
-                    if ROLES[role] in dd["roles"]:
-                        rolesCache[role].append({"id": dd["user"]["id"], "name": username, "avatar": dd["user"]["avatar"], "color": convertToHex(ROLE_COLOR[role])})
-
-            if len(d) < 1000:
-                break
-        else:
-            break
-        time.sleep(0.1)
-
-def updateUserConfigCache():
-    global userConfigCache
-    
-    ucur.execute("SELECT discordid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url FROM users")
-    t = ucur.fetchall()
-    user_config = {}
-    for tt in t:
-        if tt[0] not in user_config.keys():
-            user_config[tt[0]] = [{"abbr": tt[1], "name_color": convertToHex(tt[2]), "profile_upper_color": convertToHex(tt[3]), "profile_lower_color": convertToHex(tt[4]), "profile_banner_url": tt[5]}]
-        else:
-            user_config[tt[0]].append({"abbr": tt[1], "name_color": convertToHex(tt[2]), "profile_upper_color": convertToHex(tt[3]), "profile_lower_color": convertToHex(tt[4]), "profile_banner_url": tt[5]})
-    
-    userConfigCache = user_config
-
-@app.get("/roles")
-async def getRoles():
-    global rolesLU
-    if time.time() - rolesLU >= 60:
-        rolesLU = time.time()
-        updateRolesCache()
-    return rolesCache
-
-@app.get("/config/user")
-async def getConfigUser(abbr: str):
-    global userConfigLU
-    if time.time() - userConfigLU >= 30:
-        userConfigLU = time.time()
-        updateUserConfigCache()
-    ret = {}
-    if abbr is not None:
-        for user in userConfigCache.keys():
-            for config in userConfigCache[user]:
-                if config["abbr"] == abbr:
-                    ret[user] = [config]
-    else:
-        ret = userConfigCache
-    return ret
-
 @app.get("/truckersmp")
 async def getTruckersMP(mpid: int, response: Response):
     for _ in range(5):
@@ -215,56 +173,143 @@ async def getTruckersMP(mpid: int, response: Response):
         except:
             time.sleep(0.01)
     return {"error": "Service Unavailable"}
-    
-@app.patch("/config/user")
-async def patchUserConfig(domain:str, request: Request, response: Response, authorization: str = Header(None)):
+
+async def validateTicket(domain: str, authorization: str, response: Response, perm: str = None):
     # Validate domain
     if not os.path.exists(f"/var/hub/config/{domain}.json"):
-        response.status_code = 400
-        return {"error": "Not Found"}
-    
+        return (400, {"error": "Invalid Domain Param"})
+
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
     abbr = config["abbr"]
     api_host = config["api_host"]
 
     # Authorization
     if authorization is None:
-        response.status_code = 401
-        return {"error": "No Authorization Header"}
+        return (401, {"error": "No Authorization Header"})
     if len(authorization.split(" ")) != 2:
-        response.status_code = 401
-        return {"error": "Invalid Authorization Header"}
+        return (401, {"error": "Invalid Authorization Header"})
 
     tokentype = authorization.split(" ")[0]
     if tokentype.lower() != "ticket":
-        response.status_code = 401
-        return {"error": "Invalid Authorization Header"}
+        return (401, {"error": "Invalid Authorization Header"})
     token = authorization.split(" ")[1]
 
     if not api_host.endswith("charlws.com"):
-        response.status_code = 400
-        return {"error": "Invalid API Domain"}
+        return (400, {"error": "Invalid API Domain"})
 
     ok = False
     try:
         r = requests.get(f"{api_host}/{abbr}/auth/ticket?token="+token, timeout = 3)
         if r.status_code != 200:
-            response.status_code = r.status_code
-            return {"error": json.loads(r.text)["descriptor"]}
+            return (r.status_code, {"error": json.loads(r.text)["descriptor"]})
         resp = json.loads(r.text)
-        ok = True
+        roles = resp["roles"]
+
+        if perm is not None:
+            r = requests.get(f"{api_host}/{abbr}/member/perms", timeout = 3)
+            if r.status_code != 200:
+                return (r.status_code, {"error": json.loads(r.text)["descriptor"]})
+            resp = json.loads(r.text)
+            perms = resp
+            if perm not in perms:
+                return (503, {"error": "Invalid Permission Configuration"})
+
+            for role in perms[perm]:
+                if int(role) in roles:
+                    ok = True
+        else:
+            ok = True
     except:
-        response.status_code = 503
-        return {"error": "API Unavailable"}
+        return (503, {"error": "API Unavailable"})
 
     if not ok:
-        response.status_code = 401
-        return {"error": "Unauthorized"}
-    discordid = resp["discordid"]
-    if discordid is None:
-        response.status_code = 400
-        return {"error": "You must connect your Discord account first!"}
+        return (401, {"error": "Unauthorized"})
 
+    return (200, config, resp)
+
+@app.patch("/patreon")
+async def updatePatreon(domain: str, code: str, request: Request, response: Response, authorization: str = Header(None)):
+    validate = await validateTicket(domain, authorization, response)
+    if validate[0] != 200:
+        response.status_code = validate[0]
+        return validate[1]
+    (_, config, resp) = validate
+    abbr = config["abbr"]
+    uid = resp["uid"]
+
+    try:
+        token_response = requests.post('https://www.patreon.com/api/oauth2/token', data={
+            'code': code,
+            'grant_type': 'authorization_code',
+            'client_id': os.environ["PATREON_CLIENT_ID"],
+            'client_secret': os.environ["PATREON_CLIENT_SECRET"],
+            'redirect_uri': "https://oauth.chub.page/patreon-auth"
+        }, headers = {"Content-Type": "application/x-www-form-urlencoded"})
+    
+        token_json = token_response.json()
+        if 'error' in token_json.keys():
+            response.status_code = 400
+            return {"error": token_json['error']}
+    except:
+        response.status_code = 503
+        return {"error": "Patreon API Unavailable"}
+
+    user_response = requests.get('https://www.patreon.com/api/oauth2/v2/identity', headers={
+        'Authorization': f'Bearer {token_json["access_token"]}'
+    })
+
+    user_json = user_response.json()
+    patreon_id = user_json['data']['id']
+    patreon_name = user_json['data']['attributes']['full_name']
+    patreon_email = user_json['data']['attributes']['email']
+
+    ucur.execute("UPDATE users SET patreon_id = NULL WHERE patreon_id = ?", (patreon_id, ))
+    ucur.execute(f"SELECT uid FROM users WHERE uid = {uid} AND abbr = '{abbr}'")
+    t = ucur.fetchall()
+    if len(t) == 0:
+        ucur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (uid, abbr, -1, -1, -1, "/", patreon_id, patreon_name, patreon_email, ))
+    else:
+        ucur.execute("UPDATE users SET patreon_id = ?, patreon_name = ?, patreon_email = ? WHERE uid = ? AND abbr = ?", (patreon_id, patreon_name, patreon_email, uid, abbr, ))
+    ucur.execute("INSERT INTO patreon_tokens VALUES (?, ?, ?, ?)", (patreon_id, token_json["access_token"], token_json["refresh_token"], token_json["expires_in"] + int(time.time()), ))
+    uconn.commit()
+
+    return Response(status_code=204)
+
+def updateUserConfigCache():
+    global userConfigCache
+    
+    ucur.execute("SELECT uid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url FROM users")
+    t = ucur.fetchall()
+    user_config = {}
+    for tt in t:
+        if tt[1] not in user_config.keys():
+            user_config[tt[1]] = {tt[0]: {"name_color": convertToHex(tt[2]), "profile_upper_color": convertToHex(tt[3]), "profile_lower_color": convertToHex(tt[4]), "profile_banner_url": tt[5]}}
+        else:
+            user_config[tt[1]][tt[0]] = {"name_color": convertToHex(tt[2]), "profile_upper_color": convertToHex(tt[3]), "profile_lower_color": convertToHex(tt[4]), "profile_banner_url": tt[5]}
+    
+    userConfigCache = user_config
+
+@app.get("/config/user")
+async def getConfigUser(abbr: str):
+    global userConfigLU
+    if time.time() - userConfigLU >= 30:
+        userConfigLU = time.time()
+        updateUserConfigCache()
+    if abbr in userConfigCache.keys():
+        return userConfigCache[abbr]
+    else:
+        return []
+
+@app.patch("/config/user")
+async def patchUserConfig(domain: str, request: Request, response: Response, authorization: str = Header(None)):
+    validate = await validateTicket(domain, authorization, response)
+    if validate[0] != 200:
+        response.status_code = validate[0]
+        return validate[1]
+    (_, config, resp) = validate
+    abbr = config["abbr"]
+    uid = resp["uid"]
+    
     data = await request.json()
     try:
         name_color = int(data["name_color"])
@@ -275,58 +320,15 @@ async def patchUserConfig(domain:str, request: Request, response: Response, auth
         response.status_code = 400
         return {"error": "Invalid JSON data"}
     
-    # reserved color is no longer checked
-    # if name_color != -1:
-    #     for color in reservedColor:
-    #         if color_similarity(str(hex(color))[2:], str(hex(name_color))[2:]) >= 0.8:
-    #             response.status_code = 400
-    #             return {"error": "Name color is reserved, please use another one!"}
-
-    ucur.execute(f"SELECT discordid FROM users WHERE discordid = {discordid} AND abbr = '{abbr}'")
+    ucur.execute(f"SELECT uid FROM users WHERE uid = {uid} AND abbr = '{abbr}'")
     t = ucur.fetchall()
     if len(t) != 0:
-        ucur.execute("UPDATE users SET name_color = ?, profile_upper_color = ?, profile_lower_color = ?, profile_banner_url = ? WHERE discordid = ? AND abbr = ?", (name_color, profile_upper_color, profile_lower_color, profile_banner_url, discordid, abbr, ))
+        ucur.execute("UPDATE users SET name_color = ?, profile_upper_color = ?, profile_lower_color = ?, profile_banner_url = ? WHERE uid = ? AND abbr = ?", (name_color, profile_upper_color, profile_lower_color, profile_banner_url, uid, abbr, ))
     else:
-        ucur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (discordid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url, ))
+        ucur.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (uid, abbr, name_color, profile_upper_color, profile_lower_color, profile_banner_url, None, "", "" ))
     uconn.commit()
 
     return Response(status_code=204)
-
-@app.get("/config")
-async def getConfig(domain: str, request: Request, response: Response):
-    if os.path.exists(f"/var/hub/config/suspended-{domain}.json"):
-        response.status_code = 402
-        return {"error": "Service Suspended"}
-    
-    if not os.path.exists(f"/var/hub/config/{domain}.json"):
-        response.status_code = 404
-        return {"error": "Not Found"}
-    
-    config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
-
-    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
-    config_keys = list(config.keys())
-    for k in config_keys:
-        if k not in config_whitelist:
-            del config[k]
-    sorted_keys = sorted(config.keys(), key=lambda x: config_whitelist.index(x))
-    config = {key: config[key] for key in sorted_keys}
-    try:
-        config["name_color"] = convertToHex(config["name_color"])
-        config["theme_main_color"] = convertToHex(config["theme_main_color"])
-        config["theme_background_color"] = convertToHex(config["theme_background_color"])
-    except:
-        config["name_color"] = None
-        config["theme_main_color"] = None
-        config["theme_background_color"] = None
-    if "theme_darken_ratio" not in config.keys():
-        config["theme_darken_ratio"] = 0
-    if "bgimage_key" not in config.keys():
-        config["bgimage_key"] = ""
-    if "use_highest_role_color" not in config.keys():
-        config["use_highest_role_color"] = True
-    
-    return {"config": config}
 
 DEFAULT_MANIFEST = {
     "short_name": "Drivers Hub",
@@ -371,64 +373,50 @@ async def getManifest(request: Request, response: Response):
         ]
     }
 
-@app.patch("/config")
-async def patchConfig(domain: str, request: Request, response: Response, authorization: str = Header(None)):
-    # Validate domain
+@app.get("/config")
+async def getConfig(domain: str, request: Request, response: Response):
+    if os.path.exists(f"/var/hub/config/suspended-{domain}.json"):
+        response.status_code = 402
+        return {"error": "Service Suspended"}
+    
     if not os.path.exists(f"/var/hub/config/{domain}.json"):
-        response.status_code = 400
+        response.status_code = 404
         return {"error": "Not Found"}
     
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
-    abbr = config["abbr"]
-    api_host = config["api_host"]
 
-    # Authorization
-    if authorization is None:
-        response.status_code = 401
-        return {"error": "No Authorization Header"}
-    if len(authorization.split(" ")) != 2:
-        response.status_code = 401
-        return {"error": "Invalid Authorization Header"}
-
-    tokentype = authorization.split(" ")[0]
-    if tokentype.lower() != "ticket":
-        response.status_code = 401
-        return {"error": "Invalid Authorization Header"}
-    token = authorization.split(" ")[1]
-
-    if not api_host.endswith("charlws.com"):
-        response.status_code = 400
-        return {"error": "Invalid API Domain"}
-
-    ok = False
+    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
+    config_keys = list(config.keys())
+    for k in config_keys:
+        if k not in config_whitelist:
+            del config[k]
+    sorted_keys = sorted(config.keys(), key=lambda x: config_whitelist.index(x))
+    config = {key: config[key] for key in sorted_keys}
     try:
-        r = requests.get(f"{api_host}/{abbr}/auth/ticket?token="+token, timeout = 3)
-        if r.status_code != 200:
-            response.status_code = r.status_code
-            return {"error": json.loads(r.text)["descriptor"]}
-        resp = json.loads(r.text)
-        roles = resp["roles"]
-
-        r = requests.get(f"{api_host}/{abbr}/member/perms", timeout = 3)
-        if r.status_code != 200:
-            response.status_code = r.status_code
-            return {"error": json.loads(r.text)["descriptor"]}
-        resp = json.loads(r.text)
-        perms = resp
-        if "administrator" not in perms:
-            response.status_code = 503
-            return {"error": "Invalid Permission Configuration"}
-
-        for role in perms["administrator"]:
-            if int(role) in roles:
-                ok = True
+        config["name_color"] = convertToHex(config["name_color"])
+        config["theme_main_color"] = convertToHex(config["theme_main_color"])
+        config["theme_background_color"] = convertToHex(config["theme_background_color"])
     except:
-        response.status_code = 503
-        return {"error": "API Unavailable"}
+        config["name_color"] = None
+        config["theme_main_color"] = None
+        config["theme_background_color"] = None
+    if "theme_darken_ratio" not in config.keys():
+        config["theme_darken_ratio"] = 0
+    if "bgimage_key" not in config.keys():
+        config["bgimage_key"] = ""
+    if "use_highest_role_color" not in config.keys():
+        config["use_highest_role_color"] = True
+    
+    return {"config": config}
 
-    if not ok:
-        response.status_code = 401
-        return {"error": "Unauthorized"}
+@app.patch("/config")
+async def patchConfig(domain: str, request: Request, response: Response, authorization: str = Header(None)):
+    validate = await validateTicket(domain, authorization, response, "administrator")
+    if validate[0] != 200:
+        response.status_code = validate[0]
+        return validate[1]
+    (_, config, resp) = validate
+    abbr = config["abbr"]
 
     data = await request.json()
     headers={
@@ -554,5 +542,5 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     return Response(status_code=204)
 
 if __name__ == "__main__":
-    threading.Thread(target=truckersmp_online_data, daemon=True).start()
+    threading.Thread(target=updateTruckersMP, daemon=True).start()
     uvicorn.run("main:app", host = "127.0.0.1", port = 8299, access_log = False)

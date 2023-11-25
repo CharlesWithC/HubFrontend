@@ -10,6 +10,7 @@ import AuthLogin from './routes/auth/login';
 import TokenAuth from './routes/auth/token';
 import DiscordAuth from './routes/auth/discord/callback';
 import SteamAuth from './routes/auth/steam/callback';
+import PatreonAuth from './routes/auth/patreon/callback';
 import MfaAuth from './routes/auth/mfa';
 import EmailAuth from './routes/auth/email';
 import Loader from './components/loader';
@@ -106,7 +107,7 @@ function App() {
     const [topbarHidden, setTopbarHidden] = useState(false);
     useEffect(() => {
         const handle = () => {
-            if (["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname)) {
+            if (["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname)) {
                 setSidebarForceHidden(true);
                 setSidebarHidden(true);
                 setTopbarHidden(true);
@@ -216,16 +217,18 @@ function App() {
                                     <Route path="/auth" element={<TokenAuth />} />
                                     <Route path="/auth/discord/callback" element={<DiscordAuth />} />
                                     {vars.discordClientID !== 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} />} />}
-                                    {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://shared-discord-application.chub.page/discord-auth?domain=${window.location.host}`} />} />}
+                                    {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${window.location.host}`} />} />}
                                     <Route path="/auth/steam/callback" element={<SteamAuth />} />
                                     <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
+                                    <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
                                     <Route path="/auth/mfa" element={<MfaAuth />} />
                                     <Route path="/auth/email" element={<EmailAuth />} />
                                     <Route path="/settings" element={<Settings />}></Route>
                                     <Route path="/settings/general" element={<Settings defaultTab={0} />}></Route>
-                                    <Route path="/settings/appearance" element={<Settings defaultTab={1} />}></Route>
-                                    <Route path="/settings/security" element={<Settings defaultTab={2} />}></Route>
-                                    <Route path="/settings/sessions" element={<Settings defaultTab={3} />}></Route>
+                                    <Route path="/settings/profile" element={<Settings defaultTab={1} />}></Route>
+                                    <Route path="/settings/appearance" element={<Settings defaultTab={2} />}></Route>
+                                    <Route path="/settings/security" element={<Settings defaultTab={3} />}></Route>
+                                    <Route path="/settings/sessions" element={<Settings defaultTab={4} />}></Route>
                                     <Route path="/notifications" element={<Notifications />}></Route>
                                     <Route path="/overview" element={<Overview />}></Route>
                                     <Route path="/announcement" element={<Announcement />}></Route>
@@ -259,19 +262,19 @@ function App() {
                                     <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
                                     <DialogContent>
                                         <Typography variant="body2">
-                                            The website you are currently using is a <b>Drivers Hub</b>, a portal for VTCs, enhancing community experience and making management easier.
+                                            Embark on a journey through the digital thoroughfares with <b>Drivers Hub</b>, an ethereal portal for Virtual Trucking Communities, crafted to elevate communal experiences and simplify the art of management.
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
-                                            The project is developed and owned by <b>CharlesWithC</b>, operated under the name of CHub, or The Drivers Hub Project.
+                                            Orchestrated by the visionary mind of <b>CharlesWithC</b>, this symphony is performed under the appellation of CHub, also known as The Drivers Hub Project.
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
-                                            CHub is a SaaS service which you may subscribe, starting your own Drivers Hub. You may visit our <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">website (drivershub.charlws.com)</a> to know more.
+                                            CHub unveils itself as a Software as a Service (SaaS) marvel, inviting you to subscribe and forge your own Drivers Hub. Immerse yourself in the essence of our creation by exploring our <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">sanctuary (drivershub.charlws.com)</a>.
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
-                                            <b>Some useful links:</b>&nbsp;&nbsp;
+                                            <b>Wander through these portals:</b>&nbsp;&nbsp;
                                             <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">Website</a>&nbsp;&nbsp;
                                             <a href="https://wiki.charlws.com/books/chub" target="_blank" rel="noreferrer">Wiki</a>&nbsp;&nbsp;
                                             <a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">Discord</a>&nbsp;&nbsp;
@@ -279,7 +282,7 @@ function App() {
                                             <br />
                                         </Typography>
                                         <Typography variant="body2">
-                                            <b>Our partners:</b>&nbsp;&nbsp;
+                                            <b>Our cosmic partners:</b>&nbsp;&nbsp;
                                             <a href="https://truckyapp.com/" target="_blank" rel="noreferrer">Trucky</a>&nbsp;&nbsp;
                                             <a href="https://truckstopradio.co.uk/" target="_blank" rel="noreferrer">TruckStopRadio</a>&nbsp;&nbsp;
                                             <a href="https://discord.gg/trucksim" target="_blank" rel="noreferrer">/r/trucksim</a>&nbsp;&nbsp;
@@ -287,14 +290,14 @@ function App() {
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
-                                            Thanks for reading these. You may close the modal dialog and enjoy the Drivers Hub now!
+                                            Gratitude for embarking on this celestial exploration. As the modal curtain falls, let the harmonies of Drivers Hub serenade your digital travels!
                                         </Typography>
                                     </DialogContent>
                                     <DialogActions>
                                         <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>Close</Button>
                                     </DialogActions>
                                 </Dialog>
-                                <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
+                                <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
                                     {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                             &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>

@@ -52,7 +52,7 @@ const Supporters = () => {
         <Card>
             <CardHeader
                 title="Supporters"
-                subheader={<>A special Thank You to all supporters of The Drivers Hub Project (CHub)</>}
+                subheader={<>Fueling Our Journey with Generosity</>}
                 titleTypographyProps={{ align: 'center', mb: "10px" }}
                 subheaderTypographyProps={{ align: 'center' }}
             />

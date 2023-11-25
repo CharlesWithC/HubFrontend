@@ -34,7 +34,7 @@ const Badges = () => {
             icon: faClover,
             color: '#f47fff',
             description:
-                'Supporters play a crucial role in sustaining The Drivers Hub Project (CHub). They can be sponsors on Patreon, server boosters in Discord, or beta testers providing valuable feedback during project development.\nIf you are interested in becoming a sponsor, visit [charl.ws/patreon](https://charl.ws/patreon).',
+                'Supporters play a crucial role in sustaining The Drivers Hub Project (CHub). They can be financial sponsors on Patreon, or server boosters in Discord.\nIf you are interested in becoming a sponsor, visit [charl.ws/patreon](https://charl.ws/patreon).',
         },
     ];
 
