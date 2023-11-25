@@ -17,7 +17,7 @@ const getRole = (roleId) => {
     }
 };
 
-const RoleSelect = ({ label, initialRoles, onUpdate, style = {} }) => {
+const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
     let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
     for (let i = 0; i < vars.userInfo.roles.length; i++) {
@@ -44,9 +44,15 @@ const RoleSelect = ({ label, initialRoles, onUpdate, style = {} }) => {
     const [selectedRoles, setSelectedRoles] = useState(formattedInit !== undefined ? formattedInit : []);
 
     const handleInputChange = (val) => {
-        setSelectedRoles(val
-            .sort((roleA, roleB) => roleA.orderId - roleB.orderId));
-        onUpdate(val.map((item) => (vars.roles[item.value])));
+        if (isMulti) {
+            setSelectedRoles(val
+                .sort((roleA, roleB) => roleA.orderId - roleB.orderId));
+            onUpdate(val.map((item) => (vars.roles[item.value])));
+        }
+        else {
+            setSelectedRoles([val]);
+            onUpdate(val.value);
+        }
     };
 
     const theme = useTheme();
@@ -56,7 +62,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, style = {} }) => {
             {label && <Typography variant="body2">{label}</Typography>}
             <Select
                 defaultValue={formattedInit}
-                isMulti
+                isMulti={isMulti}
                 name="colors"
                 options={roleIds
                     .filter((roleId) => !divisionOnly ? getRole(roleId).order_id > userHighestRole : divisionRoles.includes(roleId))

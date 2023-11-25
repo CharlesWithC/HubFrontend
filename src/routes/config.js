@@ -65,9 +65,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "division": ["divisions"] };
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -472,8 +472,17 @@ const TrackerForm = ({ theme, tracker, onUpdate }) => {
 };
 
 const MemoTrackerForm = memo(({ theme, formConfig }) => {
-    return <>{formConfig.state.trackers.map((tracker, index) => (
-        <>
+    return <>{formConfig.state.trackers.length === 0 &&
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Tracker - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                let newTrackers = [{ type: "trucky", company_id: "", api_token: "", webhook_secret: "", ip_whitelist: [] }];
+                formConfig.setState({ ...formConfig.state, trackers: newTrackers });
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>}
+        {formConfig.state.trackers.map((tracker, index) => (<>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
                     Tracker #{index + 1}
@@ -513,8 +522,8 @@ const MemoTrackerForm = memo(({ theme, formConfig }) => {
                 formConfig.setState({ ...formConfig.state, trackers: newTrackers });
             }} />
         </>
-    ))
-    }</>;
+        ))
+        }</>;
 });
 
 const MemoDlogForm = memo(({ theme, formConfig }) => {
@@ -705,7 +714,7 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
 const RoleForm = ({ theme, role, perms, onUpdate }) => {
     if (role.discord_role_id === undefined) role.discord_role_id = "";
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={6} md={3}>
             <TextField size="small"
                 style={{ marginBottom: '16px' }}
                 key="name"
@@ -716,7 +725,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 onChange={(e) => { onUpdate({ ...role, name: e.target.value }); }}
             />
         </Grid>
-        <Grid item xs={12} md={9} sx={{ mt: "-20px" }}>
+        <Grid item xs={12} md={6} sx={{ mt: "-20px" }}>
             <Typography variant="body2">Permissions</Typography>
             <CreatableSelect
                 isMulti
@@ -796,6 +805,17 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
 };
 
 const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex }) => {
+    if (formConfig.state.roles.length === 0) {
+        return <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Roles - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                let newRoles = [{ id: 1, order_id: 1, name: "New Role", color: "" }];
+                formConfig.setState({ ...formConfig.state, roles: newRoles });
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>;
+    };
     const RoleItem = memo(({ role, index }) => {
         return <>
             <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
@@ -1112,140 +1132,189 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                 Daily Bonus
             </Typography>
         </Grid>
-        <Grid item xs={6} md={6}>
-            <TextField select size="small"
-                label="Type"
-                variant="outlined"
-                fullWidth
-                value={rank.daily_bonus.type}
-                onChange={(e) => { onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, type: e.target.value } }); }}
-            >
-                <MenuItem value="streak">Streak</MenuItem>
-                <MenuItem value="fixed">Fixed</MenuItem>
-            </TextField>
-        </Grid>
-        <Grid item xs={6} md={6}>
-            <TextField size="small"
-                label="Base Reward"
-                variant="outlined"
-                fullWidth
-                value={rank.daily_bonus.base}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, base: e.target.value } }); }}
-            />
-        </Grid>
-        {rank.daily_bonus.type === "streak" && <>
-            <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 6}>
+        {rank.daily_bonus === null && <>
+            <Grid item xs={6} md={6}>
                 <TextField select size="small"
-                    label="Streak Mode"
+                    label="Type"
                     variant="outlined"
                     fullWidth
-                    value={rank.daily_bonus.streak_type}
-                    onChange={(e) => { onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_type: e.target.value } }); }}
+                    value="disabled"
+                    onChange={(e) => { if (e.target.value !== "disabled") onUpdate({ ...rank, daily_bonus: { type: e.target.value, base: 0, streak_type: "algo", streak_value: 1.01, algo_offset: 15 } }); }}
                 >
-                    <MenuItem value="algo">Algo</MenuItem>
+                    <MenuItem value="streak">Streak</MenuItem>
                     <MenuItem value="fixed">Fixed</MenuItem>
+                    <MenuItem value="disabled">Disabled</MenuItem>
                 </TextField>
             </Grid>
-            <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 6}>
-                <TextField size="small"
-                    label={rank.daily_bonus.streak_type === "algo" ? "Rate" : "Value"}
+        </>}
+        {rank.daily_bonus !== null && <>
+            <Grid item xs={6} md={6}>
+                <TextField select size="small"
+                    label="Type"
                     variant="outlined"
                     fullWidth
-                    value={rank.daily_bonus.streak_value}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_value: e.target.value } }); }}
-                />
+                    value={rank.daily_bonus.type}
+                    onChange={(e) => { if (e.target.value === "disabled") { onUpdate({ ...rank, daily_bonus: null }); return; } onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, type: e.target.value } }); }}
+                >
+                    <MenuItem value="streak">Streak</MenuItem>
+                    <MenuItem value="fixed">Fixed</MenuItem>
+                    <MenuItem value="disabled">Disabled</MenuItem>
+                </TextField>
             </Grid>
-            <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 0}>
+            <Grid item xs={6} md={6}>
                 <TextField size="small"
-                    label="Offset"
+                    label="Base Reward"
                     variant="outlined"
                     fullWidth
-                    value={rank.daily_bonus.algo_offset}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, algo_offset: e.target.value } }); }}
+                    value={rank.daily_bonus.base}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, base: e.target.value } }); }}
                 />
             </Grid>
+            {rank.daily_bonus.type === "streak" && <>
+                <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 6}>
+                    <TextField select size="small"
+                        label="Streak Mode"
+                        variant="outlined"
+                        fullWidth
+                        value={rank.daily_bonus.streak_type}
+                        onChange={(e) => { onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_type: e.target.value } }); }}
+                    >
+                        <MenuItem value="algo">Algo</MenuItem>
+                        <MenuItem value="fixed">Fixed</MenuItem>
+                    </TextField>
+                </Grid>
+                <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 6}>
+                    <TextField size="small"
+                        label={rank.daily_bonus.streak_type === "algo" ? "Rate" : "Value"}
+                        variant="outlined"
+                        fullWidth
+                        value={rank.daily_bonus.streak_value}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_value: e.target.value } }); }}
+                    />
+                </Grid>
+                <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 0}>
+                    <TextField size="small"
+                        label="Offset"
+                        variant="outlined"
+                        fullWidth
+                        value={rank.daily_bonus.algo_offset}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, algo_offset: e.target.value } }); }}
+                    />
+                </Grid>
+            </>}
         </>}
         <Grid item xs={12}>
             <Typography variant="body2" fontWeight="bold">
                 Distance Bonus
             </Typography>
         </Grid>
-        <Grid item xs={4}>
-            <TextField size="small"
-                label="Probability"
-                variant="outlined"
-                fullWidth
-                value={rank.distance_bonus.probability}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, probability: e.target.value } }); }}
-            />
-        </Grid>
-        <Grid item xs={4}>
-            <TextField size="small"
-                label="Minimum Distance"
-                variant="outlined"
-                fullWidth
-                value={rank.distance_bonus.min_distance}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min_distance: e.target.value } }); }}
-            />
-        </Grid>
-        <Grid item xs={4}>
-            <TextField size="small"
-                label="Maximum Distance"
-                variant="outlined"
-                fullWidth
-                value={rank.distance_bonus.max_distance}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max_distance: e.target.value } }); }}
-            />
-        </Grid>
-        <Grid item xs={4}>
-            <TextField select size="small"
-                label="Type"
-                variant="outlined"
-                fullWidth
-                value={rank.distance_bonus.type}
-                onChange={(e) => { onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, type: e.target.value } }); }}
-            >
-                <MenuItem value="fixed_value">Fixed Value</MenuItem>
-                <MenuItem value="fixed_percentage">Fixed Percent of Distance</MenuItem>
-                <MenuItem value="random_value">Random Value</MenuItem>
-                <MenuItem value="random_percentage">Random Percent of Distance</MenuItem>
-            </TextField>
-        </Grid>
-        {rank.distance_bonus.type.startsWith("fixed") && <>
-            <Grid item xs={4}>
-                <TextField size="small"
-                    label="Value / Percent"
+        {rank.distance_bonus === null && <>
+            <Grid item xs={6} md={6}>
+                <TextField select size="small"
+                    label="Type"
                     variant="outlined"
                     fullWidth
-                    value={rank.distance_bonus.value}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, value: e.target.value } }); }}
-                />
+                    value="disabled"
+                    onChange={(e) => { if (e.target.value !== "disabled") onUpdate({ ...rank, distance_bonus: { type: e.target.value, probability: 1, min_distance: 0, max_distance: -1, value: e.target.value.endsWith("value") ? 100 : 0.1, min: e.target.value.endsWith("value") ? 0 : 0, max: e.target.value.endsWith("value") ? 100 : 1 } }); }}
+                >
+                    <MenuItem value="fixed_value">Fixed Value</MenuItem>
+                    <MenuItem value="fixed_percentage">Fixed Percent of Distance</MenuItem>
+                    <MenuItem value="random_value">Random Value</MenuItem>
+                    <MenuItem value="random_percentage">Random Percent of Distance</MenuItem>
+                    <MenuItem value="disabled">Disabled</MenuItem>
+                </TextField>
             </Grid>
         </>}
-        {rank.distance_bonus.type.startsWith("random") && <>
+        {rank.distance_bonus !== null && <>
             <Grid item xs={4}>
                 <TextField size="small"
-                    label="Minimum Value / Percent"
+                    label="Probability"
                     variant="outlined"
                     fullWidth
-                    value={rank.distance_bonus.min}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min: e.target.value } }); }}
+                    value={rank.distance_bonus.probability}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, probability: e.target.value } }); }}
                 />
             </Grid>
             <Grid item xs={4}>
                 <TextField size="small"
-                    label="Maximum Value / Percent"
+                    label="Minimum Distance"
                     variant="outlined"
                     fullWidth
-                    value={rank.distance_bonus.max}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max: e.target.value } }); }}
+                    value={rank.distance_bonus.min_distance}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min_distance: e.target.value } }); }}
                 />
             </Grid>
+            <Grid item xs={4}>
+                <TextField size="small"
+                    label="Maximum Distance"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.distance_bonus.max_distance}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max_distance: e.target.value } }); }}
+                />
+            </Grid>
+            <Grid item xs={4}>
+                <TextField select size="small"
+                    label="Type"
+                    variant="outlined"
+                    fullWidth
+                    value={rank.distance_bonus.type}
+                    onChange={(e) => { if (e.target.value === "disabled") { onUpdate({ ...rank, distance_bonus: null }); return; } onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, type: e.target.value } }); }}
+                >
+                    <MenuItem value="fixed_value">Fixed Value</MenuItem>
+                    <MenuItem value="fixed_percentage">Fixed Percent of Distance</MenuItem>
+                    <MenuItem value="random_value">Random Value</MenuItem>
+                    <MenuItem value="random_percentage">Random Percent of Distance</MenuItem>
+                    <MenuItem value="disabled">Disabled</MenuItem>
+                </TextField>
+            </Grid>
+            {rank.distance_bonus.type.startsWith("fixed") && <>
+                <Grid item xs={4}>
+                    <TextField size="small"
+                        label="Value / Percent"
+                        variant="outlined"
+                        fullWidth
+                        value={rank.distance_bonus.value}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, value: e.target.value } }); }}
+                    />
+                </Grid>
+            </>}
+            {rank.distance_bonus.type.startsWith("random") && <>
+                <Grid item xs={4}>
+                    <TextField size="small"
+                        label="Minimum Value / Percent"
+                        variant="outlined"
+                        fullWidth
+                        value={rank.distance_bonus.min}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min: e.target.value } }); }}
+                    />
+                </Grid>
+                <Grid item xs={4}>
+                    <TextField size="small"
+                        label="Maximum Value / Percent"
+                        variant="outlined"
+                        fullWidth
+                        value={rank.distance_bonus.max}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max: e.target.value } }); }}
+                    />
+                </Grid>
+            </>}
         </>}
     </Grid>;
 };
 
 const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex }) => {
+    if (formConfig.state.ranks.length === 0) {
+        return <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Ranks - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                let newRanks = [{ id: 1, points: 0, name: "New Rank", color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null }];
+                formConfig.setState({ ...formConfig.state, ranks: newRanks });
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>;
+    };
     const RankItem = memo(({ rank, index }) => {
         return <>
             <div key={`rank-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
@@ -1276,7 +1345,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                             }
                         }
                         setRankOpenIndex(index + 1);
-                        newRanks.splice(index + 1, 0, { id: nextAvailableId, order_id: rank.order_id + 1, name: "New Rank", color: "" });
+                        newRanks.splice(index + 1, 0, { id: nextAvailableId, points: 0, name: "New Rank", color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -1603,24 +1672,41 @@ const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...modalChallenge, announcement_type: newRoles.map((role) => (role.id)) })} label="Staff Roles" />
+            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...announcement_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" />
         </Grid>
     </Grid>;
 };
 
 const MemoAnnouncementTypeForm = memo(({ theme, formConfig }) => {
-    return <>{formConfig.state.announcement_types.map((announcement_type, index) => (
-        <>
+    return <>{formConfig.state.announcement_types.length === 0 &&
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Announcement Types - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                let newAnnouncementTypes = [{ id: 1, name: "New Announcement Type", staff_role_ids: [] }];
+                formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>}
+        {formConfig.state.announcement_types.map((announcement_type, index) => (<>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
-                    Announcement Type #{index + 1}
+                    {announcement_type.name}
                 </Typography>
                 <div>
                     <IconButton variant="contained" color="success" onClick={() => {
                         let newAnnouncementTypes = [...formConfig.state.announcement_types];
-                        newAnnouncementTypes.splice(index + 1, 0, { type: "trucky", company_id: "", api_token: "", webhook_secret: "", ip_whitelist: [] });
+                        let occupiedIds = [];
+                        for (let i = 0; i < formConfig.state.announcement_types.length; i++) {
+                            occupiedIds.push(Number(formConfig.state.announcement_types[i].id));
+                        }
+                        let nextId = announcement_type.id + 1;
+                        while (occupiedIds.includes(nextId)) {
+                            nextId += 1;
+                        }
+                        newAnnouncementTypes.splice(index + 1, 0, { id: nextId, name: "New Announcement Type", staff_role_ids: [] });
                         formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.announcement_types.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newAnnouncementTypes = [...formConfig.state.announcement_types];
                         newAnnouncementTypes.splice(index, 1);
@@ -1650,8 +1736,156 @@ const MemoAnnouncementTypeForm = memo(({ theme, formConfig }) => {
                 formConfig.setState({ ...formConfig.state, announcement_types: newAnnouncementTypes });
             }} />
         </>
-    ))
-    }</>;
+        ))
+        }</>;
+});
+
+const DivisionForm = ({ theme, division, onUpdate }) => {
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="ID"
+                variant="outlined"
+                fullWidth
+                value={division.id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={division.name}
+                onChange={(e) => { onUpdate({ ...division, name: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect isMulti={false} initialRoles={[division.role_id]} onUpdate={(newRole) => onUpdate({ ...division, role_id: newRole })} label="Driver Role" />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                label="Reward Type"
+                variant="outlined"
+                fullWidth
+                value={division.points.mode}
+                onChange={(e) => { onUpdate({ ...division, points: { ...division.points, mode: e.target.value } }); }}
+            >
+                <MenuItem value="static">Static</MenuItem>
+                <MenuItem value="ratio">Percent of Distance</MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Point / Percent"
+                variant="outlined"
+                fullWidth
+                value={division.points.value}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, points: { ...division.points, value: e.target.value } }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={division.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...division, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" />
+        </Grid>
+        <Grid item xs={12} md={4}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Discord Message"
+                variant="outlined"
+                fullWidth
+                value={division.message}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, message: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Discord Channel ID"
+                variant="outlined"
+                fullWidth
+                value={division.channel_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, channel_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Discord Webhook (Alternative)"
+                variant="outlined"
+                fullWidth
+                value={division.webhook_url}
+                onChange={(e) => { onUpdate({ ...division, webhook_url: e.target.value }); }}
+            />
+        </Grid>
+    </Grid>;
+};
+
+const MemoDivisionForm = memo(({ theme, formConfig }) => {
+    return <>{formConfig.state.divisions.length === 0 &&
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Divisions - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                let newDivisions = [{ id: 1, name: "New Division", points: { mode: "static", value: 500 }, role_id: vars.perms.driver[0], staff_role_ids: [], message: "", channel_id: "", webhook_url: "" }];
+                formConfig.setState({ ...formConfig.state, divisions: newDivisions });
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>}
+        {formConfig.state.divisions.map((division, index) => (
+            <>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                        {division.name}
+                    </Typography>
+                    <div>
+                        <IconButton variant="contained" color="success" onClick={() => {
+                            let newDivisions = [...formConfig.state.divisions];
+                            let occupiedIds = [];
+                            for (let i = 0; i < formConfig.state.divisions.length; i++) {
+                                occupiedIds.push(Number(formConfig.state.divisions[i].id));
+                            }
+                            let nextId = division.id + 1;
+                            while (occupiedIds.includes(nextId)) {
+                                nextId += 1;
+                            }
+                            newDivisions.splice(index + 1, 0, { id: nextId, name: "New Division", points: { mode: division.points.mode, value: division.points.value }, role_id: division.role_id, staff_role_ids: [], message: division.message, channel_id: division.channel_id, webhook_url: division.webhook_url });
+                            formConfig.setState({ ...formConfig.state, divisions: newDivisions });
+                        }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+                        <IconButton variant="contained" color="error" onClick={() => {
+                            let newDivisions = [...formConfig.state.divisions];
+                            newDivisions.splice(index, 1);
+                            formConfig.setState({ ...formConfig.state, divisions: newDivisions });
+                        }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.divisions.length <= 1} /></IconButton>
+                        <IconButton variant="contained" color="info" onClick={() => {
+                            if (index >= 1) {
+                                let newDivisions = [...formConfig.state.divisions];
+                                newDivisions[index] = newDivisions[index - 1];
+                                newDivisions[index - 1] = division;
+                                formConfig.setState({ ...formConfig.state, divisions: newDivisions });
+                            }
+                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                        <IconButton variant="contained" color="warning" onClick={() => {
+                            if (index <= formConfig.state.divisions.length - 2) {
+                                let newDivisions = [...formConfig.state.divisions];
+                                newDivisions[index] = newDivisions[index + 1];
+                                newDivisions[index + 1] = division;
+                                formConfig.setState({ ...formConfig.state, divisions: newDivisions });
+                            }
+                        }} disabled={index === formConfig.state.divisions.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    </div>
+                </div>
+                <DivisionForm theme={theme} division={division} onUpdate={(newDivision) => {
+                    let newDivisions = [...formConfig.state.divisions];
+                    newDivisions[index] = newDivision;
+                    formConfig.setState({ ...formConfig.state, divisions: newDivisions });
+                }} />
+            </>
+        ))
+        }</>;
 });
 
 const Configuration = () => {
@@ -2157,26 +2391,49 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
-                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                            {vars.dhconfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>Announcement</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[8] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
-                            {formSectionRender[8] && <Collapse in={formSectionOpen[8]}>
-                                <MemoAnnouncementTypeForm theme={theme} formConfig={formConfig[8]} />
-                                <Grid item xs={12}>
-                                    <Grid container>
-                                        <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
-                                        <Grid item xs={12} sm={6} md={4} lg={2}>
-                                            <ButtonGroup fullWidth>
-                                                <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
-                                                <Button variant="contained" color="success" onClick={() => { saveFormConfig("announcement"); }} disabled={apiConfigDisabled}>Save</Button>
-                                            </ButtonGroup>
+                                {formSectionRender[8] && <Collapse in={formSectionOpen[8]}>
+                                    <MemoAnnouncementTypeForm theme={theme} formConfig={formConfig[8]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("announcement"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
-                                </Grid>
-                            </Collapse>}
+                                </Collapse>}
+                            </>}
+
+                            {vars.dhconfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(9)}>
+                                <div style={{ flexGrow: 1 }}>Division</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[8] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                                {formSectionRender[9] && <Collapse in={formSectionOpen[9]}>
+                                    <MemoDivisionForm theme={theme} formConfig={formConfig[9]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("division"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Collapse>}
+                            </>}
                         </>}
                 </Typography>
             </TabPanel>
