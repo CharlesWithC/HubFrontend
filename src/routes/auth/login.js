@@ -99,7 +99,7 @@ const AuthLogin = () => {
             width: '100%',
             height: '100%',
         }}>
-            <Card sx={{ width: { xs: "100%", sm: "80%", md: "80%", lg: "60%" }, backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+            <Card sx={{ width: { xs: "100%", sm: "80%", md: "80%", lg: "60%" }, position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent sx={{ padding: { xs: "20px", sm: "30px", md: "40px", lg: "40px" }, mb: "20px" }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={12} md={8} lg={8}>

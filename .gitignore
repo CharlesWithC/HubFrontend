@@ -29,4 +29,4 @@ yarn-error.log*
 
 .ruff_cache
 
-.env
+config.json

@@ -43,7 +43,7 @@ exports.economyMerchMap = economyMerchMap;
 var dlogDetails = {};
 exports.dlogDetails = dlogDetails;
 
-var userSettings = { "theme": "auto", "use_custom_theme": false, "theme_background": "#ffffff", "theme_main": "#ffffff", "theme_darken_ratio": 0, "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10 };
+var userSettings = { "theme": "auto", "use_custom_theme": "vtcbg", "theme_background": null, "theme_main": null, "theme_darken_ratio": null, "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10 };
 // radio: enabled / disabled / auto-play (enabled)
 // radio-type: tsr / {url}
 if (localStorage.getItem("client-settings") !== null) {
@@ -73,8 +73,10 @@ var specialRoles = {};
 exports.specialRoles = specialRoles;
 var specialRolesMap = {};
 exports.specialRolesMap = specialRolesMap;
-var supportersTabCache = undefined;
-exports.supportersTabCache = supportersTabCache;
+var patrons = {};
+exports.patrons = patrons;
+var userPatreonID = null;
+exports.userPatreonID = null;
 var userConfig = {};
 exports.userConfig = userConfig;
 var defaultUserLevel = 4; // this affects all users;

@@ -111,12 +111,15 @@ export async function FetchProfile() {
             }
             vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
 
-            let LEVEL_MAP = { "bronze": 1, "silver": 2, "gold": 3, "platinum": 4 };
-            if (vars.userInfo.discordid !== null && vars.userInfo.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid) && vars.specialRolesMap[vars.userInfo.discordid] !== undefined) {
-                for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
-                    let role = vars.specialRolesMap[vars.userInfo.discordid][i];
-                    if (Object.keys(LEVEL_MAP).includes(role)) {
-                        vars.userLevel = Math.max(vars.userLevel, LEVEL_MAP[role]);
+            let tiers = ["platinum", "gold", "silver", "bronze"];
+            for (let i = 0; i < tiers.length; i++) {
+                if (vars.userLevel !== -1) break;
+                for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
+                    let patron = vars.patrons[tiers[i]][j];
+                    if (patron.abbr === vars.dhconfig.abbr && patron.uid === vars.userInfo.uid) {
+                        vars.userPatreonID = patron.id;
+                        vars.userLevel = 4 - i;
+                        break;
                     }
                 }
             }
@@ -125,7 +128,7 @@ export async function FetchProfile() {
 
             if (vars.userInfo.discordid !== null && vars.userInfo.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid) && vars.specialRolesMap[vars.userInfo.discordid] !== undefined) {
                 for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
-                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[vars.userInfo.discordid][i].role)) {
+                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[vars.userInfo.discordid][i].role)) {
                         // Team member get Platinum Perks
                         vars.userLevel = 4;
                         break;

@@ -90,6 +90,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
                     { url: "https://config.chub.page/roles", auth: false },
+                    { url: "https://config.chub.page/patrons", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
                     { url: `${vars.dhpath}/languages`, auth: false },
@@ -101,7 +102,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
                 ];
 
-                const [index, specialRoles, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
+                const [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -117,6 +118,9 @@ const Loader = ({ onLoaderLoaded }) => {
                             vars.specialRolesMap[user.id].push({ "role": roleName, "color": user.color });
                         }
                     }
+                }
+                if (patrons) {
+                    vars.patrons = patrons;
                 }
                 if (userConfig) {
                     vars.userConfig = userConfig;

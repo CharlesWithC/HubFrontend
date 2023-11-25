@@ -487,7 +487,7 @@ const UserCard = (props) => {
                 let sr = vars.specialRolesMap[discordidRef.current][i];
                 let badge = null;
                 let badgeName = null;
-                if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
+                if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
                     badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title="CHub Team"
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }} >
                         <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
@@ -525,8 +525,18 @@ const UserCard = (props) => {
         setBadges(newBadges);
 
         let userLevel = 0;
-        // TODO get vars.userLevel from supporters data
-        userLevel = vars.defaultUserLevel;
+        let tiers = ["platinum", "gold", "silver", "bronze"];
+        for (let i = 0; i < tiers.length; i++) {
+            if(userLevel !== 0) break;
+            for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
+                let patron = vars.patrons[tiers[i]][j];
+                if (patron.abbr === vars.dhconfig.abbr && patron.uid === uid) {
+                    userLevel = 4 - i;
+                    break;
+                }
+            }
+        }
+        userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
         if (inCHubTeam) userLevel = 4;
 
         if (vars.userConfig[uid] !== undefined) {

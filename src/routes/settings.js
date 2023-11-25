@@ -21,7 +21,7 @@ import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import MarkdownRenderer from '../components/markdown';
 import SponsorBadge from '../components/sponsorBadge';
-import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari } from '@fortawesome/free-brands-svg-icons';
+import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
 
 import { customSelectStyles } from '../designs';
 var vars = require("../variables");
@@ -1351,7 +1351,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/auth/discord/redirect"); }} fullWidth>Update (OAuth)</Button>
+                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/auth/discord/redirect"); }} fullWidth>Update</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1365,7 +1365,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/auth/steam/redirect"); }} fullWidth>Update (OAuth)</Button>
+                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/auth/steam/redirect"); }} fullWidth>Update</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1384,6 +1384,25 @@ const Settings = ({ defaultTab = 0 }) => {
                                 </Grid>
                             </Grid>
                         </Grid>
+                        <Grid item xs={12} sm={12} md={6} lg={6}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={8} sm={8} md={8} lg={8}>
+                                    <TextField
+                                        label="Patreon"
+                                        value={vars.userPatreonID}
+                                        fullWidth disabled size="small"
+                                    />
+                                </Grid>
+                                <Grid item xs={4} sm={4} md={4} lg={4}>
+                                    <Button variant="contained" onClick={() => { window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + window.location.host; }} fullWidth>Update</Button>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        {vars.userLevel === 0 && <Grid container item xs={12} sm={12} md={6} lg={6} justify="center" alignItems="center">
+                            <Typography variant="body2" align="center">
+                                Connect&nbsp;&nbsp;<FontAwesomeIcon icon={faPatreon} />atreon account to activate sponsor perks.
+                            </Typography>
+                        </Grid>}
                     </Grid>
                 </Grid>
             </Grid>
@@ -1587,7 +1606,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 3}>Disabled</Button>
                         <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }}>Custom Background</Button>
                         {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Theme</Button>}
-                        {vars.dhbgimage !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
+                        {vars.dhvtcbg !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
                     </ButtonGroup>
                 </Grid>
                 <Grid item xs={12} sm={12} md={2} lg={4}>

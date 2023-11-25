@@ -8,17 +8,19 @@ import { useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand } from '@fortawesome/free-solid-svg-icons';
+import { useTheme } from '@emotion/react';
 
 var vars = require("../variables");
 
 const NotificationsPopover = () => {
+    const theme = useTheme();
     const [notifications, setNotifications] = useState(null);
-    const [anchorEl, setAnchorEl] = useState(null);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const [anchorPosition, setAnchorPosition] = useState(null);
+    const handleClick = (e) => {
+        setAnchorPosition({ top: e.clientY, left: e.clientX });
     };
     const handleClose = () => {
-        setAnchorEl(null);
+        setAnchorPosition(null);
     };
 
     const navigate = useNavigate();
@@ -109,7 +111,7 @@ const NotificationsPopover = () => {
         window.dispatchEvent(loadingEnd);
     };
 
-    const open = Boolean(anchorEl);
+    const open = Boolean(anchorPosition);
 
     return (
         <>
@@ -120,14 +122,15 @@ const NotificationsPopover = () => {
             </IconButton>
             <Popover
                 open={open}
-                anchorEl={anchorEl}
+                anchorReference="anchorPosition"
+                anchorPosition={anchorPosition}
                 onClose={handleClose}
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'right',
                 }}
             >
-                <List sx={{ minWidth: "400px", overflow: "hidden" }}>
+                <List sx={{ minWidth: "400px", overflow: "hidden", backgroundColor: theme.palette.background.paper.substring(0, 7) }}>
                     <ListItem>
                         <ListItemText primary={<Typography fontWeight="bold">Notifications</Typography>} />
                         <IconButton onClick={handleAllRead}>

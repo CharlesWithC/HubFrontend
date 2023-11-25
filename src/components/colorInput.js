@@ -28,7 +28,7 @@ const ColorInput = ({ color, onChange, hideDefault = false, disableDefault = fal
             setCustomColor("/");
             return;
         }
-        if (customColor !== "/" && !customColor.startsWith("#")) {
+        if (customColor !== null && customColor !== "/" && !customColor.startsWith("#")) {
             setCustomColor(prev => ("#" + prev.replaceAll("#", "")));
         }
     }, [customColor]);

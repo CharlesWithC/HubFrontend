@@ -12,7 +12,7 @@
         parse_str($query_string, $query_params);
         $domain = $query_params["domain"];
         setcookie('domain', $domain, time() + 86400, '/');
-        header('Location: https://www.patreon.com/oauth2/authorize?response_type=code&client_id=ob3CNQE8aSknRulY0Yvr_hDfwJHirclH_noqB_Hxhjd8W2FZ-9MwZJvNVFlZfPsV&redirect_uri=https://oauth.chub.page/patreon-auth&scope=users%20pledges-to-me');
+        header('Location: https://www.patreon.com/oauth2/authorize?response_type=code&client_id=ob3CNQE8aSknRulY0Yvr_hDfwJHirclH_noqB_Hxhjd8W2FZ-9MwZJvNVFlZfPsV&redirect_uri=https://oauth.chub.page/patreon-auth&scope=identity');
     } else if($referer != "" && isset($_COOKIE['domain'])){
         // redirect to drivers hub
         $domain = $_COOKIE['domain'];

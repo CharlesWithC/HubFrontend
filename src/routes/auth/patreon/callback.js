@@ -38,8 +38,9 @@ const PatreonAuth = () => {
                 }
                 let ticket = resp.data.token;
 
-                resp = await axios({ url: `https://config.chub.page/patreon`, params: { code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
-                if (resp.status === 204) {
+                resp = await axios({ url: `https://config.chub.page/patreon`, params: { domain: window.location.host, code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
+                if (resp.status === 200) {
+                    vars.userPatreonID = resp.data.patreon_id;
                     setMessage(`Patreon account connected 🎉`);
                     setContinue(true);
                     setTimeout(function () { navigate('/settings/general'); }, 3000);
@@ -83,7 +84,7 @@ const PatreonAuth = () => {
             width: '100%',
             height: '100%',
         }}>
-            <Card sx={{ backgroundColor: vars.dhbgimage === "" ? theme.palette.primary.main : theme.palette.primary.main + "cc", width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+            <Card sx={{ width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent>
                     <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
                         <FontAwesomeIcon icon={faPatreon} />&nbsp;&nbsp;Patreon Authorization

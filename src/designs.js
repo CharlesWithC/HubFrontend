@@ -79,8 +79,13 @@ function intToHex(intValue) {
 }
 
 export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
-    if (vars.userLevel < 3) {
-        use_custom_theme = false;
+    if (use_custom_theme === true) {
+        if (vars.userLevel < 2)
+            use_custom_theme = false;
+    } else if (use_custom_theme !== false) {
+        if (use_custom_theme.startsWith("vtc") && vars.vtcLevel < 1 || !use_custom_theme.startsWith("vtc") && vars.userLevel < 3) {
+            use_custom_theme = false;
+        }
     }
     if (use_custom_theme === "vtc" && vars.vtcLevel >= 1 && vars.dhconfig !== null) {
         theme_background = vars.dhconfig.theme_background_color;

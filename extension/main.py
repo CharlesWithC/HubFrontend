@@ -18,12 +18,16 @@ app = FastAPI()
 
 rolesCache = []
 rolesLU = 0
+patronsCache = []
+patronsLU = 0
 userConfigCache = []
 userConfigLU = 0
 
-discord_bot_token = os.getenv("BOT_TOKEN")
+feconfig = json.loads(open("./config.json", "r").read())
+discord_bot_token = feconfig["discord_bot_token"]
 
-patron_campaign_ids = {"bronze": 9973080, "silver": 9360617, "gold": 9973090, "platinum": 9973097}
+patreon_tiers = {"9973097": "platinum", "9973090": "gold", "9360617": "silver", "9973080": "bronze"}
+patreon_campaign_id = "8762284"
 
 gconn = sqlite3.connect("truckersmp.db", check_same_thread=False)
 gcur = gconn.cursor()
@@ -33,6 +37,7 @@ ucur = uconn.cursor()
 # user-settings => set name color + profile upper/lower theme + profile banner url
 # these data are synced into /roles endpoint
 ucur.execute("CREATE TABLE IF NOT EXISTS users (uid BIGINT UNSIGNED, abbr VARCHAR(10), name_color INT, profile_upper_color INT, profile_lower_color INT, profile_banner_url TEXT, patreon_id BIGINT, patreon_name TEXT, patreon_email TEXT)")
+# we might not really need to refresh their tokens since we use creator api to get list of patrons
 ucur.execute("CREATE TABLE IF NOT EXISTS patreon_tokens (patreon_id BIGINT, patreon_access_token TEXT, patreon_refresh_token TEXT, patreon_token_expire_timestamp BIGINT)")
 try:
     ucur.execute("CREATE INDEX users_uid ON users (uid)")
@@ -53,9 +58,9 @@ async def index():
     
 def updateRolesCache():
     global rolesCache
-    rolesCache = {"lead_developer": [], "project_manager": [], "community_manager": [], "development_team": [], "support_manager": [], "marketing_manager": [], "support_team": [], "marketing_team": [], "graphic_team": [], "community_legend": [], "network_partner": [], "translation_team": [], "server_booster": []}
-    ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_manager": "1047154886858510376", "marketing_manager": "1022498803447758968", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "community_legend": "992781163477344326", "network_partner": "1175115674994102363", "translation_team": "1041362203728683051", "server_booster": "988263021010898995"}
-    ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_manager": "", "marketing_manager": "", "support_team": "", "marketing_team": "", "graphic_team": "", "community_legend": "", "network_partner": "", "translation_team": "", "server_booster": ""}
+    rolesCache = {"lead_developer": [], "project_manager": [], "community_manager": [], "development_team": [], "support_leader": [], "marketing_leader": [], "graphic_leader": [], "support_team": [], "marketing_team": [], "graphic_team": [], "community_legend": [], "network_partner": [], "translation_team": [], "server_booster": []}
+    ROLES = {"lead_developer": "1157885414854627438", "project_manager": "955724878043029505", "community_manager": "980036298754637844", "development_team": "1000051978845569164", "support_leader": "1047154886858510376", "marketing_leader": "1022498803447758968", "graphic_leader": "1177776474825183272", "support_team": "1003703044338356254", "marketing_team": "1003703201771561010", "graphic_team": "1051528701692616744", "community_legend": "992781163477344326", "network_partner": "1175115674994102363", "translation_team": "1041362203728683051", "server_booster": "988263021010898995"}
+    ROLE_COLOR = {"lead_developer": "", "project_manager": "", "community_manager": "", "development_team": "", "support_leader": "", "marketing_leader": "", "graphic_leader": "", "support_team": "", "marketing_team": "", "graphic_team": "", "community_legend": "", "network_partner": "", "translation_team": "", "server_booster": ""}
     r = requests.get("https://discord.com/api/v10/guilds/955721720440975381/roles", headers={"Authorization": f"Bot {discord_bot_token}"})
     newReservedColor = []
     if r.status_code == 200:
@@ -96,10 +101,102 @@ def updateRolesCache():
 @app.get("/roles")
 async def getRoles():
     global rolesLU
-    if time.time() - rolesLU >= 60:
+    if time.time() - rolesLU >= 300:
         rolesLU = time.time()
         updateRolesCache()
     return rolesCache
+
+def updatePatronsCache():
+    headers = {
+        'Authorization': f'Bearer {feconfig["creator_access_token"]}',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+
+    if time.time() > feconfig["creator_token_expire"]:
+        try:
+            token_response = requests.post('https://www.patreon.com/api/oauth2/token', data={
+                'refresh_token': feconfig["creator_refresh_token"],
+                'grant_type': 'refresh_token',
+                'client_id': feconfig["patreon_client_id"],
+                'client_secret': feconfig["patreon_client_secret"],
+            }, headers = {"Content-Type": "application/x-www-form-urlencoded"})
+        
+            token_json = token_response.json()
+            if 'error' in token_json.keys():
+                raise Exception(token_json['error'])
+            feconfig["creator_access_token"] = token_json["access_token"]
+            feconfig["creator_refresh_token"] = token_json["refresh_token"]
+            feconfig["creator_token_expire"] = token_json["expires_in"] + int(time.time())
+            open("./config.json", "w").write(json.dumps(feconfig, indent=4))
+            headers = {
+                'Authorization': f'Bearer {feconfig["creator_access_token"]}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        except Exception as e:
+            print(e)
+
+    params = {
+        'page[count]': 1000,
+        'include': 'user,currently_entitled_tiers',
+        'filter[free_or_paid]': 'paid_members',
+        'fields[member]': 'full_name',
+        'fields[user]': 'image_url',
+        'sort': 'pledge_relationship_start'
+    }
+
+    patrons = {"platinum": [], "gold": [], "silver": [], "bronze": []}
+
+    ucur.execute("SELECT abbr, uid, patreon_id FROM users")
+    t = ucur.fetchall()
+    connected_patrons = {}
+    for tt in t:
+        if tt[2] is not None:
+            connected_patrons[tt[2]] = (tt[0], tt[1])
+
+    # Initial URL
+    url = f'https://www.patreon.com/api/oauth2/v2/campaigns/{patreon_campaign_id}/members'
+    while url:
+        resp = requests.get(url, headers=headers, params=params)
+        d = json.loads(resp.text)
+        avatars = {}
+        for t in d["included"]:
+            if t["type"] == "user":
+                avatars[t["id"]] = t["attributes"]["image_url"]
+        for t in d["data"]:
+            if t["type"] == "member":
+                tiers = t["relationships"]["currently_entitled_tiers"]["data"]
+                if len(tiers) == 0:
+                    continue
+                patreon_id = t["relationships"]["user"]["data"]["id"]
+                full_name = t["attributes"]["full_name"]
+                avatar = avatars[patreon_id]
+                (abbr, uid) = connected_patrons.get(int(patreon_id), (None, None))
+                for tier in tiers:
+                    if tier["id"] not in patreon_tiers.keys():
+                        continue
+                    patrons[patreon_tiers[tier["id"]]].append({"abbr": abbr, "uid": uid, "id": patreon_id, "name": full_name, "avatar": avatar})
+
+        # Get the next page URL, if it exists
+        if "links" in d.keys():
+            if "next" in d["links"].keys():
+                url = d["links"]["next"]
+                params = {}
+            else:
+                url = None
+        else:
+            url = None
+
+    global patronsCache
+    patronsCache = patrons
+
+@app.get("/patrons")
+async def getPatrons():
+    global patronsCache
+    global patronsLU
+    if time.time() - patronsLU >= 300:
+        patronsLU = time.time()
+        updatePatronsCache()
+    return patronsCache
 
 def updateTruckersMP():
     conn = sqlite3.connect("truckersmp.db", check_same_thread=False)
@@ -241,8 +338,8 @@ async def updatePatreon(domain: str, code: str, request: Request, response: Resp
         token_response = requests.post('https://www.patreon.com/api/oauth2/token', data={
             'code': code,
             'grant_type': 'authorization_code',
-            'client_id': os.environ["PATREON_CLIENT_ID"],
-            'client_secret': os.environ["PATREON_CLIENT_SECRET"],
+            'client_id': feconfig["patreon_client_id"],
+            'client_secret': feconfig["patreon_client_secret"],
             'redirect_uri': "https://oauth.chub.page/patreon-auth"
         }, headers = {"Content-Type": "application/x-www-form-urlencoded"})
     
@@ -250,13 +347,13 @@ async def updatePatreon(domain: str, code: str, request: Request, response: Resp
         if 'error' in token_json.keys():
             response.status_code = 400
             return {"error": token_json['error']}
+
+        user_response = requests.get('https://www.patreon.com/api/oauth2/v2/identity?fields[user]=full_name,email', headers={
+            'Authorization': f'Bearer {token_json["access_token"]}'
+        })
     except:
         response.status_code = 503
         return {"error": "Patreon API Unavailable"}
-
-    user_response = requests.get('https://www.patreon.com/api/oauth2/v2/identity', headers={
-        'Authorization': f'Bearer {token_json["access_token"]}'
-    })
 
     user_json = user_response.json()
     patreon_id = user_json['data']['id']
@@ -272,6 +369,31 @@ async def updatePatreon(domain: str, code: str, request: Request, response: Resp
         ucur.execute("UPDATE users SET patreon_id = ?, patreon_name = ?, patreon_email = ? WHERE uid = ? AND abbr = ?", (patreon_id, patreon_name, patreon_email, uid, abbr, ))
     ucur.execute("INSERT INTO patreon_tokens VALUES (?, ?, ?, ?)", (patreon_id, token_json["access_token"], token_json["refresh_token"], token_json["expires_in"] + int(time.time()), ))
     uconn.commit()
+
+    global patronsCache
+    for tier in ["platinum", "gold", "silver", "bronze"]:
+        for i in range(len(patronsCache[tier])):
+            if patronsCache[tier][i]["id"] == patreon_id:
+                patronsCache[tier][i]["abbr"] = abbr
+                patronsCache[tier][i]["uid"] = uid
+
+    return {"patreon_id": patreon_id}
+
+@app.delete("/patreon")
+async def deletePatreon(domain: str, request: Request, response: Response, authorization: str = Header(None)):
+    validate = await validateTicket(domain, authorization, response)
+    if validate[0] != 200:
+        response.status_code = validate[0]  
+        return validate[1]
+    (_, config, resp) = validate
+    abbr = config["abbr"]
+    uid = resp["uid"]
+
+    ucur.execute(f"SELECT uid FROM users WHERE uid = {uid} AND abbr = '{abbr}'")
+    t = ucur.fetchall()
+    if len(t) != 0:
+        ucur.execute("UPDATE users SET patreon_id = NULL, patreon_name = NULL, patreon_email = NULL WHERE uid = ? AND abbr = ?", (uid, abbr, ))
+        uconn.commit()
 
     return Response(status_code=204)
 
