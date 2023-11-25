@@ -1091,7 +1091,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     badgeName = "legend";
                 }
                 if (['network_partner'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title="Network Partner"
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-network-partner`} placement="top" arrow title="Network Partner"
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                     </Tooltip>;
