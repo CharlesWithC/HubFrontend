@@ -105,7 +105,7 @@ const AuthLogin = () => {
                         <Grid item xs={12} sm={12} md={8} lg={8}>
                             <Typography variant="h3" sx={{ fontWeight: 800 }}>Welcome back! <IconButton variant="contained" color="primary" onClick={() => { navigate("/"); }}><FontAwesomeIcon icon={faClose} /></IconButton></Typography>
                             <TextField label="Email" variant="outlined" fullWidth margin="normal" value={email} onChange={(e) => { setEmail(e.target.value); }} />
-                            <TextField label="Password" variant="outlined" fullWidth margin="normal" type="password" value={password} onChange={(e) => { setPassword(e.target.value); }} />
+                            <TextField label="Password" variant="outlined" fullWidth margin="normal" type="password" value={password} onChange={(e) => { setPassword(e.target.value); }} onKeyDown={(e) => { if (e.key === "Enter") { setAction("login"); setModalCaptcha(true); } }} />
                             <Typography variant="body2" onClick={() => { if (validateEP()) { setAction("reset-password"); setModalCaptcha(true); } }} sx={{ cursor: "pointer", width: "fit-content" }}>Forgot your password?</Typography>
                             <br />
                             <ButtonGroup fullWidth>

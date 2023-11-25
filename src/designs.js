@@ -121,6 +121,8 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
     if (use_custom_theme !== false) {
         customMode = "custom";
     }
+    if (theme_background === null) theme_background = "#212529";
+    if (theme_main === null) theme_main = "#2F3136";
     let bgBase = {
         light: {
             default: '#fafafa',

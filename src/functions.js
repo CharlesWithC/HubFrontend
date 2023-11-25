@@ -10,7 +10,7 @@ axiosRetry(customAxios, {
         return retryCount * 1000;
     },
     retryCondition: (error) => {
-        return error.response === undefined || error.response.status in [429, 503];
+        return error.response === undefined && error.response.status in [429, 503];
     },
 });
 customAxios.interceptors.response.use(
@@ -246,14 +246,14 @@ export function CalcInterval(start_time, end_time) {
     return `${zfill(hours, 2)}:${zfill(minutes, 2)}:${zfill(seconds, 2)}`;
 }
 
-export const loadImageAsBase64 = async (imageUrl) => {
+export const loadImageAsBase64 = async (imageUrl, fallback = "") => {
     try {
         let response = await customAxios.get(imageUrl, {
             responseType: 'blob' // Set the response type to blob
         });
 
-        if (response.status === 404) {
-            response = await customAxios.get("https://cdn.chub.page/assets/logo.png", {
+        if (response.status === 404 && fallback !== "") {
+            response = await customAxios.get(fallback, {
                 responseType: 'blob' // Set the response type to blob
             });
         }

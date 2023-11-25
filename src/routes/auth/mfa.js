@@ -59,6 +59,7 @@ const MfaAuth = () => {
         setOtp(otp);
         if (otp.length === 6 && /^\d+$/.test(otp)) {
             setAllowVerify(true);
+            handleVerify();
         } else {
             setAllowVerify(false);
         }
@@ -81,7 +82,7 @@ const MfaAuth = () => {
                     <Typography variant="h5" sx={{ fontWeight: 800 }}>
                         <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication
                     </Typography>
-                    <TextField label="OTP" variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
+                    <TextField label="OTP" variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} onKeyDown={(e) => { if (e.key === "Enter") { handleVerify(); } }} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
                 </CardContent>
                 <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}

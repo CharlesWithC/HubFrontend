@@ -70,7 +70,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
                 setTitle(vars.dhconfig.name);
                 try {
-                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
+                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`, fallback = "https://cdn.chub.page/assets/logo.png");
                 } catch {
                     vars.dhlogo = "";
                 }
