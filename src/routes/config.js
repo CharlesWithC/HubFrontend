@@ -65,9 +65,9 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "division": ["divisions"] };
+const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"] };
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -714,7 +714,7 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
 const RoleForm = ({ theme, role, perms, onUpdate }) => {
     if (role.discord_role_id === undefined) role.discord_role_id = "";
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
-        <Grid item xs={6} md={3}>
+        <Grid item xs={12} md={3}>
             <TextField size="small"
                 style={{ marginBottom: '16px' }}
                 key="name"
@@ -725,7 +725,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 onChange={(e) => { onUpdate({ ...role, name: e.target.value }); }}
             />
         </Grid>
-        <Grid item xs={12} md={6} sx={{ mt: "-20px" }}>
+        <Grid item xs={12} md={9} sx={{ mt: "-20px" }}>
             <Typography variant="body2">Permissions</Typography>
             <CreatableSelect
                 isMulti
@@ -828,7 +828,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={() => {
                         let newRoles = [...formConfig.state.roles];
-                        let nextAvailableId = role.id + 1;
+                        let nextId = role.id + 1;
                         let allUsedIds = [];
                         for (let i = 0; i < formConfig.state.roles.length; i++) {
                             if (!isNaN(formConfig.state.roles[i].id)) {
@@ -838,15 +838,15 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                         allUsedIds = allUsedIds.sort((a, b) => a - b);
                         for (let i = 0; i < allUsedIds.length; i++) {
                             if (allUsedIds[i] > role.id) {
-                                if (allUsedIds[i] === nextAvailableId) {
-                                    nextAvailableId += 1;
+                                if (allUsedIds[i] === nextId) {
+                                    nextId += 1;
                                 } else {
                                     break;
                                 }
                             }
                         }
                         setRoleOpenIndex(index + 1);
-                        newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "New Role", color: "" });
+                        newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "New Role", color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -898,7 +898,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={(e) => {
                         let newRoles = [...formConfig.state.roles];
-                        let nextAvailableId = role.id + 1;
+                        let nextId = role.id + 1;
                         let allUsedIds = [];
                         for (let i = 0; i < formConfig.state.roles.length; i++) {
                             if (!isNaN(formConfig.state.roles[i].id)) {
@@ -908,15 +908,15 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                         allUsedIds = allUsedIds.sort((a, b) => a - b);
                         for (let i = 0; i < allUsedIds.length; i++) {
                             if (allUsedIds[i] > role.id) {
-                                if (allUsedIds[i] === nextAvailableId) {
-                                    nextAvailableId += 1;
+                                if (allUsedIds[i] === nextId) {
+                                    nextId += 1;
                                 } else {
                                     break;
                                 }
                             }
                         }
                         setRoleOpenIndex(index + 1);
-                        newRoles.splice(index + 1, 0, { id: nextAvailableId, order_id: role.order_id + 1, name: "", color: "" });
+                        newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -1318,7 +1318,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
     const RankItem = memo(({ rank, index }) => {
         return <>
             <div key={`rank-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: rank.color }} onClick={() => rankOpenIndex === index ? setRankOpenIndex(-1) : setRankOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexGrow: 1, color: rank.color }} onClick={() => rankOpenIndex === index ? setRankOpenIndex(-1) : setRankOpenIndex(index)}>
                     {rank.name}
                 </Typography>
                 <div key={`rank-control-div-${index}`}>
@@ -1327,7 +1327,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={() => {
                         let newRanks = [...formConfig.state.ranks];
-                        let nextAvailableId = rank.id + 1;
+                        let nextId = rank.id + 1;
                         let allUsedIds = [];
                         for (let i = 0; i < formConfig.state.ranks.length; i++) {
                             if (!isNaN(formConfig.state.ranks[i].id)) {
@@ -1337,15 +1337,15 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                         allUsedIds = allUsedIds.sort((a, b) => a - b);
                         for (let i = 0; i < allUsedIds.length; i++) {
                             if (allUsedIds[i] > rank.id) {
-                                if (allUsedIds[i] === nextAvailableId) {
-                                    nextAvailableId += 1;
+                                if (allUsedIds[i] === nextId) {
+                                    nextId += 1;
                                 } else {
                                     break;
                                 }
                             }
                         }
                         setRankOpenIndex(index + 1);
-                        newRanks.splice(index + 1, 0, { id: nextAvailableId, points: 0, name: "New Rank", color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
+                        newRanks.splice(index + 1, 0, { id: nextId, points: 0, name: "New Rank", color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -1397,7 +1397,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={(e) => {
                         let newRanks = [...formConfig.state.ranks];
-                        let nextAvailableId = rank.id + 1;
+                        let nextId = rank.id + 1;
                         let allUsedIds = [];
                         for (let i = 0; i < formConfig.state.ranks.length; i++) {
                             if (!isNaN(formConfig.state.ranks[i].id)) {
@@ -1407,15 +1407,15 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                         allUsedIds = allUsedIds.sort((a, b) => a - b);
                         for (let i = 0; i < allUsedIds.length; i++) {
                             if (allUsedIds[i] > rank.id) {
-                                if (allUsedIds[i] === nextAvailableId) {
-                                    nextAvailableId += 1;
+                                if (allUsedIds[i] === nextId) {
+                                    nextId += 1;
                                 } else {
                                     break;
                                 }
                             }
                         }
                         setRankOpenIndex(index + 1);
-                        newRanks.splice(index + 1, 0, { id: nextAvailableId, order_id: rank.order_id + 1, name: "", color: "" });
+                        newRanks.splice(index + 1, 0, { id: nextId, order_id: rank.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -1672,7 +1672,7 @@ const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...announcement_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" />
+            <RoleSelect initialRoles={announcement_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...announcement_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" style={{ marginBottom: '16px' }} />
         </Grid>
     </Grid>;
 };
@@ -1740,6 +1740,332 @@ const MemoAnnouncementTypeForm = memo(({ theme, formConfig }) => {
         }</>;
 });
 
+const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="ID"
+                variant="outlined"
+                fullWidth
+                value={application_type.id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Name"
+                variant="outlined"
+                fullWidth
+                value={application_type.name}
+                onChange={(e) => { onUpdate({ ...application_type, name: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={application_type.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" style={{ marginBottom: '16px' }} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <Typography variant="body2">Required Connections</Typography>
+            <Select
+                defaultValue={application_type.required_connections.map((connection) => ({ value: connection, label: connection === 'truckersmp' ? 'TruckersMP' : connection.charAt(0).toUpperCase() + connection.slice(1) }))}
+                isMulti
+                name="connections"
+                options={[
+                    { value: 'email', label: 'Email' },
+                    { value: 'discord', label: 'Discord' },
+                    { value: 'steam', label: 'Steam' },
+                    { value: 'truckersmp', label: 'TruckersMP' }
+                ]}
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={application_type.required_connections.map((connection) => ({ value: connection, label: connection === 'truckersmp' ? 'TruckersMP' : connection.charAt(0).toUpperCase() + connection.slice(1) }))}
+                onChange={(newConnections) => {
+                    onUpdate({
+                        ...application_type,
+                        required_connections: newConnections.map((item) => item.value),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={4} md={6}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                label="Required Member State"
+                variant="outlined"
+                fullWidth
+                value={application_type.required_member_state}
+                onChange={(e) => { onUpdate({ ...application_type, required_member_state: e.target.value }); }}
+            >
+                <MenuItem value={-1}>No Requirement</MenuItem>
+                <MenuItem value={0}>Not Member</MenuItem>
+                <MenuItem value={1}>Is Member</MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={4} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Cooldown Hours"
+                variant="outlined"
+                fullWidth
+                value={application_type.cooldown_hours}
+                onChange={(e) => { onUpdate({ ...application_type, cooldown_hours: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={4} md={3}>
+            <TextField select
+                style={{ marginBottom: '16px' }}
+                label="Multiple Pending Applications"
+                variant="outlined"
+                fullWidth
+                value={application_type.allow_multiple}
+                onChange={(e) => { onUpdate({ ...application_type, allow_multiple: e.target.value }); }}
+            >
+                <MenuItem value={true}>Allowed</MenuItem>
+                <MenuItem value={false}>Prohibited</MenuItem>
+            </TextField>
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <Typography variant="body2">Discord Role Changes (+ID / -ID)</Typography>
+            <CreatableSelect
+                defaultValue={application_type.role_change.map((role) => ({ value: role, label: role }))}
+                isMulti
+                name="roles"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={application_type.role_change.map((role) => ({ value: role, label: role }))}
+                onChange={(newRoles) => {
+                    onUpdate({
+                        ...application_type,
+                        role_change: newRoles.map((item) => item.value),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={application_type.required_either_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, required_either_user_role_ids: newRoles.map((role) => (role.id)) })} label="Required User Roles (Any)" style={{ marginBottom: '16px' }} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={application_type.required_all_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, required_all_user_role_ids: newRoles.map((role) => (role.id)) })} label="Required User Roles (All)" style={{ marginBottom: '16px' }} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={application_type.prohibited_either_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, prohibited_either_user_role_ids: newRoles.map((role) => (role.id)) })} label="Prohibited User Roles (Any)" style={{ marginBottom: '16px' }} />
+        </Grid>
+        <Grid item xs={12} md={6}>
+            <RoleSelect initialRoles={application_type.prohibited_all_user_role_ids} onUpdate={(newRoles) => onUpdate({ ...application_type, prohibited_all_user_role_ids: newRoles.map((role) => (role.id)) })} label="Prohibited User Roles (All)" style={{ marginBottom: '16px' }} />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Discord Message"
+                variant="outlined"
+                fullWidth
+                value={application_type.message}
+                onChange={(e) => { onUpdate({ ...application_type, message: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Discord Channel ID"
+                variant="outlined"
+                fullWidth
+                value={application_type.channel_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, channel_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                label="Discord Webhook (Alternative)"
+                variant="outlined"
+                fullWidth
+                value={application_type.webhook_url}
+                onChange={(e) => { onUpdate({ ...application_type, webhook_url: e.target.value }); }}
+            />
+        </Grid>
+    </Grid>;
+};
+
+const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIndex, setApplicationTypeOpenIndex }) => {
+    if (formConfig.state.application_types.length === 0) {
+        return <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Application Types - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                let newApplicationTypes = [{
+                    id: 1,
+                    name: "New Application Type",
+                    staff_application_type_ids: [],
+                    required_connections: [],
+                    required_member_state: -1,
+                    cooldown_hours: 0,
+                    allow_multiple: false,
+                    application_type_change: [],
+                    required_either_user_application_type_ids: [],
+                    required_all_user_application_type_ids: [],
+                    prohibited_either_user_application_type_ids: [],
+                    prohibited_all_user_application_type_ids: [],
+                    message: "",
+                    channel_id: "",
+                    webhook_url: ""
+                }];
+                formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>;
+    };
+    const ApplicationTypeItem = memo(({ application_type, index }) => {
+        return <>
+            <div key={`application_type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => applicationTypeOpenIndex === index ? setApplicationTypeOpenIndex(-1) : setApplicationTypeOpenIndex(index)}>
+                    {application_type.name}
+                </Typography>
+                <div key={`application_type-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: applicationTypeOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setApplicationTypeOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        let newApplicationTypes = [...formConfig.state.application_types];
+                        let nextId = application_type.id + 1;
+                        let allUsedIds = [];
+                        for (let i = 0; i < formConfig.state.application_types.length; i++) {
+                            if (!isNaN(formConfig.state.application_types[i].id)) {
+                                allUsedIds.push(Number(formConfig.state.application_types[i].id));
+                            }
+                        }
+                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                        for (let i = 0; i < allUsedIds.length; i++) {
+                            if (allUsedIds[i] > application_type.id) {
+                                if (allUsedIds[i] === nextId) {
+                                    nextId += 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        setApplicationTypeOpenIndex(index + 1);
+                        newApplicationTypes.splice(index + 1, 0, {
+                            ...application_type,
+                            id: nextId,
+                            name: "New Application Type",
+                        });
+                        formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newApplicationTypes = [...formConfig.state.application_types];
+                        newApplicationTypes.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                        setApplicationTypeOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.application_types.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newApplicationTypes = [...formConfig.state.application_types];
+                            newApplicationTypes[index] = newApplicationTypes[index - 1];
+                            newApplicationTypes[index - 1] = application_type;
+                            formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                            if (applicationTypeOpenIndex === index) setApplicationTypeOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.application_types.length - 2) {
+                            let newApplicationTypes = [...formConfig.state.application_types];
+                            newApplicationTypes[index] = newApplicationTypes[index + 1];
+                            newApplicationTypes[index + 1] = application_type;
+                            formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                            if (applicationTypeOpenIndex === index) setApplicationTypeOpenIndex(index + 1);
+                        }
+                    }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+        </>;
+    });
+    const BeforeOpen = memo(({ applicationTypeOpenIndex }) =>
+        (<>{formConfig.state.application_types.map((application_type, index) => ((index < applicationTypeOpenIndex || applicationTypeOpenIndex === -1) && <ApplicationTypeItem application_type={application_type} index={index} />))}</>)
+    );
+    const AfterOpen = memo(({ applicationTypeOpenIndex }) =>
+        (<>{formConfig.state.application_types.map((application_type, index) => ((index > applicationTypeOpenIndex && applicationTypeOpenIndex !== -1) && <ApplicationTypeItem application_type={application_type} index={index} />))}</>)
+    );
+    let application_type = formConfig.state.application_types[applicationTypeOpenIndex];
+    let index = applicationTypeOpenIndex;
+    return <>
+        {(applicationTypeOpenIndex > 0 || applicationTypeOpenIndex === -1) && <BeforeOpen applicationTypeOpenIndex={applicationTypeOpenIndex} />}
+        {applicationTypeOpenIndex !== -1 && <>
+            <div key={`application_type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => applicationTypeOpenIndex === index ? setApplicationTypeOpenIndex(-1) : setApplicationTypeOpenIndex(index)}>
+                    {application_type.name}
+                </Typography>
+                <div key={`application_type-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: applicationTypeOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setApplicationTypeOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={(e) => {
+                        let newApplicationTypes = [...formConfig.state.application_types];
+                        let nextId = application_type.id + 1;
+                        let allUsedIds = [];
+                        for (let i = 0; i < formConfig.state.application_types.length; i++) {
+                            if (!isNaN(formConfig.state.application_types[i].id)) {
+                                allUsedIds.push(Number(formConfig.state.application_types[i].id));
+                            }
+                        }
+                        allUsedIds = allUsedIds.sort((a, b) => a - b);
+                        for (let i = 0; i < allUsedIds.length; i++) {
+                            if (allUsedIds[i] > application_type.id) {
+                                if (allUsedIds[i] === nextId) {
+                                    nextId += 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        setApplicationTypeOpenIndex(index + 1);
+                        newApplicationTypes.splice(index + 1, 0, { id: nextId, order_id: application_type.order_id + 1, name: "", color: "" });
+                        formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length >= 10} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newApplicationTypes = [...formConfig.state.application_types];
+                        newApplicationTypes.splice(index, 1);
+                        formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                        setApplicationTypeOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.application_types.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newApplicationTypes = [...formConfig.state.application_types];
+                            newApplicationTypes[index] = newApplicationTypes[index - 1];
+                            newApplicationTypes[index - 1] = application_type;
+                            formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                            if (applicationTypeOpenIndex !== -1) setApplicationTypeOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= formConfig.state.application_types.length - 2) {
+                            let newApplicationTypes = [...formConfig.state.application_types];
+                            newApplicationTypes[index] = newApplicationTypes[index + 1];
+                            newApplicationTypes[index + 1] = application_type;
+                            formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                            if (applicationTypeOpenIndex !== -1) setApplicationTypeOpenIndex(index + 1);
+                        }
+                    }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+            <ApplicationTypeForm key={`application_type-input-div-${index}`} theme={theme} application_type={application_type} perms={formConfig.state.perms} onUpdate={(item) => {
+                if (item.isPerms) {
+                    formConfig.setState({ ...formConfig.state, perms: item.newPerms });
+                    return;
+                }
+                let newApplicationTypes = [...formConfig.state.application_types];
+                newApplicationTypes[index] = item;
+                formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+            }} />
+        </>}
+        {applicationTypeOpenIndex !== -1 && applicationTypeOpenIndex < formConfig.state.application_types.length - 1 && <AfterOpen applicationTypeOpenIndex={applicationTypeOpenIndex} />}
+    </>;
+});
+
 const DivisionForm = ({ theme, division, onUpdate }) => {
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
         <Grid item xs={6} md={3}>
@@ -1763,7 +2089,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect isMulti={false} initialRoles={[division.role_id]} onUpdate={(newRole) => onUpdate({ ...division, role_id: newRole })} label="Driver Role" />
+            <RoleSelect isMulti={false} initialRoles={[division.role_id]} onUpdate={(newRole) => onUpdate({ ...division, role_id: newRole })} label="Driver Role" style={{ marginBottom: '16px' }} />
         </Grid>
         <Grid item xs={6} md={3}>
             <TextField select
@@ -1789,7 +2115,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
             />
         </Grid>
         <Grid item xs={12} md={6}>
-            <RoleSelect initialRoles={division.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...division, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" />
+            <RoleSelect initialRoles={division.staff_role_ids} onUpdate={(newRoles) => onUpdate({ ...division, staff_role_ids: newRoles.map((role) => (role.id)) })} label="Staff Roles" style={{ marginBottom: '16px' }} />
         </Grid>
         <Grid item xs={12} md={4}>
             <TextField
@@ -1798,7 +2124,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={division.message}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, message: e.target.value }); }}
+                onChange={(e) => { onUpdate({ ...division, message: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
@@ -1935,6 +2261,7 @@ const Configuration = () => {
     };
     const [roleOpenIndex, setRoleOpenIndex] = useState(-1);
     const [rankOpenIndex, setRankOpenIndex] = useState(-1);
+    const [applicationTypeOpenIndex, setApplicationTypeOpenIndex] = useState(-1);
 
     const [mfaOtp, setMfaOtp] = useState("");
 
@@ -2405,6 +2732,28 @@ const Configuration = () => {
                                                 <ButtonGroup fullWidth>
                                                     <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
                                                     <Button variant="contained" color="success" onClick={() => { saveFormConfig("announcement"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Collapse>}
+                            </>}
+
+                            {vars.dhconfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(10)}>
+                                <div style={{ flexGrow: 1 }}>Application</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[10] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                                {formSectionRender[10] && <Collapse in={formSectionOpen[10]}>
+                                    <MemoApplicationTypeForm theme={theme} formConfig={formConfig[10]} applicationTypeOpenIndex={applicationTypeOpenIndex} setApplicationTypeOpenIndex={setApplicationTypeOpenIndex} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("application"); }} disabled={apiConfigDisabled}>Save</Button>
                                                 </ButtonGroup>
                                             </Grid>
                                         </Grid>
