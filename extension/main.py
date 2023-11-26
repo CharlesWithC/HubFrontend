@@ -357,8 +357,12 @@ async def updatePatreon(domain: str, code: str, request: Request, response: Resp
 
     user_json = user_response.json()
     patreon_id = user_json['data']['id']
-    patreon_name = user_json['data']['attributes']['full_name']
-    patreon_email = user_json['data']['attributes']['email']
+    patreon_name = "Unknown"
+    patreon_email = "/"
+    if "full_name" in user_json['data']['attributes'].keys():
+        patreon_name = user_json['data']['attributes']['full_name']
+    if "email" in user_json['data']['attributes'].keys():
+        patreon_email = user_json['data']['attributes']['email']
 
     ucur.execute("UPDATE users SET patreon_id = NULL WHERE patreon_id = ?", (patreon_id, ))
     ucur.execute(f"SELECT uid FROM users WHERE uid = {uid} AND abbr = '{abbr}'")

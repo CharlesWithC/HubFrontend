@@ -1069,9 +1069,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const [badges, setBadges] = useState([]);
     useEffect(() => {
+        let newBadges = [];
+        let newBadgeNames = [];
         if (Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
-            let newBadges = [];
-            let newBadgeNames = [];
             for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
                 let sr = vars.specialRolesMap[vars.userInfo.discordid][i];
                 let badge = null;
@@ -1107,10 +1107,31 @@ const Settings = ({ defaultTab = 0 }) => {
                 if (badge !== null && !newBadgeNames.includes(badgeName)) {
                     newBadges.push(badge);
                     newBadgeNames.push(badgeName);
-                    setBadges(newBadges);
                 }
             }
         }
+        
+        let tiers = ["platinum", "gold", "silver", "bronze"];
+        for (let i = 0; i < tiers.length; i++) {
+            for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
+                let patron = vars.patrons[tiers[i]][j];
+                if (patron.abbr === vars.dhconfig.abbr && patron.uid === vars.userInfo.uid) {
+                    let badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title="Supporter"
+                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                        <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
+                    </Tooltip>;
+                    let badgeName = "supporter";
+                    if (badge !== null && !newBadgeNames.includes(badgeName)) {
+                        newBadges.push(badge);
+                        newBadgeNames.push(badgeName);
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        setBadges(newBadges);
     }, []);
 
     useEffect(() => {

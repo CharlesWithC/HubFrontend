@@ -2121,7 +2121,6 @@ const Configuration = () => {
                 for (let j = 0; j < section_keys.length; j++) {
                     partialConfig[section_keys[j]] = _apiConfig.config[section_keys[j]];
                 }
-                console.log(partialConfig);
                 if (sections[i] === "rank") {
                     partialConfig = { ranks: partialConfig.rank_types && partialConfig.rank_types.length > 0 ? partialConfig.rank_types[0].details : [] };
                 }
