@@ -252,10 +252,14 @@ export const loadImageAsBase64 = async (imageUrl, fallback = "") => {
             responseType: 'blob' // Set the response type to blob
         });
 
-        if (response.status === 404 && fallback !== "") {
-            response = await customAxios.get(fallback, {
-                responseType: 'blob' // Set the response type to blob
-            });
+        if (response.status === 404) {
+            if (fallback !== "") {
+                response = await customAxios.get(fallback, {
+                    responseType: 'blob' // Set the response type to blob
+                });
+            } else {
+                throw new Error('Image not found');
+            }
         }
 
         const blob = response.data;
