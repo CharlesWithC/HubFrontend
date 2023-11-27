@@ -46,7 +46,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npm run sentry:sourcemaps",
+    "build": "react-scripts build",
     "postbuild": "bash ./scripts/post-build.sh",
     "fast": "react-scripts build && serve -s build --port 3001",
     "test": "react-scripts test",
