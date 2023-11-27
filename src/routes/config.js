@@ -7,7 +7,7 @@ import CreatableSelect from 'react-select/creatable';
 import { customSelectStyles } from '../designs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench } from '@fortawesome/free-solid-svg-icons';
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
@@ -848,7 +848,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                         setRoleOpenIndex(index + 1);
                         newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "New Role", color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newRoles = [...formConfig.state.roles];
                         newRoles.splice(index, 1);
@@ -918,7 +918,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                         setRoleOpenIndex(index + 1);
                         newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newRoles = [...formConfig.state.roles];
                         newRoles.splice(index, 1);
@@ -1347,7 +1347,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                         setRankOpenIndex(index + 1);
                         newRanks.splice(index + 1, 0, { id: nextId, points: 0, name: "New Rank", color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newRanks = [...formConfig.state.ranks];
                         newRanks.splice(index, 1);
@@ -1417,7 +1417,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                         setRankOpenIndex(index + 1);
                         newRanks.splice(index + 1, 0, { id: nextId, order_id: rank.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newRanks = [...formConfig.state.ranks];
                         newRanks.splice(index, 1);
@@ -1444,11 +1444,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                     }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
-            <RankForm key={`rank-input-div-${index}`} theme={theme} rank={rank} perms={formConfig.state.perms} onUpdate={(item) => {
-                if (item.isPerms) {
-                    formConfig.setState({ ...formConfig.state, perms: item.newPerms });
-                    return;
-                }
+            <RankForm key={`rank-input-div-${index}`} theme={theme} rank={rank} onUpdate={(item) => {
                 let newRanks = [...formConfig.state.ranks];
                 newRanks[index] = item;
                 formConfig.setState({ ...formConfig.state, ranks: newRanks });
@@ -1740,7 +1736,362 @@ const MemoAnnouncementTypeForm = memo(({ theme, formConfig }) => {
         }</>;
 });
 
+const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
+    if (form_item.type === "info") {
+        if (form_item.text === undefined) form_item.text = "";
+    } else {
+        if (form_item.label === undefined) form_item.label = "";
+        if (form_item.type === "text" || form_item.type === "textarea") {
+            if (form_item.min_length === undefined) form_item.min_length = 0;
+            if (form_item.placeholder === undefined) form_item.placeholder = "";
+            if (form_item.type === "textarea") {
+                if (form_item.rows === undefined) form_item.min_length = 3;
+            }
+        }
+        else if (form_item.type === "dropdown" || form_item.type === "radio" || form_item.type === "checkbox") {
+            if (form_item.choices === undefined) form_item.choices = [];
+        }
+    }
+    return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+        <Grid item xs={12} md={4}>
+            <TextField select size="small"
+                style={{ marginBottom: '16px' }}
+                label="Type"
+                variant="outlined"
+                fullWidth
+                value={form_item.type}
+                onChange={(e) => { onUpdate({ ...form_item, type: e.target.value }); }}
+            >
+                <MenuItem value="info">Information</MenuItem>
+                <MenuItem value="text">Short answer</MenuItem>
+                <MenuItem value="textarea">Paragraph</MenuItem>
+                <MenuItem value="number">Number</MenuItem>
+                <MenuItem value="datetime">Date time</MenuItem>
+                <MenuItem value="date">Date</MenuItem>
+                <MenuItem value="dropdown">Dropdown</MenuItem>
+                <MenuItem value="radio">Multiple choice</MenuItem>
+                <MenuItem value="checkbox">Checkboxes</MenuItem>
+            </TextField>
+        </Grid>
+        {form_item.type === "info" && <>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Text"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.text}
+                    rows={3}
+                    onChange={(e) => { onUpdate({ ...form_item, text: e.target.value }); }}
+                />
+            </Grid>
+        </>}
+        {form_item.type === "text" && <>
+            <Grid item xs={12} md={4}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Minimum Characters"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.min_length}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_length: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Question"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.label}
+                    onChange={(e) => { onUpdate({ ...form_item, label: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Placeholder"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.placeholder}
+                    onChange={(e) => { onUpdate({ ...form_item, placeholder: e.target.value }); }}
+                />
+            </Grid>
+        </>}
+        {form_item.type === "textarea" && <>
+            <Grid item xs={6} md={4}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Answer Rows"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.rows}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, rows: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={6} md={4}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Minimum Characters"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.min_length}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_length: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Question"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.label}
+                    onChange={(e) => { onUpdate({ ...form_item, label: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Placeholder"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.placeholder}
+                    onChange={(e) => { onUpdate({ ...form_item, placeholder: e.target.value }); }}
+                />
+            </Grid>
+        </>}
+
+        {form_item.type === "number" && <>
+            <Grid item xs={12} md={4}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Min Value"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.min_value}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_value: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={12} md={4}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Max Value"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.max_value}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, max_value: e.target.value }); }}
+                />
+            </Grid>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Question"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.label}
+                    onChange={(e) => { onUpdate({ ...form_item, label: e.target.value }); }}
+                />
+            </Grid>
+        </>}
+        {(form_item.type === "date" || form_item.type === "datetime" || form_item.type === "dropdown" || form_item.type === "radio" || form_item.type === "checkbox") && <>
+            <Grid item xs={12} md={12}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Question"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.label}
+                    onChange={(e) => { onUpdate({ ...form_item, label: e.target.value }); }}
+                />
+            </Grid>
+        </>}
+        {(form_item.type === "dropdown" || form_item.type === "radio" || form_item.type === "checkbox") && <>
+            <Grid item xs={12} md={12} sx={{ marginBottom: "8px" }}>
+                <Typography xs={12} variant="body2">
+                    Choices
+                </Typography>
+                <CreatableSelect
+                    isMulti
+                    name="colors"
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    styles={customSelectStyles(theme)}
+                    value={form_item.choices.map((choice) => ({ value: choice, label: choice }))}
+                    onChange={(newChoices) => {
+                        onUpdate({
+                            ...form_item,
+                            choices: newChoices.map((item) => item.value),
+                        });
+                    }}
+                    menuPortalTarget={document.body}
+                />
+            </Grid>
+        </>}
+        <Grid item xs={12}>
+            <FormControlLabel
+                control={<Checkbox checked={form_item.x_must_be !== undefined} onChange={() => {
+                    if (form_item.x_must_be === undefined) { onUpdate({ ...form_item, x_must_be: { label: "", value: "" } }); }
+                    else { onUpdate({ ...form_item, x_must_be: undefined }); }
+                }} />}
+                label="Display condition (Based on answer to specific question)"
+                size="small"
+                style={{ marginTop: '-8px' }}
+            />
+        </Grid>
+        {form_item.x_must_be !== undefined && <>
+            <Grid item xs={12} md={6}>
+                <TextField select size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Question"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.x_must_be.label}
+                    onChange={(e) => { onUpdate({ ...form_item, x_must_be: { ...form_item.x_must_be, label: e.target.value } }); }}
+                >
+                    {allLabels.map((label) => (<MenuItem value={label}>{label}</MenuItem>))}
+                </TextField>
+            </Grid>
+            <Grid item xs={12} md={6}>
+                <TextField size="small"
+                    style={{ marginBottom: '16px' }}
+                    label="Answer"
+                    variant="outlined"
+                    fullWidth
+                    value={form_item.x_must_be.value}
+                    onChange={(e) => { onUpdate({ ...form_item, x_must_be: { ...form_item.x_must_be, value: e.target.value } }); }}
+                />
+            </Grid>
+        </>}
+    </Grid>;
+};
+
+const MemoApplicationFormForm = memo(({ theme, form, updateForm, openIndex, setOpenIndex }) => {
+    const TYPE_NAME = { "info": "Information", "text": "Short answer", "textarea": "Paragraph", "number": "Number", "datetime": "Date time", "date": "Date", "dropdown": "Dropdown", "radio": "Multiple choice", "checkbox": "Checkboxes" };
+    if (form.length === 0) {
+        return <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                No Form Question - Create + to create one
+            </Typography>
+            <IconButton variant="contained" color="success" onClick={() => {
+                updateForm([{ "type": "info", "text": "Welcome to application form" }]);
+            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+        </div>;
+    };
+    const ApplicationFormItem = memo(({ form_item, index }) => {
+        return <>
+            <div key={`applicatio-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: form_item.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
+                    {TYPE_NAME[form_item.type]}
+                </Typography>
+                <div key={`form_item-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        let newForm = [...form];
+                        setOpenIndex(index + 1);
+                        newForm.splice(index + 1, 0, {
+                            type: "text",
+                            text: "New Question"
+                        });
+                        updateForm(newForm);
+                    }}><FontAwesomeIcon icon={faPlus} disabled={form.length} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newForm = [...form];
+                        newForm.splice(index, 1);
+                        updateFOrm(newForm);
+                        setOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={form.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newForm = [...form];
+                            newForm[index] = newForm[index - 1];
+                            newForm[index - 1] = form_item;
+                            updateForm(newForm);
+                            if (openIndex === index) setOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= form.length - 2) {
+                            let newForm = [...form];
+                            newForm[index] = newForm[index + 1];
+                            newForm[index + 1] = form_item;
+                            updateForm(newForm);
+                            if (openIndex === index) setOpenIndex(index + 1);
+                        }
+                    }} disabled={index === form.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+        </>;
+    });
+    const BeforeOpen = memo(({ openIndex }) =>
+        (<>{form.map((form_item, index) => ((index < openIndex || openIndex === -1) && <ApplicationFormItem form_item={form_item} index={index} />))}</>)
+    );
+    const AfterOpen = memo(({ openIndex }) =>
+        (<>{form.map((form_item, index) => ((index > openIndex && openIndex !== -1) && <ApplicationFormItem form_item={form_item} index={index} />))}</>)
+    );
+    let form_item = form[openIndex];
+    let index = openIndex;
+    return <>
+        {(openIndex > 0 || openIndex === -1) && <BeforeOpen openIndex={openIndex} />}
+        {openIndex !== -1 && <>
+            <div key={`form_item-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: form_item.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
+                    {TYPE_NAME[form_item.type]}
+                </Typography>
+                <div key={`form_item-control-div-${index}`}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
+                        <ExpandMoreRounded />
+                    </IconButton>
+                    <IconButton variant="contained" color="success" onClick={(e) => {
+                        let newForm = [...form];
+                        setOpenIndex(index + 1);
+                        newForm.splice(index + 1, 0, {
+                            type: "text",
+                            text: "New Question"
+                        });
+                        updateForm(newForm);
+                    }}><FontAwesomeIcon icon={faPlus} disabled={form.length} /></IconButton>
+                    <IconButton variant="contained" color="error" onClick={() => {
+                        let newForm = [...form];
+                        newForm.splice(index, 1);
+                        updateFOrm(newForm);
+                        setOpenIndex(-1);
+                    }}><FontAwesomeIcon icon={faMinus} disabled={form.length <= 1} /></IconButton>
+                    <IconButton variant="contained" color="info" onClick={() => {
+                        if (index >= 1) {
+                            let newForm = [...form];
+                            newForm[index] = newForm[index - 1];
+                            newForm[index - 1] = form_item;
+                            updateForm(newForm);
+                            if (openIndex === index) setOpenIndex(index - 1);
+                        }
+                    }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                    <IconButton variant="contained" color="warning" onClick={() => {
+                        if (index <= form.length - 2) {
+                            let newForm = [...form];
+                            newForm[index] = newForm[index + 1];
+                            newForm[index + 1] = form_item;
+                            updateForm(newForm);
+                            if (openIndex === index) setOpenIndex(index + 1);
+                        }
+                    }} disabled={index === form.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                </div>
+            </div>
+            <ApplicationFormForm key={`application-form-input-div-${index}`} theme={theme} form_item={form_item} allLabels={form.filter((form_item) => form_item.label !== undefined).map((form_item) => form_item.label)} onUpdate={(item) => {
+                let newForm = [...form];
+                newForm[index] = item;
+                updateForm(newForm);
+            }} />
+        </>}
+        {openIndex !== -1 && openIndex < form.length - 1 && <AfterOpen openIndex={openIndex} />}
+    </>;
+});
+
 const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
+    const [formModalOpen, setFormModalOpen] = useState(false);
+    const [form, setForm] = useState(application_type.form !== undefined ? application_type.form : []);
+    const [openIndex, setOpenIndex] = useState(-1);
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
         <Grid item xs={6} md={3}>
             <TextField
@@ -1888,6 +2239,34 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 onChange={(e) => { onUpdate({ ...application_type, webhook_url: e.target.value }); }}
             />
         </Grid>
+        <Grid item xs={12}>
+            <Grid item xs={12}>
+                <Grid container>
+                    <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                    <Grid item xs={12} sm={6} md={4} lg={2}>
+                        <Button variant="contained" color="primary" onClick={(e) => { e.preventDefault(); setFormModalOpen(true); }} startIcon={<FontAwesomeIcon icon={faWrench} />} fullWidth>Open Form Builder</Button>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Dialog open={formModalOpen} onClose={() => { setFormModalOpen(false); }} fullWidth>
+                <DialogTitle>
+                    <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
+                        <FontAwesomeIcon icon={faWrench} />&nbsp;&nbsp;Form Builder
+                    </Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <MemoApplicationFormForm theme={theme} form={form} updateForm={setForm} openIndex={openIndex} setOpenIndex={setOpenIndex}></MemoApplicationFormForm>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setFormModalOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
+                        Close
+                    </Button>
+                    <Button onClick={() => { onUpdate({ ...application_type, form: form }); setFormModalOpen(false); }} variant="contained" color="success" sx={{ ml: 'auto' }}>
+                        Save
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Grid>
     </Grid>;
 };
 
@@ -1921,11 +2300,11 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
     };
     const ApplicationTypeItem = memo(({ application_type, index }) => {
         return <>
-            <div key={`application_type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+            <div key={`application-type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => applicationTypeOpenIndex === index ? setApplicationTypeOpenIndex(-1) : setApplicationTypeOpenIndex(index)}>
                     {application_type.name}
                 </Typography>
-                <div key={`application_type-control-div-${index}`}>
+                <div key={`application-type-control-div-${index}`}>
                     <IconButton style={{ transition: 'transform 0.2s', transform: applicationTypeOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setApplicationTypeOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
@@ -1955,7 +2334,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                             name: "New Application Type",
                         });
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newApplicationTypes = [...formConfig.state.application_types];
                         newApplicationTypes.splice(index, 1);
@@ -1995,11 +2374,11 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
     return <>
         {(applicationTypeOpenIndex > 0 || applicationTypeOpenIndex === -1) && <BeforeOpen applicationTypeOpenIndex={applicationTypeOpenIndex} />}
         {applicationTypeOpenIndex !== -1 && <>
-            <div key={`application_type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
+            <div key={`application-type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
                 <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => applicationTypeOpenIndex === index ? setApplicationTypeOpenIndex(-1) : setApplicationTypeOpenIndex(index)}>
                     {application_type.name}
                 </Typography>
-                <div key={`application_type-control-div-${index}`}>
+                <div key={`application-type-control-div-${index}`}>
                     <IconButton style={{ transition: 'transform 0.2s', transform: applicationTypeOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setApplicationTypeOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
@@ -2025,7 +2404,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                         setApplicationTypeOpenIndex(index + 1);
                         newApplicationTypes.splice(index + 1, 0, { id: nextId, order_id: application_type.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length >= 10} /></IconButton>
+                    }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newApplicationTypes = [...formConfig.state.application_types];
                         newApplicationTypes.splice(index, 1);
@@ -2052,11 +2431,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                     }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
-            <ApplicationTypeForm key={`application_type-input-div-${index}`} theme={theme} application_type={application_type} perms={formConfig.state.perms} onUpdate={(item) => {
-                if (item.isPerms) {
-                    formConfig.setState({ ...formConfig.state, perms: item.newPerms });
-                    return;
-                }
+            <ApplicationTypeForm key={`application-type-input-div-${index}`} theme={theme} application_type={application_type} onUpdate={(item) => {
                 let newApplicationTypes = [...formConfig.state.application_types];
                 newApplicationTypes[index] = item;
                 formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
@@ -2964,4 +3339,4 @@ const Configuration = () => {
     );
 };
 
-export default Configuration;
+export default Configuration;;

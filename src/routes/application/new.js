@@ -60,7 +60,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
     for (let i = 0; i < config.length; i++) {
         if (config[i].type !== "info") {
             defaultResp[config[i].label] = "";
-            if (config[i].x_must_be !== undefined && config[i].x_must_be.label !== undefined && config[i].x_must_be.value !== undefined) {
+            if (config[i].x_must_be !== undefined && config[i].x_must_be.label !== undefined && config[i].x_must_be.value !== undefined && config[i].x_must_be.label !== "" && config[i].x_must_be.value !== "") {
                 fieldReq[config[i].label] = { ...fieldReq[config[i].label], x_must_be: config[i].x_must_be };
             }
             if (["text", "textarea"].includes(config[i].type)) {
