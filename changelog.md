@@ -10,6 +10,8 @@
 6. Added custom image background (vtc)
 7. Added highest-role-color as name-color (special guest)
 8. Added row-per-page settings
+9. Added premium features (vtc theme / background)
+10. Added patreon integration
 
 ## v3.1.0
 

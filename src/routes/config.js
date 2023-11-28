@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
-import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider } from '@mui/material';
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider, Divider } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 import Select from 'react-select';
@@ -65,9 +65,12 @@ const LANGUAGES = {
     'zh': 'Chinese (中文)'
 };
 
-const CONFIG_SECTIONS = { "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"] };
+const CONFIG_SECTIONS = {
+    "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"], "discord-member": ["member_accept", "member_leave", "driver_role_add", "driver_role_remove", "rank_up"], "discord-other": ["announcement_forwarding", "challenge_forwarding", "challenge_completed_forwarding", "downloads_forwarding", "event_forwarding", "event_upcoming_forwarding", "poll_forwarding"
+    ]
+};
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
@@ -804,7 +807,9 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
     </Grid>;
 };
 
-const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex }) => {
+const MemoRoleForm = memo(({ theme, formConfig }) => {
+    const [openIndex, setOpenIndex] = useState(-1);
+
     if (formConfig.state.roles.length === 0) {
         return <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
@@ -819,11 +824,11 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
     const RoleItem = memo(({ role, index }) => {
         return <>
             <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: role.color }} onClick={() => roleOpenIndex === index ? setRoleOpenIndex(-1) : setRoleOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: role.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
                     {role.name}
                 </Typography>
                 <div key={`role-control-div-${index}`}>
-                    <IconButton style={{ transition: 'transform 0.2s', transform: roleOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRoleOpenIndex(index)}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={() => {
@@ -845,7 +850,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                                 }
                             }
                         }
-                        setRoleOpenIndex(index + 1);
+                        setOpenIndex(index + 1);
                         newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "New Role", color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length} /></IconButton>
@@ -853,7 +858,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                         let newRoles = [...formConfig.state.roles];
                         newRoles.splice(index, 1);
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
-                        setRoleOpenIndex(-1);
+                        setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.roles.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
                         if (index >= 1) {
@@ -861,7 +866,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                             newRoles[index] = newRoles[index - 1];
                             newRoles[index - 1] = role;
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
-                            if (roleOpenIndex === index) setRoleOpenIndex(index - 1);
+                            if (openIndex === index) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
@@ -870,30 +875,30 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                             newRoles[index] = newRoles[index + 1];
                             newRoles[index + 1] = role;
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
-                            if (roleOpenIndex === index) setRoleOpenIndex(index + 1);
+                            if (openIndex === index) setOpenIndex(index + 1);
                         }
                     }} disabled={index === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
     });
-    const BeforeOpen = memo(({ roleOpenIndex }) =>
-        (<>{formConfig.state.roles.map((role, index) => ((index < roleOpenIndex || roleOpenIndex === -1) && <RoleItem role={role} index={index} />))}</>)
+    const BeforeOpen = memo(({ openIndex }) =>
+        (<>{formConfig.state.roles.map((role, index) => ((index < openIndex || openIndex === -1) && <RoleItem role={role} index={index} />))}</>)
     );
-    const AfterOpen = memo(({ roleOpenIndex }) =>
-        (<>{formConfig.state.roles.map((role, index) => ((index > roleOpenIndex && roleOpenIndex !== -1) && <RoleItem role={role} index={index} />))}</>)
+    const AfterOpen = memo(({ openIndex }) =>
+        (<>{formConfig.state.roles.map((role, index) => ((index > openIndex && openIndex !== -1) && <RoleItem role={role} index={index} />))}</>)
     );
-    let role = formConfig.state.roles[roleOpenIndex];
-    let index = roleOpenIndex;
+    let role = formConfig.state.roles[openIndex];
+    let index = openIndex;
     return <>
-        {(roleOpenIndex > 0 || roleOpenIndex === -1) && <BeforeOpen roleOpenIndex={roleOpenIndex} />}
-        {roleOpenIndex !== -1 && <>
+        {(openIndex > 0 || openIndex === -1) && <BeforeOpen openIndex={openIndex} />}
+        {openIndex !== -1 && <>
             <div key={`role-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: role.color }} onClick={() => roleOpenIndex === index ? setRoleOpenIndex(-1) : setRoleOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: role.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
                     {role.name}
                 </Typography>
                 <div key={`role-control-div-${index}`}>
-                    <IconButton style={{ transition: 'transform 0.2s', transform: roleOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRoleOpenIndex(index)}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={(e) => {
@@ -915,7 +920,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                                 }
                             }
                         }
-                        setRoleOpenIndex(index + 1);
+                        setOpenIndex(index + 1);
                         newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length} /></IconButton>
@@ -923,7 +928,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                         let newRoles = [...formConfig.state.roles];
                         newRoles.splice(index, 1);
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
-                        setRoleOpenIndex(-1);
+                        setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.roles.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
                         if (index >= 1) {
@@ -931,7 +936,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                             newRoles[index] = newRoles[index - 1];
                             newRoles[index - 1] = role;
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
-                            if (roleOpenIndex !== -1) setRoleOpenIndex(index - 1);
+                            if (openIndex !== -1) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
@@ -940,7 +945,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                             newRoles[index] = newRoles[index + 1];
                             newRoles[index + 1] = role;
                             formConfig.setState({ ...formConfig.state, roles: newRoles });
-                            if (roleOpenIndex !== -1) setRoleOpenIndex(index + 1);
+                            if (openIndex !== -1) setOpenIndex(index + 1);
                         }
                     }} disabled={index === formConfig.state.roles.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
@@ -955,7 +960,7 @@ const MemoRoleForm = memo(({ theme, formConfig, roleOpenIndex, setRoleOpenIndex 
                 formConfig.setState({ ...formConfig.state, roles: newRoles });
             }} />
         </>}
-        {roleOpenIndex !== -1 && roleOpenIndex < formConfig.state.roles.length - 1 && <AfterOpen roleOpenIndex={roleOpenIndex} />}
+        {openIndex !== -1 && openIndex < formConfig.state.roles.length - 1 && <AfterOpen openIndex={openIndex} />}
     </>;
 });
 
@@ -1303,7 +1308,9 @@ const RankForm = ({ theme, rank, onUpdate }) => {
     </Grid>;
 };
 
-const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex }) => {
+const MemoRankForm = memo(({ theme, formConfig }) => {
+    const [openIndex, setOpenIndex] = useState(-1);
+
     if (formConfig.state.ranks.length === 0) {
         return <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
@@ -1318,11 +1325,11 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
     const RankItem = memo(({ rank, index }) => {
         return <>
             <div key={`rank-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexGrow: 1, color: rank.color }} onClick={() => rankOpenIndex === index ? setRankOpenIndex(-1) : setRankOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexGrow: 1, color: rank.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
                     {rank.name}
                 </Typography>
                 <div key={`rank-control-div-${index}`}>
-                    <IconButton style={{ transition: 'transform 0.2s', transform: rankOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRankOpenIndex(index)}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={() => {
@@ -1344,7 +1351,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                                 }
                             }
                         }
-                        setRankOpenIndex(index + 1);
+                        setOpenIndex(index + 1);
                         newRanks.splice(index + 1, 0, { id: nextId, points: 0, name: "New Rank", color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length} /></IconButton>
@@ -1352,7 +1359,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                         let newRanks = [...formConfig.state.ranks];
                         newRanks.splice(index, 1);
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                        setRankOpenIndex(-1);
+                        setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.ranks.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
                         if (index >= 1) {
@@ -1360,7 +1367,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                             newRanks[index] = newRanks[index - 1];
                             newRanks[index - 1] = rank;
                             formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                            if (rankOpenIndex === index) setRankOpenIndex(index - 1);
+                            if (openIndex === index) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
@@ -1369,30 +1376,30 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                             newRanks[index] = newRanks[index + 1];
                             newRanks[index + 1] = rank;
                             formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                            if (rankOpenIndex === index) setRankOpenIndex(index + 1);
+                            if (openIndex === index) setOpenIndex(index + 1);
                         }
                     }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
     });
-    const BeforeOpen = memo(({ rankOpenIndex }) =>
-        (<>{formConfig.state.ranks.map((rank, index) => ((index < rankOpenIndex || rankOpenIndex === -1) && <RankItem rank={rank} index={index} />))}</>)
+    const BeforeOpen = memo(({ openIndex }) =>
+        (<>{formConfig.state.ranks.map((rank, index) => ((index < openIndex || openIndex === -1) && <RankItem rank={rank} index={index} />))}</>)
     );
-    const AfterOpen = memo(({ rankOpenIndex }) =>
-        (<>{formConfig.state.ranks.map((rank, index) => ((index > rankOpenIndex && rankOpenIndex !== -1) && <RankItem rank={rank} index={index} />))}</>)
+    const AfterOpen = memo(({ openIndex }) =>
+        (<>{formConfig.state.ranks.map((rank, index) => ((index > openIndex && openIndex !== -1) && <RankItem rank={rank} index={index} />))}</>)
     );
-    let rank = formConfig.state.ranks[rankOpenIndex];
-    let index = rankOpenIndex;
+    let rank = formConfig.state.ranks[openIndex];
+    let index = openIndex;
     return <>
-        {(rankOpenIndex > 0 || rankOpenIndex === -1) && <BeforeOpen rankOpenIndex={rankOpenIndex} />}
-        {rankOpenIndex !== -1 && <>
+        {(openIndex > 0 || openIndex === -1) && <BeforeOpen openIndex={openIndex} />}
+        {openIndex !== -1 && <>
             <div key={`rank-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: rank.color }} onClick={() => rankOpenIndex === index ? setRankOpenIndex(-1) : setRankOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: rank.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
                     {rank.name}
                 </Typography>
                 <div key={`rank-control-div-${index}`}>
-                    <IconButton style={{ transition: 'transform 0.2s', transform: rankOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setRankOpenIndex(index)}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={(e) => {
@@ -1414,7 +1421,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                                 }
                             }
                         }
-                        setRankOpenIndex(index + 1);
+                        setOpenIndex(index + 1);
                         newRanks.splice(index + 1, 0, { id: nextId, order_id: rank.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length} /></IconButton>
@@ -1422,7 +1429,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                         let newRanks = [...formConfig.state.ranks];
                         newRanks.splice(index, 1);
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                        setRankOpenIndex(-1);
+                        setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.ranks.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
                         if (index >= 1) {
@@ -1430,7 +1437,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                             newRanks[index] = newRanks[index - 1];
                             newRanks[index - 1] = rank;
                             formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                            if (rankOpenIndex !== -1) setRankOpenIndex(index - 1);
+                            if (openIndex !== -1) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
@@ -1439,7 +1446,7 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                             newRanks[index] = newRanks[index + 1];
                             newRanks[index + 1] = rank;
                             formConfig.setState({ ...formConfig.state, ranks: newRanks });
-                            if (rankOpenIndex !== -1) setRankOpenIndex(index + 1);
+                            if (openIndex !== -1) setOpenIndex(index + 1);
                         }
                     }} disabled={index === formConfig.state.ranks.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
@@ -1450,11 +1457,18 @@ const MemoRankForm = memo(({ theme, formConfig, rankOpenIndex, setRankOpenIndex 
                 formConfig.setState({ ...formConfig.state, ranks: newRanks });
             }} />
         </>}
-        {rankOpenIndex !== -1 && rankOpenIndex < formConfig.state.ranks.length - 1 && <AfterOpen rankOpenIndex={rankOpenIndex} />}
+        {openIndex !== -1 && openIndex < formConfig.state.ranks.length - 1 && <AfterOpen openIndex={openIndex} />}
     </>;
 });
 
 const DiscordEmbedForm = ({ embed, onUpdate }) => {
+    if (embed.author === undefined) embed.author = { name: "", icon_url: "" };
+    if (embed.footer === undefined) embed.footer = { text: "", icon_url: "" };
+    if (embed.thumbnail === undefined) embed.thumbnail = { url: "" };
+    if (embed.image === undefined) embed.image = { url: "" };
+    if (embed.video === undefined) embed.video = { url: "" };
+    if (embed.fields === undefined) embed.fields = [];
+
     const handleFieldChange = (index, field) => {
         const newFields = [...embed.fields];
         newFields[index] = field;
@@ -1464,7 +1478,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
     return (
         <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField size="small"
                     label="Title"
                     variant="outlined"
                     fullWidth
@@ -1473,7 +1487,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField size="small"
                     label="URL"
                     variant="outlined"
                     fullWidth
@@ -1482,7 +1496,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12}>
-                <TextField
+                <TextField size="small"
                     label="Description"
                     variant="outlined"
                     fullWidth
@@ -1493,7 +1507,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField size="small"
                     label="Author Name"
                     variant="outlined"
                     fullWidth
@@ -1502,7 +1516,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField size="small"
                     label="Author Icon URL"
                     variant="outlined"
                     fullWidth
@@ -1511,7 +1525,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField size="small"
                     label="Footer Text"
                     variant="outlined"
                     fullWidth
@@ -1520,7 +1534,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={6}>
-                <TextField
+                <TextField size="small"
                     label="Footer Icon URL"
                     variant="outlined"
                     fullWidth
@@ -1529,7 +1543,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField size="small"
                     label="Thumbnail URL"
                     variant="outlined"
                     fullWidth
@@ -1538,7 +1552,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField size="small"
                     label="Image URL"
                     variant="outlined"
                     fullWidth
@@ -1547,7 +1561,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12} sm={4}>
-                <TextField
+                <TextField size="small"
                     label="Video URL"
                     variant="outlined"
                     fullWidth
@@ -1556,56 +1570,58 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                 />
             </Grid>
             <Grid item xs={12}>
-                <TextField
+                <TextField size="small"
                     label="Color"
                     variant="outlined"
                     fullWidth
-                    value={"#" + parseInt(embed.color, 16)}
+                    defaultValue={!isNaN(parseInt(embed.color, 16)) ? "#" + parseInt(embed.color, 16) : ""}
                     onChange={(e) => onUpdate({ ...embed, color: parseInt("0x" + e.target.value.replaceAll("#", "")) })}
                 />
             </Grid>
             <Grid item xs={12}>
-                <FormControlLabel
+                <FormControlLabel size="small"
                     control={<Checkbox checked={embed.timestamp} onChange={(e) => onUpdate({ ...embed, timestamp: e.target.checked })} />}
                     label="Include Timestamp"
                 />
             </Grid>
             {embed.fields.map((field, index) => (
                 <Grid item xs={12} key={index}>
-                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
-                        Field #{index + 1}
-                    </Typography>
-                    <div>
-                        <IconButton variant="contained" color="success" onClick={() => {
-                            let newFields = [...embed.fields];
-                            newFields.splice(index + 1, 0, { "name": "New Field", "value": "", "inline": true });
-                            onUpdate({ ...embed, fields: newFields });
-                        }}><FontAwesomeIcon icon={faPlus} disabled={embed.fields.length >= 9} /></IconButton>
-                        <IconButton variant="contained" color="error" onClick={() => {
-                            let newFields = [...embed.fields];
-                            newFields.splice(index, 1);
-                            onUpdate({ ...embed, fields: newFields });
-                        }}><FontAwesomeIcon icon={faMinus} disabled={embed.fields.length <= 1} /></IconButton>
-                        <IconButton variant="contained" color="info" onClick={() => {
-                            if (index >= 1) {
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                            Field #{index + 1}
+                        </Typography>
+                        <div>
+                            <IconButton variant="contained" color="success" onClick={() => {
                                 let newFields = [...embed.fields];
-                                newFields[index] = newFields[index - 1];
-                                newFields[index - 1] = tracker;
+                                newFields.splice(index + 1, 0, { "name": "New Field", "value": "", "inline": true });
                                 onUpdate({ ...embed, fields: newFields });
-                            }
-                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
-                        <IconButton variant="contained" color="warning" onClick={() => {
-                            if (index <= embed.fields.length - 2) {
+                            }}><FontAwesomeIcon icon={faPlus} disabled={embed.fields.length >= 9} /></IconButton>
+                            <IconButton variant="contained" color="error" onClick={() => {
                                 let newFields = [...embed.fields];
-                                newFields[index] = newFields[index + 1];
-                                newFields[index + 1] = tracker;
+                                newFields.splice(index, 1);
                                 onUpdate({ ...embed, fields: newFields });
-                            }
-                        }} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                            }}><FontAwesomeIcon icon={faMinus} disabled={embed.fields.length <= 1} /></IconButton>
+                            <IconButton variant="contained" color="info" onClick={() => {
+                                if (index >= 1) {
+                                    let newFields = [...embed.fields];
+                                    newFields[index] = newFields[index - 1];
+                                    newFields[index - 1] = tracker;
+                                    onUpdate({ ...embed, fields: newFields });
+                                }
+                            }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                            <IconButton variant="contained" color="warning" onClick={() => {
+                                if (index <= embed.fields.length - 2) {
+                                    let newFields = [...embed.fields];
+                                    newFields[index] = newFields[index + 1];
+                                    newFields[index + 1] = tracker;
+                                    onUpdate({ ...embed, fields: newFields });
+                                }
+                            }} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                        </div>
                     </div>
-                    <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+                    <Grid container spacing={2}>
                         <Grid item xs={6}>
-                            <TextField
+                            <TextField size="small"
                                 label={`Name`}
                                 variant="outlined"
                                 fullWidth
@@ -1614,7 +1630,7 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                             />
                         </Grid>
                         <Grid item xs={6}>
-                            <TextField select
+                            <TextField select size="small"
                                 label={`Inline?`}
                                 variant="outlined"
                                 fullWidth
@@ -1630,8 +1646,8 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
                             </TextField>
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
-                                label={`Field ${index + 1} Value`}
+                            <TextField size="small"
+                                label="Value"
                                 variant="outlined"
                                 fullWidth
                                 value={field.value}
@@ -1644,6 +1660,278 @@ const DiscordEmbedForm = ({ embed, onUpdate }) => {
         </Grid>
     );
 };
+
+const DiscordMessageForm = memo(({ theme, item, onUpdate, roleChange = false, isPrivate = false, secondsAhead = false }) => {
+    return <>
+        <Grid item xs={6} md={4}>
+            <TextField size="small"
+                label="Discord Message"
+                variant="outlined"
+                fullWidth
+                value={item.message}
+                onChange={(e) => { onUpdate({ ...item, message: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField size="small"
+                label="Discord Channel ID"
+                variant="outlined"
+                fullWidth
+                value={item.channel_id}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...item, channel_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={4}>
+            <TextField size="small"
+                label="Discord Webhook (Alternative)"
+                variant="outlined"
+                fullWidth
+                value={item.webhook_url}
+                onChange={(e) => { onUpdate({ ...item, webhook_url: e.target.value }); }}
+            />
+        </Grid>
+        {roleChange && <Grid item xs={12} md={12}>
+            <Typography variant="body2">Discord Role Changes (+ID / -ID)</Typography>
+            <CreatableSelect
+                defaultValue={item.role_change.map((role) => ({ value: role, label: role }))}
+                isMulti
+                name="roles"
+                className="basic-multi-select"
+                classNamePrefix="select"
+                styles={customSelectStyles(theme)}
+                value={item.role_change.map((role) => ({ value: role, label: role }))}
+                onChange={(newRoles) => {
+                    onUpdate({
+                        ...item,
+                        role_change: newRoles.map((item) => item.value),
+                    });
+                }}
+                menuPortalTarget={document.body}
+            />
+        </Grid>}
+        {isPrivate && <Grid item xs={12}>
+            <TextField select size="small"
+                label="Content Control"
+                variant="outlined"
+                fullWidth
+                value={item.is_private}
+                onChange={(e) => { onUpdate({ ...item, is_private: e.target.value }); }}
+            >
+                <MenuItem value={null}>All Content</MenuItem>
+                <MenuItem value={true}>Only Private Content</MenuItem>
+                <MenuItem value={false}>Only Public Content</MenuItem>
+            </TextField>
+        </Grid>}
+        {secondsAhead && <Grid item xs={12}>
+            <TextField size="small"
+                label="Send the message X seconds before the convoy departs"
+                variant="outlined"
+                fullWidth
+                value={item.seconds_ahead}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...item, seconds_ahead: e.target.value }); }}
+            />
+        </Grid>}
+        <Grid item xs={12}>
+            {(item.embeds === undefined || item.embeds.length === 0) && <>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                        No embed - Create + to create one
+                    </Typography>
+                    <IconButton variant="contained" color="success" onClick={() => {
+                        onUpdate({ ...item, embeds: { title: "New Embed", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } });
+                    }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+                </div>
+            </>}
+            {item.embeds !== undefined && item.embeds.length >= 1 && <div style={{ marginBottom: "10px", backgroundColor: `${theme.palette.text.secondary.substring(0, 7)}11`, border: `1px solid ${theme.palette.text.secondary + "88"}`, borderRadius: "5px", padding: "10px" }}>
+                {item.embeds.map((embed, index) => (<>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px", flexGrow: 1 }}>
+                            Embed #{index + 1}
+                        </Typography>
+                        <div>
+                            <IconButton variant="contained" color="success" onClick={() => {
+                                let newEmbeds = [...item.embeds];
+                                newEmbeds.splice(index + 1, 0, { title: "New Embed", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } });
+                                onUpdate({ ...item, embeds: newEmbeds });
+                            }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+                            <IconButton variant="contained" color="error" onClick={() => {
+                                let newEmbeds = [...item.embeds];
+                                newEmbeds.splice(index, 1);
+                                onUpdate({ ...item, embeds: newEmbeds });
+                            }}><FontAwesomeIcon icon={faMinus} disabled={item.embeds.length <= 1} /></IconButton>
+                            <IconButton variant="contained" color="info" onClick={() => {
+                                if (index >= 1) {
+                                    let newEmbeds = [...item.embeds];
+                                    newEmbeds[index] = newEmbeds[index - 1];
+                                    newEmbeds[index - 1] = embed;
+                                    onUpdate({ ...item, embeds: newEmbeds });
+                                }
+                            }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                            <IconButton variant="contained" color="warning" onClick={() => {
+                                if (index <= item.embeds.length - 2) {
+                                    let newEmbeds = [...item.embeds];
+                                    newEmbeds[index] = newEmbeds[index + 1];
+                                    newEmbeds[index + 1] = embed;
+                                    onUpdate({ ...item, embeds: newEmbeds });
+                                }
+                            }} disabled={index === item.embeds.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                        </div>
+                    </div>
+                    <DiscordEmbedForm embed={embed} onUpdate={(newEmbed) => {
+                        let newEmbeds = [...item.embeds];
+                        if (newEmbed.author.name === "" && newEmbed.author.icon_url === "") delete newEmbed.author;
+                        if (newEmbed.footer.text === "" && newEmbed.footer.icon_url === "") delete newEmbed.footer;
+                        if (newEmbed.thumbnail.url === "") delete newEmbed.thumbnail;
+                        if (newEmbed.image.url === "") delete newEmbed.image;
+                        if (newEmbed.video.url === "") delete newEmbed.video;
+                        newEmbeds = newEmbeds.map((item, i) => {
+                            if (i === index) {
+                                return newEmbed;
+                            }
+                            return item;
+                        }
+                        );
+                        onUpdate({ ...item, embeds: newEmbeds });
+                    }
+                    } />
+                    {item.embeds.length !== index - 1 && <Divider />}
+                </>))}
+            </div>}
+        </Grid>
+    </>;
+});
+
+const MemoDiscordSingleForm = memo(({ theme, vars, formConfig, form_key, roleChange = false, isPrivate = false, secondsAhead = false }) => {
+    return <>
+        <Typography variant="body2" sx={{ mb: "5px" }}>
+            The following variables are available:<br />
+            {vars}
+        </Typography>
+        {formConfig.state[form_key].length === 0 && <>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
+                    No Message - Create + to create one
+                </Typography>
+                <IconButton variant="contained" color="success" onClick={() => {
+                    let newItems = [{ id: 1, message: "", channel_id: "", webhook_url: "", role_change: [], embed: { title: "", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } }];
+                    formConfig.setState({ ...formConfig.state, [form_key]: newItems });
+                }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+            </div>
+        </>}
+        {formConfig.state[form_key].length >= 1 && <>
+            {formConfig.state[form_key].map((item, index) => (<div style={{ marginBottom: "10px", border: `1px solid ${theme.palette.text.secondary + "88"}`, borderRadius: "5px", padding: "10px" }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ mb: "5px", flexGrow: 1 }}>
+                        Message #{index + 1}
+                    </Typography>
+                    <div>
+                        <IconButton variant="contained" color="success" onClick={() => {
+                            let newItems = [...formConfig.state[form_key]];
+                            let nextId = item.id + 1;
+                            let allUsedIds = [];
+                            for (let i = 0; i < formConfig.state[form_key].length; i++) {
+                                if (!isNaN(formConfig.state[form_key][i].id)) {
+                                    allUsedIds.push(Number(formConfig.state[form_key][i].id));
+                                }
+                            }
+                            allUsedIds = allUsedIds.sort((a, b) => a - b);
+                            for (let i = 0; i < allUsedIds.length; i++) {
+                                if (allUsedIds[i] > item.id) {
+                                    if (allUsedIds[i] === nextId) {
+                                        nextId += 1;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                            newItems.splice(index + 1, 0, { id: nextId, message: "", channel_id: "", webhook_url: "", role_change: [], embed: { title: "", url: "", description: "", color: 0, timestamp: false, fields: [], author: { name: "", icon_url: "" }, footer: { text: "", icon_url: "" }, thumbnail: { url: "" }, image: { url: "" }, video: { url: "" } } });
+                            formConfig.setState({ ...formConfig.state, [form_key]: newItems });
+                        }}><FontAwesomeIcon icon={faPlus} /></IconButton>
+                        <IconButton variant="contained" color="error" onClick={() => {
+                            let newItems = [...formConfig.state[form_key]];
+                            newItems.splice(index, 1);
+                            formConfig.setState({ ...formConfig.state, [form_key]: newItems });
+                        }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state[form_key].length <= 1} /></IconButton>
+                        <IconButton variant="contained" color="info" onClick={() => {
+                            if (index >= 1) {
+                                let newItems = [...formConfig.state[form_key]];
+                                newItems[index] = newItems[index - 1];
+                                newItems[index - 1] = item;
+                                formConfig.setState({ ...formConfig.state, [form_key]: newItems });
+                            }
+                        }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
+                        <IconButton variant="contained" color="warning" onClick={() => {
+                            if (index <= formConfig.state[form_key].length - 2) {
+                                let newItems = [...formConfig.state[form_key]];
+                                newItems[index] = newItems[index + 1];
+                                newItems[index + 1] = item;
+                                formConfig.setState({ ...formConfig.state, [form_key]: newItems });
+                            }
+                        }} disabled={index === formConfig.state[form_key].length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
+                    </div>
+                </div>
+                <Grid container spacing={2}>
+                    <DiscordMessageForm theme={theme} item={item} roleChange={roleChange} isPrivate={isPrivate} secondsAhead={secondsAhead} onUpdate={(newItem) => {
+                        let newItems = [...formConfig.state[form_key]];
+                        newItems[index] = newItem;
+                        formConfig.setState({ ...formConfig.state, [form_key]: newItems });
+                    }
+                    } />
+                </Grid>
+            </div>
+            ))
+            }</>
+        }
+    </>;
+});
+
+const MemoDiscordMemberForm = memo(({ theme, formConfig }) => {
+    const [openIndex, setOpenIndex] = useState(-1);
+    const ITEMS = { "member_accept": "Member Accept", "member_leave": "Member Leave", "driver_role_add": "Driver Role Added", "driver_role_remove": "Driver Role Removed", "rank_up": "Driver Ranked Up" };
+    const ROLE_CHANGE = [true, true, true, true, false];
+    const VARS = ["{mention}, {name}, {userid}, {uid}, {avatar}, {staff_mention}, {staff_name}, {staff_userid}, {staff_uid}, {staff_avatar}", "{mention}, {name}, {userid}, {uid}, {avatar}, {staff_mention}, {staff_name}, {staff_userid}, {staff_uid}, {staff_avatar}", "{mention}, {name}, {userid}, {uid}, {avatar}, {staff_mention}, {staff_name}, {staff_userid}, {staff_uid}, {staff_avatar}", "{mention}, {name}, {userid}, {uid}, {avatar}, {staff_mention}, {staff_name}, {staff_userid}, {staff_uid}, {staff_avatar}", "{mention}, {name}, {userid}, {rank}, {uid}, {avatar}"];
+    return <>
+        {Object.keys(ITEMS).map((key, index) => {
+            return <Grid item xs={12} key={index}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1 }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
+                        {ITEMS[key]}
+                    </Typography>
+                    <div>
+                        <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === key ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(key)}>
+                            <ExpandMoreRounded />
+                        </IconButton>
+                    </div>
+                </div>
+                {openIndex === index && <MemoDiscordSingleForm theme={theme} vars={VARS[index]} formConfig={formConfig} form_key={key} roleChange={ROLE_CHANGE[index]} />}
+            </Grid>;
+        })}
+    </>;
+});
+
+const MemoDiscordOtherForm = memo(({ theme, formConfig }) => {
+    const [openIndex, setOpenIndex] = useState(-1);
+    const ITEMS = { "announcement_forwarding": "New Announcement", "challenge_forwarding": "New Challenge", "challenge_completed_forwarding": "Completed Challenge", "downloads_forwarding": "New Downloadable Item", "event_forwarding": "New Event", "event_upcoming_forwarding": "Upcoming Event", "poll_forwarding": "Poll Forwarding" };
+    const VARS = ["{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {content}, {type}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {start_timestamp}, {end_timestamp}, {delivery_count}, {required_roles}, {required_distance}, {reward_points}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {earned_points}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}, {departure}, {destination}, {distance}, {meetup_timestamp}, {departure_timestamp}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}, {link}, {departure}, {destination}, {distance}, {meetup_timestamp}, {departure_timestamp}", "{mention}, {name}, {userid}, {uid}, {avatar}, {id}, {title}, {description}"];
+    return <>
+        {Object.keys(ITEMS).map((key, index) => {
+            if (!vars.dhconfig.plugins.includes(key.split("_")[0])) return <></>;
+            return <Grid item xs={12} key={index}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1 }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
+                        {ITEMS[key]}
+                    </Typography>
+                    <div>
+                        <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === key ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(key)}>
+                            <ExpandMoreRounded />
+                        </IconButton>
+                    </div>
+                </div>
+                {openIndex === index && <MemoDiscordSingleForm theme={theme} vars={VARS[index]} formConfig={formConfig} form_key={key} isPrivate={["announcement_forwarding", "event_forwarding", "event_upcoming_forwarding"].includes(key)} secondsAhead={["event_upcoming_forwarding"].includes(key)} />}
+            </Grid>;
+        })}
+    </>;
+});
 
 const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
@@ -1965,7 +2253,9 @@ const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
     </Grid>;
 };
 
-const MemoApplicationFormForm = memo(({ theme, form, updateForm, openIndex, setOpenIndex }) => {
+const MemoApplicationFormForm = memo(({ theme, form, updateForm }) => {
+    const [openIndex, setOpenIndex] = useState(-1);
+
     const TYPE_NAME = { "info": "Information", "text": "Short answer", "textarea": "Paragraph", "number": "Number", "datetime": "Date time", "date": "Date", "dropdown": "Dropdown", "radio": "Multiple choice", "checkbox": "Checkboxes" };
     if (form.length === 0) {
         return <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -2255,7 +2545,7 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                     </Typography>
                 </DialogTitle>
                 <DialogContent>
-                    <MemoApplicationFormForm theme={theme} form={form} updateForm={setForm} openIndex={openIndex} setOpenIndex={setOpenIndex}></MemoApplicationFormForm>
+                    <MemoApplicationFormForm theme={theme} form={form} updateForm={setForm}></MemoApplicationFormForm>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => { setFormModalOpen(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
@@ -2270,7 +2560,9 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
     </Grid>;
 };
 
-const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIndex, setApplicationTypeOpenIndex }) => {
+const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
+    const [openIndex, setOpenIndex] = useState(-1);
+
     if (formConfig.state.application_types.length === 0) {
         return <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" fontWeight="bold" sx={{ mb: "10px", flexGrow: 1 }}>
@@ -2301,11 +2593,11 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
     const ApplicationTypeItem = memo(({ application_type, index }) => {
         return <>
             <div key={`application-type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => applicationTypeOpenIndex === index ? setApplicationTypeOpenIndex(-1) : setApplicationTypeOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
                     {application_type.name}
                 </Typography>
                 <div key={`application-type-control-div-${index}`}>
-                    <IconButton style={{ transition: 'transform 0.2s', transform: applicationTypeOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setApplicationTypeOpenIndex(index)}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={() => {
@@ -2327,7 +2619,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                                 }
                             }
                         }
-                        setApplicationTypeOpenIndex(index + 1);
+                        setOpenIndex(index + 1);
                         newApplicationTypes.splice(index + 1, 0, {
                             ...application_type,
                             id: nextId,
@@ -2339,7 +2631,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                         let newApplicationTypes = [...formConfig.state.application_types];
                         newApplicationTypes.splice(index, 1);
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                        setApplicationTypeOpenIndex(-1);
+                        setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.application_types.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
                         if (index >= 1) {
@@ -2347,7 +2639,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                             newApplicationTypes[index] = newApplicationTypes[index - 1];
                             newApplicationTypes[index - 1] = application_type;
                             formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                            if (applicationTypeOpenIndex === index) setApplicationTypeOpenIndex(index - 1);
+                            if (openIndex === index) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
@@ -2356,30 +2648,30 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                             newApplicationTypes[index] = newApplicationTypes[index + 1];
                             newApplicationTypes[index + 1] = application_type;
                             formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                            if (applicationTypeOpenIndex === index) setApplicationTypeOpenIndex(index + 1);
+                            if (openIndex === index) setOpenIndex(index + 1);
                         }
                     }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
             </div>
         </>;
     });
-    const BeforeOpen = memo(({ applicationTypeOpenIndex }) =>
-        (<>{formConfig.state.application_types.map((application_type, index) => ((index < applicationTypeOpenIndex || applicationTypeOpenIndex === -1) && <ApplicationTypeItem application_type={application_type} index={index} />))}</>)
+    const BeforeOpen = memo(({ openIndex }) =>
+        (<>{formConfig.state.application_types.map((application_type, index) => ((index < openIndex || openIndex === -1) && <ApplicationTypeItem application_type={application_type} index={index} />))}</>)
     );
-    const AfterOpen = memo(({ applicationTypeOpenIndex }) =>
-        (<>{formConfig.state.application_types.map((application_type, index) => ((index > applicationTypeOpenIndex && applicationTypeOpenIndex !== -1) && <ApplicationTypeItem application_type={application_type} index={index} />))}</>)
+    const AfterOpen = memo(({ openIndex }) =>
+        (<>{formConfig.state.application_types.map((application_type, index) => ((index > openIndex && openIndex !== -1) && <ApplicationTypeItem application_type={application_type} index={index} />))}</>)
     );
-    let application_type = formConfig.state.application_types[applicationTypeOpenIndex];
-    let index = applicationTypeOpenIndex;
+    let application_type = formConfig.state.application_types[openIndex];
+    let index = openIndex;
     return <>
-        {(applicationTypeOpenIndex > 0 || applicationTypeOpenIndex === -1) && <BeforeOpen applicationTypeOpenIndex={applicationTypeOpenIndex} />}
-        {applicationTypeOpenIndex !== -1 && <>
+        {(openIndex > 0 || openIndex === -1) && <BeforeOpen openIndex={openIndex} />}
+        {openIndex !== -1 && <>
             <div key={`application-type-form-div-${index}`} style={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => applicationTypeOpenIndex === index ? setApplicationTypeOpenIndex(-1) : setApplicationTypeOpenIndex(index)}>
+                <Typography variant="body2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', mb: "10px", flexGrow: 1, color: application_type.color }} onClick={() => openIndex === index ? setOpenIndex(-1) : setOpenIndex(index)}>
                     {application_type.name}
                 </Typography>
                 <div key={`application-type-control-div-${index}`}>
-                    <IconButton style={{ transition: 'transform 0.2s', transform: applicationTypeOpenIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setApplicationTypeOpenIndex(index)}>
+                    <IconButton style={{ transition: 'transform 0.2s', transform: openIndex === index ? 'rotate(180deg)' : 'none' }} onClick={() => setOpenIndex(index)}>
                         <ExpandMoreRounded />
                     </IconButton>
                     <IconButton variant="contained" color="success" onClick={(e) => {
@@ -2401,7 +2693,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                                 }
                             }
                         }
-                        setApplicationTypeOpenIndex(index + 1);
+                        setOpenIndex(index + 1);
                         newApplicationTypes.splice(index + 1, 0, { id: nextId, order_id: application_type.order_id + 1, name: "", color: "" });
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length} /></IconButton>
@@ -2409,7 +2701,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                         let newApplicationTypes = [...formConfig.state.application_types];
                         newApplicationTypes.splice(index, 1);
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                        setApplicationTypeOpenIndex(-1);
+                        setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={formConfig.state.application_types.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
                         if (index >= 1) {
@@ -2417,7 +2709,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                             newApplicationTypes[index] = newApplicationTypes[index - 1];
                             newApplicationTypes[index - 1] = application_type;
                             formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                            if (applicationTypeOpenIndex !== -1) setApplicationTypeOpenIndex(index - 1);
+                            if (openIndex !== -1) setOpenIndex(index - 1);
                         }
                     }}><FontAwesomeIcon icon={faArrowUp} disabled={index === 0} /></IconButton>
                     <IconButton variant="contained" color="warning" onClick={() => {
@@ -2426,7 +2718,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                             newApplicationTypes[index] = newApplicationTypes[index + 1];
                             newApplicationTypes[index + 1] = application_type;
                             formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
-                            if (applicationTypeOpenIndex !== -1) setApplicationTypeOpenIndex(index + 1);
+                            if (openIndex !== -1) setOpenIndex(index + 1);
                         }
                     }} disabled={index === formConfig.state.application_types.length} ><FontAwesomeIcon icon={faArrowDown} /></IconButton>
                 </div>
@@ -2437,7 +2729,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig, applicationTypeOpenIn
                 formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
             }} />
         </>}
-        {applicationTypeOpenIndex !== -1 && applicationTypeOpenIndex < formConfig.state.application_types.length - 1 && <AfterOpen applicationTypeOpenIndex={applicationTypeOpenIndex} />}
+        {openIndex !== -1 && openIndex < formConfig.state.application_types.length - 1 && <AfterOpen openIndex={openIndex} />}
     </>;
 });
 
@@ -2634,9 +2926,6 @@ const Configuration = () => {
             });
         }
     };
-    const [roleOpenIndex, setRoleOpenIndex] = useState(-1);
-    const [rankOpenIndex, setRankOpenIndex] = useState(-1);
-    const [applicationTypeOpenIndex, setApplicationTypeOpenIndex] = useState(-1);
 
     const [mfaOtp, setMfaOtp] = useState("");
 
@@ -3043,6 +3332,32 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(11)}>
+                                <div style={{ flexGrow: 1 }}>Member Events</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[4] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            {formSectionRender[11] && <Collapse in={formSectionOpen[11]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    You could edit the Discord message sent upon the following events.
+                                </Typography>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
+                                    <MemoDiscordMemberForm theme={theme} formConfig={formConfig[11]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("discord-member"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>}
+
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(5)}>
                                 <div style={{ flexGrow: 1 }}>Roles</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[5] ? 'rotate(180deg)' : 'none' }}>
@@ -3054,7 +3369,7 @@ const Configuration = () => {
                                     NOTE: ID, Order ID must be integer. Smaller Order ID means higher role. Discord Role ID can be used to sync roles of members in Drivers Hub to Discord.<br />
                                     NOTE: You must use JSON Editor to change role ID. Changing role ID could lead to members with the role lose it before their role is updated.
                                 </Typography>
-                                <MemoRoleForm theme={theme} formConfig={formConfig[5]} roleOpenIndex={roleOpenIndex} setRoleOpenIndex={setRoleOpenIndex} />
+                                <MemoRoleForm theme={theme} formConfig={formConfig[5]} />
                                 <Grid item xs={12}>
                                     <Grid container>
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -3078,7 +3393,7 @@ const Configuration = () => {
                                 <Typography variant="body2" sx={{ mb: "15px" }}>
                                     NOTE: The form config editor only supports editing one type of rank. If you are willing to configure multiple types of ranks, like distance ranking and event ranking, you will have to use JSON config editor.
                                 </Typography>
-                                <MemoRankForm theme={theme} formConfig={formConfig[7]} rankOpenIndex={rankOpenIndex} setRankOpenIndex={setRankOpenIndex} />
+                                <MemoRankForm theme={theme} formConfig={formConfig[7]} />
                                 <Grid item xs={12}>
                                     <Grid container>
                                         <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -3121,7 +3436,7 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                                 {formSectionRender[10] && <Collapse in={formSectionOpen[10]}>
-                                    <MemoApplicationTypeForm theme={theme} formConfig={formConfig[10]} applicationTypeOpenIndex={applicationTypeOpenIndex} setApplicationTypeOpenIndex={setApplicationTypeOpenIndex} />
+                                    <MemoApplicationTypeForm theme={theme} formConfig={formConfig[10]} />
                                     <Grid item xs={12}>
                                         <Grid container>
                                             <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
@@ -3157,6 +3472,32 @@ const Configuration = () => {
                                     </Grid>
                                 </Collapse>}
                             </>}
+
+                            <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(12)}>
+                                <div style={{ flexGrow: 1 }}>Other Events</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[4] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                            {formSectionRender[12] && <Collapse in={formSectionOpen[12]}>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>
+                                    You could edit the Discord message sent upon the following events.
+                                </Typography>
+                                <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px" }}>
+                                    <MemoDiscordOtherForm theme={theme} formConfig={formConfig[12]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("discord-other"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Collapse>}
                         </>}
                 </Typography>
             </TabPanel>
