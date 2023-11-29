@@ -3337,9 +3337,16 @@ const Configuration = () => {
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
                     - This is the simple mode of config editing with form.
                     <br />
-                    - You must reload config after saving to make it take effect.
+                    - You must reload the config after saving to make it take effect.
+                    <br />
+                    - Before reloading the config, you may always "revert" it in the JSON editor to go back to the previously reloaded version.
                     <br />
                     - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
+                    <br />
+                    <br />
+                    - If you are starting a new Drivers Hub, you are recommended to follow this route to configure your hub.
+                    <br />
+                    - [Login] Discord & Steam API -{`>`} [Jobs] Tracker + Job Logging -{`>`} Roles -{`>`} Ranks -{`>`} All others
                     <br />
                     <br />
                     {formConfigReady &&
@@ -3690,7 +3697,9 @@ const Configuration = () => {
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>
                     - This is the advanced mode of config editing with JSON.
                     <br />
-                    - You must reload config after saving to make it take effect.
+                    - You must reload the config after saving to make it take effect.
+                    <br />
+                    - Before reloading the config, you may always "revert" it to go back to the previously reloaded version.
                     <br />
                     - API Config does not directly affect Web Config which controls company name, color, logo and banner on Drivers Hub.
                     <br />
