@@ -31,7 +31,7 @@ const SteamAuth = () => {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
                             setMessage("You are authorized 🎉");
-                            await FetchProfile();
+                            await FetchProfile(isLogin = true);
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {

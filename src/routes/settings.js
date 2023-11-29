@@ -188,6 +188,8 @@ const Settings = ({ defaultTab = 0 }) => {
     const theme = useTheme();
     const navigate = useNavigate();
 
+    const [allowClearCache, setAllowClearCache] = useState(localStorage.getItem("cache") !== null);
+
     const [otp, setOtp] = useState("");
     const [otpAction, setOtpAction] = useState("");
     const [otpPass, setOtpPass] = useState(0); // timestamp, before which user doesn't need to re-enter the otp
@@ -1110,7 +1112,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 }
             }
         }
-        
+
         let tiers = ["platinum", "gold", "silver", "bronze"];
         for (let i = 0; i < tiers.length; i++) {
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
@@ -1187,7 +1189,7 @@ const Settings = ({ defaultTab = 0 }) => {
         </Box>
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
                     <br />
                     <ButtonGroup fullWidth>
@@ -1196,7 +1198,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
                     <br />
                     <ButtonGroup fullWidth>
@@ -1205,7 +1207,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     </ButtonGroup>
                 </Grid>
 
-                <Grid item xs={12} sm={12} md={4} lg={4}>
+                <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Display Timezone&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <Select
@@ -1242,6 +1244,14 @@ const Settings = ({ defaultTab = 0 }) => {
                     <ButtonGroup fullWidth>
                         <Button variant="contained" color={userSettings.data_saver === true ? "info" : "secondary"} onClick={() => { updateDataSaver(true); }}>Enabled</Button>
                         <Button variant="contained" color={userSettings.data_saver === false ? "info" : "secondary"} onClick={() => { updateDataSaver(false); }}>Disabled</Button>
+                    </ButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={12} md={6} lg={6}>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Data Cache</Typography>
+                    <br />
+                    <ButtonGroup fullWidth>
+                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); setAllowClearCache(false); }} disabled={!allowClearCache}>Clear</Button>
                     </ButtonGroup>
                 </Grid>
 

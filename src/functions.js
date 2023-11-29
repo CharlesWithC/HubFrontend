@@ -1,5 +1,7 @@
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
+import LZString from 'lz-string';
+import CryptoJS from 'crypto-js';
 
 var vars = require('./variables');
 
@@ -84,7 +86,32 @@ export const makeRequestsAuto = async (urls) => {
     return responses.map((response) => response.data);
 };
 
-export async function FetchProfile() {
+export function writeLS(key, data, secretKey) {
+    let jsonString = JSON.stringify(data);
+    let compressedString = LZString.compressToUTF16(jsonString);
+    let encryptedString = CryptoJS.AES.encrypt(compressedString, secretKey).toString();
+    localStorage.setItem(key, encryptedString);
+}
+export function readLS(key, secretKey) {
+    try {
+        let encryptedString = localStorage.getItem(key);
+        let decryptedBytes = CryptoJS.AES.decrypt(encryptedString, secretKey);
+        let decryptedString = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        let decompressedString = LZString.decompressFromUTF16(decryptedString);
+        let data = JSON.parse(decompressedString);
+        return data;
+    } catch {
+        try {
+            let data = JSON.parse(localStorage.getItem(key));
+            return data;
+        } catch {
+            localStorage.removeItem(key);
+            return null;
+        }
+    }
+}
+
+export async function FetchProfile(isLogin = false) {
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
         const resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
@@ -145,31 +172,39 @@ export async function FetchProfile() {
                     }
                 }
 
-                // just patch, don't wait
-                customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
+                if (isLogin) {
+                    // just patch, don't wait
+                    customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
+                }
 
                 let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
                 vars.userStats = resp;
 
-                // is member / fetch all members
-                [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
-                let totalPages = resp.total_pages;
-                vars.members = resp.list;
-                if (totalPages > 1) {
-                    let urlsBatch = [];
-                    for (let i = 2; i <= totalPages; i++) {
-                        urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
-                        if (urlsBatch.length === 5 || i === totalPages) {
-                            let resps = await makeRequestsWithAuth(urlsBatch);
-                            for (let j = 0; j < resps.length; j++) {
-                                vars.members.push(...resps[j].list);
-                                for (let k = 0; k < resps[j].list.length; k++) {
-                                    vars.users[resps[j].list[k].uid] = resps[j].list[k];
+                if (vars.members === undefined || vars.members.length === 0) {
+                    // is member / fetch all members
+                    [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
+                    let totalPages = resp.total_pages;
+                    vars.members = resp.list;
+                    if (totalPages > 1) {
+                        let urlsBatch = [];
+                        for (let i = 2; i <= totalPages; i++) {
+                            urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
+                            if (urlsBatch.length === 5 || i === totalPages) {
+                                let resps = await makeRequestsWithAuth(urlsBatch);
+                                for (let j = 0; j < resps.length; j++) {
+                                    vars.members.push(...resps[j].list);
+                                    for (let k = 0; k < resps[j].list.length; k++) {
+                                        vars.users[resps[j].list[k].uid] = resps[j].list[k];
+                                    }
                                 }
+                                urlsBatch = [];
                             }
-                            urlsBatch = [];
                         }
                     }
+
+                    let cache = readLS("cache", window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
+                    cache.members = vars.members;
+                    writeLS("cache", cache, window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
                 }
             }
         } else if (resp.status === 401) {

@@ -13,6 +13,7 @@
 9. Added premium features (vtc theme / background)
 10. Added patreon integration
 11. Completed form-based config
+12. Added config cache
 
 ## v3.1.0
 

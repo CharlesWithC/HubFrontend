@@ -23,7 +23,7 @@ const TokenAuth = () => {
                 if (resp.status === 200) {
                     setAuthToken(resp.data.token);
                     setMessage("You are authorized 🎉");
-                    await FetchProfile();
+                    await FetchProfile(isLogin = true);
                     setContinue(true);
                     setTimeout(function () { navigate('/'); }, 500);
                 } else if (resp.status === 401) {

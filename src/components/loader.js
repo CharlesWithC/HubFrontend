@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 
-import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, getAuthToken, compareVersions } from '../functions';
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
 import { useTheme } from '@emotion/react';
 
 var vars = require('../variables');
@@ -19,15 +19,8 @@ const Loader = ({ onLoaderLoaded }) => {
     const [title, setTitle] = useState("Drivers Hub");
     const [loadMessage, setLoadMessage] = useState("Loading");
 
-    if (localStorage.getItem("preload-title") != null && localStorage.getItem("preload-icon") != null
-        && title === "Drivers Hub" && logoSrc === null) {
-        setTitle(localStorage.getItem("preload-title"));
-        setLogoSrc(localStorage.getItem("preload-icon"));
-        setBgSrc(localStorage.getItem("preload-background"));
-    }
-
     const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get("domain") !== null) {
+    if (window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
         domain = searchParams.get("domain");
         localStorage.setItem("domain", domain);
     }
@@ -41,6 +34,8 @@ const Loader = ({ onLoaderLoaded }) => {
 
     useEffect(() => {
         async function doLoad() {
+            if (vars.dhconfig !== null) return;
+
             try {
                 // fetch config
                 let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
@@ -83,26 +78,60 @@ const Loader = ({ onLoaderLoaded }) => {
                 setBgSrc(vars.dhvtcbg);
                 setLoadMessage(`Loading`);
 
-                localStorage.setItem("preload-title", vars.dhconfig.name);
-                localStorage.setItem("preload-icon", vars.dhlogo !== "" ? vars.dhlogo : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`);
-                localStorage.setItem("preload-background", vars.dhvtcbg !== "" ? vars.dhvtcbg : `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
+                let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = [null, null, null, null, null, null, null, null, null, null, null, null];
+                let useCache = false;
 
-                const urlsBatch = [
-                    { url: `${vars.dhpath}/`, auth: false },
-                    { url: "https://config.chub.page/roles", auth: false },
-                    { url: "https://config.chub.page/patrons", auth: false },
-                    { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
-                    { url: `${vars.dhpath}/config`, auth: false },
-                    { url: `${vars.dhpath}/languages`, auth: false },
-                    { url: `${vars.dhpath}/member/roles`, auth: false },
-                    { url: `${vars.dhpath}/member/perms`, auth: false },
-                    { url: `${vars.dhpath}/member/ranks`, auth: false },
-                    { url: `${vars.dhpath}/applications/types`, auth: false },
-                    { url: `${vars.dhpath}/divisions/list`, auth: false },
-                    { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
-                ];
+                let cache = readLS("cache", window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
+                if (cache !== null) {
+                    if (cache.timestamp === undefined || +new Date() - cache.timestamp > 86400000) {
+                        localStorage.removeItem("cache");
+                    } else {
+                        useCache = true;
+                        config = cache.config;
+                        languages = cache.languages;
+                        memberRoles = cache.memberRoles;
+                        memberPerms = cache.memberPerms;
+                        memberRanks = cache.memberRanks;
+                        applicationTypes = cache.applicationTypes;
+                        divisions = cache.divisions;
+                        dlogDetails = cache.dlogDetails;
+                        if (cache.members !== undefined) {
+                            vars.members = cache.members;
+                            console.log(vars.members);
+                            for (let i = 0; i < vars.members.length; i++) {
+                                vars.users[vars.members[i].uid] = vars.members[i];
+                            }
+                        }
+                    }
+                }
 
-                const [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
+                if (!useCache) {
+                    const urlsBatch = [
+                        { url: `${vars.dhpath}/`, auth: false },
+                        { url: "https://config.chub.page/roles", auth: false },
+                        { url: "https://config.chub.page/patrons", auth: false },
+                        { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
+                        { url: `${vars.dhpath}/config`, auth: false },
+                        { url: `${vars.dhpath}/languages`, auth: false },
+                        { url: `${vars.dhpath}/member/roles`, auth: false },
+                        { url: `${vars.dhpath}/member/perms`, auth: false },
+                        { url: `${vars.dhpath}/member/ranks`, auth: false },
+                        { url: `${vars.dhpath}/applications/types`, auth: false },
+                        { url: `${vars.dhpath}/divisions/list`, auth: false },
+                        { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
+                    ];
+
+                    [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
+                } else {
+                    const urlsBatch = [
+                        { url: `${vars.dhpath}/`, auth: false },
+                        { url: "https://config.chub.page/roles", auth: false },
+                        { url: "https://config.chub.page/patrons", auth: false },
+                        { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
+                    ];
+
+                    [index, specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
+                }
                 if (index) {
                     vars.apiversion = index.version;
                 }
@@ -160,6 +189,21 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 if (dlogDetails && dlogDetails.error === undefined) {
                     vars.dlogDetails = dlogDetails;
+                }
+
+                if (!useCache) {
+                    let cache = {
+                        timestamp: +new Date(),
+                        config: config,
+                        languages: languages,
+                        memberRoles: memberRoles,
+                        memberPerms: memberPerms,
+                        memberRanks: memberRanks,
+                        applicationTypes: applicationTypes,
+                        divisions: divisions,
+                        dlogDetails: dlogDetails
+                    };
+                    writeLS("cache", cache, window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
                 }
 
                 await FetchProfile();
