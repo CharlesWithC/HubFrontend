@@ -14,6 +14,7 @@
 10. Added patreon integration
 11. Completed form-based config
 12. Added config cache
+13. Added local storage data encryption
 
 ## v3.1.0
 

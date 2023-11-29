@@ -52,6 +52,7 @@ import 'simplebar-react/dist/simplebar.min.css';
 
 import TopBar from './components/topbar';
 import SideBar from './components/sidebar';
+import { readLS, writeLS } from './functions.js';
 
 var vars = require('./variables');
 
@@ -91,6 +92,19 @@ function App() {
             window.removeEventListener("themeUpdated", handleUpdateTheme);
         };
     }, [updateThemeMode]);
+
+    if (readLS("client-settings", window.location.hostname) !== null) {
+        let lsSettings = readLS("client-settings", window.location.hostname);
+        let sKeys = Object.keys(vars.userSettings);
+        for (let i = 0; i < sKeys.length; i++) {
+            if (Object.keys(lsSettings).includes(sKeys[i])) {
+                vars.userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+            }
+        }
+        writeLS("client-settings", vars.userSettings, window.location.hostname);
+    } else {
+        writeLS("client-settings", vars.userSettings, window.location.hostname);
+    }
 
     const [loaded, setRerender] = useState(false);
 

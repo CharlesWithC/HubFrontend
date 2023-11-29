@@ -14,7 +14,7 @@ import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 
-import { makeRequestsWithAuth, customAxios as axios, getAuthToken, makeRequestsAuto, getFormattedDate } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedDate, writeLS } from '../functions';
 import { useRef } from 'react';
 import ColorInput from '../components/colorInput';
 import TimeAgo from '../components/timeago';
@@ -221,21 +221,25 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const [userSettings, setUserSettings] = useState(vars.userSettings);
 
+    const writeClientSettings = useCallback((data) => {
+        writeLS("client-settings", data, window.location.hostname);
+    }, []);
+
     const updateUnit = useCallback((to) => {
         vars.userSettings.unit = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, unit: to }));
     }, []);
 
     const updateRPP = useCallback((to) => {
         vars.userSettings.default_row_per_page = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, default_row_per_page: to }));
     }, []);
 
     const updateFontSize = useCallback((to, rerender = true) => {
         vars.userSettings.font_size = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, font_size: to }));
 
         if (rerender) {
@@ -247,13 +251,13 @@ const Settings = ({ defaultTab = 0 }) => {
     const allTimeZones = moment.tz.names();
     const updateDisplayTimezone = useCallback((to) => { // Display = DateTimeField
         vars.userSettings.display_timezone = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, display_timezone: to }));
     }, []);
 
     const updateTheme = useCallback((to, rerender = true) => {
         vars.userSettings.theme = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, theme: to }));
 
         if (rerender) {
@@ -264,7 +268,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateUseCustomTheme = useCallback((to, rerender = true) => {
         vars.userSettings.use_custom_theme = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, use_custom_theme: to }));
 
         if (to === true) {
@@ -282,7 +286,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateThemeDarkenRatio = useCallback((to, rerender = true) => {
         vars.userSettings.theme_darken_ratio = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, theme_darken_ratio: to }));
 
         if (rerender) {
@@ -293,7 +297,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateThemeBackgroundColor = useCallback((to, rerender = true) => {
         vars.userSettings.theme_background = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, theme_background: to }));
 
         if (rerender) {
@@ -304,7 +308,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateThemeMainColor = useCallback((to, rerender = true) => {
         vars.userSettings.theme_main = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, theme_main: to }));
 
         if (rerender) {
@@ -315,7 +319,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateDataSaver = useCallback((to) => {
         vars.userSettings.data_saver = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, data_saver: to }));
 
         const dataSaverUpdated = new CustomEvent('dataSaverUpdated', { detail: { enabled: to } });
@@ -326,7 +330,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateRadio = useCallback((to) => {
         vars.userSettings.radio = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, radio: to }));
 
         const radioUpdated = new CustomEvent('radioUpdated', {});
@@ -335,7 +339,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateRadioType = useCallback((to) => {
         vars.userSettings.radio_type = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, radio_type: to }));
 
         const radioTypeUpdated = new CustomEvent('radioTypeUpdated', {});
@@ -344,7 +348,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const updateRadioVolume = useCallback((to) => {
         vars.userSettings.radio_volume = to;
-        localStorage.setItem("client-settings", JSON.stringify(vars.userSettings));
+        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, radio_volume: to }));
 
         const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});

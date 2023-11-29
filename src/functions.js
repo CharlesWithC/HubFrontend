@@ -33,16 +33,6 @@ customAxios.interceptors.response.use(
 
 export { customAxios };
 
-export function setAuthToken(token) {
-    // localStorage.setItem("token", atob(token.replaceAll("-", "z"), 'utf8'));
-    localStorage.setItem("token", token);
-}
-
-export function getAuthToken() {
-    // return btoa(localStorage.getItem("token"), "utf8").replaceAll("z", "-");
-    return localStorage.getItem("token");
-};
-
 export const makeRequests = async (urls) => {
     const responses = await Promise.all(
         urls.map((url) =>
@@ -103,6 +93,7 @@ export function readLS(key, secretKey) {
     } catch {
         try {
             let data = JSON.parse(localStorage.getItem(key));
+            writeLS(key, data, secretKey);
             return data;
         } catch {
             localStorage.removeItem(key);
@@ -110,6 +101,20 @@ export function readLS(key, secretKey) {
         }
     }
 }
+
+export function setAuthToken(token) {
+    writeLS("token", { token: token }, window.location.hostname);
+}
+
+export function getAuthToken() {
+    let data = localStorage.getItem("token");
+    if (data === null) return null;
+    if (data.length === 36) {
+        writeLS("token", { token: data }, window.location.hostname);
+        return data;
+    }
+    return readLS("token", window.location.hostname).token;
+};
 
 export async function FetchProfile(isLogin = false) {
     const bearerToken = getAuthToken();
