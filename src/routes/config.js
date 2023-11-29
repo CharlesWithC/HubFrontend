@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider, Divider } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { ExpandMoreRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
 import { customSelectStyles } from '../designs';
+import Papa from 'papaparse';
+import { saveAs } from 'file-saver';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport } from '@fortawesome/free-solid-svg-icons';
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
@@ -66,17 +69,28 @@ const LANGUAGES = {
 };
 
 const CONFIG_SECTIONS = {
-    "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"], "discord-member": ["member_accept", "member_leave", "driver_role_add", "driver_role_remove", "rank_up"], "discord-other": ["announcement_forwarding", "challenge_forwarding", "challenge_completed_forwarding", "downloads_forwarding", "event_forwarding", "event_upcoming_forwarding", "poll_forwarding"
-    ]
+    "general": ["name", "language", "distance_unit", "security_level", "privacy", "logo_url", "hex_color", "hook_audit_log"], "profile": ["sync_discord_email", "must_join_guild", "use_server_nickname", "allow_custom_profile", "use_custom_activity", "avatar_domain_whitelist", "required_connections", "register_methods"], "tracker": ["trackers"], "dlog": ["delivery_rules", "hook_delivery_log", "delivery_webhook_image_urls"], "discord-steam": ["discord_guild_id", "discord_client_id", "discord_client_secret", "discord_bot_token", "steam_api_key"], "role": ["roles", "perms"], "smtp": ["smtp_host", "smtp_port", "smtp_email", "smtp_password", "email_template"], "rank": ["rank_types"], "announcement": ["announcement_types"], "application": ["application_types"], "division": ["divisions"], "discord-member": ["member_accept", "member_leave", "driver_role_add", "driver_role_remove", "rank_up"], "discord-other": ["announcement_forwarding", "challenge_forwarding", "challenge_completed_forwarding", "downloads_forwarding", "event_forwarding", "event_upcoming_forwarding", "poll_forwarding"], "economy": ["economy"]
 };
 
-const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12 };
+const CONFIG_SECTIONS_INDEX = { "general": 0, "profile": 1, "tracker": 2, "dlog": 3, "discord-steam": 4, "role": 5, "rank": 7, "smtp": 6, "announcement": 8, "division": 9, "application": 10, "discord-member": 11, "discord-other": 12, "economy": 13 };
 
 const CONNECTION_NAME = { "email": "Email", "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
 const REALISTIC_SETTINGS = ["bad_weather_factor", "detected", "detours", "fatigue", "fuel_simulation", "hardcore_simulation", "hub_speed_limit", "parking_difficulty", "police", "road_event", "show_game_blockers", "simple_parking_doubles", "traffic_enabled", "trailer_advanced_coupling"];
 
 var vars = require("../variables");
+
+const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+});
 
 function tabBtnProps(index, current, theme) {
     return {
@@ -2881,6 +2895,155 @@ const MemoDivisionForm = memo(({ theme, formConfig }) => {
         }</>;
 });
 
+function exportCsv(columns, data, filename) {
+    const csv = Papa.unparse({
+        fields: columns,
+        data: data
+    });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    saveAs(blob, filename);
+}
+
+async function importCsv(columns, event) {
+    return new Promise((resolve, reject) => {
+        Papa.parse(event.target.files[0], {
+            header: true,
+            complete: function (results) {
+                const data = results.data.map(row => {
+                    let obj = {};
+                    for (let key in row) {
+                        obj[key] = isNaN(row[key]) ? row[key] : parseInt(row[key]);
+                    }
+                    return obj;
+                });
+                resolve(data);
+            },
+            error: function (err) {
+                reject(err);
+            }
+        });
+    });
+}
+
+const MemoEconomyForm = memo(({ theme, formConfig }) => {
+    const defaultConfig = {
+        "truck_refund": 0.3,
+        "scrap_refund": 0.1,
+        "garage_refund": 0.5,
+        "slot_refund": 0.5,
+        "usd_to_coin": 0.5,
+        "eur_to_coin": 0.6,
+        "wear_ratio": 1,
+        "revenue_share_to_company": 0.4,
+        "truck_rental_cost": 0.4,
+        "max_wear_before_service": 0.1,
+        "max_distance_before_scrap": 500000,
+        "unit_service_price": 1200,
+        "allow_purchase_truck": true,
+        "allow_purchase_garage": true,
+        "allow_purchase_slot": true,
+        "allow_purchase_merch": true,
+        "enable_balance_leaderboard": true,
+        "currency_name": "coin",
+    };
+
+    const configName = {
+        "truck_refund": "Truck Refund",
+        "scrap_refund": "Scrap Refund",
+        "garage_refund": "Garage Refund",
+        "slot_refund": "Slot Refund",
+        "usd_to_coin": "USD to Coin",
+        "eur_to_coin": "EUR to Coin",
+        "wear_ratio": "Wear Ratio",
+        "revenue_share_to_company": "Revenue Share to Company",
+        "truck_rental_cost": "Truck Rental Cost",
+        "max_wear_before_service": "Max Wear Before Service",
+        "max_distance_before_scrap": "Max Distance Before Scrap",
+        "unit_service_price": "Unit Service Price",
+        "allow_purchase_truck": "Allow Purchase Truck",
+        "allow_purchase_garage": "Allow Purchase Garage",
+        "allow_purchase_slot": "Allow Purchase Slot",
+        "allow_purchase_merch": "Allow Purchase Merch",
+        "enable_balance_leaderboard": "Enable Balance Leaderboard",
+        "currency_name": "Currency Name",
+    };
+
+
+    return (
+        <>
+            <Typography variant="body2">
+                You will have to import/export the csv file for trucks, garages and merch. You should first do export, make modifications on the exported file, and import it back, so you will be formatting the file correctly.
+            </Typography>
+            <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
+                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />}>
+                    Import Trucks
+                    <VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, trucks: await importCsv(["id", "game", "brand", "model", "price"], e) } }); }} /></Button>
+                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />} onClick={() => { exportCsv(["id", "game", "brand", "model", "price"], formConfig.state.economy.trucks, 'trucks.csv'); }}>Export Trucks</Button>
+            </ButtonGroup>
+            <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
+                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />}>
+                    Import Garages
+                    <VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, garages: await importCsv(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"], e) } }); }} /></Button>
+                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />} onClick={() => { exportCsv(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"], formConfig.state.economy.garages, 'garages.csv'); }}>Export Garages</Button>
+            </ButtonGroup>
+            <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
+                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />}>
+                    Import Merch
+                    <VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, merch: await importCsv(["id", "name", "buy_price", "sell_price"], e) } }); }} /></Button>
+                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />} onClick={() => { exportCsv(["id", "name", "buy_price", "sell_price"], formConfig.state.economy.merch, 'merch.csv'); }}>Export Merch</Button>
+            </ButtonGroup>
+            <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
+                {Object.entries(defaultConfig).map(([key, value]) => {
+                    switch (typeof value) {
+                        case 'boolean':
+                            return (
+                                <Grid item xs={6} md={3} key={key}>
+                                    <TextField size="small" select
+                                        label={configName[key]}
+                                        variant="outlined"
+                                        fullWidth
+                                        style={{ marginBottom: '16px' }}
+                                        value={formConfig.state.economy[key]}
+                                        onChange={(e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, [key]: e.target.value } }); }}
+                                    >
+                                        <MenuItem value={true}>Yes</MenuItem>
+                                        <MenuItem value={false}>No</MenuItem>
+                                    </TextField>
+                                </Grid>
+                            );
+                        case 'string':
+                            return (
+                                <Grid item xs={6} md={3} key={key}>
+                                    <TextField size="small"
+                                        label={configName[key]}
+                                        variant="outlined"
+                                        fullWidth
+                                        style={{ marginBottom: '16px' }}
+                                        value={formConfig.state.economy[key]}
+                                        onChange={(e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, [key]: e.target.value } }); }}
+                                    />
+                                </Grid>
+                            );
+                        default:
+                            return (
+                                <Grid item xs={6} md={3} key={key}>
+                                    <TextField size="small"
+                                        label={configName[key]}
+                                        variant="outlined"
+                                        fullWidth
+                                        style={{ marginBottom: '16px' }}
+                                        value={formConfig.state.economy[key]}
+                                        onChange={(e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, [key]: isNaN(e.target.value) ? value : Number(e.target.value) } }); }}
+                                    />
+                                </Grid>
+                            );
+                    }
+                })}
+            </Grid>
+        </>
+    );
+});
+
 const Configuration = () => {
     const theme = useTheme();
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -3334,7 +3497,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(11)}>
                                 <div style={{ flexGrow: 1 }}>Member Events</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[4] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[11] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -3385,7 +3548,7 @@ const Configuration = () => {
 
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(7)}>
                                 <div style={{ flexGrow: 1 }}>Ranks</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[5] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[7] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -3453,7 +3616,7 @@ const Configuration = () => {
 
                             {vars.dhconfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(9)}>
                                 <div style={{ flexGrow: 1 }}>Division</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[8] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[9] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>
@@ -3473,9 +3636,31 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
+                            {vars.dhconfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(13)}>
+                                <div style={{ flexGrow: 1 }}>Economy</div>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[13] ? 'rotate(180deg)' : 'none' }}>
+                                    <ExpandMoreRounded />
+                                </IconButton>
+                            </Typography>
+                                {formSectionRender[13] && <Collapse in={formSectionOpen[13]}>
+                                    <MemoEconomyForm theme={theme} formConfig={formConfig[13]} />
+                                    <Grid item xs={12}>
+                                        <Grid container>
+                                            <Grid item xs={0} sm={6} md={8} lg={10}></Grid>
+                                            <Grid item xs={12} sm={6} md={4} lg={2}>
+                                                <ButtonGroup fullWidth>
+                                                    <Button variant="contained" color="error" onClick={() => { showReloadApiConfig(); }}>Reload</Button>
+                                                    <Button variant="contained" color="success" onClick={() => { saveFormConfig("economy"); }} disabled={apiConfigDisabled}>Save</Button>
+                                                </ButtonGroup>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Collapse>}
+                            </>}
+
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(12)}>
                                 <div style={{ flexGrow: 1 }}>Other Events</div>
-                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[4] ? 'rotate(180deg)' : 'none' }}>
+                                <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[12] ? 'rotate(180deg)' : 'none' }}>
                                     <ExpandMoreRounded />
                                 </IconButton>
                             </Typography>

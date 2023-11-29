@@ -12,6 +12,7 @@
 8. Added row-per-page settings
 9. Added premium features (vtc theme / background)
 10. Added patreon integration
+11. Completed form-based config
 
 ## v3.1.0
 
