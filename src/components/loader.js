@@ -97,7 +97,6 @@ const Loader = ({ onLoaderLoaded }) => {
                         dlogDetails = cache.dlogDetails;
                         if (cache.members !== undefined) {
                             vars.members = cache.members;
-                            console.log(vars.members);
                             for (let i = 0; i < vars.members.length; i++) {
                                 vars.users[vars.members[i].uid] = vars.members[i];
                             }

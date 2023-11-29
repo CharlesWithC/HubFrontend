@@ -1522,6 +1522,10 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Divider />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
+                    {vars.userLevel < 3 && <>
+                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>Customize your profile with <SponsorBadge level={3} plus={true} /></Typography>
+                        <br />
+                    </>}
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Theme (Primary)&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
@@ -1634,12 +1638,16 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;<SponsorBadge level={2} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;{vars.userLevel >= 2 && <SponsorBadge level={2} plug={true} />}</Typography>
                     <br />
+                    {vars.userLevel < 2 && <>
+                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>Customize your client with <SponsorBadge level={2} plus={true} /></Typography>
+                        <br />
+                    </>}
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 3}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 3}>Disabled</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }}>Custom Background</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>Enabled</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>Disabled</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>Custom Background</Button>
                         {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Theme</Button>}
                         {vars.dhvtcbg !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
                     </ButtonGroup>
