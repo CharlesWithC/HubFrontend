@@ -246,7 +246,7 @@ const MemoGeneralForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.hook_audit_log.channel_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_audit_log: { ...formConfig.state.hook_audit_log, channel_id: e.target.value } }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_audit_log: { ...formConfig.state.hook_audit_log, channel_id: parseInt(e.target.value) } }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -552,7 +552,7 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
             variant="outlined"
             fullWidth
             value={formConfig.state.delivery_rules.max_speed}
-            onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_speed: e.target.value } }); }}
+            onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_speed: parseInt(e.target.value) } }); }}
         />
     </Grid>
         <Grid item xs={6} md={3}>
@@ -563,7 +563,7 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.delivery_rules.max_profit}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_profit: e.target.value } }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_profit: parseInt(e.target.value) } }); }}
             />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -574,7 +574,7 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.delivery_rules.max_xp}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_xp: e.target.value } }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_xp: parseInt(e.target.value) } }); }}
             />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -585,7 +585,7 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.delivery_rules.max_warp}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_warp: e.target.value } }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, delivery_rules: { ...formConfig.state.delivery_rules, max_warp: parseInt(e.target.value) } }); }}
             />
         </Grid>
         <Grid item xs={6} md={9}>
@@ -633,7 +633,7 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.hook_delivery_log.channel_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_delivery_log: { ...formConfig.state.hook_delivery_log, channel_id: e.target.value } }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, hook_delivery_log: { ...formConfig.state.hook_delivery_log, channel_id: parseInt(e.target.value) } }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -678,7 +678,7 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.discord_guild_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_guild_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_guild_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -689,7 +689,7 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.discord_client_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_client_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_client_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -700,7 +700,7 @@ const MemoDiscordSteamForm = memo(({ theme, formConfig }) => {
                 variant="outlined"
                 fullWidth
                 value={formConfig.state.discord_client_secret}
-                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_client_secret: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) formConfig.setState({ ...formConfig.state, discord_client_secret: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -815,7 +815,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={role.discord_role_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...role, discord_role_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...role, discord_role_id: parseInt(e.target.value) }); }}
             />
         </Grid>
     </Grid>;
@@ -1123,7 +1123,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={rank.points}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, points: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, points: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={12} md={3}>
@@ -1143,7 +1143,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={rank.discord_role_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, discord_role_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, discord_role_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={12}>
@@ -1186,7 +1186,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={rank.daily_bonus.base}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, base: e.target.value } }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, base: parseInt(e.target.value) } }); }}
                 />
             </Grid>
             {rank.daily_bonus.type === "streak" && <>
@@ -1208,7 +1208,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         variant="outlined"
                         fullWidth
                         value={rank.daily_bonus.streak_value}
-                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_value: e.target.value } }); }}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_value: parseInt(e.target.value) } }); }}
                     />
                 </Grid>
                 <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 0}>
@@ -1217,7 +1217,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         variant="outlined"
                         fullWidth
                         value={rank.daily_bonus.algo_offset}
-                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, algo_offset: e.target.value } }); }}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, algo_offset: parseInt(e.target.value) } }); }}
                     />
                 </Grid>
             </>}
@@ -1251,7 +1251,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={rank.distance_bonus.probability}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, probability: e.target.value } }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, probability: parseInt(e.target.value) } }); }}
                 />
             </Grid>
             <Grid item xs={4}>
@@ -1260,7 +1260,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={rank.distance_bonus.min_distance}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min_distance: e.target.value } }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min_distance: parseInt(e.target.value) } }); }}
                 />
             </Grid>
             <Grid item xs={4}>
@@ -1269,7 +1269,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={rank.distance_bonus.max_distance}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max_distance: e.target.value } }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max_distance: parseInt(e.target.value) } }); }}
                 />
             </Grid>
             <Grid item xs={4}>
@@ -1294,7 +1294,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         variant="outlined"
                         fullWidth
                         value={rank.distance_bonus.value}
-                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, value: e.target.value } }); }}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, value: parseInt(e.target.value) } }); }}
                     />
                 </Grid>
             </>}
@@ -1305,7 +1305,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         variant="outlined"
                         fullWidth
                         value={rank.distance_bonus.min}
-                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min: e.target.value } }); }}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, min: parseInt(e.target.value) } }); }}
                     />
                 </Grid>
                 <Grid item xs={4}>
@@ -1314,7 +1314,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         variant="outlined"
                         fullWidth
                         value={rank.distance_bonus.max}
-                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max: e.target.value } }); }}
+                        onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, distance_bonus: { ...rank.distance_bonus, max: parseInt(e.target.value) } }); }}
                     />
                 </Grid>
             </>}
@@ -1692,7 +1692,7 @@ const DiscordMessageForm = memo(({ theme, item, onUpdate, roleChange = false, is
                 variant="outlined"
                 fullWidth
                 value={item.channel_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...item, channel_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...item, channel_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
@@ -1742,7 +1742,7 @@ const DiscordMessageForm = memo(({ theme, item, onUpdate, roleChange = false, is
                 variant="outlined"
                 fullWidth
                 value={item.seconds_ahead}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...item, seconds_ahead: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...item, seconds_ahead: parseInt(e.target.value) }); }}
             />
         </Grid>}
         <Grid item xs={12}>
@@ -1956,7 +1956,7 @@ const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={announcement_type.id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...announcement_type, id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...announcement_type, id: parseInt(e.target.value) }); }}
                 disabled
             />
         </Grid>
@@ -2097,7 +2097,7 @@ const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={form_item.min_length}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_length: e.target.value }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_length: parseInt(e.target.value) }); }}
                 />
             </Grid>
             <Grid item xs={12} md={12}>
@@ -2129,7 +2129,7 @@ const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={form_item.rows}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, rows: e.target.value }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, rows: parseInt(e.target.value) }); }}
                 />
             </Grid>
             <Grid item xs={6} md={4}>
@@ -2139,7 +2139,7 @@ const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={form_item.min_length}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_length: e.target.value }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_length: parseInt(e.target.value) }); }}
                 />
             </Grid>
             <Grid item xs={12} md={12}>
@@ -2172,7 +2172,7 @@ const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={form_item.min_value}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_value: e.target.value }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, min_value: parseInt(e.target.value) }); }}
                 />
             </Grid>
             <Grid item xs={12} md={4}>
@@ -2182,7 +2182,7 @@ const ApplicationFormForm = ({ theme, form_item, allLabels, onUpdate }) => {
                     variant="outlined"
                     fullWidth
                     value={form_item.max_value}
-                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, max_value: e.target.value }); }}
+                    onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...form_item, max_value: parseInt(e.target.value) }); }}
                 />
             </Grid>
             <Grid item xs={12} md={12}>
@@ -2405,7 +2405,7 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={application_type.id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, id: parseInt(e.target.value) }); }}
                 disabled
             />
         </Grid>
@@ -2532,7 +2532,7 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={application_type.channel_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, channel_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, channel_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
@@ -2758,7 +2758,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={division.id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, id: e.target.value }); }}disabled
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, id: parseInt(e.target.value) }); }}disabled
             />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -2794,7 +2794,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={division.points.value}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, points: { ...division.points, value: e.target.value } }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, points: { ...division.points, value: parseInt(e.target.value) } }); }}
             />
         </Grid>
         <Grid item xs={12} md={6}>
@@ -2817,7 +2817,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={division.channel_id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, channel_id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, channel_id: parseInt(e.target.value) }); }}
             />
         </Grid>
         <Grid item xs={6} md={4}>
