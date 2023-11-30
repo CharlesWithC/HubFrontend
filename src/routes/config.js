@@ -1957,6 +1957,7 @@ const AnnouncementTypeForm = ({ theme, announcement_type, onUpdate }) => {
                 fullWidth
                 value={announcement_type.id}
                 onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...announcement_type, id: e.target.value }); }}
+                disabled
             />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -2405,6 +2406,7 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 fullWidth
                 value={application_type.id}
                 onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...application_type, id: e.target.value }); }}
+                disabled
             />
         </Grid>
         <Grid item xs={6} md={3}>
@@ -2756,7 +2758,7 @@ const DivisionForm = ({ theme, division, onUpdate }) => {
                 variant="outlined"
                 fullWidth
                 value={division.id}
-                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, id: e.target.value }); }}
+                onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...division, id: e.target.value }); }}disabled
             />
         </Grid>
         <Grid item xs={6} md={3}>

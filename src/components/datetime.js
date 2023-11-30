@@ -1,23 +1,22 @@
-import React from 'react';
-import { TextField } from '@mui/material';
-import { getTimezoneOffset } from '../functions';
-
+import { useTranslation } from "react-i18next";
+import React from "react";
+import { TextField } from "@mui/material";
+import { getTimezoneOffset } from "../functions";
 var vars = require("../variables");
 
 // all in seconds, not milliseconds
 const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false }) => {
+    const { tr: tr } = useTranslation();
     let displayTimezone = vars.userSettings.display_timezone;
     if (vars.userLevel < 3) {
         displayTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
-
     const defaultValueConverted = defaultValue !== undefined ? new Date(new Date(defaultValue * 1000).getTime() - getTimezoneOffset(displayTimezone) * 60000).toISOString().slice(0, 16) : undefined; // ISO gives UTC time, we need to calculate the timezone offset
 
     const handleChange = (event) => {
         const newTimestamp = new Date(event.target.value).getTime() / 1000;
         onChange(newTimestamp);
     };
-
     return (
         <TextField
             label={label}
@@ -34,5 +33,4 @@ const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size 
         />
     );
 };
-
 export default DateTimeField;

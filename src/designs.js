@@ -226,14 +226,14 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         MuiDialog: {
             styleOverrides: {
                 paper: {
-                    backgroundColor: bgBase[customMode].default.substring(0, 7) // no opacity
+                    backgroundColor: darkenColor(bgBase[customMode].paper.substring(0, 7), mode === "dark" ? 0.2 : 0.05) // no opacity
                 }
             }
         },
         MuiMenu: {
             styleOverrides: {
                 list: {
-                    backgroundColor: bgBase[customMode].default.substring(0, 7) // no opacity
+                    backgroundColor: bgBase[customMode].paper.substring(0, 7) // no opacity
                 }
             }
         },
