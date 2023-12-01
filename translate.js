@@ -134,17 +134,21 @@ if (!hasImport) {
     });
 }
 
+let doQuit = false;
+let marked = [];
 try {
     // Traverse the AST
     traverse(ast, {
         JSXText(path) {
+            if (doQuit) return;
+
             // Found a JSX literal
             const node = path.node;
             const value = node.value.trim();
             if (value && value.length > 1) { // Skip single characters
                 console.log(`Found string: ${value}`);
 
-                if (skips.includes(value) || value.startsWith("/") || value.startsWith(".") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
+                if (skips.includes(value) || marked.includes(value) || value.startsWith("/") || value.startsWith(".") || value.startsWith("#") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
                     console.log("Skipped...");
                     return;
                 }
@@ -154,28 +158,39 @@ try {
                     .replace(/ /g, '_')
                     .replace(/[^a-z0-9_]/gi, '')
                     .split("_")
+                    .filter(item => item !== '')
                     .slice(0, 5)
                     .join("_");
+
+                let placeholderKeyInput = "";
 
                 if (Object.values(languageData).includes(value)) {
                     // If the string is already in the language data, use its key
                     placeholderKey = Object.keys(languageData).find(key => languageData[key] === value);
+                    placeholderKeyInput = placeholderKey;
                 }
                 if (Object.keys(languageData).includes(value)) {
                     console.log("Skipped...");
                     return;
                 }
-
-                let placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Quit(q)/Skip (s)/Accept Key (Enter)/Custom Key: `, {
-                    defaultInput: placeholderKey
-                });
+                if (placeholderKeyInput === "") {
+                    placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Save quit(q)/Unsave quit(k)/Skip (s)/Mark & Skip (m)/Accept key (Enter)/Custom Key: `, {
+                        defaultInput: placeholderKey
+                    });
+                }
 
                 if (placeholderKeyInput === 's') {
                     skips.push(value);
                     // Skip translation
                     return;
                 } else if (placeholderKeyInput === "q") {
+                    doQuit = true;
                     throw new Error('Quit');
+                } else if (placeholderKeyInput === "k") {
+                    process.exit(0);
+                } else if (placeholderKeyInput === "m") {
+                    marked.push(value);
+                    return;
                 } else {
                     // Replace the JSX literal with a useTranslation call
                     const callExpression = types.callExpression(
@@ -202,6 +217,8 @@ try {
     // Traverse the AST
     traverse(ast, {
         StringLiteral(path) {
+            if (doQuit) return;
+
             // Found a JSX literal
             const node = path.node;
 
@@ -215,7 +232,7 @@ try {
             if (value && value.length > 1) { // Skip single characters
                 console.log(`Found string: ${value}`);
 
-                if (skips.includes(value) || value.startsWith("/") || value.startsWith(".") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
+                if (skips.includes(value) || marked.includes(value) || value.startsWith("/") || value.startsWith(".") || value.startsWith("#") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
                     console.log("Skipped...");
                     return;
                 }
@@ -225,21 +242,25 @@ try {
                     .replace(/ /g, '_')
                     .replace(/[^a-z0-9_]/gi, '')
                     .split("_")
+                    .filter(item => item !== '')
                     .slice(0, 5)
                     .join("_");
+                let placeholderKeyInput = "";
 
                 if (Object.values(languageData).includes(value)) {
                     // If the string is already in the language data, use its key
                     placeholderKey = Object.keys(languageData).find(key => languageData[key] === value);
+                    placeholderKeyInput = placeholderKey;
                 }
                 if (Object.keys(languageData).includes(value)) {
                     console.log("Skipped...");
                     return;
                 }
-
-                let placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Quit(q)/Skip (s)/Accept Key (Enter)/Custom Key: `, {
-                    defaultInput: placeholderKey
-                });
+                if (placeholderKeyInput === "") {
+                    placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Save quit(q)/Unsave quit(k)/Skip (s)/Mark & Skip (m)/Accept key (Enter)/Custom Key: `, {
+                        defaultInput: placeholderKey
+                    });
+                }
 
                 if (placeholderKeyInput === 's') {
                     // Skip translation
@@ -247,6 +268,11 @@ try {
                     return;
                 } else if (placeholderKeyInput === "q") {
                     throw new Error('Quit');
+                } else if (placeholderKeyInput === "k") {
+                    process.exit(0);
+                } else if (placeholderKeyInput === "m") {
+                    marked.push(value);
+                    return;
                 } else {
                     // Replace the JSX literal with a useTranslation call
                     const callExpression = types.callExpression(
@@ -282,7 +308,9 @@ const generator = require('@babel/generator').default;
 let modifiedCode = generator(ast).code;
 
 // Format the code with Prettier
-prettier.format(modifiedCode, { parser: "babel", spaces: 4, tabWidth: 4, printWidth: 200 })
+prettier.format(modifiedCode, {
+    parser: "babel", spaces: 4, tabWidth: 4, singleQuote: false, printWidth: 10000, bracketSameLine: true, bracketSpacing: true, singleAttributePerLine: false, arrowParens: "avoid"
+})
     .then(formattedCode => {
         // Write the modified code back to the file
         fs.writeFile(file, formattedCode, err => {
@@ -303,3 +331,10 @@ prettier.format(modifiedCode, { parser: "babel", spaces: 4, tabWidth: 4, printWi
         });
     })
     .catch(err => console.error(err));
+
+if (marked.length > 0) {
+    console.log("\nBelow are marked values:");
+    for (let i = 0; i < marked.length; i++) {
+        console.log(marked[i]);
+    }
+}
