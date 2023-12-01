@@ -156,7 +156,6 @@ export async function FetchProfile(isLogin = false) {
                 }
             }
             if (vars.userLevel === -1) vars.userLevel = 0;
-            vars.userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
 
             if (vars.userInfo.discordid !== null && vars.userInfo.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid) && vars.specialRolesMap[vars.userInfo.discordid] !== undefined) {
                 for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {

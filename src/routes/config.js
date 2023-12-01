@@ -2475,8 +2475,8 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 label="Multiple Pending Applications"
                 variant="outlined"
                 fullWidth
-                value={application_type.allow_multiple}
-                onChange={(e) => { onUpdate({ ...application_type, allow_multiple: e.target.value }); }}
+                value={application_type.allow_multiple_pending}
+                onChange={(e) => { onUpdate({ ...application_type, allow_multiple_pending: e.target.value }); }}
             >
                 <MenuItem value={true}>Allowed</MenuItem>
                 <MenuItem value={false}>Prohibited</MenuItem>
@@ -2485,17 +2485,17 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
         <Grid item xs={12} md={6}>
             <Typography variant="body2">Discord Role Changes (+ID / -ID)</Typography>
             <CreatableSelect
-                defaultValue={application_type.role_change.map((role) => ({ value: role, label: role }))}
+                defaultValue={application_type.discord_role_change.map((role) => ({ value: role, label: role }))}
                 isMulti
                 name="roles"
                 className="basic-multi-select"
                 classNamePrefix="select"
                 styles={customSelectStyles(theme)}
-                value={application_type.role_change.map((role) => ({ value: role, label: role }))}
+                value={application_type.discord_role_change.map((role) => ({ value: role, label: role }))}
                 onChange={(newRoles) => {
                     onUpdate({
                         ...application_type,
-                        role_change: newRoles.map((item) => item.value),
+                       discord_role_change: newRoles.map((item) => item.value),
                     });
                 }}
                 menuPortalTarget={document.body}
@@ -2590,7 +2590,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                     required_connections: [],
                     required_member_state: -1,
                     cooldown_hours: 0,
-                    allow_multiple: false,
+                    allow_multiple_pending: false,
                     application_type_change: [],
                     required_either_user_application_type_ids: [],
                     required_all_user_application_type_ids: [],

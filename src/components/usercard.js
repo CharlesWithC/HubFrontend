@@ -547,7 +547,6 @@ const UserCard = (props) => {
             }
         }
         setBadges(newBadges);
-        userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
         if (inCHubTeam) userLevel = 4;
 
         if (vars.userConfig[uid] !== undefined) {
