@@ -1,60 +1,74 @@
-import { useState, useEffect } from 'react';
-import { HelmetProvider, Helmet } from 'react-helmet-async';
-
-import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
-import { useTheme } from '@emotion/react';
-
-var vars = require('../variables');
-
+import { useTranslation } from "react-i18next";
+import { useState, useEffect } from "react";
+import { HelmetProvider, Helmet } from "react-helmet-async";
+import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from "../functions";
+import { useTheme } from "@emotion/react";
+var vars = require("../variables");
 var domain = localStorage.getItem("domain");
 if (domain === null) {
     domain = window.location.host;
 }
-
 const Loader = ({ onLoaderLoaded }) => {
+    const { t: tr } = useTranslation();
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
     const [logoSrc, setLogoSrc] = useState(null);
     const [bgSrc, setBgSrc] = useState(null);
-    const [title, setTitle] = useState("Drivers Hub");
-    const [loadMessage, setLoadMessage] = useState("Loading");
-
+    const [title, setTitle] = useState(tr("drivers_hub"));
+    const [loadMessage, setLoadMessage] = useState(tr("loading"));
     const searchParams = new URLSearchParams(window.location.search);
     if (window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
         domain = searchParams.get("domain");
         localStorage.setItem("domain", domain);
     }
-
     if (localStorage.getItem("update-discord") !== null && +new Date() - localStorage.getItem("update-discord") > 60000) {
         localStorage.removeItem("update-discord");
     }
     if (localStorage.getItem("update-steam") !== null && +new Date() - localStorage.getItem("update-steam") > 60000) {
         localStorage.removeItem("update-steam");
     }
-
     useEffect(() => {
         async function doLoad() {
             if (vars.dhconfig !== null) return;
-
             try {
                 // fetch config
-                let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
+                let resp = await axios({
+                    url: `https://config.chub.page/config?domain=${domain}`,
+                    method: "GET",
+                });
                 if (resp.status !== 200) {
                     setLoaderAnimation(false);
                     setTitle("The Drivers Hub Project (CHub)");
                     vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/logo.png`);
                     setLogoSrc(vars.dhlogo);
-                    if (resp.data.error === "Service Suspended") {
-                        setLoadMessage(<>Drivers Hub Suspended<br />Please ask the owner to complete the payment to CHub<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
-                    } else if (resp.data.error === "Not Found") {
-                        setLoadMessage(<>Drivers Hub Not Found<br />We currently do not operate Drivers Hub under this domain<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                    if (resp.data.error === tr("service_suspended")) {
+                        setLoadMessage(
+                            <>
+                                {tr("drivers_hub_suspended")}
+                                <br />
+                                {tr("ask_for_payment")}
+                                <br />
+                                <br />
+                                <a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a>
+                            </>,
+                        );
+                    } else if (resp.data.error === tr("not_found")) {
+                        setLoadMessage(
+                            <>
+                                {tr("drivers_hub_not_found")}
+                                <br />
+                                {tr("no_drivers_hub_under_domain")}
+                                <br />
+                                <br />
+                                <a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a>
+                            </>,
+                        );
                     }
                     return;
                 }
                 let loadedConfig = resp.data;
                 vars.dhconfig = loadedConfig.config;
                 vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
-
                 if (vars.dhconfig.api_host === "https://drivershub.charlws.com") {
                     vars.vtcLevel = 3;
                 } else if (vars.dhconfig.api_host === "https://drivershub05.charlws.com") {
@@ -62,25 +76,40 @@ const Loader = ({ onLoaderLoaded }) => {
                 } else if (vars.dhconfig.api_host === "https://drivershub.charlws.com") {
                     vars.vtcLevel = 0;
                 }
-
                 setTitle(vars.dhconfig.name);
                 try {
-                    vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`, "https://cdn.chub.page/assets/logo.png");
+                    vars.dhlogo = await loadImageAsBase64(
+                        `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
+                        "https://cdn.chub.page/assets/logo.png",
+                    );
                 } catch {
                     vars.dhlogo = "";
                 }
                 try {
-                    vars.dhvtcbg = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
+                    vars.dhvtcbg = await loadImageAsBase64(
+                        `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`,
+                    );
                 } catch {
                     vars.dhvtcbg = "";
                 }
                 setLogoSrc(vars.dhlogo);
                 setBgSrc(vars.dhvtcbg);
-                setLoadMessage(`Loading`);
-
-                let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = [null, null, null, null, null, null, null, null, null, null, null, null];
+                setLoadMessage(tr("loading"));
+                let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                ];
                 let useCache = false;
-
                 let cache = readLS("cache", window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
                 if (cache !== null) {
                     if (cache.timestamp === undefined || +new Date() - cache.timestamp > 86400000) {
@@ -103,32 +132,77 @@ const Loader = ({ onLoaderLoaded }) => {
                         }
                     }
                 }
-
                 if (!useCache) {
                     const urlsBatch = [
-                        { url: `${vars.dhpath}/`, auth: false },
-                        { url: "https://config.chub.page/roles", auth: false },
-                        { url: "https://config.chub.page/patrons", auth: false },
-                        { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
-                        { url: `${vars.dhpath}/config`, auth: false },
-                        { url: `${vars.dhpath}/languages`, auth: false },
-                        { url: `${vars.dhpath}/member/roles`, auth: false },
-                        { url: `${vars.dhpath}/member/perms`, auth: false },
-                        { url: `${vars.dhpath}/member/ranks`, auth: false },
-                        { url: `${vars.dhpath}/applications/types`, auth: false },
-                        { url: `${vars.dhpath}/divisions/list`, auth: false },
-                        { url: `${vars.dhpath}/dlog/statistics/details`, auth: true },
+                        {
+                            url: `${vars.dhpath}/`,
+                            auth: false,
+                        },
+                        {
+                            url: "https://config.chub.page/roles",
+                            auth: false,
+                        },
+                        {
+                            url: "https://config.chub.page/patrons",
+                            auth: false,
+                        },
+                        {
+                            url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/config`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/languages`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/member/roles`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/member/perms`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/member/ranks`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/applications/types`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/divisions/list`,
+                            auth: false,
+                        },
+                        {
+                            url: `${vars.dhpath}/dlog/statistics/details`,
+                            auth: true,
+                        },
                     ];
-
                     [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = await makeRequestsAuto(urlsBatch);
                 } else {
                     const urlsBatch = [
-                        { url: `${vars.dhpath}/`, auth: false },
-                        { url: "https://config.chub.page/roles", auth: false },
-                        { url: "https://config.chub.page/patrons", auth: false },
-                        { url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`, auth: false },
+                        {
+                            url: `${vars.dhpath}/`,
+                            auth: false,
+                        },
+                        {
+                            url: "https://config.chub.page/roles",
+                            auth: false,
+                        },
+                        {
+                            url: "https://config.chub.page/patrons",
+                            auth: false,
+                        },
+                        {
+                            url: `https://config.chub.page/config/user?abbr=${vars.dhconfig.abbr}`,
+                            auth: false,
+                        },
                     ];
-
                     [index, specialRoles, patrons, userConfig] = await makeRequestsAuto(urlsBatch);
                 }
                 if (index) {
@@ -141,9 +215,11 @@ const Loader = ({ onLoaderLoaded }) => {
                         let roleName = roleNames[i];
                         for (let j = 0; j < specialRoles[roleName].length; j++) {
                             let user = specialRoles[roleName][j];
-                            if (!Object.keys(vars.specialRolesMap).includes(user.id))
-                                vars.specialRolesMap[user.id] = [];
-                            vars.specialRolesMap[user.id].push({ "role": roleName, "color": user.color });
+                            if (!Object.keys(vars.specialRolesMap).includes(user.id)) vars.specialRolesMap[user.id] = [];
+                            vars.specialRolesMap[user.id].push({
+                                role: roleName,
+                                color: user.color,
+                            });
                         }
                     }
                 }
@@ -168,7 +244,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     for (let i = 0; i < roles.length; i++) {
                         vars.roles[roles[i].id] = roles[i];
                     }
-                    vars.orderedRoles = roles.sort((a, b) => a.order_id - b.order_id).map(role => role.id);
+                    vars.orderedRoles = roles.sort((a, b) => a.order_id - b.order_id).map((role) => role.id);
                 }
                 if (memberPerms) {
                     vars.perms = memberPerms;
@@ -189,7 +265,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 if (dlogDetails && dlogDetails.error === undefined) {
                     vars.dlogDetails = dlogDetails;
                 }
-
                 if (!useCache) {
                     let cache = {
                         timestamp: +new Date(),
@@ -200,47 +275,49 @@ const Loader = ({ onLoaderLoaded }) => {
                         memberRanks: memberRanks,
                         applicationTypes: applicationTypes,
                         divisions: divisions,
-                        dlogDetails: dlogDetails
+                        dlogDetails: dlogDetails,
                     };
                     writeLS("cache", cache, window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
                 }
-
                 await FetchProfile();
-
-                const themeUpdated = new CustomEvent('themeUpdated', {});
+                const themeUpdated = new CustomEvent("themeUpdated", {});
                 window.dispatchEvent(themeUpdated);
-
                 onLoaderLoaded();
             } catch (error) {
                 setLoaderAnimation(false);
-                console.error("An error occurred when initializing!");
+                console.error(tr("an_error_occurred_when_initializing"));
                 console.error(error);
-                setLoadMessage("Error occurred! Check F12 for more info.");
+                setLoadMessage(tr("error_occurred"));
             }
         }
         doLoad();
     }, [onLoaderLoaded]);
-
     function intToHex(intValue) {
-        const scaledInt = Math.floor(intValue * 255 / 100);
+        const scaledInt = Math.floor((intValue * 255) / 100);
         let hexValue = scaledInt.toString(16);
-        if (hexValue.length === 1) hexValue = '0' + hexValue;
+        if (hexValue.length === 1) hexValue = "0" + hexValue;
         return hexValue;
     }
-
     return (
-        <div style={{
-            backgroundImage: `url(${bgSrc})`,
-            backgroundPosition: 'center',
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-        }}>
-            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + (vars.userSettings.theme_darken_ratio !== null ? intToHex(vars.userSettings.theme_darken_ratio * 100) : "66") }}>
+        <div
+            style={{
+                backgroundImage: `url(${bgSrc})`,
+                backgroundPosition: "center",
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+            }}
+        >
+            <div
+                className="loading-div"
+                style={{
+                    backgroundColor: theme.palette.background.default.substring(0, 7) + (vars.userSettings.theme_darken_ratio !== null ? intToHex(vars.userSettings.theme_darken_ratio * 100) : "66"),
+                }}
+            >
                 <HelmetProvider>
                     <Helmet>
                         <title>{title}</title>
@@ -249,12 +326,9 @@ const Loader = ({ onLoaderLoaded }) => {
                     </Helmet>
                 </HelmetProvider>
                 {logoSrc && <img src={logoSrc} className={`loader ${animateLoader ? "loader-animated" : ""}`} alt="" />}
-                <p>
-                    {loadMessage}
-                </p>
+                <p>{loadMessage}</p>
             </div>
         </div>
     );
 };
-
 export default Loader;

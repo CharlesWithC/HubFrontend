@@ -75,6 +75,9 @@ const ast = parser.parse(code, { sourceType: 'module', plugins: ['jsx'] });
 const languageFile = './src/languages/en.js';
 let languageData = require(languageFile).en;
 
+// Skip
+let skips = require("./translate-skips.js").skips;
+
 // Listen for SIGINT event
 process.on('SIGINT', function () {
     console.log('Exiting...');
@@ -141,6 +144,11 @@ try {
             if (value && value.length > 1) { // Skip single characters
                 console.log(`Found string: ${value}`);
 
+                if (skips.includes(value) || value.startsWith("/") || value.startsWith(".") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
+                    console.log("Skipped...");
+                    return;
+                }
+
                 // Generate a placeholder key
                 let placeholderKey = value.toLowerCase()
                     .replace(/ /g, '_')
@@ -149,11 +157,21 @@ try {
                     .slice(0, 5)
                     .join("_");
 
-                let placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Quit(q)/Skip (!)/Accept Key (Enter)/Custom Key: `, {
+                if (Object.values(languageData).includes(value)) {
+                    // If the string is already in the language data, use its key
+                    placeholderKey = Object.keys(languageData).find(key => languageData[key] === value);
+                }
+                if (Object.keys(languageData).includes(value)) {
+                    console.log("Skipped...");
+                    return;
+                }
+
+                let placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Quit(q)/Skip (s)/Accept Key (Enter)/Custom Key: `, {
                     defaultInput: placeholderKey
                 });
 
-                if (placeholderKeyInput === '!') {
+                if (placeholderKeyInput === 's') {
+                    skips.push(value);
                     // Skip translation
                     return;
                 } else if (placeholderKeyInput === "q") {
@@ -165,6 +183,85 @@ try {
                         [types.stringLiteral(placeholderKeyInput)]
                     );
                     path.replaceWith(types.jsxExpressionContainer(callExpression));
+
+                    // Add the string to the language data
+                    languageData[placeholderKeyInput] = value;
+                }
+            }
+        },
+    });
+} catch (error) {
+    if (error.message === 'Quit') {
+        console.log('Quit command received, stopping traversal.');
+    } else {
+        throw error;
+    }
+}
+
+try {
+    // Traverse the AST
+    traverse(ast, {
+        StringLiteral(path) {
+            // Found a JSX literal
+            const node = path.node;
+
+            const parentType = path.parent.type;
+            // Skip if the parent is an ImportDeclaration
+            if (parentType === 'ImportDeclaration' || parentType === 'CallExpression' && (path.parent.callee.name === 'require' || path.parent.callee.name === 'axios' || parentType === 'NewExpression' && path.parent.callee.name === 'CustomEvent')) {
+                return;
+            }
+
+            const value = node.value.trim();
+            if (value && value.length > 1) { // Skip single characters
+                console.log(`Found string: ${value}`);
+
+                if (skips.includes(value) || value.startsWith("/") || value.startsWith(".") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
+                    console.log("Skipped...");
+                    return;
+                }
+
+                // Generate a placeholder key
+                let placeholderKey = value.toLowerCase()
+                    .replace(/ /g, '_')
+                    .replace(/[^a-z0-9_]/gi, '')
+                    .split("_")
+                    .slice(0, 5)
+                    .join("_");
+
+                if (Object.values(languageData).includes(value)) {
+                    // If the string is already in the language data, use its key
+                    placeholderKey = Object.keys(languageData).find(key => languageData[key] === value);
+                }
+                if (Object.keys(languageData).includes(value)) {
+                    console.log("Skipped...");
+                    return;
+                }
+
+                let placeholderKeyInput = readline.question(`Translate "${value}"? "${placeholderKey}"? Quit(q)/Skip (s)/Accept Key (Enter)/Custom Key: `, {
+                    defaultInput: placeholderKey
+                });
+
+                if (placeholderKeyInput === 's') {
+                    // Skip translation
+                    skips.push(value);
+                    return;
+                } else if (placeholderKeyInput === "q") {
+                    throw new Error('Quit');
+                } else {
+                    // Replace the JSX literal with a useTranslation call
+                    const callExpression = types.callExpression(
+                        types.identifier('tr'),
+                        [types.stringLiteral(placeholderKeyInput)]
+                    );
+
+                    const parentType = path.parent.type;
+                    if (parentType === 'JSXElement' || parentType === 'JSXAttribute') {
+                        // In a JSX context, wrap the call in a JSXExpressionContainer
+                        path.replaceWith(types.jsxExpressionContainer(callExpression));
+                    } else {
+                        // In a non-JSX context, use the call directly
+                        path.replaceWith(callExpression);
+                    }
 
                     // Add the string to the language data
                     languageData[placeholderKeyInput] = value;
@@ -197,6 +294,12 @@ prettier.format(modifiedCode, { parser: "babel", spaces: 4, tabWidth: 4, printWi
         fs.writeFile(languageFile, 'const en = ' + JSON.stringify(languageData, null, 4) + ';\nexports.en = en;', err => {
             if (err) throw err;
             console.log('The language file has been saved!');
+        });
+
+        // Write the modified language data back to the file
+        fs.writeFile("./translate-skips.js", 'const skips = ' + JSON.stringify(skips, null, 4) + ';\nexports.skips = skips;', err => {
+            if (err) throw err;
+            console.log('The skips file has been saved!');
         });
     })
     .catch(err => console.error(err));
