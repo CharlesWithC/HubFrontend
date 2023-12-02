@@ -20,38 +20,6 @@ const CURRENTY_ICON = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
 
 const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫🇷", "netherlands": "🇳🇱", "poland": "🇵🇱", "norway": "🇳🇴", "italy": "🇮🇹", "lithuania": "🇱🇹", "switzerland": "🇨🇭", "sweden": "🇸🇪", "czech": "🇨🇿", "portugal": "🇵🇹", "austria": "🇦🇹", "denmark": "🇩🇰", "finland": "🇫🇮", "belgium": "🇧🇪", "romania": "🇷🇴", "russia": "🇷🇺", "slovakia": "🇸🇰", "turkey": "🇹🇷", "hungary": "🇭🇺", "bulgaria": "🇧🇬", "latvia": "🇱🇻", "estonia": "🇪🇪", "ireland": "🇮🇪", "croatia": "🇭🇷", "greece": "🇬🇷", "serbia": "🇷🇸", "ukraine": "🇺🇦", "slovenia": "🇸🇮", "malta": "🇲🇹", "andorra": "🇦🇩", "macedonia": "🇲🇰", "jordan": "🇯🇴", "egypt": "🇪🇬", "israel": "🇮🇱", "montenegro": "🇲🇪", "australia": "🇦🇺" };
-function GetCountryFlag(game, val) {
-    if (game === "ats") return "🇺🇸";
-    if (Object.keys(COUNTRY_FLAG).includes(val)) {
-        return COUNTRY_FLAG[val];
-    } else {
-        return val;
-    }
-}
-function GetTrailerModel(trailers) {
-    let trailerString = "";
-    for (let i = 0; i < trailers.length; i++) {
-        const trailer = trailers[i];
-        if (trailer.brand === null && (trailer.name === null || trailer.name === "")) trailerString += tr("unknown");
-        else if (trailer.brand === null && trailer.name !== null && trailer.name !== "") trailerString += trailer.name;
-        else trailerString += `${trailer.brand.name} ${trailer.name}`;
-        if (i < trailers.length - 1) {
-            trailerString += " - ";
-        }
-    }
-    return trailerString;
-}
-function GetTrailerPlate(game, trailers) {
-    let trailerString = "";
-    for (let i = 0; i < trailers.length; i++) {
-        const trailer = trailers[i];
-        trailerString += `${GetCountryFlag(game, trailer.license_plate_country.unique_id)} ${trailer.license_plate}`;
-        if (i < trailers.length - 1) {
-            trailerString += " - ";
-        }
-    }
-    return trailerString;
-}
 
 const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
@@ -61,6 +29,39 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
     const FINE_DESC = { "crash": tr("crashed_a_vehicle"), "red_signal": tr("ran_a_red_light"), "speeding_camera": tr("speeding_camera"), "speeding": tr("speeding"), "wrong_way": tr("wrong_way"), "no_lights": tr("no_lights"), "avoid_sleeping": tr("fatigue_driving"), "avoid_weighing": tr("avoided_weighing"), "damaged_vehicle_usage": tr("damaged_vehicle_usage"), "illegal_border_crossing": tr("crossed_border_illegally"), "illegal_trailer": tr("attached_illegal_trailer"), "avoid_inspection": tr("avoided_inspection"), "hard_shoulder_violation": tr("violated_hard_shoulder") };
     const MARKET = { "cargo_market": tr("cargo_market"), "freight_market": tr("freight_market"), "external_contracts": tr("external_contracts"), "quick_job": tr("quick_job"), "external_market": tr("external_market") };
     const YES_NO = { 0: tr("no"), 1: tr("yes") };
+
+    function GetCountryFlag(game, val) {
+        if (game === "ats") return "🇺🇸";
+        if (Object.keys(COUNTRY_FLAG).includes(val)) {
+            return COUNTRY_FLAG[val];
+        } else {
+            return val;
+        }
+    }
+    function GetTrailerModel(trailers) {
+        let trailerString = "";
+        for (let i = 0; i < trailers.length; i++) {
+            const trailer = trailers[i];
+            if (trailer.brand === null && (trailer.name === null || trailer.name === "")) trailerString += tr("unknown");
+            else if (trailer.brand === null && trailer.name !== null && trailer.name !== "") trailerString += trailer.name;
+            else trailerString += `${trailer.brand.name} ${trailer.name}`;
+            if (i < trailers.length - 1) {
+                trailerString += " - ";
+            }
+        }
+        return trailerString;
+    }
+    function GetTrailerPlate(game, trailers) {
+        let trailerString = "";
+        for (let i = 0; i < trailers.length; i++) {
+            const trailer = trailers[i];
+            trailerString += `${GetCountryFlag(game, trailer.license_plate_country.unique_id)} ${trailer.license_plate}`;
+            if (i < trailers.length - 1) {
+                trailerString += " - ";
+            }
+        }
+        return trailerString;
+    }
 
     const { logid } = useParams();
     const [dlog, setDlog] = useState({});

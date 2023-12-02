@@ -9,6 +9,7 @@
    - Using `order_id` by default
    - -1 is reserved for hiding the role
 3. Added Gallery
+4. Added Live Map
 
 ## v3.2.0
 

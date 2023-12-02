@@ -75,7 +75,7 @@ const Gallery = () => {
         setDialogButtonDisabled(false);
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
-    }, []);
+    }, [images]);
 
     return (
         <>
