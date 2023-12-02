@@ -832,7 +832,7 @@ const es = {
     "refuel": "Reabastecer",
     "refund": "Reembolso",
     "register": "Registrarse",
-    "register_or_login_with": "Registrarse o iniciar sesión con:",
+    "register_with": "Registrarse con",
     "regular": "Regular",
     "regular_plan": "Plan Regular",
     "rejected_you_must_enable_mfa_before_reloading_config": "Rechazado: Debes habilitar MFA antes de recargar la configuración",

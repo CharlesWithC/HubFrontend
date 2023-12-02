@@ -843,7 +843,7 @@ const en = {
     "refuel": "Refuel",
     "refund": "Refund",
     "register": "Register",
-    "register_or_login_with": "Register or login with:",
+    "register_with": "Register with",
     "regular": "Regular",
     "regular_plan": "Regular Plan",
     "rejected_you_must_enable_mfa_before_reloading_config": "Rejected: You must enable MFA before reloading config",

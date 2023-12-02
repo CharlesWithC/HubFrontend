@@ -16,7 +16,8 @@ var vars = require("../../variables");
 
 const AuthLogin = () => {
     const { t: tr } = useTranslation();
-    
+    const CONNECTION_NAME = { "email": tr("email"), "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
+
     const navigate = useNavigate();
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const themeMode = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
@@ -112,7 +113,7 @@ const AuthLogin = () => {
                             <Typography variant="body2" onClick={() => { if (validateEP()) { setAction("reset-password"); setModalCaptcha(true); } }} sx={{ cursor: "pointer", width: "fit-content" }}>{tr("forgot_your_password")}</Typography>
                             <br />
                             <ButtonGroup fullWidth>
-                                <Button variant="contained" color="primary" disabled={authDisabled} onClick={() => { if (validateEP()) { setAction("register"); setModalCaptcha(true); } }}>{tr("register")}</Button>
+                                <Button variant="contained" color="primary" disabled={authDisabled || !vars.apiconfig.register_methods.includes("email")} onClick={() => { if (validateEP()) { setAction("register"); setModalCaptcha(true); } }}>{tr("register")}</Button>
                                 <Button variant="contained" color="info" disabled={authDisabled} onClick={() => { if (validateEP()) { setAction("login"); setModalCaptcha(true); } }}>{tr("login")}</Button>
                             </ButtonGroup>
                         </Grid>
@@ -122,7 +123,7 @@ const AuthLogin = () => {
                                 <img src={`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`} alt="" style={{ width: "100%" }} />
                             </Box>
                             <br />
-                            <Typography variant="body2" sx={{ mb: "5px" }}>{tr("register_or_login_with")}</Typography>
+                            <Typography variant="body2" sx={{ mb: "5px" }}>{tr("register_with")}: {vars.apiconfig.register_methods.map((item) => (CONNECTION_NAME[item])).join(" / ")}</Typography>
                             <ButtonGroup fullWidth>
                                 <Button variant="contained" color="primary" onClick={() => { navigate("/auth/discord/redirect"); }}>
                                     <FontAwesomeIcon icon={faDiscord} />&nbsp;&nbsp;Discord
