@@ -17,6 +17,7 @@ import Loader from './components/loader';
 import Redirect from './components/redirect';
 import UpgradeCard from './routes/sponsor';
 import Overview from './routes/overview';
+import Gallery from './routes/gallery';
 import Announcement from './routes/announcement';
 import Downloads from './routes/downloads';
 import Map from './routes/map';
@@ -175,7 +176,7 @@ function App() {
         }
     }, [cookieSettings]);
 
-    const hasSpeedDial = (["/announcement", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
+    const hasSpeedDial = (["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
 
     if (!loaded) {
         return (
@@ -248,6 +249,7 @@ function App() {
                                     <Route path="/settings/sessions" element={<Settings defaultTab={4} />}></Route>
                                     <Route path="/notifications" element={<Notifications />}></Route>
                                     <Route path="/overview" element={<Overview />}></Route>
+                                    <Route path="/gallery" element={<Gallery />}></Route>
                                     <Route path="/announcement" element={<Announcement />}></Route>
                                     <Route path="/downloads" element={<Downloads />}></Route>
                                     <Route path="/poll" element={<Poll />}></Route>

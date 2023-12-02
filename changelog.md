@@ -8,6 +8,7 @@
    - Smaller is higher
    - Using `order_id` by default
    - -1 is reserved for hiding the role
+3. Added Gallery
 
 ## v3.2.0
 

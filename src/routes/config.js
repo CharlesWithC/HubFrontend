@@ -3234,9 +3234,9 @@ const Configuration = () => {
         <Card>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                 <Tabs value={tab} onChange={handleTabChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                    <Tab label={<><FontAwesomeIcon icon={faServer} />&nbsp;&nbsp;{tr("api_form")}</>} {...tabBtnProps(0, tab, theme)} />
-                    <Tab label={<><FontAwesomeIcon icon={faServer} />&nbsp;&nbsp;{tr("api_json")}</>} {...tabBtnProps(1, tab, theme)} />
-                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />&nbsp;&nbsp;{tr("web")}</>} {...tabBtnProps(2, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />{tr("api")}</>} {...tabBtnProps(0, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />{tr("api_json")}</>} {...tabBtnProps(1, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />{tr("web")}</>} {...tabBtnProps(2, tab, theme)} />
                 </Tabs>
             </Box>
             <TabPanel value={tab} index={0}>

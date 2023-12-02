@@ -127,7 +127,7 @@ def updatePatronsCache():
             feconfig["creator_access_token"] = token_json["access_token"]
             feconfig["creator_refresh_token"] = token_json["refresh_token"]
             feconfig["creator_token_expire"] = token_json["expires_in"] + int(time.time())
-            open("./config.json", "w").write(json.dumps(feconfig, indent=4))
+            open("./config.json", "w", encoding="utf-8").write(json.dumps(feconfig, indent=4, ensure_ascii=False))
             headers = {
                 'Authorization': f'Bearer {feconfig["creator_access_token"]}',
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -271,7 +271,7 @@ async def getTruckersMP(mpid: int, response: Response):
             time.sleep(0.01)
     return {"error": "Service Unavailable"}
 
-async def validateTicket(domain: str, authorization: str, response: Response, perm: str = None):
+async def validateTicket(domain: str, authorization: str, response: Response, perm = None):
     # Validate domain
     if not os.path.exists(f"/var/hub/config/{domain}.json"):
         return (400, {"error": "Invalid Domain Param"})
@@ -308,12 +308,22 @@ async def validateTicket(domain: str, authorization: str, response: Response, pe
                 return (r.status_code, {"error": json.loads(r.text)["descriptor"]})
             resp = json.loads(r.text)
             perms = resp
-            if perm not in perms:
-                return (503, {"error": "Invalid Permission Configuration"})
+            if isinstance(perm, str):
+                if perm not in perms:
+                    return (503, {"error": "Invalid Permission Configuration"})
+                for role in perms[perm]:
+                    if int(role) in roles:
+                        ok = True
+            elif isinstance(perm, list):
+                for p in perm:
+                    if p in perms.keys():
+                        for role in perms[p]:
+                            if int(role) in roles:
+                                ok = True
+                                break
+                        if ok:
+                            break
 
-            for role in perms[perm]:
-                if int(role) in roles:
-                    ok = True
         else:
             ok = True
     except:
@@ -511,7 +521,7 @@ async def getConfig(domain: str, request: Request, response: Response):
     
     config = json.loads(open(f"/var/hub/config/{domain}.json", "r").read())
 
-    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
+    config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "gallery"]
     config_keys = list(config.keys())
     for k in config_keys:
         if k not in config_whitelist:
@@ -532,7 +542,9 @@ async def getConfig(domain: str, request: Request, response: Response):
         config["bgimage_key"] = ""
     if "use_highest_role_color" not in config.keys():
         config["use_highest_role_color"] = True
-    
+    if "gallery" not in config.keys():
+        config["gallery"] = []
+
     return {"config": config}
 
 @app.patch("/config")
@@ -621,7 +633,7 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
     
     try:
         newconfig = data["config"]
-        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key"]
+        config_whitelist = ["abbr", "name", "color", "name_color", "theme_main_color", "theme_background_color", "theme_darken_ratio", "distance_unit", "use_highest_role_color", "domain", "api_host", "plugins", "logo_key", "banner_key", "bgimage_key", "gallery"]
         toremove = ["abbr", "domain", "api_host", "plugins"]
         for t in toremove:
             if t in newconfig.keys():
@@ -660,7 +672,29 @@ async def patchConfig(domain: str, request: Request, response: Response, authori
         sorted_keys = sorted(newconfig.keys(), key=lambda x: config_whitelist.index(x))
         newconfig = {key: newconfig[key] for key in sorted_keys}
 
-        open(f"/var/hub/config/{domain}.json", "w").write(json.dumps(newconfig, indent=4))
+        open(f"/var/hub/config/{domain}.json", "w", encoding="utf-8").write(json.dumps(newconfig, indent=4, ensure_ascii=False))
+    except:
+        response.status_code = 400
+        return {"error": "Error occurred when saving config"}
+
+    return Response(status_code=204)
+
+@app.patch("/config/gallery")
+async def patchConfigGallery(domain: str, request: Request, response: Response, authorization: str = Header(None)):
+    validate = await validateTicket(domain, authorization, response, ["administrator", "manage_gallery"])
+    if validate[0] != 200:
+        response.status_code = validate[0]
+        return validate[1]
+    (_, config, resp) = validate
+
+    data = await request.json()
+    try:
+        gallery = data["gallery"]
+        if len(json.dumps(gallery, indent=4)) >= 100000:
+            response.status_code = 400
+            return {"error": "Too many URLs or URL too long"}
+        config["gallery"] = gallery
+        open(f"/var/hub/config/{domain}.json", "w", encoding="utf-8").write(json.dumps(config, indent=4, ensure_ascii=False))
     except:
         response.status_code = 400
         return {"error": "Error occurred when saving config"}

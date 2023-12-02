@@ -8,6 +8,7 @@ Brand new start: V3 with ReactJS!
 2. [event] Add `[Image src="{link}"]` (\*case-sensitive) to the beginning of description to show an image heading for an event.
 3. [display] VTC Background image  
 4. [display] VTC Theme & Name Color
+5. [gallery] Gallery
 
 ## Advanced Staff Functions
 
