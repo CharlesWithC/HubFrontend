@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardActions, Button, useTheme } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -7,13 +8,15 @@ import { FetchProfile, customAxios as axios, setAuthToken } from '../../function
 var vars = require('../../variables');
 
 const TokenAuth = () => {
+    const { t: tr } = useTranslation();
+    
     const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const token = searchParams.get('token');
 
-    const [message, setMessage] = useState("Checking token...");
+    const [message, setMessage] = useState(tr("checking_token"));
     const [allowContinue, setContinue] = useState(false);
 
     useEffect(() => {
@@ -22,12 +25,12 @@ const TokenAuth = () => {
                 let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${token}` }, method: `PATCH` });
                 if (resp.status === 200) {
                     setAuthToken(resp.data.token);
-                    setMessage("You are authorized 🎉");
-                    await FetchProfile(isLogin = true);
+                    setMessage(tr("you_are_authorized"));
+                    await FetchProfile(true);
                     setContinue(true);
                     setTimeout(function () { navigate('/'); }, 500);
                 } else if (resp.status === 401) {
-                    setMessage("Invalid token ❌");
+                    setMessage(tr("invalid_token"));
                     setContinue(true);
                 } else {
                     setMessage(resp.data.error);
@@ -35,12 +38,12 @@ const TokenAuth = () => {
                 }
             } catch (error) {
                 console.error(error);
-                setMessage("Error occurred! Check F12 for more info.");
+                setMessage(tr("error_occurred"));
             }
         }
         if (token === null || token.length !== 36) {
             setContinue(true);
-            setMessage("Invalid token ❌");
+            setMessage(tr("invalid_token"));
             return;
         } else {
             validateToken();
@@ -70,7 +73,7 @@ const TokenAuth = () => {
                 </CardContent>
                 <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
+                        onClick={handleContinue} disabled={!allowContinue}>{tr("continue")}</Button>
                 </CardActions>
             </Card>
         </div>

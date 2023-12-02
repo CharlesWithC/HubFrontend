@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
 import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
@@ -11,6 +12,8 @@ import { makeRequestsWithAuth, TSep, customAxios as axios, getAuthToken, isSameD
 var vars = require("../variables");
 
 const Ranking = () => {
+    const { t: tr } = useTranslation();
+
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback(() => {
@@ -92,7 +95,7 @@ const Ranking = () => {
     const getDiscordRole = useCallback(async () => {
         let resp = await axios({ url: `${vars.dhpath}/member/roles/rank/${curRankTypeId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("You received a new rank role!");
+            setSnackbarContent(tr("you_received_a_new_rank_role"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -102,7 +105,7 @@ const Ranking = () => {
     const claimDailyBonus = useCallback(async () => {
         let resp = await axios({ url: `${vars.dhpath}/member/bonus/claim`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
-            setSnackbarContent(`Daily bonus claimed! You got ${resp.data.bonus} points. Remember to come back tomorrow and don't break your streak!`);
+            setSnackbarContent(tr("daily_bonus_claimed", { amount: resp.data.bonus }));
             setSnackbarSeverity("success");
             doLoad();
         } else {
@@ -116,15 +119,13 @@ const Ranking = () => {
             <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>
-                            Previous Rank
-                        </Typography>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("previous_rank")}</Typography>
                         {rankIdx >= 1 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx - 1]?.color }}>
                                 {curRankRoles[rankIdx - 1].name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx - 1].points)} Pts | -{TSep(userPoints - curRankRoles[rankIdx - 1].points)} Pts
+                                {TSep(curRankRoles[rankIdx - 1].points)} {tr("pts")} | -{TSep(userPoints - curRankRoles[rankIdx - 1].points)} {tr("pts")}
                             </Typography>
                         </>}
                         {rankIdx <= 0 && <>
@@ -132,7 +133,7 @@ const Ranking = () => {
                                 N/A
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                0 Pts | -{TSep(userPoints)} Pts
+                                0 {tr("pts")} | -{TSep(userPoints)} {tr("pts")}
                             </Typography>
                         </>}
                     </CardContent>
@@ -141,30 +142,24 @@ const Ranking = () => {
             <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>
-                            Current Rank
-                        </Typography>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("current_rank")}</Typography>
                         {rankIdx >= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx]?.color, cursor: "pointer" }} onClick={getDiscordRole}>
                                 {curRankRoles[rankIdx].name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(userPoints)} Pts
+                                {TSep(userPoints)} {tr("pts")}
                             </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                Daily Bonus: {bonusStreak} Streak
-                            </Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak}{tr("streak")}</Typography>
                         </>}
                         {rankIdx <= 0 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: "grey" }}>
                                 N/A
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                0 Pts
+                                0 {tr("pts")}
                             </Typography>
-                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                Daily Bonus: {bonusStreak} Streak
-                            </Typography>
+                            <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("daily_bonus")}: {bonusStreak}{tr("streak")}</Typography>
                         </>}
                     </CardContent>
                 </Card>
@@ -172,15 +167,13 @@ const Ranking = () => {
             <Grid item xs={12} sm={12} md={4} lg={4}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>
-                            Next Rank
-                        </Typography>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("next_rank")}</Typography>
                         {rankIdx + 1 <= curRankRoles.length - 1 && <>
                             <Typography variant="h5" align="center" component="div" sx={{ color: curRankRoles[rankIdx + 1]?.color }}>
                                 {curRankRoles[rankIdx + 1].name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                {TSep(curRankRoles[rankIdx + 1].points)} Pts | +{TSep(curRankRoles[rankIdx + 1].points - userPoints)} Pts
+                                {TSep(curRankRoles[rankIdx + 1].points)} {tr("pts")} | +{TSep(curRankRoles[rankIdx + 1].points - userPoints)} {tr("pts")}
                             </Typography>
                         </>}
                         {rankIdx + 1 > curRankRoles.length - 1 && <>
@@ -188,7 +181,7 @@ const Ranking = () => {
                                 N/A
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                                ∞ Pts | +∞ Pts
+                                ∞ {tr("pts")} | +∞ {tr("pts")}
                             </Typography>
                         </>}
                     </CardContent>
@@ -204,7 +197,7 @@ const Ranking = () => {
                                 {rank.name}
                             </Typography>
                             <Typography variant="subtitle2" align="center" sx={{ ...rank.points < userPoints ? { color: "grey" } : {}, mt: 1 }}>
-                                {TSep(rank.points)} Pts
+                                {TSep(rank.points)} {tr("pts")}
                             </Typography>
                         </CardContent>
                     </Card>
@@ -214,12 +207,11 @@ const Ranking = () => {
         <Dialog open={modalCRTOpen} onClose={handleModalCRTClose}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", minWidth: "300px" }}>
-                    <AltRouteRounded />&nbsp;&nbsp;Change Rank Type
-                </Typography>
+                    <AltRouteRounded />&nbsp;&nbsp;{tr("change_rank_type")}</Typography>
             </DialogTitle>
             <DialogContent>
                 <TextField select
-                    label="Rank Type"
+                    label={tr("rank_type")}
                     value={`${curRankTypeId}`}
                     onChange={handleRankTypeIdChange}
                     sx={{ marginTop: "6px", height: "30px" }}
@@ -231,38 +223,36 @@ const Ranking = () => {
                 </TextField>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleModalCRTClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                    Close
-                </Button>
+                <Button onClick={handleModalCRTClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
                 key="refresh"
                 icon={<RefreshRounded />}
-                tooltipTitle="Refresh"
+                tooltipTitle={tr("refresh")}
                 onClick={() => doLoad()}
             />
             <SpeedDialAction
                 key="rank_type"
                 icon={<AltRouteRounded />}
-                tooltipTitle="Change Rank Type"
+                tooltipTitle={tr("change_rank_type")}
                 onClick={() => setModalCRTOpen(true)}
             />
             <SpeedDialAction
                 key="bonus"
                 icon={<FontAwesomeIcon icon={faCoins} />}
-                tooltipTitle="Claim Daily Bonus"
+                tooltipTitle={tr("claim_daily_bonus")}
                 onClick={() => claimDailyBonus()}
             />
             <SpeedDialAction
                 key="discord"
                 icon={<FontAwesomeIcon icon={faDiscord} />}
-                tooltipTitle="Get Discord Role"
+                tooltipTitle={tr("get_discord_role")}
                 onClick={() => getDiscordRole()}
             />
         </SpeedDial>

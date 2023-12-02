@@ -7,9 +7,13 @@ import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
 import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '../../../functions';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require('../../../variables');
 
 const DiscordAuth = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
@@ -18,7 +22,7 @@ const DiscordAuth = () => {
     const discordError = searchParams.get('error');
     const discordErrorDescription = searchParams.get('error_description');
 
-    const [message, setMessage] = useState("Validating authorization...");
+    const [message, setMessage] = useState(tr("validating_authorization"));
     const [allowContinue, setContinue] = useState(false);
     const [doingUpdate, setDoingUpdate] = useState(false);
 
@@ -36,13 +40,13 @@ const DiscordAuth = () => {
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
-                            setMessage("You are authorized 🎉");
-                            await FetchProfile(isLogin = true);
+                            setMessage(tr("you_are_authorized"));
+                            await FetchProfile(true);
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {
                             navigate("/auth/mfa?token=" + resp.data.token);
-                            setMessage("MFA OTP Required 🔑");
+                            setMessage(tr("mfa_otp_required"));
                         }
                     } else {
                         setContinue(true);
@@ -55,15 +59,15 @@ const DiscordAuth = () => {
                         setContinue(true);
                         localStorage.removeItem("update-discord");
                         setTimeout(function () { navigate("/settings"); }, 3000);
-                        setMessage("Discord Account Updated");
+                        setMessage(tr("discord_account_updated"));
                     } else {
                         setContinue(true);
-                        setMessage("❌ Failed to update Discord account: " + resp.data.error);
+                        setMessage(tr("failed_to_update_discord_account") + resp.data.error);
                     }
                 }
             } catch (error) {
                 console.error(error);
-                setMessage("Error occurred! Check F12 for more info.");
+                setMessage(tr("error_occurred"));
             }
         } if (discordErrorDescription !== null) {
             setContinue(true);
@@ -104,15 +108,14 @@ const DiscordAuth = () => {
             <Card sx={{ width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent>
                     <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
-                        <FontAwesomeIcon icon={faDiscord} />&nbsp;&nbsp;Discord Authorization
-                    </Typography>
+                        <FontAwesomeIcon icon={faDiscord} />&nbsp;&nbsp;{tr("discord_authorization")}</Typography>
                     <Typography variant="body">
                         {message}
                     </Typography>
                 </CardContent>
                 <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
+                        onClick={handleContinue} disabled={!allowContinue}>{tr("continue")}</Button>
                 </CardActions>
             </Card>
         </div>

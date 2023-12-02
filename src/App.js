@@ -55,8 +55,11 @@ import SideBar from './components/sidebar';
 import { readLS, writeLS } from './functions.js';
 
 import { useTranslation } from 'react-i18next';
+import i18n from './i18n';
 
 var vars = require('./variables');
+
+const client_version = "3.3.0";
 
 const drivershub = `    ____       _                         __  __      __
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_
@@ -70,7 +73,7 @@ function App() {
 
     useEffect(() => {
         console.log(drivershub);
-        console.log("Drivers Hub: Frontend (v3.2.0)");
+        console.log(`Drivers Hub: Frontend (v${client_version})`);
         console.log(`Copyright (C) ${new Date().getFullYear()} CharlesWithC All rights reserved.`);
     }, []);
 
@@ -97,18 +100,23 @@ function App() {
         };
     }, [updateThemeMode]);
 
-    if (readLS("client-settings", window.location.hostname) !== null) {
-        let lsSettings = readLS("client-settings", window.location.hostname);
-        let sKeys = Object.keys(vars.userSettings);
-        for (let i = 0; i < sKeys.length; i++) {
-            if (Object.keys(lsSettings).includes(sKeys[i])) {
-                vars.userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+    useEffect(() => {
+        if (readLS("client-settings", window.location.hostname) !== null) {
+            let lsSettings = readLS("client-settings", window.location.hostname);
+            let sKeys = Object.keys(vars.userSettings);
+            for (let i = 0; i < sKeys.length; i++) {
+                if (Object.keys(lsSettings).includes(sKeys[i])) {
+                    vars.userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+                }
             }
+            writeLS("client-settings", vars.userSettings, window.location.hostname);
+        } else {
+            writeLS("client-settings", vars.userSettings, window.location.hostname);
         }
-        writeLS("client-settings", vars.userSettings, window.location.hostname);
-    } else {
-        writeLS("client-settings", vars.userSettings, window.location.hostname);
-    }
+        if (vars.userSettings.language !== null) {
+            i18n.changeLanguage(vars.userSettings.language);
+        }
+    }, []);
 
     const [loaded, setRerender] = useState(false);
 
@@ -316,14 +324,14 @@ function App() {
                                         <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                             {vars.dhconfig.name}
                                             <br />
-                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v3.2.0</>
+                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v{client_version}</>
                                         </Typography>
                                     </div>}
                                     {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                             &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                             <br />
-                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v3.2.0</>
+                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v{client_version}</>
                                             <br />
                                             <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                         </Typography>

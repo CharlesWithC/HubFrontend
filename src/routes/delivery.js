@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -15,56 +16,10 @@ import '../App.css';
 
 var vars = require("../variables");
 
-const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
-const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
-const EVENT_NAME = { "job.started": "Job Started", "job.delivered": "Job Delivered", "job.cancelled": "Job Cancelled", "fine": "Fine", "tollgate": "Toll Gate", "ferry": "Ferry", "train": "Train", "collision": "Collision", "repair": "Repair", "refuel": "Refuel", "teleport": "Teleport", "speeding": "Speeding" };
-const FINE_DESC = { "crash": "Crashed a vehicle", "red_signal": "Ran a red light", "speeding_camera": "Speeding camera", "speeding": "Speeding", "wrong_way": "Wrong way", "no_lights": "No lights", "avoid_sleeping": "Fatigue driving", "avoid_weighing": "Avoided weighing", "damaged_vehicle_usage": "Damaged vehicle usage", "illegal_border_crossing": "Crossed border illegally", "illegal_trailer": "Attached illegal trailer", "avoid_inspection": "Avoided inspection", "hard_shoulder_violation": "Violated hard shoulder" };
-const STATUS = { 0: "Pending", 1: "Accepted", 2: "Declined" };
-
 const CURRENTY_ICON = { "eut2": "€", "ats": "$" };
 function bool2int(b) { return b ? 1 : 0; }
-const YES_NO = { 0: "No", 1: "Yes" };
-const MARKET = { "cargo_market": "Cargo Market", "freight_market": "Freight Market", "external_contracts": "External Contracts", "quick_job": "Quick Job", "external_market": "External Market" };
-const COUNTRY_FLAG = {
-    "uk": "🇬🇧",
-    "germany": "🇩🇪",
-    "france": "🇫🇷",
-    "netherlands": "🇳🇱",
-    "poland": "🇵🇱",
-    "norway": "🇳🇴",
-    "italy": "🇮🇹",
-    "lithuania": "🇱🇹",
-    "switzerland": "🇨🇭",
-    "sweden": "🇸🇪",
-    "czech": "🇨🇿",
-    "portugal": "🇵🇹",
-    "austria": "🇦🇹",
-    "denmark": "🇩🇰",
-    "finland": "🇫🇮",
-    "belgium": "🇧🇪",
-    "romania": "🇷🇴",
-    "russia": "🇷🇺",
-    "slovakia": "🇸🇰",
-    "turkey": "🇹🇷",
-    "hungary": "🇭🇺",
-    "bulgaria": "🇧🇬",
-    "latvia": "🇱🇻",
-    "estonia": "🇪🇪",
-    "ireland": "🇮🇪",
-    "croatia": "🇭🇷",
-    "greece": "🇬🇷",
-    "serbia": "🇷🇸",
-    "ukraine": "🇺🇦",
-    "slovenia": "🇸🇮",
-    "malta": "🇲🇹",
-    "andorra": "🇦🇩",
-    "macedonia": "🇲🇰",
-    "jordan": "🇯🇴",
-    "egypt": "🇪🇬",
-    "israel": "🇮🇱",
-    "montenegro": "🇲🇪",
-    "australia": "🇦🇺"
-};
+
+const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫🇷", "netherlands": "🇳🇱", "poland": "🇵🇱", "norway": "🇳🇴", "italy": "🇮🇹", "lithuania": "🇱🇹", "switzerland": "🇨🇭", "sweden": "🇸🇪", "czech": "🇨🇿", "portugal": "🇵🇹", "austria": "🇦🇹", "denmark": "🇩🇰", "finland": "🇫🇮", "belgium": "🇧🇪", "romania": "🇷🇴", "russia": "🇷🇺", "slovakia": "🇸🇰", "turkey": "🇹🇷", "hungary": "🇭🇺", "bulgaria": "🇧🇬", "latvia": "🇱🇻", "estonia": "🇪🇪", "ireland": "🇮🇪", "croatia": "🇭🇷", "greece": "🇬🇷", "serbia": "🇷🇸", "ukraine": "🇺🇦", "slovenia": "🇸🇮", "malta": "🇲🇹", "andorra": "🇦🇩", "macedonia": "🇲🇰", "jordan": "🇯🇴", "egypt": "🇪🇬", "israel": "🇮🇱", "montenegro": "🇲🇪", "australia": "🇦🇺" };
 function GetCountryFlag(game, val) {
     if (game === "ats") return "🇺🇸";
     if (Object.keys(COUNTRY_FLAG).includes(val)) {
@@ -77,7 +32,7 @@ function GetTrailerModel(trailers) {
     let trailerString = "";
     for (let i = 0; i < trailers.length; i++) {
         const trailer = trailers[i];
-        if (trailer.brand === null && (trailer.name === null || trailer.name === "")) trailerString += "Unknown";
+        if (trailer.brand === null && (trailer.name === null || trailer.name === "")) trailerString += tr("unknown");
         else if (trailer.brand === null && trailer.name !== null && trailer.name !== "") trailerString += trailer.name;
         else trailerString += `${trailer.brand.name} ${trailer.name}`;
         if (i < trailers.length - 1) {
@@ -99,6 +54,14 @@ function GetTrailerPlate(game, trailers) {
 }
 
 const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
+    const { t: tr } = useTranslation();
+    const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
+    const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
+    const EVENT_NAME = { "job.started": tr("job_started"), "job.delivered": tr("job_delivered"), "job.cancelled": tr("job_cancelled"), "fine": tr("fine"), "tollgate": tr("toll_gate"), "ferry": tr("ferry"), "train": tr("train"), "collision": tr("collision"), "repair": tr("repair"), "refuel": tr("refuel"), "teleport": tr("teleport"), "speeding": tr("speeding") };
+    const FINE_DESC = { "crash": tr("crashed_a_vehicle"), "red_signal": tr("ran_a_red_light"), "speeding_camera": tr("speeding_camera"), "speeding": tr("speeding"), "wrong_way": tr("wrong_way"), "no_lights": tr("no_lights"), "avoid_sleeping": tr("fatigue_driving"), "avoid_weighing": tr("avoided_weighing"), "damaged_vehicle_usage": tr("damaged_vehicle_usage"), "illegal_border_crossing": tr("crossed_border_illegally"), "illegal_trailer": tr("attached_illegal_trailer"), "avoid_inspection": tr("avoided_inspection"), "hard_shoulder_violation": tr("violated_hard_shoulder") };
+    const MARKET = { "cargo_market": tr("cargo_market"), "freight_market": tr("freight_market"), "external_contracts": tr("external_contracts"), "quick_job": tr("quick_job"), "external_market": tr("external_market") };
+    const YES_NO = { 0: tr("no"), 1: tr("yes") };
+
     const { logid } = useParams();
     const [dlog, setDlog] = useState({});
     const [dlogDetail, setDlogDetail] = useState({});
@@ -318,56 +281,56 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                 }
             }
 
-            const lmi = [{ "name": "Log ID", "value": logid },
+            const lmi = [{ "name": tr("log_id"), "value": logid },
             { "name": `Tracker`, "value": TRACKER[data.tracker] },
             { "name": `Tracker Job ID`, "key": "id" },
-            { "name": "Time Submitted", "value": <TimeAgo key={`${+new Date()}`} timestamp={data.timestamp * 1000} /> },
-            { "name": "Time Spent", "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
-            { "name": "Status", "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>Delivered</span> : <span style={{ color: theme.palette.error.main }}>Cancelled</span> },
+            { "name": tr("time_submitted"), "value": <TimeAgo key={`${+new Date()}`} timestamp={data.timestamp * 1000} /> },
+            { "name": tr("time_spent"), "value": CalcInterval(new Date(detail.start_time), new Date(detail.stop_time)) },
+            { "name": tr("status"), "value": data.detail.type === "job.delivered" ? <span style={{ color: theme.palette.success.main }}>{tr("delivered")}</span> : <span style={{ color: theme.palette.error.main }}>{tr("cancelled")}</span> },
             {
-                "name": "Delivery Route", "value":
+                "name": tr("delivery_route"), "value":
                     points !== undefined && points !== null && points.length !== 0 ?
-                        <span style={{ color: theme.palette.success.main }}>Available</span> :
-                        <Typography variant="span" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", color: theme.palette.error.main }}>Unavailable&nbsp;&nbsp;{data.telemetry === "" && <IconButton onClick={handleReloadRoute}>
+                        <span style={{ color: theme.palette.success.main }}>{tr("available")}</span> :
+                        <Typography variant="span" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", color: theme.palette.error.main }}>{tr("unavailable")}{data.telemetry === "" && <IconButton onClick={handleReloadRoute}>
                             <RefreshRounded />
                         </IconButton>}</Typography>
             },
-            { "name": "Division", "value": data.division !== null ? vars.divisions[data.division].name : "/" },
+            { "name": tr("division"), "value": data.division !== null ? vars.divisions[data.division].name : "/" },
             {},
-            { "name": "Driver", "value": <UserCard user={data.user} inline={true} /> },
-            { "name": "Truck Model", "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
-            { "name": "Truck Plate", "value": <>{detail.truck.license_plate_country !== null ? `${GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)} ${detail.truck.license_plate}` : `N/A`}</> },
-            { "name": "Truck Odometer", "value": <>{ConvertUnit("km", detail.truck.initial_odometer)} {'->'} {ConvertUnit("km", detail.truck.odometer)}</> },
-            { "name": "Trailer Model", "value": GetTrailerModel(detail.trailers) },
-            { "name": "Trailer Plate", "value": <>{detail.trailers[0].license_plate_country !== null ? `${GetTrailerPlate(detail.game.short_name, detail.trailers)}` : `N/A`}</> },
+            { "name": tr("driver"), "value": <UserCard user={data.user} inline={true} /> },
+            { "name": tr("truck_model"), "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
+            { "name": tr("truck_plate"), "value": <>{detail.truck.license_plate_country !== null ? `${GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)} ${detail.truck.license_plate}` : `N/A`}</> },
+            { "name": tr("truck_odometer"), "value": <>{ConvertUnit("km", detail.truck.initial_odometer)} {'->'} {ConvertUnit("km", detail.truck.odometer)}</> },
+            { "name": tr("trailer_model"), "value": GetTrailerModel(detail.trailers) },
+            { "name": tr("trailer_plate"), "value": <>{detail.trailers[0].license_plate_country !== null ? `${GetTrailerPlate(detail.game.short_name, detail.trailers)}` : `N/A`}</> },
             {},
-            { "name": "Cargo", "value": <>{detail.cargo.name} <span style={{ color: "grey" }}>({detail.cargo.unique_id})</span></> },
-            { "name": "Cargo Mass", "value": ConvertUnit("kg", detail.cargo.mass) },
-            { "name": "Cargo Damage", "value": <span style={{ "color": detail.cargo.damage <= 0.01 ? theme.palette.success.main : (detail.cargo.damage <= 0.05 ? theme.palette.warning.main : theme.palette.error.main) }} > {(detail.cargo.damage * 100).toFixed(1)}%</span > },
+            { "name": tr("cargo"), "value": <>{detail.cargo.name} <span style={{ color: "grey" }}>({detail.cargo.unique_id})</span></> },
+            { "name": tr("cargo_mass"), "value": ConvertUnit("kg", detail.cargo.mass) },
+            { "name": tr("cargo_damage"), "value": <span style={{ "color": detail.cargo.damage <= 0.01 ? theme.palette.success.main : (detail.cargo.damage <= 0.05 ? theme.palette.warning.main : theme.palette.error.main) }} > {(detail.cargo.damage * 100).toFixed(1)}%</span > },
             {},
-            { "name": "Planned Distance", "value": ConvertUnit("km", detail.planned_distance) },
-            { "name": "Logged Distance", "value": ConvertUnit("km", detail.driven_distance) },
-            { "name": "Reported Distance", "value": ConvertUnit("km", detail.events[detail.events.length - 1].meta.distance) },
+            { "name": tr("planned_distance"), "value": ConvertUnit("km", detail.planned_distance) },
+            { "name": tr("logged_distance"), "value": ConvertUnit("km", detail.driven_distance) },
+            { "name": tr("reported_distance"), "value": ConvertUnit("km", detail.events[detail.events.length - 1].meta.distance) },
             {},
-            { "name": "Source Company", "value": <>{detail.source_company.name} <span style={{ color: "grey" }}>({detail.source_company.unique_id})</span></> },
-            { "name": "Source City", "value": <>{detail.source_city.name} <span style={{ color: "grey" }}>({detail.source_city.unique_id})</span></> },
-            { "name": "Destination Company", "value": <>{detail.destination_company.name} <span style={{ color: "grey" }}>({detail.destination_company.unique_id})</span></> },
-            { "name": "Destination City", "value": <>{detail.destination_city.name} <span style={{ color: "grey" }}>({detail.destination_city.unique_id})</span></> },
-            { "name": "Fuel Used", "value": ConvertUnit("l", detail.fuel_used, 2) },
-            { "name": "Avg. Fuel", "value": ConvertUnit("l", (detail.fuel_used / detail.driven_distance * 100).toFixed(2), 2) + "/100km" },
-            { "name": "AdBlue Used", "value": ConvertUnit("l", detail.adblue_used, 2) },
-            { "name": "Max. Speed", "value": ConvertUnit("km", detail.truck.top_speed * 3.6) + "/h" },
-            { "name": "Avg. Speed", "value": ConvertUnit("km", detail.truck.average_speed * 3.6) + "/h" },
+            { "name": tr("source_company"), "value": <>{detail.source_company.name} <span style={{ color: "grey" }}>({detail.source_company.unique_id})</span></> },
+            { "name": tr("source_city"), "value": <>{detail.source_city.name} <span style={{ color: "grey" }}>({detail.source_city.unique_id})</span></> },
+            { "name": tr("destination_company"), "value": <>{detail.destination_company.name} <span style={{ color: "grey" }}>({detail.destination_company.unique_id})</span></> },
+            { "name": tr("destination_city"), "value": <>{detail.destination_city.name} <span style={{ color: "grey" }}>({detail.destination_city.unique_id})</span></> },
+            { "name": tr("fuel_used"), "value": ConvertUnit("l", detail.fuel_used, 2) },
+            { "name": tr("avg_fuel"), "value": ConvertUnit("l", (detail.fuel_used / detail.driven_distance * 100).toFixed(2), 2) + "/100km" },
+            { "name": tr("adblue_used"), "value": ConvertUnit("l", detail.adblue_used, 2) },
+            { "name": tr("max_speed"), "value": ConvertUnit("km", detail.truck.top_speed * 3.6) + "/h" },
+            { "name": tr("avg_speed"), "value": ConvertUnit("km", detail.truck.average_speed * 3.6) + "/h" },
             {},
-            { "name": "Revenue", "value": detail.events[detail.events.length - 1].meta.revenue !== undefined ? CURRENTY_ICON[detail.game.short_name] + detail.events[detail.events.length - 1].meta.revenue : "/" },
-            { "name": "Fine", "value": CURRENTY_ICON[detail.game.short_name] + fine },
+            { "name": tr("revenue"), "value": detail.events[detail.events.length - 1].meta.revenue !== undefined ? CURRENTY_ICON[detail.game.short_name] + detail.events[detail.events.length - 1].meta.revenue : "/" },
+            { "name": tr("fine"), "value": CURRENTY_ICON[detail.game.short_name] + fine },
             {},
-            { "name": "Is Special Transport?", "value": YES_NO[bool2int(detail.is_special)] },
-            { "name": "Is Late?", "value": <span style={{ color: detail.is_late === false ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.is_late)]}</span> },
-            { "name": "Had Police Enabled?", "value": <span style={{ color: detail.game.had_police_enabled === true ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.game.had_police_enabled)]}</span> },
-            { "name": "Market", "value": MARKET[detail.market] },
-            { "name": "Mode", "value": detail.multiplayer === null ? "Single Player" : (detail.multiplayer === "truckersmp" ? "TruckersMP" : "SCS Convoy") },
-            { "name": "Automation", "value": <>{autoLoad ? <Chip label={"Auto Load"} sx={{ borderRadius: "5px" }}></Chip> : <></>} {autoPark ? <Chip label={"Auto Park"} sx={{ borderRadius: "5px" }}></Chip> : <></>}</> }];
+            { "name": tr("is_special_transport"), "value": YES_NO[bool2int(detail.is_special)] },
+            { "name": tr("is_late"), "value": <span style={{ color: detail.is_late === false ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.is_late)]}</span> },
+            { "name": tr("had_police_enabled"), "value": <span style={{ color: detail.game.had_police_enabled === true ? theme.palette.success.main : theme.palette.error.main }}>{YES_NO[bool2int(detail.game.had_police_enabled)]}</span> },
+            { "name": tr("market"), "value": MARKET[detail.market] },
+            { "name": tr("mode"), "value": detail.multiplayer === null ? tr("single_player") : (detail.multiplayer === "truckersmp" ? "TruckersMP" : tr("scs_convoy")) },
+            { "name": tr("automation"), "value": <>{autoLoad ? <Chip label={tr("auto_load")} sx={{ borderRadius: "5px" }}></Chip> : <></>} {autoPark ? <Chip label={tr("auto_park")} sx={{ borderRadius: "5px" }}></Chip> : <></>}</> }];
             setListModalItems(lmi);
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -380,13 +343,13 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
         {dlog.logid === undefined &&
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded />&nbsp;&nbsp;Delivery #{logid}
+                    <LocalShippingRounded />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}
                 </Typography>
             </div>}
         {dlog.logid !== undefined && <div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h5" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <LocalShippingRounded />&nbsp;&nbsp;Delivery #{logid}&nbsp;&nbsp;
+                    <LocalShippingRounded />&nbsp;&nbsp;<>{tr("delivery")}</> #{logid}&nbsp;&nbsp;
                 </Typography>
                 <Typography variant="h5"><UserCard user={dlog.user} inline={true} /></Typography>
             </div>
@@ -446,14 +409,13 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
             <div style={{ display: 'flex', marginTop: "20px" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={8}>
-                        {dlogMap !== null && <TileMap title={dlogRoute !== undefined && dlogRoute !== null && dlogRoute.length !== 0 ? "Delivery Route" : <><span style={{ color: theme.palette.error.main }}>Delivery Route NOT AVAILABLE</span>{dlog.telemetry === "" && <><br />You may try to reload it in detailed info modal.</>}</>} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
+                        {dlogMap !== null && <TileMap title={dlogRoute !== undefined && dlogRoute !== null && dlogRoute.length !== 0 ? tr("delivery_route") : <><span style={{ color: theme.palette.error.main }}>{tr("delivery_route_not_available")}</span>{dlog.telemetry === "" && <><br />{tr("you_may_try_to_reload_it_in_detailed_info_modal")}</>}</>} tilesUrl={dlogMap} route={dlogRoute} style={{ height: "100%", minHeight: "380px" }} />}
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={4}>
                         <Card sx={{ paddingBottom: "15px" }}>
                             <CardContent style={{ textAlign: 'center' }}>
                                 <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <ChecklistRounded />&nbsp;&nbsp;Events
-                                </Typography>
+                                    <ChecklistRounded />&nbsp;&nbsp;{tr("events")}</Typography>
                             </CardContent>
                             <SimpleBar style={{ minHeight: "380px", height: "calc(100vh - 360px)" }}>
                                 <Timeline position="alternate">
@@ -462,17 +424,17 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                                         if (e.type === "fine") {
                                             desc = <>{FINE_DESC[e.meta.offence]}</>;
                                             if (e.meta.offence === "speeding" || e.meta.offence === "speeding_camera") {
-                                                desc = <>{desc}<br />Speed: {ConvertUnit("km", e.meta.speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
+                                                desc = <>{desc}<br /><>{tr("speed")}</>: {ConvertUnit("km", e.meta.speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
                                             }
-                                            desc = <>{desc}<br />Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.amount}</>;
+                                            desc = <>{desc}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.amount}</>;
                                         } else if (e.type === "tollgate") {
-                                            desc = <>Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
+                                            desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
                                         } else if (e.type === "ferry" || e.type === "train") {
-                                            desc = <>From {e.meta.source_name}<br />To {e.meta.target_name}<br />Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
+                                            desc = <>{tr("from")}{e.meta.source_name}<br />{tr("to")}{e.meta.target_name}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.cost}</>;
                                         } else if (e.type === "refuel") {
-                                            desc = <>Paid {CURRENTY_ICON[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
+                                            desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
                                         } else if (e.type === "speeding") {
-                                            desc = <>Max. Speed: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br />Limit: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
+                                            desc = <><>{tr("max_speed")}</>: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
                                         }
                                         return (
                                             <TimelineItem key={idx}>
@@ -498,37 +460,41 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     </Grid>
                 </Grid>
             </div>
-            {listModalItems.length !== 0 && <ListModal title={"Delivery Log"} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
-            <SpeedDial
-                ariaLabel="Controls"
-                sx={{ position: 'fixed', bottom: 20, right: 20 }}
-                icon={<SpeedDialIcon />}
-            >
+            {listModalItems.length !== 0 && <ListModal title={tr("delivery_log")} items={listModalItems} data={dlogDetail} open={listModalOpen} onClose={handleCloseDetail} />}
+        </div>}
+        <SpeedDial
+            ariaLabel={tr("controls")}
+            sx={{ position: 'fixed', bottom: 20, right: 20 }}
+            icon={<SpeedDialIcon />}
+        >
+            {dlog.logid !== undefined &&
                 <SpeedDialAction
                     key="details"
-                    tooltipTitle="Details"
+                    tooltipTitle={tr("details")}
                     icon={<InfoRounded />}
-                    onClick={handleDetail} />
-                {divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
-                    key="division"
-                    tooltipTitle="Division"
-                    icon={<WarehouseRounded />}
-                    onClick={handleDivision}
+                    onClick={handleDetail} />}
+            {divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+                key="division"
+                tooltipTitle={tr("division")}
+                icon={<WarehouseRounded />}
+                onClick={handleDivision}
+            />}
+            {(checkUserPerm(["administrator", "delete_dlogs"])) &&
+                <SpeedDialAction
+                    key="delete"
+                    tooltipTitle={tr("delete")}
+                    icon={<DeleteRounded />}
+                    onClick={handleDeleteOpen}
                 />}
-                {(checkUserPerm(["administrator", "delete_dlogs"])) &&
-                    <SpeedDialAction
-                        key="delete"
-                        tooltipTitle="Delete"
-                        icon={<DeleteRounded />}
-                        onClick={handleDeleteOpen}
-                    />}
-            </SpeedDial>
-        </div>}
+        </SpeedDial>
     </>
     );
 });
 
 const Delivery = memo(() => {
+    const { t: tr } = useTranslation();
+    const STATUS = { 0: tr("pending"), 1: tr("accepted"), 2: tr("declined") };
+
     const { logid } = useParams();
     const [doReload, setDoReload] = useState(0);
 
@@ -595,12 +561,11 @@ const Delivery = memo(() => {
         {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <WarehouseRounded />&nbsp;&nbsp;Division
-                </Typography>
+                    <WarehouseRounded />&nbsp;&nbsp;{tr("division")}</Typography>
             </DialogTitle>
             <DialogContent>
                 {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) && <>
-                    <Typography variant="body">To request division validation, please select a division:</Typography>
+                    <Typography variant="body">{tr("to_request_division_validation_please_select_a_division")}</Typography>
                     <TextField select
                         value={`${selectedDivision}`}
                         onChange={handleDivisionChange}
@@ -613,22 +578,22 @@ const Delivery = memo(() => {
                     </TextField>
                 </>}
                 {(divisionStatus !== -1) && <>
-                    <Typography variant="body">Division validation request submitted <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
-                    <Typography variant="body">Division: <b>{vars.divisions[divisionMeta.divisionid].name}</b></Typography><br />
-                    <Typography variant="body">Current status: <b>{STATUS[divisionStatus]}</b></Typography>
+                    <Typography variant="body">{tr("division_validation_request_submitted")}<b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
+                    <Typography variant="body"><>{tr("division")}</>: <b>{vars.divisions[divisionMeta.divisionid].name}</b></Typography><br />
+                    <Typography variant="body"><>{tr("current_status")}</>: <b>{STATUS[divisionStatus]}</b></Typography>
                     {divisionMeta.update_timestamp !== -1 && <>
-                        <br /><Typography variant="body">Updated <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
-                        <br /><Typography variant="body">Updated by: <b><UserCard user={divisionMeta.update_staff} inline={true} /></b></Typography>
-                        {divisionMeta.update_message !== "" && <><br /><Typography variant="body">Message: {divisionMeta.update_message}</Typography></>}
+                        <br /><Typography variant="body"><>{tr("updated")}</> <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
+                        <br /><Typography variant="body"><>{tr("updated_by")}</>: <b><UserCard user={divisionMeta.update_staff} inline={true} /></b></Typography>
+                        {divisionMeta.update_message !== "" && <><br /><Typography variant="body"><>{tr("message")}</>: {divisionMeta.update_message}</Typography></>}
                     </>}
                 </>}
                 {(checkUserPerm(["administrator", "manage_divisions"]) && divisionStatus !== -1) && <>
                     <hr />
-                    <Typography variant="body"><b>Update validation result</b></Typography>
+                    <Typography variant="body"><b>{tr("update_validation_result")}</b></Typography>
                     <br />
                     <FormControl fullWidth>
                         <TextField select
-                            label="Division"
+                            label={tr("division")}
                             value={`${selectedDivision}`}
                             onChange={handleDivisionChange}
                             sx={{ marginTop: "6px", marginBottom: "6px", height: "30px" }}
@@ -644,51 +609,40 @@ const Delivery = memo(() => {
                             value={newDivisionStatus} row
                             onChange={(e) => setNewDivisionStatus(e.target.value)}
                         >
-                            <FormControlLabel value="0" control={<Radio />} label="Pending" />
-                            <FormControlLabel value="1" control={<Radio />} label="Accepted" />
-                            <FormControlLabel value="2" control={<Radio />} label="Declined" />
+                            <FormControlLabel value="0" control={<Radio />} label={tr("pending")} />
+                            <FormControlLabel value="1" control={<Radio />} label={tr("accepted")} />
+                            <FormControlLabel value="2" control={<Radio />} label={tr("declined")} />
                         </RadioGroup>
                     </FormControl>
                     <TextareaAutosize
                         rows={2}
                         value={newDivisionMessage}
                         onChange={handleNewDivisionMessage}
-                        placeholder="Message (Optional)"
+                        placeholder={tr("message_optional")}
                         style={{ width: '100%', resize: 'none' }}
                     />
                 </>}
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                    Close
-                </Button>
+                <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
                 {(checkUserPerm(["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
-                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                        Update
-                    </Button>}
+                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("update")}</Button>}
                 {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) &&
-                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                        Submit
-                    </Button>
+                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("submit")}</Button>
                 }
             </DialogActions>
         </Dialog>}
         <Dialog open={deleteOpen} onClose={handleDeleteClose}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <DeleteRounded />&nbsp;&nbsp;Delete Delivery
-                </Typography>
+                    <DeleteRounded />&nbsp;&nbsp;{tr("delete_delivery")}</Typography>
             </DialogTitle>
             <DialogContent>
-                <Typography variant="body">Are you sure you want to delete delivery #{logid}? This cannot be undone.</Typography>
+                <Typography variant="body">{tr("delete_delivery_confirm")}</Typography>
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleDeleteClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                    Close
-                </Button>
-                <Button onClick={handleDelete} variant="contained" color="error" sx={{ ml: 'auto' }}>
-                    Delete
-                </Button>
+                <Button onClick={handleDeleteClose} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={handleDelete} variant="contained" color="error" sx={{ ml: 'auto' }}>{tr("delete")}</Button>
             </DialogActions>
         </Dialog>
     </>);

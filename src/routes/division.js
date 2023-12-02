@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useRef, useEffect, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, useTheme } from '@mui/material';
@@ -12,22 +13,6 @@ import CustomTable from '../components/table';
 import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm } from '../functions';
 
 var vars = require("../variables");
-
-const columns = [
-    { id: 'display_logid', label: 'ID' },
-    { id: 'driver', label: 'Driver' },
-    { id: 'source', label: 'Source' },
-    { id: 'destination', label: 'Destination' },
-    { id: 'distance', label: 'Distance' },
-    { id: 'cargo', label: 'Cargo' },
-    { id: 'profit', label: 'Profit' },
-    { id: 'time', label: 'Time' },
-];
-const pendingColumns = [
-    { id: 'display_logid', label: 'Log ID' },
-    { id: 'driver', label: 'Driver' },
-    { id: 'division', label: 'Division' },
-];
 
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
@@ -112,6 +97,18 @@ const DivisionsMemo = memo(({ doReload }) => {
 });
 
 const DivisionsDlog = memo(({ doReload }) => {
+    const { t: tr } = useTranslation();
+    const columns = [
+        { id: 'display_logid', label: 'ID' },
+        { id: 'driver', label: tr("driver") },
+        { id: 'source', label: tr("source") },
+        { id: 'destination', label: tr("destination") },
+        { id: 'distance', label: tr("distance") },
+        { id: 'cargo', label: tr("cargo") },
+        { id: 'profit', label: tr("profit") },
+        { id: 'time', label: tr("time") },
+    ];
+
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -152,11 +149,18 @@ const DivisionsDlog = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;Recent Validated Division Deliveries</>} />}
+        {dlogList.length !== 0 && <CustomTable columns={columns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={checkUserPerm(["administrator", "manage_divisions"]) ? {} : { marginRight: "60px" }} name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("recent_validated_division_deliveries")}</>} />}
     </>;
 });
 
 const DivisionsPending = memo(({ doReload }) => {
+    const { t: tr } = useTranslation();
+    const pendingColumns = [
+        { id: 'display_logid', label: tr("log_id") },
+        { id: 'driver', label: tr("driver") },
+        { id: 'division', label: tr("division") },
+    ];
+
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -195,7 +199,7 @@ const DivisionsPending = memo(({ doReload }) => {
     }
 
     return <>
-        {dlogList.length !== 0 && <CustomTable columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;Pending Division Validation Requests</>} />}
+        {dlogList.length !== 0 && <CustomTable columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} />}
     </>;
 });
 
@@ -215,6 +219,7 @@ const DivisionManagers = memo(() => {
 });
 
 const Divisions = () => {
+    const { t: tr } = useTranslation();
     const [doReload, setDoReload] = useState(0);
     const [dialogManagers, setDialogManagers] = useState(false);
 
@@ -223,29 +228,29 @@ const Divisions = () => {
         <DivisionsDlog doReload={doReload} />
         <DivisionsPending doReload={doReload} />
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-            <DialogTitle>Division Managers</DialogTitle>
+            <DialogTitle>{tr("division_managers")}</DialogTitle>
             <DialogContent>
                 <DivisionManagers />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             {vars.userInfo.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
-                tooltipTitle="Managers"
+                tooltipTitle={tr("managers")}
                 onClick={() => setDialogManagers(true)}
             />}
             <SpeedDialAction
                 key="refresh"
                 icon={<RefreshRounded />}
-                tooltipTitle="Refresh"
+                tooltipTitle={tr("refresh")}
                 onClick={() => setDoReload(+new Date())}
             />
         </SpeedDial>

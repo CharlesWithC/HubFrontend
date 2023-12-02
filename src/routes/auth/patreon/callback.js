@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 
 import { customAxios as axios, getAuthToken } from '../../../functions';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require('../../../variables');
 
 const PatreonAuth = () => {
-    const theme = useTheme();
+    const { t: tr } = useTranslation();
+
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -18,7 +21,7 @@ const PatreonAuth = () => {
     const patreonError = searchParams.get('error');
     const patreonErrorDescription = searchParams.get('error_description');
 
-    const [message, setMessage] = useState("Validating authorization...");
+    const [message, setMessage] = useState(tr("validating_authorization"));
     const [allowContinue, setContinue] = useState(false);
 
     useEffect(() => {
@@ -26,7 +29,7 @@ const PatreonAuth = () => {
             try {
                 if (getAuthToken() === null) {
                     setContinue(true);
-                    setMessage("❌ You are not logged in!");
+                    setMessage(tr("you_are_not_logged_in"));
                     return;
                 }
 
@@ -50,7 +53,7 @@ const PatreonAuth = () => {
                 }
             } catch (error) {
                 console.error(error);
-                setMessage("Error occurred! Check F12 for more info.");
+                setMessage(tr("error_occurred"));
             }
         } if (patreonErrorDescription !== null) {
             setContinue(true);
@@ -87,15 +90,14 @@ const PatreonAuth = () => {
             <Card sx={{ width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent>
                     <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
-                        <FontAwesomeIcon icon={faPatreon} />&nbsp;&nbsp;Patreon Authorization
-                    </Typography>
+                        <FontAwesomeIcon icon={faPatreon} />&nbsp;&nbsp;{tr("patreon_authorization")}</Typography>
                     <Typography variant="body">
                         {message}
                     </Typography>
                 </CardContent>
                 <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
+                        onClick={handleContinue} disabled={!allowContinue}>{tr("continue")}</Button>
                 </CardActions>
             </Card>
         </div>

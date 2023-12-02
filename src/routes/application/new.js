@@ -6,6 +6,8 @@ import { customAxios as axios, getAuthToken } from '../../functions';
 import { useTheme } from '@emotion/react';
 import { useNavigate } from 'react-router-dom';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../../variables");
 
 // [
@@ -53,7 +55,9 @@ var vars = require("../../variables");
 // ];
 
 const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled }) => {
-    if (config === undefined) return <Typography>Please select the type of application in the dropdown on the top-right corner</Typography>;
+    const { t: tr } = useTranslation();
+
+    if (config === undefined) return <Typography>{tr("select_application_type")}</Typography>;
 
     let fieldReq = {};
     let defaultResp = {};
@@ -82,7 +86,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                 if (config[i].choices !== undefined) {
                     defaultResp[config[i].label] = [];
                 } else {
-                    defaultResp[config[i].label] = "No";
+                    defaultResp[config[i].label] = tr("no");
                 }
             } else if (config[i].type === "position") {
                 config[i].type = "dropdown";
@@ -189,10 +193,10 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
     const handleCheckboxYNChange = (fieldLabel) => {
         let updated = formData[fieldLabel];
-        if (updated === "Yes") {
-            updated = "No";
+        if (updated === tr("yes")) {
+            updated = tr("no");
         } else {
-            updated = "Yes";
+            updated = tr("yes");
         }
 
         setFormData(prev => ({
@@ -231,7 +235,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                                     placeholder={field.placeholder}
                                     sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
                                     error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
-                                    helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? "Input at least 150 characters" : ""}
+                                    helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? tr("input_at_least", { value: field.min_length }) : ""}
                                 />
                             );
                             break;
@@ -364,7 +368,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                                             control={
                                                 <Checkbox
                                                     name={field.label}
-                                                    checked={formData[field.label] === "Yes"}
+                                                    checked={formData[field.label] === tr("yes")}
                                                     onChange={() => handleCheckboxYNChange(field.label)}
                                                 />
                                             }
@@ -386,6 +390,8 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 };
 
 const NewApplication = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState(null);
@@ -422,7 +428,7 @@ const NewApplication = () => {
 
         let resp = await axios({ url: `${vars.dhpath}/applications`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "type": selectedType, "application": modFormData } });
         if (resp.status === 200) {
-            setSnackbarContent("Application submitted!");
+            setSnackbarContent(tr("application_submitted"));
             setSnackbarSeverity("success");
             setFormData(null);
             navigate("/application/my");
@@ -436,12 +442,10 @@ const NewApplication = () => {
 
     return <Card sx={{ padding: "20px" }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                New Application
-            </Typography>
+            <Typography variant="h5" sx={{ flexGrow: 1 }}>{tr("new_application")}</Typography>
             <TextField select
-                key="Application Type"
-                name="Application Type"
+                key={tr("application_type")}
+                name={tr("application_type")}
                 value={selectedType}
                 onChange={(e) => { setSelectedType(e.target.value); setSubmitDisabled(true); setFormData(null); }}
                 sx={{ marginTop: "6px", height: "30px" }}
@@ -462,17 +466,15 @@ const NewApplication = () => {
                                 key="enable-notifications"
                                 control={
                                     <Checkbox
-                                        name="Enable notifications?"
+                                        name={tr("enable_notifications")}
                                         checked={enableNotifications}
                                         onChange={() => setEnableNotifications(!enableNotifications)}
                                     />
                                 }
-                                label="Enable notifications?"
+                                label={tr("enable_notifications")}
                             />
                         </FormControl>
-                        <Button onClick={handleSubmit} variant="contained" color="info" disabled={submitDisabled}>
-                            Submit
-                        </Button>
+                        <Button onClick={handleSubmit} variant="contained" color="info" disabled={submitDisabled}>{tr("submit")}</Button>
                     </div>
                 </Box>}
         </CardContent>

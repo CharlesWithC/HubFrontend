@@ -9,19 +9,23 @@ import TimeAgo from '../../components/timeago';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../../functions';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../../variables");
 
-const columns = [
-    { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
-    { id: 'type', label: 'Type' },
-    { id: 'submit', label: 'Submit Time', orderKey: 'submit_timestamp', defaultOrder: 'desc' },
-    { id: 'update', label: 'Update Time', orderKey: 'respond_timestamp', defaultOrder: 'desc' },
-    { id: 'user', label: 'User (Order by UID)', orderKey: 'applicant_uid', defaultOrder: 'desc' },
-    { id: 'staff', label: 'Staff (Order by User ID)', orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
-    { id: 'status', label: 'Status' }
-];
-
 const ApplicationTable = memo(({ showDetail, doReload }) => {
+    const { t: tr } = useTranslation();
+
+    const columns = [
+        { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
+        { id: 'type', label: tr("type") },
+        { id: 'submit', label: tr("submit_time"), orderKey: 'submit_timestamp', defaultOrder: 'desc' },
+        { id: 'update', label: tr("update_time"), orderKey: 'respond_timestamp', defaultOrder: 'desc' },
+        { id: 'user', label: tr("user_order_by_uid"), orderKey: 'applicant_uid', defaultOrder: 'desc' },
+        { id: 'staff', label: tr("staff_order_by_user_id"), orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
+        { id: 'status', label: tr("status") }
+    ];
+
     const [stats, setStats] = useState([]);
     const [applications, setApplications] = useState([]);
 
@@ -33,7 +37,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();
-    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
+    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>{tr("pending")}</span>, 1: <span style={{ color: theme.palette.success.main }}>{tr("accepted")}</span>, 2: <span style={{ color: theme.palette.error.main }}>{tr("declined")}</span> }; }, [theme]);
 
     useEffect(() => {
         pageRef.current = page;
@@ -66,7 +70,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? "Unknown", submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             if (pageRef.current === page) {
@@ -89,9 +93,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>
-                            All Applications
-                        </Typography>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("all_applications")}</Typography>
                         <Typography variant="h5" align="center" component="div">
                             <span style={{ color: theme.palette.info.main }}>{stats[0]}</span> / <span style={{ color: theme.palette.success.main }}>{stats[1]}</span> / <span style={{ color: theme.palette.error.main }}>{stats[2]}</span>
                         </Typography>
@@ -104,15 +106,11 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" align="center" gutterBottom>
-                            Handled by me
-                        </Typography>
+                        <Typography variant="subtitle2" align="center" gutterBottom>{tr("handled_by_me")}</Typography>
                         <Typography variant="h5" align="center" component="div">
                             {stats[3]} / {stats[4]}
                         </Typography>
-                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>
-                            This Month / All Time
-                        </Typography>
+                        <Typography variant="subtitle2" align="center" sx={{ mt: 1 }}>{tr("this_month_all_time")}</Typography>
                     </CardContent>
                 </Card>
             </Grid>
@@ -122,6 +120,8 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 });
 
 const AllApplication = () => {
+    const { t: tr } = useTranslation();
+    
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogDelete, setDialogDelete] = useState(false);
@@ -159,7 +159,7 @@ const AllApplication = () => {
         setSubmitLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/status`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "status": newStatus !== "3" ? newStatus : "1", "message": message } });
         if (resp.status === 204) {
-            setSnackbarContent("Status updated!");
+            setSnackbarContent(tr("status_updated"));
             setSnackbarSeverity("success");
             setDoReload(+new Date());
             showDetail(detailApp);
@@ -167,12 +167,12 @@ const AllApplication = () => {
                 let resp = await axios({ url: `${vars.dhpath}/user/${detailApp.creator.uid}/accept`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 if (resp.status === 200) {
                     let newUserID = resp.data.userid;
-                    setSnackbarContent("User accepted as member");
+                    setSnackbarContent(tr("user_accepted_as_member"));
                     setSnackbarSeverity("success");
 
                     let resp = await axios({ url: `${vars.dhpath}/member/${newUserID}/roles`, method: "PATCH", data: { roles: [vars.perms.driver[0]] }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
-                        setSnackbarContent("Driver role assigned");
+                        setSnackbarContent(tr("driver_role_assigned"));
                         setSnackbarSeverity("success");
                     } else {
                         setSnackbarContent(resp.data.error);
@@ -196,7 +196,7 @@ const AllApplication = () => {
         setSubmitLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Application deleted!");
+            setSnackbarContent(tr("application_deleted"));
             setSnackbarSeverity("success");
             setDoReload(+new Date());
             setDialogOpen(false);
@@ -211,22 +211,22 @@ const AllApplication = () => {
     return <>
         <ApplicationTable showDetail={showDetail} doReload={doReload}></ApplicationTable>
         {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>Application</DialogTitle>
+            <DialogTitle>{tr("application")}</DialogTitle>
             <DialogContent sx={{ minWidth: "400px" }}>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b>Applicant: </b><UserCard user={detailApp.creator} /> (UID: {detailApp.creator.uid} | User ID: {detailApp.creator.userid})
+                    <b><>{tr("applicant")}</>: </b><UserCard user={detailApp.creator} /> (<>UID</>: {detailApp.creator.uid} | <>{tr("user_id")}</>: {detailApp.creator.userid})
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b>Email: </b><a href={`mailto:${detailApp.creator.email}`} target="_blank" rel="noreferrer">{detailApp.creator.email}</a>
+                    <b><>{tr("email")}</>: </b><a href={`mailto:${detailApp.creator.email}`} target="_blank" rel="noreferrer">{detailApp.creator.email}</a>
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b>Discord: </b><a href={`https://discord.com/users/${detailApp.creator.discordid}`} target="_blank" rel="noreferrer">{detailApp.creator.discordid}</a>
+                    <b><>Discord</>: </b><a href={`https://discord.com/users/${detailApp.creator.discordid}`} target="_blank" rel="noreferrer">{detailApp.creator.discordid}</a>
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b>Steam: </b><a href={`https://steamcommunity.com/profiles/${detailApp.creator.steamid}`} target="_blank" rel="noreferrer">{detailApp.creator.steamid}</a>
+                    <b><>Steam</>: </b><a href={`https://steamcommunity.com/profiles/${detailApp.creator.steamid}`} target="_blank" rel="noreferrer">{detailApp.creator.steamid}</a>
                 </Typography>
                 <Typography variant="body2" sx={{ marginBottom: "5px" }}>
-                    <b>TruckersMP: </b><a href={`https://truckersmp.com/user/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
+                    <b><>TruckersMP</>: </b><a href={`https://truckersmp.com/user/${detailApp.creator.truckersmpid}`} target="_blank" rel="noreferrer">{detailApp.creator.truckersmpid}</a>
                 </Typography>
                 <br />
                 {Object.entries(detailApp.application).map(([question, answer]) => (
@@ -241,7 +241,7 @@ const AllApplication = () => {
                 ))}
                 <hr />
                 <TextField
-                    label="Message"
+                    label={tr("message")}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     multiline
@@ -250,33 +250,25 @@ const AllApplication = () => {
                 />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>Close</Button>
-                <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>Delete</Button>
-                <TextField select label="Status" value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
-                    <MenuItem key="0" value="0">
-                        Pending
-                    </MenuItem>
-                    <MenuItem key="1" value="1">
-                        Accepted
-                    </MenuItem>
-                    <MenuItem key="2" value="2">
-                        Declined
-                    </MenuItem>
-                    <MenuItem key="3" value="3">
-                        Accepted as driver
-                    </MenuItem>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>{tr("close")}</Button>
+                <Button variant="contained" color="error" onClick={() => { setDialogDelete(true); }}>{tr("delete")}</Button>
+                <TextField select label={tr("status")} value={newStatus} onChange={(e) => setNewStatus(e.target.value)} sx={{ marginLeft: "10px", height: "40px" }} size="small">
+                    <MenuItem key="0" value="0">{tr("pending")}</MenuItem>
+                    <MenuItem key="1" value="1">{tr("accepted")}</MenuItem>
+                    <MenuItem key="2" value="2">{tr("declined")}</MenuItem>
+                    <MenuItem key="3" value="3">{tr("accepted_as_driver")}</MenuItem>
                 </TextField>
-                <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >Respond</Button>
+                <Button variant="contained" color="info" onClick={() => { updateStatus(); }} disabled={submitLoading || message.trim() === ""} >{tr("respond")}</Button>
             </DialogActions>
         </Dialog>}
         <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-            <DialogTitle>Delete Application</DialogTitle>
+            <DialogTitle>{tr("delete_application")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this application?</Typography>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("confirm_delete_application")}</Typography>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={() => { deleteApp(); }} disabled={submitLoading}>Delete</Button>
+                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                <Button variant="contained" color="error" onClick={() => { deleteApp(); }} disabled={submitLoading}>{tr("delete")}</Button>
             </DialogActions>
         </Dialog>
         <Portal>

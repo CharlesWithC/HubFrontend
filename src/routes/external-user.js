@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress } from '@mui/material';
@@ -16,27 +17,28 @@ import SponsorBadge from '../components/sponsorBadge';
 
 var vars = require("../variables");
 
-const puColumns = [
-    { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
-    { id: 'user', label: 'User', orderKey: 'name', defaultOrder: 'asc' },
-    { id: 'email', label: 'Email', orderKey: 'email', defaultOrder: 'asc' },
-    { id: 'discordid', label: 'Discord ID', orderKey: 'discordid', defaultOrder: 'asc' },
-    { id: 'steamid', label: 'Steam ID', orderKey: 'steamid', defaultOrder: 'asc' },
-    { id: 'truckersmpid', label: 'TruckersMP ID', orderKey: 'truckersmpid', defaultOrder: 'asc' },
-    { id: 'joined', label: 'Joined', orderKey: 'join_timestamp', defaultOrder: 'asc' }
-];
-const buColumns = [
-    { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
-    { id: 'user', label: 'User', orderKey: 'name', defaultOrder: 'asc' },
-    { id: 'email', label: 'Email', orderKey: 'email', defaultOrder: 'asc' },
-    { id: 'discordid', label: 'Discord ID', orderKey: 'discordid', defaultOrder: 'asc' },
-    { id: 'steamid', label: 'Steam ID', orderKey: 'steamid', defaultOrder: 'asc' },
-    { id: 'truckersmpid', label: 'TruckersMP ID', orderKey: 'truckersmpid', defaultOrder: 'asc' },
-    { id: 'reason', label: 'Ban Reason' },
-    { id: 'expire', label: 'Expire' }
-];
-
 const ExternalUsers = () => {
+    const { t: tr } = useTranslation();
+    const puColumns = [
+        { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
+        { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
+        { id: 'email', label: tr("email"), orderKey: 'email', defaultOrder: 'asc' },
+        { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },
+        { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
+        { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
+        { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' }
+    ];
+    const buColumns = [
+        { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
+        { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
+        { id: 'email', label: tr("email"), orderKey: 'email', defaultOrder: 'asc' },
+        { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },
+        { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
+        { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
+        { id: 'reason', label: tr("ban_reason") },
+        { id: 'expire', label: tr("expire") }
+    ];
+
     const theme = useTheme();
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -56,7 +58,7 @@ const ExternalUsers = () => {
     const [batchDeleteLoading, setBatchDeleteLoading] = useState(false);
     const batchDelete = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Prune Users is a Platinum Perk! Sponsor at charl.ws/patreon");
+            setSnackbarContent(tr("prune_user_platinum_perk"));
             setSnackbarSeverity("warning");
             return;
         }
@@ -117,7 +119,7 @@ const ExternalUsers = () => {
         meta = removeNullValues(meta);
         let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: meta });
         if (resp.status === 204) {
-            setSnackbarContent("User unbanned");
+            setSnackbarContent(tr("user_unbanned"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -211,7 +213,7 @@ const ExternalUsers = () => {
                 let ban = _banList.list[i];
                 let expireDT = getFormattedDate(new Date(ban.ban.expire * 1000));
                 if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
-                newBanList.push({ uid: ban.meta.uid, user: <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoad(); }}>Unban</MenuItem> });
+                newBanList.push({ uid: ban.meta.uid, user: <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT, contextMenu: <MenuItem onClick={() => { unbanUser(ban.meta); doLoad(); }}>{tr("unban")}</MenuItem> });
             }
             if (banPageRef.current === banPage && banSearchRef.current === banSearch) {
                 setBanList(newBanList);
@@ -241,8 +243,8 @@ const ExternalUsers = () => {
     }, [doLoadUser, doLoadBan]);
 
     return <>
-        <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;External Users</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint="Search by username or discord id" />
-        <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;Banned Users</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint="Search by username or discord id" />
+        <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
+        <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;{tr("banned_users")}</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
@@ -256,16 +258,16 @@ const ExternalUsers = () => {
             </Snackbar>
         </Portal>
         <Dialog open={dialogOpen === "prune-user"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;Prune Users  <SponsorBadge level={4} /></DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faUsersSlash} />&nbsp;&nbsp;{tr("prune_users")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
-                <Typography variant="body2">- You could delete a list of users.</Typography>
-                <Typography variant="body2">- By setting the value of "Last Online Before" and clicking "Select", you could select a list of inactive users to delete. Note that users whose last online was a long time ago might not be detected.</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- When performing the changes, do not close the tab, or the process will stop.</Typography>
-                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- The dialog cannot be closed once the process starts, you may open a new tab to continue using the Drivers Hub.</Typography>
+                <Typography variant="body2">{tr("prune_users_note")}</Typography>
+                <Typography variant="body2">{tr("prune_users_note_2")}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_3")}</Typography>
+                <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
                 <Grid container spacing={2} sx={{ mt: "5px", mb: "5px" }}>
                     <Grid item xs={8}>
                         <DateTimeField size="small"
-                            label="Last Online Before"
+                            label={tr("last_online_before")}
                             defaultValue={batchDeleteLastOnline}
                             onChange={(timestamp) => { setBatchDeleteLastOnline(timestamp); }}
                             fullWidth
@@ -282,37 +284,37 @@ const ExternalUsers = () => {
                                 }
                             }
                             setBatchDeleteUsers(newList);
-                        }} disabled={dialogButtonDisabled || batchDeleteLoading} fullWidth>Select</Button>
+                        }} disabled={dialogButtonDisabled || batchDeleteLoading} fullWidth>{tr("select")}</Button>
                     </Grid>
                     <Grid item xs={12}>
                         {/*This has to be done because UserSelect does not support update on userList*/}
-                        {vars.allUsers.length === 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
-                        {vars.allUsers.length !== 0 && <UserSelect userList={vars.allUsers} label="Users" users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                        {vars.allUsers.length === 0 && <UserSelect userList={vars.allUsers} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                        {vars.allUsers.length !== 0 && <UserSelect userList={vars.allUsers} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
                     </Grid>
                 </Grid>
                 {(dialogButtonDisabled || batchDeleteCurrent !== 0 && batchDeleteCurrent == batchDeleteUsers.length) && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Completed {batchDeleteCurrent} / {batchDeleteUsers.length}</Typography>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("completed")}{batchDeleteCurrent} / {batchDeleteUsers.length}</Typography>
                     <LinearProgress variant="determinate" color="info" value={batchDeleteCurrent / batchDeleteUsers.length * 100} />
                     <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{batchDeleteLog}</Typography>
                 </>}
                 {batchDeleteLoading && <>
-                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>Loading user list, please wait...</Typography>
+                    <Typography variant="body2" gutterBottom sx={{ mt: "5px" }}>{tr("loading_user_list_please_wait")}</Typography>
                     <LinearProgress variant="indeterminate" color="info" />
                 </>}
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="error" onClick={() => { batchDelete(); }} disabled={dialogButtonDisabled || batchDeleteLoading}>Delete</Button>
+                <Button variant="contained" color="error" onClick={() => { batchDelete(); }} disabled={dialogButtonDisabled || batchDeleteLoading}>{tr("delete")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
                 key="prune-user"
                 icon={<FontAwesomeIcon icon={faUsersSlash} />}
-                tooltipTitle="Prune Users"
+                tooltipTitle={tr("prune_users")}
                 onClick={() => { loadUserList(); setDialogOpen("prune-user"); }}
             />
         </SpeedDial>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
@@ -18,20 +19,22 @@ import { makeRequestsAuto, getMonthUTC, ConvertUnit, customAxios as axios, getAu
 
 var vars = require("../variables");
 
-const columns = [
-    { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
-    { id: 'driver', label: 'Driver' },
-    { id: 'source', label: 'Source' },
-    { id: 'destination', label: 'Destination' },
-    { id: 'distance', label: 'Distance', orderKey: 'distance', defaultOrder: 'desc' },
-    { id: 'cargo', label: 'Cargo' },
-    { id: 'profit', label: 'Profit' },
-    { id: 'time', label: 'Time' },
-];
-
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
+    const { t: tr } = useTranslation();
+    
+    const columns = [
+        { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
+        { id: 'driver', label: tr("driver") },
+        { id: 'source', label: tr("source") },
+        { id: 'destination', label: tr("destination") },
+        { id: 'distance', label: tr("distance"), orderKey: 'distance', defaultOrder: 'desc' },
+        { id: 'cargo', label: tr("cargo") },
+        { id: 'profit', label: tr("profit") },
+        { id: 'time', label: tr("time") },
+    ];
+
     const inited = useRef(false);
     const [detailStats, setDetailStats] = useState("loading");
     const [dlogList, setDlogList] = useState([]);
@@ -56,12 +59,12 @@ const Deliveries = () => {
     const [exportRange, setExportRange] = useState({ start_time: undefined, end_time: undefined });
     const exportDlog = useCallback(async () => {
         if (isNaN(exportRange.end_time - exportRange.start_time)) {
-            setSnackbarContent("Invalid date range.");
+            setSnackbarContent(tr("invalid_date_range"));
             setSnackbarSeverity("error");
             return;
         }
         if (exportRange.end_time - exportRange.start_time > 86400 * 90) {
-            setSnackbarContent("The date range must be smaller than 90 days.");
+            setSnackbarContent(tr("the_date_range_must_be_smaller_than_90_days"));
             setSnackbarSeverity("error");
             return;
         }
@@ -69,7 +72,7 @@ const Deliveries = () => {
         let resp = await axios({ url: `${vars.dhpath}/dlog/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             downloadLocal("export.csv", resp.data);
-            setSnackbarContent("Success");
+            setSnackbarContent(tr("success"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -82,14 +85,14 @@ const Deliveries = () => {
     const [truckyJobID, setTruckyJobID] = useState();
     const importFromTruckySingle = useCallback(async () => {
         if (isNaN(truckyJobID) || truckyJobID.replaceAll(" ", "") === "") {
-            setSnackbarContent("Invalid Job ID");
+            setSnackbarContent(tr("invalid_job_id"));
             setSnackbarSeverity("error");
             return;
         }
         setDialogButtonDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/trucky/import/${truckyJobID}?bypass_tracker_check=${bypassTrackerCheck}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Job Imported");
+            setSnackbarContent(tr("job_imported"));
             setSnackbarSeverity("error");
         } else {
             setSnackbarContent(resp.data.error);
@@ -108,17 +111,17 @@ const Deliveries = () => {
     );
     const importFromTruckyMultiple = useCallback(async () => {
         if (vars.userLevel < 4) {
-            setSnackbarContent("Auto Import Multiple Trucky Jobs is a Platinum Perk! Sponsor at charl.ws/patreon");
+            setSnackbarContent(tr("auto_import_multiple_trucky_jobs_is_a_platinum_perk_sponsor"));
             setSnackbarSeverity("warning");
             return;
         }
         if (isNaN(truckyImportRange.end_time - truckyImportRange.start_time)) {
-            setSnackbarContent("Invalid date range.");
+            setSnackbarContent(tr("invalid_date_range"));
             setSnackbarSeverity("error");
             return;
         }
         if (isNaN(truckyCompanyID) || truckyCompanyID.replaceAll(" ", "") === "") {
-            setTruckyImportLog("Invalid Company ID");
+            setTruckyImportLog(tr("invalid_company_id"));
             setSnackbarSeverity("error");
             return;
         }
@@ -238,7 +241,7 @@ const Deliveries = () => {
             for (let i = 0; i < dlogL.list.length; i++) {
                 let divisionCheckmark = <></>;
                 if (dlogL.list[i].division.divisionid !== undefined) {
-                    divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
+                    divisionCheckmark = <Tooltip placement="top" arrow title={tr("validated_division_delivery")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                     </Tooltip>;
@@ -274,23 +277,20 @@ const Deliveries = () => {
                 {detailStats.truck !== undefined && detailStats.truck.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <LocalShippingRounded />&nbsp;&nbsp;Top Trucks
-                        </Typography>
+                            <LocalShippingRounded />&nbsp;&nbsp;{tr("top_trucks")}</Typography>
                     }
                         first={{ name: detailStats.truck[0].name, stat: detailStats.truck[0].count }} second={{ name: detailStats.truck[1].name, stat: detailStats.truck[1].count }} third={{ name: detailStats.truck[2].name, stat: detailStats.truck[2].count }} fixWidth={true} />
                 </Grid>}
                 {detailStats.cargo !== undefined && detailStats.cargo.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <WidgetsRounded />&nbsp;&nbsp;Top Cargos
-                        </Typography>
+                            <WidgetsRounded />&nbsp;&nbsp;{tr("top_cargos")}</Typography>
                     } first={{ name: detailStats.cargo[0].name, stat: detailStats.cargo[0].count }} second={{ name: detailStats.cargo[1].name, stat: detailStats.cargo[1].count }} third={{ name: detailStats.cargo[2].name, stat: detailStats.cargo[2].count }} fixWidth={true} />
                 </Grid>}
                 {detailStats.fine !== undefined && detailStats.fine.length >= 3 && <Grid item xs={12} sm={12} md={6} lg={4}>
                     <Podium title={
                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <FontAwesomeIcon icon={faTowerObservation} />&nbsp;&nbsp;Top Offences
-                        </Typography>
+                            <FontAwesomeIcon icon={faTowerObservation} />&nbsp;&nbsp;{tr("top_offences")}</Typography>
                     } first={{ name: replaceUnderscores(detailStats.fine[0].unique_id), stat: detailStats.fine[0].count }} second={{ name: replaceUnderscores(detailStats.fine[1].unique_id), stat: detailStats.fine[1].count }} third={{ name: replaceUnderscores(detailStats.fine[2].unique_id), stat: detailStats.fine[2].count }} fixWidth={true} />
                 </Grid>}
             </Grid>
@@ -300,13 +300,13 @@ const Deliveries = () => {
         {detailStats.truck === undefined && detailStats !== "loading" &&
             <CustomTable columns={columns} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); setTempListParam({ ...tempListParam, order_by: order_by, order: order }); }} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} />}
         <Dialog open={dialogOpen === "export"} onClose={() => setDialogOpen("")}>
-            <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;Export Delivery Logs</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faFileExport} />&nbsp;&nbsp;{tr("export_delivery_logs")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">- You may export delivery logs of a range of up to 90 days each time.</Typography>
+                <Typography variant="body2">{tr("export_delivery_logs_note")}</Typography>
                 <Grid container spacing={2} style={{ marginTop: "3px" }}>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Start Time"
+                            label={tr("start_time")}
                             defaultValue={exportRange.start_time}
                             onChange={(timestamp) => { setExportRange({ ...exportRange, start_time: timestamp }); }}
                             fullWidth
@@ -314,7 +314,7 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="End Time"
+                            label={tr("end_time")}
                             defaultValue={exportRange.end_time}
                             onChange={(timestamp) => { setExportRange({ ...exportRange, end_time: timestamp }); }}
                             fullWidth
@@ -323,53 +323,53 @@ const Deliveries = () => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(""); }}>Cancel</Button>
-                <Button variant="contained" color="info" onClick={() => { exportDlog(); }} disabled={dialogButtonDisabled}>Export</Button>
+                <Button variant="primary" onClick={() => { setDialogOpen(""); }}>{tr("cancel")}</Button>
+                <Button variant="contained" color="info" onClick={() => { exportDlog(); }} disabled={dialogButtonDisabled}>{tr("export")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "import-trucky"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faTruckFront} />&nbsp;&nbsp;Import Trucky Jobs</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faTruckFront} />&nbsp;&nbsp;{tr("import_trucky_jobs")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2" >- You may either import a single job or multiple jobs from a Trucky VTC automatically.</Typography>
-                <Typography variant="body2">- If you get an error like "User Not Found", then the user who submitted the job on Trucky is not a member of the Drivers Hub.</Typography>
-                <Typography variant="body2">- If you get an error like "User chose to use another tracker", you may enable "Bypass tracker check" to ignore that. But keep in mind that this may lead to duplicate jobs.</Typography>
-                <Typography variant="body2">- When importing multiple jobs, do not close the tab, or the process will stop.</Typography>
+                <Typography variant="body2" >{tr("import_trucky_jobs_note")}</Typography>
+                <Typography variant="body2">{tr("import_trucky_jobs_note_2")}</Typography>
+                <Typography variant="body2">{tr("import_trucky_jobs_note_3")}</Typography>
+                <Typography variant="body2">{tr("import_trucky_jobs_note_4")}</Typography>
 
                 <FormControl component="fieldset" sx={{ mb: "10px" }}>
                     <FormControlLabel
                         key="bypass-tracker-check"
                         control={
                             <Checkbox
-                                name="Bypass tracker check?"
+                                name={tr("bypass_tracker_check")}
                                 checked={bypassTrackerCheck}
                                 onChange={() => setBypassTrackerCheck(!bypassTrackerCheck)}
                             />
                         }
-                        label="Bypass tracker check?"
+                        label={tr("bypass_tracker_check")}
                     />
                 </FormControl>
 
-                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Single Job</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>{tr("single_job")}</Typography>
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
                     <Grid item xs={12}>
                         <TextField
-                            label="Trucky Job ID"
+                            label={tr("trucky_job_id")}
                             value={truckyJobID}
                             onChange={(e) => { setTruckyJobID(e.target.value); }}
                             fullWidth sx={{ mb: "5px" }}
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <Button variant="contained" color="info" onClick={() => { importFromTruckySingle(); }} disabled={dialogButtonDisabled} fullWidth>Import</Button>
+                        <Button variant="contained" color="info" onClick={() => { importFromTruckySingle(); }} disabled={dialogButtonDisabled} fullWidth>{tr("import")}</Button>
                     </Grid>
                 </Grid>
                 <Divider sx={{ mt: "10px", mb: "10px" }} />
-                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>Multiple Jobs {truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | Success: ${truckyBatchImportSuccess})` : ""}&nbsp;&nbsp;<SponsorBadge level={4} /></Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: "10px" }}>{tr("multiple_jobs")}{truckyBatchImportTotal !== 0 ? `(${truckyBatchImportCurrent} / ${truckyBatchImportTotal} | ${tr("success")}: ${truckyBatchImportSuccess})` : ""}&nbsp;&nbsp;<SponsorBadge level={4} /></Typography>
 
                 <Grid container spacing={2} sx={{ mb: "3px" }}>
                     <Grid item xs={12}>
                         <TextField
-                            label="Trucky Company ID"
+                            label={tr("trucky_company_id")}
                             value={truckyCompanyID}
                             onChange={(e) => { setTruckyCompanyID(e.target.value); }}
                             fullWidth sx={{ mb: "5px" }}
@@ -377,7 +377,7 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Start Time"
+                            label={tr("start_time")}
                             defaultValue={truckyImportRange.start_time}
                             onChange={(timestamp) => { setTruckyImportRange({ ...truckyImportRange, start_time: timestamp }); }}
                             fullWidth
@@ -385,7 +385,7 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="End Time"
+                            label={tr("end_time")}
                             defaultValue={truckyImportRange.end_time}
                             onChange={(timestamp) => { setTruckyImportRange({ ...truckyImportRange, end_time: timestamp }); }}
                             fullWidth
@@ -393,46 +393,44 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={12}>
                         <Typography variant="body2" sx={{ color: theme.palette[snackbarSeverity].main }} gutterBottom>{truckyImportLog}</Typography>
-                        <Button variant="contained" color="info" onClick={() => { importFromTruckyMultiple(); }} disabled={dialogButtonDisabled} fullWidth>Import</Button>
+                        <Button variant="contained" color="info" onClick={() => { importFromTruckyMultiple(); }} disabled={dialogButtonDisabled} fullWidth>{tr("import")}</Button>
                     </Grid>
                 </Grid>
             </DialogContent>
         </Dialog>
         <Dialog open={dialogOpen === "settings"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }} fullWidth>
-            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;Settings</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">
-                    - Change what data to show and how to order them.
-                </Typography>
+                <Typography variant="body2">{tr("change_what_data_to_show_and_how_to_order_them")}</Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
                     <Grid item xs={6}>
                         <TextField select
-                            label="Order By"
+                            label={tr("order_by")}
                             value={tempListParam.order_by}
                             onChange={(e) => { setTempListParam({ ...tempListParam, order_by: e.target.value }); }}
                             fullWidth
                         >
-                            <MenuItem value="logid">Log ID</MenuItem>
-                            <MenuItem value="distance">Distance</MenuItem>
-                            <MenuItem value="fuel">Fuel</MenuItem>
-                            <MenuItem value="views">Views</MenuItem>
-                            <MenuItem value="max_speed">Max. Speed</MenuItem>
+                            <MenuItem value="logid">{tr("log_id")}</MenuItem>
+                            <MenuItem value="distance">{tr("distance")}</MenuItem>
+                            <MenuItem value="fuel">{tr("fuel")}</MenuItem>
+                            <MenuItem value="views">{tr("views")}</MenuItem>
+                            <MenuItem value="max_speed">{tr("max_speed")}</MenuItem>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField select
-                            label="Order"
+                            label={tr("order")}
                             value={tempListParam.order}
                             onChange={(e) => { setTempListParam({ ...tempListParam, order: e.target.value }); }}
                             fullWidth
                         >
-                            <MenuItem value="asc">Ascending</MenuItem>
-                            <MenuItem value="desc">Descending</MenuItem>
+                            <MenuItem value="asc">{tr("ascending")}</MenuItem>
+                            <MenuItem value="desc">{tr("descending")}</MenuItem>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="After"
+                            label={tr("after")}
                             defaultValue={tempListParam.after}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
                             fullWidth
@@ -440,7 +438,7 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Before"
+                            label={tr("before")}
                             defaultValue={tempListParam.before}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
                             fullWidth
@@ -448,7 +446,7 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
-                            label="Speed Limit (km/h)"
+                            label={tr("speed_limit_kmh")}
                             value={tempListParam.speed_limit}
                             onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
                             fullWidth
@@ -456,52 +454,52 @@ const Deliveries = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField select
-                            label="Game"
+                            label={tr("game")}
                             value={tempListParam.game}
                             onChange={(e) => { setTempListParam({ ...tempListParam, game: e.target.value }); }}
                             fullWidth
                         >
-                            <MenuItem value="0">Both</MenuItem>
-                            <MenuItem value="1">ETS2</MenuItem>
-                            <MenuItem value="2">ATS</MenuItem>
+                            <MenuItem value="0">{tr("both")}</MenuItem>
+                            <MenuItem value="1">{tr("ets2")}</MenuItem>
+                            <MenuItem value="2">{tr("ats")}</MenuItem>
                         </TextField>
                     </Grid>
                     <Grid item xs={6}>
                         <TextField select
-                            label="Status"
+                            label={tr("status")}
                             value={tempListParam.status}
                             onChange={(e) => { setTempListParam({ ...tempListParam, status: e.target.value }); }}
                             fullWidth
                         >
-                            <MenuItem value="0">All</MenuItem>
-                            <MenuItem value="1">Delivered</MenuItem>
-                            <MenuItem value="2">Cancelled</MenuItem>
+                            <MenuItem value="0">{tr("all")}</MenuItem>
+                            <MenuItem value="1">{tr("delivered")}</MenuItem>
+                            <MenuItem value="2">{tr("cancelled")}</MenuItem>
                         </TextField>
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>Update</Button>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
                 key="settings"
-                tooltipTitle="Settings"
+                tooltipTitle={tr("settings")}
                 icon={<FontAwesomeIcon icon={faGears} />}
                 onClick={() => { setDialogOpen("settings"); }} />
             <SpeedDialAction
                 key="export"
-                tooltipTitle="Export"
+                tooltipTitle={tr("export")}
                 icon={<FontAwesomeIcon icon={faFileExport} />}
                 onClick={() => { setDialogOpen("export"); }} />
             {checkUserPerm(["administrator", "import_dlogs"]) && <SpeedDialAction
                 key="import"
-                tooltipTitle="Import Trucky Jobs"
+                tooltipTitle={tr("import_trucky_jobs")}
                 icon={<FontAwesomeIcon icon={faTruckFront} />}
                 onClick={() => { setDialogOpen("import-trucky"); }} />}
         </SpeedDial>

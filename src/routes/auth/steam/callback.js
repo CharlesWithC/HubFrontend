@@ -1,4 +1,4 @@
-// NOTE: NOT TESTED!
+import { useTranslation } from 'react-i18next';
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,11 +12,13 @@ import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '
 var vars = require('../../../variables');
 
 const SteamAuth = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [message, setMessage] = useState("Validating authorization...");
+    const [message, setMessage] = useState(tr("validating_authorization"));
     const [allowContinue, setContinue] = useState(false);
     const [doingUpdate, setDoingUpdate] = useState(false);
 
@@ -30,13 +32,13 @@ const SteamAuth = () => {
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
-                            setMessage("You are authorized 🎉");
-                            await FetchProfile(isLogin = true);
+                            setMessage(tr("you_are_authorized"));
+                            await FetchProfile(true);
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {
                             navigate("/auth/mfa?token=" + resp.data.token);
-                            setMessage("MFA OTP Required 🔑");
+                            setMessage(tr("mfa_otp_required"));
                         }
                     } else {
                         setContinue(true);
@@ -49,15 +51,15 @@ const SteamAuth = () => {
                         setContinue(true);
                         localStorage.removeItem("update-steam");
                         setTimeout(function () { navigate("/settings"); }, 3000);
-                        setMessage("Steam Account Updated");
+                        setMessage(tr("steam_account_updated"));
                     } else {
                         setContinue(true);
-                        setMessage("❌ Failed to update Steam account: " + resp.data.error);
+                        setMessage(tr("failed_to_update_steam_account") + resp.data.error);
                     }
                 }
             } catch (error) {
                 console.error(error);
-                setMessage("Error occurred! Check F12 for more info.");
+                setMessage(tr("error_occurred"));
             }
         }
         validateSteamAuth();
@@ -86,15 +88,14 @@ const SteamAuth = () => {
             <Card sx={{ width: 400, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent>
                     <Typography variant="h5" sx={{ fontWeight: 800, mb: "20px" }}>
-                        <FontAwesomeIcon icon={faSteam} />&nbsp;&nbsp;Steam Authorization
-                    </Typography>
+                        <FontAwesomeIcon icon={faSteam} />&nbsp;&nbsp;{tr("steam_authorization")}</Typography>
                     <Typography variant="body">
                         {message}
                     </Typography>
                 </CardContent>
                 <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleContinue} disabled={!allowContinue}>Continue</Button>
+                        onClick={handleContinue} disabled={!allowContinue}>{tr("continue")}</Button>
                 </CardActions>
             </Card>
         </div>

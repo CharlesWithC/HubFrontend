@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip } from '@mui/material';
@@ -18,86 +19,11 @@ import { customSelectStyles } from '../designs';
 
 var vars = require("../variables");
 
-const CHALLENGE_TYPES = ["", "Personal (One-time)", "Company (One-time)", "Personal (Recurring)", "Personal (Distance-based)", "Company (Distance-based)"];
-const DEFAULT_JOB_REQUIREMENTS = {
-    game: "",
-    market: "",
-    source_city_id: "",
-    source_company_id: "",
-    destination_city_id: "",
-    destination_company_id: "",
-    minimum_distance: "-1",
-    maximum_distance: "-1",
-    maximum_detour_percentage: "-1",
-    minimum_detour_percentage: "-1",
-    minimum_seconds_spent: "-1",
-    maximum_seconds_spent: "-1",
-    truck_id: "",
-    truck_plate_country_id: "",
-    minimum_truck_wheel: "-1",
-    maximum_truck_wheel: "-1",
-    minimum_fuel: "-1",
-    maximum_fuel: "-1",
-    minimum_average_fuel: "-1",
-    maximum_average_fuel: "-1",
-    minimum_adblue: "-1",
-    maximum_adblue: "-1",
-    minimum_average_speed: "-1",
-    maximum_average_speed: "-1",
-    maximum_speed: "-1",
-    cargo_id: "",
-    minimum_cargo_mass: "-1",
-    maximum_cargo_mass: "-1",
-    minimum_cargo_damage: "-1",
-    maximum_cargo_damage: "-1",
-    minimum_profit: "-1",
-    maximum_profit: "-1",
-    minimum_offence: "-1",
-    maximum_offence: "-1",
-    minimum_xp: "-1",
-    maximum_xp: "-1",
-    minimum_train: "-1",
-    maximum_train: "-1",
-    minimum_ferry: "-1",
-    maximum_ferry: "-1",
-    minimum_teleport: "-1",
-    maximum_teleport: "-1",
-    minimum_tollgate: "-1",
-    maximum_tollgate: "-1",
-    minimum_toll_paid: "-1",
-    maximum_toll_paid: "-1",
-    minimum_collision: "-1",
-    maximum_collision: "-1",
-    allow_overspeed: "1",
-    allow_auto_park: "1",
-    allow_auto_load: "1",
-    must_not_be_late: "0",
-    must_be_special: "0",
-    minimum_warp: "-1",
-    maximum_warp: "-1",
-    enabled_realistic_settings: ""
-};
-
-const columns = [
-    { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
-    { id: 'title', label: 'Title', orderKey: 'title', defaultOrder: 'asc' },
-    { id: 'metaType', label: 'Type' },
-    { id: 'reward_points', label: 'Reward', orderKey: 'reward', defaultOrder: 'desc' },
-    { id: 'metaProgress', label: 'Progress', orderKey: 'delivery_count', defaultOrder: 'asc' },
-    { id: 'metaStatus', label: 'Status' },
-];
-
-const staffColumns = [
-    { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
-    { id: 'title', label: 'Title', orderKey: 'title', defaultOrder: 'asc' },
-    { id: 'metaType', label: 'Type' },
-    { id: 'reward_points', label: 'Reward', orderKey: 'reward', defaultOrder: 'desc' },
-    { id: 'metaProgress', label: 'Progress', orderKey: 'delivery_count', defaultOrder: 'asc' },
-    { id: 'metaStatus', label: 'Status' },
-    { id: 'metaControls', label: 'Operations' },
-];
+const DEFAULT_JOB_REQUIREMENTS = { game: "", market: "", source_city_id: "", source_company_id: "", destination_city_id: "", destination_company_id: "", minimum_distance: "-1", maximum_distance: "-1", maximum_detour_percentage: "-1", minimum_detour_percentage: "-1", minimum_seconds_spent: "-1", maximum_seconds_spent: "-1", truck_id: "", truck_plate_country_id: "", minimum_truck_wheel: "-1", maximum_truck_wheel: "-1", minimum_fuel: "-1", maximum_fuel: "-1", minimum_average_fuel: "-1", maximum_average_fuel: "-1", minimum_adblue: "-1", maximum_adblue: "-1", minimum_average_speed: "-1", maximum_average_speed: "-1", maximum_speed: "-1", cargo_id: "", minimum_cargo_mass: "-1", maximum_cargo_mass: "-1", minimum_cargo_damage: "-1", maximum_cargo_damage: "-1", minimum_profit: "-1", maximum_profit: "-1", minimum_offence: "-1", maximum_offence: "-1", minimum_xp: "-1", maximum_xp: "-1", minimum_train: "-1", maximum_train: "-1", minimum_ferry: "-1", maximum_ferry: "-1", minimum_teleport: "-1", maximum_teleport: "-1", minimum_tollgate: "-1", maximum_tollgate: "-1", minimum_toll_paid: "-1", maximum_toll_paid: "-1", minimum_collision: "-1", maximum_collision: "-1", allow_overspeed: "1", allow_auto_park: "1", allow_auto_load: "1", must_not_be_late: "0", must_be_special: "0", minimum_warp: "-1", maximum_warp: "-1", enabled_realistic_settings: "" };
 
 const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {
+    const { t: tr } = useTranslation();
+    
     const handleUpdateDelivery = useCallback((e) => {
         e.stopPropagation();
         onUpdateDelivery(challenge);
@@ -138,13 +64,13 @@ const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {
     }, [challenge, onDelete, isShiftPressed]);
 
     return <>
-        <IconButton size="small" aria-label="Update Deliveries" onClick={handleUpdateDelivery}><LocalShippingRounded /></IconButton >
-        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+        <IconButton size="small" aria-label={tr("update_deliveries")} onClick={handleUpdateDelivery}><LocalShippingRounded /></IconButton >
+        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
     </>;
 };
 
-function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) {
+const ParseChallenges = (CHALLENGE_TYPES, tr, challenges, theme, onUpdateDelivery, onEdit, onDelete) => {
     for (let i = 0; i < challenges.length; i++) {
         let challenge = challenges[i];
         const re = challenge.description.match(/^\[Image src="(.+)"\]/);
@@ -158,33 +84,33 @@ function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) 
         let qualified = checkUserRole(challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
         let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
         let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
-            ? <Tooltip key={`ongoing-status`} placement="top" arrow title="Ongoing"
+            ? <Tooltip key={`ongoing-status`} placement="top" arrow title={tr("ongoing")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <PlayCircleRounded sx={{ color: theme.palette.success.main }} />
             </Tooltip>
             : challenge.start_time * 1000 > Date.now()
-                ? challenge.start_time * 1000 > Date.now() + 86400 ? <Tooltip key={`upcoming-status`} placement="top" arrow title="Upcoming"
+                ? challenge.start_time * 1000 > Date.now() + 86400 ? <Tooltip key={`upcoming-status`} placement="top" arrow title={tr("upcoming")}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <ScheduleRounded sx={{ color: theme.palette.info.main }} />
                 </Tooltip> :
-                    <Tooltip key={`upcoming-status`} placement="top" arrow title="Upcoming"
+                    <Tooltip key={`upcoming-status`} placement="top" arrow title={tr("upcoming")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <HourglassBottomRounded sx={{ color: theme.palette.info.main }} />
                     </Tooltip>
-                : <Tooltip key={`ended-status`} placement="top" arrow title="Ended"
+                : <Tooltip key={`ended-status`} placement="top" arrow title={tr("ended")}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <StopCircleRounded sx={{ color: theme.palette.error.main }} />
                 </Tooltip>;
         challenges[i].metaStatus = <>{statusIcon}&nbsp;
-            {qualified && <Tooltip key={`qualified-status`} placement="top" arrow title="Qualified"
+            {qualified && <Tooltip key={`qualified-status`} placement="top" arrow title={tr("qualified")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <DoneOutlineRounded sx={{ color: theme.palette.success.main }} />&nbsp;
             </Tooltip>}
-            {!qualified && <Tooltip key={`not-qualified-status`} placement="top" arrow title="Not Qualified"
+            {!qualified && <Tooltip key={`not-qualified-status`} placement="top" arrow title={tr("not_qualified")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <BlockRounded sx={{ color: theme.palette.error.main }} />&nbsp;
             </Tooltip>}
-            {completed && <Tooltip key={`completed-status`} placement="top" arrow title="Completed"
+            {completed && <Tooltip key={`completed-status`} placement="top" arrow title={tr("completed")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <TaskAltRounded sx={{ color: theme.palette.warning.main }} />&nbsp;
             </Tooltip>}</>;
@@ -192,9 +118,12 @@ function ParseChallenges(challenges, theme, onUpdateDelivery, onEdit, onDelete) 
         challenges[i].metaControls = <ControlButtons challenge={challenges[i]} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />;
     }
     return challenges;
-}
+};
 
 const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, onEdit, onDelete }) => {
+    const { t: tr } = useTranslation();
+    const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
+
     const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_challenges"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
@@ -219,7 +148,7 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
                         </div>
                     </Typography>
                     {showButtons && <>
-                        <IconButton size="small" aria-label="Details" onClick={handleShowDetails}><InfoRounded /></IconButton >
+                        <IconButton size="small" aria-label={tr("details")} onClick={handleShowDetails}><InfoRounded /></IconButton >
                         {showControls && <ControlButtons challenge={challenge} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />}
                     </>}
                 </div>
@@ -259,6 +188,28 @@ const ChallengeManagers = memo(() => {
 });
 
 const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
+    const { t: tr } = useTranslation();
+
+    const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
+
+    const columns = [
+        { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
+        { id: 'title', label: tr("title"), orderKey: 'title', defaultOrder: 'asc' },
+        { id: 'metaType', label: tr("type") },
+        { id: 'reward_points', label: tr("reward"), orderKey: 'reward', defaultOrder: 'desc' },
+        { id: 'metaProgress', label: tr("progress"), orderKey: 'delivery_count', defaultOrder: 'asc' },
+        { id: 'metaStatus', label: tr("status") },
+    ];
+    const staffColumns = [
+        { id: 'challengeid', label: 'ID', orderKey: 'challengeid', defaultOrder: 'desc' },
+        { id: 'title', label: tr("title"), orderKey: 'title', defaultOrder: 'asc' },
+        { id: 'metaType', label: tr("type") },
+        { id: 'reward_points', label: tr("reward"), orderKey: 'reward', defaultOrder: 'desc' },
+        { id: 'metaProgress', label: tr("progress"), orderKey: 'delivery_count', defaultOrder: 'asc' },
+        { id: 'metaStatus', label: tr("status") },
+        { id: 'metaControls', label: tr("operations") },
+    ];
+
     const inited = useRef(false);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -286,8 +237,8 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                     `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
-                setUpcomingChallenges(ParseChallenges(_upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
-                setActiveChallenges(ParseChallenges(_activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setUpcomingChallenges(ParseChallenges(CHALLENGE_TYPES, tr, _upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setActiveChallenges(ParseChallenges(CHALLENGE_TYPES, tr, _activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
                 inited.current = true;
             } else {
                 let urls = [
@@ -297,7 +248,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
             }
 
             if (pageRef.current === page) {
-                setChallengeList(ParseChallenges(_challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setChallengeList(ParseChallenges(CHALLENGE_TYPES, tr, _challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
                 setTotalItems(_challengeList.total_items);
             }
 
@@ -326,6 +277,8 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
 });
 
 const Challenges = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
 
     const [challengeList, setChallengeList] = useState([]);
@@ -340,8 +293,8 @@ const Challenges = () => {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Create Challenge");
-    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogTitle, setDialogTitle] = useState(tr("create_challenge"));
+    const [dialogButton, setDialogButton] = useState(tr("create"));
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
@@ -404,20 +357,20 @@ const Challenges = () => {
         let qualified = checkUserRole(challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
         let qualifiedStatus = <>
             {qualified && <>
-                <Chip color="success" sx={{ borderRadius: "5px" }} label="Qualified"></Chip>&nbsp;
+                <Chip color="success" sx={{ borderRadius: "5px" }} label={tr("qualified")}></Chip>&nbsp;
             </>}
             {!qualified && <>
-                <Chip color="secondary" sx={{ borderRadius: "5px" }} label="Not Qualified"></Chip>&nbsp;
+                <Chip color="secondary" sx={{ borderRadius: "5px" }} label={tr("not_qualified")}></Chip>&nbsp;
             </>}</>;
         let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
         let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
-            ? <Chip color="success" sx={{ borderRadius: "5px" }} label="Ongoing"></Chip>
+            ? <Chip color="success" sx={{ borderRadius: "5px" }} label={tr("ongoing")}></Chip>
             : challenge.start_time * 1000 > Date.now()
-                ? <Chip color="info" sx={{ borderRadius: "5px" }} label="Upcoming"></Chip>
-                : <Chip color="error" sx={{ borderRadius: "5px" }} label="Ended"></Chip>;
+                ? <Chip color="info" sx={{ borderRadius: "5px" }} label={tr("upcoming")}></Chip>
+                : <Chip color="error" sx={{ borderRadius: "5px" }} label={tr("ended")}></Chip>;
         let status = <>{statusIcon}&nbsp;
             {completed && <>
-                <Chip color="warning" sx={{ borderRadius: "5px" }} label="Completed"></Chip>&nbsp;
+                <Chip color="warning" sx={{ borderRadius: "5px" }} label={tr("completed")}></Chip>&nbsp;
             </>}</>;
 
         let required_roles = challenge.required_roles.map((role) => {
@@ -444,21 +397,21 @@ const Challenges = () => {
         }
 
         const lmi = [
-            { "name": "Type", "value": CHALLENGE_TYPES[challenge.type] },
-            { "name": "Reward Points", "key": "reward_points" },
-            { "name": "Start Time", "value": getFormattedDate(new Date(challenge.start_time * 1000)) },
-            { "name": "End Time", "value": getFormattedDate(new Date(challenge.end_time * 1000)) },
-            { "name": "Status", "value": status },
+            { "name": tr("type"), "value": CHALLENGE_TYPES[challenge.type] },
+            { "name": tr("reward_points"), "key": "reward_points" },
+            { "name": tr("start_time"), "value": getFormattedDate(new Date(challenge.start_time * 1000)) },
+            { "name": tr("end_time"), "value": getFormattedDate(new Date(challenge.end_time * 1000)) },
+            { "name": tr("status"), "value": status },
             {},
-            { "name": "Deliveries", "key": "delivery_count" },
-            { "name": "Current Deliveries", "key": "current_delivery_count" },
-            { "name": "Progress", "value": progress },
+            { "name": tr("deliveries"), "key": "delivery_count" },
+            { "name": tr("current_deliveries"), "key": "current_delivery_count" },
+            { "name": tr("progress"), "value": progress },
             {},
-            { "name": "Required Roles", "value": required_roles },
-            { "name": "Required Distance Driven", "value": ConvertUnit("km", challenge.required_distance) },
-            { "name": "Qualification", "value": qualifiedStatus },
+            { "name": tr("required_roles"), "value": required_roles },
+            { "name": tr("required_distance_driven"), "value": ConvertUnit("km", challenge.required_distance) },
+            { "name": tr("qualification"), "value": qualifiedStatus },
             {},
-            { "name": "Completed Members", "value": completed_users }];
+            { "name": tr("completed_members"), "value": completed_users }];
         setListModalItems(lmi);
         setListModalOpen(true);
 
@@ -476,7 +429,7 @@ const Challenges = () => {
         let resp = await axios({ url: `${vars.dhpath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
         if (resp.status === 204) {
             setDoReload(+new Date());
-            setSnackbarContent("Delivery added!");
+            setSnackbarContent(tr("delivery_added"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -490,7 +443,7 @@ const Challenges = () => {
         let resp = await axios({ url: `${vars.dhpath}/challenges/${updateDlogChallenge.challengeid}/delivery/${dlogID}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
         if (resp.status === 204) {
             setDoReload(+new Date());
-            setSnackbarContent("Delivery deleted!");
+            setSnackbarContent(tr("delivery_deleted"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -510,7 +463,7 @@ const Challenges = () => {
             let resp = await axios({ url: `${vars.dhpath}/challenges`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
             if (resp.status === 200) {
                 setDoReload(+new Date());
-                setSnackbarContent("Challenge posted!");
+                setSnackbarContent(tr("challenge_posted"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -522,7 +475,7 @@ const Challenges = () => {
             let resp = await axios({ url: `${vars.dhpath}/challenges/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: modalChallenge });
             if (resp.status === 204) {
                 setDoReload(+new Date());
-                setSnackbarContent("Challenge updated!");
+                setSnackbarContent(tr("challenge_updated"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -537,62 +490,62 @@ const Challenges = () => {
 
     const formatFieldName = (key) => {
         const fieldNames = {
-            game: "Game",
-            market: "Market",
-            source_city_id: "Source City ID",
-            source_company_id: "Source Company ID",
-            destination_city_id: "Destination City ID",
-            destination_company_id: "Destination Company ID",
-            minimum_distance: "Minimum Distance",
-            maximum_distance: "Maximum Distance",
-            maximum_detour_percentage: "Maximum Detour Percentage",
-            minimum_detour_percentage: "Minimum Detour Percentage",
-            minimum_seconds_spent: "Minimum Seconds Spent",
-            maximum_seconds_spent: "Maximum Seconds Spent",
-            truck_id: "Truck ID",
-            truck_plate_country_id: "Truck Plate Country ID",
-            minimum_truck_wheel: "Minimum Truck Wheel",
-            maximum_truck_wheel: "Maximum Truck Wheel",
-            minimum_fuel: "Minimum Fuel",
-            maximum_fuel: "Maximum Fuel",
-            minimum_average_fuel: "Minimum Average Fuel",
-            maximum_average_fuel: "Maximum Average Fuel",
-            minimum_adblue: "Minimum Adblue",
-            maximum_adblue: "Maximum Adblue",
-            minimum_average_speed: "Minimum Average Speed",
-            maximum_average_speed: "Maximum Average Speed",
-            maximum_speed: "Maximum Speed",
-            cargo_id: "Cargo ID",
-            minimum_cargo_mass: "Minimum Cargo Mass",
-            maximum_cargo_mass: "Maximum Cargo Mass",
-            minimum_cargo_damage: "Minimum Cargo Damage",
-            maximum_cargo_damage: "Maximum Cargo Damage",
-            minimum_profit: "Minimum Profit",
-            maximum_profit: "Maximum Profit",
-            minimum_offence: "Minimum Offence",
-            maximum_offence: "Maximum Offence",
-            minimum_xp: "Minimum XP Earned",
-            maximum_xp: "Maximum XP Earned",
-            minimum_train: "Minimum Train Took",
-            maximum_train: "Maximum Train Took",
-            minimum_ferry: "Minimum Ferry Took",
-            maximum_ferry: "Maximum Ferry Took",
-            minimum_teleport: "Minimum Teleport Took",
-            maximum_teleport: "Maximum Teleport Took",
-            minimum_tollgate: "Minimum Tollgate Passed",
-            maximum_tollgate: "Maximum Tollgate Passed",
-            minimum_toll_paid: "Minimum Toll Paid",
-            maximum_toll_paid: "Maximum Toll Paid",
-            minimum_collision: "Minimum Collision Times",
-            maximum_collision: "Maximum Collision Times",
-            allow_overspeed: "Allow Overspeed",
-            allow_auto_park: "Allow Auto Park",
-            allow_auto_load: "Allow Auto Load",
-            must_not_be_late: "Must Not Be Late",
-            must_be_special: "Must Be Special",
-            minimum_warp: "Minimum Warp",
-            maximum_warp: "Maximum Warp",
-            enabled_realistic_settings: "Enabled Realistic Settings (Trucky)"
+            game: tr("game"),
+            market: tr("market"),
+            source_city_id: tr("source_city_id"),
+            source_company_id: tr("source_company_id"),
+            destination_city_id: tr("destination_city_id"),
+            destination_company_id: tr("destination_company_id"),
+            minimum_distance: tr("minimum_distance"),
+            maximum_distance: tr("maximum_distance"),
+            maximum_detour_percentage: tr("maximum_detour_percentage"),
+            minimum_detour_percentage: tr("minimum_detour_percentage"),
+            minimum_seconds_spent: tr("minimum_seconds_spent"),
+            maximum_seconds_spent: tr("maximum_seconds_spent"),
+            truck_id: tr("truck_id"),
+            truck_plate_country_id: tr("truck_plate_country_id"),
+            minimum_truck_wheel: tr("minimum_truck_wheel"),
+            maximum_truck_wheel: tr("maximum_truck_wheel"),
+            minimum_fuel: tr("minimum_fuel"),
+            maximum_fuel: tr("maximum_fuel"),
+            minimum_average_fuel: tr("minimum_average_fuel"),
+            maximum_average_fuel: tr("maximum_average_fuel"),
+            minimum_adblue: tr("minimum_adblue"),
+            maximum_adblue: tr("maximum_adblue"),
+            minimum_average_speed: tr("minimum_average_speed"),
+            maximum_average_speed: tr("maximum_average_speed"),
+            maximum_speed: tr("maximum_speed"),
+            cargo_id: tr("cargo_id"),
+            minimum_cargo_mass: tr("minimum_cargo_mass"),
+            maximum_cargo_mass: tr("maximum_cargo_mass"),
+            minimum_cargo_damage: tr("minimum_cargo_damage"),
+            maximum_cargo_damage: tr("maximum_cargo_damage"),
+            minimum_profit: tr("minimum_profit"),
+            maximum_profit: tr("maximum_profit"),
+            minimum_offence: tr("minimum_offence"),
+            maximum_offence: tr("maximum_offence"),
+            minimum_xp: tr("minimum_xp_earned"),
+            maximum_xp: tr("maximum_xp_earned"),
+            minimum_train: tr("minimum_train_took"),
+            maximum_train: tr("maximum_train_took"),
+            minimum_ferry: tr("minimum_ferry_took"),
+            maximum_ferry: tr("maximum_ferry_took"),
+            minimum_teleport: tr("minimum_teleport_took"),
+            maximum_teleport: tr("maximum_teleport_took"),
+            minimum_tollgate: tr("minimum_tollgate_passed"),
+            maximum_tollgate: tr("maximum_tollgate_passed"),
+            minimum_toll_paid: tr("minimum_toll_paid"),
+            maximum_toll_paid: tr("maximum_toll_paid"),
+            minimum_collision: tr("minimum_collision_times"),
+            maximum_collision: tr("maximum_collision_times"),
+            allow_overspeed: tr("allow_overspeed"),
+            allow_auto_park: tr("allow_auto_park"),
+            allow_auto_load: tr("allow_auto_load"),
+            must_not_be_late: tr("must_not_be_late"),
+            must_be_special: tr("must_be_special"),
+            minimum_warp: tr("minimum_warp"),
+            maximum_warp: tr("maximum_warp"),
+            enabled_realistic_settings: tr("enabled_realistic_settings_trucky")
         };
 
         return fieldNames[key] || key;
@@ -603,8 +556,8 @@ const Challenges = () => {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Challenge");
-        setDialogButton("Create");
+        setDialogTitle(tr("create_challenge"));
+        setDialogButton(tr("create"));
         setDialogOpen(true);
     }, [editId, clearModal]);
 
@@ -619,8 +572,8 @@ const Challenges = () => {
         setModalChallenge(challenge);
         setEditId(challenge.challengeid);
 
-        setDialogTitle("Edit Challenge");
-        setDialogButton("Edit");
+        setDialogTitle(tr("edit_challenge"));
+        setDialogButton(tr("edit"));
         setDialogOpen(true);
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
@@ -633,7 +586,7 @@ const Challenges = () => {
             let resp = await axios({ url: `${vars.dhpath}/challenges/${challenge.challengeid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setDoReload(+new Date());
-                setSnackbarContent("Challenge deleted!");
+                setSnackbarContent(tr("challenge_deleted"));
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -654,11 +607,11 @@ const Challenges = () => {
             <MarkdownRenderer>{listModalChallenge.description}</MarkdownRenderer>
         </Typography>} />}
         <Dialog open={modalUpdateDlogOpen} onClose={() => setModalUpdateDlogOpen(false)}>
-            <DialogTitle>Update Deliveries</DialogTitle>
+            <DialogTitle>{tr("update_deliveries")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Please enter the ID of the delivery log to be added / removed from the challenge:</Typography>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("challenge_enter_delivery_log_id")}</Typography>
                 <TextField
-                    label="Delivery Log ID"
+                    label={tr("delivery_log_id")}
                     value={dlogID}
                     onChange={(e) => setDlogID(e.target.value)}
                     fullWidth
@@ -667,9 +620,9 @@ const Challenges = () => {
                 <ChallengeCard challenge={{ ...updateDlogChallenge, description: "" }} />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setModalUpdateDlogOpen(false); }}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={removeDlog} disabled={submitLoading}>Remove</Button>
-                <Button variant="contained" color="success" onClick={addDlog} disabled={submitLoading}>Add</Button>
+                <Button variant="primary" onClick={() => { setModalUpdateDlogOpen(false); }}>{tr("cancel")}</Button>
+                <Button variant="contained" color="error" onClick={removeDlog} disabled={submitLoading}>{tr("remove")}</Button>
+                <Button variant="contained" color="success" onClick={addDlog} disabled={submitLoading}>{tr("add")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -679,7 +632,7 @@ const Challenges = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <TextField
-                                label="Title"
+                                label={tr("title")}
                                 value={modalChallenge.title}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, title: e.target.value })}
                                 fullWidth
@@ -687,7 +640,7 @@ const Challenges = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="Description (Markdown)"
+                                label={tr("description_markdown")}
                                 multiline
                                 value={modalChallenge.description}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, description: e.target.value })}
@@ -697,7 +650,7 @@ const Challenges = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <DateTimeField
-                                label="Start Time"
+                                label={tr("start_time")}
                                 defaultValue={modalChallenge.start_time}
                                 onChange={(timestamp) => { setModalChallenge({ ...modalChallenge, start_time: timestamp }); }}
                                 fullWidth
@@ -705,7 +658,7 @@ const Challenges = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <DateTimeField
-                                label="End Time"
+                                label={tr("end_time")}
                                 defaultValue={modalChallenge.end_time}
                                 onChange={(timestamp) => { setModalChallenge({ ...modalChallenge, end_time: timestamp }); }}
                                 fullWidth
@@ -713,36 +666,36 @@ const Challenges = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
-                                <FormLabel component="legend">Challenge Type</FormLabel>
+                                <FormLabel component="legend">{tr("challenge_type")}</FormLabel>
                                 <TextField
                                     select size="small"
                                     value={modalChallenge.type}
                                     onChange={(e) => setModalChallenge({ ...modalChallenge, type: e.target.value })}
                                     sx={{ marginTop: "6px", height: "30px" }}
                                 >
-                                    <MenuItem value={1}>Personal (One-time)</MenuItem>
-                                    <MenuItem value={2}>Company (One-time)</MenuItem>
-                                    <MenuItem value={3}>Personal (Recurring)</MenuItem>
-                                    <MenuItem value={4}>Personal (Distance-based)</MenuItem>
-                                    <MenuItem value={5}>Company (Distance-based)</MenuItem>
+                                    <MenuItem value={1}>{tr("personal_onetime")}</MenuItem>
+                                    <MenuItem value={2}>{tr("company_onetime")}</MenuItem>
+                                    <MenuItem value={3}>{tr("personal_recurring")}</MenuItem>
+                                    <MenuItem value={4}>{tr("personal_distancebased")}</MenuItem>
+                                    <MenuItem value={5}>{tr("company_distancebased")}</MenuItem>
                                 </TextField>
                             </FormControl>
                         </Grid>
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
-                                <FormLabel component="legend">Public Job Requirements?</FormLabel>
+                                <FormLabel component="legend">{tr("public_job_requirements")}</FormLabel>
                                 <RadioGroup
                                     value={String(modalChallenge.public_details)} row
                                     onChange={(e) => setModalChallenge({ ...modalChallenge, public_details: e.target.value === true })}
                                 >
-                                    <FormControlLabel value={true} control={<Radio />} label="Yes" />
-                                    <FormControlLabel value={false} control={<Radio />} label="No" />
+                                    <FormControlLabel value={true} control={<Radio />} label={tr("yes")} />
+                                    <FormControlLabel value={false} control={<Radio />} label={tr("no")} />
                                 </RadioGroup>
                             </FormControl>
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Delivery Count"
+                                label={tr("delivery_count")}
                                 type="text"
                                 value={modalChallenge.delivery_count}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, delivery_count: e.target.value })}
@@ -750,11 +703,11 @@ const Challenges = () => {
                             />
                         </Grid>
                         <Grid item xs={6} style={{ paddingTop: 0 }}>
-                            <RoleSelect initialRoles={modalChallenge.required_roles} onUpdate={(newRoles) => setModalChallenge({ ...modalChallenge, required_roles: newRoles.map((role) => (role.id)) })} label="Required Roles" />
+                            <RoleSelect initialRoles={modalChallenge.required_roles} onUpdate={(newRoles) => setModalChallenge({ ...modalChallenge, required_roles: newRoles.map((role) => (role.id)) })} label={tr("required_roles")} />
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Required Distance"
+                                label={tr("required_distance")}
                                 type="text"
                                 value={modalChallenge.required_distance}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, required_distance: e.target.value })}
@@ -763,7 +716,7 @@ const Challenges = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Reward Points"
+                                label={tr("reward_points")}
                                 type="text"
                                 value={modalChallenge.reward_points}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, reward_points: e.target.value })}
@@ -772,7 +725,7 @@ const Challenges = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Order ID"
+                                label={tr("order_id")}
                                 type="text"
                                 value={modalChallenge.orderid}
                                 onChange={(e) => setModalChallenge({ ...modalChallenge, orderid: e.target.value })}
@@ -785,21 +738,19 @@ const Challenges = () => {
                                     key="pin"
                                     control={
                                         <Checkbox
-                                            name="Pin"
+                                            name={tr("pin")}
                                             checked={modalChallenge.is_pinned}
                                             onChange={() => setModalChallenge({ ...modalChallenge, is_pinned: e.target.value === true })}
                                         />
                                     }
-                                    label="Pin"
+                                    label={tr("pin")}
                                 />
                             </FormControl>
                         </Grid>
                     </Grid>
                 </form>
                 {/* Job Requirements section */}
-                <Typography variant="h6" style={{ marginTop: "20px", marginBottom: "5px" }}>
-                    Job Requirements
-                </Typography>
+                <Typography variant="h6" style={{ marginTop: "20px", marginBottom: "5px" }}>{tr("job_requirements")}</Typography>
                 <Grid container spacing={2}>
                     {Object.entries(modalChallenge.job_requirements).map(([key, value]) => (<>
                         {["source_city_id", "destination_city_id"].includes(key) &&
@@ -886,55 +837,53 @@ const Challenges = () => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>
-                    Cancel
-                </Button>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
                 <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>
                     {dialogButton}
                 </Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-            <DialogTitle>Delete Challenge</DialogTitle>
+            <DialogTitle>{tr("delete_challenge")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this challenge?</Typography>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_challenge_confirm")}</Typography>
                 <ChallengeCard challenge={toDelete !== null ? toDelete : {}} />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={() => { deleteChallenge({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                <Button variant="contained" color="error" onClick={() => { deleteChallenge({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-            <DialogTitle>Challenge Managers</DialogTitle>
+            <DialogTitle>{tr("challenge_managers")}</DialogTitle>
             <DialogContent>
                 <ChallengeManagers />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             {checkUserPerm(["administrator", "manage_challenges"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
-                tooltipTitle="Create"
+                tooltipTitle={tr("create")}
                 onClick={() => createChallenge()}
             />}
             {vars.userInfo.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
-                tooltipTitle="Managers"
+                tooltipTitle={tr("managers")}
                 onClick={() => setDialogManagers(true)}
             />}
             <SpeedDialAction
                 key="refresh"
                 icon={<RefreshRounded />}
-                tooltipTitle="Refresh"
+                tooltipTitle={tr("refresh")}
                 onClick={() => setDoReload(+new Date())}
             />
         </SpeedDial>

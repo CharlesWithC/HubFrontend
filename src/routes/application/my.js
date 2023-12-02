@@ -9,18 +9,22 @@ import TimeAgo from '../../components/timeago';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../../functions';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../../variables");
 
-const columns = [
-    { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
-    { id: 'type', label: 'Type' },
-    { id: 'submit', label: 'Submit Time', orderKey: 'submit_timestamp', defaultOrder: 'desc' },
-    { id: 'update', label: 'Update Time', orderKey: 'respond_timestamp', defaultOrder: 'desc' },
-    { id: 'staff', label: 'Staff (Order by User ID)', orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
-    { id: 'status', label: 'Status' }
-];
-
 const ApplicationTable = memo(({ showDetail }) => {
+    const { t: tr } = useTranslation();
+
+    const columns = [
+        { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
+        { id: 'type', label: tr("type") },
+        { id: 'submit', label: tr("submit_time"), orderKey: 'submit_timestamp', defaultOrder: 'desc' },
+        { id: 'update', label: tr("update_time"), orderKey: 'respond_timestamp', defaultOrder: 'desc' },
+        { id: 'staff', label: tr("staff_order_by_user_id"), orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
+        { id: 'status', label: tr("status") }
+    ];
+
     const [recent, setRecent] = useState([]);
     const [applications, setApplications] = useState(null);
 
@@ -32,7 +36,7 @@ const ApplicationTable = memo(({ showDetail }) => {
     const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();
-    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>Pending</span>, 1: <span style={{ color: theme.palette.success.main }}>Accepted</span>, 2: <span style={{ color: theme.palette.error.main }}>Declined</span> }; }, [theme]);
+    const STATUS = useMemo(() => { return { 0: <span style={{ color: theme.palette.info.main }}>{tr("pending")}</span>, 1: <span style={{ color: theme.palette.success.main }}>{tr("accepted")}</span>, 2: <span style={{ color: theme.palette.error.main }}>{tr("declined")}</span> }; }, [theme]);
 
     useEffect(() => {
         pageRef.current = page;
@@ -61,7 +65,7 @@ const ApplicationTable = memo(({ showDetail }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? "Unknown", submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: vars.applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, staff: <UserCard user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             if (pageRef.current === page) {
@@ -84,14 +88,12 @@ const ApplicationTable = memo(({ showDetail }) => {
             <Grid item xs={12} sm={12} md={recent.length === 2 ? 6 : 12} lg={recent.length === 2 ? 6 : 12}>
                 <Card>
                     <CardContent>
-                        <Typography variant="subtitle2" gutterBottom>
-                            Recent {vars.applicationTypes[recent[0].type].name} Application
-                        </Typography>
+                        <Typography variant="subtitle2" gutterBottom>{tr("recent")}{vars.applicationTypes[recent[0].type].name}{tr("application")}</Typography>
                         <Typography variant="h5" component="div">
                             {STATUS[recent[0].status]}
                         </Typography>
                         <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                            Last Responded: <TimeAgo key={`${+new Date()}`} timestamp={recent[0].respond_timestamp * 1000} />
+                            <>{tr("last_responded")}</>: <TimeAgo key={`${+new Date()}`} timestamp={recent[0].respond_timestamp * 1000} />
                         </Typography>
                     </CardContent>
                 </Card>
@@ -100,14 +102,12 @@ const ApplicationTable = memo(({ showDetail }) => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Card>
                         <CardContent>
-                            <Typography variant="subtitle2" gutterBottom>
-                                Recent {vars.applicationTypes[recent[1].type].name} Application
-                            </Typography>
+                            <Typography variant="subtitle2" gutterBottom>{tr("recent")}{vars.applicationTypes[recent[1].type].name}{tr("application")}</Typography>
                             <Typography variant="h5" component="div">
                                 {STATUS[recent[1].status]}
                             </Typography>
                             <Typography variant="subtitle2" sx={{ mt: 1 }}>
-                                Last Responded: <TimeAgo key={`${+new Date()}`} timestamp={recent[1].respond_timestamp * 1000} />
+                                <>{tr("last_responded")}</>: <TimeAgo key={`${+new Date()}`} timestamp={recent[1].respond_timestamp * 1000} />
                             </Typography>
                         </CardContent>
                     </Card>
@@ -119,6 +119,8 @@ const ApplicationTable = memo(({ showDetail }) => {
 });
 
 const MyApplication = () => {
+    const { t: tr } = useTranslation();
+
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [message, setMessage] = useState("");
@@ -153,7 +155,7 @@ const MyApplication = () => {
         setSubmitLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/applications/${detailApp.applicationid}/message`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "message": message } });
         if (resp.status === 204) {
-            setSnackbarContent("Message added!");
+            setSnackbarContent(tr("message_added"));
             setSnackbarSeverity("success");
             showDetail(detailApp);
         } else {
@@ -166,7 +168,7 @@ const MyApplication = () => {
     return <>
         <ApplicationTable showDetail={showDetail}></ApplicationTable>
         {detailApp !== null && <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} >
-            <DialogTitle>Application</DialogTitle>
+            <DialogTitle>{tr("application")}</DialogTitle>
             <DialogContent sx={{ minWidth: "400px" }}>
                 {Object.entries(detailApp.application).map(([question, answer]) => (
                     <>
@@ -181,7 +183,7 @@ const MyApplication = () => {
                 <div style={{ display: detailApp.status !== 0 ? "none" : "block" }}>
                     <hr />
                     <TextField
-                        label="Add Message"
+                        label={tr("add_message")}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         multiline
@@ -191,8 +193,8 @@ const MyApplication = () => {
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>Close</Button>
-                <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>Respond</Button>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); }}>{tr("close")}</Button>
+                <Button variant="contained" color="info" onClick={() => { addMessage(); }} disabled={submitLoading || message.trim() === ""} sx={{ display: detailApp.status !== 0 ? "none" : "block" }}>{tr("respond")}</Button>
             </DialogActions>
         </Dialog>}
         <Portal>

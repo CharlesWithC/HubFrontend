@@ -80,7 +80,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 setLogoSrc(vars.dhlogo);
                 setBgSrc(vars.dhvtcbg);
-                setLoadMessage(`Loading`);
+                setLoadMessage(tr("loading"));
 
                 let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = [null, null, null, null, null, null, null, null, null, null, null, null];
                 let useCache = false;

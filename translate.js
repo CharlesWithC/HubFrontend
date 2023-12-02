@@ -7,7 +7,7 @@ const parser = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
 const types = require('@babel/types');
 const readline = require('readline-sync');
-const prettier = require('prettier');
+// const prettier = require('prettier');
 
 let currentDir = path.join(process.cwd(), "src");
 let selectedFile = null;
@@ -160,7 +160,7 @@ try {
                     .replace(/[^a-z0-9_]/gi, '')
                     .split("_")
                     .filter(item => item !== '')
-                    .slice(0, 5)
+                    .slice(0, 10)
                     .join("_");
 
                 let placeholderKeyInput = "";
@@ -235,8 +235,13 @@ try {
             if (value && value.length > 1) { // Skip single characters
                 console.log(`Found string: ${value}`);
 
-                if (skips.includes(value) || marked.includes(value) || value.startsWith("/") || value.startsWith(".") || value.startsWith("#") || value.startsWith("&") || value.endsWith("px") || value.endsWith("vh") || value.endsWith("vw") || value.endsWith("em") || value.startsWith("http")) {
-                    console.log("Skipped...");
+                if (skips.includes(value) || marked.includes(value) || value.startsWith("/") || value.startsWith(".") || value.startsWith("#") || value.startsWith("&") || value.startsWith("http")) {
+                    console.log("Skipped (Rule 1)...");
+                    return;
+                }
+
+                if (value[0] >= "a" && value[0] <= "z" || value.indexOf("_") !== -1) {
+                    console.log("Skipped (Rule 2)...");
                     return;
                 }
 
@@ -246,7 +251,7 @@ try {
                     .replace(/[^a-z0-9_]/gi, '')
                     .split("_")
                     .filter(item => item !== '')
-                    .slice(0, 5)
+                    .slice(0, 10)
                     .join("_");
                 let placeholderKeyInput = "";
 
@@ -330,21 +335,23 @@ replaceWork.sort((a, b) => b.start - a.start);
 for (let i = 0; i < replaceWork.length; i++) {
     modifiedCode = modifiedCode.substring(0, replaceWork[i].start) + replaceWork[i].to + modifiedCode.substring(replaceWork[i].end);
 }
+if (modifiedCode.indexOf("import { useTranslation } from 'react-i18next';") === -1) {
+    modifiedCode = "import { useTranslation } from 'react-i18next';\n" + modifiedCode;
+}
 fs.writeFile(file, modifiedCode, err => {
     if (err) throw err;
-    console.log('\nThe code file has been saved! Note that you have to add import and useTranslations yourself!');
-    console.log("import { useTranslation } from 'react-i18next';");
+    console.log('\nThe code file has been saved! Note that you have to add the below code yourself!');
     console.log("const { t: tr } = useTranslation();\n");
 });
 
 // Write the modified language data back to the file
-fs.writeFile(languageFile, 'const en = ' + JSON.stringify(languageData, null, 4) + ';\nexports.en = en;', err => {
+fs.writeFile(languageFile, 'const en = ' + JSON.stringify(Object.keys(languageData).sort().reduce((obj, key) => { obj[key] = languageData[key]; return obj; }, {}), null, 4) + ';\nexports.en = en;', err => {
     if (err) throw err;
     console.log('The language file has been saved!');
 });
 
 // Write the modified language data back to the file
-fs.writeFile("./translate-skips.js", 'const skips = ' + JSON.stringify(skips, null, 4) + ';\nexports.skips = skips;', err => {
+fs.writeFile("./translate-skips.js", 'const skips = ' + JSON.stringify(skips.sort(), null, 4) + ';\nexports.skips = skips;', err => {
     if (err) throw err;
     console.log('The skips file has been saved!');
 });

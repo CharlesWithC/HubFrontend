@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useRef, useState, useEffect } from 'react';
 import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon } from '@mui/material';
 import { useTheme } from '@emotion/react';
@@ -36,19 +37,20 @@ const LargeUserCard = ({ user, color }) => {
     );
 };
 
-const columns = [
-    { id: 'rankorder', label: '#' },
-    { id: 'member', label: 'Member' },
-    { id: 'rankname', label: 'Rank' },
-    { id: 'distance', label: 'Distance' },
-    { id: 'challenge', label: 'Challenge' },
-    { id: 'event', label: 'Event' },
-    { id: 'division', label: 'Division' },
-    { id: 'bonus', label: 'Bonus' },
-    { id: 'total', label: 'Total' },
-];
-
 const Leaderboard = () => {
+    const { t: tr } = useTranslation();
+    const columns = [
+        { id: 'rankorder', label: '#' },
+        { id: 'member', label: tr("member") },
+        { id: 'rankname', label: tr("rank") },
+        { id: 'distance', label: tr("distance") },
+        { id: 'challenge', label: tr("challenge") },
+        { id: 'event', label: tr("event") },
+        { id: 'division', label: tr("division") },
+        { id: 'bonus', label: tr("bonus") },
+        { id: 'total', label: tr("total") },
+    ];
+    
     const [dialogOpen, setDialogOpen] = useState("");
     const theme = useTheme();
 
@@ -113,7 +115,7 @@ const Leaderboard = () => {
     return <>
         {monthly.length === 3 && <>
             <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                <b>Top Members of {getCurrentMonthName()}</b>
+                <b>{tr("top_members_of_month", { month: getCurrentMonthName() })}</b>
             </Typography>
             <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
                 <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -145,7 +147,7 @@ const Leaderboard = () => {
         }
         {allTime.length === 3 && <>
             <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
-                <b>Top Members of All Time</b>
+                <b>{tr("top_members_of_all_time")}</b>
             </Typography>
             <Box sx={{ justifyContent: 'center', display: { sm: 'none', md: 'block' } }}>
                 <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -177,15 +179,13 @@ const Leaderboard = () => {
         }
         {leaderboard.length > 0 && <CustomTable columns={columns} data={leaderboard} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} style={{ marginTop: "30px" }} />}
         <Dialog open={dialogOpen === "settings"} onClose={() => { setDialogOpen(""); }} fullWidth>
-            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;Settings</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faGears} />&nbsp;&nbsp;{tr("settings")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2">
-                    - Change what data to show and how to order them.
-                </Typography>
+                <Typography variant="body2">{tr("change_what_data_to_show_and_how_to_order_them")}</Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
                     <Grid item xs={6}>
                         <TextField
-                            label="Minimum Points"
+                            label={tr("minimum_points")}
                             value={tempListParam.min_point}
                             onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, min_point: e.target.value }); }}
                             fullWidth
@@ -193,7 +193,7 @@ const Leaderboard = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField
-                            label="Maximum Points"
+                            label={tr("maximum_points")}
                             value={tempListParam.max_point}
                             onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, max_point: e.target.value }); }}
                             fullWidth
@@ -201,7 +201,7 @@ const Leaderboard = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="After"
+                            label={tr("after")}
                             defaultValue={tempListParam.after}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, after: timestamp }); }}
                             fullWidth
@@ -209,7 +209,7 @@ const Leaderboard = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <DateTimeField
-                            label="Before"
+                            label={tr("before")}
                             defaultValue={tempListParam.before}
                             onChange={(timestamp) => { setTempListParam({ ...tempListParam, before: timestamp }); }}
                             fullWidth
@@ -217,7 +217,7 @@ const Leaderboard = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField
-                            label="Speed Limit (km/h)"
+                            label={tr("speed_limit_kmh")}
                             value={tempListParam.speed_limit}
                             onChange={(e) => { if (!isNaN(e.target.value)) setTempListParam({ ...tempListParam, speed_limit: e.target.value }); }}
                             fullWidth
@@ -225,18 +225,18 @@ const Leaderboard = () => {
                     </Grid>
                     <Grid item xs={6}>
                         <TextField select
-                            label="Game"
+                            label={tr("game")}
                             value={tempListParam.game}
                             onChange={(e) => { setTempListParam({ ...tempListParam, game: e.target.value }); }}
                             fullWidth
                         >
-                            <MenuItem value="0">Both</MenuItem>
-                            <MenuItem value="1">ETS2</MenuItem>
-                            <MenuItem value="2">ATS</MenuItem>
+                            <MenuItem value="0">{tr("both")}</MenuItem>
+                            <MenuItem value="1">{tr("ets2")}</MenuItem>
+                            <MenuItem value="2">{tr("ats")}</MenuItem>
                         </TextField>
                     </Grid>
                     <Grid item xs={12}>
-                        <Typography variant="body2">Point Types</Typography>
+                        <Typography variant="body2">{tr("point_types")}</Typography>
                         <Select
                             isMulti
                             name="colors"
@@ -255,22 +255,22 @@ const Leaderboard = () => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <UserSelect label="Users (Up to 10)" users={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
+                        <UserSelect label={tr("users_up_to_100")} users={tempListParam.users} onUpdate={(newUsers) => { setTempListParam({ ...tempListParam, users: newUsers }); }} limit={10} />
                     </Grid>
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(0); }}>Update</Button>
+                <Button variant="contained" onClick={() => { setListParam(tempListParam); setPage(0); }}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             <SpeedDialAction
                 key="settings"
-                tooltipTitle="Settings"
+                tooltipTitle={tr("settings")}
                 icon={<FontAwesomeIcon icon={faGears} />}
                 onClick={() => { setDialogOpen("settings"); }} />
         </SpeedDial>

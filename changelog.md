@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.0
+
+Added translations
+
 ## v3.2.0
 
 1. Added batch role update (advanced staff function)

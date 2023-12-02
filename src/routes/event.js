@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
@@ -47,6 +48,8 @@ function getDefaultDateRange() {
 }
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
+    const { t: tr } = useTranslation();
+    
     const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_events"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
@@ -105,11 +108,11 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
                         <a href={link} target="_blank" rel="noreferrer">{title}</a>
                     </Typography>
                     {showButtons && <>
-                        {voted !== null && <IconButton size="small" aria-label={voted ? "Unvote" : "Vote"} onClick={voted ? handleUnvote : handleVote}>{voted ? <CheckBoxRounded /> : <CheckBoxOutlineBlankRounded />}</IconButton >}
+                        {voted !== null && <IconButton size="small" aria-label={voted ? tr("unvote") : tr("vote")} onClick={voted ? handleUnvote : handleVote}>{voted ? <CheckBoxRounded /> : <CheckBoxOutlineBlankRounded />}</IconButton >}
                         {showControls && <>
-                            <IconButton size="small" aria-label="Update Attendees" onClick={handleUpdateAttendees}><PeopleAltRounded /></IconButton >
-                            <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                            <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                            <IconButton size="small" aria-label={tr("update_attendees")} onClick={handleUpdateAttendees}><PeopleAltRounded /></IconButton >
+                            <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                            <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                         </>}
                     </>}
                 </div>
@@ -186,6 +189,8 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
 };
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
+    const { t: tr } = useTranslation();
+    
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -414,7 +419,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                 />
             </Card>
             <Dialog open={openEventDetails} onClose={() => setOpenEventDetals(false)}>
-                <DialogTitle>Event</DialogTitle>
+                <DialogTitle>{tr("event")}</DialogTitle>
                 <DialogContent>
                     <EventCard
                         event={modalEvent}
@@ -442,7 +447,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setOpenEventDetals(false); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setOpenEventDetals(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
             {upcomingEvents.length !== 0 &&
@@ -515,6 +520,8 @@ const EventManagers = memo(() => {
 });
 
 const Events = () => {
+    const { t: tr } = useTranslation();
+    
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
     const [allEvents, setAllEvents] = useState([]);
@@ -535,8 +542,8 @@ const Events = () => {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState('Create Event');
-    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogTitle, setDialogTitle] = useState(tr("create_event"));
+    const [dialogButton, setDialogButton] = useState(tr("create"));
     const [title, setTitle] = useState('');
     const [link, setLink] = useState('');
     const [description, setDescription] = useState('');
@@ -573,8 +580,8 @@ const Events = () => {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Event");
-        setDialogButton("Create");
+        setDialogTitle(tr("create_event"));
+        setDialogButton(tr("create"));
         setDialogOpen(true);
     }, [editId, clearModal]);
 
@@ -595,8 +602,8 @@ const Events = () => {
 
         setEditId(event.eventid);
 
-        setDialogTitle("Edit Event");
-        setDialogButton("Edit");
+        setDialogTitle(tr("edit_event"));
+        setDialogButton(tr("edit"));
         setDialogOpen(true);
     }, [clearModal]);
 
@@ -645,7 +652,7 @@ const Events = () => {
 
         if (resp.status === 200 || resp.status === 204) {
             setDoReload(+new Date());
-            setSnackbarContent(editId === null ? "Event posted!" : "Event updated!");
+            setSnackbarContent(editId === null ? tr("event_posted") : tr("event_updated"));
             setSnackbarSeverity("success");
             clearModal();
             setDialogOpen(false);
@@ -664,7 +671,7 @@ const Events = () => {
             let resp = await axios({ url: `${vars.dhpath}/events/${eventid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 setDoReload(+new Date());
-                setSnackbarContent("Event deleted!");
+                setSnackbarContent(tr("event_deleted"));
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -717,7 +724,7 @@ const Events = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <TextField
-                                label="Title"
+                                label={tr("title")}
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 fullWidth
@@ -725,7 +732,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="Link"
+                                label={tr("link")}
                                 value={link}
                                 onChange={(e) => setLink(e.target.value)}
                                 fullWidth
@@ -733,7 +740,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="Description"
+                                label={tr("description")}
                                 multiline
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
@@ -743,7 +750,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Departure"
+                                label={tr("departure")}
                                 value={departure}
                                 onChange={(e) => setDeparture(e.target.value)}
                                 fullWidth
@@ -751,7 +758,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Destination"
+                                label={tr("destination")}
                                 value={destination}
                                 onChange={(e) => setDestination(e.target.value)}
                                 fullWidth
@@ -759,7 +766,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <TextField
-                                label="Distance"
+                                label={tr("distance")}
                                 value={distance}
                                 onChange={(e) => setDistance(e.target.value)}
                                 fullWidth
@@ -767,7 +774,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <DateTimeField
-                                label="Meetup Time"
+                                label={tr("meetup_time")}
                                 defaultValue={meetupTime}
                                 onChange={(timestamp) => setMeetupTime(timestamp)}
                                 fullWidth
@@ -775,7 +782,7 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <DateTimeField
-                                label="Departure Time"
+                                label={tr("departure_time")}
                                 defaultValue={departureTime}
                                 onChange={(timestamp) => setDepartureTime(timestamp)}
                                 fullWidth
@@ -783,21 +790,21 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
-                                <FormLabel component="legend">Visibility</FormLabel>
+                                <FormLabel component="legend">{tr("visibility")}</FormLabel>
                                 <RadioGroup
                                     value={visibility}
                                     row
                                     onChange={(e) => setVisibility(e.target.value)}
                                 >
-                                    <FormControlLabel value="public" control={<Radio />} label="Public" />
-                                    <FormControlLabel value="private" control={<Radio />} label="Private" />
+                                    <FormControlLabel value="public" control={<Radio />} label={tr("public")} />
+                                    <FormControlLabel value="private" control={<Radio />} label={tr("private")} />
                                 </RadioGroup>
                             </FormControl>
                         </Grid>
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
                                 <TextField
-                                    label="Order ID"
+                                    label={tr("order_id")}
                                     value={orderId}
                                     onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                     fullWidth
@@ -806,14 +813,14 @@ const Events = () => {
                         </Grid>
                         <Grid item xs={6}>
                             <FormControl component="fieldset">
-                                <FormLabel component="legend">Is Pinned?</FormLabel>
+                                <FormLabel component="legend">{tr("is_pinned")}</FormLabel>
                                 <RadioGroup
                                     value={isPinned}
                                     row
                                     onChange={(e) => setIsPinned(e.target.value)}
                                 >
-                                    <FormControlLabel value={true} control={<Radio />} label="Yes" />
-                                    <FormControlLabel value={false} control={<Radio />} label="No" />
+                                    <FormControlLabel value={true} control={<Radio />} label={tr("yes")} />
+                                    <FormControlLabel value={false} control={<Radio />} label={tr("no")} />
                                 </RadioGroup>
                             </FormControl>
                         </Grid>
@@ -821,32 +828,32 @@ const Events = () => {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
+                <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
                 <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
             </DialogActions>
         </Dialog>
         <SpeedDial
-            ariaLabel="Controls"
+            ariaLabel={tr("controls")}
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
             {checkUserPerm(["administrator", "manage_events"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
-                tooltipTitle="Create"
+                tooltipTitle={tr("create")}
                 onClick={() => createEvent()}
             />}
             {vars.userInfo.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
-                tooltipTitle="Managers"
+                tooltipTitle={tr("managers")}
                 onClick={() => setDialogManagers(true)}
             />}
         </SpeedDial>
         <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-            <DialogTitle>Delete Event</DialogTitle>
+            <DialogTitle>{tr("delete_event")}</DialogTitle>
             <DialogContent>
-                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this event?</Typography>
+                <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_event_confirm")}</Typography>
                 {toDelete !== null &&
                     <EventCard
                         event={toDelete.event}
@@ -867,8 +874,8 @@ const Events = () => {
                     />}
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
-                <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                <Button variant="contained" color="error" onClick={() => { deleteEvent({ ...toDelete.event, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={openAttendeeEvent} onClose={() => setOpenAttendeeEvent(false)}>
@@ -877,11 +884,11 @@ const Events = () => {
                 <form onSubmit={handleUpdateAttendees} style={{ marginTop: "5px" }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <UserSelect label="Attendees" users={eventAttendees} onUpdate={setEventAttendees} />
+                            <UserSelect label={tr("attendees")} users={eventAttendees} onUpdate={setEventAttendees} />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
-                                label="Points"
+                                label={tr("points")}
                                 value={points}
                                 onChange={(e) => { let f = e.target.value.startsWith("-"); setPoints((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                 fullWidth
@@ -891,17 +898,17 @@ const Events = () => {
                 </form>
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setOpenAttendeeEvent(false); }}>Close</Button>
-                <Button variant="contained" onClick={handleUpdateAttendees} disabled={submitLoading}>Update</Button>
+                <Button variant="primary" onClick={() => { setOpenAttendeeEvent(false); }}>{tr("close")}</Button>
+                <Button variant="contained" onClick={handleUpdateAttendees} disabled={submitLoading}>{tr("update")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-            <DialogTitle>Event Managers</DialogTitle>
+            <DialogTitle>{tr("event_managers")}</DialogTitle>
             <DialogContent>
                 <EventManagers />
             </DialogContent>
             <DialogActions>
-                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+                <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
             </DialogActions>
         </Dialog>
         <Portal>

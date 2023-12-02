@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { Card, CardHeader, CardContent, Typography, Avatar, Grid } from '@mui/material';
 
@@ -17,6 +18,8 @@ const LargeUserCard = ({ user, color }) => {
 };
 
 const Supporters = () => {
+    const { t: tr } = useTranslation();
+
     let groups = [];
     let SPONSOR_COLOR = { "platinum_sponsor": "#e5e4e2", "gold_sponsor": "#ffd700", "silver_sponsor": "#c0c0c0", "bronze_sponsor": "#cd7f32", "server_booster": "#f47fff" };
     let tiers = ["platinum", "gold", "silver", "bronze"];
@@ -28,7 +31,7 @@ const Supporters = () => {
             group.push({ "name": vars.patrons[tiers[i]][j].name, "avatar": vars.patrons[tiers[i]][j].avatar });
         }
         if (group.length !== 0) {
-            groups.push({ "group": tiers[i].charAt(0).toUpperCase() + tiers[i].slice(1) + " Sponsor" + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR[tiers[i] + "_sponsor"], "users": group });
+            groups.push({ "group": tiers[i].charAt(0).toUpperCase() + tiers[i].slice(1) + " " + tr("sponsor") + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR[tiers[i] + "_sponsor"], "users": group });
         }
     }
 
@@ -45,14 +48,14 @@ const Supporters = () => {
         group.push({ "name": vars.specialRoles["server_booster"][j].name, "avatar": avatar });
     }
     if (group.length !== 0) {
-        groups.push({ "group": "Discord Booster" + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR["server_booster"], "users": group });
+        groups.push({ "group": tr("discord_booster") + ((group.length > 1) ? "s" : ""), "color": SPONSOR_COLOR["server_booster"], "users": group });
     }
 
     return (<div style={{ width: "100%" }}>
         <Card>
             <CardHeader
-                title="Appreciation Wall"
-                subheader={<>Supporters fueling Our Journey with Generosity</>}
+                title={tr("appreciation_wall")}
+                subheader={<>{tr("supporters_fueling_our_journey_with_generosity")}</>}
                 titleTypographyProps={{ align: 'center', mb: "10px" }}
                 subheaderTypographyProps={{ align: 'center' }}
             />

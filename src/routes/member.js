@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
 
@@ -19,6 +20,8 @@ const LargeUserCard = ({ user, color }) => {
 };
 
 const Members = () => {
+    const { t: tr } = useTranslation();
+    
     let members = vars.members;
     let roles = Object.values(vars.roles);
     roles.sort((a, b) => a.order_id - b.order_id);
@@ -42,12 +45,12 @@ const Members = () => {
         }
     }
     if (norole_group.length > 0) {
-        groups.push({ "group": "No Role", "description": "These users have no role assigned.", "users": norole_group });
+        groups.push({ "group": tr("no_role"), "description": tr("these_users_have_no_role_assigned"), "users": norole_group });
     }
 
     return (<div style={{ width: "100%" }}>
         {groups.map((group) => (<div key={group.group}>
-            <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : "No description"}
+            <Tooltip placement="top" arrow title={group.description !== undefined ? group.description : tr("no_description")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <Typography variant="h5" align="center" sx={{ margin: '16px 0' }}>
                     <b style={group.color !== undefined ? { color: group.color } : {}}>{group.group}</b>

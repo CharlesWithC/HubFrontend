@@ -715,7 +715,11 @@ const UserCard = (props) => {
         }
         if (resp.status === 204) {
             await updateUserInfo();
-            setSnackbarContent(`Connections ${action}d`);
+            if (action === "update") {
+                setSnackbarContent(tr("connections_updated"));
+            } else if (action === "delete") {
+                setSnackbarContent(tr("connection_deleted"));
+            }
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -1076,7 +1080,7 @@ const UserCard = (props) => {
                                     </Grid>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("most_delivered_cargo")}</Typography>
-                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count} <>times</>)</Typography>
+                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count} <>{tr("times")}</>)</Typography>
                                     </Grid>
                                 </>}
                             </Grid>}
@@ -1363,7 +1367,7 @@ const UserCard = (props) => {
                     <DialogContent>
                         <Box display="flex" alignItems="center">
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("role_history")}</Typography>
-                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? `Visible` : `Loading`)}</Typography>
+                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? tr("visible") : tr("loading"))}</Typography>
                         </Box>
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
@@ -1376,7 +1380,7 @@ const UserCard = (props) => {
 
                         <Box display="flex" alignItems="center" sx={{ mt: "10px" }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("ban_history")}</Typography>
-                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? `Visible` : `Loading`)}</Typography>
+                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? tr("visible") : tr("loading"))}</Typography>
                         </Box>
                         {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
@@ -1470,7 +1474,7 @@ const UserCard = (props) => {
                 <Dialog open={true} onClose={(e) => { setCtxAction(""); }}>
                     <DialogTitle>
                         <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <FontAwesomeIcon icon={faFingerprint} />{tr("attention_required")}</Typography>
+                            <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;{tr("attention_required")}</Typography>
                     </DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("for_security_purposes_you_must")}</Typography>

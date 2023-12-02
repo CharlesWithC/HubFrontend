@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useRef, useEffect, useState } from 'react';
 import { useTheme } from '@mui/material';
@@ -10,16 +11,18 @@ import UserCard from '../components/usercard';
 
 var vars = require("../variables");
 
-const puColumns = [
-    { id: 'uid', label: 'UID' },
-    { id: 'userid', label: 'User ID' },
-    { id: 'user', label: 'User' },
-    { id: 'discordid', label: 'Discord ID' },
-    { id: 'time', label: 'Time' },
-    { id: 'operation', label: 'Operation' },
-];
-
 const AuditLog = () => {
+    const { t: tr } = useTranslation();
+
+    const columns = [
+        { id: 'uid', label: 'UID' },
+        { id: 'userid', label: tr("user_id") },
+        { id: 'user', label: tr("user") },
+        { id: 'discordid', label: tr("discord_id") },
+        { id: 'time', label: tr("time") },
+        { id: 'operation', label: tr("operation") },
+    ];
+
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -59,7 +62,7 @@ const AuditLog = () => {
 
     return <>
         {userList.length !== 0 &&
-            <CustomTable columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
+            <CustomTable columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
         }
     </>;
 };

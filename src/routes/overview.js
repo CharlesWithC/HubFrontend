@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { memo, useEffect, useState } from 'react';
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
@@ -12,8 +13,9 @@ import UserCard from '../components/usercard';
 var vars = require("../variables");
 
 const Overview = () => {
-    // for member profile display
-    const { userid } = useParams();
+    const { t: tr } = useTranslation();
+
+    const { userid } = useParams(); // profile display handling
     let memberIdx = -1;
     if (typeof vars.members === "object") {
         memberIdx = vars.members.findIndex(member => member.userid === parseInt(userid));
@@ -95,22 +97,22 @@ const Overview = () => {
         {showProfileModal !== 0 && vars.members[memberIdx] !== undefined && <UserCard user={vars.members[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); }} />}
         <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<PermContactCalendarRounded />} title={"Drivers"} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />
+                <StatCard icon={<PermContactCalendarRounded />} title={tr("drivers")} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalShippingRounded />} title={"Jobs"} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} />
+                <StatCard icon={<LocalShippingRounded />} title={tr("jobs")} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<RouteRounded />} title={"Distance"} latest={ConvertUnit("km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
+                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit("km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
+                <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
+                <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
+                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
             </Grid>
             {vars.isLoggedIn && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
                 <><Grid item xs={12} sm={12} md={6} lg={4}>
@@ -118,8 +120,7 @@ const Overview = () => {
                         <CardContent>
                             <div style={{ display: "flex", flexDirection: "row" }}>
                                 <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                    <EmojiPeopleRounded />&nbsp;&nbsp;Newest Member
-                                </Typography>
+                                    <EmojiPeopleRounded />&nbsp;&nbsp;{tr("newest_member")}</Typography>
                             </div>
                             <br></br>
                             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -135,8 +136,7 @@ const Overview = () => {
                             <CardContent>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                        <LocalShippingRounded />&nbsp;&nbsp;Latest Delivery
-                                    </Typography>
+                                        <LocalShippingRounded />&nbsp;&nbsp;{tr("latest_delivery")}</Typography>
                                 </div>
                                 <br></br>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
@@ -144,7 +144,7 @@ const Overview = () => {
                                         {latestDelivery.cargo}: {latestDelivery.source_city} {'->'} {latestDelivery.destination_city} ({ConvertUnit("km", latestDelivery.distance)})
                                     </Typography>
                                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
-                                        --- By&nbsp;&nbsp;<UserCard size="40" user={latestDelivery.user} />
+                                        --- <>{tr("by")}</>&nbsp;&nbsp;<UserCard size="40" user={latestDelivery.user} />
                                     </Typography>
                                 </div>
                             </CardContent>
@@ -155,18 +155,17 @@ const Overview = () => {
                             <CardContent>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                        <LeaderboardRounded />&nbsp;&nbsp;Monthly Leaderboard
-                                    </Typography>
+                                        <LeaderboardRounded />&nbsp;&nbsp;{tr("monthly_leaderboard")}</Typography>
                                 </div>
                                 <SimpleBar style={{ overflowY: "hidden" }}>
                                     <Table>
                                         <TableHead>
                                             <TableRow>
-                                                <TableCell>Driver</TableCell>
-                                                <TableCell align="right">Points</TableCell>
-                                                <TableCell align="left">Rank (1 month)</TableCell>
-                                                <TableCell align="right">Points</TableCell>
-                                                <TableCell align="left">Rank (all time)</TableCell>
+                                                <TableCell>{tr("driver")}</TableCell>
+                                                <TableCell align="right">{tr("points")}</TableCell>
+                                                <TableCell align="left">{tr("rank_1_month")}</TableCell>
+                                                <TableCell align="right">{tr("points")}</TableCell>
+                                                <TableCell align="left">{tr("rank_all_time")}</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -190,15 +189,14 @@ const Overview = () => {
                                 <CardContent>
                                     <div style={{ display: "flex", flexDirection: "row" }}>
                                         <Typography variant="h5" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                            <DirectionsRunRounded />&nbsp;&nbsp;Recent Visitors
-                                        </Typography>
+                                            <DirectionsRunRounded />&nbsp;&nbsp;{tr("recent_visitors")}</Typography>
                                     </div>
                                     <SimpleBar style={{ overflowY: "hidden" }}>
                                         <Table>
                                             <TableHead>
                                                 <TableRow>
-                                                    <TableCell>User</TableCell>
-                                                    <TableCell align="right">Last Seen</TableCell>
+                                                    <TableCell>{tr("user")}</TableCell>
+                                                    <TableCell align="right">{tr("last_seen")}</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>

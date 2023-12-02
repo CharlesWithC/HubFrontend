@@ -24,7 +24,7 @@ const Crashed = ({ errorUploaded }) => {
         <ThemeProvider theme={theme}>
             <div className="loading-div" style={theme.palette !== undefined ? { backgroundColor: theme.palette.background.default, color: theme.palette.text.primary } : {}}>
                 <img src={vars.dhlogo} className={`loader`} alt="" />
-                <p>{tr("oops_drivers_hub_crashed")}<br />{tr("please_report_the_error_in")}<a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">{tr("chub_discord_server")}</a>.<br />{tr("include_how_it_was_triggered")}</p>
+                <p>{tr("oops_drivers_hub_crashed")}<br />{tr("please_report_the_error_in")}&nbsp;<a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">{tr("chub_discord_server")}</a>.<br />{tr("include_how_it_was_triggered")}</p>
                 <Button variant="contained" color="primary" onClick={() => window.location.reload()}>{tr("reload")}</Button>
             </div>
         </ThemeProvider>

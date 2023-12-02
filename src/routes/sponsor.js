@@ -1,12 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { Grid, Card, CardHeader, CardContent, Typography, List, ListItem, ListItemText, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const UpgradeCard = () => {
-    const bronze = ["A Special Discord Role", "A Special Thank You"];
-    const silver = ["Silver Name", "Custom Color Theme", "More Radio Stations"];
-    const gold = ["Gold Name", "Custom Background Image", "Custom Profile Theme", "Custom Profile Banner", "Configurable Display Timezone", "Sponsor Support"];
-    const platinum = ["More Name Color", "Any Radio Stations (Radio URL)", "Advanced Staff Functions", "Early Access to all CHub features", "Sponsor Priority Support"];
+    const { t: tr } = useTranslation();
+    
+    const bronze = [tr("a_special_discord_role"), tr("a_special_thank_you")];
+    const silver = [tr("silver_name"), tr("custom_color_theme"), tr("more_radio_stations")];
+    const gold = [tr("gold_name"), tr("custom_background_image"), tr("custom_profile_theme"), tr("custom_profile_banner"), tr("configurable_display_timezone"), tr("sponsor_support")];
+    const platinum = [tr("more_name_color"), tr("any_radio_stations_radio_url"), tr("advanced_staff_functions"), tr("early_access_to_all_chub_features"), tr("sponsor_priority_support")];
 
     const navigate = useNavigate();
 
@@ -15,8 +18,8 @@ const UpgradeCard = () => {
             <Grid item xs={12}>
                 <Card>
                     <CardHeader
-                        title="Become a Sponsor"
-                        subheader={<>Fuel the Journey: Power The Drivers Hub Project (CHub) | <a style={{ cursor: "pointer" }} onClick={() => { navigate("/supporters"); }}>Explore Our Current Backers</a><br />Activate exclusive benefits by connecting your Patreon account in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings"); }}>Settings</a>.</>}
+                        title={tr("become_a_sponsor")}
+                        subheader={<>{tr("fuel_the_journey_power_the_drivers_hub_project_chub")}<a style={{ cursor: "pointer" }} onClick={() => { navigate("/supporters"); }}>{tr("explore_our_current_backers")}</a><br /><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings"); }}>{tr("activate_exclusive_benefits_by_connecting_your_patreon_account_in_settings")}</a></>}
                         titleTypographyProps={{ align: 'center' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -25,8 +28,8 @@ const UpgradeCard = () => {
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Bronze Sponsor"
-                        subheader="Cheapest choice"
+                        title={tr("bronze_sponsor")}
+                        subheader={tr("cheapest_choice")}
                         titleTypographyProps={{ align: 'center', color: '#cd7f32' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -41,17 +44,15 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $1/mo.
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9973080" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Sponsor
-                        </Button></a>
+                        <a href="https://www.patreon.com/checkout/charlws?rid=9973080" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
                     </CardContent>
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Silver Sponsor"
-                        subheader="Including bronze perks"
+                        title={tr("silver_sponsor")}
+                        subheader={tr("including_bronze_perks")}
                         titleTypographyProps={{ align: 'center', color: '#c0c0c0' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -66,17 +67,15 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $3/mo.
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9360617" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Sponsor
-                        </Button></a>
+                        <a href="https://www.patreon.com/checkout/charlws?rid=9360617" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
                     </CardContent>
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Gold Sponsor"
-                        subheader="Including silver perks"
+                        title={tr("gold_sponsor")}
+                        subheader={tr("including_silver_perks")}
                         titleTypographyProps={{ align: 'center', color: '#ffd700' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -91,17 +90,15 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $5/mo.
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9973090" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Sponsor
-                        </Button></a>
+                        <a href="https://www.patreon.com/checkout/charlws?rid=9973090" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
                     </CardContent>
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={3}>
                 <Card>
                     <CardHeader
-                        title="Platinum Sponsor"
-                        subheader="Including gold perks"
+                        title={tr("platinum_sponsor")}
+                        subheader={tr("including_gold_perks")}
                         titleTypographyProps={{ align: 'center', color: '#e5e4e2' }}
                         subheaderTypographyProps={{ align: 'center' }}
                     />
@@ -109,32 +106,32 @@ const UpgradeCard = () => {
                         <List>
                             {platinum.map((feature) => (
                                 <>
-                                    {feature !== "Advanced Staff Functions" && <ListItem key={feature}>
+                                    {feature !== tr("advanced_staff_functions") && <ListItem key={feature}>
                                         <ListItemText primary={feature} />
                                     </ListItem>}
-                                    {feature === "Advanced Staff Functions" &&
+                                    {feature === tr("advanced_staff_functions") &&
                                         <>
                                             <ListItem key={feature} style={{ paddingBottom: 0 }}>
                                                 <ListItemText primary={feature} />
                                             </ListItem>
                                             <List style={{ marginLeft: '20px', paddingTop: 0 }}>
                                                 <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary="Auto Import Multiple Trucky Jobs" />
+                                                    <ListItemText primary={tr("auto_import_multiple_trucky_jobs")} />
                                                 </ListItem>
                                                 <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary="Sync Member Profiles" />
+                                                    <ListItemText primary={tr("sync_member_profiles")} />
                                                 </ListItem>
                                                 <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary="Batch Update Tracker" />
+                                                    <ListItemText primary={tr("batch_update_tracker")} />
                                                 </ListItem>
                                                 <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary="Batch Update Roles" />
+                                                    <ListItemText primary={tr("batch_update_roles")} />
                                                 </ListItem>
                                                 <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary="Batch Dismiss Members" />
+                                                    <ListItemText primary={tr("batch_dismiss_members")} />
                                                 </ListItem>
                                                 <ListItem style={{ paddingTop: 0, paddingBottom: 0 }}>
-                                                    <ListItemText primary="Prune Users" />
+                                                    <ListItemText primary={tr("prune_users")} />
                                                 </ListItem>
                                             </List>
                                         </>
@@ -145,9 +142,7 @@ const UpgradeCard = () => {
                         <Typography variant="h5" align="center" gutterBottom>
                             $8/mo.
                         </Typography>
-                        <a href="https://www.patreon.com/checkout/charlws?rid=9973097" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>
-                            Sponsor
-                        </Button></a>
+                        <a href="https://www.patreon.com/checkout/charlws?rid=9973097" target="_blank" rel="noreferrer"><Button variant="contained" color="primary" fullWidth>{tr("sponsor")}</Button></a>
                     </CardContent>
                 </Card>
             </Grid>

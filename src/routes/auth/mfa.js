@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
@@ -11,6 +12,8 @@ import { FetchProfile, customAxios as axios, setAuthToken } from '../../function
 var vars = require('../../variables');
 
 const MfaAuth = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,9 +34,9 @@ const MfaAuth = () => {
             if (resp.status === 200) {
                 setAuthToken(resp.data.token);
                 setOtpColor(theme.palette.success.main);
-                setOtpText("You are authorized 🎉");
+                setOtpText(tr("you_are_authorized"));
                 setOtpReadOnly(true);
-                await FetchProfile(isLogin = true);
+                await FetchProfile(true);
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);
@@ -45,7 +48,7 @@ const MfaAuth = () => {
             console.error(error);
             setOtpError(true);
             setOtpColor(theme.palette.error.main);
-            setOtpText("Error occurred! Check F12 for more info.");
+            setOtpText(tr("error_occurred"));
             setAllowVerify(true);
         }
     }, [otp]);
@@ -59,7 +62,6 @@ const MfaAuth = () => {
         setOtp(otp);
         if (otp.length === 6 && /^\d+$/.test(otp)) {
             setAllowVerify(true);
-            handleVerify();
         } else {
             setAllowVerify(false);
         }
@@ -80,13 +82,12 @@ const MfaAuth = () => {
             <Card sx={{ width: 450, padding: "20px", position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                 <CardContent>
                     <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                        <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication
-                    </Typography>
-                    <TextField label="OTP" variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} onKeyDown={(e) => { if (e.key === "Enter") { handleVerify(); } }} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
+                        <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;{tr("multiple_factor_authentication")}</Typography>
+                    <TextField label={tr("otp")} variant="outlined" onChange={validateOTP} readOnly={otpReadOnly} error={otpError} helperText={otpText} onKeyDown={(e) => { if (e.key === tr("enter")) { handleVerify(); } }} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: otpColor } }} />
                 </CardContent>
                 <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleVerify} disabled={!allowVerify}>Verify</Button>
+                        onClick={handleVerify} disabled={!allowVerify}>{tr("verify")}</Button>
                 </CardActions>
             </Card>
         </div>

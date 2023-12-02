@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, Checkbox, useTheme } from '@mui/material';
 import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -17,6 +18,7 @@ import { ButtonGroup } from 'react-bootstrap';
 var vars = require("../variables");
 
 const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
+    const { t: tr } = useTranslation();
     const [poll, setPoll] = useState(inputPoll);
     useEffect(() => {
         setPoll(inputPoll);
@@ -78,7 +80,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
         setVoteDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}/vote`, method: "PUT", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Vote submitted");
+            setSnackbarContent(tr("vote_submitted"));
             setSnackbarSeverity("success");
             let votedChoices = [];
             for (let i = 0; i < poll.choices.length; i++) {
@@ -95,7 +97,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
         setVoteDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}/vote`, method: "PATCH", data: { choiceids: selectedChoices }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Vote updated");
+            setSnackbarContent(tr("vote_updated"));
             setSnackbarSeverity("success");
             let votedChoices = [];
             for (let i = 0; i < poll.choices.length; i++) {
@@ -183,12 +185,8 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
             })}
             {showButtons && <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    {!poll.voted && <Button onClick={handleVote} variant="contained" color="info" disabled={voteDisabled}>
-                        Vote
-                    </Button>}
-                    {poll.voted && poll.config.allow_modify_vote && (poll.end_time !== null || poll.end_time * 1000 <= +new Date()) && <Button onClick={handleModifyVote} variant="contained" color="info" disabled={voteDisabled}>
-                        Modify Vote
-                    </Button>}
+                    {!poll.voted && <Button onClick={handleVote} variant="contained" color="info" disabled={voteDisabled}>{tr("vote")}</Button>}
+                    {poll.voted && poll.config.allow_modify_vote && (poll.end_time !== null || poll.end_time * 1000 <= +new Date()) && <Button onClick={handleModifyVote} variant="contained" color="info" disabled={voteDisabled}>{tr("modify_vote")}</Button>}
                 </div>
             </Box>}
             <Portal>
@@ -210,7 +208,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     let caption = <><UserCard user={poll.creator} inline={true} />
         | <TimeAgo key={`${+new Date()}`} timestamp={poll.timestamp * 1000} />
         | {poll.config.max_choice === 1 ?
-            <Tooltip key={`single-choice`} placement="top" arrow title="Single choice"
+            <Tooltip key={`single-choice`} placement="top" arrow title={tr("single_choice")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                 <FontAwesomeIcon icon={fa1} />
             </Tooltip> : <Tooltip key={`multiple-choice`} placement="top" arrow title={`Up to ${poll.config.max_choice} choices`}
@@ -246,11 +244,11 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                {(checkUserPerm(["administrator", "manage_polls"]) || poll.config.show_voter && (poll.config.show_stats && poll.voted || poll.config.show_stats_before_vote || poll.config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label="Edit" onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
+                                {(checkUserPerm(["administrator", "manage_polls"]) || poll.config.show_voter && (poll.config.show_stats && poll.voted || poll.config.show_stats_before_vote || poll.config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label={tr("edit")} onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
                             </div>}
                             {(showControls && showButtons) && <div>
-                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
                         <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -277,8 +275,8 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
 
                             </div>}
                             {(showControls && showButtons) && <div>
-                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
                         <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -310,8 +308,8 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
 
                                     </div>}
                                     {(showControls && showButtons) && <div>
-                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
                                 <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -342,8 +340,8 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
 
                                     </div>}
                                     {(showControls && showButtons) && <div>
-                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
                                 <Typography variant="body2" sx={{ mb: "20px" }}><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -429,6 +427,7 @@ const PollManagers = memo(() => {
 });
 
 const Poll = () => {
+    const { t: tr } = useTranslation();
     const [polls, setPolls] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -445,8 +444,8 @@ const Poll = () => {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Create Poll");
-    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogTitle, setDialogTitle] = useState(tr("create_poll"));
+    const [dialogButton, setDialogButton] = useState(tr("create"));
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
@@ -499,7 +498,7 @@ const Poll = () => {
             let resp = await axios({ url: `${vars.dhpath}/polls`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
-                setSnackbarContent("Poll created!");
+                setSnackbarContent(tr("poll_created"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -515,7 +514,7 @@ const Poll = () => {
             let resp = await axios({ url: `${vars.dhpath}/polls/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, choices: formattedChoices, "end_time": noEndTime ? null : endTime, "config": config, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Poll updated!");
+                setSnackbarContent(tr("poll_updated"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -533,8 +532,8 @@ const Poll = () => {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Poll");
-        setDialogButton("Create");
+        setDialogTitle(tr("create_poll"));
+        setDialogButton(tr("create"));
         setDialogOpen(true);
     }, [editId, clearModal]);
 
@@ -557,8 +556,8 @@ const Poll = () => {
 
         setEditId(poll.pollid);
 
-        setDialogTitle("Edit Poll");
-        setDialogButton("Edit");
+        setDialogTitle(tr("edit_poll"));
+        setDialogButton(tr("edit"));
         setDialogOpen(true);
     }, [clearModal]);
 
@@ -568,7 +567,7 @@ const Poll = () => {
             let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Poll deleted!");
+                setSnackbarContent(tr("poll_deleted"));
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -616,7 +615,7 @@ const Poll = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Title"
+                                    label={tr("title")}
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     fullWidth
@@ -624,7 +623,7 @@ const Poll = () => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Content (Markdown)"
+                                    label={tr("content_markdown")}
                                     multiline
                                     value={description}
                                     onChange={(e) => setContent(e.target.value)}
@@ -633,15 +632,13 @@ const Poll = () => {
                                 />
                             </Grid>
                             <Grid item xs={12} sx={{ mb: 0 }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    Choices
-                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("choices")}</Typography>
                             </Grid>
                             {choices.map((_, index) => {
                                 return <Grid item xs={12} key={index}>
                                     <ButtonGroup>
                                         <TextField
-                                            label={`Choice #${index + 1}`}
+                                            label={`${tr("choice")} #${index + 1}`}
                                             value={choices[index].content}
                                             onChange={(e) => setChoices(prevChoices => [...prevChoices.slice(0, index), { content: e.target.value }, ...prevChoices.slice(index + 1)])}
                                             size="small"
@@ -663,14 +660,12 @@ const Poll = () => {
                                 </Grid>;
                             })}
                             <Grid item xs={12} sx={{ mb: 0 }}>
-                                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    Config
-                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("config")}</Typography>
                             </Grid>
                             <Grid item xs={6}>
                                 <FormControl component="fieldset">
                                     <DateTimeField
-                                        label="End Time"
+                                        label={tr("end_time")}
                                         defaultValue={endTime}
                                         onChange={(timestamp) => { setEndTime(timestamp); }}
                                         fullWidth
@@ -684,19 +679,19 @@ const Poll = () => {
                                         key="always-active"
                                         control={
                                             <Checkbox
-                                                name="Always active"
+                                                name={tr("always_active")}
                                                 checked={noEndTime}
                                                 onChange={() => setNoEndTime(!noEndTime)}
                                             />
                                         }
-                                        label="Always active"
+                                        label={tr("always_active")}
                                     />
                                 </FormControl>
                             </Grid>
                             <Grid item xs={6}>
                                 <FormControl component="fieldset">
                                     <TextField
-                                        label="Max Choice"
+                                        label={tr("max_choice")}
                                         value={config.max_choice}
                                         onChange={(e) => { setConfig({ ...config, max_choice: e.target.value.replace(/[^0-9]/g, "") }); }}
                                         fullWidth
@@ -709,12 +704,12 @@ const Poll = () => {
                                         key="allow-modify-vote"
                                         control={
                                             <Checkbox
-                                                name="Allow poll modification"
+                                                name={tr("allow_poll_modification")}
                                                 checked={config.allow_modify_vote}
                                                 onChange={() => setConfig({ ...config, allow_modify_vote: !config.allow_modify_vote })}
                                             />
                                         }
-                                        label="Allow poll modification"
+                                        label={tr("allow_poll_modification")}
                                     />
                                 </FormControl>
                             </Grid>
@@ -724,12 +719,12 @@ const Poll = () => {
                                         key="anonymous-voting"
                                         control={
                                             <Checkbox
-                                                name="Anonymous voting"
+                                                name={tr("anonymous_voting")}
                                                 checked={!config.show_voter}
                                                 onChange={() => setConfig({ ...config, show_voter: !config.show_voter })}
                                             />
                                         }
-                                        label="Anonymous voting"
+                                        label={tr("anonymous_voting")}
                                     />
                                 </FormControl>
                             </Grid>
@@ -739,12 +734,12 @@ const Poll = () => {
                                         key="always-show-results"
                                         control={
                                             <Checkbox
-                                                name="Show results"
+                                                name={tr("show_results")}
                                                 checked={config.show_stats}
                                                 onChange={() => { setConfig({ ...config, show_stats: !config.show_stats }); }}
                                             />
                                         }
-                                        label="Show results"
+                                        label={tr("show_results")}
                                     />
                                 </FormControl>
                             </Grid>
@@ -754,12 +749,12 @@ const Poll = () => {
                                         key="show-stats-before-vote"
                                         control={
                                             <Checkbox
-                                                name="Show results before voting"
+                                                name={tr("show_results_before_voting")}
                                                 checked={config.show_stats_before_vote}
                                                 onChange={() => { setConfig({ ...config, show_stats_before_vote: !config.show_stats_before_vote }); }}
                                             />
                                         }
-                                        label="Show results before voting"
+                                        label={tr("show_results_before_voting")}
                                     />
                                 </FormControl>
                             </Grid>
@@ -769,19 +764,19 @@ const Poll = () => {
                                         key="show-stats-after-end"
                                         control={
                                             <Checkbox
-                                                name="Show results after ending"
+                                                name={tr("show_results_after_ending")}
                                                 checked={config.show_stats_when_ended}
                                                 onChange={() => { setConfig({ ...config, show_stats_when_ended: !config.show_stats_when_ended }); }}
                                             />
                                         }
-                                        label="Show results after ending"
+                                        label={tr("show_results_after_ending")}
                                     />
                                 </FormControl>
                             </Grid>
                             <Grid item xs={6}>
                                 <FormControl component="fieldset">
                                     <TextField
-                                        label="Order ID"
+                                        label={tr("order_id")}
                                         value={orderId}
                                         onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                         fullWidth
@@ -794,12 +789,12 @@ const Poll = () => {
                                         key="pin"
                                         control={
                                             <Checkbox
-                                                name="Pin"
+                                                name={tr("pin")}
                                                 checked={isPinned}
                                                 onChange={() => setIsPinned(!isPinned)}
                                             />
                                         }
-                                        label="Pin"
+                                        label={tr("pin")}
                                     />
                                 </FormControl>
                             </Grid>
@@ -807,32 +802,32 @@ const Poll = () => {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
+                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
                     <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
                 </DialogActions>
             </Dialog >
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>Delete Poll</DialogTitle>
+                <DialogTitle>{tr("delete_poll")}</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this poll?</Typography>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_poll_confirm")}</Typography>
                     {toDelete !== null && toDelete.choices !== undefined && <PollCard poll={toDelete !== null ? toDelete : {}} />}
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
-                    <Button variant="contained" color="error" onClick={() => { deletePoll({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                    <Button variant="contained" color="error" onClick={() => { deletePoll({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>Poll Managers</DialogTitle>
+                <DialogTitle>{tr("poll_managers")}</DialogTitle>
                 <DialogContent>
                     <PollManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
             {pollDetails.choices !== undefined && <Dialog open={dialogVoters} onClose={() => setDialogVoters(false)} fullWidth>
-                <DialogTitle>Poll Voters</DialogTitle>
+                <DialogTitle>{tr("poll_voters")}</DialogTitle>
                 <DialogContent>
                     {pollDetails.choices.map((choice) => (
                         <>
@@ -843,36 +838,36 @@ const Poll = () => {
                                 {choice.voters.map((user) => (
                                     <UserCard user={user} />
                                 ))}
-                                {choice.voters.length === 0 && <i>No votes</i>}
+                                {choice.voters.length === 0 && <i>{tr("no_votes")}</i>}
                             </Typography>
                         </>
                     ))}
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogVoters(false); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogVoters(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>}
             <SpeedDial
-                ariaLabel="Controls"
+                ariaLabel={tr("controls")}
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
                 {checkUserPerm(["administrator", "manage_polls"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
-                    tooltipTitle="Create"
+                    tooltipTitle={tr("create")}
                     onClick={() => createPoll()}
                 />}
                 {vars.userInfo.userid !== -1 && <SpeedDialAction
                     key="managers"
                     icon={<PeopleAltRounded />}
-                    tooltipTitle="Managers"
+                    tooltipTitle={tr("managers")}
                     onClick={() => setDialogManagers(true)}
                 />}
                 <SpeedDialAction
                     key="refresh"
                     icon={<RefreshRounded />}
-                    tooltipTitle="Refresh"
+                    tooltipTitle={tr("refresh")}
                     onClick={() => doLoad()}
                 />
             </SpeedDial>

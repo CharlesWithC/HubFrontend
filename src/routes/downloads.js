@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { DownloadRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -11,6 +12,8 @@ import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios
 var vars = require("../variables");
 
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
+    const { t: tr } = useTranslation();
+
     const showButtons = onEdit !== undefined;
     const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_downloads"]));
 
@@ -72,11 +75,11 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
                             </div>}
                             {(showControls && showButtons) && <div>
-                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -99,11 +102,11 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
                             </div>}
                             {(showControls && showButtons) && <div>
-                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
                         <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -131,11 +134,11 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                         </div>
                                     </Typography>
                                     {(showButtons) && <div>
-                                        <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
                                     </div>}
                                     {(showControls && showButtons) && <div>
-                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -162,11 +165,11 @@ const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }
                                         </div>
                                     </Typography>
                                     {(showButtons) && <div>
-                                        <IconButton size="small" aria-label="Download" onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("download")} onClick={handleDownload} disabled={downloading}><DownloadRounded /></IconButton >
                                     </div>}
                                     {(showControls && showButtons) && <div>
-                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
                                 <Typography variant="body2"><MarkdownRenderer>{description}</MarkdownRenderer></Typography>
@@ -251,6 +254,8 @@ const DownloadableItemManagers = memo(() => {
 });
 
 const DownloadableItem = () => {
+    const { t: tr } = useTranslation();
+
     const [downloadableItems, setDownloadableItems] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -267,8 +272,8 @@ const DownloadableItem = () => {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Create Downloadable Item");
-    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogTitle, setDialogTitle] = useState(tr("create_downloadable_item"));
+    const [dialogButton, setDialogButton] = useState(tr("create"));
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
@@ -327,7 +332,7 @@ const DownloadableItem = () => {
             let resp = await axios({ url: `${vars.dhpath}/downloads`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
-                setSnackbarContent("Downloadable item posted!");
+                setSnackbarContent(tr("downloadable_item_posted"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -339,7 +344,7 @@ const DownloadableItem = () => {
             let resp = await axios({ url: `${vars.dhpath}/downloads/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "description": description, "link": link, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Downloadable item updated!");
+                setSnackbarContent(tr("downloadable_item_updated"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -367,8 +372,8 @@ const DownloadableItem = () => {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Downloadable Item");
-        setDialogButton("Create");
+        setDialogTitle(tr("create_downloadable_item"));
+        setDialogButton(tr("create"));
         setDialogOpen(true);
     }, [editId, clearModal]);
 
@@ -383,8 +388,8 @@ const DownloadableItem = () => {
 
         setEditId(downloadableItem.downloadsid);
 
-        setDialogTitle("Edit Downloadable Item");
-        setDialogButton("Edit");
+        setDialogTitle(tr("edit_downloadable_item"));
+        setDialogButton(tr("edit"));
         setDialogOpen(true);
     }, [clearModal]);
 
@@ -394,7 +399,7 @@ const DownloadableItem = () => {
             let resp = await axios({ url: `${vars.dhpath}/downloads/${downloadableItem.downloadsid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Downloadable item deleted!");
+                setSnackbarContent(tr("downloadable_item_deleted"));
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -425,7 +430,7 @@ const DownloadableItem = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Title"
+                                    label={tr("title")}
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     fullWidth
@@ -433,7 +438,7 @@ const DownloadableItem = () => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Content (Markdown)"
+                                    label={tr("content_markdown")}
                                     multiline
                                     value={description}
                                     onChange={(e) => setContent(e.target.value)}
@@ -443,7 +448,7 @@ const DownloadableItem = () => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Download Link"
+                                    label={tr("download_link")}
                                     value={link}
                                     onChange={(e) => setLink(e.target.value)}
                                     fullWidth
@@ -454,7 +459,7 @@ const DownloadableItem = () => {
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset">
                                             <TextField
-                                                label="Order ID"
+                                                label={tr("order_id")}
                                                 value={orderId}
                                                 onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                                 fullWidth
@@ -467,12 +472,12 @@ const DownloadableItem = () => {
                                                 key="pin"
                                                 control={
                                                     <Checkbox
-                                                        name="Pin"
+                                                        name={tr("pin")}
                                                         checked={isPinned}
                                                         onChange={() => setIsPinned(!isPinned)}
                                                     />
                                                 }
-                                                label="Pin"
+                                                label={tr("pin")}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -482,51 +487,51 @@ const DownloadableItem = () => {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
+                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
                     <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
                 <DialogTitle>Delete Downloadable Item</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this downloadable item?</Typography>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("delete_downloads_confirm")}</Typography>
                     <DownloadableItemCard downloadableItem={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
-                    <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                    <Button variant="contained" color="error" onClick={() => { deleteDownloadableItem({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>Downloads Managers</DialogTitle>
+                <DialogTitle>{tr("downloads_managers")}</DialogTitle>
                 <DialogContent>
                     <DownloadableItemManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial
-                ariaLabel="Controls"
+                ariaLabel={tr("controls")}
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
                 {checkUserPerm(["administrator", "manage_downloads"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
-                    tooltipTitle="Create"
+                    tooltipTitle={tr("create")}
                     onClick={() => createDownloadableItem()}
                 />}
                 {vars.userInfo.userid !== -1 && <SpeedDialAction
                     key="managers"
                     icon={<PeopleAltRounded />}
-                    tooltipTitle="Managers"
+                    tooltipTitle={tr("managers")}
                     onClick={() => setDialogManagers(true)}
                 />}
                 <SpeedDialAction
                     key="refresh"
                     icon={<RefreshRounded />}
-                    tooltipTitle="Refresh"
+                    tooltipTitle={tr("refresh")}
                     onClick={() => doLoad()}
                 />
             </SpeedDial>

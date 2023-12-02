@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useRef, useEffect, useState } from 'react';
 import { useTheme } from '@mui/material';
@@ -12,12 +13,13 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
-const columns = [
-    { id: 'content', label: 'Content' },
-    { id: 'time', label: 'Time' },
-];
-
 const Notifications = () => {
+    const { t: tr } = useTranslation();
+    const columns = [
+        { id: 'content', label: tr("content") },
+        { id: 'time', label: tr("time") },
+    ];
+
     const [notiList, setNotiList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -57,7 +59,7 @@ const Notifications = () => {
 
     return <>
         {notiList.length !== 0 &&
-            <CustomTable name={<><FontAwesomeIcon icon={faBell} />&nbsp;&nbsp;Notifications</>} columns={columns} data={notiList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
+            <CustomTable name={<><FontAwesomeIcon icon={faBell} />&nbsp;&nbsp;{tr("notifications")}</>} columns={columns} data={notiList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} />
         }
     </>;
 };

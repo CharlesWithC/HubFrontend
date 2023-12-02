@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
@@ -12,6 +13,8 @@ var vars = require('../../variables');
 // ue -> update email (confirm email)
 
 const EmailAuth = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
@@ -33,7 +36,7 @@ const EmailAuth = () => {
         let resp = await axios({ url: `${vars.dhpath}/auth/email?secret=${secret}`, data: { password: password }, method: `POST` });
         if (resp.status === 204) {
             setPasswordColor(theme.palette.success.main);
-            setPasswordText("Password updated! Redirecting to login...");
+            setPasswordText(tr("password_updated_redirecting_to_login"));
             setTimeout(function () { navigate("/auth/login"); }, 500);
         } else {
             setPasswordError(true);
@@ -45,17 +48,17 @@ const EmailAuth = () => {
 
     useEffect(() => {
         if (!["rp", "rg", "ue"].includes(op)) {
-            setTitle("Unknown Operation");
-            setMessage("Error: Invalid Link!");
+            setTitle(tr("unknown_operation"));
+            setMessage(tr("error_invalid_link"));
         } else {
-            const TITLE_MAP = { "rp": "Reset Password", "rg": "Email Confirmation", "ue": "Email Confirmation" };
+            const TITLE_MAP = { "rp": tr("reset_password"), "rg": tr("email_confirmation"), "ue": tr("email_confirmation") };
             setTitle(TITLE_MAP[op]);
         }
 
         async function doAuth() {
             let resp = await axios({ url: `${vars.dhpath}/auth/email?secret=${secret}`, method: `POST` });
             if (resp.status === 204) {
-                setMessage("Email confirmed! Redirecting to overview...");
+                setMessage(tr("email_confirmed_redirecting_to_overview"));
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setMessage(`Error: ${resp.data.error}`);
@@ -86,11 +89,11 @@ const EmailAuth = () => {
                     {op !== "rp" && <Typography variant="body2" sx={{ mt: "20px" }}>
                         {message}
                     </Typography>}
-                    {op === "rp" && <TextField label="New Password" variant="outlined" type="password" onChange={(e) => { setPassword(e.target.value); }} error={passwordError} helperText={passwordText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: passwordColor } }} disabled={updateDisabled} />}
+                    {op === "rp" && <TextField label={tr("new_password")} variant="outlined" type="password" onChange={(e) => { setPassword(e.target.value); }} error={passwordError} helperText={passwordText} sx={{ mt: "20px", width: "100%", '& .MuiFormHelperText-root': { color: passwordColor } }} disabled={updateDisabled} />}
                 </CardContent>
                 {op === "rp" && <CardActions>
                     <Button variant="contained" color="primary" sx={{ ml: 'auto' }}
-                        onClick={handleUpdatePassword} disabled={updateDisabled}>Update</Button>
+                        onClick={handleUpdatePassword} disabled={updateDisabled}>{tr("update")}</Button>
                 </CardActions>}
             </Card>
         </div >

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback, memo } from 'react';
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -10,11 +11,9 @@ import { makeRequests, makeRequestsWithAuth, checkUserPerm, customAxios as axios
 
 var vars = require("../variables");
 
-const STBOOL = (s) => {
-    return s === true;
-};
-
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
+    const { t: tr } = useTranslation();
+    
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> };
     const icon = ICONS[announcement.type.id];
 
@@ -71,8 +70,8 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 </div>
                             </Typography>
                             {showControls && <div>
-                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
                         <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
@@ -95,8 +94,8 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                 </div>
                             </Typography>
                             {showControls && <div>
-                                <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                             </div>}
                         </div>
                         <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
@@ -124,8 +123,8 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                         </div>
                                     </Typography>
                                     {showControls && <div>
-                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
                                 <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
@@ -152,8 +151,8 @@ const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
                                         </div>
                                     </Typography>
                                     {showControls && <div>
-                                        <IconButton size="small" aria-label="Edit" onClick={handleEdit}><EditRounded /></IconButton >
-                                        <IconButton size="small" aria-label="Delete" onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
+                                        <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
+                                        <IconButton size="small" aria-label={tr("delete")} onClick={handleDelete}><DeleteRounded sx={{ "color": "red" }} /></IconButton >
                                     </div>}
                                 </div>
                                 <Typography variant="body2"><MarkdownRenderer>{content}</MarkdownRenderer></Typography>
@@ -237,6 +236,8 @@ const AnnouncementManagers = memo(() => {
 });
 
 const Announcement = () => {
+    const { t: tr } = useTranslation();
+
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -253,8 +254,8 @@ const Announcement = () => {
     }, []);
 
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [dialogTitle, setDialogTitle] = useState("Create Announcement");
-    const [dialogButton, setDialogButton] = useState("Create");
+    const [dialogTitle, setDialogTitle] = useState(tr("create_announcement"));
+    const [dialogButton, setDialogButton] = useState(tr("create"));
     const [dialogDelete, setDialogDelete] = useState(false);
     const [toDelete, setToDelete] = useState(null);
     const [dialogManagers, setDialogManagers] = useState(false);
@@ -325,7 +326,7 @@ const Announcement = () => {
             let resp = await axios({ url: `${vars.dhpath}/announcements`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 200) {
                 doLoad();
-                setSnackbarContent("Announcement posted!");
+                setSnackbarContent(tr("announcement_posted"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -337,7 +338,7 @@ const Announcement = () => {
             let resp = await axios({ url: `${vars.dhpath}/announcements/${editId}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: { "title": title, "content": content, "type": parseInt(announcementType), "is_private": isPrivate, "orderid": parseInt(orderId), "is_pinned": isPinned } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Announcement updated!");
+                setSnackbarContent(tr("announcement_updated"));
                 setSnackbarSeverity("success");
                 clearModal();
                 setDialogOpen(false);
@@ -355,8 +356,8 @@ const Announcement = () => {
             setEditId(null);
             clearModal();
         }
-        setDialogTitle("Create Announcement");
-        setDialogButton("Create");
+        setDialogTitle(tr("create_announcement"));
+        setDialogButton(tr("create"));
         setDialogOpen(true);
     }, [editId, clearModal]);
 
@@ -372,8 +373,8 @@ const Announcement = () => {
 
         setEditId(announcement.announcementid);
 
-        setDialogTitle("Edit Announcement");
-        setDialogButton("Edit");
+        setDialogTitle(tr("edit_announcement"));
+        setDialogButton(tr("edit"));
         setDialogOpen(true);
     }, [clearModal]);
 
@@ -383,7 +384,7 @@ const Announcement = () => {
             let resp = await axios({ url: `${vars.dhpath}/announcements/${announcement.announcementid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
                 doLoad();
-                setSnackbarContent("Announcement deleted!");
+                setSnackbarContent(tr("announcement_deleted"));
                 setSnackbarSeverity("success");
                 setDialogDelete(false);
                 setToDelete(null);
@@ -414,7 +415,7 @@ const Announcement = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Title"
+                                    label={tr("title")}
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
                                     fullWidth
@@ -422,7 +423,7 @@ const Announcement = () => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Content (Markdown)"
+                                    label={tr("content_markdown")}
                                     multiline
                                     value={content}
                                     onChange={(e) => setContent(e.target.value)}
@@ -433,7 +434,7 @@ const Announcement = () => {
                             <Grid item xs={12}>
                                 <Grid container spacing={2}>
                                     <Grid item xs={6}>
-                                        <TextField select label="Announcement Type" value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }} fullWidth>
+                                        <TextField select label={tr("announcement_type")} value={announcementType} onChange={(e) => setAnnouncementType(e.target.value)} sx={{ marginTop: "6px", height: "30px" }} fullWidth>
                                             {(vars.announcementTypes).map((option) => (
                                                 <MenuItem key={option.id} value={option.id}>
                                                     {option.name}
@@ -443,19 +444,19 @@ const Announcement = () => {
                                     </Grid>
                                     <Grid item xs={6}>
                                         <FormControl component="fieldset">
-                                            <FormLabel component="legend">Visibility</FormLabel>
+                                            <FormLabel component="legend">{tr("visibility")}</FormLabel>
                                             <RadioGroup
                                                 value={isPrivate} row
                                                 onChange={(e) => setIsPrivate(e.target.value)}
                                             >
-                                                <FormControlLabel value={false} control={<Radio />} label="Public" />
-                                                <FormControlLabel value={true} control={<Radio />} label="Private" />
+                                                <FormControlLabel value={false} control={<Radio />} label={tr("public")} />
+                                                <FormControlLabel value={true} control={<Radio />} label={tr("private")} />
                                             </RadioGroup>
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={6}>
                                         <TextField
-                                            label="Order ID"
+                                            label={tr("order_id")}
                                             value={orderId}
                                             onChange={(e) => { let f = e.target.value.startsWith("-"); setOrderId((f ? "-" : "") + e.target.value.replace(/[^0-9]/g, "")); }}
                                             fullWidth
@@ -467,12 +468,12 @@ const Announcement = () => {
                                                 key="pin"
                                                 control={
                                                     <Checkbox
-                                                        name="Pin"
+                                                        name={tr("pin")}
                                                         checked={isPinned}
                                                         onChange={() => setIsPinned(!isPinned)}
                                                     />
                                                 }
-                                                label="Pin"
+                                                label={tr("pin")}
                                             />
                                         </FormControl>
                                     </Grid>
@@ -482,51 +483,51 @@ const Announcement = () => {
                     </form>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>Cancel</Button>
+                    <Button variant="primary" onClick={() => { setDialogOpen(false); clearModal(); }}>{tr("cancel")}</Button>
                     <Button variant="contained" onClick={handleSubmit} disabled={submitLoading}>{dialogButton}</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogDelete} onClose={() => setDialogDelete(false)}>
-                <DialogTitle>Delete Announcement</DialogTitle>
+                <DialogTitle>{tr("delete_announcement")}</DialogTitle>
                 <DialogContent>
-                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>Are you sure you want to delete this announcement?</Typography>
+                    <Typography variant="body2" sx={{ minWidth: "400px", marginBottom: "20px" }}>{tr("are_you_sure_you_want")}</Typography>
                     <AnnouncementCard announcement={toDelete !== null ? toDelete : {}} />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>Cancel</Button>
-                    <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>Delete</Button>
+                    <Button variant="primary" onClick={() => { setDialogDelete(false); }}>{tr("cancel")}</Button>
+                    <Button variant="contained" color="error" onClick={() => { deleteAnnouncement({ ...toDelete, confirmed: true }); }} disabled={submitLoading}>{tr("delete")}</Button>
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogManagers} onClose={() => setDialogManagers(false)}>
-                <DialogTitle>Announcement Managers</DialogTitle>
+                <DialogTitle>{tr("announcement_managers")}</DialogTitle>
                 <DialogContent>
                     <AnnouncementManagers />
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>Close</Button>
+                    <Button variant="primary" onClick={() => { setDialogManagers(false); }}>{tr("close")}</Button>
                 </DialogActions>
             </Dialog>
             <SpeedDial
-                ariaLabel="Controls"
+                ariaLabel={tr("controls")}
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
                 {checkUserPerm(["administrator", "manage_announcements"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
-                    tooltipTitle="Create"
+                    tooltipTitle={tr("create")}
                     onClick={() => createAnnouncement()}
                 />}
                 {vars.userInfo.userid !== -1 && <SpeedDialAction
                     key="managers"
                     icon={<PeopleAltRounded />}
-                    tooltipTitle="Managers"
+                    tooltipTitle={tr("managers")}
                     onClick={() => setDialogManagers(true)}
                 />}
                 <SpeedDialAction
                     key="refresh"
                     icon={<RefreshRounded />}
-                    tooltipTitle="Refresh"
+                    tooltipTitle={tr("refresh")}
                     onClick={() => doLoad()}
                 />
             </SpeedDial>

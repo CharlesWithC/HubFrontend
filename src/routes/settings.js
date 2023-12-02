@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useCallback, useEffect } from 'react';
 import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -23,11 +24,15 @@ import MarkdownRenderer from '../components/markdown';
 import SponsorBadge from '../components/sponsorBadge';
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
 
+import i18n from '../i18n';
+
 import { customSelectStyles } from '../designs';
 var vars = require("../variables");
 
+const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
 const RADIO_TYPES = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "SimulatorHits" };
 const trackerMapping = { "tracksim": "TrackSim", "trucky": "Trucky" };
+const settingsRoutes = ["/general", "/profile", "/appearance", "/security", "/sessions"];
 
 const DEFAULT_BGCOLOR = {
     light: {
@@ -47,91 +52,6 @@ function tabBtnProps(index, current, theme) {
         style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
 }
-
-const NOTIFICATION_NAMES = {
-    "drivershub": "Drivers Hub",
-    "discord": "Discord",
-    "login": "Login",
-    "dlog": "Delivery Log",
-    "member": "Member",
-    "bonus": "Bonus",
-    "new_announcement": "New Announcement",
-    "application": "Application",
-    "new_challenge": "New Challenge",
-    "challenge": "Challenge",
-    "division": "Division",
-    "new_downloads": "New Downloads",
-    "economy": "Economy",
-    "new_event": "New Event",
-    "upcoming_event": "Upcoming Event",
-    "new_poll": "New Poll",
-    "poll_result": "Poll Result"
-};
-const NOTIFICATION_TYPES = Object.keys(NOTIFICATION_NAMES);
-
-const LANGUAGES = {
-    'ar': 'Arabic (العربية)',
-    'be': 'Belarusian (беларуская)',
-    'bg': 'Bulgarian (български)',
-    'cs': 'Czech (čeština)',
-    'cy': 'Welsh (Cymraeg)',
-    'da': 'Danish (dansk)',
-    'de': 'German (Deutsch)',
-    'el': 'Greek (Ελληνικά)',
-    'en': 'English',
-    'eo': 'Esperanto',
-    'es': 'Spanish (Español)',
-    'et': 'Estonian (eesti keel)',
-    'fi': 'Finnish (suomi)',
-    'fr': 'French (français)',
-    'ga': 'Irish (Gaeilge)',
-    'gd': 'Scottish (Gàidhlig)',
-    'hu': 'Hungarian (magyar)',
-    'hy': 'Armenian (Հայերեն)',
-    'id': 'Indonesian (Bahasa Indonesia)',
-    'is': 'Icelandic (íslenska)',
-    'it': 'Italian (italiano)',
-    'ja': 'Japanese (日本語)',
-    'ko': 'Korean (한국어)',
-    'lt': 'Lithuanian (lietuvių kalba)',
-    'lv': 'Latvian (latviešu valoda)',
-    'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)',
-    'mn': 'Mongolian (Монгол)',
-    'mo': 'Moldavian (Moldova)',
-    'ne': 'Nepali (नेपाली)',
-    'nl': 'Dutch (Nederlands)',
-    'nn': 'Norwegian (norsk nynorsk)',
-    'pl': 'Polish (polski)',
-    'pt': 'Portuguese (Português)',
-    'ro': 'Romanian (română)',
-    'ru': 'Russian (русский)',
-    'sk': 'Slovak (slovenčina)',
-    'sl': 'Slovenian (slovenščina)',
-    'sq': 'Albanian (Shqip)',
-    'sr': 'Serbian (српски)',
-    'sv': 'Swedish (Svenska)',
-    'th': 'Thai (ไทย)',
-    'tr': 'Turkish (Türkçe)',
-    'uk': 'Ukrainian (українська)',
-    'vi': 'Vietnamese (Tiếng Việt)',
-    'yi': 'Yiddish (ייִדיש)',
-    'zh': 'Chinese (中文)'
-};
-
-const sessionsColumns = [
-    { id: 'device', label: 'Device' },
-    { id: 'ip', label: 'IP' },
-    { id: 'country', label: 'Country' },
-    { id: 'create_time', label: 'Creation' },
-    { id: 'last_used_time', label: 'Last Used' },
-];
-const appSessionsColumns = [
-    { id: 'app_name', label: 'Application Name' },
-    { id: 'create_time', label: 'Creation' },
-    { id: 'last_used_time', label: 'Last Used' },
-];
-
-const settingsRoutes = ["/general", "/profile", "/appearance", "/security", "/sessions"];
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -166,6 +86,40 @@ function TabPanel(props) {
 }
 
 const Settings = ({ defaultTab = 0 }) => {
+    const { t: tr } = useTranslation();
+    const sessionsColumns = [
+        { id: 'device', label: tr("device") },
+        { id: 'ip', label: tr("ip") },
+        { id: 'country', label: tr("country") },
+        { id: 'create_time', label: tr("creation") },
+        { id: 'last_used_time', label: tr("last_used") },
+    ];
+    const appSessionsColumns = [
+        { id: 'app_name', label: tr("application_name") },
+        { id: 'create_time', label: tr("creation") },
+        { id: 'last_used_time', label: tr("last_used") },
+    ];
+    const NOTIFICATION_NAMES = {
+        "drivershub": tr("drivers_hub"),
+        "discord": "Discord",
+        "login": tr("login"),
+        "dlog": tr("delivery_log"),
+        "member": tr("member"),
+        "bonus": tr("bonus"),
+        "new_announcement": tr("new_announcement"),
+        "application": tr("application"),
+        "new_challenge": tr("new_challenge"),
+        "challenge": tr("challenge"),
+        "division": tr("division"),
+        "new_downloads": tr("new_downloads"),
+        "economy": tr("economy"),
+        "new_event": tr("new_event"),
+        "upcoming_event": tr("upcoming_event"),
+        "new_poll": tr("new_poll"),
+        "poll_result": tr("poll_result")
+    };
+    const NOTIFICATION_TYPES = Object.keys(NOTIFICATION_NAMES);
+
     const [tab, setTab] = useState(defaultTab);
     const handleChange = (event, newValue) => {
         window.history.pushState("", "", "/settings" + settingsRoutes[newValue]);
@@ -197,7 +151,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const [mfaEnabled, setMfaEnabled] = useState(vars.userInfo.mfa);
     const handleOtp = useCallback(() => {
         if (otp.replaceAll(" ", "") === "" || isNaN(otp.replaceAll(" ", "")) || otp.length !== 6) {
-            setSnackbarContent(`Invalid OTP`);
+            setSnackbarContent("Invalid OTP");
             setSnackbarSeverity("warning");
             return;
         }
@@ -383,7 +337,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setRemoteUserConfigDisabled(false);
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
-            setSnackbarContent(`Failed to generate auth ticket, try again later...`);
+            setSnackbarContent("Failed to generate auth ticket, try again later...");
             setSnackbarSeverity("error");
             return;
         }
@@ -399,12 +353,12 @@ const Settings = ({ defaultTab = 0 }) => {
 
         resp = await axios({ url: `https://config.chub.page/config/user?domain=${vars.dhconfig.domain}`, data: { name_color: parse_color(remoteUserConfig.name_color), profile_upper_color: parse_color(remoteUserConfig.profile_upper_color), profile_lower_color: parse_color(remoteUserConfig.profile_lower_color), profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
         if (resp.status === 204) {
-            setSnackbarContent(`Appearance settings updated!`);
+            setSnackbarContent("Appearance settings updated!");
             setSnackbarSeverity("success");
             vars.userConfig[vars.userInfo.uid] = { abbr: vars.dhconfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
         } else {
             if (resp.data.error !== undefined) setSnackbarContent(resp.data.error);
-            else setSnackbarContent("Unknown error, please try again later.");
+            else setSnackbarContent(tr("unknown_error_please_try_again_later"));
             setSnackbarSeverity("error");
         }
 
@@ -423,7 +377,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const updateTracker = useCallback(async (to) => {
         let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${vars.userInfo.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Tracker updated");
+            setSnackbarContent(tr("tracker_updated"));
             setSnackbarSeverity("success");
             vars.userInfo.tracker = tracker;
             setTracker(to);
@@ -470,10 +424,10 @@ const Settings = ({ defaultTab = 0 }) => {
         for (let i = 0; i < enabled.length; i++) {
             let resp = await axios({ url: `${vars.dhpath}/user/notification/settings/${enabled[i]}/enable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
-                setSnackbarContent(`Enabled ${NOTIFICATION_NAMES[enabled[i]]} Notification`);
+                setSnackbarContent(tr("enabled_notification", { type: NOTIFICATION_NAMES[enabled[i]] }));
                 setSnackbarSeverity("success");
             } else {
-                setSnackbarContent(`Failed to enable ${NOTIFICATION_NAMES[enabled[i]]} Notification` + resp.data.error);
+                setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
                 reloadNotificationSettings();
             }
@@ -481,10 +435,10 @@ const Settings = ({ defaultTab = 0 }) => {
         for (let i = 0; i < disabled.length; i++) {
             let resp = await axios({ url: `${vars.dhpath}/user/notification/settings/${disabled[i]}/disable`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
-                setSnackbarContent(`Disabled ${NOTIFICATION_NAMES[disabled[i]]} Notification`);
+                setSnackbarContent(tr("disabled_notification", { type: NOTIFICATION_NAMES[enabled[i]] }));
                 setSnackbarSeverity("success");
             } else {
-                setSnackbarContent(`Failed to disable ${NOTIFICATION_NAMES[disabled[i]]} Notification: ` + resp.data.error);
+                setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
                 reloadNotificationSettings();
             }
@@ -496,19 +450,24 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const [userLanguage, setUserLanguage] = useState("en");
     const [supportedLanguages, setSupportedLanguages] = useState([]);
+    const [languageLoading, setLanguageLoading] = useState(false);
     const updateUserLanguage = useCallback(async (e) => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
         setUserLanguage(e.target.value);
+        setLanguageLoading(true);
         let resp = await axios({ url: `${vars.dhpath}/user/language`, data: { language: e.target.value }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent(`Changed language to ${LANGUAGES[e.target.value]}`);
-            setSnackbarSeverity("success");
+            i18n.changeLanguage(e.target.value);
+            vars.userSettings.language = e.target.value;
+            writeClientSettings(vars.userSettings);
+            setUserSettings(prevSettings => ({ ...prevSettings, language: e.target.value }));
         } else {
-            setSnackbarContent(`Failed to change language to ${LANGUAGES[e.target.value]}: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
+        setLanguageLoading(false);
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -518,12 +477,12 @@ const Settings = ({ defaultTab = 0 }) => {
     const [newTruckersMPDisabled, setTruckersmpDisabled] = useState(false);
     const updateTruckersMPID = useCallback(async () => {
         if (isNaN(newTruckersMPID) || String(newTruckersMPID).replaceAll(" ", "") === "") {
-            setSnackbarContent(`Invalid TruckersMP ID`);
+            setSnackbarContent("Invalid TruckersMP ID");
             setSnackbarSeverity("error");
             return;
         }
         if (Number(newTruckersMPID) === vars.userInfo.truckersmpid) {
-            setSnackbarContent(`TruckersMP ID was not updated`);
+            setSnackbarContent("TruckersMP ID was not updated");
             setSnackbarSeverity("warning");
             return;
         }
@@ -534,10 +493,10 @@ const Settings = ({ defaultTab = 0 }) => {
         setTruckersmpDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/truckersmp`, data: { truckersmpid: newTruckersMPID }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent(`Updated TruckersMP Account`);
+            setSnackbarContent("Updated TruckersMP Account");
             setSnackbarSeverity("success");
         } else {
-            setSnackbarContent(`Failed to update TruckersMP Account: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
         setTruckersmpDisabled(false);
@@ -550,12 +509,12 @@ const Settings = ({ defaultTab = 0 }) => {
     const [newEmailDisabled, setEmailDisabled] = useState(false);
     const updateEmail = useCallback(async () => {
         if (newEmail.indexOf("@") === -1) {
-            setSnackbarContent(`Invalid Email`);
+            setSnackbarContent("Invalid Email");
             setSnackbarSeverity("error");
             return;
         }
         if (newEmail === vars.userInfo.email) {
-            setSnackbarContent(`Email was not updated`);
+            setSnackbarContent("Email was not updated");
             setSnackbarSeverity("warning");
             return;
         }
@@ -566,10 +525,10 @@ const Settings = ({ defaultTab = 0 }) => {
         setEmailDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/email`, data: { email: newEmail }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent(`Email update request submitted. Please check your inbox for confirmation email.`);
+            setSnackbarContent("Email update request submitted. Please check your inbox for confirmation email.");
             setSnackbarSeverity("success");
         } else {
-            setSnackbarContent(`Failed to update email: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
         setEmailDisabled(false);
@@ -608,10 +567,10 @@ const Settings = ({ defaultTab = 0 }) => {
                     }
                 }
             }
-            setSnackbarContent("Profile updated");
+            setSnackbarContent(tr("profile_updated"));
             setSnackbarSeverity("success");
         } else {
-            setSnackbarContent(`Failed to update profile: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
         setNewProfileDisabled(false);
@@ -626,10 +585,10 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = await axios({ url: `${vars.dhpath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent(`Updated About Me`);
+            setSnackbarContent("Updated About Me");
             setSnackbarSeverity("success");
         } else {
-            setSnackbarContent(`Failed to update about me to ${LANGUAGES[e.target.value]}: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
 
@@ -664,11 +623,11 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent(`Updated Password`);
+            setSnackbarContent("Updated Password");
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
         } else {
-            setSnackbarContent(`Failed to update password: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setOtp(""); setOtpPass(0);
         }
@@ -701,10 +660,10 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent(`Disabled Password Login`);
+            setSnackbarContent("Disabled Password Login");
             setSnackbarSeverity("success");
         } else {
-            setSnackbarContent(`Failed to disable password login: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
 
@@ -740,12 +699,12 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 200) {
-            setSnackbarContent(`Created Application Token`);
+            setSnackbarContent("Created Application Token");
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
             setNewAppToken(resp.data.token);
         } else {
-            setSnackbarContent(`Failed to create appplication token: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setOtp(""); setOtpPass(0);
         }
@@ -807,7 +766,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setManageMfaDisabled(true);
             let resp = await axios({ url: `${vars.dhpath}/user/mfa/enable`, data: { secret: mfaSecret, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
-                setSnackbarContent(`MFA Enabled`);
+                setSnackbarContent("MFA Enabled");
                 setSnackbarSeverity("success");
                 setOtpPass(+new Date() + 30000);
                 vars.userInfo.mfa = true;
@@ -817,7 +776,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
                 window.dispatchEvent(userUpdated);
             } else {
-                setSnackbarContent(`Failed to enable MFA: ` + resp.data.error);
+                setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
                 setOtp(""); setOtpPass(0);
             }
@@ -849,7 +808,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent(`MFA Disabled`);
+            setSnackbarContent("MFA Disabled");
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
             vars.userInfo.mfa = false;
@@ -858,7 +817,7 @@ const Settings = ({ defaultTab = 0 }) => {
             const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
             window.dispatchEvent(userUpdated);
         } else {
-            setSnackbarContent(`Failed to disable MFA: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setOtp(""); setOtpPass(0);
         }
@@ -895,11 +854,11 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent(`You have resigned! Goodbye and best wishes!`);
+            setSnackbarContent("You have resigned! Goodbye and best wishes!");
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
         } else {
-            setSnackbarContent(`Failed to resign: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setOtp(""); setOtpPass(0);
         }
@@ -937,11 +896,11 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         if (resp.status === 204) {
-            setSnackbarContent(`Account deleted! Goodbye!`);
+            setSnackbarContent("Account deleted! Goodbye!");
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
         } else {
-            setSnackbarContent(`Failed to delete account: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setOtp(""); setOtpPass(0);
         }
@@ -1015,7 +974,7 @@ const Settings = ({ defaultTab = 0 }) => {
         let newSessions = [];
         for (let i = 0; i < _sessions.list.length; i++) {
             newSessions.push({
-                ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>Revoke</MenuItem>) : (<MenuItem disabled > Current Session</MenuItem >)
+                ..._sessions.list[i], "device": getDeviceIcon(_sessions.list[i].user_agent), "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_sessions.list[i].last_used_timestamp * 1000} />, contextMenu: (tokenHash !== _sessions.list[i].hash) ? (<MenuItem onClick={() => { revokeSession(_sessions.list[i].hash); loadSessions(); }}>{tr("revoke")}</MenuItem>) : (<MenuItem disabled >{tr("current_session")}</MenuItem >)
             });
         };
         if (sessionsPageRef.current === sessionsPage) {
@@ -1024,7 +983,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
         let newAppSessions = [];
         for (let i = 0; i < _appSessions.list.length; i++) {
-            newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>Revoke</MenuItem> });
+            newAppSessions.push({ ..._appSessions.list[i], "create_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].create_timestamp * 1000} />, "last_used_time": <TimeAgo key={`${+new Date()}`} timestamp={_appSessions.list[i].last_used_timestamp * 1000} />, contextMenu: <MenuItem onClick={() => { revokeAppSession(_appSessions.list[i].hash); }}>{tr("revoke")}</MenuItem> });
         }
         if (appSessionsPageRef.current === appSessionsPage) {
             setAppSessions(newAppSessions);
@@ -1042,11 +1001,11 @@ const Settings = ({ defaultTab = 0 }) => {
         let resp = await axios({ url: `${vars.dhpath}/token/hash`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
         if (resp.status === 204) {
-            setSnackbarContent(`Token Revoked`);
+            setSnackbarContent("Token Revoked");
             setSnackbarSeverity("success");
             loadSessions();
         } else {
-            setSnackbarContent(`Failed to revoke token: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
 
@@ -1061,11 +1020,11 @@ const Settings = ({ defaultTab = 0 }) => {
         let resp = await axios({ url: `${vars.dhpath}/token/application`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
         if (resp.status === 204) {
-            setSnackbarContent(`Application Token Revoked`);
+            setSnackbarContent("Application Token Revoked");
             setSnackbarSeverity("success");
             loadSessions();
         } else {
-            setSnackbarContent(`Failed to revoke application token: ` + resp.data.error);
+            setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
 
@@ -1083,28 +1042,28 @@ const Settings = ({ defaultTab = 0 }) => {
                 let badge = null;
                 let badgeName = null;
                 if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-chub}`} placement="top" arrow title="CHub Team"
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-chub}`} placement="top" arrow title={tr("chub_team")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                     </Tooltip>;
                     badgeName = "chub";
                 }
                 if (['community_legend'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-legend`} placement="top" arrow title="Community Legend"
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-legend`} placement="top" arrow title={tr("community_legend")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['network_partner'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-network-partner`} placement="top" arrow title="Network Partner"
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-network-partner`} placement="top" arrow title={tr("network_partner")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['server_booster', 'translation_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title="Supporter"
+                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -1122,7 +1081,7 @@ const Settings = ({ defaultTab = 0 }) => {
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                 let patron = vars.patrons[tiers[i]][j];
                 if (patron.abbr === vars.dhconfig.abbr && patron.uid === vars.userInfo.uid) {
-                    let badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title="Supporter"
+                    let badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -1158,13 +1117,13 @@ const Settings = ({ defaultTab = 0 }) => {
         const fileSizeInMegabytes = file.size / (1024 * 1024);
 
         if (!file.type.startsWith('image/')) {
-            setSnackbarContent("Not a valid image");
+            setSnackbarContent(tr("not_a_valid_image"));
             setSnackbarSeverity("warning");
             return;
         }
 
         if (fileSizeInMegabytes > 2) {
-            setSnackbarContent("Image size must be smaller than 2MB");
+            setSnackbarContent(tr("image_size_must_be_smaller_than_2mb"));
             setSnackbarSeverity("warning");
             return;
         }
@@ -1184,17 +1143,17 @@ const Settings = ({ defaultTab = 0 }) => {
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                <Tab label="General" {...tabBtnProps(0, tab, theme)} />
-                <Tab label="Profile" {...tabBtnProps(1, tab, theme)} />
-                <Tab label="Appearance" {...tabBtnProps(2, tab, theme)} />
-                <Tab label="Security" {...tabBtnProps(3, tab, theme)} />
-                <Tab label="Sessions" {...tabBtnProps(4, tab, theme)} />
+                <Tab label={tr("general")} {...tabBtnProps(0, tab, theme)} />
+                <Tab label={tr("profile")} {...tabBtnProps(1, tab, theme)} />
+                <Tab label={tr("appearance")} {...tabBtnProps(2, tab, theme)} />
+                <Tab label={tr("security")} {...tabBtnProps(3, tab, theme)} />
+                <Tab label={tr("sessions")} {...tabBtnProps(4, tab, theme)} />
             </Tabs>
         </Box>
         <TabPanel value={tab} index={0}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Tracker</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("tracker")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
                         {trackers.includes("trucky") && <Button variant="contained" color={tracker === "trucky" ? "info" : "secondary"} onClick={() => { updateTracker("trucky"); }}>Trucky</Button>}
@@ -1203,16 +1162,16 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Distance Unit</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("distance_unit")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.unit === "metric" ? "info" : "secondary"} onClick={() => { updateUnit("metric"); }}>Metric</Button>
-                        <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>Imperial</Button>
+                        <Button variant="contained" color={userSettings.unit === "metric" ? "info" : "secondary"} onClick={() => { updateUnit("metric"); }}>{tr("metric")}</Button>
+                        <Button variant="contained" color={userSettings.unit === "imperial" ? "info" : "secondary"} onClick={() => { updateUnit("imperial"); }}>{tr("imperial")}</Button>
                     </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Display Timezone&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("display_timezone")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <Select
                         name="colors"
@@ -1228,7 +1187,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Default Table Row-Per-Page</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("default_table_rowperpage")}</Typography>
                     <br />
                     <TextField select size="small"
                         value={userSettings.default_row_per_page}
@@ -1243,24 +1202,24 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Data Saver Mode</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("data_saver_mode")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.data_saver === true ? "info" : "secondary"} onClick={() => { updateDataSaver(true); }}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.data_saver === false ? "info" : "secondary"} onClick={() => { updateDataSaver(false); }}>Disabled</Button>
+                        <Button variant="contained" color={userSettings.data_saver === true ? "info" : "secondary"} onClick={() => { updateDataSaver(true); }}>{tr("enabled")}</Button>
+                        <Button variant="contained" color={userSettings.data_saver === false ? "info" : "secondary"} onClick={() => { updateDataSaver(false); }}>{tr("disabled")}</Button>
                     </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Data Cache</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("data_cache")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); setAllowClearCache(false); }} disabled={!allowClearCache}>Clear</Button>
+                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); setAllowClearCache(false); }} disabled={!allowClearCache}>{tr("clear")}</Button>
                     </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Notification Settings <IconButton size="small" aria-label="Edit" onClick={(e) => { reloadNotificationSettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("notification_settings")}<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { reloadNotificationSettings(); }}><FontAwesomeIcon icon={faRefresh} /></IconButton ></Typography>
                     <br />
                     {notificationSettings !== null && <Select
                         defaultValue={notificationSettings}
@@ -1278,19 +1237,20 @@ const Settings = ({ defaultTab = 0 }) => {
                         onChange={updateNotificationSettings}
                         menuPortalTarget={document.body}
                     />}
-                    {notificationSettings === null && <Typography variant="body2">Loading...</Typography>}
+                    {notificationSettings === null && <Typography variant="body2">{tr("loading")}</Typography>}
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Language (API & Notifications Only)</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("language")}</Typography>
                     <br />
                     <TextField select size="small"
                         key="user-language"
-                        name="User Language"
+                        name={tr("user_language")}
                         value={userLanguage}
                         onChange={updateUserLanguage}
                         sx={{ marginTop: "6px", height: "30px" }}
                         fullWidth
+                        disabled={languageLoading}
                     >
                         {supportedLanguages.map(language => (
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
@@ -1303,18 +1263,18 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("radio")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>Auto Play</Button>
-                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>Disabled</Button>
+                        <Button variant="contained" color={userSettings.radio === "enabled" ? "info" : "secondary"} onClick={() => { updateRadio("enabled"); }}>{tr("enabled")}</Button>
+                        <Button variant="contained" color={userSettings.radio === "auto" ? "info" : "secondary"} onClick={() => { updateRadio("auto"); }}>{tr("auto_play")}</Button>
+                        <Button variant="contained" color={userSettings.radio === "disabled" ? "info" : "secondary"} onClick={() => { updateRadio("disabled"); }}>{tr("disabled")}</Button>
                     </ButtonGroup>
                 </Grid>
                 <Grid item xs={0} sm={0} md={6} lg={6}></Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Provider&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("radio_provider")}&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                     <br />
                     <CreatableSelect
                         defaultValue={{ value: userSettings.radio_type, label: RADIO_TYPES[userSettings.radio_type] !== undefined ? RADIO_TYPES[userSettings.radio_type] : userSettings.radio_type }}
@@ -1328,14 +1288,14 @@ const Settings = ({ defaultTab = 0 }) => {
                             const isOptionExists = Object.keys(RADIO_TYPES).includes(item.value);
                             if (!isOptionExists) {
                                 if (vars.userLevel < 4) {
-                                    setSnackbarContent("Using URL for radio is a Platinum Perk! Sponsor at charl.ws/patreon");
+                                    setSnackbarContent(tr("radio_url_platinum_perk"));
                                     setSnackbarSeverity("warning");
                                     return;
                                 }
                                 try {
                                     new URL(item.value);
                                 } catch {
-                                    setSnackbarContent("Invalid URL for radio!");
+                                    setSnackbarContent(tr("invalid_url_for_radio"));
                                     setSnackbarSeverity("warning");
                                     return;
                                 }
@@ -1349,7 +1309,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Radio Volume</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("radio_volume")}</Typography>
                     <br />
                     <Slider value={userSettings.radio_volume} onChange={(e, val) => { updateRadioVolume(val); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main }} />
                 </Grid>
@@ -1359,20 +1319,20 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Account Connections</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("account_connections")}</Typography>
                     <Grid container spacing={2} sx={{ mt: "5px" }}>
                         <Grid item xs={12} sm={12} md={6} lg={6}>
                             <Grid container spacing={2}>
                                 <Grid item xs={8} sm={8} md={8} lg={8}>
                                     <TextField
-                                        label="Email"
+                                        label={tr("email")}
                                         value={newEmail}
                                         onChange={(e) => setNewEmail(e.target.value)}
                                         fullWidth size="small"
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { updateEmail(); }} disabled={newEmailDisabled} fullWidth>Update</Button>
+                                    <Button variant="contained" onClick={() => { updateEmail(); }} disabled={newEmailDisabled} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1386,7 +1346,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/auth/discord/redirect"); }} fullWidth>Update</Button>
+                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/auth/discord/redirect"); }} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1400,7 +1360,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/auth/steam/redirect"); }} fullWidth>Update</Button>
+                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/auth/steam/redirect"); }} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1415,7 +1375,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={newTruckersMPDisabled} fullWidth>Update</Button>
+                                    <Button variant="contained" onClick={() => { updateTruckersMPID(); }} disabled={newTruckersMPDisabled} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1429,14 +1389,12 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + window.location.host; }} fullWidth>Update</Button>
+                                    <Button variant="contained" onClick={() => { window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + window.location.host; }} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
                         {vars.userLevel === 0 && <Grid container item xs={12} sm={12} md={6} lg={6} justify="center" alignItems="center">
-                            <Typography variant="body2" align="center">
-                                Connect&nbsp;&nbsp;<FontAwesomeIcon icon={faPatreon} />atreon account to activate sponsor perks.
-                            </Typography>
+                            <Typography variant="body2" align="center"><FontAwesomeIcon icon={faPatreon} />&nbsp;&nbsp;{tr("connect_patreon_account_to_activate_sponsor_perks")}</Typography>
                         </Grid>}
                     </Grid>
                 </Grid>
@@ -1447,7 +1405,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={12} md={12} lg={12}>
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Name</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("name")}</Typography>
                             <br />
                             <TextField
                                 value={newProfile.name}
@@ -1457,7 +1415,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             />
                         </Grid>
                         <Grid item xs={12} sm={12} md={12} lg={12}>
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Avatar URL</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("avatar_url")}</Typography>
                             <br />
                             <TextField
                                 value={newProfile.avatar}
@@ -1468,71 +1426,71 @@ const Settings = ({ defaultTab = 0 }) => {
                         </Grid>
                         <Grid item xs={12} sm={12} md={12} lg={12}>
                             <ButtonGroup fullWidth sx={{ mt: "5px" }}>
-                                <Button variant="contained" color="secondary">Sync To</Button>
+                                <Button variant="contained" color="secondary">{tr("sync_to")}</Button>
                                 <Button variant="contained" color="success" onClick={() => { updateProfile("discord"); }} disabled={newProfileDisabled}>Discord</Button>
                                 <Button variant="contained" color="warning" onClick={() => { updateProfile("steam"); }} disabled={newProfileDisabled}>Steam</Button>
                                 <Button variant="contained" color="error" onClick={() => { updateProfile("truckersmp"); }} disabled={newProfileDisabled}>TruckersMP</Button>
                             </ButtonGroup>
                         </Grid>
                         <Grid item xs={12} sm={12} md={12} lg={12}>
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Name Color&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("name_color")}&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                             <br />
                             {(vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null || vars.userLevel >= 2) && <Box display="flex" flexDirection="row">
                                 {vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null &&
-                                    <Tooltip placement="bottom" arrow title="VTC Name Color"
+                                    <Tooltip placement="bottom" arrow title={tr("vtc_name_color")}
                                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                         <Box width="120px" height="60px" bgcolor={vars.dhconfig.name_color} p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: vars.dhconfig.name_color }); }} style={{ cursor: 'pointer' }}>
                                             {remoteUserConfig.name_color === vars.dhconfig.name_color && <CheckRounded />}
                                         </Box>
                                     </Tooltip>}
                                 {vars.userLevel >= 2 &&
-                                    <Tooltip placement="bottom" arrow title="Silver"
+                                    <Tooltip placement="bottom" arrow title={tr("silver")}
                                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                         <Box width="120px" height="60px" bgcolor="#c0c0c0" p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: "#c0c0c0" }); }} style={{ cursor: 'pointer' }}>
                                             {remoteUserConfig.name_color === '#c0c0c0' && <CheckRounded />}
                                         </Box>
                                     </Tooltip>}
-                                {vars.userLevel >= 3 && <Tooltip placement="bottom" arrow title="Gold"
+                                {vars.userLevel >= 3 && <Tooltip placement="bottom" arrow title={tr("gold")}
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                     <Box width="120px" height="60px" bgcolor="#ffd700" p={1} m={1} display="flex" justifyContent="center" alignItems="center" borderRadius="5px" onClick={() => { setRemoteUserConfig({ ...remoteUserConfig, name_color: "#ffd700" }); }} style={{ cursor: 'pointer' }}>
                                         {remoteUserConfig.name_color === '#ffd700' && <CheckRounded />}
                                     </Box>
                                 </Tooltip>}
-                                <ColorInput boxWrapper={false} color={remoteUserConfig.name_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} customTooltip="Custom Color (Platinum)" disableDefault={vars.userLevel < 2} disableCustom={vars.userLevel < 4} />
+                                <ColorInput boxWrapper={false} color={remoteUserConfig.name_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, name_color: val }); }} customTooltip={tr("custom_color_platinum")} disableDefault={vars.userLevel < 2} disableCustom={vars.userLevel < 4} />
                             </Box>}
                         </Grid>
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>About Me</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("about_me")}</Typography>
                     <br />
                     <TextField
                         multiline
                         key="about-me"
-                        name="About Me"
+                        name={tr("about_me")}
                         value={newAboutMe}
                         onChange={(e) => { setNewAboutMe(e.target.value); }}
                         rows={9}
-                        placeholder={"Say something about you!"}
+                        placeholder={tr("say_something_about_you")}
                         sx={{ mt: "5px" }} fullWidth
                     />
-                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={newAboutMeDisabled} sx={{ mt: "5px" }} fullWidth>Save</Button>
+                    <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={newAboutMeDisabled} sx={{ mt: "5px" }} fullWidth>{tr("save")}</Button>
                 </Grid>
                 <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Divider />
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     {vars.userLevel < 3 && <>
-                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>Customize your profile with <SponsorBadge level={3} plus={true} /></Typography>
+                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>{tr("customize_your_profile_with")}&nbsp;&nbsp;<SponsorBadge level={3} plus={true} /></Typography>
                         <br />
                     </>}
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Theme (Primary)&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_theme_primary")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <ColorInput color={remoteUserConfig.profile_upper_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_upper_color: val }); }} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Theme (Accent)&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_theme_accent")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <ColorInput color={remoteUserConfig.profile_lower_color} onChange={(val) => { setRemoteUserConfig({ ...remoteUserConfig, profile_lower_color: val }); }} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Profile Banner URL&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("profile_banner_url")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <TextField
                         value={remoteUserConfig.profile_banner_url}
@@ -1542,7 +1500,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         disabled={vars.userLevel < 3}
                     />
                     <br />
-                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} disabled={remoteUserConfigDisabled || vars.userLevel < 2} sx={{ mt: "10px", width: "280px" }}>Save</Button>
+                    <Button variant="contained" onClick={() => { updateRemoteUserConfig(); }} disabled={remoteUserConfigDisabled || vars.userLevel < 2} sx={{ mt: "10px", width: "280px" }}>{tr("save")}</Button>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${remoteUserConfig.profile_upper_color}, ${remoteUserConfig.profile_lower_color})` }}>
@@ -1563,14 +1521,14 @@ const Settings = ({ defaultTab = 0 }) => {
                                     </Typography>
                                     <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                         {badges.map((badge, index) => { return <a key={index} onClick={() => { navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
-                                        {vars.userInfo.userid !== null && vars.userInfo.userid !== undefined && vars.userInfo.userid >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                        {vars.userInfo.userid !== null && vars.userInfo.userid !== undefined && vars.userInfo.userid >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
                                             PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{vars.userInfo.userid}</Typography></Tooltip>}
                                     </Typography>
                                 </div>
                                 <Divider sx={{ mt: "8px", mb: "8px" }} />
                                 {newAboutMe !== "" && <>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        ABOUT ME
+                                        {tr("about_me").toUpperCase()}
                                     </Typography>
                                     <Typography variant="body2">
                                         <MarkdownRenderer>{newAboutMe}</MarkdownRenderer>
@@ -1579,7 +1537,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                 <Grid container sx={{ mt: "10px" }}>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                            MEMBER SINCE
+                                            {tr("since").toUpperCase()}
                                         </Typography>
                                         <Typography variant="body2" sx={{ display: "inline-block" }}>
                                             {getFormattedDate(new Date(vars.userInfo.join_timestamp * 1000)).split(" at ")[0]}
@@ -1587,7 +1545,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     </Grid>
                                     <Grid item xs={6}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                            TRACKER
+                                            {tr("tracker").toUpperCase()}
                                         </Typography>
                                         <Typography variant="body2">
                                             {trackerMapping[tracker]}
@@ -1618,66 +1576,64 @@ const Settings = ({ defaultTab = 0 }) => {
         <TabPanel value={tab} index={2}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("auto"); }}>Auto (Device)</Button>
-                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("dark"); }}>Dark</Button>
-                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("light"); }}>Light</Button>
+                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("auto"); }}>{tr("auto_device")}</Button>
+                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("dark"); }}>{tr("dark")}</Button>
+                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("light"); }}>{tr("light")}</Button>
                     </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Font Size <Chip sx={{ bgcolor: "#387aff", height: "16px", borderRadius: "5px", marginTop: "-3px" }} label="Experimental" /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("font_size")}<Chip sx={{ bgcolor: "#387aff", height: "16px", borderRadius: "5px", marginTop: "-3px" }} label={tr("experimental")} /></Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.font_size === "smaller" ? "info" : "secondary"} onClick={() => { updateFontSize("smaller"); }}>Smaller</Button>
-                        <Button variant="contained" color={userSettings.font_size === "regular" ? "info" : "secondary"} onClick={() => { updateFontSize("regular"); }}>Regular</Button>
-                        <Button variant="contained" color={userSettings.font_size === "larger" ? "info" : "secondary"} onClick={() => { updateFontSize("larger"); }}>Larger</Button>
+                        <Button variant="contained" color={userSettings.font_size === "smaller" ? "info" : "secondary"} onClick={() => { updateFontSize("smaller"); }}>{tr("smaller")}</Button>
+                        <Button variant="contained" color={userSettings.font_size === "regular" ? "info" : "secondary"} onClick={() => { updateFontSize("regular"); }}>{tr("regular")}</Button>
+                        <Button variant="contained" color={userSettings.font_size === "larger" ? "info" : "secondary"} onClick={() => { updateFontSize("larger"); }}>{tr("larger")}</Button>
                     </ButtonGroup>
                 </Grid>
 
                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Theme&nbsp;&nbsp;{vars.userLevel >= 2 && <SponsorBadge level={2} plug={true} />}</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("custom_theme")}&nbsp;&nbsp;{vars.userLevel >= 2 && <SponsorBadge level={2} plug={true} />}</Typography>
                     <br />
                     {vars.userLevel < 2 && <>
-                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>Customize your client with <SponsorBadge level={2} plus={true} /></Typography>
+                        <Typography variant="h7" sx={{ fontWeight: 800, mb: "10px", color: theme.palette.info.main }}>{tr("customize_your_client_with")}&nbsp;&nbsp;<SponsorBadge level={2} plus={true} /></Typography>
                         <br />
                     </>}
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>Enabled</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>Disabled</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>Custom Background</Button>
-                        {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>VTC Theme</Button>}
-                        {vars.dhvtcbg !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>VTC Background</Button>}
+                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>{tr("enabled")}</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>{tr("disabled")}</Button>
+                        <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
+                        {vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
+                        {vars.dhvtcbg !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
                     </ButtonGroup>
                 </Grid>
                 <Grid item xs={12} sm={12} md={2} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Opacity</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_opacity")}</Typography>
                     <br />
                     <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vars.userLevel < 3} />
                 </Grid>
                 <Grid item xs={6} sm={6} md={3} lg={2}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Main Color</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_main_color")}</Typography>
                     <br />
                     <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                 </Grid>
                 <Grid item xs={6} sm={6} md={3} lg={2}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Theme Background Color</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_background_color")}</Typography>
                     <br />
                     <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                 </Grid>
                 <Grid item xs={6} sm={6} md={4} lg={4}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Custom Background Image&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("custom_background_image")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>
                     <br />
                     <Box display="flex" flexDirection="row">
                         {customBackground !== "" &&
                             <img src={customBackground} height="60px" style={{ display: "flex", borderRadius: "5px", marginRight: "10px", opacity: vars.userLevel >= 3 ? 1 : 0.8 }} />
                         }
-                        <Tooltip title="Update Image" placement="bottom" arrow PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <Button component="label" variant="contained" startIcon={<CloudUploadRounded />} sx={{ width: "120px", height: "60px" }} disabled={vars.userLevel < 3}>
-                                Update
-                                <VisuallyHiddenInput type="file" property={{ accept: 'image/png, image/jpeg' }} onChange={handleCustomBackground} />
+                        <Tooltip title={tr("update_image")} placement="bottom" arrow PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                            <Button component="label" variant="contained" startIcon={<CloudUploadRounded />} sx={{ width: "120px", height: "60px" }} disabled={vars.userLevel < 3}>{tr("update")}<VisuallyHiddenInput type="file" property={{ accept: 'image/png, image/jpeg' }} onChange={handleCustomBackground} />
                             </Button>
                         </Tooltip>
                     </Box>
@@ -1687,16 +1643,16 @@ const Settings = ({ defaultTab = 0 }) => {
         <TabPanel value={tab} index={3}>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Password Login</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("password_login")}</Typography>
                     <br />
-                    <Typography variant="body2">- An unique email must be linked to your account to enable password login.</Typography>
-                    <Typography variant="body2">- You will be able to login with email and password if password login is enabled.</Typography>
-                    <Typography variant="body2">- If you no longer want to use password login, disable it for better security.</Typography>
-                    <Typography variant="body2">- If MFA is not enabled, certain actions may be blocked if you logged in with password.</Typography>
+                    <Typography variant="body2">{tr("password_login_note")}</Typography>
+                    <Typography variant="body2">{tr("password_login_note_2")}</Typography>
+                    <Typography variant="body2">{tr("password_login_note_3")}</Typography>
+                    <Typography variant="body2">{tr("password_login_note_4")}</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
                         <Grid item xs={12} sm={12} md={6} lg={8}>
                             <TextField
-                                label="New Password"
+                                label={tr("new_password")}
                                 value={newPassword}
                                 type="password"
                                 onChange={(e) => setNewPassword(e.target.value)}
@@ -1705,41 +1661,41 @@ const Settings = ({ defaultTab = 0 }) => {
                         </Grid>
                         <Grid item xs={12} sm={12} md={6} lg={4}>
                             <ButtonGroup fullWidth>
-                                <Button variant="contained" color="error" onClick={() => { disablePassword(); }} disabled={newPasswordDisabled}>Disable</Button>
-                                <Button variant="contained" onClick={() => { updatePassword(); }} disabled={newPasswordDisabled}>Update</Button>
+                                <Button variant="contained" color="error" onClick={() => { disablePassword(); }} disabled={newPasswordDisabled}>{tr("disable")}</Button>
+                                <Button variant="contained" onClick={() => { updatePassword(); }} disabled={newPasswordDisabled}>{tr("update")}</Button>
                             </ButtonGroup>
                         </Grid>
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Multiple Factor Authentication (MFA) {mfaEnabled && <>- <span style={{ color: theme.palette.success.main }}>Already Enabled</span></>}</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("multiple_factor_authentication_mfa")}{mfaEnabled && <>- <span style={{ color: theme.palette.success.main }}>{tr("already_enabled")}</span></>}</Typography>
                     <br />
-                    <Typography variant="body2">- When MFA is enabled, a one-time-pass (OTP) is required upon login or perfoming sensitive action.</Typography>
-                    <Typography variant="body2">- It is highly recommended to enable MFA for enhanced account security.</Typography>
-                    <Typography variant="body2">- You will need an application like Authy or Google Authenticator to generate the one-time-pass (OTP).</Typography>
-                    <Typography variant="body2">- If you lost access to the application, you may ask a staff member to disable MFA for you.</Typography>
+                    <Typography variant="body2">{tr("mfa_note")}</Typography>
+                    <Typography variant="body2">{tr("mfa_note_2")}</Typography>
+                    <Typography variant="body2">{tr("mfa_note_3")}</Typography>
+                    <Typography variant="body2">{tr("mfa_note_4")}</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
                         <Grid item xs={12} sm={12} md={6} lg={8}></Grid>
                         <Grid item xs={12} sm={12} md={6} lg={4}>
                             <ButtonGroup fullWidth>
-                                {!mfaEnabled && <Button variant="contained" onClick={() => { enableMfa(); }} disabled={manageMfaDisabled}>Enable</Button>}
-                                {mfaEnabled && <Button variant="contained" color="error" onClick={() => { disableMfa(); }} disabled={manageMfaDisabled}>Disable</Button>}
+                                {!mfaEnabled && <Button variant="contained" onClick={() => { enableMfa(); }} disabled={manageMfaDisabled}>{tr("enable")}</Button>}
+                                {mfaEnabled && <Button variant="contained" color="error" onClick={() => { disableMfa(); }} disabled={manageMfaDisabled}>{tr("disable")}</Button>}
                             </ButtonGroup>
                         </Grid>
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <Typography variant="h7" sx={{ fontWeight: 800 }}>Application Authorization</Typography>
+                    <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("application_authorization")}</Typography>
                     <br />
-                    <Typography variant="body2">- An application token is provided to authorize external applications to act on behalf of you.</Typography>
-                    <Typography variant="body2">- Always make sure you the application is trusted.</Typography>
-                    <Typography variant="body2">- Dangerous actions like resigning cannot be done with application authorization.</Typography>
-                    <Typography variant="body2">- Existing application authorizations are managed in "Sessions" tab.</Typography>
-                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- If anyone asks you to provide a bearer token, using F12 Developer Tools, they are trying to hack your account! Please report to security@chub.page immediately!</Typography>
+                    <Typography variant="body2">{tr("application_authorization_note")}</Typography>
+                    <Typography variant="body2">{tr("application_authorization_note_2")}</Typography>
+                    <Typography variant="body2">{tr("application_authorization_note_3")}</Typography>
+                    <Typography variant="body2">{tr("application_authorization_note_4")}</Typography>
+                    <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("application_authorization_note_5")}</Typography>
                     <Grid container spacing={2} sx={{ mt: "3px" }}>
                         <Grid item xs={12} sm={12} md={8} lg={10}>
                             {newAppToken === null && <TextField
-                                label="Application Name"
+                                label={tr("application_name")}
                                 value={newAppTokenName}
                                 onChange={(e) => setNewAppTokenName(e.target.value)}
                                 fullWidth size="small"
@@ -1751,41 +1707,41 @@ const Settings = ({ defaultTab = 0 }) => {
                             />}
                         </Grid>
                         <Grid item xs={12} sm={12} md={4} lg={2}>
-                            {newAppToken === null && <Button variant="contained" onClick={() => { createAppToken(); }} disabled={newAppTokenDisabled} fullWidth>Create</Button>}
-                            {newAppToken !== null && <Button variant="contained" onClick={() => { window.navigator.clipboard.writeText(newAppToken); }} fullWidth>Copy</Button>}
+                            {newAppToken === null && <Button variant="contained" onClick={() => { createAppToken(); }} disabled={newAppTokenDisabled} fullWidth>{tr("create")}</Button>}
+                            {newAppToken !== null && <Button variant="contained" onClick={() => { window.navigator.clipboard.writeText(newAppToken); }} fullWidth>{tr("copy")}</Button>}
                         </Grid>
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     {vars.userInfo.userid !== null && vars.userInfo.userid >= 0 && <>
-                        <Typography variant="h7" sx={{ color: theme.palette.warning.main }}>Leave <b>{vars.dhconfig.name}</b></Typography>
+                        <Typography variant="h7" sx={{ color: theme.palette.warning.main }}>{tr("leave")}<b>&nbsp;{vars.dhconfig.name}</b></Typography>
                         <br />
-                        <Typography variant="body2">- All data, including jobs and points, that is currently linked to your account, will be unlinked.</Typography>
-                        <Typography variant="body2">- The data will be kept but will have no owner. To delete them, you must reach out to a staff in the company.</Typography>
-                        <Typography variant="body2">- You may have to create an application or ticket to inform Human Resources to prevent being banned.</Typography>
-                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Think twice! This cannot be undone!</Typography>
+                        <Typography variant="body2">{tr("leave_company_note")}</Typography>
+                        <Typography variant="body2">{tr("leave_company_note_2")}</Typography>
+                        <Typography variant="body2">{tr("leave_company_note_3")}</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("leave_company_note_4")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "3px" }}>
                             <Grid item xs={12} sm={12} md={6} lg={8}>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={4}>
-                                <Button ref={resignRef} variant="contained" color="error" onClick={() => { if (!resignConfirm) { setResignDisabled(true); setResignConfirm(true); setTimeout(function () { setResignDisabled(false); }, 5000); } else memberResign(); }} disabled={resignDisabled} fullWidth>{!resignConfirm ? "Resign" : `${resignDisabled ? "Confirm? Wait..." : "Confirmed! Resign!"}`}</Button>
+                                <Button ref={resignRef} variant="contained" color="error" onClick={() => { if (!resignConfirm) { setResignDisabled(true); setResignConfirm(true); setTimeout(function () { setResignDisabled(false); }, 5000); } else memberResign(); }} disabled={resignDisabled} fullWidth>{!resignConfirm ? tr("resign") : `${resignDisabled ? tr("confirm_wait") : tr("confirmed_resign")}`}</Button>
                             </Grid>
                         </Grid>
                     </>}
                     {(vars.userInfo.userid === null || vars.userInfo.userid < 0) && <>
-                        <Typography variant="h7" sx={{ color: theme.palette.warning.main, fontWeight: 800 }}>Delete Account</Typography>
+                        <Typography variant="h7" sx={{ color: theme.palette.warning.main, fontWeight: 800 }}>{tr("delete_account")}</Typography>
                         <br />
-                        <Typography variant="body2">- Your account will be disabled for a 14-day cooldown, during which you may login again to recover it.</Typography>
-                        <Typography variant="body2">- After the cooldown, the account will be deleted, along with personal information like email.</Typography>
-                        <Typography variant="body2">- Certain data might be kept. For example, the information you sent in an application.</Typography>
-                        <Typography variant="body2">- To completely delete such data, reach out to a staff in the company.</Typography>
-                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Deleting account will not remove an active ban.</Typography>
-                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- Think twice! This cannot be undone!</Typography>
+                        <Typography variant="body2">{tr("delete_account_note")}</Typography>
+                        <Typography variant="body2">{tr("delete_account_note_2")}</Typography>
+                        <Typography variant="body2">{tr("delete_account_note_3")}</Typography>
+                        <Typography variant="body2">{tr("delete_account_note_4")}</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("delete_account_note_5")}</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("leave_company_note_4")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "3px" }}>
                             <Grid item xs={12} sm={12} md={6} lg={8}>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={4}>
-                                <Button ref={deleteRef} variant="contained" color="error" onClick={() => { if (!deleteConfirm) { setDeleteDisabled(true); setDeleteConfirm(true); setTimeout(function () { setDeleteDisabled(false); }, 5000); } else deleteAccount(); }} disabled={deleteDisabled} fullWidth>{!deleteConfirm ? "Delete" : `${deleteDisabled ? "Confirm? Wait..." : "Confirmed! Delete!"}`}</Button>
+                                <Button ref={deleteRef} variant="contained" color="error" onClick={() => { if (!deleteConfirm) { setDeleteDisabled(true); setDeleteConfirm(true); setTimeout(function () { setDeleteDisabled(false); }, 5000); } else deleteAccount(); }} disabled={deleteDisabled} fullWidth>{!deleteConfirm ? tr("delete") : `${deleteDisabled ? tr("confirm_wait") : tr("confirmed_delete")}`}</Button>
                             </Grid>
                         </Grid>
                     </>}
@@ -1793,25 +1749,24 @@ const Settings = ({ defaultTab = 0 }) => {
             </Grid>
         </TabPanel>
         <TabPanel value={tab} index={4}>
-            {sessions.length > 0 && <CustomTable columns={sessionsColumns} data={sessions} totalItems={sessionsTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={sessionsPageSize} onPageChange={setSessionsPage} onRowsPerPageChange={setSessionsPageSize} name="User Sessions" />}
-            {appSessions.length > 0 && <CustomTable columns={appSessionsColumns} data={appSessions} totalItems={appSessionsTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={appSessionsPageSize} onPageChange={setAppSessionsPage} onRowsPerPageChange={setAppSessionsPageSize} style={{ marginTop: "10px" }} name="Application Authorizations" />}
+            {sessions.length > 0 && <CustomTable columns={sessionsColumns} data={sessions} totalItems={sessionsTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={sessionsPageSize} onPageChange={setSessionsPage} onRowsPerPageChange={setSessionsPageSize} name={tr("user_sessions")} />}
+            {appSessions.length > 0 && <CustomTable columns={appSessionsColumns} data={appSessions} totalItems={appSessionsTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={appSessionsPageSize} onPageChange={setAppSessionsPage} onRowsPerPageChange={setAppSessionsPageSize} style={{ marginTop: "10px" }} name={tr("application_authorizations")} />}
         </TabPanel>
         <Dialog open={modalEnableMfa} onClose={(e) => { setModalEnableMfa(false); }}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Multiple Factor Authentication (MFA)
-                </Typography>
+                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;{tr("multiple_factor_authentication_mfa")}</Typography>
             </DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={7} lg={7}>
-                        <Typography variant="body2">- To enable MFA, first install an Authentication App, like Authy and Google Authenticator.</Typography>
-                        <Typography variant="body2">- Then, scan the QR code below to add the account.</Typography>
-                        <Typography variant="body2">- Or, enter the code manually: <b>{mfaSecret}</b></Typography>
-                        <Typography variant="body2">- Finally, enter the 6-digit OTP below and click "Verify".</Typography>
+                        <Typography variant="body2">{tr("enable_mfa_note")}</Typography>
+                        <Typography variant="body2">{tr("enable_mfa_note_2")}</Typography>
+                        <Typography variant="body2">{tr("enable_mfa_note_3")}<b>{mfaSecret}</b></Typography>
+                        <Typography variant="body2">{tr("enable_mfa_note_4")}</Typography>
                         <TextField
                             sx={{ mt: "15px" }}
-                            label="MFA OTP"
+                            label={tr("mfa_otp")}
                             value={otp}
                             onChange={(e) => setOtp(e.target.value)}
                             fullWidth
@@ -1823,40 +1778,29 @@ const Settings = ({ defaultTab = 0 }) => {
                 </Grid>
             </DialogContent>
             <DialogActions>
-                <Button onClick={(e) => { setModalEnableMfa(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                    Close
-                </Button>
-                <Button onClick={() => { window.navigator.clipboard.writeText(mfaSecret); }} variant="contained" color="info" sx={{ ml: 'auto' }}>
-                    Copy Secret
-                </Button>
-                <Button onClick={enableMfa} disabled={manageMfaDisabled} variant="contained" color="success" sx={{ ml: 'auto' }}>
-                    Verify
-                </Button>
+                <Button onClick={(e) => { setModalEnableMfa(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={() => { window.navigator.clipboard.writeText(mfaSecret); }} variant="contained" color="info" sx={{ ml: 'auto' }}>{tr("copy_secret")}</Button>
+                <Button onClick={enableMfa} disabled={manageMfaDisabled} variant="contained" color="success" sx={{ ml: 'auto' }}>{tr("verify")}</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={requireOtp} onClose={(e) => { setRequireOtp(false); }}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Attention Required
-                </Typography>
+                    <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;{tr("attention_required")}</Typography>
             </DialogTitle>
             <DialogContent>
-                <Typography variant="body2">For security purposes, you must prove your identity with Multiple Factor Authentication.</Typography>
+                <Typography variant="body2">{tr("for_security_purposes_you_must")}</Typography>
                 <TextField
                     sx={{ mt: "15px" }}
-                    label="MFA OTP"
+                    label={tr("mfa_otp")}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     fullWidth
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={(e) => { setRequireOtp(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                    Close
-                </Button>
-                <Button onClick={handleOtp} variant="contained" color="success" sx={{ ml: 'auto' }}>
-                    Verify
-                </Button>
+                <Button onClick={(e) => { setRequireOtp(false); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                <Button onClick={handleOtp} variant="contained" color="success" sx={{ ml: 'auto' }}>{tr("verify")}</Button>
             </DialogActions>
         </Dialog>
         <Portal>
