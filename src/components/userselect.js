@@ -6,9 +6,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-solid-svg-icons';
 import { customSelectStyles } from '../designs';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../variables");
 
 const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
+    const { t: tr } = useTranslation();
+
     const [memberMap, setMemberMap] = useState({});
     const [options, setOptions] = useState([]);
 
@@ -17,7 +21,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
     useEffect(() => {
         let memberMap = {};
         memberMap[-1000] = { userid: -1000, name: vars.dhconfig.name };
-        memberMap[-1005] = { userid: -1005, name: "Blackhole" };
+        memberMap[-1005] = { userid: -1005, name: tr("blackhole") };
         for (let i = 0; i < userList.length; i++) {
             memberMap[userList[i].userid !== null ? userList[i].userid : userList[i].uid] = userList[i];
         }
@@ -28,7 +32,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
             options.unshift({ value: -1000, label: vars.dhconfig.name });
         }
         if (includeBlackhole) {
-            options.unshift({ value: -1005, label: "Blackhole" });
+            options.unshift({ value: -1005, label: tr("blackhole") });
         }
         setOptions(options);
     }, []);

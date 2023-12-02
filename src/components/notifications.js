@@ -10,9 +10,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand } from '@fortawesome/free-solid-svg-icons';
 import { useTheme } from '@emotion/react';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../variables");
 
 const NotificationsPopover = () => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const [notifications, setNotifications] = useState(null);
     const [anchorPosition, setAnchorPosition] = useState(null);
@@ -56,7 +60,7 @@ const NotificationsPopover = () => {
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");
-            setSnackbarContent("Error occurred! Check F12 for more info.");
+            setSnackbarContent(tr("error_occurred"));
         }
 
         try {
@@ -70,7 +74,7 @@ const NotificationsPopover = () => {
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");
-            setSnackbarContent("Error occurred! Check F12 for more info.");
+            setSnackbarContent(tr("error_occurred"));
         }
     }, []);
 
@@ -96,7 +100,7 @@ const NotificationsPopover = () => {
             const resp = await axios({ url: `${vars.dhpath}/user/notification/all/status/1`, method: "PATCH", headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (parseInt(resp.status / 100) === 2) {
                 setSnackbarSeverity("success");
-                setSnackbarContent("All notifications marked as read!");
+                setSnackbarContent(tr("all_notifications_marked_as_read"));
                 setUnread(0);
             } else {
                 setSnackbarSeverity("error");
@@ -105,7 +109,7 @@ const NotificationsPopover = () => {
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");
-            setSnackbarContent("Error occurred! Check F12 for more info.");
+            setSnackbarContent(tr("error_occurred"));
         }
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -132,7 +136,7 @@ const NotificationsPopover = () => {
             >
                 <List sx={{ minWidth: "400px", overflow: "hidden", backgroundColor: theme.palette.background.paper.substring(0, 7) }}>
                     <ListItem>
-                        <ListItemText primary={<Typography fontWeight="bold">Notifications</Typography>} />
+                        <ListItemText primary={<Typography fontWeight="bold">{tr("notifications")}</Typography>} />
                         <IconButton onClick={handleAllRead}>
                             <DoneAllRounded />
                         </IconButton>
@@ -150,7 +154,7 @@ const NotificationsPopover = () => {
                                 </ListItem>
                             ))}
                             <ListItem key="last" sx={{ margin: 0, textAlign: "center" }}>
-                                <ListItemText primary="--- Only the latest 250 notifications are shown ---"
+                                <ListItemText primary={tr("last_250_notifications_shown")}
                                     primaryTypographyProps={{ style: { color: "grey", fontSize: "0.8em" } }} />
                             </ListItem>
                         </SimpleBar>

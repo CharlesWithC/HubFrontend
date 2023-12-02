@@ -8,6 +8,9 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Crashed from "./components/crashed";
 
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n';
+
 import * as Sentry from "@sentry/react";
 
 if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
@@ -52,7 +55,7 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            return <Crashed />;
+            return <I18nextProvider i18n={i18n}><Crashed /></I18nextProvider>;
         }
         return this.props.children;
     }
@@ -60,7 +63,9 @@ class ErrorBoundary extends React.Component {
 root.render(
     <ErrorBoundary>
         <Router>
-            <App />
+            <I18nextProvider i18n={i18n}>
+                <App />
+            </I18nextProvider>
         </Router>
     </ErrorBoundary>
 );

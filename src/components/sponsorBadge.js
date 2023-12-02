@@ -1,12 +1,16 @@
 import { Chip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const LEVEL_TEXT = { 1: "Bronze", 2: "Silver", 3: "Gold", 4: "Platinum" };
-// const LEVEL_COLOR = { 1: "#cd7f32", 2: "#c0c0c0", 3: "#ffd700", 4: "#e5e4e2" };
-const VTC_LEVEL_TEXT = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
-const VTC_LEVEL_COLOR = { 0: "#f17b7b", 1: "#ff008b", 3: "#fff97d" };
+import { useTranslation } from 'react-i18next';
 
 const SponsorBadge = ({ level = undefined, vtclevel = undefined, plus = false }) => {
+    const { t: tr } = useTranslation();
+
+    const LEVEL_TEXT = { 1: tr("bronze"), 2: tr("silver"), 3: tr("gold"), 4: tr("platinum") };
+    // const LEVEL_COLOR = { 1: "#cd7f32", 2: "#c0c0c0", 3: "#ffd700", 4: "#e5e4e2" };
+    const VTC_LEVEL_TEXT = { 0: tr("regular_plan"), 1: tr("premium_plan"), 3: tr("special_guest") };
+    const VTC_LEVEL_COLOR = { 0: "#f17b7b", 1: "#ff008b", 3: "#fff97d" };
+
     const navigate = useNavigate();
     if (vtclevel !== undefined) {
         return <Chip

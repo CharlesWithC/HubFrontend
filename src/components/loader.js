@@ -4,6 +4,8 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
 import { useTheme } from '@emotion/react';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require('../variables');
 
 var domain = localStorage.getItem("domain");
@@ -12,12 +14,14 @@ if (domain === null) {
 }
 
 const Loader = ({ onLoaderLoaded }) => {
+    const { t: tr } = useTranslation();
+
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
     const [logoSrc, setLogoSrc] = useState(null);
     const [bgSrc, setBgSrc] = useState(null);
-    const [title, setTitle] = useState("Drivers Hub");
-    const [loadMessage, setLoadMessage] = useState("Loading");
+    const [title, setTitle] = useState(tr("drivers_hub"));
+    const [loadMessage, setLoadMessage] = useState(tr("loading"));
 
     const searchParams = new URLSearchParams(window.location.search);
     if (window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
@@ -44,10 +48,10 @@ const Loader = ({ onLoaderLoaded }) => {
                     setTitle("The Drivers Hub Project (CHub)");
                     vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/logo.png`);
                     setLogoSrc(vars.dhlogo);
-                    if (resp.data.error === "Service Suspended") {
-                        setLoadMessage(<>Drivers Hub Suspended<br />Please ask the owner to complete the payment to CHub<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
-                    } else if (resp.data.error === "Not Found") {
-                        setLoadMessage(<>Drivers Hub Not Found<br />We currently do not operate Drivers Hub under this domain<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                    if (resp.data.error === tr("service_suspended")) {
+                        setLoadMessage(<>{tr("drivers_hub_suspended")}<br />{tr("ask_for_payment")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                    } else if (resp.data.error === tr("not_found")) {
+                        setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
                     }
                     return;
                 }
@@ -213,9 +217,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 onLoaderLoaded();
             } catch (error) {
                 setLoaderAnimation(false);
-                console.error("An error occurred when initializing!");
+                console.error(tr("an_error_occurred_when_initializing"));
                 console.error(error);
-                setLoadMessage("Error occurred! Check F12 for more info.");
+                setLoadMessage(tr("error_occurred"));
             }
         }
         doLoad();

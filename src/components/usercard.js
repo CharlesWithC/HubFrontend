@@ -21,6 +21,8 @@ import { darkenColor } from '../designs';
 import { customAxios as axios, getAuthToken, checkUserPerm, removeNUEValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../variables");
 
 const PROFILE_COLOR = {
@@ -61,54 +63,56 @@ function TabPanel(props) {
     );
 }
 
-const dlogColumns = [
-    { id: 'display_logid', label: 'ID' },
-    { id: 'cargo', label: 'Cargo' },
-    { id: 'distance', label: 'Distance' },
-    { id: 'profit', label: 'Profit' },
-];
-const CURRENTY_ICON = { 1: "€", 2: "$" };
+const UserCard = (props) => {
+    const { t: tr } = useTranslation();
 
-function GetActivity(activity) {
-    if (activity.status === "offline") {
-        if (activity.last_seen !== -1)
-            return <>Offline - Last seen <TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
-        else
-            return <>Offline</>;
-    } else if (activity.status === "online") {
-        return <>Online</>;
-    } else {
-        let name = activity.status;
-        if (name.startsWith("dlog_")) {
-            const deliveryId = name.split("_")[1];
-            return <Link to={`/delivery/${deliveryId}`}>Viewing Delivery #{deliveryId}</Link>;
-        } else if (name === "dlog") {
-            return <Link to="/delivery">Viewing Deliveries</Link>;
-        } else if (name === "index") {
-            return <Link to="/">Viewing Overview</Link>;
-        } else if (name === "leaderboard") {
-            return <Link to="/leaderboard">Viewing Leaderboard</Link>;
-        } else if (name === "member") {
-            return <Link to="/member">Viewing Members</Link>;
-        } else if (name === "announcement") {
-            return <Link to="/announcement">Viewing Announcements</Link>;
-        } else if (name === "application") {
-            return <Link to="/application/my">Viewing Applications</Link>;
-        } else if (name === "challenge") {
-            return <Link to="/challenge">Viewing Challenges</Link>;
-        } else if (name === "manage_divisions") {
-            return <Link to="/division">Viewing Divisions</Link>;
-        } else if (name === "downloads") {
-            return <Link to="/downloads">Viewing Downloads</Link>;
-        } else if (name === "event") {
-            return <Link to="/event">Viewing Events</Link>;
+    const dlogColumns = [
+        { id: 'display_logid', label: 'ID' },
+        { id: 'cargo', label: tr("cargo") },
+        { id: 'distance', label: tr("distance") },
+        { id: 'profit', label: tr("profit") },
+    ];
+    const CURRENTY_ICON = { 1: "€", 2: "$" };
+
+    function GetActivity(activity) {
+        if (activity.status === "offline") {
+            if (activity.last_seen !== -1)
+                return <>{tr("offline_last_seen")}<TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
+            else
+                return <>{tr("offline")}</>;
+        } else if (activity.status === "online") {
+            return <>{tr("online")}</>;
         } else {
-            return <></>;
+            let name = activity.status;
+            if (name.startsWith("dlog_")) {
+                const deliveryId = name.split("_")[1];
+                return <Link to={`/delivery/${deliveryId}`}>{tr("viewing_delivery", { deliveryId: deliveryId })}</Link>;
+            } else if (name === "dlog") {
+                return <Link to="/delivery">{tr("viewing_deliveries")}</Link>;
+            } else if (name === "index") {
+                return <Link to="/">{tr("viewing_overview")}</Link>;
+            } else if (name === "leaderboard") {
+                return <Link to="/leaderboard">{tr("viewing_leaderboard")}</Link>;
+            } else if (name === "member") {
+                return <Link to="/member">{tr("viewing_members")}</Link>;
+            } else if (name === "announcement") {
+                return <Link to="/announcement">{tr("viewing_announcements")}</Link>;
+            } else if (name === "application") {
+                return <Link to="/application/my">{tr("viewing_applications")}</Link>;
+            } else if (name === "challenge") {
+                return <Link to="/challenge">{tr("viewing_challenges")}</Link>;
+            } else if (name === "manage_divisions") {
+                return <Link to="/division">{tr("viewing_divisions")}</Link>;
+            } else if (name === "downloads") {
+                return <Link to="/downloads">{tr("viewing_downloads")}</Link>;
+            } else if (name === "event") {
+                return <Link to="/event">{tr("viewing_events")}</Link>;
+            } else {
+                return <></>;
+            }
         }
     }
-}
 
-const UserCard = (props) => {
     let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], tracker: "unknown", ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
     if (props.user !== undefined && props.user !== null) {
         ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban } = props.user);
@@ -219,7 +223,7 @@ const UserCard = (props) => {
         for (let i = 0; i < _dlogList.list.length; i++) {
             let divisionCheckmark = <></>;
             if (_dlogList.list[i].division.divisionid !== undefined) {
-                divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
+                divisionCheckmark = <Tooltip placement="top" arrow title={tr("validated_division_delivery")}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                 </Tooltip>;
@@ -251,7 +255,7 @@ const UserCard = (props) => {
             for (let i = 0; i < _dlogList.list.length; i++) {
                 let divisionCheckmark = <></>;
                 if (_dlogList.list[i].division.divisionid !== undefined) {
-                    divisionCheckmark = <Tooltip placement="top" arrow title="Validated Division Delivery"
+                    divisionCheckmark = <Tooltip placement="top" arrow title={tr("validated_division_delivery")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                     </Tooltip>;
@@ -488,7 +492,7 @@ const UserCard = (props) => {
                 let badge = null;
                 let badgeName = null;
                 if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title="CHub Team"
+                    badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title={tr("chub_team")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }} >
                         <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                     </Tooltip>;
@@ -496,21 +500,21 @@ const UserCard = (props) => {
                     inCHubTeam = true;
                 }
                 if (['community_legend'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title="Community Legend"
+                    badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title={tr("community_legend")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['network_partner'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title="Network Partner"
+                    badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title={tr("network_partner")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['server_booster', 'translation_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="Supporter"
+                    badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -526,13 +530,13 @@ const UserCard = (props) => {
         let userLevel = 0;
         let tiers = ["platinum", "gold", "silver", "bronze"];
         for (let i = 0; i < tiers.length; i++) {
-            if(userLevel !== 0) break;
+            if (userLevel !== 0) break;
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                 let patron = vars.patrons[tiers[i]][j];
                 if (patron.abbr === vars.dhconfig.abbr && patron.uid === uid) {
                     userLevel = 4 - i;
 
-                    let badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title="Supporter"
+                    let badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -547,6 +551,7 @@ const UserCard = (props) => {
             }
         }
         setBadges(newBadges);
+        userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
         if (inCHubTeam) userLevel = 4;
 
         if (vars.userConfig[uid] !== undefined) {
@@ -589,7 +594,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             await updateUserInfo();
-            setSnackbarContent("Profile updated");
+            setSnackbarContent(tr("profile_updated"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -603,7 +608,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/user/bio`, method: "PATCH", data: { "bio": newAboutMe }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             await updateUserInfo();
-            setSnackbarContent("About me updated");
+            setSnackbarContent(tr("about_me_updated"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -633,7 +638,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/user/${uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             await updateUserInfo();
-            setSnackbarContent("Global note updated");
+            setSnackbarContent(tr("global_note_updated"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -647,7 +652,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             await updateUserInfo();
-            setSnackbarContent("Roles updated");
+            setSnackbarContent(tr("roles_updated"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -661,7 +666,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             updateUserInfo();
-            setSnackbarContent("Points updated");
+            setSnackbarContent(tr("points_updated"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -674,7 +679,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Tracker updated");
+            setSnackbarContent(tr("tracker_updated"));
             setSnackbarSeverity("success");
             updateUserInfo();
         } else {
@@ -688,7 +693,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/${uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
-            setSnackbarContent("User accepted as member");
+            setSnackbarContent(tr("user_accepted_as_member"));
             setSnackbarSeverity("success");
             updateUserInfo();
         } else {
@@ -725,7 +730,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             updateUserInfo();
-            setSnackbarContent("MFA disabled");
+            setSnackbarContent(tr("mfa_disabled"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -746,7 +751,7 @@ const UserCard = (props) => {
                 }
             }
             vars.members = newMembers;
-            setSnackbarContent("User dismissed!");
+            setSnackbarContent(tr("user_dismissed"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -759,7 +764,7 @@ const UserCard = (props) => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/${uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("User deleted");
+            setSnackbarContent(tr("user_deleted"));
             setSnackbarSeverity("success");
 
             const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});
@@ -773,10 +778,10 @@ const UserCard = (props) => {
 
     const putBan = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let meta = {...removeNUEValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid, expire: newBan.expire }), reason: newBan.reason};
+        let meta = { ...removeNUEValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid, expire: newBan.expire }), reason: newBan.reason };
         let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "PUT", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("User banned");
+            setSnackbarContent(tr("user_banned"));
             setSnackbarSeverity("success");
             updateUserInfo();
         } else {
@@ -791,7 +796,7 @@ const UserCard = (props) => {
         let meta = removeNUEValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
         let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("User unbanned");
+            setSnackbarContent(tr("user_unbanned"));
             setSnackbarSeverity("success");
             updateUserInfo();
         } else {
@@ -837,17 +842,17 @@ const UserCard = (props) => {
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                 {badges.map((badge, index) => { return <a key={index} onClick={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
-                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
-                                {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label="Edit" onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                                {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                             </Typography>
                         </div>
-                        {uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
+                        {uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
                             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                                <Tab label="User Info" {...tabBtnProps(0, tab, theme)} />
-                                <Tab label="Statistics" {...tabBtnProps(1, tab, theme)} />
-                                <Tab label="Deliveries" {...tabBtnProps(2, tab, theme)} />
+                                <Tab label={tr("user_info")} {...tabBtnProps(0, tab, theme)} />
+                                <Tab label={tr("statistics")} {...tabBtnProps(1, tab, theme)} />
+                                <Tab label={tr("deliveries")} {...tabBtnProps(2, tab, theme)} />
                             </Tabs>
                         </Box>
                     </div>
@@ -855,7 +860,7 @@ const UserCard = (props) => {
                         <TabPanel value={tab} index={0}>
                             {bioRef.current !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    ABOUT ME
+                                    {tr("about_me").toUpperCase()}
                                 </Typography>
                                 <Typography variant="body2">
                                     <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
@@ -864,7 +869,7 @@ const UserCard = (props) => {
                             <Grid container sx={{ mt: "10px" }}>
                                 <Grid item xs={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        {userid !== null && userid !== -1 ? `MEMBER` : `USER`} SINCE
+                                        {userid !== null && userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
                                     {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
                                         {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
@@ -872,7 +877,7 @@ const UserCard = (props) => {
                                 </Grid>
                                 <Grid item xs={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        TRACKER
+                                        {tr("tracker").toUpperCase()}
                                     </Typography>
                                     <Typography variant="body2">
                                         {trackerMapping[trackerInUse]}
@@ -896,7 +901,7 @@ const UserCard = (props) => {
                             </Box>}
                             <Box sx={{ mt: "10px" }}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    NOTE
+                                    {tr("note").toUpperCase()}
                                 </Typography>
                                 <TextField
                                     value={newNote}
@@ -910,7 +915,7 @@ const UserCard = (props) => {
                                 <Grid container spacing={2}>
                                     {emailRef.current !== undefined && emailRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
                                         <a href={`mailto:${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
-                                            avatar={<Tooltip placement="top" arrow title="Email"
+                                            avatar={<Tooltip placement="top" arrow title={tr("email")}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
                                             label={emailRef.current}
                                             sx={{
@@ -973,7 +978,7 @@ const UserCard = (props) => {
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="data:image/webp;base64,UklGRugCAABXRUJQVlA4TNwCAAAvH8AHEK/CMADQJIDd/f9XXtG6zQJ5g5UkSaZ6Fs/m6d7x36+tGYdtJClSbx/zPeWf1WfB/wvSDTittm1Znt8VJzvJvXliABpTMAwD0J1GdEkOAxDdXQMAAPAnIpDCn38xAEACwCh8rewUqmCXX+/KrgNAVHGDOh52b6q6J/lxDborLlOBZtX1+z1kxpg08Iizm8v5YzFaikk8QF66zAFYmO/vZJFdsDfeyX/AvWn5yaH+2c4miHpe5LXzl12uB9gV/Nohq8BKgnkj7BehcDAdP/mNEFYwCXF9EVU3o4sv6Nrzd6hun8Y9cezrq0yXPRL1sd8NAtPaUKCMwh6haeqh05pir6+RYlqsacjlL7raXJ7MCd82m1h1IXJZIU2np+t86LQpT/GehuOVFPux24tA6Pimzoz9PQAIsm2nbb6sMJNSxjDJDGFmpv2vxRQ5O4joPwO3bRtJ3bfvfJ+AZyVPrpCnqnNb9rlRJPP1/8TIn/kpN6jseRR5KTRFWaTUYw28lEVJoJTyvLeaKYi0nG+IlPcCgdBbQym/hJJVyRMEAp986zMC4MJD/ZYbL1nIumHW4KfcSAEh3nlp8W/2IcQTJAuxilIIAIFHDSsDP3LzFbIAj5qH+QiGU1WlErb7YCCScr9350rAykClSeVCPPP69VMs/FV4h2CNspGUnQFJEqnQrDZbVFSq738idQCRc3fzpyiKLEuU8qIkOj64LLmaWA8bBaH09/v7V7EH1HG7lFIXe854L9yHuqYZ84+aQpnCspP7bWNky2n3kiJKDCGdW6icNjmZTlQOb0rNOkNIjDDS09vuoLu+aQjPF3OGgQHCanrcux1ug8kBYcQ0pmPUvfRuOtJu3YOBMMfSAm/Hqy7CyNhN1ggzDRtYjfd3hoV+6KdU9hT2vVF0OjparGbj8NDosAQSDEGkt7pNjrteFAJ+lz6XhAAQuA6Hs1HvCsTrb0rAt1/uHYFlSgA=" /></Tooltip>}
                                             label={<>{tmpLastOnline === null ? truckersmpidRef.current : <Tooltip placement="top" arrow
-                                                title={<>Last seen: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
+                                                title={<><>{tr("last_seen")}</>: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                                 {truckersmpidRef.current}
                                             </Tooltip>}</>}
@@ -998,107 +1003,107 @@ const UserCard = (props) => {
                         <TabPanel value={tab} index={1}>
                             {chartStats !== null && <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <StatCard icon={<RouteRounded />} title={"Distance"} inputs={chartStats.distance} size="small" height="75px" />
+                                    <StatCard icon={<RouteRounded />} title={tr("distance")} inputs={chartStats.distance} size="small" height="75px" />
                                 </Grid>
                                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <StatCard icon={<LocalGasStationRounded />} title={"Fuel"} inputs={chartStats.fuel} size="small" height="75px" />
+                                    <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} inputs={chartStats.fuel} size="small" height="75px" />
                                 </Grid>
                                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <StatCard icon={<EuroRounded />} title={"Profit (ETS2)"} inputs={chartStats.profit_euro} size="small" height="75px" />
+                                    <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} inputs={chartStats.profit_euro} size="small" height="75px" />
                                 </Grid>
                                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                                    <StatCard icon={<AttachMoneyRounded />} title={"Profit (ATS)"} inputs={chartStats.profit_dollar} size="small" height="75px" />
+                                    <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} inputs={chartStats.profit_dollar} size="small" height="75px" />
                                 </Grid>
                             </Grid>}
                             {overallStats !== null && <Grid container spacing={2} sx={{ mt: "5px" }}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Jobs Submitted</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_jobs_submitted")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.ets2.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.ats.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}></Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Delivered</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("delivered")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.delivered.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Cancelled</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("cancelled")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.cancelled.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Distance Driven</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_distance_driven")}</Typography>
                                     <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
                                     <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.ets2.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
                                     <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.ats.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Fuel Consumed</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_fuel_consumed")}</Typography>
                                     <Typography variant="body2">{ConvertUnit("l", overallStats.fuel.all.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
                                     <Typography variant="body2">{ConvertUnit("l", overallStats.fuel.all.ets2.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
                                     <Typography variant="body2">{ConvertUnit("l", overallStats.distance.all.ats.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={6} sm={6} md={6} lg={6}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ETS2 Profit</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2_profit")}</Typography>
                                     <Typography variant="body2">{"€" + TSep(overallStats.profit.all.tot.euro)}</Typography>
                                 </Grid>
                                 <Grid item xs={6} sm={6} md={6} lg={6}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>ATS Profit</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats_profit")}</Typography>
                                     <Typography variant="body2">{"$" + TSep(overallStats.profit.all.tot.dollar)}</Typography>
                                 </Grid>
                                 {detailStats !== null && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Most Driven Truck</Typography>
-                                        <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count} times)</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("most_driven_truck")}</Typography>
+                                        <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count} <>{tr("times")}</>)</Typography>
                                     </Grid>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
-                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>Most Delivered Cargo</Typography>
-                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count} times)</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("most_delivered_cargo")}</Typography>
+                                        <Typography variant="body2">{detailStats.cargo[0].name} ({detailStats.cargo[0].count} <>times</>)</Typography>
                                     </Grid>
                                 </>}
                             </Grid>}
                             {pointStats !== null && <Divider sx={{ mt: "12px", mb: "12px" }} />}
                             {pointStats !== null && <Grid container spacing={2}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Total Points</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_points")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.total)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Distance</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("distance")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.distance)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Challenge</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("challenge")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.challenge)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Bonus</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("bonus")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.bonus)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Event</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("event")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.event)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>Division</Typography>
+                                    <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("division")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.division)}</Typography>
                                 </Grid>
                             </Grid>}
@@ -1160,37 +1165,37 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Profile</MenuItem>}
-            {(userid === null || userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon> Update Profile</MenuItem>}
+            {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("profile")}</MenuItem>}
+            {(userid === null || userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("update_profile")}</MenuItem>}
             {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
-            {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon> Update About Me</MenuItem>}
-            {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon> Switch Tracker</MenuItem>}
+            {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon>{tr("update_about_me")}</MenuItem>}
+            {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon>{tr("switch_tracker")}</MenuItem>}
             <Divider />
-            {checkUserPerm(["administrator", "update_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon> Update Global Note</MenuItem>}
-            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon> Update Roles</MenuItem>}
-            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon> Update Points</MenuItem>}
-            <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon> Role/Ban History</MenuItem>
+            {checkUserPerm(["administrator", "update_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon>{tr("update_global_note")}</MenuItem>}
+            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon>{tr("update_roles")}</MenuItem>}
+            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon>{tr("update_points")}</MenuItem>}
+            <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon>{tr("roleban_history")}</MenuItem>
             {((userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) || checkUserPerm(["administrator", "update_connections"]) || checkUserPerm(["administrator", "disable_mfa"])) && <Divider />}
-            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon> Accept as Member</MenuItem>}
-            {checkUserPerm(["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon> Update Connections</MenuItem>}
-            {checkUserPerm(["administrator", "disable_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon> Disable MFA</MenuItem>}
+            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon>{tr("accept_as_member")}</MenuItem>}
+            {checkUserPerm(["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon>{tr("update_connections")}</MenuItem>}
+            {checkUserPerm(["administrator", "disable_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon>{tr("disable_mfa")}</MenuItem>}
             {((userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) || userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) || checkUserPerm(["administrator", "delete_users"])) && <Divider />}
-            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon> Ban</MenuItem>}
-            {(userid === null || userid < 0) && ban !== null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon> Unban</MenuItem>}
-            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon> Dismiss Member</MenuItem>}
-            {checkUserPerm(["administrator", "delete_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon> Delete User</MenuItem>}
+            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon>{tr("ban")}</MenuItem>}
+            {(userid === null || userid < 0) && ban !== null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon>{tr("unban")}</MenuItem>}
+            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon>{tr("dismiss_member")}</MenuItem>}
+            {checkUserPerm(["administrator", "delete_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon>{tr("delete_user")}</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-profile" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Profile | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("update_profile")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- Custom profile may be set by providing name and avatar url</Typography>
-                        <Typography variant="body2">- Alternatively, sync to Discord / Steam / TruckersMP profile</Typography>
+                        <Typography variant="body2">{tr("custom_profile_may_be_set")}</Typography>
+                        <Typography variant="body2">{tr("alternatively_sync_to_discord_steam")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Name"
+                                    label={tr("name")}
                                     value={newProfile.name}
                                     onChange={(e) => setNewProfile({ ...newProfile, name: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
@@ -1198,7 +1203,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Avatar URL"
+                                    label={tr("avatar_url")}
                                     value={newProfile.avatar}
                                     onChange={(e) => setNewProfile({ ...newProfile, avatar: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
@@ -1209,7 +1214,7 @@ const UserCard = (props) => {
                     <DialogActions sx={{ justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'grid', justifyItems: 'start' }}>
                             <ButtonGroup>
-                                <Button variant="contained" color="secondary">Sync To</Button>
+                                <Button variant="contained" color="secondary">{tr("sync_to")}</Button>
                                 <Button variant="contained" color="success" onClick={() => { updateProfile("discord"); }} disabled={dialogBtnDisabled}>Discord</Button>
                                 <Button variant="contained" color="warning" onClick={() => { updateProfile("steam"); }} disabled={dialogBtnDisabled}>Steam</Button>
                                 <Button variant="contained" color="error" onClick={() => { updateProfile("truckersmp"); }} disabled={dialogBtnDisabled}>TruckersMP</Button>
@@ -1217,8 +1222,8 @@ const UserCard = (props) => {
                         </Box>
                         <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                             <ButtonGroup>
-                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                                <Button variant="contained" onClick={() => { updateProfile(); }} disabled={dialogBtnDisabled}>Save</Button>
+                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                                <Button variant="contained" onClick={() => { updateProfile(); }} disabled={dialogBtnDisabled}>{tr("save")}</Button>
                             </ButtonGroup>
                         </Box>
                     </DialogActions>
@@ -1226,10 +1231,10 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-about-me" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update About Me | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("update_about_me")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
                         <TextField
-                            label="About Me"
+                            label={tr("about_me")}
                             value={newAboutMe}
                             onChange={(e) => setNewAboutMe(e.target.value)}
                             fullWidth disabled={dialogBtnDisabled}
@@ -1238,31 +1243,31 @@ const UserCard = (props) => {
                     </DialogContent>
                     <DialogActions >
                         <ButtonGroup>
-                            <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                            <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={dialogBtnDisabled}>Save</Button>
+                            <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                            <Button variant="contained" onClick={() => { updateAboutMe(); }} disabled={dialogBtnDisabled}>{tr("save")}</Button>
                         </ButtonGroup>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "update-roles" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Update Roles | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
+                    <DialogTitle>{tr("update_roles")}<>|</>{nameRef.current} (<>{tr("user_id")}</>: {useridRef.current})</DialogTitle>
                     <DialogContent>
                         <RoleSelect initialRoles={rolesRef.current} onUpdate={setNewRoles} />
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" onClick={() => { updateRoles(); }} disabled={dialogBtnDisabled}>Save</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" onClick={() => { updateRoles(); }} disabled={dialogBtnDisabled}>{tr("save")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "update-global-note" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Update Global Note | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
+                    <DialogTitle>{tr("update_global_note")}<>|</>{nameRef.current} (<>{tr("user_id")}</>: {useridRef.current})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- Global note works like your private note, but it is shared between staff.</Typography>
+                        <Typography variant="body2">{tr("global_note_works_like_your")}</Typography>
                         <TextField
-                            label="Global Note"
+                            label={tr("global_note")}
                             value={newGlobalNote}
                             onChange={(e) => setNewGlobalNote(e.target.value)}
                             fullWidth
@@ -1270,22 +1275,22 @@ const UserCard = (props) => {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" onClick={() => { updateGlobalNote(); }} disabled={dialogBtnDisabled}>Save</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" onClick={() => { updateGlobalNote(); }} disabled={dialogBtnDisabled}>{tr("save")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "update-points" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Points | {nameRef.current} (User ID: {useridRef.current})</DialogTitle>
+                    <DialogTitle>{tr("update_points")}<>|</>{nameRef.current} (<>{tr("user_id")}</>: {useridRef.current})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- Distance should be given when the tracker fails to submit jobs automatically</Typography>
-                        <Typography variant="body2">- Bonus points could be given as extra reward (e.g. special events / contribution)</Typography>
-                        <Typography variant="body2">- Use negative number to remove points</Typography>
+                        <Typography variant="body2">{tr("distance_should_be_given_when")}</Typography>
+                        <Typography variant="body2">{tr("bonus_points_could_be_given")}</Typography>
+                        <Typography variant="body2">{tr("use_negative_number_to_remove")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Distance (km)"
+                                    label={tr("distance_km")}
                                     value={newPoints.distance}
                                     onChange={(e) => setNewPoints({ ...newPoints, distance: e.target.value })}
                                     fullWidth
@@ -1293,7 +1298,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Bonus Points"
+                                    label={tr("bonus_points")}
                                     value={newPoints.bonus}
                                     onChange={(e) => setNewPoints({ ...newPoints, bonus: e.target.value })}
                                     fullWidth
@@ -1302,18 +1307,18 @@ const UserCard = (props) => {
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" onClick={() => { updatePoints(); }} disabled={dialogBtnDisabled}>Update</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" onClick={() => { updatePoints(); }} disabled={dialogBtnDisabled}>{tr("update")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "switch-tracker" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Switch Tracker | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("switch_tracker")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- This will change the tracker we listen data from for the user.</Typography>
+                        <Typography variant="body2">{tr("this_will_change_the_tracker")}</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
-                            <FormLabel component="legend">Tracker:</FormLabel>
+                            <FormLabel component="legend">{tr("tracker")}</FormLabel>
                             <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
                                 {trackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
@@ -1324,19 +1329,19 @@ const UserCard = (props) => {
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="success" onClick={() => { switchTracker(); }} disabled={dialogBtnDisabled}>Update</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="success" onClick={() => { switchTracker(); }} disabled={dialogBtnDisabled}>{tr("update")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "accept-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Accept as Member | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("accept_as_member")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- The user will be accepted as member and given an unique User ID.</Typography>
-                        <Typography variant="body2">- This will not affect the user's initial roles or application status. They must be updated manually at this point. (We may support partial automations in the future.)</Typography>
+                        <Typography variant="body2">{tr("the_user_will_be_accepted")}</Typography>
+                        <Typography variant="body2">{tr("this_will_not_affect_the")}</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
-                            <FormLabel component="legend">Select the tracker the user will use (This may be changed later):</FormLabel>
+                            <FormLabel component="legend">{tr("select_the_tracker_the_user")}</FormLabel>
                             <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
                                 {trackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
@@ -1347,17 +1352,17 @@ const UserCard = (props) => {
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="success" onClick={() => { acceptUser(); }} disabled={dialogBtnDisabled}>Accept</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="success" onClick={() => { acceptUser(); }} disabled={dialogBtnDisabled}>{tr("accept")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "role-ban-history" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
                         <Box display="flex" alignItems="center">
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Role History</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("role_history")}</Typography>
                             <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? `Visible` : `Loading`)}</Typography>
                         </Box>
                         {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
@@ -1367,36 +1372,36 @@ const UserCard = (props) => {
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
-                        {roleHistory !== undefined && roleHistory !== null && roleHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
+                        {roleHistory !== undefined && roleHistory !== null && roleHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
 
                         <Box display="flex" alignItems="center" sx={{ mt: "10px" }}>
-                            <Typography variant="h7" sx={{ fontWeight: 800 }}>Ban History</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("ban_history")}</Typography>
                             <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? `Visible` : `Loading`)}</Typography>
                         </Box>
                         {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
                             <Typography key={`history-${idx}`} variant="body2">{history.reason}</Typography>
-                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}>Expiry: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
                         </>
                         ))}
-                        {banHistory !== undefined && banHistory !== null && banHistory.length === 0 && <Typography variant="body2" >No Data</Typography>}
+                        {banHistory !== undefined && banHistory !== null && banHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "update-connections" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Update Connections | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("update_connections")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- Connections should not be modified or deleted unless requested by the user.</Typography>
-                        <Typography variant="body2">- Remember that all users have access to updating connections themselves. Staff should only be involved when the user needs to delete the connections or the user is unable to update connections on their own (e.g. lost access to account).</Typography>
-                        <Typography variant="body2">- Deleting connections will only delete Steam and TruckersMP connections.</Typography>
+                        <Typography variant="body2">{tr("connections_should_not_be_modified")}</Typography>
+                        <Typography variant="body2">{tr("remember_that_all_users_have")}</Typography>
+                        <Typography variant="body2">{tr("deleting_connections_will_only_delete")}</Typography>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={6}>
                                 <TextField
-                                    label="Email"
+                                    label={tr("email")}
                                     value={newConnections.email}
                                     onChange={(e) => setNewConnections({ ...newConnections, email: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
@@ -1404,7 +1409,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <TextField
-                                    label="Discord ID"
+                                    label={tr("discord_id")}
                                     value={newConnections.discordid}
                                     onChange={(e) => setNewConnections({ ...newConnections, discordid: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
@@ -1412,7 +1417,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <TextField
-                                    label="Steam ID"
+                                    label={tr("steam_id")}
                                     value={newConnections.steamid}
                                     onChange={(e) => setNewConnections({ ...newConnections, steamid: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
@@ -1420,7 +1425,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <TextField
-                                    label="TruckersMP ID"
+                                    label={tr("truckersmp_id")}
                                     value={newConnections.truckersmpid}
                                     onChange={(e) => setNewConnections({ ...newConnections, truckersmpid: e.target.value })}
                                     fullWidth disabled={dialogBtnDisabled}
@@ -1431,8 +1436,8 @@ const UserCard = (props) => {
                     <DialogActions sx={{ justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'grid', justifyItems: 'start' }}>
                             <ButtonGroup>
-                                <Button variant="contained" color="primary">Disconnect</Button>
-                                <Button variant="contained" color="error" onClick={() => { updateConnections("delete", "email"); }} disabled={dialogBtnDisabled}>Email</Button>
+                                <Button variant="contained" color="primary">{tr("disconnect")}</Button>
+                                <Button variant="contained" color="error" onClick={() => { updateConnections("delete", "email"); }} disabled={dialogBtnDisabled}>{tr("email")}</Button>
                                 <Button variant="contained" color="warning" onClick={() => { updateConnections("delete", "discordid"); }} disabled={dialogBtnDisabled}>Discord</Button>
                                 <Button variant="contained" color="success" onClick={() => { updateConnections("delete", "steamid"); }} disabled={dialogBtnDisabled}>Steam</Button>
                                 <Button variant="contained" color="info" onClick={() => { updateConnections("delete", "truckersmpid"); }} disabled={dialogBtnDisabled}>TruckersMP</Button>
@@ -1440,8 +1445,8 @@ const UserCard = (props) => {
                         </Box>
                         <Box sx={{ display: 'grid', justifyItems: 'end' }}>
                             <ButtonGroup>
-                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                                <Button variant="contained" onClick={() => { updateConnections(); }} disabled={dialogBtnDisabled}>Save</Button>
+                                <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                                <Button variant="contained" onClick={() => { updateConnections(); }} disabled={dialogBtnDisabled}>{tr("save")}</Button>
                             </ButtonGroup>
                         </Box>
                     </DialogActions>
@@ -1449,15 +1454,15 @@ const UserCard = (props) => {
             }
             {ctxAction === "disable-mfa" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Disable MFA | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("disable_mfa")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- Multiple Factor Authentication will be disabled for the user.</Typography>
-                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>- This may put the user's account at risk! Only proceed when user's identity is confirmed.</Typography>
+                        <Typography variant="body2">{tr("multiple_factor_authentication_will_be")}</Typography>
+                        <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("this_may_put_the_users")}</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        {vars.userInfo.mfa && <Button variant="contained" color="error" onClick={() => { setCtxAction("disable-mfa-require-otp"); }} disabled={dialogBtnDisabled}>Disable</Button>}
-                        {!vars.userInfo.mfa && <Button variant="contained" color="error" disabled={true}>Enable MFA for yourself first</Button>}
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        {vars.userInfo.mfa && <Button variant="contained" color="error" onClick={() => { setCtxAction("disable-mfa-require-otp"); }} disabled={dialogBtnDisabled}>{tr("disable")}</Button>}
+                        {!vars.userInfo.mfa && <Button variant="contained" color="error" disabled={true}>{tr("enable_mfa_for_yourself_first")}</Button>}
                     </DialogActions>
                 </Dialog>
             }
@@ -1465,36 +1470,31 @@ const UserCard = (props) => {
                 <Dialog open={true} onClose={(e) => { setCtxAction(""); }}>
                     <DialogTitle>
                         <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                            <FontAwesomeIcon icon={faFingerprint} />&nbsp;&nbsp;Attention Required
-                        </Typography>
+                            <FontAwesomeIcon icon={faFingerprint} />{tr("attention_required")}</Typography>
                     </DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">For security purposes, you must prove your identity with Multiple Factor Authentication.</Typography>
+                        <Typography variant="body2">{tr("for_security_purposes_you_must")}</Typography>
                         <TextField
                             sx={{ mt: "15px" }}
-                            label="MFA OTP"
+                            label={tr("mfa_otp")}
                             value={otp}
                             onChange={(e) => setOtp(e.target.value)}
                             fullWidth
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={(e) => { setCtxAction(""); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>
-                            Close
-                        </Button>
-                        <Button onClick={() => { disableMFA(); }} variant="contained" color="success" sx={{ ml: 'auto' }} disabled={dialogBtnDisabled}>
-                            Verify
-                        </Button>
+                        <Button onClick={(e) => { setCtxAction(""); }} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
+                        <Button onClick={() => { disableMFA(); }} variant="contained" color="success" sx={{ ml: 'auto' }} disabled={dialogBtnDisabled}>{tr("verify")}</Button>
                     </DialogActions>
                 </Dialog>}
             {ctxAction === "ban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Ban User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("ban_user")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={6}>
                                 <DateTimeField
-                                    label="Expire Datetime"
+                                    label={tr("expire_datetime")}
                                     defaultValue={newBan.expire}
                                     onChange={(timestamp) => { setNewBan({ ...newBan, expire: timestamp }); }}
                                     fullWidth
@@ -1502,7 +1502,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
-                                    label="Reason"
+                                    label={tr("reason")}
                                     value={newBan.reason}
                                     onChange={(e) => setNewBan({ ...newBan, reason: e.target.value })}
                                     fullWidth
@@ -1511,47 +1511,47 @@ const UserCard = (props) => {
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="error" onClick={() => { putBan(); }} disabled={dialogBtnDisabled}>Ban</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { putBan(); }} disabled={dialogBtnDisabled}>{tr("ban")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "unban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>Unban User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("unban_user")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- The user will be able to login when you unban it</Typography>
+                        <Typography variant="body2">{tr("the_user_will_be_able")}</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="success" onClick={() => { deleteBan(); }} disabled={dialogBtnDisabled}>Unban</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="success" onClick={() => { deleteBan(); }} disabled={dialogBtnDisabled}>{tr("unban")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "dismiss-member" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Dismiss Member | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("dismiss_member")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- The user will be dismissed. This process cannot be undone.</Typography>
-                        <Typography variant="body2">- Most data generated by the user (including jobs) will not be deleted, but "Unknown" will be shown as driver.</Typography>
+                        <Typography variant="body2">{tr("the_user_will_be_dismissed")}</Typography>
+                        <Typography variant="body2">{tr("most_data_generated_by_the")}</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="error" onClick={() => { dismissMember(); }} disabled={dialogBtnDisabled}>Dismiss</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { dismissMember(); }} disabled={dialogBtnDisabled}>{tr("dismiss")}</Button>
                     </DialogActions>
                 </Dialog>
             }
             {ctxAction === "delete-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>Delete User | {nameRef.current} ({userid !== null ? `User ID: ${useridRef.current} / ` : ""}UID: {uid})</DialogTitle>
+                    <DialogTitle>{tr("delete_user")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
                     <DialogContent>
-                        <Typography variant="body2">- The user will be deleted immediately (no 14-day cooldown). This process cannot be undone.</Typography>
-                        <Typography variant="body2">- User ban will not be affected. To unban the user, use the "Banned Users" table.</Typography>
-                        <Typography variant="body2">- Most data generated by the user (including jobs) will not be deleted, but "Unknown" will be shown as driver.</Typography>
+                        <Typography variant="body2">{tr("the_user_will_be_deleted")}</Typography>
+                        <Typography variant="body2">{tr("user_ban_will_not_be")}</Typography>
+                        <Typography variant="body2">{tr("most_data_generated_by_the")}</Typography>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>Close</Button>
-                        <Button variant="contained" color="error" onClick={() => { deleteUser(); }} disabled={dialogBtnDisabled}>Delete</Button>
+                        <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
+                        <Button variant="contained" color="error" onClick={() => { deleteUser(); }} disabled={dialogBtnDisabled}>{tr("delete")}</Button>
                     </DialogActions>
                 </Dialog>
             }
@@ -1582,16 +1582,16 @@ const UserCard = (props) => {
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                 {badges.map((badge, index) => { return <a key={index} onClick={() => { navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
-                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title="User ID"
+                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
                             </Typography>
                         </div>
                         {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
-                        {uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}>Customize your profile in <a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>settings!</a></Typography>}
+                        {uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
                         {bioRef.current !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                ABOUT ME
+                                {tr("about_me").toUpperCase()}
                             </Typography>
                             <Typography variant="body2">
                                 <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
@@ -1600,7 +1600,7 @@ const UserCard = (props) => {
                         <Grid container sx={{ mt: "10px" }}>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    {userid !== null && userid !== -1 ? `MEMBER` : `USER`} SINCE
+                                    {userid !== null && userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                 </Typography>
                                 {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
                                     {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
@@ -1608,7 +1608,7 @@ const UserCard = (props) => {
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    TRACKER
+                                    {tr("tracker").toUpperCase()}
                                 </Typography>
                                 <Typography variant="body2">
                                     {trackerMapping[trackerInUse]}
@@ -1632,7 +1632,7 @@ const UserCard = (props) => {
                         </Box>}
                         <Box sx={{ mt: "10px" }}>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                NOTE
+                                {tr("note").toUpperCase()}
                             </Typography>
                             <TextField
                                 value={newNote}

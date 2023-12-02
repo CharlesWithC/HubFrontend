@@ -15,6 +15,8 @@ import NotificationsPopover from './notifications';
 import UserCard from './usercard';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require("../variables");
 
 const radioURLs = { "tsr": "https://oreo.truckstopradio.co.uk/radio/8000/radio.mp3", "tfm": "https://live.truckers.fm/", "simhit": "https://radio.simulatorhits.com/radio/8000/stream" };
@@ -22,6 +24,8 @@ const radioNames = { "tsr": "TruckStopRadio", "tfm": "TruckersFM", "simhit": "Si
 const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "https://truckersfm.s3.fr-par.scw.cloud/static/tfm-2020.png", "simhit": "https://simulatorhits.com/images/SH_Logo.jpg" };
 
 const TopBar = (props) => {
+    const { t: tr } = useTranslation();
+
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const theme = useTheme();
@@ -41,8 +45,8 @@ const TopBar = (props) => {
     const radioRef = useRef(null);
     const [radioURL, setRadioURL] = useState("");
     const [radioImage, setRadioImage] = useState("");
-    const [radioSongName, setRadioSongName] = useState("Now Playing");
-    const [radioName, setRadioName] = useState("No Radio");
+    const [radioSongName, setRadioSongName] = useState(tr("now_playing"));
+    const [radioName, setRadioName] = useState(tr("no_radio"));
     const [radioSpotifyId, setRadioSpotifyId] = useState(undefined);
     const [isPlaying, setIsPlaying] = useState(false);
     async function loadRadio() {
@@ -68,10 +72,10 @@ const TopBar = (props) => {
                     new URL(vars.userSettings.radio_type);
                     setRadioSpotifyId(undefined);
                     setRadioURL(vars.userSettings.radio_type);
-                    setRadioName("Custom Radio");
+                    setRadioName(tr("custom_radio"));
                     setRadioImage("https://cdn.chub.page/assets/logo.png");
                     navigator.mediaSession.metadata = new MediaMetadata({
-                        title: "Custom Radio",
+                        title: tr("custom_radio"),
                         artwork: [
                             { src: "https://cdn.chub.page/assets/logo.png", sizes: '500x500', type: 'image/jpeg' }
                         ]
@@ -110,7 +114,7 @@ const TopBar = (props) => {
                     radioRef.current.pause();
                 }
             } catch {
-                setRadioSongName("Failed to play");
+                setRadioSongName(tr("failed_to_play"));
             }
         }
     }, [isPlaying]);
@@ -163,7 +167,7 @@ const TopBar = (props) => {
                         });
                     }
                 } catch {
-                    console.error("Error updating radio metadata...");
+                    console.error(tr("error_updating_radio_metadata"));
                 }
             }
         }, 10000);
@@ -180,14 +184,14 @@ const TopBar = (props) => {
     }, []);
     useEffect(() => {
         const handleRadioTypeUpdate = async () => {
-            setRadioSongName("Now Playing");
+            setRadioSongName(tr("now_playing"));
             setRadioSpotifyId(undefined);
             await loadRadio();
             try {
                 radioRef.current.load();
                 radioRef.current.play();
             } catch {
-                setRadioSongName("Failed to play");
+                setRadioSongName(tr("failed_to_play"));
             }
         };
         window.addEventListener("radioTypeUpdated", handleRadioTypeUpdate);
@@ -289,11 +293,11 @@ const TopBar = (props) => {
         const bearerToken = getAuthToken();
         if (bearerToken === null) {
             setSnackbarSeverity("error");
-            setSnackbarContent("Looks like you are already logged out");
+            setSnackbarContent(tr("already_logged_out"));
             return;
         }
         setSnackbarSeverity("info");
-        setSnackbarContent("Logging out, please wait...");
+        setSnackbarContent(tr("logging_out_please_wait"));
         setLoading(true);
         try {
             let resp = await axios({ url: `${vars.dhpath}/token`, headers: { "Authorization": `Bearer ${bearerToken}` }, method: `DELETE` });
@@ -301,16 +305,16 @@ const TopBar = (props) => {
             navigate("/");
             if (parseInt(resp.status / 100) === 2) {
                 setSnackbarSeverity("success");
-                setSnackbarContent("You are logged out");
+                setSnackbarContent(tr("you_are_logged_out"));
             } else {
                 setSnackbarSeverity("error");
-                setSnackbarContent("Looks like you are already logged out");
+                setSnackbarContent(tr("already_logged_out"));
             }
             await FetchProfile();
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");
-            setSnackbarContent("Error occurred! Check F12 for more info.");
+            setSnackbarContent(tr("error_occurred"));
         }
         setLoading(false);
         const reloadSideBar = new CustomEvent('reloadSideBar', {});
@@ -333,13 +337,13 @@ const TopBar = (props) => {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        {vars.userInfo.userid !== -1 && vars.userInfo.userid !== null && <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>Profile</MenuItem>}
-        <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>Settings</MenuItem></Link>
+        {vars.userInfo.userid !== -1 && vars.userInfo.userid !== null && <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>{tr("profile")}</MenuItem>}
+        <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>{tr("settings")}</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-        <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>Sponsor</MenuItem></Link>
-        <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>Supporters</MenuItem></Link>
+        <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>{tr("sponsor")}</MenuItem></Link>
+        <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>{tr("supporters")}</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-        <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>Logout</MenuItem>
+        <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>{tr("logout")}</MenuItem>
     </Menu>);
 
     return (
@@ -377,9 +381,7 @@ const TopBar = (props) => {
                                             <div className="user-role" style={{ textAlign: "left" }}>{isPlaying ? <FontAwesomeIcon icon={faCirclePause} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(false); }} /> : <FontAwesomeIcon icon={faCirclePlay} style={{ cursor: "pointer" }} onClick={() => { setIsPlaying(true); }} />} {radioSpotifyId !== undefined && <FontAwesomeIcon icon={faSpotify} style={{ cursor: "pointer" }} onClick={() => { window.location.href = `spotify:track:${radioSpotifyId}`; }} />} {radioName}</div>
                                         </div>
                                         <audio ref={radioRef}>
-                                            <source src={radioURL} type="audio/mp3" />
-                                            Your browser does not support the audio element.
-                                        </audio>
+                                            <source src={radioURL} type="audio/mp3" />{tr("browser_does_not_support_audio")}</audio>
                                     </div>}
                             </Box>
                             <div className="user-profile" onClick={handleProfileMenuOpen}>

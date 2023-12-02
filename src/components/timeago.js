@@ -1,62 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getFormattedDate } from "../functions";
 
-function calculate(timestamp, lower) {
-    if (timestamp === undefined || timestamp === null || isNaN(timestamp)) return "";
-    if (timestamp <= 86400000) {
-        return "Never";
-    }
-    const date = new Date(timestamp);
-
-    const DAY_IN_MS = 86400000; // 24 * 60 * 60 * 1000
-    const today = new Date();
-    const yesterday = new Date(today - DAY_IN_MS);
-    const seconds = Math.round((today - date) / 1000);
-    const minutes = Math.round(seconds / 60);
-    const isToday = today.toDateString() === date.toDateString();
-    const isYesterday = yesterday.toDateString() === date.toDateString();
-    const isThisYear = today.getFullYear() === date.getFullYear();
-
-    let ret = "";
-    if (seconds < 5) {
-        ret = "Now";
-    } else if (seconds < 60) {
-        ret = `${seconds} seconds ago`;
-    } else if (seconds < 120) {
-        ret = "1 minute ago";
-    } else if (minutes < 60) {
-        ret = `${minutes} minutes ago`;
-    } else if (isToday) {
-        ret = getFormattedDate(date, "Today"); // Today at 10:20
-    } else if (isYesterday) {
-        ret = getFormattedDate(date, "Yesterday"); // Yesterday at 10:20
-    }
-    if (ret !== "") {
-        if (lower) return ret.toLowerCase();
-        else return ret;
-    }
-    if (isThisYear) {
-        ret = getFormattedDate(date, false, true); // 10. January at 10:20
-    } else {
-        ret = getFormattedDate(date); // 10. January 2017. at 10:20
-    }
-    return ret;
-}
-
-const calculateInterval = (timestamp) => {
-    const currentTime = Date.now();
-    const diff = currentTime - timestamp;
-
-    if (diff < 60000) {
-        return 1000;
-    } else if (diff < 3600000) {
-        return 60000;
-    } else {
-        return null;
-    }
-};
+import { useTranslation } from 'react-i18next';
 
 const TimeAgo = ({ timestamp, lower = false }) => {
+    const { t: tr } = useTranslation();
+
+    const calculate = useCallback((timestamp, lower) => {
+        if (timestamp === undefined || timestamp === null || isNaN(timestamp)) return "";
+        if (timestamp <= 86400000) {
+            return tr("never");
+        }
+        const date = new Date(timestamp);
+
+        const DAY_IN_MS = 86400000; // 24 * 60 * 60 * 1000
+        const today = new Date();
+        const yesterday = new Date(today - DAY_IN_MS);
+        const seconds = Math.round((today - date) / 1000);
+        const minutes = Math.round(seconds / 60);
+        const isToday = today.toDateString() === date.toDateString();
+        const isYesterday = yesterday.toDateString() === date.toDateString();
+        const isThisYear = today.getFullYear() === date.getFullYear();
+
+        let ret = "";
+        if (seconds < 5) {
+            ret = tr("now");
+        } else if (seconds < 60) {
+            ret = tr("seconds_ago", { seconds: seconds });
+        } else if (seconds < 120) {
+            ret = tr("1_minute_ago");
+        } else if (minutes < 60) {
+            ret = tr("minutes_ago", { minutes: minutes });
+        } else if (isToday) {
+            ret = getFormattedDate(date, tr("today")); // Today at 10:20
+        } else if (isYesterday) {
+            ret = getFormattedDate(date, tr("yesterday")); // Yesterday at 10:20
+        }
+        if (ret !== "") {
+            if (lower) return ret.toLowerCase();
+            else return ret;
+        }
+        if (isThisYear) {
+            ret = getFormattedDate(date, false, true); // 10. January at 10:20
+        } else {
+            ret = getFormattedDate(date); // 10. January 2017. at 10:20
+        }
+        return ret;
+    }, []);
+
+    const calculateInterval = useCallback((timestamp) => {
+        const currentTime = Date.now();
+        const diff = currentTime - timestamp;
+
+        if (diff < 60000) {
+            return 1000;
+        } else if (diff < 3600000) {
+            return 60000;
+        } else {
+            return null;
+        }
+    }, []);
+
     if (timestamp === null) timestamp = 0;
     timestamp = parseInt(timestamp);
     const [timeAgo, setTimeAgo] = useState(calculate(timestamp, lower));

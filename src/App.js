@@ -54,6 +54,8 @@ import TopBar from './components/topbar';
 import SideBar from './components/sidebar';
 import { readLS, writeLS } from './functions.js';
 
+import { useTranslation } from 'react-i18next';
+
 var vars = require('./variables');
 
 const drivershub = `    ____       _                         __  __      __
@@ -64,6 +66,8 @@ const drivershub = `    ____       _                         __  __      __
                                                       `;
 
 function App() {
+    const { t: tr } = useTranslation();
+
     useEffect(() => {
         console.log(drivershub);
         console.log("Drivers Hub: Frontend (v3.2.0)");
@@ -201,23 +205,14 @@ function App() {
                         {cookieSettings === null && !sidebarForceHidden && <>
                             <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
                                 <CardContent>
-                                    <Typography variant="h6" fontWeight="bold">
-                                        We value your privacy
-                                    </Typography>
-                                    <Typography variant="body2" sx={{ marginBottom: "10px" }}>
-                                        We use necessary cookies for smooth functionality and rely on Google Analytics to anonymously track user interactions, helping us improve the site.<br />
-                                        By clicking "Accept", you consent to analytical cookie usage. Otherwise only essential cookies will be used.
-                                    </Typography>
+                                    <Typography variant="h6" fontWeight="bold">{tr("we_value_your_privacy")}</Typography>
+                                    <Typography variant="body2" sx={{ marginBottom: "10px" }}>{tr("we_use_necessary_cookies_for")}<br />{tr("by_clicking_accept_you_consent")}</Typography>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12} md={6} lg={6}>
-                                            <Button onClick={() => { updateCookieSettings("analytical"); }} variant="contained" color="success" sx={{ width: "100%" }}>
-                                                Accept
-                                            </Button>
+                                            <Button onClick={() => { updateCookieSettings("analytical"); }} variant="contained" color="success" sx={{ width: "100%" }}>{tr("accept")}</Button>
                                         </Grid>
                                         <Grid item xs={12} sm={12} md={6} lg={6}>
-                                            <Button onClick={() => { updateCookieSettings("essential"); }} variant="contained" color="secondary" sx={{ width: "100%" }}>
-                                                Decline
-                                            </Button>
+                                            <Button onClick={() => { updateCookieSettings("essential"); }} variant="contained" color="secondary" sx={{ width: "100%" }}>{tr("decline")}</Button>
                                         </Grid>
                                     </Grid>
                                 </CardContent>
@@ -276,7 +271,7 @@ function App() {
                                     <DialogTitle>About The Drivers Hub Project (CHub)</DialogTitle>
                                     <DialogContent>
                                         <Typography variant="body2">
-                                            Embark on a journey through the digital thoroughfares with <b>Drivers Hub</b>, an ethereal portal for Virtual Trucking Communities, crafted to elevate communal experiences and simplify the art of management.
+                                            Embark on a journey through the digital thoroughfares with <b>{tr("drivers_hub")}</b>, an ethereal portal for Virtual Trucking Communities, crafted to elevate communal experiences and simplify the art of management.
                                         </Typography>
                                         <br />
                                         <Typography variant="body2">
@@ -308,7 +303,7 @@ function App() {
                                         </Typography>
                                     </DialogContent>
                                     <DialogActions>
-                                        <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>Close</Button>
+                                        <Button variant="primary" onClick={() => { setAboutCHubModal(false); }}>{tr("close")}</Button>
                                     </DialogActions>
                                 </Dialog>
                                 <footer style={{ display: ["/auth", "/auth/login", "/auth/email", "/auth/discord/callback", "/auth/discord/redirect", "/auth/steam/callback", "/auth/steam/redirect", "/auth/patreon/callback", "/auth/mfa"].includes(location.pathname) ? "none" : "block", marginTop: "auto", fontSize: "0.9em" }}>
@@ -321,14 +316,14 @@ function App() {
                                         <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
                                             {vars.dhconfig.name}
                                             <br />
-                                            Server: v{vars.apiversion} | Client: v3.2.0
+                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v3.2.0</>
                                         </Typography>
                                     </div>}
                                     {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                             &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
                                             <br />
-                                            Server: v{vars.apiversion} | Client: v3.2.0
+                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v3.2.0</>
                                             <br />
                                             <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                         </Typography>
