@@ -473,7 +473,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     tooltipTitle={tr("details")}
                     icon={<InfoRounded />}
                     onClick={handleDetail} />}
-            {divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
                 key="division"
                 tooltipTitle={tr("division")}
                 icon={<WarehouseRounded />}
