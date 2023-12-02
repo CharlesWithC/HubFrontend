@@ -3,6 +3,8 @@ import axiosRetry from 'axios-retry';
 import LZString from 'lz-string';
 import CryptoJS from 'crypto-js';
 
+import i18n from './i18n';
+
 var vars = require('./variables');
 
 const customAxios = axios.create();
@@ -119,7 +121,7 @@ export function getAuthToken() {
 export async function FetchProfile(isLogin = false) {
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
-        const resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
+        let resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
             vars.isLoggedIn = true;
             vars.userInfo = resp.data;
@@ -167,6 +169,12 @@ export async function FetchProfile(isLogin = false) {
                 }
             }
 
+            resp = await customAxios({ url: `${vars.dhpath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } });
+            if (resp.status === 200) {
+                vars.userSettings.language = resp.data.language;
+                i18n.changeLanguage(resp.data.language);
+            }
+
             if (vars.userInfo.userid !== -1) {
                 const divisionIDs = Object.keys(vars.divisions);
                 vars.userDivisionIDs = [];
@@ -194,7 +202,7 @@ export async function FetchProfile(isLogin = false) {
                         for (let i = 2; i <= totalPages; i++) {
                             urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
                             if (urlsBatch.length === 5 || i === totalPages) {
-                                let resps = await makeRequestsWithAuth(urlsBatch);
+                                resps = await makeRequestsWithAuth(urlsBatch);
                                 for (let j = 0; j < resps.length; j++) {
                                     vars.members.push(...resps[j].list);
                                     for (let k = 0; k < resps[j].list.length; k++) {

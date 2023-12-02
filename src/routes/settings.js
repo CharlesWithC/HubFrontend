@@ -448,8 +448,8 @@ const Settings = ({ defaultTab = 0 }) => {
         window.dispatchEvent(loadingEnd);
     }, [notificationSettings]);
 
-    const [userLanguage, setUserLanguage] = useState("en");
-    const [supportedLanguages, setSupportedLanguages] = useState([]);
+    const [userLanguage, setUserLanguage] = useState(vars.userSettings.language);
+    const [supportedLanguages, setSupportedLanguages] = useState(vars.languages);
     const [languageLoading, setLanguageLoading] = useState(false);
     const updateUserLanguage = useCallback(async (e) => {
         const loadingStart = new CustomEvent('loadingStart', {});
@@ -912,9 +912,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
     useEffect(() => {
         async function doLoad() {
-            const [_notificationSettings, _userLanguage] = await makeRequestsWithAuth([
-                `${vars.dhpath}/user/notification/settings`,
-                `${vars.dhpath}/user/language`]);
+            const [_notificationSettings] = await makeRequestsWithAuth([`${vars.dhpath}/user/notification/settings`]);
             let newNotificationSettings = [];
             for (let i = 0; i < NOTIFICATION_TYPES.length; i++) {
                 if (_notificationSettings[NOTIFICATION_TYPES[i]]) {
@@ -922,8 +920,6 @@ const Settings = ({ defaultTab = 0 }) => {
                 }
             }
             setNotificationSettings(newNotificationSettings);
-            setSupportedLanguages(vars.languages);
-            setUserLanguage(_userLanguage.language);
         }
         doLoad();
     }, []);
