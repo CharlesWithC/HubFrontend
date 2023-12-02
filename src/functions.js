@@ -202,7 +202,7 @@ export async function FetchProfile(isLogin = false) {
                         for (let i = 2; i <= totalPages; i++) {
                             urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
                             if (urlsBatch.length === 5 || i === totalPages) {
-                                resps = await makeRequestsWithAuth(urlsBatch);
+                                let resps = await makeRequestsWithAuth(urlsBatch);
                                 for (let j = 0; j < resps.length; j++) {
                                     vars.members.push(...resps[j].list);
                                     for (let k = 0; k < resps[j].list.length; k++) {

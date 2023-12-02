@@ -21,14 +21,26 @@ const LargeUserCard = ({ user, color }) => {
 
 const Members = () => {
     const { t: tr } = useTranslation();
-    
+
     let members = vars.members;
     let roles = Object.values(vars.roles);
-    roles.sort((a, b) => a.order_id - b.order_id);
+    for (let i = 0; i < roles.length; i++) {
+        if (roles[i].display_order_id === undefined) {
+            roles[i].display_order_id = roles[i].order_id;
+        } else {
+            roles[i].display_order_id = parseInt(roles[i].display_order_id);
+        }
+    }
+    roles.sort((a, b) =>
+        a.display_order_id - b.display_order_id ||
+        a.order_id - b.order_id ||
+        a.id - b.id
+    );
 
     let groups = [];
     let norole_group = [];
     for (let i = 0; i < roles.length; i++) {
+        if (roles[i].display_order_id === -1) continue;
         let group = [];
         for (let j = 0; j < members.length; j++) {
             if (members[j].roles.includes(roles[i].id)) {

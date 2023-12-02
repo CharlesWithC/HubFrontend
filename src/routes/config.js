@@ -466,7 +466,7 @@ const MemoDlogForm = memo(({ theme, formConfig }) => {
     const { t: tr } = useTranslation();
 
     const REALISTIC_SETTINGS = ["bad_weather_factor", "detected", "detours", "fatigue", "fuel_simulation", "hardcore_simulation", "hub_speed_limit", "parking_difficulty", "police", "road_event", "show_game_blockers", "simple_parking_doubles", "traffic_enabled", "trailer_advanced_coupling"];
-    
+
     return <><Grid item xs={6} md={3}>
         <TextField
             style={{ marginBottom: '16px' }}
@@ -650,7 +650,7 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
     const { t: tr } = useTranslation();
     if (role.discord_role_id === undefined) role.discord_role_id = "";
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
-        <Grid item xs={12} md={3}>
+        <Grid item xs={6} md={3}>
             <TextField size="small"
                 style={{ marginBottom: '16px' }}
                 key="name"
@@ -661,7 +661,18 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
                 onChange={(e) => { onUpdate({ ...role, name: e.target.value }); }}
             />
         </Grid>
-        <Grid item xs={12} md={9} sx={{ mt: "-20px" }}>
+        <Grid item xs={6} md={3}>
+            <TextField size="small"
+                style={{ marginBottom: '16px' }}
+                key="id"
+                label="ID"
+                variant="outlined"
+                fullWidth
+                value={role.id}
+                disabled
+            />
+        </Grid>
+        <Grid item xs={12} md={6} sx={{ mt: "-20px" }}>
             <Typography variant="body2">{tr("permissions")}</Typography>
             <CreatableSelect
                 isMulti
@@ -696,23 +707,23 @@ const RoleForm = ({ theme, role, perms, onUpdate }) => {
         <Grid item xs={6} md={3}>
             <TextField
                 style={{ marginBottom: '16px' }}
-                key="id"
-                label="ID"
-                variant="outlined"
-                fullWidth
-                value={role.id}
-                disabled
-            />
-        </Grid>
-        <Grid item xs={6} md={3}>
-            <TextField
-                style={{ marginBottom: '16px' }}
                 key="order_id"
                 label={tr("order_id")}
                 variant="outlined"
                 fullWidth
                 value={role.order_id}
-                onChange={(e) => { if (!isNaN(e.target.value) || e.target.value === "-") onUpdate({ ...role, order_id: parseInt(e.target.value) }); }}
+                onChange={(e) => { if (!isNaN(e.target.value) || e.target.value === "-") onUpdate({ ...role, order_id: e.target.value }); }}
+            />
+        </Grid>
+        <Grid item xs={6} md={3}>
+            <TextField
+                style={{ marginBottom: '16px' }}
+                key="display_order_id"
+                label={tr("display_order_id")}
+                variant="outlined"
+                fullWidth
+                value={role.display_order_id}
+                onChange={(e) => { if (!isNaN(e.target.value) || e.target.value === "-") onUpdate({ ...role, display_order_id: e.target.value }); }}
             />
         </Grid>
         <Grid item xs={12} md={3}>
@@ -3405,7 +3416,7 @@ const Configuration = () => {
                                 </IconButton>
                             </Typography>
                             {formSectionRender[5] && <Collapse in={formSectionOpen[5]}>
-                                <Typography variant="body2" sx={{ mb: "15px" }}>{tr("config_roles_note")}<br />{tr("config_roles_note_2")}</Typography>
+                                <Typography variant="body2" sx={{ mb: "15px" }}>{tr("config_roles_note")}<br />{tr("config_roles_note_2")}<br />{tr("config_roles_note_3")}</Typography>
                                 <MemoRoleForm theme={theme} formConfig={formConfig[5]} />
                                 <Grid item xs={12}>
                                     <Grid container>

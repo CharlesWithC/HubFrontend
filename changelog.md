@@ -2,7 +2,12 @@
 
 ## v3.3.0
 
-Added translations
+1. Added translations
+2. Added `config.roles[].display_order_id` for client use
+   - Does not interfere with `order_id`
+   - Smaller is higher
+   - Using `order_id` by default
+   - -1 is reserved for hiding the role
 
 ## v3.2.0
 
