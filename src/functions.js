@@ -173,6 +173,7 @@ export async function FetchProfile(isLogin = false) {
             if (resp.status === 200) {
                 vars.userSettings.language = resp.data.language;
                 i18n.changeLanguage(resp.data.language);
+                writeLS("client-settings", vars.userSettings, window.location.hostname);
             }
 
             if (vars.userInfo.userid !== -1) {
