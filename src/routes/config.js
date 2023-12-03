@@ -2312,7 +2312,6 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
     const { t: tr } = useTranslation();
     const [formModalOpen, setFormModalOpen] = useState(false);
     const [form, setForm] = useState(application_type.form !== undefined ? application_type.form : []);
-    const [openIndex, setOpenIndex] = useState(-1);
     return <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
         <Grid item xs={6} md={3}>
             <TextField
@@ -2393,8 +2392,8 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
                 label={tr("multiple_pending_applications")}
                 variant="outlined"
                 fullWidth
-                value={application_type.allow_multiple}
-                onChange={(e) => { onUpdate({ ...application_type, allow_multiple: e.target.value }); }}
+                value={application_type.allow_multiple_pending}
+                onChange={(e) => { onUpdate({ ...application_type, allow_multiple_pending: e.target.value }); }}
             >
                 <MenuItem value={true}>{tr("allowed")}</MenuItem>
                 <MenuItem value={false}>{tr("prohibited")}</MenuItem>
@@ -2403,17 +2402,17 @@ const ApplicationTypeForm = ({ theme, application_type, onUpdate }) => {
         <Grid item xs={12} md={6}>
             <Typography variant="body2">{tr("discord_role_changes")}</Typography>
             <CreatableSelect
-                defaultValue={application_type.role_change.map((role) => ({ value: role, label: role }))}
+                defaultValue={application_type.discord_role_change.map((role) => ({ value: role, label: role }))}
                 isMulti
                 name="roles"
                 className="basic-multi-select"
                 classNamePrefix="select"
                 styles={customSelectStyles(theme)}
-                value={application_type.role_change.map((role) => ({ value: role, label: role }))}
+                value={application_type.discord_role_change.map((role) => ({ value: role, label: role }))}
                 onChange={(newRoles) => {
                     onUpdate({
                         ...application_type,
-                        role_change: newRoles.map((item) => item.value),
+                        discord_role_change: newRoles.map((item) => item.value),
                     });
                 }}
                 menuPortalTarget={document.body}
@@ -2502,7 +2501,7 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                     required_connections: [],
                     required_member_state: -1,
                     cooldown_hours: 0,
-                    allow_multiple: false,
+                    allow_multiple_pending: false,
                     application_type_change: [],
                     required_either_user_application_type_ids: [],
                     required_all_user_application_type_ids: [],
