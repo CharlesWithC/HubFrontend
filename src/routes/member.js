@@ -23,6 +23,15 @@ const Members = () => {
     const { t: tr } = useTranslation();
 
     let members = vars.members;
+    let uniqueUserIds = [];
+    members = members.filter(member => {
+        if (uniqueUserIds.includes(member.userid)) {
+            return false;
+        } else {
+            uniqueUserIds.push(member.userid);
+            return true;
+        }
+    });
     let roles = Object.values(vars.roles);
     for (let i = 0; i < roles.length; i++) {
         if (roles[i].display_order_id === undefined) {
