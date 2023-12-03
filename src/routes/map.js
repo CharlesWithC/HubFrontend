@@ -151,23 +151,23 @@ const Map = () => {
             </Tabs>
         </Box>
         {tab === 0 && <TabPanel value={tab} index={0}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("euro_truck_simulator_2_base_map")} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>{tr("euro_truck_simulator_2_base_map")}<br />{tr("live_data_feed_truckersmp_eu_sim_1")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         {tab === 1 && <TabPanel value={tab} index={1}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={tr("euro_truck_simulator_2_promods_map")} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>{tr("euro_truck_simulator_2_promods_map")}<br />{tr("live_data_feed_truckersmp_eu_pm")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         {tab === 2 && <TabPanel value={tab} index={2}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={tr("american_truck_simulator_base_map")} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>{tr("american_truck_simulator_base_map")}<br />{tr("live_data_feed_truckersmp_us_sim")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         {tab === 3 && <TabPanel value={tab} index={3}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={tr("american_truck_simulator_promods_map")} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>{tr("american_truck_simulator_promods_map")}<br />{tr("live_data_feed_no_data")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         <Dialog open={displayUser.MpId !== undefined} onClose={() => setDisplayUser({})}>
-            <DialogTitle>{displayUser.userid === undefined ? <>TruckersMP Player</> : <>{vars.dhconfig.name} Driver</>}</DialogTitle>
+            <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{vars.dhconfig.name}{tr("driver")}</>}</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>Name</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("name")}</Typography>
                         <Typography variant="body2">{displayUser.userid === undefined ? <>{displayUser.Name}</> : <UserCard user={displayUser} />}</Typography>
                     </Grid>
                     <Grid item xs={4}>
@@ -175,7 +175,7 @@ const Map = () => {
                         <Typography variant="body2"><a href={`https://truckersmp.com/user/${displayUser.MpId}`} target="_blank" rel="noreferrer">{displayUser.MpId}</a></Typography>
                     </Grid>
                     <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>Player ID</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("player_id")}</Typography>
                         <Typography variant="body2">{displayUser.PlayerId}</Typography>
                     </Grid>
                     <Grid item xs={4}>
@@ -187,25 +187,25 @@ const Map = () => {
                         <Typography variant="body2">{displayUser.Y}</Typography>
                     </Grid>
                     <Grid item xs={4}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>Heading</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("heading")}</Typography>
                         <Typography variant="body2">{displayUser.Heading}</Typography>
                     </Grid>
                     {displayUser.cargo === undefined && <>
                         <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Status</Typography>
-                            <Typography variant="body2">Free Roaming</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
+                            <Typography variant="body2">{tr("free_roaming")}</Typography>
                         </Grid></>}
                     {displayUser.cargo !== undefined && <>
                         <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Cargo</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("cargo")}</Typography>
                             <Typography variant="body2">{displayUser.cargo}</Typography>
                         </Grid>
                         <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Source</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("source")}</Typography>
                             <Typography variant="body2">{displayUser.source}</Typography>
                         </Grid>
                         <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>Destination</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("destination")}</Typography>
                             <Typography variant="body2">{displayUser.destination}</Typography>
                         </Grid></>}
                 </Grid>
