@@ -4,6 +4,7 @@ import LanguageDetector from "i18next-browser-languagedetector";
 
 const en = require("./languages/en.js").en;
 const es = require("./languages/es.js").es;
+const nl = require("./languages/nl.js").nl;
 
 i18n
     .use(LanguageDetector)
@@ -11,7 +12,8 @@ i18n
     .init({
         resources: {
             en: { translation: en },
-            es: { translation: es }
+            es: { translation: es },
+            nl: { translation: nl }
         },
         fallbackLng: "en",
         interpolation: {
