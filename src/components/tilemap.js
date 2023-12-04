@@ -37,7 +37,6 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
     const isMountedRef = useRef(true);
-    const currentLayer = useRef("");
 
     const pointsRef = useRef([]);
     const pointsLayer = useRef(undefined);
@@ -145,55 +144,12 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                 map.addLayer(vectorLayer);
             }
 
-            // Create the points layer and the heatmap layer but don't add them to the map yet
-            function updateLayerDisplay() {
-                const zoom = map.getView().getZoom();
-
-                if (!pointsLayer.current || !heatmapLayer.current) {
-                    return;
-                }
-
-                if (zoom <= 2) {
-                    heatmapLayer.current.setBlur(2);
-                    heatmapLayer.current.setRadius(2);
-                } else if (zoom <= 4) {
-                    heatmapLayer.current.setBlur(5);
-                    heatmapLayer.current.setRadius(5);
-                } else {
-                    heatmapLayer.current.setBlur(15);
-                    heatmapLayer.current.setRadius(8);
-                }
-
-                // Adjust the threshold as needed
-                if (zoom < 6 && currentLayer.current !== "heatmap") {
-                    currentLayer.current = "heatmap";
-                    // If the resolution is above the threshold, remove the points layer (if it exists) and add the heatmap layer
-                    if (map.getLayers().getArray().includes(pointsLayer.current)) {
-                        map.removeLayer(pointsLayer.current);
-                    }
-                    if (!map.getLayers().getArray().includes(heatmapLayer.current)) {
-                        map.addLayer(heatmapLayer.current);
-                    }
-                } else if (zoom >= 6 && currentLayer.current !== "points") {
-                    currentLayer.current = "points";
-                    // If the resolution is below the threshold, remove the heatmap layer (if it exists) and add the points layer
-                    if (map.getLayers().getArray().includes(heatmapLayer.current)) {
-                        map.removeLayer(heatmapLayer.current);
-                    }
-                    if (!map.getLayers().getArray().includes(pointsLayer.current)) {
-                        map.addLayer(pointsLayer.current);
-                    }
-                }
-            }
-
             if (points !== undefined && points !== null && points.length !== 0 && pointsRef.current !== points) {
                 const zoom = map.getView().getZoom();
-                let oldPointsLayer = pointsLayer.current;
-                let oldHeatmapLayer = heatmapLayer.current;
 
                 pointsRef.current = points;
 
-                let pointFeatures = points.map(point => {
+                const pointFeatures = points.map(point => {
                     const pointFeature = new Feature({ 'geometry': new Point([point.x, -point.y]), 'info': point });
                     pointFeature.setStyle(new Style({
                         image: new CircleStyle({
@@ -205,14 +161,26 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                     return pointFeature;
                 });
 
-                pointsLayer.current = new VectorLayer({
-                    source: new VectorSource({
-                        features: pointFeatures
-                    })
+                const dataSource = new VectorSource({
+                    features: pointFeatures
                 });
 
+                if (!pointsLayer.current) {
+                    pointsLayer.current = new VectorLayer({
+                        source: dataSource,
+                        minZoom: 6,
+                        maxZoom: 8
+                    });
+                    map.addLayer(pointsLayer.current);
+                } else {
+                    pointsLayer.current.setSource(dataSource);
+                }
+
+                let oldHeatmapLayer = heatmapLayer.current;
                 heatmapLayer.current = new HeatmapLayer({
-                    source: pointsLayer.current.getSource(),
+                    source: dataSource,
+                    minZoom: 0,
+                    maxZoom: 6
                 });
                 heatmapLayer.current.setOpacity(0.8);
                 if (zoom <= 2) {
@@ -225,27 +193,14 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                     heatmapLayer.current.setBlur(15);
                     heatmapLayer.current.setRadius(8);
                 }
-
-                if (pointsLayer.current && zoom >= 6) {
-                    map.addLayer(pointsLayer.current);
-                    currentLayer.current = "points";
-                }
-                if (heatmapLayer.current && zoom < 6) {
-                    map.addLayer(heatmapLayer.current);
-                    currentLayer.current = "heatmap";
-                }
-                
-                if (oldPointsLayer && map.getLayers().getArray().includes(oldPointsLayer)) {
-                    map.removeLayer(oldPointsLayer);
-                }
+                map.addLayer(heatmapLayer.current);
+                map.renderSync();
                 if (oldHeatmapLayer && map.getLayers().getArray().includes(oldHeatmapLayer)) {
-                    map.removeLayer(oldHeatmapLayer);
+                    setTimeout(function () {
+                        map.removeLayer(oldHeatmapLayer);
+                    }, 10);
                 }
             }
-
-            map.getView().on('change:resolution', () => {
-                updateLayerDisplay();
-            });
 
             if (onPointClick !== undefined) {
                 map.on('pointermove', function (evt) {
