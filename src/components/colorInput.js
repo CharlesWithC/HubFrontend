@@ -8,7 +8,7 @@ const isValidHexColor = (color) => /^#([0-9A-F]{3}){1,2}$/i.test(color);
 // color = / for default | #hex for custom
 const ColorInput = ({ color, onChange, hideDefault = false, disableDefault = false, disableCustom = false, defaultTooltip = "Default Color", customTooltip = "Custom Color", boxWrapper = true }) => {
     const theme = useTheme();
-    const [customColor, setCustomColor] = useState(color);
+    const [customColor, setCustomColor] = useState(color !== null ? color : "#000000");
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleClick = (event) => {
@@ -21,7 +21,8 @@ const ColorInput = ({ color, onChange, hideDefault = false, disableDefault = fal
     };
 
     useEffect(() => {
-        setCustomColor(color);
+        if (color === null) setCustomColor("#000000");
+        else setCustomColor(color);
     }, [color]);
     useEffect(() => {
         if (customColor === "#NaNNaNNaN") {
@@ -29,7 +30,7 @@ const ColorInput = ({ color, onChange, hideDefault = false, disableDefault = fal
             return;
         }
         if (customColor !== null && customColor !== "/" && !customColor.startsWith("#")) {
-            setCustomColor(prev => ("#" + prev.replaceAll("#", "")));
+            setCustomColor(prev => (prev === null ? "#000000" : "#" + prev.replaceAll("#", "")));
         }
     }, [customColor]);
 
@@ -45,9 +46,9 @@ const ColorInput = ({ color, onChange, hideDefault = false, disableDefault = fal
         </Tooltip>}
         <Tooltip placement="bottom" arrow title={customTooltip}
             PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-            <Box width="120px" height="60px" bgcolor={customColor} onClick={handleClick} p={1} m={1} position="relative" borderRadius="5px" style={{ cursor: !disableCustom ? 'pointer' : undefined, border: !isValidHexColor(customColor) ? `0.5px solid ${theme.palette.text.primary}88` : 'none', opacity: !disableCustom ? 1 : 0.6 }}>
+            <Box width="120px" height="60px" bgcolor={color} onClick={handleClick} p={1} m={1} position="relative" borderRadius="5px" style={{ cursor: !disableCustom ? 'pointer' : undefined, border: !isValidHexColor(color) ? `0.5px solid ${theme.palette.text.primary}88` : 'none', opacity: !disableCustom ? 1 : 0.6 }}>
                 <ColorizeRounded style={{ position: 'absolute', top: 0, right: 0 }} />
-                {isValidHexColor(customColor) && <Box display="flex" justifyContent="center" alignItems="center" style={{ height: '100%' }}>{!hideDefault && !disableDefault && <CheckRounded />}</Box>}
+                {isValidHexColor(color) && <Box display="flex" justifyContent="center" alignItems="center" style={{ height: '100%' }}>{!hideDefault && !disableDefault && <CheckRounded />}</Box>}
             </Box>
         </Tooltip>
         <Popover
