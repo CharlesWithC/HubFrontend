@@ -201,6 +201,25 @@ const TileMap = ({ tilesUrl, title, style, route, points, onPointClick, onBounda
                     }, 10);
                 }
             }
+            
+            map.getView().on('change:resolution', () => {
+                const zoom = map.getView().getZoom();
+
+                if (!pointsLayer.current || !heatmapLayer.current) {
+                    return;
+                }
+
+                if (zoom <= 2) {
+                    heatmapLayer.current.setBlur(2);
+                    heatmapLayer.current.setRadius(2);
+                } else if (zoom <= 4) {
+                    heatmapLayer.current.setBlur(5);
+                    heatmapLayer.current.setRadius(5);
+                } else {
+                    heatmapLayer.current.setBlur(15);
+                    heatmapLayer.current.setRadius(8);
+                }
+            });
 
             if (onPointClick !== undefined) {
                 map.on('pointermove', function (evt) {
