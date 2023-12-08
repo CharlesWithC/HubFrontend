@@ -41,7 +41,7 @@ const PatreonAuth = () => {
                 }
                 let ticket = resp.data.token;
 
-                resp = await axios({ url: `https://config.chub.page/patreon`, params: { domain: window.location.host, code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
+                resp = await axios({ url: `https://config.chub.page/patreon`, params: { domain: vars.host, code: patreonCode }, method: `PATCH`, headers: { Authorization: `Ticket ${ticket}` } });
                 if (resp.status === 200) {
                     vars.userPatreonID = resp.data.patreon_id;
                     setMessage(`Patreon account connected 🎉`);
@@ -64,7 +64,7 @@ const PatreonAuth = () => {
             setMessage(`❌ Patreon Error: ${patreonError}`);
             return;
         } else if (patreonCode === null) {
-            window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + encodeURIComponent(window.location.origin);
+            window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + encodeURIComponent(vars.host);
             return;
         } else {
             validatePatreonAuth();

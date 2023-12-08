@@ -176,7 +176,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const [userSettings, setUserSettings] = useState(vars.userSettings);
 
     const writeClientSettings = useCallback((data) => {
-        writeLS("client-settings", data, window.location.hostname);
+        writeLS("client-settings", data, vars.host);
     }, []);
 
     const updateUnit = useCallback((to) => {
@@ -1385,7 +1385,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + window.location.host; }} fullWidth>{tr("update")}</Button>
+                                    <Button variant="contained" onClick={() => { window.location.href = "https://oauth.chub.page/patreon-auth?domain=" + vars.host; }} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>

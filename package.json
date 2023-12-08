@@ -1,5 +1,8 @@
 {
-  "name": "frontend",
+  "name": "drivershub",
+  "description": "An advanced Drivers Hub solution.",
+  "author": "CharlesWithC <me@charlws.com> (https://charlws.com)",
+  "homepage": "https://drivershub.charlws.com",
   "version": "3.3.0",
   "private": true,
   "dependencies": {
@@ -28,6 +31,8 @@
     "browserslist": "^4.22.1",
     "chart.js": "^4.4.0",
     "crypto-js": "^4.2.0",
+    "electron-json-storage": "^4.6.0",
+    "express": "^4.18.2",
     "file-saver": "^2.0.5",
     "hammerjs": "^2.0.8",
     "i18next": "^23.7.7",
@@ -55,12 +60,47 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "postbuild": "bash ./scripts/post-build.sh",
-    "fast": "react-scripts build && serve -s build --port 3001",
+    "build": "react-scripts build && bash ./scripts/browser-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build:dev": "react-scripts build && bash ./scripts/browser-build.sh",
+    "build:electron": "react-scripts build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build:electron:dev": "react-scripts build && bash ./scripts/electron-build.sh",
+    "build:serve": "react-scripts build && serve -s build --port 3001",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron:build": "electron-builder",
+    "electron-pack": "build --em.main=build/electron.js",
     "sentry:sourcemaps": "npx sentry-cli sourcemaps inject --org charlws --project chub-frontend-v3 ./build && npx sentry-cli sourcemaps upload --org charlws --project chub-frontend-v3 ./build"
+  },
+  "main": "public/electron.js",
+  "build": {
+    "appId": "com.charlws.drivershub",
+    "productName": "Drivers Hub by CHub",
+    "artifactName": "drivershub.${ext}",
+    "executableName": "drivershub",
+    "icon": "public/logo.png",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "electron/**/*",
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis",
+      "legalTrademarks": "The Drivers Hub Project (CHub)",
+      "publisherName": "CharlesWithC"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
   },
   "eslintConfig": {
     "extends": [
@@ -82,6 +122,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
     "react-router-dom": "^6.11.1"
   }
 }

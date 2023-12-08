@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
-import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, useTheme } from "@mui/material";
+import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, useTheme } from "@mui/material";
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded } from '@mui/icons-material';
+import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -369,7 +369,10 @@ const TopBar = (props) => {
                                         const toggleSidebar = new CustomEvent('toggleSidebar', {});
                                         window.dispatchEvent(toggleSidebar);
                                     }}><MenuRounded /></IconButton>}
-                                    <NotificationsPopover />
+                                    {vars.isLoggedIn && <NotificationsPopover />}
+                                    {!vars.isLoggedIn && window.isElectron && <Tooltip placement="top" arrow title={tr("switch_drivers_hub")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                                        <IconButton onClick={() => { localStorage.removeItem("domain"); window.location.reload(); }}><AltRouteRounded /></IconButton>
+                                    </Tooltip>}
                                 </Typography>
                                 {radioURL !== "" &&
                                     <div className="user-profile" style={{ cursor: "default" }}>

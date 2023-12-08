@@ -105,17 +105,17 @@ export function readLS(key, secretKey) {
 }
 
 export function setAuthToken(token) {
-    writeLS("token", { token: token }, window.location.hostname);
+    writeLS("token", { token: token }, vars.host);
 }
 
 export function getAuthToken() {
     let data = localStorage.getItem("token");
     if (data === null) return null;
     if (data.length === 36) {
-        writeLS("token", { token: data }, window.location.hostname);
+        writeLS("token", { token: data }, vars.host);
         return data;
     }
-    return readLS("token", window.location.hostname).token;
+    return readLS("token", vars.host).token;
 };
 
 export async function FetchProfile(isLogin = false) {
@@ -173,7 +173,7 @@ export async function FetchProfile(isLogin = false) {
             if (resp.status === 200) {
                 vars.userSettings.language = resp.data.language;
                 i18n.changeLanguage(resp.data.language);
-                writeLS("client-settings", vars.userSettings, window.location.hostname);
+                writeLS("client-settings", vars.userSettings, vars.host);
             }
 
             if (vars.userInfo.userid !== -1) {
@@ -215,9 +215,9 @@ export async function FetchProfile(isLogin = false) {
                         }
                     }
 
-                    let cache = readLS("cache", window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
+                    let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
                     cache.members = vars.members;
-                    writeLS("cache", cache, window.location.hostname + vars.dhconfig.abbr + vars.dhconfig.api_host);
+                    writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
                 }
             }
         } else if (resp.status === 401) {

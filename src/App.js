@@ -102,17 +102,17 @@ function App() {
     }, [updateThemeMode]);
 
     useEffect(() => {
-        if (readLS("client-settings", window.location.hostname) !== null) {
-            let lsSettings = readLS("client-settings", window.location.hostname);
+        if (readLS("client-settings", vars.host) !== null) {
+            let lsSettings = readLS("client-settings", vars.host);
             let sKeys = Object.keys(vars.userSettings);
             for (let i = 0; i < sKeys.length; i++) {
                 if (Object.keys(lsSettings).includes(sKeys[i])) {
                     vars.userSettings[sKeys[i]] = lsSettings[sKeys[i]];
                 }
             }
-            writeLS("client-settings", vars.userSettings, window.location.hostname);
+            writeLS("client-settings", vars.userSettings, vars.host);
         } else {
-            writeLS("client-settings", vars.userSettings, window.location.hostname);
+            writeLS("client-settings", vars.userSettings, vars.host);
         }
         if (vars.userSettings.language !== null) {
             i18n.changeLanguage(vars.userSettings.language);
@@ -211,7 +211,7 @@ function App() {
                     {/* For mobile view, use a "menu button" on topbar, click it to show a full-width sidebar, without banner on top and with a close button on top */}
                     <div style={(!sidebarHidden && { position: "relative", left: "260px", top: !topbarHidden ? "80px" : "0", width: "calc(100vw - 260px)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })
                         || (sidebarHidden && { position: "relative", left: "0", top: !topbarHidden ? "80px" : "0", width: "calc(100vw)", height: !topbarHidden ? "calc(100vh - 80px)" : "100vh", overflow: "hidden" })}>
-                        {cookieSettings === null && !sidebarForceHidden && <>
+                        {!window.isElectron && cookieSettings === null && !sidebarForceHidden && <>
                             <Card sx={{ position: "fixed", zIndex: 100000, bottom: "10px", right: "10px", width: window.innerWidth <= 420 ? "calc(100vw - 20px) !important" : "400px" }}>
                                 <CardContent>
                                     <Typography variant="h6" fontWeight="bold">{tr("we_value_your_privacy")}</Typography>
@@ -234,10 +234,10 @@ function App() {
                                     <Route path="/auth/login" element={<AuthLogin />} />
                                     <Route path="/auth" element={<TokenAuth />} />
                                     <Route path="/auth/discord/callback" element={<DiscordAuth />} />
-                                    {vars.discordClientID !== 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${window.location.host}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} />} />}
-                                    {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${window.location.host}`} />} />}
+                                    {vars.discordClientID !== 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${vars.host}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} />} />}
+                                    {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${vars.host}`} />} />}
                                     <Route path="/auth/steam/callback" element={<SteamAuth />} />
-                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${window.location.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
+                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
                                     <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
                                     <Route path="/auth/mfa" element={<MfaAuth />} />
                                     <Route path="/auth/email" element={<EmailAuth />} />

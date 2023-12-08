@@ -27,7 +27,7 @@ const DiscordAuth = () => {
     const [doingUpdate, setDoingUpdate] = useState(false);
 
     useEffect(() => {
-        let callback_url = `${window.location.protocol}//${window.location.host}/auth/discord/callback`;
+        let callback_url = `${window.location.protocol}//${vars.host}/auth/discord/callback`;
         if (vars.discordClientID === 1120997206938361877) {
             callback_url = `https://oauth.chub.page/discord-auth`;
         }

@@ -18,4 +18,12 @@ Brand new start: V3 with ReactJS!
 4. Batch update roles
 5. Batch dismiss members
 6. Prune users
-7. (TODO) Advanced form builder
+7. Advanced form builder
+
+## Electron TODOs
+
+1. Login using default browser (callback with token)  
+2. Discord Presence
+3. Desktop Notifications
+4. Auto Update
+5. Easy Custom Build

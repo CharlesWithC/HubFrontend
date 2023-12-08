@@ -5,7 +5,7 @@ import './fonts/opensans/opensans.css';
 import './fonts/orbitron/orbitron.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import Crashed from "./components/crashed";
 
 import { I18nextProvider } from 'react-i18next';
@@ -13,11 +13,22 @@ import i18n from './i18n';
 
 import * as Sentry from "@sentry/react";
 
+window.isElectron = (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer' || typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron || typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0);
+
+var vars = require("./variables");
+if (window.isElectron) {
+    if (window.host !== undefined) vars.host = window.host;
+    // window.host will only be defined when it's a custom build
+    // otherwise, an official release will not include window.host
+} else {
+    vars.host = window.location.host;
+}
+
 if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {
     window.location.href = window.location.href.replace('http', 'https');
 }
 
-if (window.location.hostname !== "localhost") {
+if (vars.host !== "localhost:3000") {
     Sentry.init({
         dsn: "https://0a444a46a3cc99853e971ac04d7f8b3a@o4504067357409280.ingest.sentry.io/4505984184745984",
         integrations: [
@@ -45,7 +56,7 @@ class ErrorBoundary extends React.Component {
     }
 
     componentDidCatch(error, errorInfo) {
-        if (window.location.hostname !== "localhost") {
+        if (vars.host !== "localhost:3000") {
             Sentry.withScope(scope => {
                 scope.setExtras(errorInfo);
                 Sentry.captureException(error);
@@ -62,11 +73,9 @@ class ErrorBoundary extends React.Component {
 }
 root.render(
     <ErrorBoundary>
-        <Router>
-            <I18nextProvider i18n={i18n}>
-                <App />
-            </I18nextProvider>
-        </Router>
+        <I18nextProvider i18n={i18n}>
+            <BrowserRouter><App /></BrowserRouter>
+        </I18nextProvider>
     </ErrorBoundary>
 );
 

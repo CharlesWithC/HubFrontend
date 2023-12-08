@@ -1,3 +1,6 @@
+var host = "";
+exports.host = host;
+
 var apiversion = "";
 var dhconfig = null;
 var apiconfig = null;
