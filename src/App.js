@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
 import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme } from '@mui/material';
 
+import BrowserAuth from './components/browserAuth';
 import AuthLogin from './routes/auth/login';
 import TokenAuth from './routes/auth/token';
 import DiscordAuth from './routes/auth/discord/callback';
@@ -88,6 +89,12 @@ function App() {
     );
     const uTheme = useTheme();
     const isMd = useMediaQuery(uTheme.breakpoints.up('md'));
+    
+    if (window.location.hostname === "localhost" && window.location.pathname === "/auth/complete") {
+        return <ThemeProvider theme={theme}>
+            <BrowserAuth completed={true} />
+        </ThemeProvider>;
+    }
 
     useEffect(() => {
         const handleUpdateTheme = () => {
@@ -154,8 +161,6 @@ function App() {
             window.removeEventListener('resize', handle);
         };
     }, [location.pathname]);
-
-    const protocol = window.location.protocol.replace(":", "");
 
     const [cookieSettings, setCookieSettings] = useState(localStorage.getItem("cookie-settings"));
     const updateCookieSettings = useCallback((settings) => {
@@ -231,13 +236,15 @@ function App() {
                             <div style={{ display: "flex", flexDirection: "column", minHeight: "calc(100vh - 120px)" }}>
                                 <Routes>
                                     <Route path="/" exact element={<Overview />}></Route>
+                                    {window.isElectron && <Route path="/auth/complete" exact element={<BrowserAuth />}></Route>}
                                     <Route path="/auth/login" element={<AuthLogin />} />
                                     <Route path="/auth" element={<TokenAuth />} />
                                     <Route path="/auth/discord/callback" element={<DiscordAuth />} />
-                                    {vars.discordClientID !== 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=${protocol}%3A%2F%2F${vars.host}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} />} />}
-                                    {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${vars.host}`} />} />}
+                                    {vars.discordClientID !== 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://discord.com/oauth2/authorize?client_id=${vars.discordClientID}&redirect_uri=https%3A%2F%2F${vars.host}%2Fauth%2Fdiscord%2Fcallback&response_type=code&scope=identify email role_connections.write`} path="/auth/discord/redirect" />} />}
+                                    {vars.discordClientID === 1120997206938361877 && <Route path="/auth/discord/redirect" element={<Redirect to={`https://oauth.chub.page/discord-auth?domain=${vars.host}`} path="/auth/discord/redirect" />} />}
                                     <Route path="/auth/steam/callback" element={<SteamAuth />} />
-                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3D${protocol}%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} />} />
+                                    <Route path="/auth/steam/redirect" element={<Redirect to={`https://steamcommunity.com/openid/loginform/?goto=%2Fopenid%2Flogin%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%3Fopenid.ns%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%26openid.mode%3Dcheckid_setup%26openid.return_to%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.realm%3Dhttps%253A%252F%252F${vars.host}%252Fauth%252Fsteam%252Fcallback%26openid.identity%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select%26openid.claimed_id%3Dhttp%253A%252F%252Fspecs.openid.net%252Fauth%252F2.0%252Fidentifier_select`} path="/auth/steam/redirect" />} />
+                                    <Route path="/auth/patreon/redirect" element={<Redirect to={"https://oauth.chub.page/patreon-auth?domain=" + vars.host} path="/auth/patreon/redirect" />} />
                                     <Route path="/auth/patreon/callback" element={<PatreonAuth />} />
                                     <Route path="/auth/mfa" element={<MfaAuth />} />
                                     <Route path="/auth/email" element={<EmailAuth />} />

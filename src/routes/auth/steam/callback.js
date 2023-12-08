@@ -2,19 +2,18 @@ import { useTranslation } from 'react-i18next';
 
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSteam } from '@fortawesome/free-brands-svg-icons';
 
-import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '../../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken, setAuthMode, getAuthMode, eraseAuthMode } from '../../../functions';
 
 var vars = require('../../../variables');
 
 const SteamAuth = () => {
     const { t: tr } = useTranslation();
 
-    const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -25,9 +24,9 @@ const SteamAuth = () => {
     useEffect(() => {
         async function validateSteamAuth() {
             try {
-                let updcode = localStorage.getItem("update-steam");
-                if (updcode === null || !isNaN(updcode) && +new Date() - updcode > 600000 || getAuthToken() === null) {
-                    localStorage.removeItem("update-steam");
+                let authMode = getAuthMode();
+                eraseAuthMode();
+                if (authMode === null) {
                     let resp = await axios({ url: `${vars.dhpath}/auth/steam/callback` + location.search, method: `GET` });
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
@@ -44,18 +43,22 @@ const SteamAuth = () => {
                         setContinue(true);
                         setMessage("❌ " + resp.data.error);
                     }
-                } else {
+                } else if (authMode[0] === "update-steam") {
                     setDoingUpdate(true);
                     let resp = await axios({ url: `${vars.dhpath}/user/steam` + location.search, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setContinue(true);
-                        localStorage.removeItem("update-steam");
                         setTimeout(function () { navigate("/settings"); }, 3000);
                         setMessage(tr("steam_account_updated"));
                     } else {
                         setContinue(true);
                         setMessage(tr("failed_to_update_steam_account") + resp.data.error);
                     }
+                } else if (authMode[0] === "app_login") {
+                    window.location.href = authMode[1] + window.location.search;
+                    setContinue(false);
+                    setMessage(tr("authorizing_drivers_hub_app"));
+                    return;
                 }
             } catch (error) {
                 console.error(error);

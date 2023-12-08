@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay, faCirclePause, faClover } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleBar from 'simplebar-react';
-import { FetchProfile, customAxios as axios, getAuthToken } from "../functions";
+import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
 import NotificationsPopover from './notifications';
 import UserCard from './usercard';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
@@ -291,6 +291,7 @@ const TopBar = (props) => {
 
     async function logout() {
         const bearerToken = getAuthToken();
+        eraseAuthMode();
         if (bearerToken === null) {
             setSnackbarSeverity("error");
             setSnackbarContent(tr("already_logged_out"));

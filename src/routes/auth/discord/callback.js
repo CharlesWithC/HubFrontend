@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
+import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
-import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken } from '../../../functions';
+import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken, setAuthMode, getAuthMode, eraseAuthMode } from '../../../functions';
 
 import { useTranslation } from 'react-i18next';
 
@@ -14,7 +14,6 @@ var vars = require('../../../variables');
 const DiscordAuth = () => {
     const { t: tr } = useTranslation();
 
-    const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
@@ -27,15 +26,15 @@ const DiscordAuth = () => {
     const [doingUpdate, setDoingUpdate] = useState(false);
 
     useEffect(() => {
-        let callback_url = `${window.location.protocol}//${vars.host}/auth/discord/callback`;
+        let callback_url = `https://${vars.host}/auth/discord/callback`;
         if (vars.discordClientID === 1120997206938361877) {
             callback_url = `https://oauth.chub.page/discord-auth`;
         }
         async function validateDiscordAuth() {
             try {
-                let updcode = localStorage.getItem("update-discord");
-                if (updcode === null || !isNaN(updcode) && +new Date() - updcode > 600000 || getAuthToken() === null) {
-                    localStorage.removeItem("update-discord");
+                let authMode = getAuthMode();
+                eraseAuthMode();
+                if (authMode === null) {
                     let resp = await axios({ url: `${vars.dhpath}/auth/discord/callback`, params: { code: discordCode, callback_url: callback_url }, method: `GET` });
                     if (resp.status === 200) {
                         if (resp.data.mfa === false) {
@@ -52,18 +51,22 @@ const DiscordAuth = () => {
                         setContinue(true);
                         setMessage("❌ " + resp.data.error);
                     }
-                } else {
+                } else if (authMode[0] === "update-discord") {
                     setDoingUpdate(true);
                     let resp = await axios({ url: `${vars.dhpath}/user/discord`, params: { code: discordCode, callback_url: callback_url }, method: `PATCH`, headers: { Authorization: `Bearer ${getAuthToken()}` } });
                     if (resp.status === 204) {
                         setContinue(true);
-                        localStorage.removeItem("update-discord");
                         setTimeout(function () { navigate("/settings"); }, 3000);
                         setMessage(tr("discord_account_updated"));
                     } else {
                         setContinue(true);
                         setMessage(tr("failed_to_update_discord_account") + resp.data.error);
                     }
+                } else if (authMode[0] === "app_login") {
+                    window.location.href = authMode[1] + window.location.search;
+                    setContinue(false);
+                    setMessage(tr("authorizing_drivers_hub_app"));
+                    return;
                 }
             } catch (error) {
                 console.error(error);

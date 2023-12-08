@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 var vars = require('../variables');
 
 const Loader = ({ onLoaderLoaded }) => {
-    const [domain, setDomain] = useState(localStorage.getItem("domain") !== null ? localStorage.getItem("domain") : vars.host);
+    const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : vars.host);
 
     const { t: tr } = useTranslation();
 
@@ -23,9 +23,10 @@ const Loader = ({ onLoaderLoaded }) => {
     const [unknownDomain, setUnknownDomain] = useState(false);
 
     const searchParams = new URLSearchParams(window.location.search);
-    if (window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
+    if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
         setDomain(searchParams.get("domain"));
         localStorage.setItem("domain", domain);
+        vars.host = domain;
     }
 
     if (localStorage.getItem("update-discord") !== null && +new Date() - localStorage.getItem("update-discord") > 60000) {
@@ -228,6 +229,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const handleDomainUpdate = useCallback(() => {
         localStorage.setItem("domain", domain);
+        vars.host = domain;
         setLoaderAnimation(true);
         setTitle(tr("drivers_hub"));
         setLoadMessage(tr("loading"));

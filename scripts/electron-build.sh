@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sed -i "s|/static|./static|g" ./build/index.html
+sed -i "s|https://cdn.chub.page/static|/static|g" ./build/index.html
+sed -i "s|https://cdn.chub.page/static|/static|g" ./build/asset-manifest.json
 
-css=$(ls ./build/static/css | head -n 1)
-sed -i "s|/static|../../static|g" ./build/static/css/$css
+cp "./public/electron.js" "./build/electron.js"
+cp "./public/preload.js" "./build/preload.js"
+cp "./public/logo.png" "./build/logo.png"

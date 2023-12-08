@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardActions, Button, useTheme } from '@mui/material';
+import { Card, CardContent, CardActions, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -10,7 +10,6 @@ var vars = require('../../variables');
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
     
-    const theme = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);

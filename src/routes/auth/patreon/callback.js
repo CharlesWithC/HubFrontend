@@ -5,7 +5,7 @@ import { Button, Card, CardActions, CardContent, Typography } from '@mui/materia
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 
-import { customAxios as axios, getAuthToken } from '../../../functions';
+import { customAxios as axios, getAuthToken, setAuthMode, getAuthMode, eraseAuthMode } from '../../../functions';
 
 import { useTranslation } from 'react-i18next';
 
@@ -20,13 +20,23 @@ const PatreonAuth = () => {
     const patreonCode = searchParams.get('code');
     const patreonError = searchParams.get('error');
     const patreonErrorDescription = searchParams.get('error_description');
-
+    
     const [message, setMessage] = useState(tr("validating_authorization"));
     const [allowContinue, setContinue] = useState(false);
 
     useEffect(() => {
         async function validatePatreonAuth() {
             try {
+                let authMode = getAuthMode();
+                eraseAuthMode();
+
+                if (authMode !== null && authMode[0] === "app_login" && authMode[1] !== "") {
+                    window.location.href = authMode[1] + window.location.search;
+                    setContinue(false);
+                    setMessage(tr("authorizing_drivers_hub_app"));
+                    return;
+                }
+
                 if (getAuthToken() === null) {
                     setContinue(true);
                     setMessage(tr("you_are_not_logged_in"));

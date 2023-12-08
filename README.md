@@ -20,10 +20,15 @@ Brand new start: V3 with ReactJS!
 6. Prune users
 7. Advanced form builder
 
+## Electron Client Features
+
+1. Local static files / No need to request it every time on load
+2. Switch Drivers Hub
+3. OAuth login with default browser
+
 ## Electron TODOs
 
-1. Login using default browser (callback with token)  
-2. Discord Presence
-3. Desktop Notifications
-4. Auto Update
-5. Easy Custom Build
+1. Discord Presence (General)
+2. Desktop Notifications
+3. Auto Update
+4. Easy Custom Build (+ Custom Discord Presence)

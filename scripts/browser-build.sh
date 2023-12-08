@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sed -i "s|https://cdn.chub.page/static|/static|g" ./build/index.html
+sed -i "s|https://cdn.chub.page/static|/static|g" ./build/asset-manifest.json
 sed -i "s|/static|https://cdn.chub.page/static|g" ./build/index.html
 sed -i "s|/static|https://cdn.chub.page/static|g" ./build/asset-manifest.json
 

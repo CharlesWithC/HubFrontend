@@ -11,6 +11,8 @@ import Crashed from "./components/crashed";
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 
+import { setAuthMode } from './functions';
+
 import * as Sentry from "@sentry/react";
 
 window.isElectron = (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer' || typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron || typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0);
@@ -20,8 +22,16 @@ if (window.isElectron) {
     if (window.host !== undefined) vars.host = window.host;
     // window.host will only be defined when it's a custom build
     // otherwise, an official release will not include window.host
+    vars.host = localStorage.getItem("domain");
+    if (vars.host === null) vars.host = "";
 } else {
     vars.host = window.location.host;
+    if (window.location.hostname === "localhost") vars.host = localStorage.getItem("domain");
+}
+
+const searchParams = new URLSearchParams(window.location.search);
+if (searchParams.get("auth_mode") !== null && searchParams.get("auth_redirect") !== null) {
+    setAuthMode(searchParams.get("auth_mode"), searchParams.get("auth_redirect"));
 }
 
 if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost') {

@@ -1,18 +1,44 @@
 const express = require('express');
-const { app, BrowserWindow } = require('electron');
+const history = require('connect-history-api-fallback');
 const path = require('path');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const storage = require('electron-json-storage');
 
 let win;
 
 const dev = false;
 
+let browserAuth = false;
+
 async function createWindow() {
     const server = express();
+    const REDIRECT_BACK = ['/auth/discord/callback', '/auth/steam/callback', '/auth/patreon/callback'];
+    for (const route of REDIRECT_BACK) { // handle login callback
+        server.get(route, (req, res, next) => {
+            const userAgent = req.headers['user-agent'];
+            const isElectron = userAgent && userAgent.includes('Electron');
+            if (isElectron) next();
+            else if (browserAuth) {
+                const url = req.originalUrl;
+                if (url && win) { win.loadURL(`http://localhost:${port}${url}`); win.focus(); }
+                res.redirect("/auth/complete");
+            }
+        });
+    }
+    server.use((req, res, next) => { // drop browser access
+        const userAgent = req.headers['user-agent'];
+        const isElectron = userAgent && userAgent.includes('Electron');
+        if (req.originalUrl.startsWith("/static")) next();
+        else if (!isElectron && browserAuth && req.originalUrl === "/auth/complete") {
+            browserAuth = false;
+            next();
+        }
+        else if (isElectron) next();
+    });
+    server.use(history({ // handle non-root reload
+        index: '/index.html'
+    }));
     server.use(express.static(path.join(__dirname, '..', 'build')));
-
-    const listener = server.listen(0);
-    const port = listener.address().port;
 
     win = new BrowserWindow({
         width: 1200,
@@ -76,32 +102,55 @@ async function createWindow() {
             });
     });
 
-    let isReloaded = false;
-    win.loadURL(`http://localhost:${port}`);
-    if (dev) {
-        win.webContents.openDevTools();
-    }
-    win.webContents.on('did-finish-load', () => {
-        if (!isReloaded) {
-            storage.get('localStorage', (error, data) => {
-                if (error) throw error;
-                for (const key in data) {
-                    win.webContents.executeJavaScript(`localStorage.setItem("${key}", "${data[key]}");`, true)
-                        .then(() => {
-                            win.webContents.reload();
-                            isReloaded = true;
-                        });
-                }
-            });
-        }
-    });
-
     win.webContents.on("before-input-event",
         (event, input) => {
-            if (input.code == 'F4' && input.alt)
+            if (input.code == 'F4' && input.alt) {
+                const windows = BrowserWindow.getAllWindows();
+                windows.forEach(win => {
+                    win.close();
+                });
                 app.quit();
+            }
         }
     );
+
+    const listener = server.listen(0, 'localhost', () => {
+        port = listener.address().port;
+        win.loadURL(`http://localhost:${port}`);
+        let isReloaded = false;
+        if (dev) {
+            win.webContents.openDevTools();
+        }
+        win.webContents.on('did-finish-load', () => {
+            if (!isReloaded) {
+                storage.get('localStorage', (error, data) => {
+                    if (error) throw error;
+                    for (const key in data) {
+                        win.webContents.executeJavaScript(`localStorage.setItem("${key}", "${data[key]}");`, true)
+                            .then(() => {
+                                win.webContents.reload();
+                                isReloaded = true;
+                            });
+                    }
+                });
+            }
+        });
+    });
+
+    ipcMain.on('browser-auth', (event, data) => {
+        browserAuth = true;
+    });
+    ipcMain.on('cancel-browser-auth', (event, data) => {
+        browserAuth = false;
+    });
+    ipcMain.on('open-url', (event, data) => {
+        try {
+            let url = new URL(data);
+            shell.openExternal(url.toString());
+        } catch {
+            return;
+        }
+    });
 }
 
 app.whenReady().then(createWindow);
