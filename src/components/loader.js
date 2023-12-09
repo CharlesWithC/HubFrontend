@@ -16,9 +16,9 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
-    const [logoSrc, setLogoSrc] = useState(localStorage.getItem("cache-logo"));
-    const [bgSrc, setBgSrc] = useState(localStorage.getItem("cache-background"));
-    const [title, setTitle] = useState(localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub"));
+    const [logoSrc, setLogoSrc] = useState(domain !== null && domain !== "" ? localStorage.getItem("cache-logo") : null);
+    const [bgSrc, setBgSrc] = useState(domain !== null && domain !== "" ? localStorage.getItem("cache-background") : null);
+    const [title, setTitle] = useState(domain !== null && domain !== "" ? (localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub")) : null);
     const [loadMessage, setLoadMessage] = useState((!window.isElectron || logoSrc !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
     vars.dhbanner = localStorage.getItem("cache-banner");
@@ -269,6 +269,18 @@ const Loader = ({ onLoaderLoaded }) => {
         let hexValue = scaledInt.toString(16);
         if (hexValue.length === 1) hexValue = '0' + hexValue;
         return hexValue;
+    }
+
+    if (window.isElectron && unknownDomain) {
+        window.electron.ipcRenderer.send("presence-update", {
+            details: 'Launching...',
+            largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
+            startTimestamp: new Date(),
+            instance: false,
+            buttons: [
+                { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+            ]
+        });
     }
 
     return (

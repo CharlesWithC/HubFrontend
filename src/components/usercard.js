@@ -823,6 +823,29 @@ const UserCard = (props) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (window.isElectron) {
+            if (showProfileModal === 2 || ctxAction == "show-profile") {
+                window.electron.ipcRenderer.send("presence-update", {
+                    details: `Viewing Profile`,
+                    state: `${nameRef.current}`,
+                    largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
+                    largeImageText: vars.dhconfig.name,
+                    smallImageKey: avatarRef.current,
+                    smallImageText: nameRef.current,
+                    startTimestamp: new Date(),
+                    instance: false,
+                    buttons: [
+                        { label: 'Visit Drivers Hub', url: `https://${vars.host}${window.location.pathname}` },
+                        { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                    ]
+                });
+            } else {
+                window.electron.ipcRenderer.send("presence-revert");
+            }
+        }
+    }, [showProfileModal, ctxAction]);
+
     let profileModal = <Dialog open={true} onClose={() => {
         ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length == 0) window.history.pushState("", "", "/"); }, 250);
     }} fullWidth >

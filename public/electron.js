@@ -5,12 +5,15 @@ const fs = require('fs');
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const storage = require('electron-json-storage');
 
+const DiscordRPC = require('discord-rpc');
+const rpc = new DiscordRPC.Client({ transport: 'ipc' });
+
 const debug = false;
 let browserAuth = false;
 
 async function createWindow() {
     let lockDomain = false;
-    let config;
+    let config = { name: "Drivers Hub", discordClientID: "997847494933368923" };
     const configPath = path.join(__dirname, 'electron-config.json');
     if (fs.existsSync(configPath)) {
         const configData = fs.readFileSync(configPath, 'utf8');
@@ -18,6 +21,23 @@ async function createWindow() {
         if (config.domain !== undefined && config.domain !== null && config.domain !== "") {
             lockDomain = config.domain;
         }
+    }
+
+    try {
+        rpc.login({ clientId: config.discordClientID }).catch(console.error);
+        rpc.on('ready', () => {
+            rpc.setActivity({
+                details: 'Launching...',
+                largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
+                startTimestamp: new Date(),
+                instance: false,
+                buttons: [
+                    { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                ]
+            });
+        });
+    } catch {
+        console.warn("Failed to initiate Discord RPC");
     }
 
     const server = express();
@@ -52,7 +72,7 @@ async function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
         height: 675,
-        title: 'Drivers Hub',
+        title: config.name,
         icon: path.join(__dirname, 'logo.png'),
         webPreferences: {
             nodeIntegration: false,
@@ -111,17 +131,18 @@ async function createWindow() {
             });
     });
 
-    win.webContents.on("before-input-event",
-        (event, input) => {
-            if (input.code == 'F4' && input.alt) {
-                const windows = BrowserWindow.getAllWindows();
-                windows.forEach(win => {
-                    win.close();
-                });
-                app.quit();
-            }
+    win.webContents.on("before-input-event", (event, input) => {
+        if (input.code == 'F4' && input.alt) {
+            const windows = BrowserWindow.getAllWindows();
+            windows.forEach(win => {
+                win.close();
+            });
+            app.quit();
         }
-    );
+        if (input.control && input.key.toLowerCase() === 'r') {
+            win.webContents.reload();
+        }
+    });
 
     const listener = server.listen(0, 'localhost', () => {
         port = listener.address().port;
@@ -144,7 +165,11 @@ async function createWindow() {
                         data["locked"] = "false";
                     }
                     const promises = Object.keys(data).map(key => {
-                        return win.webContents.executeJavaScript(`localStorage.setItem("${key}", "${data[key]}");`, true);
+                        try {
+                            return win.webContents.executeJavaScript(`localStorage.setItem("${key}", "${data[key].replace('"', '\"')}");`, true);
+                        } catch {
+                            return true;
+                        }
                     });
 
                     Promise.all(promises)
@@ -171,6 +196,33 @@ async function createWindow() {
             return;
         }
     });
+
+    let lastPresence = null; // note, must be different from curPresence
+    let curPresence = {};
+    ipcMain.on('presence-update', (event, data) => {
+        try {
+            if (config.discordClientID !== "997847494933368923") {
+                // remove powered by CHub for custom RPC
+                data.buttons = [data.buttons[0]];
+            }
+            if (data !== curPresence) {
+                if (curPresence !== lastPresence) {
+                    lastPresence = JSON.parse(JSON.stringify(curPresence));
+                }
+                curPresence = JSON.parse(JSON.stringify(data));
+            }
+            rpc.setActivity(data);
+        } catch {
+            console.warning("Failed to update Discord RPC");
+        }
+    });
+    ipcMain.on('presence-revert', (event, data) => {
+        try {
+            rpc.setActivity({ ...lastPresence, startTimestamp: new Date() });
+        } catch {
+            console.warning("Failed to update Discord RPC");
+        }
+    });
 }
 
 app.whenReady().then(createWindow);
@@ -190,8 +242,6 @@ app.on('activate', () => {
 app.on('ready', () => {
     if (!app.requestSingleInstanceLock()) {
         app.quit();
-    } else {
-        createWindow();
     }
 });
 

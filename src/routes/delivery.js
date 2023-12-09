@@ -70,6 +70,22 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
     const [dlogMap, setDlogMap] = useState(null);
     // const [replayProgress, setReplayProgress] = useState(0);
 
+    if (window.isElectron) {
+        window.electron.ipcRenderer.send("presence-update", {
+            details: `Viewing Delivery #${logid}`,
+            largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
+            largeImageText: vars.dhconfig.name,
+            smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
+            smallImageText: "The Drivers Hub Project (CHub)",
+            startTimestamp: new Date(),
+            instance: false,
+            buttons: [
+                { label: 'Visit Drivers Hub', url: `https://${vars.host}${window.location.pathname}` },
+                { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+            ]
+        });
+    }
+
     const [localDivisionStatus, setLocalDivisionStatus] = useState(-1);
 
     const [listModalItems, setListModalItems] = useState([]);
@@ -336,6 +352,23 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
 
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
+
+            if (window.isElectron) {
+                window.electron.ipcRenderer.send("presence-update", {
+                    details: `Viewing Delivery #${logid}`,
+                    state: `${detail.source_city.name} -> ${detail.destination_city.name} (${ConvertUnit("km", detail.events[detail.events.length - 1].meta.distance)})`,
+                    largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
+                    largeImageText: vars.dhconfig.name,
+                    smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
+                    smallImageText: "The Drivers Hub Project (CHub)",
+                    startTimestamp: new Date(),
+                    instance: false,
+                    buttons: [
+                        { label: 'Visit Drivers Hub', url: `https://${vars.host}${window.location.pathname}` },
+                        { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                    ]
+                });
+            }
         }
         doLoad();
     }, [logid, theme, doReload, handleReloadRoute, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, navigate]);

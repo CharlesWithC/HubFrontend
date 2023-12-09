@@ -22,13 +22,21 @@ Brand new start: V3 with ReactJS!
 
 ## Electron Client Features
 
+0. Not affected by downtime of frontend server
 1. Local static files / No need to request it every time on load
 2. Switch Drivers Hub
 3. OAuth login with default browser
 4. Custom build (icon / locked domain)
+5. Discord Rich Presence
+   - VTC Logo will be used as large image / CHub Logo will be used as small image
+   - For default RPC
+     - `Powered by CHub` will be used as second button
+   - For custom RPC
+     - Set `discordClientID` in `electron-config.json` and `build-electron/config.json`
+     - There will not be a second button
 
 ## Electron TODOs
 
-1. Discord Presence (General)
+1. Custom User Agent
 2. Desktop Notifications
 3. Auto Update

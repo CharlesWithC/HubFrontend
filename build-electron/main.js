@@ -26,7 +26,9 @@ async function main() {
 
         // ii) Modify ./build/electron-config.json
         const electronConfig = JSON.parse(fs.readFileSync('./build/electron-config.json', 'utf8'));
+        electronConfig.name = item.name;
         electronConfig.domain = item.domain;
+        electronConfig.discordClientID = item.discordClientID;
         fs.writeFileSync('./build/electron-config.json', JSON.stringify(electronConfig, null, 2));
 
         // iii) Modify logo.png
