@@ -1,16 +1,25 @@
 const express = require('express');
 const history = require('connect-history-api-fallback');
 const path = require('path');
+const fs = require('fs');
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const storage = require('electron-json-storage');
 
-let win;
-
-const dev = false;
-
+const debug = false;
 let browserAuth = false;
 
 async function createWindow() {
+    let lockDomain = false;
+    let config;
+    const configPath = path.join(__dirname, 'electron-config.json');
+    if (fs.existsSync(configPath)) {
+        const configData = fs.readFileSync(configPath, 'utf8');
+        config = JSON.parse(configData);
+        if (config.domain !== undefined && config.domain !== null && config.domain !== "") {
+            lockDomain = config.domain;
+        }
+    }
+
     const server = express();
     const REDIRECT_BACK = ['/auth/discord/callback', '/auth/steam/callback', '/auth/patreon/callback'];
     for (const route of REDIRECT_BACK) { // handle login callback
@@ -40,10 +49,10 @@ async function createWindow() {
     }));
     server.use(express.static(path.join(__dirname, '..', 'build')));
 
-    win = new BrowserWindow({
+    const win = new BrowserWindow({
         width: 1200,
         height: 675,
-        title: 'Drivers Hub by CHub',
+        title: 'Drivers Hub',
         icon: path.join(__dirname, 'logo.png'),
         webPreferences: {
             nodeIntegration: false,
@@ -51,7 +60,7 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js')
         }
     });
-    if (!dev) {
+    if (!debug) {
         win.setMenuBarVisibility(false);
         win.webContents.setIgnoreMenuShortcuts(true);
         win.webContents.on('devtools-opened', () => {
@@ -116,22 +125,33 @@ async function createWindow() {
 
     const listener = server.listen(0, 'localhost', () => {
         port = listener.address().port;
-        win.loadURL(`http://localhost:${port}`);
+        win.loadURL(`http://localhost:${port}/wait`);
         let isReloaded = false;
-        if (dev) {
+        if (debug) {
             win.webContents.openDevTools();
         }
         win.webContents.on('did-finish-load', () => {
             if (!isReloaded) {
                 storage.get('localStorage', (error, data) => {
                     if (error) throw error;
-                    for (const key in data) {
-                        win.webContents.executeJavaScript(`localStorage.setItem("${key}", "${data[key]}");`, true)
-                            .then(() => {
-                                win.webContents.reload();
-                                isReloaded = true;
-                            });
+                    if (lockDomain !== false) {
+                        data["domain"] = lockDomain;
+                        data["locked"] = "true";
+                    } else {
+                        if (data["locked"] === "true") {
+                            data["domain"] = "";
+                        }
+                        data["locked"] = "false";
                     }
+                    const promises = Object.keys(data).map(key => {
+                        return win.webContents.executeJavaScript(`localStorage.setItem("${key}", "${data[key]}");`, true);
+                    });
+
+                    Promise.all(promises)
+                        .then(() => {
+                            win.loadURL(`http://localhost:${port}`);
+                            isReloaded = true;
+                        });
                 });
             }
         });
@@ -164,5 +184,21 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
         createWindow();
+    }
+});
+
+app.on('ready', () => {
+    if (!app.requestSingleInstanceLock()) {
+        app.quit();
+    } else {
+        createWindow();
+    }
+});
+
+app.on('second-instance', () => {
+    let win = BrowserWindow.getAllWindows()[0];
+    if (win) {
+        if (win.isMinimized()) win.restore();
+        win.focus();
     }
 });

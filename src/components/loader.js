@@ -16,11 +16,12 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
-    const [logoSrc, setLogoSrc] = useState(null);
-    const [bgSrc, setBgSrc] = useState(null);
-    const [title, setTitle] = useState(tr("drivers_hub"));
-    const [loadMessage, setLoadMessage] = useState(!window.isElectron ? tr("loading") : "");
+    const [logoSrc, setLogoSrc] = useState(localStorage.getItem("cache-logo"));
+    const [bgSrc, setBgSrc] = useState(localStorage.getItem("cache-background"));
+    const [title, setTitle] = useState(localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub"));
+    const [loadMessage, setLoadMessage] = useState((!window.isElectron || logoSrc !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
+    vars.dhbanner = localStorage.getItem("cache-banner");
 
     const searchParams = new URLSearchParams(window.location.search);
     if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
@@ -29,23 +30,26 @@ const Loader = ({ onLoaderLoaded }) => {
         vars.host = domain;
     }
 
-    if (localStorage.getItem("update-discord") !== null && +new Date() - localStorage.getItem("update-discord") > 60000) {
-        localStorage.removeItem("update-discord");
-    }
-    if (localStorage.getItem("update-steam") !== null && +new Date() - localStorage.getItem("update-steam") > 60000) {
-        localStorage.removeItem("update-steam");
-    }
-
     async function doLoad() {
         if (vars.dhconfig !== null) return;
 
         try {
+            if (domain === undefined || domain === null || domain === "") {
+                setLoaderAnimation(false);
+                setTitle("Drivers Hub");
+                vars.dhlogo = await loadImageAsBase64(`./logo.png`);
+                setLogoSrc(vars.dhlogo);
+                setBgSrc(null);
+                setUnknownDomain(true);
+                setLoadMessage(<>{tr("drivers_hub_not_found")}<br />{tr("no_drivers_hub_under_domain")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
+                return;
+            }
             // fetch config
             let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
             if (resp.status !== 200) {
                 setLoaderAnimation(false);
-                setTitle("The Drivers Hub Project (CHub)");
-                vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/logo.png`);
+                setTitle("Drivers Hub");
+                vars.dhlogo = await loadImageAsBase64(`./logo.png`);
                 setLogoSrc(vars.dhlogo);
                 if (resp.data.error === tr("service_suspended")) {
                     setLoadMessage(<>{tr("drivers_hub_suspended")}<br />{tr("ask_for_payment")}<br /><br /><a href="https://drivershub.charlws.com/">The Drivers Hub Project (CHub)</a></>);
@@ -55,7 +59,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 }
                 return;
             }
-            setLoadMessage(tr("loading"));
             let loadedConfig = resp.data;
             vars.dhconfig = loadedConfig.config;
             vars.dhpath = `${vars.dhconfig.api_host}/${vars.dhconfig.abbr}`;
@@ -68,20 +71,38 @@ const Loader = ({ onLoaderLoaded }) => {
                 vars.vtcLevel = 0;
             }
 
-            setTitle(vars.dhconfig.name);
-            try {
-                vars.dhlogo = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`, "https://cdn.chub.page/assets/logo.png");
-            } catch {
-                vars.dhlogo = "";
-            }
-            try {
-                vars.dhvtcbg = await loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`);
-            } catch {
-                vars.dhvtcbg = "";
-            }
-            setLogoSrc(vars.dhlogo);
-            setBgSrc(vars.dhvtcbg);
             setLoadMessage(tr("loading"));
+            setTitle(vars.dhconfig.name);
+            localStorage.setItem("cache-title", vars.dhconfig.name);
+            let imageLoaded = false;
+            Promise.all([
+                loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`, "./logo.png")
+                    .then((image) => {
+                        vars.dhlogo = image;
+                        localStorage.setItem("cache-logo", vars.dhlogo);
+                        setLogoSrc(vars.dhlogo);
+                    })
+                    .catch(() => {
+                        vars.dhlogo = "";
+                    }),
+                loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`)
+                    .then((image) => {
+                        vars.dhvtcbg = image;
+                        localStorage.setItem("cache-background", vars.dhvtcbg);
+                        setBgSrc(vars.dhvtcbg);
+                    })
+                    .catch(() => {
+                        vars.dhvtcbg = "";
+                    }),
+                loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`)
+                    .then((image) => {
+                        vars.dhbanner = image;
+                        localStorage.setItem("cache-banner", vars.dhbanner);
+                    })
+                    .catch(() => {
+                        vars.dhbanner = "";
+                    })
+            ]).then(() => { imageLoaded = true; });
 
             let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions, dlogDetails] = [null, null, null, null, null, null, null, null, null, null, null, null];
             let useCache = false;
@@ -215,6 +236,12 @@ const Loader = ({ onLoaderLoaded }) => {
             const themeUpdated = new CustomEvent('themeUpdated', {});
             window.dispatchEvent(themeUpdated);
 
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            while (!imageLoaded && (vars.dhlogo === null || vars.dhbanner === null || vars.dhvtcbg === null)) {
+                await sleep(10);
+            }
             onLoaderLoaded();
         } catch (error) {
             setLoaderAnimation(false);

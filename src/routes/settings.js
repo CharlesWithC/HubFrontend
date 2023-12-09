@@ -742,7 +742,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 height: 200,
                 type: "svg",
                 data: `otpauth://totp/${vars.dhconfig.name.replaceAll(" ", "%20")}%20Drivers%20Hub?secret=${newSecret}&issuer=drivershub.charlws&digits=6&period=30`,
-                image: "https://cdn.chub.page/assets/logo.png",
+                image: "./logo.png",
                 dotsOptions: {
                     color: theme.palette.text.secondary,
                     type: "extra-rounded"

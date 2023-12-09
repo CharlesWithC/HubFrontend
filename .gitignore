@@ -31,3 +31,6 @@ yarn-error.log*
 .ruff_cache
 
 config.json
+
+build-electron/assets/
+build-electron/output/

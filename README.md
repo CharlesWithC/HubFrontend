@@ -25,10 +25,10 @@ Brand new start: V3 with ReactJS!
 1. Local static files / No need to request it every time on load
 2. Switch Drivers Hub
 3. OAuth login with default browser
+4. Custom build (icon / locked domain)
 
 ## Electron TODOs
 
 1. Discord Presence (General)
 2. Desktop Notifications
 3. Auto Update
-4. Easy Custom Build (+ Custom Discord Presence)

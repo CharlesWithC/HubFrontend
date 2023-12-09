@@ -1,0 +1,8 @@
+[
+    {
+        "name": "Drivers Hub",
+        "icon": "./build-electron/assets/chub.png",
+        "domain": "",
+        "output": "DriversHub"
+    }
+]

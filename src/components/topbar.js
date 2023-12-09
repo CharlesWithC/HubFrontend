@@ -73,11 +73,11 @@ const TopBar = (props) => {
                     setRadioSpotifyId(undefined);
                     setRadioURL(vars.userSettings.radio_type);
                     setRadioName(tr("custom_radio"));
-                    setRadioImage("https://cdn.chub.page/assets/logo.png");
+                    setRadioImage("./logo.png");
                     navigator.mediaSession.metadata = new MediaMetadata({
                         title: tr("custom_radio"),
                         artwork: [
-                            { src: "https://cdn.chub.page/assets/logo.png", sizes: '500x500', type: 'image/jpeg' }
+                            { src: "./logo.png", sizes: '500x500', type: 'image/jpeg' }
                         ]
                     });
                     radioOK = true;
@@ -371,7 +371,7 @@ const TopBar = (props) => {
                                         window.dispatchEvent(toggleSidebar);
                                     }}><MenuRounded /></IconButton>}
                                     {vars.isLoggedIn && <NotificationsPopover />}
-                                    {!vars.isLoggedIn && window.isElectron && <Tooltip placement="top" arrow title={tr("switch_drivers_hub")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                                    {!vars.isLoggedIn && window.isElectron && localStorage.getItem("locked") !== "true" && <Tooltip placement="top" arrow title={tr("switch_drivers_hub")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                         <IconButton onClick={() => { localStorage.removeItem("domain"); window.location.reload(); }}><AltRouteRounded /></IconButton>
                                     </Tooltip>}
                                 </Typography>

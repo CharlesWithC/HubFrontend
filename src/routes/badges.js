@@ -49,7 +49,7 @@ const Badges = () => {
                         title={
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <img
-                                    src="https://cdn.chub.page/assets/logo.png"
+                                    src="./logo.png"
                                     alt=""
                                     width="24px"
                                     height="24px"

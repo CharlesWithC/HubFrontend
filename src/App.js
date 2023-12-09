@@ -89,11 +89,15 @@ function App() {
     );
     const uTheme = useTheme();
     const isMd = useMediaQuery(uTheme.breakpoints.up('md'));
-    
+
     if (window.location.hostname === "localhost" && window.location.pathname === "/auth/complete") {
         return <ThemeProvider theme={theme}>
             <BrowserAuth completed={true} />
         </ThemeProvider>;
+    }
+
+    if (isElectron && window.location.pathname === "/wait") {
+        return <ThemeProvider theme={theme}></ThemeProvider>;
     }
 
     useEffect(() => {

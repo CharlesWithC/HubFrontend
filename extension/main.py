@@ -475,7 +475,7 @@ DEFAULT_MANIFEST = {
     "background_color": "#2e3035",
     "icons": [
         {
-            "src": "https://cdn.chub.page/assets/logo.png",
+            "src": "./logo.png",
             "sizes": "500x500",
             "type": "image/png"
         }
