@@ -172,7 +172,7 @@ function App() {
         localStorage.setItem("cookie-settings", settings);
     }, []);
     useEffect(() => {
-        if (cookieSettings === "analytical") {
+        if (cookieSettings === "analytical" || window.isElectron) {
             const script = document.createElement('script');
             script.src = 'https://www.googletagmanager.com/gtag/js?id=G-SLZ5TY9MVN';
             script.async = true;
