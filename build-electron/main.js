@@ -44,8 +44,13 @@ async function main() {
         }
 
         // v) Move the built files from ./dist to ./build-electron/output
-        fse.moveSync(`./dist/DriversHub.exe`, `./build-electron/output/${item.output}.exe`, { overwrite: true });
-        fse.moveSync(`./dist/DriversHub.Setup.exe`, `./build-electron/output/${item.output}.Setup.exe`, { overwrite: true });
+        try {
+            fse.moveSync(`./dist/DriversHub.exe`, `./build-electron/output/${item.output}.exe`, { overwrite: true });
+            fse.moveSync(`./dist/DriversHub.Setup.exe`, `./build-electron/output/${item.output}.Setup.exe`, { overwrite: true });
+        } catch (error) {
+            console.error(`copy file failed: ${error}`);
+            continue;
+        }
 
         // vi) Clear up logo
         fse.moveSync("./build/chub-logo.png", "./build/logo.png", { overwrite: true });

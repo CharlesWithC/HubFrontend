@@ -81,7 +81,7 @@
     "productName": "Drivers Hub",
     "artifactName": "DriversHub.${ext}",
     "executableName": "DriversHub",
-    "icon": "public/logo.png",
+    "icon": "./build-electron/assets/chub.png",
     "directories": {
       "buildResources": "assets"
     },

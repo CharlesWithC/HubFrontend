@@ -45,14 +45,22 @@ const NotificationsPopover = () => {
         }
 
         try {
-            const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, params: { page_size: 250 }, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
-            if (parseInt(resp.status / 100) === 2) {
-                var list = [];
+            const resp = await axios({ url: `${vars.dhpath}/user/notification/list`, params: { page_size: 250, order_by: "notificationid", order: "desc" }, method: "GET", headers: { "Authorization": `Bearer ${bearerToken}` } });
+            if (resp.status === 200) {
+                let list = [];
                 for (let i = 0; i < resp.data.list.length; i++) {
                     let noti = resp.data.list[i];
                     list.push({ id: noti.notificationid, message: noti.content, timestamp: noti.timestamp, read: noti.read });
                 }
                 setNotifications(list);
+
+                if (window.isElectron) {
+                    for (let i = list.length - 1; i >= 0; i--) {
+                        if (list[i].read) continue;
+                        window.electron.ipcRenderer.send("notification", list[i]);
+                    }
+                    window.electron.ipcRenderer.send("notification", { id: -1 });
+                }
             } else {
                 setSnackbarSeverity("error");
                 setSnackbarContent(resp.error);

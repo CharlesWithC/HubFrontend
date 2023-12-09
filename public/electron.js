@@ -2,7 +2,7 @@ const express = require('express');
 const history = require('connect-history-api-fallback');
 const path = require('path');
 const fs = require('fs');
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Notification, ipcMain, shell } = require('electron');
 const storage = require('electron-json-storage');
 
 const DiscordRPC = require('discord-rpc');
@@ -10,6 +10,17 @@ const rpc = new DiscordRPC.Client({ transport: 'ipc' });
 
 const debug = false;
 let browserAuth = false;
+let receivedNoti = []; // notificationid
+
+function removeMarkdown(content) {
+    let result = content;
+    result = result.replace(/(\*\*|__) (.+?) (\*\*|__)/g, '$2');
+    result = result.replace(/(\*|_) (.+?) (\*|_)/g, '$2');
+    result = result.replace(/`(.+?)`/g, '$1');
+    result = result.replace(/~~(.+?)~~/g, '$1');
+    result = result.replace(/\[(.+?)\]\(.+?\)/g, '$1');
+    return result;
+}
 
 async function createWindow() {
     let lockDomain = false;
@@ -22,6 +33,8 @@ async function createWindow() {
             lockDomain = config.domain;
         }
     }
+    app.setName(config.name);
+    app.setAppUserModelId(config.name);
 
     try {
         rpc.login({ clientId: config.discordClientID }).catch(console.error);
@@ -72,6 +85,8 @@ async function createWindow() {
     const win = new BrowserWindow({
         width: 1200,
         height: 675,
+        minWidth: 960,
+        minHeight: 520,
         title: config.name,
         icon: path.join(__dirname, 'logo.png'),
         webPreferences: {
@@ -227,6 +242,19 @@ async function createWindow() {
             rpc.setActivity({ ...lastPresence, startTimestamp: new Date() });
         } catch {
             console.warning("Failed to update Discord RPC");
+        }
+    });
+    ipcMain.on('notification', (event, data) => {
+        if (receivedNoti.includes(data.id)) return;
+        receivedNoti.push(data.id);
+        if (receivedNoti.includes(-1) && data.id !== -1) {
+            // when -1 is in receivedNoti, then the first batch is over
+            // we'll only look for new notifications after the client started
+            const notification = {
+                title: 'Drivcers Hub',
+                body: removeMarkdown(data.message)
+            };
+            new Notification(notification).show();
         }
     });
 }

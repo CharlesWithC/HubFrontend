@@ -16,6 +16,13 @@ i18n
             nl: { translation: nl }
         },
         fallbackLng: "en",
+        detection: {
+            order: ['querystring', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag', 'path', 'subdomain'],
+            caches: ['cookie'],
+            lookupFromPathIndex: 0,
+            checkWhitelist: true,
+            checkForSimilarInWhitelist: true,
+        },
         interpolation: {
             escapeValue: false
         }

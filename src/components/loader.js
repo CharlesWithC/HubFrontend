@@ -79,7 +79,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`, "./logo.png")
                     .then((image) => {
                         vars.dhlogo = image;
-                        localStorage.setItem("cache-logo", vars.dhlogo);
+                        try {
+                            localStorage.setItem("cache-logo", vars.dhlogo);
+                        } catch { }
                         setLogoSrc(vars.dhlogo);
                     })
                     .catch(() => {
@@ -88,7 +90,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`)
                     .then((image) => {
                         vars.dhvtcbg = image;
-                        localStorage.setItem("cache-background", vars.dhvtcbg);
+                        try {
+                            localStorage.setItem("cache-background", vars.dhvtcbg);
+                        } catch { }
                         setBgSrc(vars.dhvtcbg);
                     })
                     .catch(() => {
@@ -97,7 +101,9 @@ const Loader = ({ onLoaderLoaded }) => {
                 loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`)
                     .then((image) => {
                         vars.dhbanner = image;
-                        localStorage.setItem("cache-banner", vars.dhbanner);
+                        try {
+                            localStorage.setItem("cache-banner", vars.dhbanner);
+                        } catch { }
                     })
                     .catch(() => {
                         vars.dhbanner = "";
