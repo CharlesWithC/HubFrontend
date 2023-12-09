@@ -23,6 +23,7 @@ import CustomTable from '../components/table';
 import MarkdownRenderer from '../components/markdown';
 import SponsorBadge from '../components/sponsorBadge';
 import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
+import { faDesktop } from '@fortawesome/free-solid-svg-icons';
 
 import i18n from '../i18n';
 
@@ -948,12 +949,34 @@ const Settings = ({ defaultTab = 0 }) => {
             `${vars.dhpath}/token/application/list?page=${appSessionsPage}&page_size=${appSessionsPageSize}`]);
 
         function getDeviceIcon(userAgent) {
-            if (userAgent.indexOf("Chrome") != -1) return <FontAwesomeIcon icon={faChrome} />;
-            else if (userAgent.indexOf("Firefox") != -1) return <FontAwesomeIcon icon={faFirefox} />;
-            else if (userAgent.indexOf("MSIE") != -1) return <FontAwesomeIcon icon={faInternetExplorer} />;
-            else if (userAgent.indexOf("Edge") != -1) return <FontAwesomeIcon icon={faEdge} />;
-            else if (userAgent.indexOf("Opera") != -1) return <FontAwesomeIcon icon={faOpera} />;
-            else if (userAgent.indexOf("Safari") != -1) return <FontAwesomeIcon icon={faSafari} />;
+            if (userAgent.indexOf("Chrome") != -1)
+                return <Tooltip placement="top" arrow title="Chrome"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faChrome} /></Tooltip>;
+            else if (userAgent.indexOf("Firefox") != -1)
+                return <Tooltip placement="top" arrow title="Firefox"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faFirefox} /></Tooltip>;
+            else if (userAgent.indexOf("MSIE") != -1)
+                return <Tooltip placement="top" arrow title="Internet Explorer"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faInternetExplorer} /></Tooltip>;
+            else if (userAgent.indexOf("Edge") != -1)
+                return <Tooltip placement="top" arrow title="Edge"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faEdge} /></Tooltip>;
+            else if (userAgent.indexOf("Opera") != -1)
+                return <Tooltip placement="top" arrow title="Opera"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faOpera} /></Tooltip>;
+            else if (userAgent.indexOf("Safari") != -1)
+                return <Tooltip placement="top" arrow title="Safari"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faSafari} /></Tooltip>;
+            else if (userAgent.indexOf("Drivers Hub Desktop") != -1)
+                return <Tooltip placement="top" arrow title="Desktop Client"
+                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                    <FontAwesomeIcon icon={faDesktop} /></Tooltip>;
         }
 
         const calculateSHA256Hash = async (input) => {

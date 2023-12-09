@@ -37,6 +37,5 @@ Brand new start: V3 with ReactJS!
 
 ## Electron TODOs
 
-1. Custom User Agent
-2. Desktop Notifications
-3. Auto Update
+1. Desktop Notifications
+2. Auto Update

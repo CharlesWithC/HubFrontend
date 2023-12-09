@@ -88,6 +88,12 @@ async function createWindow() {
         });
     }
 
+    win.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
+        if (details.url.includes('charlws.com')) {
+            details.requestHeaders['User-Agent'] = `Drivers Hub Desktop v${app.getVersion()}`;
+        }
+        callback({ cancel: false, requestHeaders: details.requestHeaders });
+    });
     win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
         const url = new URL(details.url);
         if (url.hostname.startsWith("drivershub") && url.hostname.endsWith('charlws.com')) {
