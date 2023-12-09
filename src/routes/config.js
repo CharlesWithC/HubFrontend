@@ -2835,6 +2835,31 @@ async function importCsv(columns, event) {
         });
     });
 }
+async function importCsvElectron(columns) {
+    const dataUrl = await window.electron.ipcRenderer.invoke('open-file-dialog', ["csv"]);
+    if (dataUrl) {
+        const base64Csv = dataUrl.split(',')[1];
+        const fileContent = atob(base64Csv);
+        return new Promise((resolve, reject) => {
+            Papa.parse(fileContent, {
+                header: true,
+                complete: function (results) {
+                    const data = results.data.map(row => {
+                        let obj = {};
+                        for (let key in row) {
+                            obj[key] = isNaN(row[key]) ? row[key] : parseInt(row[key]);
+                        }
+                        return obj;
+                    });
+                    resolve(data);
+                },
+                error: function (err) {
+                    reject(err);
+                }
+            });
+        });
+    }
+}
 
 const MemoEconomyForm = memo(({ theme, formConfig }) => {
     const { t: tr } = useTranslation();
@@ -2885,16 +2910,64 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
         <>
             <Typography variant="body2">{tr("config_economy_note")}</Typography>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
-                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />}>{tr("import_trucks")}<VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, trucks: await importCsv(["id", "game", "brand", "model", "price"], e) } }); }} /></Button>
-                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />} onClick={() => { exportCsv(["id", "game", "brand", "model", "price"], formConfig.state.economy.trucks, 'trucks.csv'); }}>{tr("export_trucks")}</Button>
+                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
+                    const trucks = await importCsvElectron(["id", "game", "brand", "model", "price"]);
+                    if (trucks !== undefined) {
+                        formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, trucks } });
+                    }
+                }}>
+                    {tr("import_trucks")}
+                    {!window.isElectron && <VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => {
+                        const trucks = await importCsv(["id", "game", "brand", "model", "price"], e);
+                        if (trucks !== undefined) {
+                            formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, trucks } });
+                        }
+                    }} />}
+                </Button>
+                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />}
+                    onClick={() => { exportCsv(["id", "game", "brand", "model", "price"], formConfig.state.economy.trucks, 'trucks.csv'); }}>
+                    {tr("export_trucks")}
+                </Button>
             </ButtonGroup>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
-                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />}>{tr("import_garages")}<VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, garages: await importCsv(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"], e) } }); }} /></Button>
-                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />} onClick={() => { exportCsv(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"], formConfig.state.economy.garages, 'garages.csv'); }}>{tr("export_garages")}</Button>
+                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
+                    const garages = await importCsvElectron(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"]);
+                    if (garages !== undefined) {
+                        formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, garages } });
+                    }
+                }}>
+                    {tr("import_garages")}
+                    {!window.isElectron && <VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => {
+                        const garages = await importCsv(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"], e);
+                        if (garages !== undefined) {
+                            formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, garages } });
+                        }
+                    }} />}
+                </Button>
+                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />}
+                    onClick={() => { exportCsv(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"], formConfig.state.economy.garages, 'garages.csv'); }}>
+                    {tr("export_garages")}
+                </Button>
             </ButtonGroup>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
-                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />}>{tr("import_merch")}<VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => { formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, merch: await importCsv(["id", "name", "buy_price", "sell_price"], e) } }); }} /></Button>
-                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />} onClick={() => { exportCsv(["id", "name", "buy_price", "sell_price"], formConfig.state.economy.merch, 'merch.csv'); }}>{tr("export_merch")}</Button>
+                <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
+                    const merch = await importCsvElectron(["id", "name", "buy_price", "sell_price"]);
+                    if (merch !== undefined) {
+                        formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, merch } });
+                    }
+                }}>
+                    {tr("import_merch")}
+                    {!window.isElectron && <VisuallyHiddenInput type="file" property={{ accept: 'text/csv' }} onChange={async (e) => {
+                        const merch = await importCsv(["id", "name", "buy_price", "sell_price"], e);
+                        if (merch !== undefined) {
+                            formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, merch } });
+                        }
+                    }} />}
+                </Button>
+                <Button variant="contained" color="info" startIcon={<FontAwesomeIcon icon={faFileExport} />}
+                    onClick={() => { exportCsv(["id", "name", "buy_price", "sell_price"], formConfig.state.economy.merch, 'merch.csv'); }}>
+                    {tr("export_merch")}
+                </Button>
             </ButtonGroup>
             <Grid container spacing={2} rowSpacing={-1} sx={{ mt: "5px", mb: "15px" }}>
                 {Object.entries(defaultConfig).map(([key, value]) => {

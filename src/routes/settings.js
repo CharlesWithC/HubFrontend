@@ -1158,6 +1158,34 @@ const Settings = ({ defaultTab = 0 }) => {
         };
         reader.readAsDataURL(file);
     };
+    const handleCustomBackgroundElectron = async () => {
+        const fileContent = await window.electron.ipcRenderer.invoke('open-file-dialog', ["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"]);
+        if (fileContent) {
+            const mimeType = fileContent.split(';')[0].slice(5);
+
+            if (!mimeType.startsWith('image/')) {
+                setSnackbarContent(tr("not_a_valid_image"));
+                setSnackbarSeverity("warning");
+                return;
+            }
+
+            const fileSizeInBytes = Math.ceil((fileContent.length * 3) / 4);
+            const fileSizeInMegabytes = fileSizeInBytes / (1024 * 1024);
+
+            if (fileSizeInMegabytes > 2) {
+                setSnackbarContent(tr("image_size_must_be_smaller_than_2mb"));
+                setSnackbarSeverity("warning");
+                return;
+            }
+
+            setCustomBackground(fileContent);
+            localStorage.setItem('custom-background', fileContent);
+            vars.dhcustombg = fileContent;
+
+            const themeUpdated = new CustomEvent('themeUpdated', {});
+            window.dispatchEvent(themeUpdated);
+        }
+    };
 
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -1652,7 +1680,9 @@ const Settings = ({ defaultTab = 0 }) => {
                             <img src={customBackground} height="60px" style={{ display: "flex", borderRadius: "5px", marginRight: "10px", opacity: vars.userLevel >= 3 ? 1 : 0.8 }} />
                         }
                         <Tooltip title={tr("update_image")} placement="bottom" arrow PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                            <Button component="label" variant="contained" startIcon={<CloudUploadRounded />} sx={{ width: "120px", height: "60px" }} disabled={vars.userLevel < 3}>{tr("update")}<VisuallyHiddenInput type="file" property={{ accept: 'image/png, image/jpeg' }} onChange={handleCustomBackground} />
+                            <Button component="label" variant="contained" startIcon={<CloudUploadRounded />} sx={{ width: "120px", height: "60px" }} disabled={vars.userLevel < 3} onClick={() => { if (window.isElectron) handleCustomBackgroundElectron(); }}>
+                                {tr("update")}
+                                {!window.isElectron && <VisuallyHiddenInput type="file" property={{ accept: 'image/*' }} onChange={handleCustomBackground} />}
                             </Button>
                         </Tooltip>
                     </Box>

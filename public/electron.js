@@ -2,7 +2,7 @@ const express = require('express');
 const history = require('connect-history-api-fallback');
 const path = require('path');
 const fs = require('fs');
-const { app, BrowserWindow, Notification, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, Notification, ipcMain, shell, dialog } = require('electron');
 const storage = require('electron-json-storage');
 
 const DiscordRPC = require('discord-rpc');
@@ -255,6 +255,42 @@ async function createWindow() {
                 body: removeMarkdown(data.message)
             };
             new Notification(notification).show();
+        }
+    });
+    ipcMain.handle('open-file-dialog', async (event, extensions) => {
+        const result = await dialog.showOpenDialog({
+            properties: ['openFile'],
+            filters: [{ name: 'Files', extensions }]
+        });
+        function getMimeType(filePath) {
+            const ext = path.extname(filePath).toLowerCase();
+            switch (ext) {
+                case '.jpg':
+                case '.jpeg':
+                    return 'image/jpeg';
+                case '.png':
+                    return 'image/png';
+                case '.gif':
+                    return 'image/gif';
+                case '.bmp':
+                    return 'image/bmp';
+                case '.webp':
+                    return 'image/webp';
+                case '.svg':
+                    return 'image/svg+xml';
+                case '.csv':
+                    return 'text/csv';
+                default:
+                    return 'application/octet-stream';
+            }
+        }
+        if (!result.canceled) {
+            const filePath = result.filePaths[0];
+            const fileBuffer = fs.readFileSync(filePath);
+            const fileBase64 = fileBuffer.toString('base64');
+            const mimeType = getMimeType(filePath);
+            const dataUrl = `data:${mimeType};base64,${fileBase64}`;
+            return dataUrl;
         }
     });
 }

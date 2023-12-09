@@ -35,7 +35,3 @@ Brand new start: V3 with ReactJS!
      - Set `discordClientID` in `electron-config.json` and `build-electron/config.json`
      - There will not be a second button
 6. Desktop Notifications
-
-## Electron TODOs
-
-1. Auto Update
