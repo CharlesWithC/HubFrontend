@@ -85,7 +85,6 @@
     "directories": {
       "buildResources": "assets"
     },
-    "electronLanguages": "en_US",
     "files": [
       ".env",
       "build/**/*",
