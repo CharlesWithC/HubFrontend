@@ -35,7 +35,7 @@ const Loader = ({ onLoaderLoaded }) => {
         try {
             if (domain === undefined || domain === null || domain === "") {
                 setLoaderAnimation(false);
-                setTitle("Drivers Hub");
+                setTitle(tr("drivers_hub"));
                 vars.dhlogo = await loadImageAsBase64(`./logo.png`);
                 setLogoSrc(vars.dhlogo);
                 setBgSrc(null);
@@ -47,7 +47,7 @@ const Loader = ({ onLoaderLoaded }) => {
             let resp = await axios({ url: `https://config.chub.page/config?domain=${domain}`, method: "GET" });
             if (resp.status !== 200) {
                 setLoaderAnimation(false);
-                setTitle("Drivers Hub");
+                setTitle(tr("drivers_hub"));
                 vars.dhlogo = await loadImageAsBase64(`./logo.png`);
                 setLogoSrc(vars.dhlogo);
                 if (resp.data.error === tr("service_suspended")) {
@@ -275,12 +275,12 @@ const Loader = ({ onLoaderLoaded }) => {
 
     if (window.isElectron && unknownDomain) {
         window.electron.ipcRenderer.send("presence-update", {
-            details: 'Launching...',
+            details: tr("launching"),
             largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
             startTimestamp: new Date(),
             instance: false,
             buttons: [
-                { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                { label: tr("powered_by_chub"), url: "https://drivershub.charlws.com/" }
             ]
         });
     }
@@ -326,6 +326,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     <Button variant="contained" color="info"
                         style={{ width: "100%", maxWidth: "400px", marginBottom: "10px" }}
                         onClick={handleDomainUpdate}>{tr("confirm")}</Button>
+                    <Typography variant="body1" sx={{ mt: "10px" }}>{tr("get_custom_build_with_vtc_icon_and_discord_rich_presence")}<br />{tr("available_for_vtcs_with_more_than_5_platinum_8_gold")}</Typography>
                 </>}
             </div>
         </div>

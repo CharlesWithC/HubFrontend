@@ -7,7 +7,7 @@ import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRo
 import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePlay, faCirclePause, faClover } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlay, faCirclePause, faClover, faDownload } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleBar from 'simplebar-react';
 import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
@@ -343,6 +343,10 @@ const TopBar = (props) => {
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>{tr("sponsor")}</MenuItem></Link>
         <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>{tr("supporters")}</MenuItem></Link>
+        {!window.isElectron && <>
+            <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
+            <MenuItem onClick={() => { window.location.href = "https://dl.chub.page/DriversHub.Setup.exe"; }}><ListItemIcon><FontAwesomeIcon icon={faDownload} /></ListItemIcon>Download App</MenuItem>
+        </>}
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>{tr("logout")}</MenuItem>
     </Menu>);
