@@ -682,7 +682,7 @@ export function getAuthMode() {
     let authMode = getCookie("auth-mode");
     if (authMode !== null) {
         authMode = authMode.split(",");
-        if (+new Date() - authMode[1] > 600000) authMode = null;
+        if (+new Date() - authMode[2] > 600000) authMode = null;
         else return [authMode[0], authMode[1]];
     }
     return authMode;

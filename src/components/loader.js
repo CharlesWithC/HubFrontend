@@ -21,7 +21,6 @@ const Loader = ({ onLoaderLoaded }) => {
     const [title, setTitle] = useState(domain !== null && domain !== "" ? (localStorage.getItem("cache-title") !== null ? localStorage.getItem("cache-title") : tr("drivers_hub")) : null);
     const [loadMessage, setLoadMessage] = useState((!window.isElectron || logoSrc !== null) ? tr("loading") : "");
     const [unknownDomain, setUnknownDomain] = useState(false);
-    vars.dhbanner = localStorage.getItem("cache-banner");
 
     const searchParams = new URLSearchParams(window.location.search);
     if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
@@ -101,9 +100,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/banner.png?${vars.dhconfig.banner_key !== undefined ? vars.dhconfig.banner_key : ""}`)
                     .then((image) => {
                         vars.dhbanner = image;
-                        try {
-                            localStorage.setItem("cache-banner", vars.dhbanner);
-                        } catch { }
                     })
                     .catch(() => {
                         vars.dhbanner = "";

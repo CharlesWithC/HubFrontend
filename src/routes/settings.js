@@ -15,7 +15,7 @@ import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 
-import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedDate, writeLS } from '../functions';
+import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedDate, writeLS, setAuthMode } from '../functions';
 import { useRef } from 'react';
 import ColorInput from '../components/colorInput';
 import TimeAgo from '../components/timeago';
@@ -1261,7 +1261,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("data_cache")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); setAllowClearCache(false); }} disabled={!allowClearCache}>{tr("clear")}</Button>
+                        <Button variant="contained" color="primary" onClick={() => { localStorage.removeItem("cache"); localStorage.removeItem("cache-logo"); localStorage.removeItem("cache-background"); localStorage.removeItem("cache-banner"); setAllowClearCache(false); }} disabled={!allowClearCache}>{tr("clear")}</Button>
                     </ButtonGroup>
                 </Grid>
 
@@ -1393,7 +1393,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-discord", +new Date()); navigate("/auth/discord/redirect"); }} fullWidth>{tr("update")}</Button>
+                                    <Button variant="contained" onClick={() => { setAuthMode("update-discord"); navigate("/auth/discord/redirect"); }} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -1407,7 +1407,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                     />
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
-                                    <Button variant="contained" onClick={() => { localStorage.setItem("update-steam", +new Date()); navigate("/auth/steam/redirect"); }} fullWidth>{tr("update")}</Button>
+                                    <Button variant="contained" onClick={() => { setAuthMode("update-steam"); navigate("/auth/steam/redirect"); }} fullWidth>{tr("update")}</Button>
                                 </Grid>
                             </Grid>
                         </Grid>
