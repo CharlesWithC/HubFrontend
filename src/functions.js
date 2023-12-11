@@ -115,7 +115,9 @@ export function getAuthToken() {
         writeLS("token", { token: data }, vars.host);
         return data;
     }
-    return readLS("token", vars.host).token;
+    data = readLS("token", vars.host);
+    if (data === null) return null;
+    else return data.token;
 };
 
 export async function FetchProfile(isLogin = false) {

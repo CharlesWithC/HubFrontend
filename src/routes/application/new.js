@@ -226,94 +226,113 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
                         case 'text':
                             ret = (
-                                <TextField
-                                    key={field.label}
-                                    name={field.label}
-                                    label={field.label}
-                                    value={formData[field.label]}
-                                    onChange={handleChange}
-                                    placeholder={field.placeholder}
-                                    sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
-                                    error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
-                                    helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? tr("input_at_least", { value: field.min_length }) : ""}
-                                />
+                                <>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        {field.label}
+                                    </Typography>
+                                    <TextField
+                                        key={field.label}
+                                        name={field.label}
+                                        onChange={handleChange}
+                                        placeholder={field.placeholder}
+                                        sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
+                                        error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
+                                        helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? tr("input_at_least", { value: field.min_length }) : ""}
+                                    />
+                                </>
                             );
                             break;
 
                         case 'textarea':
                             ret = (
-                                <TextField
-                                    multiline
-                                    key={field.label}
-                                    name={field.label}
-                                    label={field.label}
-                                    value={formData[field.label]}
-                                    onChange={handleChange}
-                                    rows={field.rows}
-                                    placeholder={field.placeholder}
-                                    sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
-                                    error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
-                                    helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? "Input at least 150 characters" : ""}
-                                />
+                                <>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        {field.label}
+                                    </Typography>
+                                    <TextField
+                                        multiline
+                                        key={field.label}
+                                        name={field.label}
+                                        onChange={handleChange}
+                                        rows={field.rows}
+                                        placeholder={field.placeholder}
+                                        sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
+                                        error={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length}
+                                        helperText={field.min_length !== undefined && formData[field.label] !== "" && formData[field.label].length <= field.min_length ? "Input at least 150 characters" : ""}
+                                    />
+                                </>
                             );
                             break;
 
                         case 'number':
                             ret = (
-                                <TextField
-                                    key={field.label}
-                                    name={field.label}
-                                    label={field.label}
-                                    value={formData[field.label]}
-                                    onChange={(e) => { if (!isNaN(e.target.value)) handleChange(e); }}
-                                    type="text"
-                                    sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
-                                    error={field.min_value !== undefined && formData[field.label] < field.min_value || field.max_value !== undefined && formData[field.label] > field.max_value}
-                                    helperText={field.min_value !== undefined && formData[field.label] < field.min_value ? `Minimum value ${field.min_value}` : (field.max_value !== undefined && formData[field.label] < field.max_value ? `Maximum value ${field.max_value}` : "")}
-                                />
+                                <>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        {field.label}
+                                    </Typography>
+                                    <TextField
+                                        key={field.label}
+                                        name={field.label}
+                                        onChange={(e) => { if (!isNaN(e.target.value)) handleChange(e); }}
+                                        type="text"
+                                        sx={{ width: "100%", '& .MuiFormHelperText-root': { color: theme.palette.error.main } }}
+                                        error={field.min_value !== undefined && formData[field.label] < field.min_value || field.max_value !== undefined && formData[field.label] > field.max_value}
+                                        helperText={field.min_value !== undefined && formData[field.label] < field.min_value ? `Minimum value ${field.min_value}` : (field.max_value !== undefined && formData[field.label] < field.max_value ? `Maximum value ${field.max_value}` : "")}
+                                    />
+                                </>
                             );
                             break;
 
                         case 'date':
                             ret = (
-                                <TextField
-                                    key={field.label}
-                                    name={field.label}
-                                    label={field.label}
-                                    value={formData[field.label]}
-                                    onChange={handleChange}
-                                    type="date"
-                                />
+                                <>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        {field.label}
+                                    </Typography>
+                                    <TextField
+                                        key={field.label}
+                                        name={field.label}
+                                        onChange={handleChange}
+                                        type="date"
+                                    />
+                                </>
                             );
                             break;
 
                         case 'datetime':
                             ret = (
-                                <TextField
-                                    key={field.label}
-                                    name={field.label}
-                                    label={field.label}
-                                    value={formData[field.label]}
-                                    onChange={handleChange}
-                                    type="datetime-local"
-                                />
+                                <>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        {field.label}
+                                    </Typography>
+                                    <TextField
+                                        key={field.label}
+                                        name={field.label}
+                                        onChange={handleChange}
+                                        type="datetime-local"
+                                    />
+                                </>
                             );
                             break;
 
                         case 'dropdown':
                             ret = (
-                                <TextField select
-                                    label={field.label}
-                                    key={field.label}
-                                    name={field.label}
-                                    value={formData[field.label]}
-                                    onChange={handleChange}
-                                    size="small" fullWidth
-                                >
-                                    {field.choices.map(choice => (
-                                        <MenuItem key={choice} value={choice}>{choice}</MenuItem>
-                                    ))}
-                                </TextField>
+                                <>
+                                    <Typography variant="body2" sx={{ mb: "5px" }}>
+                                        {field.label}
+                                    </Typography>
+                                    <TextField select
+                                        key={field.label}
+                                        name={field.label}
+                                        value={formData[field.label]}
+                                        onChange={handleChange}
+                                        size="small" fullWidth
+                                    >
+                                        {field.choices.map(choice => (
+                                            <MenuItem key={choice} value={choice}>{choice}</MenuItem>
+                                        ))}
+                                    </TextField>
+                                </>
                             );
                             break;
 
