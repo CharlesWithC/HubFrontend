@@ -77,7 +77,7 @@ const UserCard = (props) => {
     function GetActivity(activity) {
         if (activity.status === "offline") {
             if (activity.last_seen !== -1)
-                return <>{tr("offline_last_seen")}<TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
+                return <>{tr("offline_last_seen")} <TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
             else
                 return <>{tr("offline")}</>;
         } else if (activity.status === "online") {

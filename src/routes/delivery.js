@@ -612,11 +612,11 @@ const Delivery = memo(() => {
                     </TextField>
                 </>}
                 {(divisionStatus !== -1) && <>
-                    <Typography variant="body">{tr("division_validation_request_submitted")}<b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
+                    <Typography variant="body">{tr("division_validation_request_submitted")}<b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
                     <Typography variant="body"><>{tr("division")}</>: <b>{vars.divisions[divisionMeta.divisionid].name}</b></Typography><br />
                     <Typography variant="body"><>{tr("current_status")}</>: <b>{STATUS[divisionStatus]}</b></Typography>
                     {divisionMeta.update_timestamp !== -1 && <>
-                        <br /><Typography variant="body"><>{tr("updated")}</> <b><TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
+                        <br /><Typography variant="body"><>{tr("updated")}</><b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
                         <br /><Typography variant="body"><>{tr("updated_by")}</>: <b><UserCard user={divisionMeta.update_staff} inline={true} /></b></Typography>
                         {divisionMeta.update_message !== "" && <><br /><Typography variant="body"><>{tr("message")}</>: {divisionMeta.update_message}</Typography></>}
                     </>}
