@@ -251,7 +251,7 @@ async function createWindow() {
             // when -1 is in receivedNoti, then the first batch is over
             // we'll only look for new notifications after the client started
             const notification = {
-                title: 'Drivcers Hub',
+                title: 'Drivers Hub',
                 body: removeMarkdown(data.message)
             };
             new Notification(notification).show();
