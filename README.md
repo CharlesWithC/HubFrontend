@@ -14,11 +14,12 @@ Brand new start: V3 with ReactJS!
 
 1. Auto import mulitple trucky jobs
 2. Sync member profiles
-3. Batch update tracker
-4. Batch update roles
-5. Batch dismiss members
-6. Prune users
-7. Advanced form builder
+3. Compare TruckersMP Members
+4. Batch update tracker
+5. Batch update roles
+6. Batch dismiss members
+7. Prune users
+8. Advanced form builder
 
 ## Electron Client Features
 

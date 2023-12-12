@@ -1,15 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert } from '@mui/material';
+import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Card, CardContent } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowsRotate, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
+import { faArrowsRotate, faCodeCompare, faIdCard, faTruck, faUserGroup, faUsersSlash } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, checkPerm } from '../functions';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import RoleSelect from '../components/roleselect';
@@ -102,6 +102,64 @@ const MemberList = () => {
         }
         setDialogButtonDisabled(false);
     }, []);
+
+    const [tmpVtcId, setTmpVtcId] = useState("");
+    const [tmpCompareResult, setTmpCompareResult] = useState([]);
+    const compareTruckersMP = useCallback(async () => {
+        if (vars.userLevel < 4) {
+            setSnackbarContent("Compare TruckersMP Members is a Platinum Perk! Sponsor at charl.ws/patreon");
+            setSnackbarSeverity("warning");
+            return;
+        }
+
+        setDialogButtonDisabled(true);
+        setTmpCompareResult([]);
+        let resp = await axios({ url: `https://corsproxy.io/?https%3A%2F%2Fapi.truckersmp.com%2Fv2%2Fvtc%2F${tmpVtcId}%2Fmembers` });
+        if (resp.status !== 200) {
+            setTmpCompareResult(newTmpCompareResult);
+            setSnackbarContent("Failed to fetch TruckersMP members.");
+            setSnackbarSeverity("error");
+            return;
+        }
+
+        let tmpMembers = resp.data.response.members;
+        let tmpIds = [];
+        let tmpSteamIds = [];
+        for (let i = 0; i < tmpMembers.length; i++) {
+            tmpIds.push(tmpMembers[i].user_id);
+            tmpSteamIds.push(tmpMembers[i].steam_id);
+        }
+        let dhTmpIds = [];
+        let dhTmpSteamIds = [];
+        for (let i = 0; i < vars.members.length; i++) {
+            dhTmpIds.push(vars.members[i].truckersmpid);
+            dhTmpSteamIds.push(vars.members[i].steamid);
+        }
+
+        let dhNoTmp = [];
+        let tmpNoDh = [];
+        for (let i = 0; i < tmpMembers.length; i++) {
+            if (!dhTmpIds.includes(tmpMembers[i].user_id) && !dhTmpSteamIds.includes(tmpMembers[i].steam_id)) {
+                tmpNoDh.push({ ...tmpMembers[i], name: tmpMembers[i].username });
+            }
+        }
+        for (let i = 0; i < vars.members.length; i++) {
+            if (checkPerm(vars.members[i].roles, ["driver"]) && !tmpIds.includes(vars.members[i].truckersmpid) && !tmpSteamIds.includes(vars.members[i].steamid)) {
+                dhNoTmp.push(vars.members[i]);
+            }
+        }
+
+        let newTmpCompareResult = [];
+        for (let i = 0; i < tmpNoDh.length; i++) {
+            newTmpCompareResult.push({ name: tmpNoDh[i].username, steamid: tmpNoDh[i].steam_id, truckersmpid: tmpNoDh[i].user_id, status: "Not in Drivers Hub" });
+        }
+        for (let i = 0; i < dhNoTmp.length; i++) {
+            newTmpCompareResult.push({ ...dhNoTmp[i], status: "Not in TruckersMP VTC" });
+        }
+        setTmpCompareResult(newTmpCompareResult);
+
+        setDialogButtonDisabled(false);
+    }, [tmpVtcId]);
 
     const [batchRoleUpdateUsers, setBatchRoleUpdateUsers] = useState([]);
     const [batchRoleUpdateRoles, setBatchRoleUpdateRoles] = useState([]);
@@ -316,7 +374,7 @@ const MemberList = () => {
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
         <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
-            <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;{tr("sync_profiles")}</DialogTitle>
+            <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;{tr("sync_profiles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
                 <Typography variant="body2">{tr("sync_profiles_note")}</Typography>
                 <Typography variant="body2">{tr("sync_profiles_note_2")}</Typography>
@@ -331,6 +389,44 @@ const MemberList = () => {
             </DialogContent>
             <DialogActions>
                 <Button variant="contained" color="info" onClick={() => { syncProfile(); }} disabled={dialogButtonDisabled}>{tr("sync")}</Button>
+            </DialogActions>
+        </Dialog>
+        <Dialog fullWidth open={dialogOpen === "compare-truckersmp"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
+            <DialogTitle><FontAwesomeIcon icon={faCodeCompare} />&nbsp;&nbsp;Compare TruckersMP Members&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
+            <DialogContent>
+                <TextField size="small"
+                    label="TruckersMP VTC ID"
+                    value={tmpVtcId}
+                    onChange={(e) => { if (!isNaN(e.target.value)) setTmpVtcId(e.target.value); }}
+                    fullWidth sx={{ mt: "5px", mb: "10px" }}
+                />
+                <br />
+                <Card>
+                    <CardContent>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>TruckersMP ID</TableCell>
+                                        <TableCell>Status</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {tmpCompareResult.map((row, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{row.userid !== undefined ? <UserCard user={row} /> : row.name}</TableCell>
+                                            <TableCell><a href={`https://truckersmp.com/user/${row.truckersmpid}`} target="_blank" rel="noreferrer">{row.truckersmpid}</a></TableCell>
+                                            <TableCell>{row.status}</TableCell>
+                                        </TableRow>))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </CardContent>
+                </Card>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="info" onClick={() => { compareTruckersMP(); }} disabled={dialogButtonDisabled || tmpVtcId.replaceAll(" ", "") === ""}>Compare</Button>
             </DialogActions>
         </Dialog>
         <Dialog open={dialogOpen === "batch-role-update"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
@@ -451,6 +547,12 @@ const MemberList = () => {
                 icon={<FontAwesomeIcon icon={faIdCard} />}
                 tooltipTitle={tr("batch_update_roles")}
                 onClick={() => setDialogOpen("batch-role-update")}
+            />
+            <SpeedDialAction
+                key="compare-truckersmp"
+                icon={<FontAwesomeIcon icon={faCodeCompare} />}
+                tooltipTitle="Compare TruckersMP Members"
+                onClick={() => setDialogOpen("compare-truckersmp")}
             />
             <SpeedDialAction
                 key="sync-profile"

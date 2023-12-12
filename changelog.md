@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.4.0
+
+1. Added compare truckersmp members (advanced staff function)
+
 ## v3.3.0
 
 1. Added translations
