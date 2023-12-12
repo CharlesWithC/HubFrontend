@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { useRef, useEffect, useState, memo } from 'react';
+import { useRef, useEffect, useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, useTheme } from '@mui/material';
+import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
+import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWarehouse, faClock } from '@fortawesome/free-solid-svg-icons';
@@ -10,7 +11,7 @@ import { faWarehouse, faClock } from '@fortawesome/free-solid-svg-icons';
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
-import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm } from '../functions';
+import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm, customAxios as axios, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
@@ -129,7 +130,8 @@ const DivisionsDlog = memo(({ doReload }) => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} /></Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
+                let row = dlogL.list[i];
+                newDlogList.push({ logid: row.logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{row.logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} /></Typography>, driver: <UserCard user={row.user} inline={true} />, source: `${row.source_company}, ${row.source_city}`, destination: `${row.destination_company}, ${row.destination_city}`, distance: ConvertUnit("km", row.distance), cargo: `${row.cargo} (${ConvertUnit("kg", row.cargo_mass)})`, profit: `${CURRENTY_ICON[row.unit]}${row.profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /> });
             }
 
             if (pageRef.current === page) {
@@ -161,6 +163,12 @@ const DivisionsPending = memo(({ doReload }) => {
         { id: 'division', label: tr("division") },
     ];
 
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
     const [dlogList, setDlogList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
@@ -179,7 +187,8 @@ const DivisionsPending = memo(({ doReload }) => {
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
-                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: dlogL.list[i].logid, driver: <UserCard user={dlogL.list[i].user} inline={true} />, division: vars.divisions[dlogL.list[i].divisionid].name });
+                let row = dlogL.list[i];
+                newDlogList.push({ logid: row.logid, display_logid: row.logid, driver: <UserCard user={row.user} inline={true} />, division: vars.divisions[row.divisionid].name, contextMenu: <><MenuItem onClick={async (e) => { e.stopPropagation(); await handleDVUpdate(row.logid, row.divisionid, 1); doLoad(); }}>{tr("accept")}</MenuItem><MenuItem onClick={async (e) => { e.stopPropagation(); await handleDVUpdate(row.logid, row.divisionid, 2); doLoad(); }}>{tr("decline")}</MenuItem></> });
             }
 
             if (pageRef.current === page) {
@@ -192,6 +201,22 @@ const DivisionsPending = memo(({ doReload }) => {
         }
         doLoad();
     }, [page, pageSize, doReload]);
+    const handleDVUpdate = useCallback(async (logid, divisionid, status) => {
+        const loadingStart = new CustomEvent('loadingStart', {});
+        window.dispatchEvent(loadingStart);
+
+        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${divisionid}`, data: { status: status }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
+
+        const loadingEnd = new CustomEvent('loadingEnd', {});
+        window.dispatchEvent(loadingEnd);
+    }, []);
 
     const navigate = useNavigate();
     function handleClick(data) {
@@ -200,6 +225,18 @@ const DivisionsPending = memo(({ doReload }) => {
 
     return <>
         {dlogList.length !== 0 && <CustomTable columns={pendingColumns} data={dlogList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onRowClick={handleClick} style={{ marginTop: "15px" }} pstyle={{ marginRight: "60px" }} name={<><FontAwesomeIcon icon={faClock} />&nbsp;&nbsp;{tr("pending_division_validation_requests")}</>} />}
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </>;
 });
 
