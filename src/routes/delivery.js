@@ -2,10 +2,11 @@ import { useTranslation } from 'react-i18next';
 import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, useTheme } from '@mui/material';
+import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, Snackbar, Alert, useTheme } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded } from '@mui/icons-material';
 import SimpleBar from 'simplebar-react/dist';
+import { Portal } from '@mui/base';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
@@ -529,6 +530,12 @@ const Delivery = memo(() => {
     const { t: tr } = useTranslation();
     const STATUS = { 0: tr("pending"), 1: tr("accepted"), 2: tr("declined") };
 
+    const [snackbarContent, setSnackbarContent] = useState("");
+    const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+    const handleCloseSnackbar = useCallback(() => {
+        setSnackbarContent("");
+    }, []);
+
     const { logid } = useParams();
     const [doReload, setDoReload] = useState(0);
 
@@ -554,7 +561,14 @@ const Delivery = memo(() => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -565,7 +579,14 @@ const Delivery = memo(() => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -582,7 +603,14 @@ const Delivery = memo(() => {
         const loadingStart = new CustomEvent('loadingStart', {});
         window.dispatchEvent(loadingStart);
 
-        await axios({ url: `${vars.dhpath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
+        if (resp.status === 204) {
+            setSnackbarContent(tr("success"));
+            setSnackbarSeverity("success");
+        } else {
+            setSnackbarContent(resp.data.error);
+            setSnackbarSeverity("error");
+        }
 
         const loadingEnd = new CustomEvent('loadingEnd', {});
         window.dispatchEvent(loadingEnd);
@@ -679,6 +707,18 @@ const Delivery = memo(() => {
                 <Button onClick={handleDelete} variant="contained" color="error" sx={{ ml: 'auto' }}>{tr("delete")}</Button>
             </DialogActions>
         </Dialog>
+        <Portal>
+            <Snackbar
+                open={!!snackbarContent}
+                autoHideDuration={5000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+                    {snackbarContent}
+                </Alert>
+            </Snackbar>
+        </Portal>
     </>);
 });
 
