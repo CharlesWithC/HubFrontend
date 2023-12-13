@@ -6,11 +6,13 @@ const { app, BrowserWindow, Notification, ipcMain, shell, dialog } = require('el
 const storage = require('electron-json-storage');
 
 const DiscordRPC = require('discord-rpc');
-const rpc = new DiscordRPC.Client({ transport: 'ipc' });
+let rpc = new DiscordRPC.Client({ transport: 'ipc' });
 
 const debug = false;
 let browserAuth = false;
 let receivedNoti = []; // notificationid
+let presenceMode = "init";
+let rpcReady = -1;
 
 function removeMarkdown(content) {
     let result = content;
@@ -36,21 +38,32 @@ async function createWindow() {
     app.setName(config.name);
     app.setAppUserModelId(config.name);
 
-    try {
-        rpc.login({ clientId: config.discordClientID }).catch(console.error);
-        rpc.on('ready', () => {
-            rpc.setActivity({
-                details: 'Launching...',
-                largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
-                startTimestamp: new Date(),
-                instance: false,
-                buttons: [
-                    { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
-                ]
+    function doRPCLogin() {
+        rpcReady = 0;
+        try {
+            rpc.login({ clientId: config.discordClientID }).catch(console.error);
+            rpc.on('ready', () => {
+                rpcReady = 1;
+                if (presenceMode === "full") {
+                    rpc.setActivity(curPresence.details !== undefined ? curPresence : {
+                        details: 'Launching...',
+                        largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
+                        startTimestamp: new Date(),
+                        instance: false,
+                        buttons: config.discordClientID === "997847494933368923" ? [
+                            { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                        ] : []
+                    });
+                } else if (presenceMode === "basic") {
+                    rpc.setActivity({
+                        startTimestamp: new Date(),
+                        instance: false
+                    });
+                }
             });
-        });
-    } catch {
-        console.warn("Failed to initiate Discord RPC");
+        } catch {
+            console.warn("Failed to initiate Discord RPC");
+        }
     }
 
     const server = express();
@@ -230,19 +243,48 @@ async function createWindow() {
                 if (curPresence !== lastPresence) {
                     lastPresence = JSON.parse(JSON.stringify(curPresence));
                 }
-                curPresence = JSON.parse(JSON.stringify(data));
+                curPresence = { ...JSON.parse(JSON.stringify(data)), startTimestamp: new Date() };
             }
-            rpc.setActivity(data);
+            if (presenceMode === "full") rpc.setActivity(data);
         } catch {
-            console.warning("Failed to update Discord RPC");
+            console.warn("Failed to update Discord RPC");
         }
     });
     ipcMain.on('presence-revert', (event, data) => {
         try {
+            if (!rpc.ready || lastPresence === null || presenceMode !== "full") return;
             rpc.setActivity({ ...lastPresence, startTimestamp: new Date() });
         } catch {
-            console.warning("Failed to update Discord RPC");
+            console.warn("Failed to update Discord RPC");
         }
+    });
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async function updatePresenceSettings(data, depth = 0) {
+        try {
+            if (presenceMode === data) return;
+            if (rpcReady === -1 && data !== "none") doRPCLogin();
+            if (rpcReady !== 1) {
+                if(depth === 10) return;
+                await sleep(1000);
+                return updatePresenceSettings(data, depth + 1);
+            }
+            presenceMode = data;
+            if (presenceMode === "none") {
+                await rpc.setActivity({ instance: false });
+                await rpc.clearActivity();
+            } else if (presenceMode === "basic") {
+                await rpc.setActivity({ startTimestamp: new Date(), instance: false });
+            } else if (presenceMode === "full") {
+                await rpc.setActivity(curPresence);
+            }
+        } catch {
+            console.warn("Failed to update Discord RPC");
+        }
+    }
+    ipcMain.on('presence-settings', async (event, data) => {
+        updatePresenceSettings(data);
     });
     ipcMain.on('notification', (event, data) => {
         if (receivedNoti.includes(data.id)) return;

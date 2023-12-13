@@ -152,7 +152,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const [mfaEnabled, setMfaEnabled] = useState(vars.userInfo.mfa);
     const handleOtp = useCallback(() => {
         if (otp.replaceAll(" ", "") === "" || isNaN(otp.replaceAll(" ", "")) || otp.length !== 6) {
-            setSnackbarContent("Invalid OTP");
+            setSnackbarContent(tr("invalid_otp"));
             setSnackbarSeverity("warning");
             return;
         }
@@ -178,6 +178,16 @@ const Settings = ({ defaultTab = 0 }) => {
 
     const writeClientSettings = useCallback((data) => {
         writeLS("client-settings", data, vars.host);
+    }, []);
+
+    const [disablePresenceSettings, setDisablePresenceSettings] = useState(false);
+    const updateDiscordPresence = useCallback(async (to) => {
+        setDisablePresenceSettings(true);
+        await window.electron.ipcRenderer.send("presence-settings", to);
+        vars.userSettings.presence = to;
+        writeClientSettings(vars.userSettings);
+        setUserSettings(prevSettings => ({ ...prevSettings, presence: to }));
+        setTimeout(function () { setDisablePresenceSettings(false); }, 10000);
     }, []);
 
     const updateUnit = useCallback((to) => {
@@ -338,7 +348,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setRemoteUserConfigDisabled(false);
             const loadingEnd = new CustomEvent('loadingEnd', {});
             window.dispatchEvent(loadingEnd);
-            setSnackbarContent("Failed to generate auth ticket, try again later...");
+            setSnackbarContent(tr("failed_to_generate_auth_ticket_try_again_later"));
             setSnackbarSeverity("error");
             return;
         }
@@ -354,7 +364,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         resp = await axios({ url: `https://config.chub.page/config/user?domain=${vars.dhconfig.domain}`, data: { name_color: parse_color(remoteUserConfig.name_color), profile_upper_color: parse_color(remoteUserConfig.profile_upper_color), profile_lower_color: parse_color(remoteUserConfig.profile_lower_color), profile_banner_url: remoteUserConfig.profile_banner_url }, method: "PATCH", headers: { Authorization: `Ticket ${ticket}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Appearance settings updated!");
+            setSnackbarContent(tr("appearance_settings_updated"));
             setSnackbarSeverity("success");
             vars.userConfig[vars.userInfo.uid] = { abbr: vars.dhconfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
         } else {
@@ -478,12 +488,12 @@ const Settings = ({ defaultTab = 0 }) => {
     const [newTruckersMPDisabled, setTruckersmpDisabled] = useState(false);
     const updateTruckersMPID = useCallback(async () => {
         if (isNaN(newTruckersMPID) || String(newTruckersMPID).replaceAll(" ", "") === "") {
-            setSnackbarContent("Invalid TruckersMP ID");
+            setSnackbarContent(tr("invalid_truckersmp_id"));
             setSnackbarSeverity("error");
             return;
         }
         if (Number(newTruckersMPID) === vars.userInfo.truckersmpid) {
-            setSnackbarContent("TruckersMP ID was not updated");
+            setSnackbarContent(tr("truckersmp_id_was_not_updated"));
             setSnackbarSeverity("warning");
             return;
         }
@@ -494,7 +504,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setTruckersmpDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/truckersmp`, data: { truckersmpid: newTruckersMPID }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Updated TruckersMP Account");
+            setSnackbarContent(tr("updated_truckersmp_account"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -510,12 +520,12 @@ const Settings = ({ defaultTab = 0 }) => {
     const [newEmailDisabled, setEmailDisabled] = useState(false);
     const updateEmail = useCallback(async () => {
         if (newEmail.indexOf("@") === -1) {
-            setSnackbarContent("Invalid Email");
+            setSnackbarContent(tr("invalid_email"));
             setSnackbarSeverity("error");
             return;
         }
         if (newEmail === vars.userInfo.email) {
-            setSnackbarContent("Email was not updated");
+            setSnackbarContent(tr("email_was_not_updated"));
             setSnackbarSeverity("warning");
             return;
         }
@@ -526,7 +536,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setEmailDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/email`, data: { email: newEmail }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Email update request submitted. Please check your inbox for confirmation email.");
+            setSnackbarContent(tr("email_update_request_submitted_please_check_your_inbox_for_confirmation"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -586,7 +596,7 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = await axios({ url: `${vars.dhpath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            setSnackbarContent("Updated About Me");
+            setSnackbarContent(tr("updated_about_me"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -624,7 +634,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent("Updated Password");
+            setSnackbarContent(tr("updated_password"));
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
         } else {
@@ -661,7 +671,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent("Disabled Password Login");
+            setSnackbarContent(tr("disabled_password_login"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
@@ -700,7 +710,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 200) {
-            setSnackbarContent("Created Application Token");
+            setSnackbarContent(tr("created_application_token"));
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
             setNewAppToken(resp.data.token);
@@ -767,7 +777,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setManageMfaDisabled(true);
             let resp = await axios({ url: `${vars.dhpath}/user/mfa/enable`, data: { secret: mfaSecret, otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
-                setSnackbarContent("MFA Enabled");
+                setSnackbarContent(tr("mfa_enabled"));
                 setSnackbarSeverity("success");
                 setOtpPass(+new Date() + 30000);
                 vars.userInfo.mfa = true;
@@ -809,7 +819,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent("MFA Disabled");
+            setSnackbarContent(tr("mfa_disabled"));
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
             vars.userInfo.mfa = false;
@@ -855,7 +865,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
         if (resp.status === 204) {
-            setSnackbarContent("You have resigned! Goodbye and best wishes!");
+            setSnackbarContent(tr("you_have_resigned_goodbye_and_best_wishes"));
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
         } else {
@@ -897,7 +907,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         if (resp.status === 204) {
-            setSnackbarContent("Account deleted! Goodbye!");
+            setSnackbarContent(tr("account_deleted_goodbye"));
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
         } else {
@@ -958,7 +968,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faFirefox} /></Tooltip>;
             else if (userAgent.indexOf("MSIE") != -1)
-                return <Tooltip placement="top" arrow title="Internet Explorer"
+                return <Tooltip placement="top" arrow title={tr("internet_explorer")}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faInternetExplorer} /></Tooltip>;
             else if (userAgent.indexOf("Edge") != -1)
@@ -973,8 +983,8 @@ const Settings = ({ defaultTab = 0 }) => {
                 return <Tooltip placement="top" arrow title="Safari"
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faSafari} /></Tooltip>;
-            else if (userAgent.indexOf("Drivers Hub Desktop") != -1)
-                return <Tooltip placement="top" arrow title="Desktop Client"
+            else if (userAgent.indexOf(tr("drivers_hub_desktop")) != -1)
+                return <Tooltip placement="top" arrow title={tr("desktop_client")}
                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                     <FontAwesomeIcon icon={faDesktop} /></Tooltip>;
         }
@@ -1020,7 +1030,7 @@ const Settings = ({ defaultTab = 0 }) => {
         let resp = await axios({ url: `${vars.dhpath}/token/hash`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
         if (resp.status === 204) {
-            setSnackbarContent("Token Revoked");
+            setSnackbarContent(tr("token_revoked"));
             setSnackbarSeverity("success");
             loadSessions();
         } else {
@@ -1039,7 +1049,7 @@ const Settings = ({ defaultTab = 0 }) => {
         let resp = await axios({ url: `${vars.dhpath}/token/application`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
         if (resp.status === 204) {
-            setSnackbarContent("Application Token Revoked");
+            setSnackbarContent(tr("application_token_revoked"));
             setSnackbarSeverity("success");
             loadSessions();
         } else {
@@ -1364,6 +1374,23 @@ const Settings = ({ defaultTab = 0 }) => {
                 <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Divider />
                 </Grid>
+
+                {window.isElectron && <>
+                    <Grid item xs={12} sm={12} md={6} lg={6}>
+                        <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("discord_presence")}</Typography>
+                        <br />
+                        <ButtonGroup fullWidth disabled={disablePresenceSettings}>
+                            <Button variant="contained" color={userSettings.presence === "full" ? "info" : "secondary"} onClick={() => { updateDiscordPresence("full"); }}>{tr("full")}</Button>
+                            <Button variant="contained" color={userSettings.presence === "basic" ? "info" : "secondary"} onClick={() => { updateDiscordPresence("basic"); }}>{tr("basic")}</Button>
+                            <Button variant="contained" color={userSettings.presence === "none" ? "info" : "secondary"} onClick={() => { updateDiscordPresence("none"); }}>{tr("none")}</Button>
+                        </ButtonGroup>
+                    </Grid>
+                    <Grid item xs={0} sm={0} md={6} lg={6}></Grid>
+
+                    <Grid item xs={12} sm={12} md={12} lg={12}>
+                        <Divider />
+                    </Grid>
+                </>}
 
                 <Grid item xs={12} sm={12} md={12} lg={12}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("account_connections")}</Typography>
