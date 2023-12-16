@@ -793,9 +793,9 @@ const MemoRoleForm = memo(({ theme, formConfig }) => {
                                 }
                             }
                         }
-                        setOpenIndex(index + 1);
                         newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: tr("new_role"), color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
+                        setOpenIndex(index + 1);
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newRoles = [...formConfig.state.roles];
@@ -864,7 +864,7 @@ const MemoRoleForm = memo(({ theme, formConfig }) => {
                             }
                         }
                         setOpenIndex(index + 1);
-                        newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: "", color: "" });
+                        newRoles.splice(index + 1, 0, { id: nextId, order_id: role.order_id + 1, name: tr("new_role"), color: "" });
                         formConfig.setState({ ...formConfig.state, roles: newRoles });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.roles.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -1286,9 +1286,9 @@ const MemoRankForm = memo(({ theme, formConfig }) => {
                                 }
                             }
                         }
-                        setOpenIndex(index + 1);
                         newRanks.splice(index + 1, 0, { id: nextId, points: 0, name: tr("new_rank"), color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
+                        setOpenIndex(index + 1);
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newRanks = [...formConfig.state.ranks];
@@ -1357,7 +1357,7 @@ const MemoRankForm = memo(({ theme, formConfig }) => {
                             }
                         }
                         setOpenIndex(index + 1);
-                        newRanks.splice(index + 1, 0, { id: nextId, order_id: rank.order_id + 1, name: "", color: "" });
+                        newRanks.splice(index + 1, 0, { id: nextId, points: 0, name: tr("new_rank"), color: "", discord_role_id: "", daily_bonus: null, distance_bonus: null });
                         formConfig.setState({ ...formConfig.state, ranks: newRanks });
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.ranks.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
@@ -2219,7 +2219,7 @@ const MemoApplicationFormForm = memo(({ theme, form, updateForm }) => {
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newForm = [...form];
                         newForm.splice(index, 1);
-                        updateFOrm(newForm);
+                        updateForm(newForm);
                         setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={form.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
@@ -2275,7 +2275,7 @@ const MemoApplicationFormForm = memo(({ theme, form, updateForm }) => {
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newForm = [...form];
                         newForm.splice(index, 1);
-                        updateFOrm(newForm);
+                        updateForm(newForm);
                         setOpenIndex(-1);
                     }}><FontAwesomeIcon icon={faMinus} disabled={form.length <= 1} /></IconButton>
                     <IconButton variant="contained" color="info" onClick={() => {
@@ -2544,13 +2544,13 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                                 }
                             }
                         }
-                        setOpenIndex(index + 1);
                         newApplicationTypes.splice(index + 1, 0, {
                             ...application_type,
                             id: nextId,
                             name: tr("new_application_type"),
                         });
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                        setOpenIndex(index + 1);
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newApplicationTypes = [...formConfig.state.application_types];
@@ -2618,9 +2618,13 @@ const MemoApplicationTypeForm = memo(({ theme, formConfig }) => {
                                 }
                             }
                         }
-                        setOpenIndex(index + 1);
-                        newApplicationTypes.splice(index + 1, 0, { id: nextId, order_id: application_type.order_id + 1, name: "", color: "" });
+                        newApplicationTypes.splice(index + 1, 0, {
+                            ...application_type,
+                            id: nextId,
+                            name: tr("new_application_type"),
+                        });
                         formConfig.setState({ ...formConfig.state, application_types: newApplicationTypes });
+                        setOpenIndex(index + 1);
                     }}><FontAwesomeIcon icon={faPlus} disabled={formConfig.state.application_types.length} /></IconButton>
                     <IconButton variant="contained" color="error" onClick={() => {
                         let newApplicationTypes = [...formConfig.state.application_types];
