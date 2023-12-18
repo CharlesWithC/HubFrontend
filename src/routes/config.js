@@ -1031,7 +1031,7 @@ const MemoSmtpForm = memo(({ theme, formConfig }) => {
 const RankForm = ({ theme, rank, onUpdate }) => {
     const { t: tr } = useTranslation();
     if (rank.discord_role_id === undefined) rank.discord_role_id = "";
-    return <Grid container spacing={2} sx={{ mt: "5px", mb: "15px" }}>
+    return <Grid container spacing={2} sx={{ mb: "15px" }}>
         <Grid item xs={12} md={3}>
             <TextField size="small"
                 key="name"
@@ -1135,7 +1135,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, streak_value: isNaN(parseInt(e.target.value)) ? e.target.value : parseInt(e.target.value) } }); }}
                     />
                 </Grid>
-                <Grid item xs={rank.daily_bonus.streak_type === "algo" ? 4 : 0}>
+                {rank.daily_bonus.streak_type === "algo" && <Grid item xs={4}>
                     <TextField size="small"
                         label={tr("offset")}
                         variant="outlined"
@@ -1143,7 +1143,7 @@ const RankForm = ({ theme, rank, onUpdate }) => {
                         value={rank.daily_bonus.algo_offset}
                         onChange={(e) => { if (!isNaN(e.target.value)) onUpdate({ ...rank, daily_bonus: { ...rank.daily_bonus, algo_offset: isNaN(parseInt(e.target.value)) ? e.target.value : parseInt(e.target.value) } }); }}
                     />
-                </Grid>
+                </Grid>}
             </>}
         </>}
         <Grid item xs={12}>

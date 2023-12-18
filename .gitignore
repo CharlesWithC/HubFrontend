@@ -34,4 +34,4 @@ config.json
 
 build-electron/assets/*
 !build-electron/assets/chub.png
-build-electron/output/
+build-electron/output
