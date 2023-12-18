@@ -1325,7 +1325,7 @@ const Economy = () => {
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipent")}</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipient")}</Typography>
                         <Typography variant="body2"><UserSelect users={[manageTransferTo]} isMulti={false} includeCompany={true} includeBlackhole={true} onUpdate={setManageTransferTo} /></Typography>
                     </Grid>
                     <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1467,7 +1467,7 @@ const Economy = () => {
                         <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={12} md={6} lg={6}>
-                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipent")}</Typography>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("recipient")}</Typography>
                                 <Typography variant="body2"><UserSelect users={[transferTo]} isMulti={false} includeCompany={true} onUpdate={setTransferTo} /></Typography>
                             </Grid>
                             <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -1487,7 +1487,7 @@ const Economy = () => {
                                 />
                             </Grid>
                         </Grid>
-                        <Button variant="contained" color="info" fullWidth onClick={() => { transferMoney(); }} disabled={transferTo.userid === undefined || dialogDisabled}>{tr("transfer")}</Button>
+                        <Button variant="contained" color="info" fullWidth onClick={() => { transferMoney(); }} disabled={transferTo.userid === undefined || dialogDisabled} sx={{ mt: "10px" }}>{tr("transfer")}</Button>
                     </CardContent>
                 </Card>
             </Grid>

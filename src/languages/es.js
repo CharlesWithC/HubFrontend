@@ -827,7 +827,7 @@ const es = {
     "recent": "Reciente",
     "recent_validated_division_deliveries": "Entregas Recientes Validadas de la División",
     "recent_visitors": "Visitantes Recientes",
-    "recipent": "Destinatario",
+    "recipient": "Destinatario",
     "refresh": "Actualizar",
     "refuel": "Reabastecer",
     "refund": "Reembolso",

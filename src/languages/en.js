@@ -872,7 +872,7 @@ const en = {
     "recent": "Recent",
     "recent_validated_division_deliveries": "Recent Validated Division Deliveries",
     "recent_visitors": "Recent Visitors",
-    "recipent": "Recipent",
+    "recipient": "Recipient",
     "refresh": "Refresh",
     "refuel": "Refuel",
     "refund": "Refund",

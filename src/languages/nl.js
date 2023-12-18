@@ -824,7 +824,7 @@ const nl = {
     "recent": "Recent",
     "recent_validated_division_deliveries": "Recent Gevalideerde Divisie Leveringen",
     "recent_visitors": "Recente Bezoekers",
-    "recipent": "Ontvanger",
+    "recipient": "Ontvanger",
     "refresh": "Vernieuwen",
     "refuel": "Tanken",
     "refund": "Terugbetaling",
