@@ -92,6 +92,7 @@ const SideBar = (props) => {
 
     const plugins = vars.dhconfig.plugins;
     const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event", "poll"];
+    const pluginControl = { "announcement": ["announcement"], "application": ["new_application", "my_application", "all_application"], "challenge": ["challenge"], "division": ["division"], "downloads": ["downloads"], "economy": ["economy"], "event": ["event"], "poll": ["poll"] };
     const menuName = { "overview": tr("overview"), "gallery": tr("gallery"), "announcement": tr("announcements"), "downloads": tr("downloads"), "poll": tr("polls"), "live_map": tr("map"), "delivery": tr("deliveries"), "challenge": tr("challenges"), "division": tr("divisions"), "economy": tr("economy"), "event": tr("events"), "member": tr("members"), "leaderboard": tr("leaderboard"), "ranking": tr("rankings"), "new_application": tr("new_application"), "my_application": tr("my_applications"), "all_application": tr("all_applications"), "member_list": tr("member_list"), "external_user": tr("external_users"), "audit_log": tr("audit_log"), "configuration": tr("configuration") };
     const menuIcon = { "overview": <AnalyticsRounded />, "gallery": <CollectionsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "poll": <BallotRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <MapsHomeWorkRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "member_list": <PeopleAltRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
     const menuRoute = { "overview": "/", "gallery": "/gallery", "announcement": "/announcement", "downloads": "/downloads", "poll": "/poll", "live_map": "/map", "delivery": "/delivery", "challenge": "/challenge", "division": "/division", "economy": "/economy", "event": "/event", "member": "/member", "leaderboard": "/leaderboard", "ranking": "/ranking", "new_application": "/application/new", "my_application": "/application/my", "all_application": "/application/all", "member_list": "/member-list", "external_user": "/external-user", "audit_log": "/audit-log", "configuration": "/config" };
@@ -144,7 +145,11 @@ const SideBar = (props) => {
 
     if (vars.vtcLevel < 1) toRemove.push("gallery");
 
-    menu = menu.map(subMenu => subMenu.filter(item => (!allPlugins.includes(item)) || (plugins.includes(item) && allPlugins.includes(item))));
+    for (let key in pluginControl) {
+        if (!plugins.includes(key)) {
+            toRemove = toRemove.concat(pluginControl[key]);
+        }
+    }
     menu = menu.map(subMenu => subMenu.filter(item => (!toRemove.includes(item))));
     menu = menu.filter(subMenu => subMenu.length > 0);
 

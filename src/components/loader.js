@@ -88,11 +88,17 @@ const Loader = ({ onLoaderLoaded }) => {
                     }),
                 loadImageAsBase64(`https://cdn.chub.page/assets/${vars.dhconfig.abbr}/bgimage.png?${vars.dhconfig.bgimage_key !== undefined ? vars.dhconfig.bgimage_key : ""}`)
                     .then((image) => {
-                        vars.dhvtcbg = image;
-                        try {
-                            localStorage.setItem("cache-background", vars.dhvtcbg);
-                        } catch { }
-                        setBgSrc(vars.dhvtcbg);
+                        if (vars.vtcLevel >= 1) {
+                            vars.dhvtcbg = image;
+                            try {
+                                localStorage.setItem("cache-background", vars.dhvtcbg);
+                            } catch { }
+                            setBgSrc(vars.dhvtcbg);
+                        } else {
+                            vars.dhvtcbg = "";
+                            setBgSrc(vars.dhvtcbg);
+                            localStorage.removeItem("cache-background");
+                        }
                     })
                     .catch(() => {
                         vars.dhvtcbg = "";
