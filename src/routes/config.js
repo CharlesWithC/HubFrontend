@@ -11,7 +11,7 @@ import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
@@ -3529,6 +3529,13 @@ const Configuration = () => {
                                 </Grid>
                             </Collapse>}
 
+                            {!vars.dhconfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                                <div style={{ flexGrow: 1 }}>{tr("announcement")}</div>
+                                <IconButton>
+                                    <FontAwesomeIcon icon={faLock} />
+                                </IconButton>
+                            </Typography></>}
+
                             {vars.dhconfig.plugins.includes("announcement") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
                                 <div style={{ flexGrow: 1 }}>{tr("announcement")}</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[8] ? 'rotate(180deg)' : 'none' }}>
@@ -3550,6 +3557,13 @@ const Configuration = () => {
                                     </Grid>
                                 </Collapse>}
                             </>}
+
+                            {!vars.dhconfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                                <div style={{ flexGrow: 1 }}>{tr("application")}</div>
+                                <IconButton>
+                                    <FontAwesomeIcon icon={faLock} />
+                                </IconButton>
+                            </Typography></>}
 
                             {vars.dhconfig.plugins.includes("application") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(10)}>
                                 <div style={{ flexGrow: 1 }}>{tr("application")}</div>
@@ -3573,6 +3587,13 @@ const Configuration = () => {
                                 </Collapse>}
                             </>}
 
+                            {!vars.dhconfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                                <div style={{ flexGrow: 1 }}>{tr("division")}</div>
+                                <IconButton>
+                                    <FontAwesomeIcon icon={faLock} />
+                                </IconButton>
+                            </Typography></>}
+
                             {vars.dhconfig.plugins.includes("division") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(9)}>
                                 <div style={{ flexGrow: 1 }}>{tr("division")}</div>
                                 <IconButton style={{ transition: 'transform 0.2s', transform: formSectionOpen[9] ? 'rotate(180deg)' : 'none' }}>
@@ -3594,6 +3615,13 @@ const Configuration = () => {
                                     </Grid>
                                 </Collapse>}
                             </>}
+
+                            {!vars.dhconfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(8)}>
+                                <div style={{ flexGrow: 1 }}>{tr("economy")}</div>
+                                <IconButton>
+                                    <FontAwesomeIcon icon={faLock} />
+                                </IconButton>
+                            </Typography></>}
 
                             {vars.dhconfig.plugins.includes("economy") && <><Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(13)}>
                                 <div style={{ flexGrow: 1 }}>{tr("economy")}</div>
