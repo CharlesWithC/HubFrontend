@@ -1,9 +1,9 @@
 [
     {
         "name": "Drivers Hub",
+        "build": "general",
         "icon": "./build-electron/assets/chub.png",
         "domain": "",
-        "discordClientID": "997847494933368923",
-        "output": "DriversHub"
+        "discordClientID": "997847494933368923"
     }
 ]

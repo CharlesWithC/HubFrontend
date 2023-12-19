@@ -1,5 +1,6 @@
 {
     "name": "Drivers Hub",
+    "build": "general",
     "domain": "",
     "discordClientID": "997847494933368923"
 }

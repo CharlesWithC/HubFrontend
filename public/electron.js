@@ -4,15 +4,31 @@ const path = require('path');
 const fs = require('fs');
 const { app, BrowserWindow, Notification, ipcMain, shell, dialog } = require('electron');
 const storage = require('electron-json-storage');
+const { autoUpdater } = require('electron-updater');
 
 const DiscordRPC = require('discord-rpc');
 let rpc = new DiscordRPC.Client({ transport: 'ipc' });
+
+let win;
 
 const debug = false;
 let browserAuth = false;
 let receivedNoti = []; // notificationid
 let presenceMode = "init";
 let rpcReady = -1;
+
+let lockDomain = false;
+let config = { name: "Drivers Hub", discordClientID: "997847494933368923" };
+const configPath = path.join(__dirname, 'electron-config.json');
+if (fs.existsSync(configPath)) {
+    const configData = fs.readFileSync(configPath, 'utf8');
+    config = JSON.parse(configData);
+    if (config.domain !== undefined && config.domain !== null && config.domain !== "") {
+        lockDomain = config.domain;
+    }
+}
+app.setName(config.name);
+app.setAppUserModelId(config.name);
 
 function removeMarkdown(content) {
     let result = content;
@@ -25,47 +41,6 @@ function removeMarkdown(content) {
 }
 
 async function createWindow() {
-    let lockDomain = false;
-    let config = { name: "Drivers Hub", discordClientID: "997847494933368923" };
-    const configPath = path.join(__dirname, 'electron-config.json');
-    if (fs.existsSync(configPath)) {
-        const configData = fs.readFileSync(configPath, 'utf8');
-        config = JSON.parse(configData);
-        if (config.domain !== undefined && config.domain !== null && config.domain !== "") {
-            lockDomain = config.domain;
-        }
-    }
-    app.setName(config.name);
-    app.setAppUserModelId(config.name);
-
-    function doRPCLogin() {
-        rpcReady = 0;
-        try {
-            rpc.login({ clientId: config.discordClientID }).catch(console.error);
-            rpc.on('ready', () => {
-                rpcReady = 1;
-                if (presenceMode === "full") {
-                    rpc.setActivity(curPresence.details !== undefined ? curPresence : {
-                        details: 'Launching...',
-                        largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
-                        startTimestamp: new Date(),
-                        instance: false,
-                        buttons: config.discordClientID === "997847494933368923" ? [
-                            { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
-                        ] : []
-                    });
-                } else if (presenceMode === "basic") {
-                    rpc.setActivity({
-                        startTimestamp: new Date(),
-                        instance: false
-                    });
-                }
-            });
-        } catch {
-            console.warn("Failed to initiate Discord RPC");
-        }
-    }
-
     const server = express();
     const REDIRECT_BACK = ['/auth/discord/callback', '/auth/steam/callback', '/auth/patreon/callback'];
     for (const route of REDIRECT_BACK) { // handle login callback
@@ -95,7 +70,7 @@ async function createWindow() {
     }));
     server.use(express.static(path.join(__dirname, '..', 'build')));
 
-    const win = new BrowserWindow({
+    win = new BrowserWindow({
         width: 1200,
         height: 675,
         minWidth: 960,
@@ -215,126 +190,6 @@ async function createWindow() {
             }
         });
     });
-
-    ipcMain.on('browser-auth', (event, data) => {
-        browserAuth = true;
-    });
-    ipcMain.on('cancel-browser-auth', (event, data) => {
-        browserAuth = false;
-    });
-    ipcMain.on('open-url', (event, data) => {
-        try {
-            let url = new URL(data);
-            shell.openExternal(url.toString());
-        } catch {
-            return;
-        }
-    });
-
-    let lastPresence = null; // note, must be different from curPresence
-    let curPresence = {};
-    ipcMain.on('presence-update', (event, data) => {
-        try {
-            if (config.discordClientID !== "997847494933368923") {
-                // remove powered by CHub for custom RPC
-                data.buttons = [data.buttons[0]];
-            }
-            if (data !== curPresence) {
-                if (curPresence !== lastPresence) {
-                    lastPresence = JSON.parse(JSON.stringify(curPresence));
-                }
-                curPresence = { ...JSON.parse(JSON.stringify(data)), startTimestamp: new Date() };
-            }
-            if (presenceMode === "full") rpc.setActivity(data);
-        } catch {
-            console.warn("Failed to update Discord RPC");
-        }
-    });
-    ipcMain.on('presence-revert', (event, data) => {
-        try {
-            if (!rpc.ready || lastPresence === null || presenceMode !== "full") return;
-            rpc.setActivity({ ...lastPresence, startTimestamp: new Date() });
-        } catch {
-            console.warn("Failed to update Discord RPC");
-        }
-    });
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    async function updatePresenceSettings(data, depth = 0) {
-        try {
-            if (presenceMode === data) return;
-            if (rpcReady === -1 && data !== "none") doRPCLogin();
-            if (rpcReady !== 1) {
-                if(depth === 10) return;
-                await sleep(1000);
-                return updatePresenceSettings(data, depth + 1);
-            }
-            presenceMode = data;
-            if (presenceMode === "none") {
-                await rpc.setActivity({ instance: false });
-                await rpc.clearActivity();
-            } else if (presenceMode === "basic") {
-                await rpc.setActivity({ startTimestamp: new Date(), instance: false });
-            } else if (presenceMode === "full") {
-                await rpc.setActivity(curPresence);
-            }
-        } catch {
-            console.warn("Failed to update Discord RPC");
-        }
-    }
-    ipcMain.on('presence-settings', async (event, data) => {
-        updatePresenceSettings(data);
-    });
-    ipcMain.on('notification', (event, data) => {
-        if (receivedNoti.includes(data.id)) return;
-        receivedNoti.push(data.id);
-        if (receivedNoti.includes(-1) && data.id !== -1) {
-            // when -1 is in receivedNoti, then the first batch is over
-            // we'll only look for new notifications after the client started
-            const notification = {
-                title: 'Drivers Hub',
-                body: removeMarkdown(data.message)
-            };
-            new Notification(notification).show();
-        }
-    });
-    ipcMain.handle('open-file-dialog', async (event, extensions) => {
-        const result = await dialog.showOpenDialog({
-            properties: ['openFile'],
-            filters: [{ name: 'Files', extensions }]
-        });
-        function getMimeType(filePath) {
-            const ext = path.extname(filePath).toLowerCase();
-            switch (ext) {
-                case '.jpg':
-                case '.jpeg':
-                    return 'image/jpeg';
-                case '.png':
-                    return 'image/png';
-                case '.gif':
-                    return 'image/gif';
-                case '.bmp':
-                    return 'image/bmp';
-                case '.webp':
-                    return 'image/webp';
-                case '.svg':
-                    return 'image/svg+xml';
-                case '.csv':
-                    return 'text/csv';
-                default:
-                    return 'application/octet-stream';
-            }
-        }
-        if (!result.canceled) {
-            const filePath = result.filePaths[0];
-            const fileBuffer = fs.readFileSync(filePath);
-            const fileBase64 = fileBuffer.toString('base64');
-            const mimeType = getMimeType(filePath);
-            const dataUrl = `data:${mimeType};base64,${fileBase64}`;
-            return dataUrl;
-        }
-    });
 }
 
 app.whenReady().then(createWindow);
@@ -355,6 +210,46 @@ app.on('ready', () => {
     if (!app.requestSingleInstanceLock()) {
         app.quit();
     }
+
+    const isPortable = 'PORTABLE_EXECUTABLE_DIR' in process.env;
+    if (!isPortable) {
+        autoUpdater.setFeedURL({
+            provider: 'generic',
+            url: 'https://dl.chub.page/' + config.build + '/',
+        });
+        autoUpdater.autoDownload = true;
+
+        autoUpdater.on('update-available', () => {
+            dialog.showMessageBox(win, {
+                type: 'info',
+                title: 'Update Available',
+                message: 'A new version of the application is available. Downloading now...'
+            });
+        });
+
+        autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+            dialog.showMessageBox(win, {
+                type: 'info',
+                buttons: ['Restart Now', 'Restart Later'],
+                title: 'Application Update',
+                message: process.platform === 'win32' ? releaseNotes : releaseName,
+                detail: 'A new version has been downloaded. Restart the application to apply the updates.'
+            }).then((returnValue) => {
+                if (returnValue.response === 0) autoUpdater.quitAndInstall();
+            });
+        });
+
+        autoUpdater.on('error', (error) => {
+            dialog.showMessageBox(win, {
+                type: 'error',
+                title: 'Update Error',
+                message: 'An error occurred while checking for updates.',
+                detail: error.toString()
+            });
+        });
+
+        autoUpdater.checkForUpdatesAndNotify();
+    }
 });
 
 app.on('second-instance', () => {
@@ -362,5 +257,152 @@ app.on('second-instance', () => {
     if (win) {
         if (win.isMinimized()) win.restore();
         win.focus();
+    }
+});
+
+ipcMain.on('browser-auth', (event, data) => {
+    browserAuth = true;
+});
+ipcMain.on('cancel-browser-auth', (event, data) => {
+    browserAuth = false;
+});
+ipcMain.on('open-url', (event, data) => {
+    try {
+        let url = new URL(data);
+        shell.openExternal(url.toString());
+    } catch {
+        return;
+    }
+});
+
+function doRPCLogin() {
+    rpcReady = 0;
+    try {
+        rpc.login({ clientId: config.discordClientID }).catch(console.error);
+        rpc.on('ready', () => {
+            rpcReady = 1;
+            if (presenceMode === "full") {
+                rpc.setActivity(curPresence.details !== undefined ? curPresence : {
+                    details: 'Launching...',
+                    largeImageKey: 'https://drivershub.charlws.com/images/logo.png',
+                    startTimestamp: new Date(),
+                    instance: false,
+                    buttons: config.discordClientID === "997847494933368923" ? [
+                        { label: 'Powered by CHub', url: "https://drivershub.charlws.com/" }
+                    ] : []
+                });
+            } else if (presenceMode === "basic") {
+                rpc.setActivity({
+                    startTimestamp: new Date(),
+                    instance: false
+                });
+            }
+        });
+    } catch {
+        console.warn("Failed to initiate Discord RPC");
+    }
+}
+let lastPresence = null; // note, must be different from curPresence
+let curPresence = {};
+ipcMain.on('presence-update', (event, data) => {
+    try {
+        if (config.discordClientID !== "997847494933368923") {
+            // remove powered by CHub for custom RPC
+            data.buttons = [data.buttons[0]];
+        }
+        if (data !== curPresence) {
+            if (curPresence !== lastPresence) {
+                lastPresence = JSON.parse(JSON.stringify(curPresence));
+            }
+            curPresence = { ...JSON.parse(JSON.stringify(data)), startTimestamp: new Date() };
+        }
+        if (presenceMode === "full") rpc.setActivity(data);
+    } catch {
+        console.warn("Failed to update Discord RPC");
+    }
+});
+ipcMain.on('presence-revert', (event, data) => {
+    try {
+        if (!rpc.ready || lastPresence === null || presenceMode !== "full") return;
+        rpc.setActivity({ ...lastPresence, startTimestamp: new Date() });
+    } catch {
+        console.warn("Failed to update Discord RPC");
+    }
+});
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function updatePresenceSettings(data, depth = 0) {
+    try {
+        if (presenceMode === data) return;
+        if (rpcReady === -1 && data !== "none") doRPCLogin();
+        if (rpcReady !== 1) {
+            if (depth === 10) return;
+            await sleep(1000);
+            return updatePresenceSettings(data, depth + 1);
+        }
+        presenceMode = data;
+        if (presenceMode === "none") {
+            await rpc.setActivity({ instance: false });
+            await rpc.clearActivity();
+        } else if (presenceMode === "basic") {
+            await rpc.setActivity({ startTimestamp: new Date(), instance: false });
+        } else if (presenceMode === "full") {
+            await rpc.setActivity(curPresence);
+        }
+    } catch {
+        console.warn("Failed to update Discord RPC");
+    }
+}
+ipcMain.on('presence-settings', async (event, data) => {
+    updatePresenceSettings(data);
+});
+ipcMain.on('notification', (event, data) => {
+    if (receivedNoti.includes(data.id)) return;
+    receivedNoti.push(data.id);
+    if (receivedNoti.includes(-1) && data.id !== -1) {
+        // when -1 is in receivedNoti, then the first batch is over
+        // we'll only look for new notifications after the client started
+        const notification = {
+            title: 'Drivers Hub',
+            body: removeMarkdown(data.message)
+        };
+        new Notification(notification).show();
+    }
+});
+ipcMain.handle('open-file-dialog', async (event, extensions) => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'Files', extensions }]
+    });
+    function getMimeType(filePath) {
+        const ext = path.extname(filePath).toLowerCase();
+        switch (ext) {
+            case '.jpg':
+            case '.jpeg':
+                return 'image/jpeg';
+            case '.png':
+                return 'image/png';
+            case '.gif':
+                return 'image/gif';
+            case '.bmp':
+                return 'image/bmp';
+            case '.webp':
+                return 'image/webp';
+            case '.svg':
+                return 'image/svg+xml';
+            case '.csv':
+                return 'text/csv';
+            default:
+                return 'application/octet-stream';
+        }
+    }
+    if (!result.canceled) {
+        const filePath = result.filePaths[0];
+        const fileBuffer = fs.readFileSync(filePath);
+        const fileBase64 = fileBuffer.toString('base64');
+        const mimeType = getMimeType(filePath);
+        const dataUrl = `data:${mimeType};base64,${fileBase64}`;
+        return dataUrl;
     }
 });

@@ -370,6 +370,7 @@ const en = {
     "domain": "Domain",
     "dont_go_over_the_road_blockers": "Don't go over the road blockers!",
     "download": "Download",
+    "download_app": "Download App",
     "download_link": "Download Link",
     "downloadable_item_deleted": "Downloadable item deleted",
     "downloadable_item_posted": "Downloadable item posted",

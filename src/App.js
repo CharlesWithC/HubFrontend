@@ -61,8 +61,6 @@ import i18n from './i18n';
 
 var vars = require('./variables');
 
-const client_version = "3.3.0";
-
 const drivershub = `    ____       _                         __  __      __
    / __ \\_____(_)   _____  __________   / / / /_  __/ /_
   / / / / ___/ / | / / _ \\/ ___/ ___/  / /_/ / / / / __ \\
@@ -75,7 +73,7 @@ function App() {
 
     useEffect(() => {
         console.log(drivershub);
-        console.log(`Drivers Hub: Frontend (v${client_version})`);
+        console.log(`Drivers Hub: Frontend`);
         console.log(`Copyright (C) ${new Date().getFullYear()} CharlesWithC All rights reserved.`);
     }, []);
 
@@ -222,7 +220,7 @@ function App() {
             <ThemeProvider theme={theme}>
                 {/* createTheme - opacity controls whether image will be shown*/}
                 <div style={{
-                    backgroundImage: `url(${vars.dhbgimage})`,
+                    backgroundImage: (vars.dhbgimage !== null && vars.dhbgimage !== "") ? `url(${vars.dhbgimage})` : undefined,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',
@@ -354,20 +352,14 @@ function App() {
                                     {isMd && <div style={{ display: 'flex', alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 800 }}>
                                             &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
-                                            <br />
-                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                         </Typography>
                                         <Typography variant="body2" sx={{ marginLeft: "auto", alignSelf: 'flex-end', textAlign: "right", fontWeight: 800, marginRight: hasSpeedDial ? "70px" : 0 }}>
-                                            {vars.dhconfig.name}
-                                            <br />
-                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v{client_version}</>
+                                            <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                         </Typography>
                                     </div>}
                                     {!isMd && <div style={{ alignItems: 'center', marginTop: "20px", color: theme.palette.text.secondary }}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                             &copy; {new Date().getFullYear()} <a href="https://charlws.com/" target="_blank" rel="noreferrer">CharlesWithC</a>
-                                            <br />
-                                            <>{tr("server")}</>: v{vars.apiversion} | <>{tr("client")}</>: <>v{client_version}</>
                                             <br />
                                             <a href="https://drivershub.charlws.com/" target="_blank" rel="noreferrer">The Drivers Hub Project (CHub)</a>  <FontAwesomeIcon icon={faQuestionCircle} onClick={() => { setAboutCHubModal(true); }} style={{ cursor: "pointer" }} />
                                         </Typography>

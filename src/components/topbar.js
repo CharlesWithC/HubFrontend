@@ -42,6 +42,17 @@ const TopBar = (props) => {
         resolve => setTimeout(resolve, ms)
     );
 
+    const [downloadUrl, setDownloadUrl] = useState("https://dl.chub.page/general/setup.exe");
+    useEffect(() => {
+        fetch(`https://dl.chub.page/${vars.dhconfig.abbr}/latest.yml`)
+            .then(response => {
+                if (response.ok) {
+                    setDownloadUrl(`https://dl.chub.page/${vars.dhconfig.abbr}/setup.exe`);
+                }
+            })
+            .catch(error => console.log(error));
+    }, []);
+
     const radioRef = useRef(null);
     const [radioURL, setRadioURL] = useState("");
     const [radioImage, setRadioImage] = useState("");
@@ -345,7 +356,7 @@ const TopBar = (props) => {
         <Link to="/supporters"><MenuItem sx={{ color: '#f47fff' }}><ListItemIcon><FontAwesomeIcon icon={faClover} style={{ marginLeft: "3px" }} /></ListItemIcon>{tr("supporters")}</MenuItem></Link>
         {!window.isElectron && <>
             <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
-            <MenuItem onClick={() => { window.location.href = "https://dl.chub.page/DriversHub.Setup.exe"; }}><ListItemIcon><FontAwesomeIcon icon={faDownload} /></ListItemIcon>Download App</MenuItem>
+            <MenuItem onClick={() => { window.location.href = downloadUrl; }}><ListItemIcon><FontAwesomeIcon icon={faDownload} /></ListItemIcon>{tr("download_app")}</MenuItem>
         </>}
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <MenuItem onClick={logout}><ListItemIcon><LogoutRounded fontSize="small" /></ListItemIcon>{tr("logout")}</MenuItem>

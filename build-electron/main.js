@@ -2,11 +2,21 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const semver = require('semver');
+
+function incrementVersion(version) {
+    return semver.inc(version, 'patch');
+}
 
 async function main() {
     if (!fs.existsSync(`./build-electron/output`)) {
         fs.mkdirSync(`./build-electron/output`);
     }
+
+    // Step 0: Update version code
+    const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+    packageJson.version = incrementVersion(packageJson.version);
+    fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
 
     // Step 1: Move ./package.json to ./package.json.bak
     fs.renameSync('./package.json', './package.json.bak');
@@ -29,6 +39,7 @@ async function main() {
         electronConfig.name = item.name;
         electronConfig.domain = item.domain;
         electronConfig.discordClientID = item.discordClientID;
+        electronConfig.build = item.build;
         fs.writeFileSync('./build/electron-config.json', JSON.stringify(electronConfig, null, 2));
 
         // iii) Modify logo.png
@@ -45,8 +56,16 @@ async function main() {
 
         // v) Move the built files from ./dist to ./build-electron/output
         try {
-            fse.moveSync(`./dist/DriversHub.exe`, `./build-electron/output/${item.output}.exe`, { overwrite: true });
-            fse.moveSync(`./dist/DriversHub.Setup.exe`, `./build-electron/output/${item.output}.Setup.exe`, { overwrite: true });
+            let outputDir = `./build-electron/output/${item.build}`;
+            if (!fs.existsSync(outputDir)) {
+                fs.mkdirSync(outputDir, { recursive: true });
+            }
+            fse.moveSync(`./dist/DriversHub.exe`, `./build-electron/output/${item.build}/portable.exe`, { overwrite: true });
+            fse.moveSync(`./dist/DriversHub.Setup.exe`, `./build-electron/output/${item.build}/setup.exe`, { overwrite: true });
+            fse.moveSync(`./dist/latest.yml`, `./build-electron/output/${item.build}/latest.yml`, { overwrite: true });
+            let data = fs.readFileSync(`./build-electron/output/${item.build}/latest.yml`, 'utf8');
+            let result = data.replace(/DriversHub\.Setup\.exe/g, 'setup.exe');
+            fs.writeFileSync(`./build-electron/output/${item.build}/latest.yml`, result, 'utf8');
         } catch (error) {
             console.error(`copy file failed: ${error}`);
             continue;
