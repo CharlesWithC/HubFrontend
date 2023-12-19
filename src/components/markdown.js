@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
 
 var vars = require("../variables");
 
@@ -18,8 +19,9 @@ const MarkdownRenderer = ({ children }) => {
     };
 
     const preprocessedContent = preprocessContent(children);
+    const sanitizedContent = DOMPurify.sanitize(preprocessedContent);
 
-    return <ReactMarkdown components={components} children={preprocessedContent} />;
+    return <ReactMarkdown components={components} children={sanitizedContent} />;
 };
 
 export default MarkdownRenderer;
