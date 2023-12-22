@@ -408,8 +408,9 @@ const TopBar = (props) => {
                                     <div className="user-name">{vars.userBanner.name}</div>
                                     <div className="user-role">{vars.userBanner.role}</div>
                                 </div>
-                                <div className="user-avatar">
-                                    <img src={vars.userBanner.avatar} alt="" />
+                                <div className="user-avatar" style={{ position: 'relative' }}>
+                                    <img src={vars.userBanner.avatar} alt="" style={{ width: '100%', height: '100%' }} />
+                                    {+new Date() >= 1703203200000 && +new Date() <= 1704412800000 && <img src="/images/avatar-light-bulb-square.png" alt="" style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%' }} />}
                                 </div>
                             </div>
                             {vars.isLoggedIn && loggedInBtns}
