@@ -83,7 +83,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
             else if (config[i].type === "datetime") {
                 defaultResp[config[i].label] = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
             } else if (config[i].type === "checkbox") {
-                if (config[i].choices !== undefined) {
+                if (config[i].choices !== undefined && config[i].choices.length !== 0) {
                     defaultResp[config[i].label] = [];
                 } else {
                     defaultResp[config[i].label] = tr("no");
@@ -360,7 +360,7 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
                             break;
 
                         case 'checkbox':
-                            if (field.choices !== undefined) {
+                            if (field.choices !== undefined && field.choices.length !== 0) {
                                 ret = (
                                     <FormControl component="fieldset">
                                         <FormLabel component="legend">{field.label}</FormLabel>
