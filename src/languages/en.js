@@ -41,6 +41,7 @@ const en = {
     "alternatively_sync_to_discord_steam": "- Alternatively, sync to Discord / Steam / TruckersMP profile",
     "always_active": "Always active",
     "always_sync_user_discord_email": "Always sync user Discord email?",
+    "america": "America",
     "american_truck_simulator_base_map": "American Truck Simulator - Base Map",
     "american_truck_simulator_promods_map": "American Truck Simulator - ProMods Map",
     "amount": "Amount",

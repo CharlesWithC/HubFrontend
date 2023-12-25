@@ -2915,6 +2915,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
             <Typography variant="body2">{tr("config_economy_note")}</Typography>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
+                    if(!window.isElectron) return;
                     const trucks = await importCsvElectron(["id", "game", "brand", "model", "price"]);
                     if (trucks !== undefined) {
                         formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, trucks } });
@@ -2935,6 +2936,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
             </ButtonGroup>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
+                    if(!window.isElectron) return;
                     const garages = await importCsvElectron(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"]);
                     if (garages !== undefined) {
                         formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, garages } });
@@ -2955,6 +2957,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
             </ButtonGroup>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
+                    if(!window.isElectron) return;
                     const merch = await importCsvElectron(["id", "name", "buy_price", "sell_price"]);
                     if (merch !== undefined) {
                         formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, merch } });

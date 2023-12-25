@@ -102,10 +102,12 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
             let features = [];
             for (let i = 0; i < vars.economyGarages.length; i++) {
                 let garage = vars.economyGarages[i];
-                let point = new Point([garage.x, -garage.z]);
-                const circleFeature = new Feature({ 'geometry': point, 'info': garage });
-                circleFeature.setStyle(circleStyle);
-                features.push(circleFeature);
+                if (tilesUrl.includes("ets2") && (garage.game === "ets2" || garage.game === "" || garage.game === undefined) || tilesUrl.includes("ats") && garage.game === "ats") {
+                    let point = new Point([garage.x, -garage.z]);
+                    const circleFeature = new Feature({ 'geometry': point, 'info': garage });
+                    circleFeature.setStyle(circleStyle);
+                    features.push(circleFeature);
+                }
             }
 
             const vectorSource = new VectorSource({
@@ -259,6 +261,7 @@ const Economy = () => {
     const theme = useTheme();
 
     const [configLoaded, setConfigLoaded] = useState(vars.economyConfig !== null);
+    const [hasATS, setHasATS] = useState(false);
     useEffect(() => {
         async function doLoad() {
             const loadingStart = new CustomEvent('loadingStart', {});
@@ -274,10 +277,13 @@ const Economy = () => {
                 vars.economyConfig = economyConfig;
             }
             if (economyGarages) {
+                let hasATS = false;
                 vars.economyGarages = economyGarages;
                 for (let i = 0; i < economyGarages.length; i++) {
                     vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
+                    if (economyGarages[i].game === "ats") hasATS = true;
                 }
+                setHasATS(hasATS);
             }
             if (economyTrucks) {
                 vars.economyTrucks = economyTrucks;
@@ -295,6 +301,13 @@ const Economy = () => {
         }
         if (vars.economyConfig === null) {
             doLoad();
+        } else {
+            let hasATS = false;
+            let economyGarages = Object.values(vars.economyGaragesMap);
+            for (let i = 0; i < economyGarages.length; i++) {
+                if (economyGarages[i].game === "ats") hasATS = true;
+            }
+            setHasATS(hasATS);
         }
     }, [vars.economyConfig]);
 
@@ -936,6 +949,7 @@ const Economy = () => {
 
     return <>{configLoaded && <>
         <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("europe")} onGarageClick={handleGarageClick} />
+        {hasATS && <CustomTileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={tr("america")} onGarageClick={handleGarageClick} style={{ marginTop: "10px" }} />}
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
             <DialogTitle>{modalGarage.name}</DialogTitle>
             <DialogContent>
