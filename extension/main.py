@@ -50,7 +50,7 @@ def convertToHex(intColor):
     if intColor == -1:
         return None
     else:
-        return "#" + str(hex(intColor))[2:]
+        return "#" + str(hex(intColor))[2:].zfill(6)
 
 @app.get("/")
 async def index():
