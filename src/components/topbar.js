@@ -287,8 +287,9 @@ const TopBar = (props) => {
         let intervalId = setInterval(() => {
             if (window.loading > 0) {
                 setLoading(true);
-            } else if (window.loading === 0) {
+            } else if (window.loading <= 0) {
                 setLoading(false);
+                window.loading = 0;
             }
         }, 50);
 

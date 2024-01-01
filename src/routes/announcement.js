@@ -399,7 +399,7 @@ const Announcement = () => {
 
     useEffect(() => {
         doLoad();
-    }, [doLoad]);
+    }, []);
 
     return (
         <>{vars.announcementTypes !== null && <>

@@ -3310,9 +3310,7 @@ const Configuration = () => {
                 </Tabs>
             </Box>
             <TabPanel value={tab} index={0}>
-                <Typography variant="body2" component="div" sx={{ mt: "5px" }}>{tr("config_note_1")}<br />{tr("config_note_2")}<br />{tr("config_note_3")}<br />{tr("config_note_4")}<br />
-                    <br />{tr("config_note_5")}<br />{tr("config_note_6")}<br />
-                    <br />
+                <Typography variant="body2" component="div" sx={{ mt: "5px" }}>{tr("config_note_1")}<br />{tr("config_note_2")}<br />{tr("config_note_3")}<br />{tr("config_note_4")}<br /><br />
                     {formConfigReady &&
                         <>
                             <Typography variant="h6" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => handleFormToggle(0)}>

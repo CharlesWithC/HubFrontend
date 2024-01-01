@@ -27,29 +27,9 @@ function ParseEventImage(events) {
     return events;
 }
 
-function getDefaultDateRange() {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-
-    const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-    const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-
-    const firstDay = firstDayOfMonth.getDay(); // Day of the week (0 - Sunday, 1 - Monday, ...)
-    const lastSundayOfPreviousMonth = new Date(currentYear, currentMonth, 0);
-    const daysUntilLastSunday = firstDay > 0 ? firstDay - 1 : 6;
-
-    lastSundayOfPreviousMonth.setDate(lastSundayOfPreviousMonth.getDate() - daysUntilLastSunday);
-
-    return {
-        start: lastSundayOfPreviousMonth,
-        end: lastDayOfMonth,
-    };
-}
-
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    
+
     const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_events"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
@@ -190,27 +170,18 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     const { t: tr } = useTranslation();
-    
+
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
 
-            const defaultDateRange = getDefaultDateRange();
-            const [after, meetup_before] = [parseInt(defaultDateRange.start.getTime() / 1000), parseInt(defaultDateRange.end.getTime() / 1000)];
-
-            let urls = [
-                `${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`,
-                `${vars.dhpath}/events/list?page_size=250&page=1&meetup_after=${after}&meetup_before=${meetup_before}`
-            ];
-            let [events, curMonthEvents] = [{}, {}];
-
+            let events;
             if (vars.isLoggedIn) {
-                [events, curMonthEvents] = await makeRequestsWithAuth(urls);
+                [events] = await makeRequestsWithAuth([`${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
             } else {
-                [events, curMonthEvents] = await makeRequests(urls);
+                [events] = await makeRequests([`${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
             }
             setUpcomingEvents(ParseEventImage(events.list));
-            setAllEvents(ParseEventImage(curMonthEvents.list));
 
             window.loading -= 1;
         }
@@ -367,8 +338,8 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         }
     }, [allEvents, setModalEvent, setOpenEventDetals]);
     const handleDateSet = useCallback(async (dateInfo) => {
-        const start = parseInt(dateInfo.start.getTime() / 1000);
-        const end = parseInt(dateInfo.end.getTime() / 1000);
+        const start = parseInt(dateInfo.start.getTime() / 1000 - 86400 * 14);
+        const end = parseInt(dateInfo.end.getTime() / 1000 + 86400 * 14);
 
         window.loading += 1;
 
@@ -386,7 +357,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         mergeEvents(ParseEventImage(monthEvents.list));
 
         window.loading -= 1;
-    }, [mergeEvents]);
+    }, []);
     useEffect(() => {
         let newCalendarEvents = [];
         for (let i = 0; i < allEvents.length; i++) {
@@ -511,7 +482,7 @@ const EventManagers = memo(() => {
 
 const Events = () => {
     const { t: tr } = useTranslation();
-    
+
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
     const [allEvents, setAllEvents] = useState([]);

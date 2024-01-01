@@ -108,7 +108,7 @@ function App() {
         return () => {
             window.removeEventListener("themeUpdated", handleUpdateTheme);
         };
-    }, [updateThemeMode]);
+    }, []);
 
     useEffect(() => {
         if (readLS("client-settings", vars.host) !== null) {

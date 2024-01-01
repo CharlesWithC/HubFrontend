@@ -20,6 +20,8 @@ var vars = require('../variables');
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
 
+    window.loading = 0; // clear loading state on page change
+
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {
@@ -30,47 +32,6 @@ const SideBar = (props) => {
     const handleListItemClick = (event, index) => {
         setSelectedIndex(index);
     };
-
-    const bannerRef = useRef(null);
-    const [simpleBarStyle, setSimpleBarStyle] = useState({
-        maxHeight: `100vh`,
-        height: `100vh`,
-    });
-    useEffect(() => {
-        const handleImageLoad = () => {
-            const sidebarBanners = document.querySelectorAll('.sidebar-banner');
-            const visibleSidebarBanner = Array.from(sidebarBanners).find(
-                (banner) => banner.offsetParent !== null
-            );
-            // if (visibleSidebarBanner) {
-            //     setTimeout(() => {
-            //         const updatedVisibleBanner = document.querySelector('.sidebar-banner:not([style*="display: none"])');
-            //         if (updatedVisibleBanner) {
-            //             setSimpleBarStyle({
-            //                 maxHeight: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
-            //                 height: `calc(100vh - ${(updatedVisibleBanner.offsetHeight + 30)}px)`,
-            //             });
-            //         }
-            //     }, 100);
-            // }
-        };
-
-        let currentBannerRef = bannerRef.current;
-
-        if (currentBannerRef) {
-            if (currentBannerRef.complete) {
-                handleImageLoad();
-            } else {
-                currentBannerRef.addEventListener('load', handleImageLoad);
-            }
-        }
-
-        return () => {
-            if (currentBannerRef) {
-                currentBannerRef.removeEventListener('load', handleImageLoad);
-            }
-        };
-    }, [bannerRef]);
 
     const [reload, setReload] = useState(+new Date());
     const [reload404, setReload404] = useState(false);
@@ -208,10 +169,10 @@ const SideBar = (props) => {
         }
     }, [window.location.pathname]);
 
-    const sidebar = <SimpleBar key='sidebar-simplebar' style={simpleBarStyle}>
+    const sidebar = <SimpleBar key='sidebar-simplebar' style={{ maxHeight: `100vh`, height: `100vh`, }}>
         <List key="0" sx={{ paddingTop: 0 }}>
             <ListItem key={`navbtn-banner`} disablePadding>
-                <img className="sidebar-banner" src={vars.dhbanner} alt="" ref={bannerRef} style={{ margin: 0, width: "100%" }} />
+                <img className="sidebar-banner" src={vars.dhbanner} alt="" style={{ margin: 0, width: "100%" }} />
             </ListItem>
         </List>
         {menu.map((subMenu, subIndex) => (
