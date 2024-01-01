@@ -182,8 +182,7 @@ const SideBar = (props) => {
                         if (!vars.isLoggedIn) navigate("/auth/login");
                         setReload404(true);
                         setTimeout(function () {
-                            const loadingEnd = new CustomEvent('loadingEnd', {});
-                            window.dispatchEvent(loadingEnd);
+                            window.loading -= 1;
                         }, 500);
                     } else {
                         setTimeout(function () {
@@ -194,8 +193,7 @@ const SideBar = (props) => {
                                         if (!vars.isLoggedIn) navigate("/auth/login");
                                         setReload404(true);
                                         setTimeout(function () {
-                                            const loadingEnd = new CustomEvent('loadingEnd', {});
-                                            window.dispatchEvent(loadingEnd);
+                                            window.loading -= 1;
                                         }, 500);
                                     }
                                 }

@@ -37,8 +37,7 @@ const Ranking = () => {
     }, []);
 
     const doLoad = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         if (curRankTypeId === null) {
             for (let i = 0; i < vars.ranks.length; i++) {
@@ -64,8 +63,7 @@ const Ranking = () => {
         if (_leaderboard.list.length === 0) {
             setUserPoints(0);
             setRankIdx(-1);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
 
@@ -85,8 +83,7 @@ const Ranking = () => {
             if (points > curRankRoles[curRankRoles.length - 1].points) setRankIdx(curRankRoles.length - 1);
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [curRankPointTypes, curRankRoles, curRankTypeId]);
     useEffect(() => {
         doLoad();

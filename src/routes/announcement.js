@@ -278,8 +278,7 @@ const Announcement = () => {
     }, []);
 
     const doLoad = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         if (vars.announcementTypes === null) {
             const urlsBatch = [
@@ -315,8 +314,7 @@ const Announcement = () => {
         setAnnouncemnts(newAnns);
         setLastUpdate(+new Date());
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [page]);
 
     const handleSubmit = useCallback(async (e) => {

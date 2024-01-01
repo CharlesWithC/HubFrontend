@@ -191,8 +191,7 @@ const UserCard = (props) => {
     const dlogPageRef = useRef(1);
     const [dlogPageSize, setDlogPageSize] = useState(vars.userSettings.default_row_per_page);
     const loadStats = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
             { url: `https://config.chub.page/truckersmp?mpid=${truckersmpidRef.current}`, auth: false },
@@ -233,8 +232,7 @@ const UserCard = (props) => {
         setDlogList(newDlogList);
         setDlogTotalItems(_dlogList.total_items);
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [userid]);
     useEffect(() => {
         if (chartStats === null && (ctxAction === "show-profile" || showProfileModal === 2))
@@ -245,8 +243,7 @@ const UserCard = (props) => {
     }, [dlogPage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [_dlogList] = await makeRequestsAuto([
                 { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
@@ -267,8 +264,7 @@ const UserCard = (props) => {
                 setDlogTotalItems(_dlogList.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (ctxAction === "show-profile" || showProfileModal === 2)
             doLoad();

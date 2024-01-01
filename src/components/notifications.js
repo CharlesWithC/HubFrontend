@@ -101,8 +101,7 @@ const NotificationsPopover = () => {
     const handleAllRead = async () => {
         const bearerToken = getAuthToken();
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         try {
             const resp = await axios({ url: `${vars.dhpath}/user/notification/all/status/1`, method: "PATCH", headers: { "Authorization": `Bearer ${bearerToken}` } });
@@ -119,8 +118,7 @@ const NotificationsPopover = () => {
             setSnackbarSeverity("error");
             setSnackbarContent(tr("error_occurred"));
         }
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     };
 
     const open = Boolean(anchorPosition);

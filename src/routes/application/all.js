@@ -44,8 +44,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let processedParam = removeNUEValues(listParam);
 
@@ -78,8 +77,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                 setTotalItems(_applications.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, STATUS, doReload, listParam]);
@@ -137,8 +135,7 @@ const AllApplication = () => {
     }, []);
 
     const showDetail = useCallback(async (application) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/applications/${application.applicationid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
@@ -151,8 +148,7 @@ const AllApplication = () => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const updateStatus = useCallback(async () => {

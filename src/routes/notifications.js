@@ -33,8 +33,7 @@ const Notifications = () => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [_notiList] = await makeRequestsAuto([
                 { url: `${vars.dhpath}/user/notification/list?order=desc&order_by=notificationid&page=${page}&page_size=${pageSize}`, auth: true },
@@ -51,8 +50,7 @@ const Notifications = () => {
                 setTotalItems(_notiList.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, theme]);

@@ -36,8 +36,7 @@ const AuditLog = () => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [_userList] = await makeRequestsAuto([
                 { url: `${vars.dhpath}/audit/list?order=desc&order_by=uid&page=${page}&page_size=${pageSize}`, auth: true },
@@ -54,8 +53,7 @@ const AuditLog = () => {
                 setTotalItems(_userList.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, theme]);

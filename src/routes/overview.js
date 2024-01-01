@@ -31,8 +31,7 @@ const Overview = () => {
 
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [_, chartNSU, chartSU, lboard, rvisitors, nmember, ldelivery] = await makeRequestsAuto([
                 { url: `${vars.dhpath}`, auth: true }, // access the index url to update user status
@@ -87,8 +86,7 @@ const Overview = () => {
                 setLatestDelivery(ldelivery.list[0]);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, []);

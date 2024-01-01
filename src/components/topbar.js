@@ -284,17 +284,16 @@ const TopBar = (props) => {
     }, []);
 
     useEffect(() => {
-        const handleLoadingStartEvent = () => {
-            setLoading(true);
-        };
-        const handleLoadingEndEvent = () => {
-            setLoading(false);
-        };
-        window.addEventListener("loadingStart", handleLoadingStartEvent);
-        window.addEventListener("loadingEnd", handleLoadingEndEvent);
+        let intervalId = setInterval(() => {
+            if (window.loading > 0) {
+                setLoading(true);
+            } else if (window.loading === 0) {
+                setLoading(false);
+            }
+        }, 50);
+
         return () => {
-            window.removeEventListener("loadingStart", handleLoadingStartEvent);
-            window.removeEventListener("loadingEnd", handleLoadingEndEvent);
+            clearInterval(intervalId);
         };
     }, []);
 

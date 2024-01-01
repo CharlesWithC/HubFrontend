@@ -339,15 +339,13 @@ const Settings = ({ defaultTab = 0 }) => {
     }, []);
     const [remoteUserConfigDisabled, setRemoteUserConfigDisabled] = useState(false);
     const updateRemoteUserConfig = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setRemoteUserConfigDisabled(true);
 
         let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setRemoteUserConfigDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             setSnackbarContent(tr("failed_to_generate_auth_ticket_try_again_later"));
             setSnackbarSeverity("error");
             return;
@@ -374,8 +372,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setRemoteUserConfigDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [remoteUserConfig]);
 
     let trackers = [];
@@ -413,8 +410,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setNotificationSettings(newNotificationSettings);
     }, []);
     const updateNotificationSettings = useCallback(async (newSettings) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let enabled = [], disabled = [];
         const preMap = new Map(notificationSettings.map(item => [item.value, item.label]));
@@ -455,16 +451,14 @@ const Settings = ({ defaultTab = 0 }) => {
             }
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [notificationSettings]);
 
     const [userLanguage, setUserLanguage] = useState(vars.userSettings.language);
     const [supportedLanguages, setSupportedLanguages] = useState(vars.languages);
     const [languageLoading, setLanguageLoading] = useState(false);
     const updateUserLanguage = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         setUserLanguage(e.target.value);
         setLanguageLoading(true);
@@ -480,8 +474,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
         setLanguageLoading(false);
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const [newTruckersMPID, setNewTruckersMPID] = useState(vars.userInfo.truckersmpid);
@@ -498,8 +491,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         setTruckersmpDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/truckersmp`, data: { truckersmpid: newTruckersMPID }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -512,8 +504,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
         setTruckersmpDisabled(false);
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [newTruckersMPID]);
 
     const [newEmail, setNewEmail] = useState(vars.userInfo.email);
@@ -530,8 +521,7 @@ const Settings = ({ defaultTab = 0 }) => {
             return;
         }
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         setEmailDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/email`, data: { email: newEmail }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -544,8 +534,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
         setEmailDisabled(false);
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [newEmail]);
 
     const [newProfile, setNewProfile] = useState({ name: vars.userInfo.name, avatar: vars.userInfo.avatar });
@@ -590,8 +579,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const [newAboutMe, setNewAboutMe] = useState(vars.userInfo.bio);
     const [newAboutMeDisabled, setAboutMeDisabled] = useState(false);
     const updateAboutMe = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setAboutMeDisabled(true);
 
         let resp = await axios({ url: `${vars.dhpath}/user/bio`, data: { bio: newAboutMe }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -604,15 +592,13 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setAboutMeDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [newAboutMe]);
 
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordDisabled, setUpdatePasswordDisabled] = useState(false);
     const updatePassword = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setUpdatePasswordDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
@@ -629,8 +615,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpAction("update-password");
             setRequireOtp(true);
             setUpdatePasswordDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
         if (resp.status === 204) {
@@ -644,12 +629,10 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setUpdatePasswordDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [newPassword, otp, otpPass, mfaEnabled]);
     const disablePassword = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setUpdatePasswordDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
@@ -666,8 +649,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpAction("disable-password");
             setRequireOtp(true);
             setUpdatePasswordDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
         if (resp.status === 204) {
@@ -679,16 +661,14 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setUpdatePasswordDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [otp, otpPass, mfaEnabled]);
 
     const [newAppToken, setNewAppToken] = useState(null);
     const [newAppTokenName, setNewAppTokenName] = useState("");
     const [newAppTokenDisabled, setNewAppTokenDisabled] = useState(false);
     const createAppToken = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setNewAppTokenDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
@@ -705,8 +685,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpAction("create-apptoken");
             setRequireOtp(true);
             setNewAppTokenDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
         if (resp.status === 200) {
@@ -721,8 +700,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setNewAppTokenDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [newAppTokenName, otp, otpPass, mfaEnabled]);
 
     const [mfaSecret, setMfaSecret] = useState("");
@@ -730,8 +708,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const [modalEnableMfa, setModalEnableMfa] = useState(false);
     const [manageMfaDisabled, setManageMfaDisabled] = useState(false);
     const enableMfa = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         if (!modalEnableMfa) {
             let newSecret = RandomB32String(16);
@@ -794,12 +771,10 @@ const Settings = ({ defaultTab = 0 }) => {
             setManageMfaDisabled(false);
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [otp, mfaSecret, modalEnableMfa]);
     const disableMfa = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setManageMfaDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
@@ -814,8 +789,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpAction("disable-mfa");
             setRequireOtp(true);
             setManageMfaDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
         if (resp.status === 204) {
@@ -834,16 +808,14 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setManageMfaDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [newAppTokenName, otp, otpPass]);
 
     const [resignConfirm, setResignConfirm] = useState(false);
     const [resignDisabled, setResignDisabled] = useState(false);
     const resignRef = useRef(null);
     const memberResign = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setResignDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
@@ -860,8 +832,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpAction("resign");
             setRequireOtp(true);
             setResignDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
         if (resp.status === 204) {
@@ -875,16 +846,14 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setResignDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [otp, otpPass, mfaEnabled]);
 
     const [deleteConfirm, setDeleteConfirm] = useState(false);
     const [deleteDisabled, setDeleteDisabled] = useState(false);
     const deleteRef = useRef(null);
     const deleteAccount = useCallback(async (e) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setDeleteDisabled(true);
 
         if (otpPass !== 0 && +new Date() - otpPass > 30000 && otp !== "") {
@@ -901,8 +870,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpAction("delete-account");
             setRequireOtp(true);
             setResignDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             return;
         }
 
@@ -917,8 +885,7 @@ const Settings = ({ defaultTab = 0 }) => {
         }
 
         setDeleteDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     useEffect(() => {
@@ -1024,8 +991,7 @@ const Settings = ({ defaultTab = 0 }) => {
     }, [sessionsPage, appSessionsPage]);
 
     const revokeSession = useCallback(async (hash) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/token/hash`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
@@ -1038,13 +1004,11 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const revokeAppSession = useCallback(async (hash) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/token/application`, data: { hash: hash }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
 
@@ -1057,8 +1021,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const [badges, setBadges] = useState([]);

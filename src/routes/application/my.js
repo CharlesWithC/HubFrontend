@@ -43,8 +43,7 @@ const ApplicationTable = memo(({ showDetail }) => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let processedParam = removeNUEValues(listParam);
 
@@ -73,8 +72,7 @@ const ApplicationTable = memo(({ showDetail }) => {
                 setTotalItems(_applications.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, STATUS, listParam]);
@@ -133,8 +131,7 @@ const MyApplication = () => {
     }, []);
 
     const showDetail = useCallback(async (application) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         setMessage("");
 
@@ -147,8 +144,7 @@ const MyApplication = () => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const addMessage = useCallback(async () => {

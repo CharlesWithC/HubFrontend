@@ -134,8 +134,7 @@ const ExternalUsers = () => {
         searchRef.current = search;
     }, [search]);
     const doLoadUser = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let processedParam = removeNUEValues(listParam);
 
@@ -172,8 +171,7 @@ const ExternalUsers = () => {
             }
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [theme, page, pageSize, search, listParam]);
     useEffect(() => {
         banPageRef.current = banPage;
@@ -182,8 +180,7 @@ const ExternalUsers = () => {
         banSearchRef.current = banSearch;
     }, [banSearch]);
     const doLoadBan = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let processedParam = removeNUEValues(banListParam);
 
@@ -221,8 +218,7 @@ const ExternalUsers = () => {
             }
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [theme, banPage, banPageSize, banSearch, banListParam]);
     useEffect(() => {
         doLoadUser();

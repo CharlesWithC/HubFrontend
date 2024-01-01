@@ -264,8 +264,7 @@ const Economy = () => {
     const [hasATS, setHasATS] = useState(false);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
             const urlsBatch = [
                 { url: `${vars.dhpath}/economy`, auth: true },
                 { url: `${vars.dhpath}/economy/garages`, auth: true },
@@ -296,8 +295,7 @@ const Economy = () => {
             }
 
             setConfigLoaded(true);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (vars.economyConfig === null) {
             doLoad();
@@ -398,8 +396,7 @@ const Economy = () => {
     }, [slotPage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/list?page=${slotPage}&page_size=${slotPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newSlotList = [];
@@ -417,8 +414,7 @@ const Economy = () => {
                 setSlotTotal(resp.data.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (dialogAction === "slot") {
             doLoad();
@@ -619,8 +615,7 @@ const Economy = () => {
     }, [myTruckPage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?owner=${vars.userInfo.userid}&page=${myTruckPage}&page_size=${myTruckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newTruckList = [];
@@ -633,8 +628,7 @@ const Economy = () => {
                 setMyTruckTotal(resp.data.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (configLoaded) {
             doLoad();
@@ -778,8 +772,7 @@ const Economy = () => {
     }, [leaderboardPage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let resp = await axios({ url: `${vars.dhpath}/economy/balance/leaderboard?page=${leaderboardPage}&page_size=${leaderboardPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newLeaderboard = [];
@@ -791,8 +784,7 @@ const Economy = () => {
                 setLeaderboardTotal(resp.data.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (configLoaded) {
             doLoad();
@@ -809,8 +801,7 @@ const Economy = () => {
     }, [truckPage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?order_by=income&order=desc&page=${truckPage}&page_size=${truckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newTruckList = [];
@@ -823,8 +814,7 @@ const Economy = () => {
                 setTruckTotal(resp.data.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (configLoaded) {
             doLoad();
@@ -841,8 +831,7 @@ const Economy = () => {
     }, [garagePage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let resp = await axios({ url: `${vars.dhpath}/economy/garages/list?order_by=income&order=desc&page=${garagePage}&page_size=${garagePageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newGarageList = [];
@@ -855,8 +844,7 @@ const Economy = () => {
                 setGarageTotal(resp.data.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (configLoaded) {
             doLoad();
@@ -874,8 +862,7 @@ const Economy = () => {
     }, [merchPage]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let resp = await axios({ url: `${vars.dhpath}/economy/merch/list?owner=${vars.userInfo.userid}&page=${merchPage}&page_size=${merchPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newMerchList = [];
@@ -889,8 +876,7 @@ const Economy = () => {
                 setMerchTotal(resp.data.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         if (configLoaded) {
             doLoad();

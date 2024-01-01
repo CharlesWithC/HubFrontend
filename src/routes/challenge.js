@@ -224,8 +224,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let processedParam = removeNUEValues(listParam);
 
@@ -252,8 +251,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                 setTotalItems(_challengeList.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [doReload, setUpcomingChallenges, setActiveChallenges, pageSize, page, setChallengeList, theme, onUpdateDelivery, onEdit, onDelete, listParam]);
@@ -345,8 +343,7 @@ const Challenges = () => {
     }
 
     const showChallengeDetails = useCallback(async (challenge) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         [challenge] = await makeRequestsWithAuth([`${vars.dhpath}/challenges/${challenge.challengeid}`]);
 
@@ -415,8 +412,7 @@ const Challenges = () => {
         setListModalItems(lmi);
         setListModalOpen(true);
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const updateDlog = useCallback((challenge) => {
@@ -564,8 +560,7 @@ const Challenges = () => {
     const editChallenge = useCallback(async (challenge) => {
         clearModal();
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         [challenge] = await makeRequestsWithAuth([`${vars.dhpath}/challenges/${challenge.challengeid}`]);
 
@@ -576,8 +571,7 @@ const Challenges = () => {
         setDialogButton(tr("edit"));
         setDialogOpen(true);
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [clearModal]);
 
     const deleteChallenge = useCallback(async (challenge, isShiftPressed) => {

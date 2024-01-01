@@ -71,8 +71,7 @@ const Leaderboard = () => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let [_monthly, _allTime, _leaderboard] = [{}, {}, {}];
 
@@ -106,8 +105,7 @@ const Leaderboard = () => {
                 setTotalItems(_leaderboard.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, listParam]);

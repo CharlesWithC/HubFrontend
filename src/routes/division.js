@@ -73,8 +73,7 @@ const DivisionsMemo = memo(({ doReload }) => {
 
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let urls = [
                 `${vars.dhpath}/divisions`,
@@ -82,8 +81,7 @@ const DivisionsMemo = memo(({ doReload }) => {
             let [_divisions] = await makeRequestsWithAuth(urls);
             setDivisions(_divisions);
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [doReload]);
@@ -123,8 +121,7 @@ const DivisionsDlog = memo(({ doReload }) => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/list?page=${page}&page_size=${pageSize}&division=only`]);
 
@@ -139,8 +136,7 @@ const DivisionsDlog = memo(({ doReload }) => {
                 setTotalItems(dlogL.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, doReload, theme]);
@@ -180,8 +176,7 @@ const DivisionsPending = memo(({ doReload }) => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
 
@@ -196,14 +191,12 @@ const DivisionsPending = memo(({ doReload }) => {
                 setTotalItems(dlogL.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, doReload]);
     const handleDVUpdate = useCallback(async (logid, divisionid, status) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${divisionid}`, data: { status: status }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -214,8 +207,7 @@ const DivisionsPending = memo(({ doReload }) => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const navigate = useNavigate();

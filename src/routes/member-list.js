@@ -328,8 +328,7 @@ const MemberList = () => {
         searchRef.current = search;
     }, [search]);
     const doLoad = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let processedParam = removeNUEValues(listParam);
 
@@ -364,8 +363,7 @@ const MemberList = () => {
             }
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [theme, page, pageSize, search, listParam]);
     useEffect(() => {
         doLoad();

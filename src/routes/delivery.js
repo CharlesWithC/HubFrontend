@@ -105,21 +105,18 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
     const navigate = useNavigate();
 
     const handleReloadRoute = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         await axios({ url: `${vars.dhpath}/tracksim/update/route`, data: { logid: logid }, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
 
         setDoReload(+new Date());
     }, [logid, setDoReload]);
 
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let [dlogD, divisionM] = await makeRequestsAuto([
                 { url: `${vars.dhpath}/dlog/${logid}`, auth: "prefer" },
@@ -351,8 +348,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
             { "name": tr("automation"), "value": <>{autoLoad ? <Chip label={tr("auto_load")} sx={{ borderRadius: "5px" }}></Chip> : <></>} {autoPark ? <Chip label={tr("auto_park")} sx={{ borderRadius: "5px" }}></Chip> : <></>}</> }];
             setListModalItems(lmi);
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
 
             if (window.isElectron) {
                 window.electron.ipcRenderer.send("presence-update", {
@@ -558,8 +554,7 @@ const Delivery = memo(() => {
         setSelectedDivision(event.target.value);
     };
     const handleRDVSubmit = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, method: "POST", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -570,14 +565,12 @@ const Delivery = memo(() => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
 
         setDoReload(+new Date());
     }, [logid, selectedDivision]);
     const handleDVUpdate = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}/division/${selectedDivision}`, data: { status: newDivisionStatus, message: newDivisionMessage }, method: "PATCH", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -588,8 +581,7 @@ const Delivery = memo(() => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
 
         setDoReload(+new Date());
     }, [logid, selectedDivision, newDivisionStatus, newDivisionMessage]);
@@ -600,8 +592,7 @@ const Delivery = memo(() => {
         setDeleteOpen(false);
     };
     const handleDelete = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/dlog/${logid}`, method: "DELETE", headers: { "Authorization": `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -612,8 +603,7 @@ const Delivery = memo(() => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
 
         navigate(`/delivery`);
     }, [logid, navigate]);

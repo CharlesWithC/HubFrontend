@@ -475,16 +475,14 @@ const Poll = () => {
     }, []);
 
     const doLoad = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         const [polls] = await makeRequestsWithAuth([`${vars.dhpath}/polls/list?page_size=10&page=${page}`]);
         setPolls(polls.list);
         setTotalPages(polls.total_pages);
         setLastUpdate(+new Date());
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [page]);
 
     const handleSubmit = useCallback(async (e) => {
@@ -583,8 +581,7 @@ const Poll = () => {
     }, [doLoad]);
 
     const handlePollVoters = useCallback(async (poll) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/polls/${poll.pollid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
@@ -595,8 +592,7 @@ const Poll = () => {
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     useEffect(() => {

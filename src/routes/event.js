@@ -193,8 +193,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
     
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const defaultDateRange = getDefaultDateRange();
             const [after, meetup_before] = [parseInt(defaultDateRange.start.getTime() / 1000), parseInt(defaultDateRange.end.getTime() / 1000)];
@@ -213,15 +212,13 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             setUpcomingEvents(ParseEventImage(events.list));
             setAllEvents(ParseEventImage(curMonthEvents.list));
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [setAllEvents, setUpcomingEvents, doReload]);
 
     const onVote = useCallback(async (eventid) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "PUT", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -261,13 +258,11 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
 
     const onUnvote = useCallback(async (eventid) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let resp = await axios({ url: `${vars.dhpath}/events/${eventid}/vote`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -313,8 +308,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             setSnackbarSeverity("error");
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [allEvents, modalEvent, setAllEvents, setModalEvent, setSnackbarContent, setSnackbarSeverity, setUpcomingEvents, upcomingEvents]);
 
     const mergeEvents = useCallback((newEventList) => {
@@ -337,8 +331,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
     const handleEventClick = useCallback((info) => {
         async function loadDetails(eventid, summary) {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let urls = [
                 `${vars.dhpath}/events/${eventid}`,
@@ -362,8 +355,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             setModalEvent(event);
             setOpenEventDetals(true);
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
 
         info.jsEvent.preventDefault();
@@ -378,8 +370,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         const start = parseInt(dateInfo.start.getTime() / 1000);
         const end = parseInt(dateInfo.end.getTime() / 1000);
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let urls = [
             `${vars.dhpath}/events/list?page_size=250&page=1&meetup_after=${start}&meetup_before=${end}`
@@ -394,8 +385,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
         mergeEvents(ParseEventImage(monthEvents.list));
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [mergeEvents]);
     useEffect(() => {
         let newCalendarEvents = [];
@@ -608,8 +598,7 @@ const Events = () => {
     }, [clearModal]);
 
     const editEventAttendees = useCallback(async (eventid) => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let [event] = await makeRequestsWithAuth([`${vars.dhpath}/events/${eventid}`]);
         if (event.error === undefined) {
@@ -619,8 +608,7 @@ const Events = () => {
             setPoints(event.points);
         }
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, []);
 
     const handleSubmit = useCallback(async (e) => {

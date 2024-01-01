@@ -15,6 +15,8 @@ import { setAuthMode } from './functions';
 
 import * as Sentry from "@sentry/react";
 
+window.loading = 0;
+
 window.isElectron = (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer' || typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron || typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0);
 
 var vars = require("./variables");

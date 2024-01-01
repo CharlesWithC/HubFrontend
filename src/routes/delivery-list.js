@@ -216,8 +216,7 @@ const Deliveries = () => {
     }, [page]);
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             let [detailS, dlogL] = [{}, {}];
 
@@ -254,8 +253,7 @@ const Deliveries = () => {
                 setTotalItems(dlogL.total_items);
             }
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, [page, pageSize, listParam, theme]);

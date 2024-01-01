@@ -3080,8 +3080,7 @@ const Configuration = () => {
     const [webConfig, setWebConfig] = useState({ ...vars.dhconfig, name_color: vars.dhconfig.name_color !== null ? vars.dhconfig.name_color : "/", theme_main_color: vars.dhconfig.theme_main_color !== null ? vars.dhconfig.theme_main_color : "/", theme_background_color: vars.dhconfig.theme_background_color !== null ? vars.dhconfig.theme_background_color : "/" });
     const [webConfigDisabled, setWebConfigDisabled] = useState(false);
     const saveWebConfig = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setWebConfigDisabled(true);
 
         function parse_color(s) {
@@ -3097,8 +3096,7 @@ const Configuration = () => {
         let resp = await axios({ url: `${vars.dhpath}/auth/ticket`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 200) {
             setWebConfigDisabled(false);
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
             setSnackbarContent(tr("failed_to_generate_auth_ticket_try_again_later"));
             setSnackbarSeverity("error");
             return;
@@ -3115,8 +3113,7 @@ const Configuration = () => {
         }
 
         setWebConfigDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [webConfig]);
 
     const [apiConfig, setApiConfig] = useState(null);
@@ -3165,8 +3162,7 @@ const Configuration = () => {
             }
         }
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setApiConfigDisabled(true);
 
         let resp = await axios({ url: `${vars.dhpath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -3180,8 +3176,7 @@ const Configuration = () => {
         }
 
         setApiConfigDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [apiConfig]);
     const showReloadApiConfig = useCallback(async () => {
         if (vars.userInfo.mfa === false) {
@@ -3237,8 +3232,7 @@ const Configuration = () => {
 
     useEffect(() => {
         async function doLoad() {
-            const loadingStart = new CustomEvent('loadingStart', {});
-            window.dispatchEvent(loadingStart);
+            window.loading += 1;
 
             const [_apiConfig] = await makeRequestsAuto([
                 { url: `${vars.dhpath}/config`, auth: true },
@@ -3267,8 +3261,7 @@ const Configuration = () => {
             }
             setFormConfigReady(true);
 
-            const loadingEnd = new CustomEvent('loadingEnd', {});
-            window.dispatchEvent(loadingEnd);
+            window.loading -= 1;
         }
         doLoad();
     }, []);
@@ -3290,8 +3283,7 @@ const Configuration = () => {
             config = { rank_types: rankTypes };
         }
 
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
         setApiConfigDisabled(true);
 
         let resp = await axios({ url: `${vars.dhpath}/config`, method: "PATCH", data: { config: config }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -3305,8 +3297,7 @@ const Configuration = () => {
         }
 
         setApiConfigDisabled(false);
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [formConfig, formConfigOrg]);
 
     return (<>

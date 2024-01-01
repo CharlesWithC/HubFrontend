@@ -294,8 +294,7 @@ const DownloadableItem = () => {
     }, []);
 
     const doLoad = useCallback(async () => {
-        const loadingStart = new CustomEvent('loadingStart', {});
-        window.dispatchEvent(loadingStart);
+        window.loading += 1;
 
         let url = `${vars.dhpath}/downloads/list?page_size=10&page=${page}`;
 
@@ -321,8 +320,7 @@ const DownloadableItem = () => {
         setDownloadableItems(newDowns);
         setLastUpdate(+new Date());
 
-        const loadingEnd = new CustomEvent('loadingEnd', {});
-        window.dispatchEvent(loadingEnd);
+        window.loading -= 1;
     }, [page]);
 
     const handleSubmit = useCallback(async (e) => {
