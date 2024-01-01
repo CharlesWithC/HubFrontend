@@ -217,13 +217,14 @@ app.on('ready', () => {
             provider: 'generic',
             url: 'https://dl.chub.page/' + config.build + '/',
         });
-        autoUpdater.autoDownload = true;
+        // autoUpdater.autoDownload = true;
+        autoUpdater.autoDownload = false;
 
         autoUpdater.on('update-available', () => {
             dialog.showMessageBox(win, {
                 type: 'info',
                 title: 'Update Available',
-                message: 'A new version of the application is available. Downloading now...'
+                message: 'A new version of the application is available. You should download the new installer from the Drivers Hub and run it to apply updates.'
             });
         });
 
