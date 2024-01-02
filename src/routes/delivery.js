@@ -165,8 +165,11 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
 
             let isPromods = (JSON.stringify(data).toLowerCase().indexOf("promods") !== -1);
             if (detail.game.short_name === "eut2") {
-                if (isPromods) {
+                if (isPromods && JSON.stringify(data).toLowerCase().indexOf("promods classic") === -1) {
                     setDlogMap("https://map.charlws.com/ets2/promods/tiles");
+                }
+                else if (isPromods && JSON.stringify(data).toLowerCase().indexOf("promods classic") !== -1) {
+                    setDlogMap("https://map.charlws.com/ets2/promods-classic/tiles");
                 }
                 else {
                     setDlogMap("https://map.charlws.com/ets2/base/tiles");

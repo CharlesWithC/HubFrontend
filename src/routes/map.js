@@ -144,23 +144,27 @@ const Map = () => {
     return <Card>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tab} onChange={handleChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                <Tab label={tr("ets2_base")} {...tabBtnProps(0, tab, theme)} />
-                <Tab label={tr("ets2_promods")} {...tabBtnProps(1, tab, theme)} />
-                <Tab label={tr("ats_base")} {...tabBtnProps(2, tab, theme)} />
-                <Tab label={tr("ats_promods")} {...tabBtnProps(3, tab, theme)} />
+                <Tab label="ETS2" {...tabBtnProps(0, tab, theme)} />
+                <Tab label="ETS2 ProMods" {...tabBtnProps(1, tab, theme)} />
+                <Tab label="ETS2 ProMods Classic" {...tabBtnProps(2, tab, theme)} />
+                <Tab label="ATS" {...tabBtnProps(3, tab, theme)} />
+                <Tab label="ATS ProMods" {...tabBtnProps(4, tab, theme)} />
             </Tabs>
         </Box>
         {tab === 0 && <TabPanel value={tab} index={0}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>{tr("euro_truck_simulator_2_base_map")}<br />{tr("live_data_feed_truckersmp_eu_sim_1")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={<>Euro Truck Simulator 2 - Base Map<br />Live data feed: TruckersMP EU SIM 1</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         {tab === 1 && <TabPanel value={tab} index={1}>
-            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>{tr("euro_truck_simulator_2_promods_map")}<br />{tr("live_data_feed_truckersmp_eu_pm")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods/tiles"} title={<>Euro Truck Simulator 2 - ProMods Map<br />Live data feed: TruckersMP EU PM</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         {tab === 2 && <TabPanel value={tab} index={2}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>{tr("american_truck_simulator_base_map")}<br />{tr("live_data_feed_truckersmp_us_sim")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ets2/promods-classic/tiles"} title={<>Euro Truck Simulator 2 - ProMods Classic Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         {tab === 3 && <TabPanel value={tab} index={3}>
-            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>{tr("american_truck_simulator_promods_map")}<br />{tr("live_data_feed_no_data")}</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+            <TileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={<>American Truck Simulator - Base Map<br />Live data feed: TruckersMP US SIM</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
+        </TabPanel>}
+        {tab === 4 && <TabPanel value={tab} index={4}>
+            <TileMap tilesUrl={"https://map.charlws.com/ats/promods/tiles"} title={<>American Truck Simulator - ProMods Map<br />Live data feed: NO DATA</>} points={points} onBoundaryChange={setBoundary} onPointClick={handlePointClick} />
         </TabPanel>}
         <Dialog open={displayUser.MpId !== undefined} onClose={() => setDisplayUser({})}>
             <DialogTitle>{displayUser.userid === undefined ? <>{tr("truckersmp_player")}</> : <>{vars.dhconfig.name}{tr("driver")}</>}</DialogTitle>
