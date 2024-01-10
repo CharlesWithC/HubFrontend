@@ -2827,7 +2827,7 @@ async function importCsv(columns, event) {
                 const data = results.data.map(row => {
                     let obj = {};
                     for (let key in row) {
-                        obj[key] = isNaN(row[key]) ? row[key] : parseInt(row[key]);
+                        obj[key] = row[key];
                     }
                     return obj;
                 });
@@ -2851,7 +2851,7 @@ async function importCsvElectron(columns) {
                     const data = results.data.map(row => {
                         let obj = {};
                         for (let key in row) {
-                            obj[key] = isNaN(row[key]) ? row[key] : parseInt(row[key]);
+                            obj[key] = row[key];
                         }
                         return obj;
                     });
