@@ -276,6 +276,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
+    const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
 
     const theme = useTheme();
 
