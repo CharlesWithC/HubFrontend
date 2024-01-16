@@ -114,7 +114,7 @@ const Map = () => {
 
     const handlePointClick = useCallback((data) => {
         let info = data.info;
-        if (info.Job.LoadName !== "") {
+        if (info.Job !== undefined && info.Job.LoadName !== "") {
             if (cargoIDs[info.Job.LoadName.replace("cargo.", "")] !== undefined) {
                 info.cargo = cargoIDs[info.Job.LoadName.replace("cargo.", "")];
             } else {
@@ -194,24 +194,26 @@ const Map = () => {
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("heading")}</Typography>
                         <Typography variant="body2">{displayUser.Heading}</Typography>
                     </Grid>
-                    {displayUser.cargo === undefined && <>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
-                            <Typography variant="body2">{tr("free_roaming")}</Typography>
-                        </Grid></>}
-                    {displayUser.cargo !== undefined && <>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("cargo")}</Typography>
-                            <Typography variant="body2">{displayUser.cargo}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("source")}</Typography>
-                            <Typography variant="body2">{displayUser.source}</Typography>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("destination")}</Typography>
-                            <Typography variant="body2">{displayUser.destination}</Typography>
-                        </Grid></>}
+                    {displayUser.Job !== undefined && <>
+                        {displayUser.cargo === undefined && <>
+                            <Grid item xs={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
+                                <Typography variant="body2">{tr("free_roaming")}</Typography>
+                            </Grid></>}
+                        {displayUser.cargo !== undefined && <>
+                            <Grid item xs={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("cargo")}</Typography>
+                                <Typography variant="body2">{displayUser.cargo}</Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("source")}</Typography>
+                                <Typography variant="body2">{displayUser.source}</Typography>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("destination")}</Typography>
+                                <Typography variant="body2">{displayUser.destination}</Typography>
+                            </Grid></>}
+                    </>}
                 </Grid>
             </DialogContent>
             <DialogActions>
