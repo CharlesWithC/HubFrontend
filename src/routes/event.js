@@ -11,7 +11,7 @@ import DateTimeField from '../components/datetime';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
-import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, getAuthToken } from '../functions';
+import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, getAuthToken, toLocalISOString } from '../functions';
 
 var vars = require("../variables");
 
@@ -362,7 +362,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         let newCalendarEvents = [];
         for (let i = 0; i < allEvents.length; i++) {
             let event = allEvents[i];
-            newCalendarEvents.push({ url: `/event/${event.eventid}`, title: event.title, start: new Date(event.departure_timestamp * 1000).toISOString().split('T')[0] });
+            newCalendarEvents.push({ url: `/event/${event.eventid}`, title: event.title, start: toLocalISOString(new Date(event.departure_timestamp * 1000)).split('T')[0] });
         }
         setCalendarEvents(newCalendarEvents);
     }, [allEvents, setCalendarEvents]);
