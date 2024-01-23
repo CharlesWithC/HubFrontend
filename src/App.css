@@ -92,3 +92,8 @@ a {
 .hover-underline:hover {
     text-decoration: underline;
 }
+
+.TableContainer {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+}
