@@ -2,13 +2,10 @@ import { useEffect, useRef } from 'react';
 import Hammer from 'hammerjs';
 
 const useLongPress = (elementRef, onLongPress, duration = 1000) => {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (!isMobile) return;
-
     const hammerRef = useRef(null);
 
     useEffect(() => {
-        if (elementRef.current === null) return;
+        if(elementRef.current === null) return;
 
         const hammer = new Hammer(elementRef.current);
         hammer.add(new Hammer.Press({ time: duration }));
@@ -19,7 +16,7 @@ const useLongPress = (elementRef, onLongPress, duration = 1000) => {
             hammer.off('press', onLongPress);
             hammer.destroy();
         };
-    }, [elementRef, onLongPress, duration]);
+    }, [elementRef.current, onLongPress, duration]);
 
     return hammerRef;
 };

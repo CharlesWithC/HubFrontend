@@ -149,12 +149,12 @@ const UserCard = (props) => {
     const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
     const handleContextMenu = useCallback((e) => {
         e.preventDefault();
-        e.stopPropagation();
+        if (e.stopPropagation !== undefined) e.stopPropagation();
         if (showContextMenu) {
             setShowContextMenu(false);
             return;
         }
-        setAnchorPosition({ top: e.clientY, left: e.clientX });
+        setAnchorPosition({ top: e.clientY !== undefined ? e.clientY : e.center.y, left: e.clientX !== undefined ? e.clientX : e.center.x });
         setShowContextMenu(true);
     }, [showContextMenu]);
     const handleClick = useCallback((e) => {
@@ -178,7 +178,7 @@ const UserCard = (props) => {
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
     const userCardRef = useRef(null);
-    useLongPress(userCardRef, handleContextMenu, 1000);
+    useLongPress(userCardRef, handleContextMenu, 500);
 
     const [tmpLastOnline, setTmpLastOnline] = useState(null);
     const [chartStats, setChartStats] = useState(null);
@@ -907,7 +907,7 @@ const UserCard = (props) => {
                                     </Typography>
                                 </Grid>
                             </Grid>
-                            {roles !== null && roles !== undefined && <Box sx={{ mt: "10px" }}>
+                            {roles !== null && roles !== undefined && roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     {roles.length > 1 ? `ROLES` : `ROLE`}
                                 </Typography>
@@ -1638,7 +1638,7 @@ const UserCard = (props) => {
                                 </Typography>
                             </Grid>
                         </Grid>
-                        {roles !== null && roles !== undefined && <Box sx={{ mt: "10px" }}>
+                        {roles !== null && roles !== undefined && roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                 {roles.length > 1 ? `ROLES` : `ROLE`}
                             </Typography>
