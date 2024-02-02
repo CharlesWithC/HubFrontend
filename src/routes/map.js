@@ -37,7 +37,7 @@ function TabPanel(props) {
 }
 
 const Map = () => {
-    const SERVER_ID = { 0: 2, 1: 50, 2: 10 };
+    const SERVER_ID = { 0: 2, 1: 50, 3: 10 };
     const { t: tr } = useTranslation();
     const theme = useTheme();
 
