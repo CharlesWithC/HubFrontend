@@ -692,6 +692,10 @@ const UserCard = (props) => {
             setSnackbarContent(tr("user_accepted_as_member"));
             setSnackbarSeverity("success");
             updateUserInfo();
+            vars.members.push(vars.users[uid]);
+            let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+            cache.members = vars.members;
+            writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -751,6 +755,9 @@ const UserCard = (props) => {
                 }
             }
             vars.members = newMembers;
+            let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+            cache.members = vars.members;
+            writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             setSnackbarContent(tr("user_dismissed"));
             setSnackbarSeverity("success");
         } else {

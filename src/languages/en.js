@@ -512,6 +512,7 @@ const en = {
     "hex_color": "Hex Color",
     "highest_role_color_when_not_customized": "Highest role color when not customized",
     "html_content": "HTML Content",
+    "info": "Info",
     "image": "Image",
     "image_size_must_be_smaller_than_2mb": "Image size must be smaller than 2MB",
     "image_url": "Image URL",

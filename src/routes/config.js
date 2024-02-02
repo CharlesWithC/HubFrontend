@@ -11,7 +11,7 @@ import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock, faCircleInfo, faLockOpen, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 
 import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
@@ -2915,7 +2915,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
             <Typography variant="body2">{tr("config_economy_note")}</Typography>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
-                    if(!window.isElectron) return;
+                    if (!window.isElectron) return;
                     const trucks = await importCsvElectron(["id", "game", "brand", "model", "price"]);
                     if (trucks !== undefined) {
                         formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, trucks } });
@@ -2936,7 +2936,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
             </ButtonGroup>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
-                    if(!window.isElectron) return;
+                    if (!window.isElectron) return;
                     const garages = await importCsvElectron(["id", "name", "game", "x", "z", "price", "base_slots", "slot_price"]);
                     if (garages !== undefined) {
                         formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, garages } });
@@ -2957,7 +2957,7 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
             </ButtonGroup>
             <ButtonGroup sx={{ margin: "5px", mb: "10px" }}>
                 <Button component="label" variant="contained" color="success" startIcon={<FontAwesomeIcon icon={faFileImport} />} onClick={async () => {
-                    if(!window.isElectron) return;
+                    if (!window.isElectron) return;
                     const merch = await importCsvElectron(["id", "name", "buy_price", "sell_price"]);
                     if (merch !== undefined) {
                         formConfig.setState({ ...formConfig.state, economy: { ...formConfig.state.economy, merch } });
@@ -3300,16 +3300,95 @@ const Configuration = () => {
         window.loading -= 1;
     }, [formConfig, formConfigOrg]);
 
+    let buildhash = "dev";
+    const scripts = document.getElementsByTagName('script');
+    for (let i = 0; i < scripts.length; i++) {
+        const script = scripts[i];
+        if (script.src.includes('main.')) {
+            const hash = script.src.split('main.')[1].split('.js')[0];
+            buildhash = hash;
+        }
+    }
+
+    const plugins = { "announcement": "Announcement", "application": "Application", "challenge": "Challenge", "division": "Division", "downloads": "Downloads", "economy": "Economy", "event": "Event", "poll": "Poll", "banner": "Profile Banner", "route": "Delivery Route" };
+    const DHPLAN = { 0: "Regular Plan", 1: "Premium Plan", 3: "Special Guest" };
+
     return (<>
         <Card>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
                 <Tabs value={tab} onChange={handleTabChange} aria-label="map tabs" color="info" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
-                    <Tab label={<><FontAwesomeIcon icon={faServer} />{tr("api")}</>} {...tabBtnProps(0, tab, theme)} />
-                    <Tab label={<><FontAwesomeIcon icon={faServer} />{tr("api_json")}</>} {...tabBtnProps(1, tab, theme)} />
-                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />{tr("web")}</>} {...tabBtnProps(2, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faCircleInfo} />{tr("info")}</>} {...tabBtnProps(0, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />{tr("api")}</>} {...tabBtnProps(1, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faServer} />{tr("api_json")}</>} {...tabBtnProps(2, tab, theme)} />
+                    <Tab label={<><FontAwesomeIcon icon={faDesktop} />{tr("web")}</>} {...tabBtnProps(3, tab, theme)} />
                 </Tabs>
             </Box>
             <TabPanel value={tab} index={0}>
+                <Typography variant="h6">
+                    The Drivers Hub Project (CHub)
+                </Typography>
+                <br />
+                <Typography variant="body2" fontWeight="bold">
+                    Information
+                </Typography>
+                <Grid container spacing={2} rowSpacing={-0.5}>
+                    <Grid item xs={12}>
+                        <Typography variant="body2">
+                            License: {DHPLAN[vars.vtcLevel]}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="body2">
+                            Unique ID: {vars.dhconfig.abbr}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="body2">
+                            Company Name: {vars.dhconfig.name}
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <br />
+                <Typography variant="body2" fontWeight="bold">
+                    Versions
+                </Typography>
+                <Grid container spacing={2} rowSpacing={-0.5}>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="body2">
+                            Client: build.{buildhash}
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="body2">
+                            Server: {vars.apiversion}
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <br />
+                <Typography variant="body2" fontWeight="bold">
+                    Plugins
+                </Typography>
+                <Grid container spacing={2} rowSpacing={-0.5}>
+                    {Object.keys(plugins).map((plugin) => (
+                        <Grid item xs={6} sm={6} md={4} lg={3}>
+                            <Typography variant="body2">
+                                {vars.dhconfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon>}
+                                {!vars.dhconfig.plugins.includes(plugin) && !["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faLock}></FontAwesomeIcon>}
+                                {["banner", "route"].includes(plugin) && <FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon>}
+                                &nbsp;{plugins[plugin]}
+                            </Typography>
+                        </Grid>
+                    ))}
+                </Grid>
+                <br />
+                <Typography variant="body2">
+                    <FontAwesomeIcon icon={faLockOpen}></FontAwesomeIcon> indicates enabled plugins and <FontAwesomeIcon icon={faLock}></FontAwesomeIcon> indicates disabled plugins.<br /><FontAwesomeIcon icon={faCircleQuestion}></FontAwesomeIcon> indicates that the client is not capable of detecting whether the plugin is enabled or disabled.<br />To purchase a plugin, contact us by creating a ticket in our Discord server. Pricing is available at <a href="https://drivershub.charlws.com/setup">https://drivershub.charlws.com/setup</a>.
+                </Typography>
+                <Typography variant="body2">
+                    CHub Discord Server: <a href="https://discord.gg/KRFsymnVKm">https://discord.gg/KRFsymnVKm</a>
+                </Typography>
+            </TabPanel>
+            <TabPanel value={tab} index={1}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>{tr("config_note_1")}<br />{tr("config_note_2")}<br />{tr("config_note_3")}<br />{tr("config_note_4")}<br /><br />
                     {formConfigReady &&
                         <>
@@ -3663,7 +3742,7 @@ const Configuration = () => {
                         </>}
                 </Typography>
             </TabPanel>
-            <TabPanel value={tab} index={1}>
+            <TabPanel value={tab} index={2}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>{tr("config_note_7")}<br />{tr("config_note_2")}<br />{tr("config_note_8")}<br />{tr("config_note_4")}<br />
                     <br />
                     <FontAwesomeIcon icon={faClockRotateLeft} /> <>{tr("last_modified")}</>: <TimeAgo key={apiLastModify} timestamp={apiLastModify * 1000} />
@@ -3698,7 +3777,7 @@ const Configuration = () => {
                     </Box>
                 </div>
             </TabPanel>
-            <TabPanel value={tab} index={2}>
+            <TabPanel value={tab} index={3}>
                 <Typography variant="body2" component="div" sx={{ mt: "5px" }}>{tr("config_note_9")}<br />
                     <br />{tr("config_note_10")}<br />{tr("config_note_11")}<br />{tr("config_note_12")}<br />
                     <br />{tr("config_note_13")}<br />{tr("config_note_14")}</Typography>
