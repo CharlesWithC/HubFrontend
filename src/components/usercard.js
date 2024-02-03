@@ -278,7 +278,7 @@ const UserCard = (props) => {
             }
         }
     }
-    const trackerMapping = { "tracksim": "TrackSim", "trucky": "Trucky" };
+    const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky" };
 
     const [newRoles, setNewRoles] = useState(roles);
     const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
@@ -286,7 +286,7 @@ const UserCard = (props) => {
     const [newAboutMe, setNewAboutMe] = useState(bio);
     const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
     const [newBan, setNewBan] = useState({ expire: 1698890178, reason: "" });
-    const [trackerInUse, setTrackerInUse] = useState(tracker !== "unknown" ? tracker : trackers[0]);
+    const [trackerInUse, setTrackerInUse] = useState(tracker);
     const [roleHistory, setRoleHistory] = useState(undefined);
     const [banHistory, setBanHistory] = useState(undefined);
     const [newNote, setNewNote] = useState(note);
