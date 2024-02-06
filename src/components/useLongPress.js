@@ -6,7 +6,7 @@ const useLongPress = (elementRef, onLongPress, duration = 1000) => {
 
     useEffect(() => {
         if(elementRef.current === null) return;
-
+        Hammer.defaults.cssProps.userSelect = '';
         const hammer = new Hammer(elementRef.current);
         hammer.add(new Hammer.Press({ time: duration }));
         hammer.on('press', onLongPress);
