@@ -313,7 +313,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                             <RefreshRounded />
                         </IconButton>}</Typography>
             },
-            { "name": tr("division"), "value": data.division !== null ? vars.divisions[data.division].name : "/" },
+            { "name": tr("division"), "value": data.division !== null && vars.divisions[data.division] !== undefined ? vars.divisions[data.division].name : "/" },
             {},
             { "name": tr("driver"), "value": <UserCard user={data.user} inline={true} /> },
             { "name": tr("truck_model"), "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
@@ -634,7 +634,7 @@ const Delivery = memo(() => {
                 </>}
                 {(divisionStatus !== -1) && <>
                     <Typography variant="body">{tr("division_validation_request_submitted")}<b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.request_timestamp * 1000} lower={true} /></b>.</Typography><br />
-                    <Typography variant="body"><>{tr("division")}</>: <b>{vars.divisions[divisionMeta.divisionid].name}</b></Typography><br />
+                    <Typography variant="body"><>{tr("division")}</>: <b>{vars.divisions[divisionMeta.divisionid] !== undefined ? vars.divisions[divisionMeta.divisionid].name : "/"}</b></Typography><br />
                     <Typography variant="body"><>{tr("current_status")}</>: <b>{STATUS[divisionStatus]}</b></Typography>
                     {divisionMeta.update_timestamp !== -1 && <>
                         <br /><Typography variant="body"><>{tr("updated")}</><b> <TimeAgo key={`${+new Date()}`} timestamp={divisionMeta.update_timestamp * 1000} lower={true} /></b></Typography>
@@ -681,9 +681,9 @@ const Delivery = memo(() => {
             <DialogActions>
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
                 {(checkUserPerm(["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
-                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("update")}</Button>}
+                    <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("update")}</Button>}
                 {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) &&
-                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("submit")}</Button>
+                    <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("submit")}</Button>
                 }
             </DialogActions>
         </Dialog>}
