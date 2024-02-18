@@ -66,9 +66,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && bash ./scripts/browser-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build": "react-scripts build && bash ./scripts/browser-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:dev": "react-scripts build && bash ./scripts/browser-build.sh",
-    "build:electron": "react-scripts build && bash ./scripts/electron-build.sh && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
+    "build:electron": "react-scripts build && bash ./scripts/electron-build.sh && npm run sentry:sourcemaps && bash -c \"find ./build -type f -name '*.map' -exec rm {} \\;\"",
     "build:electron:dev": "react-scripts build && bash ./scripts/electron-build.sh",
     "build:serve": "react-scripts build && serve -s build --port 3001",
     "test": "react-scripts test",
