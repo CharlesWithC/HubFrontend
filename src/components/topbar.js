@@ -16,6 +16,7 @@ import UserCard from './usercard';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 
 var vars = require("../variables");
 
@@ -25,6 +26,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
+    const dispatch = useDispatch();
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -322,7 +324,7 @@ const TopBar = (props) => {
                 setSnackbarSeverity("error");
                 setSnackbarContent(tr("already_logged_out"));
             }
-            await FetchProfile();
+            await FetchProfile(dispatch);
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");

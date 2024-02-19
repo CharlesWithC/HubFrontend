@@ -8,11 +8,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFingerprint } from '@fortawesome/free-solid-svg-icons';
 
 import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
+import { useDispatch } from 'react-redux';
 
 var vars = require('../../variables');
 
 const MfaAuth = () => {
     const { t: tr } = useTranslation();
+    const dispatch = useDispatch();
 
     const theme = useTheme();
     const navigate = useNavigate();
@@ -36,7 +38,7 @@ const MfaAuth = () => {
                 setOtpColor(theme.palette.success.main);
                 setOtpText(tr("you_are_authorized"));
                 setOtpReadOnly(true);
-                await FetchProfile(true);
+                await FetchProfile(dispatch, true);
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);

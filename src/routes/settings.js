@@ -26,6 +26,8 @@ import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faP
 import { faDesktop } from '@fortawesome/free-solid-svg-icons';
 
 import i18n from '../i18n';
+import { useDispatch } from 'react-redux';
+import { update as usersUpdate } from '../slices/usersSlice';
 
 import { customSelectStyles } from '../designs';
 var vars = require("../variables");
@@ -88,6 +90,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
+    const dispatch = useDispatch();
     const sessionsColumns = [
         { id: 'device', label: tr("device") },
         { id: 'ip', label: tr("ip") },
@@ -389,9 +392,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("success");
             vars.userInfo.tracker = tracker;
             setTracker(to);
-            vars.users[vars.userInfo.uid] = vars.userInfo;
-            const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
-            window.dispatchEvent(userUpdated);
+            dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -548,7 +549,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 resp = await axios({ url: `${vars.dhpath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
                 vars.userInfo = resp.data;
-                vars.users[vars.userInfo.uid] = resp.data;
+                dispatch(usersUpdate({ uid: vars.userInfo.uid, data: resp.data }));
                 for (let i = 0; i < vars.members.length; i++) {
                     if (vars.members[i].uid === vars.userInfo.uid) {
                         vars.members[i] = resp.data;
@@ -559,7 +560,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 vars.userInfo.name = newProfile.name;
                 vars.userInfo.avatar = newProfile.avatar;
                 vars.userInfo = vars.userInfo;
-                vars.users[vars.userInfo.uid] = vars.userInfo;
+                dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
                 for (let i = 0; i < vars.members.length; i++) {
                     if (vars.members[i].uid === vars.userInfo.uid) {
                         vars.members[i] = vars.userInfo;
@@ -760,9 +761,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 vars.userInfo.mfa = true;
                 setMfaEnabled(true);
                 setModalEnableMfa(false);
-                vars.users[vars.userInfo.uid] = vars.userInfo;
-                const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
-                window.dispatchEvent(userUpdated);
+                dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
             } else {
                 setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
@@ -798,9 +797,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpPass(+new Date() + 30000);
             vars.userInfo.mfa = false;
             setMfaEnabled(false);
-            vars.users[vars.userInfo.uid] = vars.userInfo;
-            const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.userInfo } });
-            window.dispatchEvent(userUpdated);
+            dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");

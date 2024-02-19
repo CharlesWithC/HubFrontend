@@ -15,6 +15,9 @@ import { setAuthMode } from './functions';
 
 import * as Sentry from "@sentry/react";
 
+import store from './store';
+import { Provider } from 'react-redux';
+
 window.loading = 0;
 
 window.isElectron = (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer' || typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron || typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0);
@@ -84,16 +87,18 @@ class ErrorBoundary extends React.Component {
     }
 }
 root.render(
-    <I18nextProvider i18n={i18n}>
-        {(window.isElectron || window.location.hostname !== "localhost") &&
-            <ErrorBoundary>
+    <Provider store={store}>
+        <I18nextProvider i18n={i18n}>
+            {(window.isElectron || window.location.hostname !== "localhost") &&
+                <ErrorBoundary>
+                    <BrowserRouter><App /></BrowserRouter>
+                </ErrorBoundary>
+            }
+            {(!window.isElectron && window.location.hostname === "localhost") &&
                 <BrowserRouter><App /></BrowserRouter>
-            </ErrorBoundary>
-        }
-        {(!window.isElectron && window.location.hostname === "localhost") &&
-            <BrowserRouter><App /></BrowserRouter>
-        }
-    </I18nextProvider>
+            }
+        </I18nextProvider>
+    </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function

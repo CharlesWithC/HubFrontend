@@ -269,7 +269,7 @@ function App() {
                                             <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); setShowSurveyCard(false); window.open("https://charl.ws/survey"); }} variant="contained" color="success" sx={{ width: "100%" }}>Join</Button>
                                         </Grid>
                                         {localStorage.getItem("survey-202402") !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                            <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Not interested</Button>
+                                            <Button onClick={() => { localStorage.setItem("survey-202402", "1710806400000"); setShowSurveyCard(false); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Not interested</Button>
                                         </Grid>}
                                         <Grid item xs={12} sm={12} md={6} lg={6}>
                                             <Button onClick={() => { localStorage.setItem("survey-202402", String(+new Date() + 86400000)); setShowSurveyCard(false); }} variant="contained" color="secondary" sx={{ width: "100%" }}>Remind me later</Button>

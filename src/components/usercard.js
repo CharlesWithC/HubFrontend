@@ -1,13 +1,46 @@
+// UserCard component for displaying the user avatar and name,
+// and allowing right-click/long-press for context menu
+
+// New users passed into this component will be cached in redux's store.
+// The cached user will ALWAYS be reused when the user with same uid is passed in.
+// Thus, make sure all API calls to update the user also updates the cached user.
+// AND, when the API call fails, make sure to revert the changes.
+
+// Originally, user's attributes are extracted to separate variables.
+// HOWEVER, this is leading to issues with syncing user data across components.
+// Thus, we are reworking this component to use the cached user data directly.
+
+// To ensure that user data is latest, when making a local update that pushes changes to API,
+// first update the local user object, and after successful API call, update it again.
+// If API call fails, revert the changes ONLY IF the current data is the same as before update
+// (there's a possibility that someone else updated the data and we received an update from API with new user data)
+
+// I currently decide to sync user data only when context menu is opened 
+// and user data is out-dated (last update is >=30 seconds ago)
+// Syncing data after data update seems not really useful and is less traffic-efficient
+
+// NOTE
+// "profile" refers to the profile popover AND user's name and avatar
+
+// TODO
+// Merge setSnackbarContent and setSnackbarSeverity
+
 import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUsers, update as usersUpdate } from '../slices/usersSlice';
+import { selectUserProfileById, update as userProfilesUpdate } from '../slices/userProfilesSlice';
+
 import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
 import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, VerifiedOutlined } from "@mui/icons-material";
 import { Portal } from '@mui/base';
-import { Link, useNavigate } from 'react-router-dom';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
+import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 import SimpleBar from 'simplebar-react';
+import { useTranslation } from 'react-i18next';
 
 import DateTimeField from './datetime';
 import useLongPress from './useLongPress';
@@ -19,9 +52,6 @@ import CustomTable from './table';
 import { darkenColor } from '../designs';
 
 import { customAxios as axios, getAuthToken, checkUserPerm, removeNUEValues, getFormattedDate, getTodayUTC, makeRequestsAuto, ConvertUnit, TSep } from '../functions';
-import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
-
-import { useTranslation } from 'react-i18next';
 
 var vars = require("../variables");
 
@@ -36,14 +66,55 @@ const PROFILE_COLOR = {
     }
 };
 
-function tabBtnProps(index, current, theme) {
+const CURRENTY_ICON = { 1: "€", 2: "$" };
+
+const GetActivity = (tr, activity) => {
+    if (activity.status === "offline") {
+        if (activity.last_seen !== -1)
+            return <>{tr("offline_last_seen")} <TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
+        else
+            return <>{tr("offline")}</>;
+    } else if (activity.status === "online") {
+        return <>{tr("online")}</>;
+    } else {
+        let name = activity.status;
+        if (name.startsWith("dlog_")) {
+            const deliveryId = name.split("_")[1];
+            return <Link to={`/delivery/${deliveryId}`}>{tr("viewing_delivery", { deliveryId: deliveryId })}</Link>;
+        } else if (name === "dlog") {
+            return <Link to="/delivery">{tr("viewing_deliveries")}</Link>;
+        } else if (name === "index") {
+            return <Link to="/">{tr("viewing_overview")}</Link>;
+        } else if (name === "leaderboard") {
+            return <Link to="/leaderboard">{tr("viewing_leaderboard")}</Link>;
+        } else if (name === "member") {
+            return <Link to="/member">{tr("viewing_members")}</Link>;
+        } else if (name === "announcement") {
+            return <Link to="/announcement">{tr("viewing_announcements")}</Link>;
+        } else if (name === "application") {
+            return <Link to="/application/my">{tr("viewing_applications")}</Link>;
+        } else if (name === "challenge") {
+            return <Link to="/challenge">{tr("viewing_challenges")}</Link>;
+        } else if (name === "manage_divisions") {
+            return <Link to="/division">{tr("viewing_divisions")}</Link>;
+        } else if (name === "downloads") {
+            return <Link to="/downloads">{tr("viewing_downloads")}</Link>;
+        } else if (name === "event") {
+            return <Link to="/event">{tr("viewing_events")}</Link>;
+        } else {
+            return <></>;
+        }
+    }
+};
+
+const tabBtnProps = (index, current, theme) => {
     return {
-        id: `map-tab-${index}`,
-        'aria-controls': `map-tabpanel-${index}`,
+        id: `user-popover-tab-${index}`,
+        'aria-controls': `user-popover-${index}`,
         style: { color: current === index ? theme.palette.info.main : 'inherit' }
     };
-}
-function TabPanel(props) {
+};
+const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
 
     return (
@@ -51,7 +122,7 @@ function TabPanel(props) {
             role="tabpanel"
             hidden={value !== index}
             id={`user-popover-${index}`}
-            aria-labelledby={`user-popover-${index}`}
+            aria-labelledby={`user-popover-tab-${index}`}
             {...other}
         >
             {value === index && (
@@ -61,112 +132,109 @@ function TabPanel(props) {
             )}
         </div>
     );
-}
+};
 
 const UserCard = (props) => {
     const { t: tr } = useTranslation();
+    const theme = useTheme();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const users = useSelector(selectUsers);
 
-    const dlogColumns = [
-        { id: 'display_logid', label: 'ID' },
-        { id: 'cargo', label: tr("cargo") },
-        { id: 'distance', label: tr("distance") },
-        { id: 'profit', label: tr("profit") },
-    ];
-    const CURRENTY_ICON = { 1: "€", 2: "$" };
+    const bannerRef = useRef(null); // this is a real component reference
 
-    function GetActivity(activity) {
-        if (activity.status === "offline") {
-            if (activity.last_seen !== -1)
-                return <>{tr("offline_last_seen")} <TimeAgo key={`${+new Date()}`} timestamp={activity.last_seen * 1000} lower={true} /></>;
-            else
-                return <>{tr("offline")}</>;
-        } else if (activity.status === "online") {
-            return <>{tr("online")}</>;
-        } else {
-            let name = activity.status;
-            if (name.startsWith("dlog_")) {
-                const deliveryId = name.split("_")[1];
-                return <Link to={`/delivery/${deliveryId}`}>{tr("viewing_delivery", { deliveryId: deliveryId })}</Link>;
-            } else if (name === "dlog") {
-                return <Link to="/delivery">{tr("viewing_deliveries")}</Link>;
-            } else if (name === "index") {
-                return <Link to="/">{tr("viewing_overview")}</Link>;
-            } else if (name === "leaderboard") {
-                return <Link to="/leaderboard">{tr("viewing_leaderboard")}</Link>;
-            } else if (name === "member") {
-                return <Link to="/member">{tr("viewing_members")}</Link>;
-            } else if (name === "announcement") {
-                return <Link to="/announcement">{tr("viewing_announcements")}</Link>;
-            } else if (name === "application") {
-                return <Link to="/application/my">{tr("viewing_applications")}</Link>;
-            } else if (name === "challenge") {
-                return <Link to="/challenge">{tr("viewing_challenges")}</Link>;
-            } else if (name === "manage_divisions") {
-                return <Link to="/division">{tr("viewing_divisions")}</Link>;
-            } else if (name === "downloads") {
-                return <Link to="/downloads">{tr("viewing_downloads")}</Link>;
-            } else if (name === "event") {
-                return <Link to="/event">{tr("viewing_events")}</Link>;
-            } else {
-                return <></>;
+    if (users[props.user.uid] === undefined) {
+        // if user is not yet cached, cache the user
+        // fill undefined attributes
+        let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
+        roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+
+        // get role/ban history
+        const member = vars.members.find(member => member.uid === user.uid);
+        if (member) {
+            role_history = member.role_history ?? role_history;
+            ban_history = member.ban_history ?? ban_history;
+        }
+
+        dispatch(usersUpdate({ uid: props.user.uid, data: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
+    }
+    const user = users[props.user.uid]; // use the user in store
+
+    // user card settings
+    let { size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined, ...props };
+
+    let availableTrackers = [];
+    if (vars.apiconfig !== null) {
+        for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
+            if (!availableTrackers.includes(vars.apiconfig.trackers[i].type)) {
+                availableTrackers.push(vars.apiconfig.trackers[i].type);
             }
         }
     }
+    const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky" };
 
-    let { uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { uid: -1, userid: -1, discordid: 0, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", steamid: 0, truckersmpid: 0, roles: [], tracker: "unknown", ban: null, roleHistory: null, banHistory: null, size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined };
-    if (props.user !== undefined && props.user !== null) {
-        ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban } = props.user);
-        if (vars.users[uid] === undefined) vars.users[uid] = props.user;
-        ({ size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
-    } else {
-        ({ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = props);
-    }
-
-    if (roles !== undefined && roles !== null) {
-        roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
-    }
-
-    if (size === undefined) {
-        size = "20";
-    }
-
-    const theme = useTheme();
-    const navigate = useNavigate();
-
+    // snackbar
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-    const handleCloseSnackbar = useCallback((e) => {
-        setSnackbarContent("");
+    const handleCloseSnackbar = useCallback((e) => { setSnackbarContent(""); }, []);
+
+    // profile tabs
+    const [tab, setTab] = useState(0);
+    const handleTabChange = (_, newValue) => { setTab(newValue); };
+
+    // force sync user info
+    const updateUserInfo = useCallback(async () => {
+        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status === 200) {
+            resp.data.roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
+
+            dispatch(usersUpdate({ uid: user.uid, data: resp.data }));
+
+            if (user.uid === vars.userInfo.uid) vars.userInfo = user;
+
+            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
+            setNewAboutMe(resp.data.bio);
+            setNewNote(resp.data.note);
+            setNewGlobalNote(resp.data.global_note);
+            setNewRoles(resp.data.roles);
+            setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
+            setTrackerInUse(resp.data.tracker);
+            for (let i = 0; i < vars.members.length; i++) {
+                if (vars.members[i].uid === user.uid) {
+                    vars.members[i] = resp.data;
+                    break;
+                }
+            }
+        }
     }, []);
 
-    const [tab, setTab] = useState(0);
-    const handleChange = (event, newValue) => {
-        setTab(newValue);
-    };
+    // update user info across components
+    useEffect(() => {
+        setNewProfile({ name: user.name, avatar: user.avatar });
+        setNewAboutMe(user.bio);
+        setNewNote(user.note);
+        setNewGlobalNote(user.global_note);
+        setNewRoles(user.roles);
+        setNewConnections({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
+        setTrackerInUse(user.tracker);
+    }, [user.name, user.avatar, user.bio, user.note, user.global_note, user.roles, user.email, user.discordid, user.steamid, user.truckersmpid, user.tracker]);
 
+    // context menu
     const [showContextMenu, setShowContextMenu] = useState(false);
     const [showPopover, setShowPopover] = useState(false);
     const [anchorPosition, setAnchorPosition] = useState({ top: 0, left: 0 });
+    // right click
     const handleContextMenu = useCallback((e) => {
+        if (+new Date() - user.last_sync >= 30000) updateUserInfo(); // sync user data in background
         e.preventDefault();
         if (e.stopPropagation !== undefined) e.stopPropagation();
-        if (showContextMenu) {
-            setShowContextMenu(false);
-            return;
-        }
         setAnchorPosition({ top: e.clientY !== undefined ? e.clientY : e.center.y, left: e.clientX !== undefined ? e.clientX : e.center.x });
-        setShowContextMenu(true);
+        setShowContextMenu(!showContextMenu);
     }, [showContextMenu]);
-    const handleClick = useCallback((e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (showPopover) {
-            setShowPopover(false);
-            return;
-        }
-        setAnchorPosition({ top: e.clientY, left: e.clientX });
-        setShowPopover(true);
-    }, [showPopover]);
+    // long press
+    const userCardRef = useRef(null);
+    useLongPress(userCardRef, handleContextMenu, 500);
+    // context menu button action
     const [ctxAction, setCtxAction] = useState("");
     const updateCtxAction = useCallback((e, action) => {
         e.preventDefault();
@@ -177,47 +245,16 @@ const UserCard = (props) => {
     }, []);
     const [dialogBtnDisabled, setDialogBtnDisabled] = useState(false);
 
-    const userCardRef = useRef(null);
-    useLongPress(userCardRef, handleContextMenu, 500);
+    // brief user profile popover (left click / single press)
+    const handleClick = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setAnchorPosition({ top: e.clientY, left: e.clientX });
+        setShowPopover(!showPopover);
+    }, [showPopover]);
 
-    const [tmpLastOnline, setTmpLastOnline] = useState(null);
-    const [chartStats, setChartStats] = useState(null);
-    const [overallStats, setOverallStats] = useState(null);
-    const [detailStats, setDetailStats] = useState(null);
-    const [pointStats, setPointStats] = useState(null);
-    const [dlogList, setDlogList] = useState(null);
-    const [dlogTotalItems, setDlogTotalItems] = useState(0);
-    const [dlogPage, setDlogPage] = useState(1);
-    const dlogPageRef = useRef(1);
-    const [dlogPageSize, setDlogPageSize] = useState(vars.userSettings.default_row_per_page);
-    const loadStats = useCallback(async () => {
-        window.loading += 1;
-
-        const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
-            { url: `https://config.chub.page/truckersmp?mpid=${truckersmpidRef.current}`, auth: false },
-            { url: `${vars.dhpath}/dlog/statistics/chart?userid=${userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
-            { url: `${vars.dhpath}/dlog/statistics/summary?userid=${userid}`, auth: true },
-            { url: `${vars.dhpath}/dlog/statistics/details?userid=${userid}`, auth: true },
-            { url: `${vars.dhpath}/dlog/leaderboard?userids=${userid}`, auth: true },
-            { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
-        ]);
-
-        if (_tmp.error === undefined && _tmp.last_online !== undefined) {
-            setTmpLastOnline(_tmp.last_online);
-        }
-
-        let newCharts = { distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
-        for (let i = 0; i < _chart.length; i++) {
-            newCharts.distance.push(_chart[i].distance.sum);
-            newCharts.fuel.push(_chart[i].fuel.sum);
-            newCharts.profit_euro.push(_chart[i].profit.euro);
-            newCharts.profit_dollar.push(_chart[i].profit.dollar);
-        }
-        setChartStats(newCharts);
-        setOverallStats(_overall);
-        if (_details.truck !== undefined) setDetailStats(_details);
-        if (_point.list.length !== 0) setPointStats(_point.list[0].points);
-
+    // user profile data
+    function convertDlogList(_dlogList) {
         let newDlogList = [];
         for (let i = 0; i < _dlogList.list.length; i++) {
             let divisionCheckmark = <></>;
@@ -227,268 +264,133 @@ const UserCard = (props) => {
                     <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                 </Tooltip>;
             }
-            newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
+            newDlogList.push({
+                logid: _dlogList.list[i].logid,
+                display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>,
+                source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`,
+                destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`,
+                distance: ConvertUnit("km", _dlogList.list[i].distance),
+                cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`,
+                profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`,
+                time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} />
+            });
         }
-        setDlogList(newDlogList);
-        setDlogTotalItems(_dlogList.total_items);
+        return newDlogList;
+    }
+    const cachedUserProfile = useSelector(selectUserProfileById(user.uid));
+    const [tmpLastOnline, setTmpLastOnline] = useState(cachedUserProfile ? cachedUserProfile.tmpLastOnline : null);
+    const [chartStats, setChartStats] = useState(cachedUserProfile ? cachedUserProfile.chartStats : null);
+    const [overallStats, setOverallStats] = useState(cachedUserProfile ? cachedUserProfile.overallStats : null);
+    const [detailStats, setDetailStats] = useState(cachedUserProfile ? cachedUserProfile.detailStats : null);
+    const [pointStats, setPointStats] = useState(cachedUserProfile ? cachedUserProfile.pointStats : null);
+    const [dlogList, setDlogList] = useState(cachedUserProfile ? convertDlogList(cachedUserProfile.dlogList) : null);
+    const [dlogTotalItems, setDlogTotalItems] = useState(cachedUserProfile ? cachedUserProfile.dlogTotalItems : 0);
+    const [dlogPage, setDlogPage] = useState(cachedUserProfile ? cachedUserProfile.dlogPage : 1);
+    const dlogPageRef = useRef(cachedUserProfile ? cachedUserProfile.dlogPage : 1);
+    useEffect(() => { dlogPageRef.current = dlogPage; }, [dlogPage]); // maintain correct dlog page when user switch page fast
+    const [dlogPageSize, setDlogPageSize] = useState(cachedUserProfile ? cachedUserProfile.dlogPageSize : vars.userSettings.default_row_per_page);
+    useEffect(() => {
+        async function loadProfile() {
+            window.loading += 1;
 
-        window.loading -= 1;
-    }, [userid]);
+            const [_tmp, _chart, _overall, _details, _point, _dlogList] = await makeRequestsAuto([
+                { url: `https://config.chub.page/truckersmp?mpid=${user.truckersmpid}`, auth: false },
+                { url: `${vars.dhpath}/dlog/statistics/chart?userid=${user.userid}&ranges=7&interval=86400&sum_up=false&before=` + getTodayUTC() / 1000, auth: true },
+                { url: `${vars.dhpath}/dlog/statistics/summary?userid=${user.userid}`, auth: true },
+                { url: `${vars.dhpath}/dlog/statistics/details?userid=${user.userid}`, auth: true },
+                { url: `${vars.dhpath}/dlog/leaderboard?userids=${user.userid}`, auth: true },
+                { url: `${vars.dhpath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+            ]);
+
+            let userProfile = {};
+
+            if (_tmp.error === undefined && _tmp.last_online !== undefined) {
+                setTmpLastOnline(_tmp.last_online);
+                userProfile.tmpLastOnline = _tmp.last_online;
+            }
+
+            let newCharts = { distance: [], fuel: [], profit_euro: [], profit_dollar: [] };
+            for (let i = 0; i < _chart.length; i++) {
+                newCharts.distance.push(_chart[i].distance.sum);
+                newCharts.fuel.push(_chart[i].fuel.sum);
+                newCharts.profit_euro.push(_chart[i].profit.euro);
+                newCharts.profit_dollar.push(_chart[i].profit.dollar);
+            }
+            setChartStats(newCharts);
+            userProfile.chartStats = newCharts;
+
+            setOverallStats(_overall);
+            userProfile.overallStats = _overall;
+
+            if (_details.truck !== undefined) {
+                setDetailStats(_details);
+                userProfile.detailStats = _details;
+            }
+            if (_point.list.length !== 0) {
+                setPointStats(_point.list[0].points);
+                userProfile.pointStats = _point.list[0].points;
+            }
+
+            dispatch(userProfilesUpdate({ uid: user.uid, data: userProfile }));
+
+            window.loading -= 1;
+        }
+
+        if ((cachedUserProfile === undefined || cachedUserProfile.expiry < +new Date()) && (ctxAction === "show-profile" || showProfileModal === 2))
+            loadProfile();
+    }, [cachedUserProfile, ctxAction, showProfileModal]);
     useEffect(() => {
-        if (chartStats === null && (ctxAction === "show-profile" || showProfileModal === 2))
-            loadStats();
-    }, [chartStats, ctxAction, showProfileModal]);
-    useEffect(() => {
-        dlogPageRef.current = dlogPage;
-    }, [dlogPage]);
-    useEffect(() => {
-        async function doLoad() {
+        async function loadDlogList() {
             window.loading += 1;
 
             const [_dlogList] = await makeRequestsAuto([
-                { url: `${vars.dhpath}/dlog/list?userid=${userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
+                { url: `${vars.dhpath}/dlog/list?userid=${user.userid}&page=${dlogPage}&page_size=${dlogPageSize}`, auth: "prefer" },
             ]);
-            let newDlogList = [];
-            for (let i = 0; i < _dlogList.list.length; i++) {
-                let divisionCheckmark = <></>;
-                if (_dlogList.list[i].division.divisionid !== undefined) {
-                    divisionCheckmark = <Tooltip placement="top" arrow title={tr("validated_division_delivery")}
-                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                        <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
-                    </Tooltip>;
-                }
-                newDlogList.push({ logid: _dlogList.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>, source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`, destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`, distance: ConvertUnit("km", _dlogList.list[i].distance), cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} /> });
-            }
             if (dlogPageRef.current === dlogPage) {
-                setDlogList(newDlogList);
+                setDlogList(convertDlogList(_dlogList));
                 setDlogTotalItems(_dlogList.total_items);
+
+                dispatch(userProfilesUpdate({ uid: user.uid, data: { dlogList: _dlogList, dlogTotalItems: _dlogList.total_items } }));
             }
 
             window.loading -= 1;
         }
+
         if (ctxAction === "show-profile" || showProfileModal === 2)
-            doLoad();
+            loadDlogList();
     }, [dlogPage, dlogPageSize, ctxAction, showProfileModal]);
 
-    let trackers = [];
-    if (vars.apiconfig !== null) {
-        for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
-            if (!trackers.includes(vars.apiconfig.trackers[i].type)) {
-                trackers.push(vars.apiconfig.trackers[i].type);
-            }
-        }
-    }
-    const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky" };
-
-    const [newRoles, setNewRoles] = useState(roles);
+    // local pending updates
+    const [newRoles, setNewRoles] = useState(user.roles);
     const [newPoints, setNewPoints] = useState({ distance: 0, bonus: 0 });
-    const [newProfile, setNewProfile] = useState({ name: name, avatar: avatar });
-    const [newAboutMe, setNewAboutMe] = useState(bio);
-    const [newConnections, setNewConnections] = useState({ email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
-    const [newBan, setNewBan] = useState({ expire: 1698890178, reason: "" });
-    const [trackerInUse, setTrackerInUse] = useState(tracker);
-    const [roleHistory, setRoleHistory] = useState(undefined);
-    const [banHistory, setBanHistory] = useState(undefined);
-    const [newNote, setNewNote] = useState(note);
-    const [newGlobalNote, setNewGlobalNote] = useState(global_note);
+    const [newProfile, setNewProfile] = useState({ name: user.name, avatar: user.avatar });
+    const [newAboutMe, setNewAboutMe] = useState(user.bio);
+    const [newConnections, setNewConnections] = useState({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
+    const [newBan, setNewBan] = useState({ expire: +new Date() / 1000 + 86400 * 7, reason: "" });
+    const [trackerInUse, setTrackerInUse] = useState(user.tracker);
+    const [newNote, setNewNote] = useState(user.note);
+    const [newGlobalNote, setNewGlobalNote] = useState(user.global_note);
 
-    useEffect(() => {
-        let ok = false;
-        if (vars.members !== undefined) {
-            for (let i = 0; i < vars.members.length; i++) {
-                if (vars.members[i].uid === uid) {
-                    ok = true;
-                    if (vars.members[i].role_history !== undefined) setRoleHistory(vars.members[i].role_history);
-                    if (vars.members[i].ban_history !== undefined) setBanHistory(vars.members[i].ban_history);
-                    break;
-                }
-            }
-        }
-        if (!ok) {
-            let uids = Object.keys(vars.users);
-            for (let i = 0; i < uids.length; i++) {
-                if (uids[i] === uid) {
-                    ok = true;
-                    if (vars.users[uids[i]].role_history !== undefined) setRoleHistory(vars.users[uids[i]].role_history);
-                    if (vars.users[uids[i]].ban_history !== undefined) setBanHistory(vars.users[uids[i]].ban_history);
-                    break;
-                }
-            }
-        }
-    }, [uid, setRoleHistory, setBanHistory]);
-
-    const bannerRef = useRef(null);
-    const uidRef = useRef(uid);
-    const useridRef = useRef(userid);
-    const bioRef = useRef(bio);
-    const noteRef = useRef(note);
-    const globalNoteRef = useRef(global_note);
-    const discordidRef = useRef(discordid);
-    const emailRef = useRef(email);
-    const steamidRef = useRef(steamid);
-    const truckersmpidRef = useRef(truckersmpid);
-    const nameRef = useRef(name);
-    const avatarRef = useRef(avatar);
-    const rolesRef = useRef(roles);
-    const banRef = useRef(ban);
-    useEffect(() => {
-        if (uidRef.current === undefined) {
-            uidRef.current = uid;
-        }
-        if (useridRef.current === undefined) {
-            useridRef.current = userid;
-        }
-        if (bioRef.current === undefined) {
-            bioRef.current = bio;
-        }
-        if (noteRef.current === undefined) {
-            noteRef.current = note;
-        }
-        if (globalNoteRef.current === undefined) {
-            globalNoteRef.current = global_note;
-        }
-        if (discordidRef.current === undefined) {
-            discordidRef.current = discordid;
-        }
-        if (emailRef.current === undefined) {
-            emailRef.current = email;
-        }
-        if (steamidRef.current === undefined) {
-            steamidRef.current = steamid;
-        }
-        if (truckersmpidRef.current === undefined) {
-            truckersmpidRef.current = truckersmpid;
-        }
-        if (nameRef.current === undefined) {
-            nameRef.current = name;
-        }
-        if (avatarRef.current === undefined) {
-            avatarRef.current = avatar;
-        }
-        if (rolesRef.current === undefined) {
-            rolesRef.current = roles;
-        }
-        if (banRef.current === undefined) {
-            banRef.current = ban;
-        }
-    }, [uid, userid, bio, note, global_note, discordid, email, steamid, truckersmpid, name, avatar, roles, ban,]);
-    const [_, setDoRerender] = useState(+new Date());
-    useEffect(() => {
-        if (props.user !== undefined && props.user !== null) {
-            setDoRerender(+new Date());
-            ({ uid, userid, discordid, bio, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, ban } = props.user);
-            uidRef.current = uid;
-            useridRef.current = userid;
-            bioRef.current = bio;
-            noteRef.current = note;
-            globalNoteRef.current = global_note;
-            discordidRef.current = discordid;
-            emailRef.current = email;
-            steamidRef.current = steamid;
-            truckersmpidRef.current = truckersmpid;
-            nameRef.current = name;
-            avatarRef.current = avatar;
-            rolesRef.current = roles;
-            banRef.current = ban;
-        }
-    }, [props.user]);
-
-    const updateUserInfo = useCallback(async () => {
-        const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});
-        window.dispatchEvent(updateExternalUserTable);
-
-        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        if (resp.status === 200) {
-            uidRef.current = resp.data.uid;
-            useridRef.current = resp.data.userid;
-            discordidRef.current = resp.data.discordid;
-            emailRef.current = resp.data.email;
-            steamidRef.current = resp.data.steamid;
-            truckersmpidRef.current = resp.data.truckersmpid;
-            nameRef.current = resp.data.name;
-            bioRef.current = resp.data.bio;
-            noteRef.current = resp.data.note;
-            globalNoteRef.current = resp.data.global_note;
-            avatarRef.current = resp.data.avatar;
-            rolesRef.current = resp.data.roles;
-            banRef.current = resp.data.ban;
-            setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
-            setNewAboutMe(resp.data.bio);
-            setNewNote(resp.data.note);
-            setNewGlobalNote(resp.data.global_note);
-            setNewRoles(resp.data.roles);
-            setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
-            setTrackerInUse(resp.data.tracker);
-            setRoleHistory(resp.data.role_history);
-            setBanHistory(resp.data.ban_history);
-            setTrackerInUse(resp.data.tracker);
-            for (let i = 0; i < vars.members.length; i++) {
-                if (vars.members[i].uid === uid) {
-                    vars.members[i] = resp.data;
-                    break;
-                }
-            }
-            vars.users[uid] = resp.data;
-
-            const userUpdated = new CustomEvent('userUpdated', { detail: { user: resp.data } });
-            window.dispatchEvent(userUpdated);
-        }
-    }, [uid]);
-
-    useEffect(() => {
-        const userUpdated = (e) => {
-            if (e.detail !== undefined && e.detail.uid === uidRef.current) {
-                let user = e.detail.user;
-                uidRef.current = user.uid;
-                useridRef.current = user.userid;
-                discordidRef.current = user.discordid;
-                emailRef.current = user.email;
-                steamidRef.current = user.steamid;
-                truckersmpidRef.current = user.truckersmpid;
-                nameRef.current = user.name;
-                bioRef.current = user.bio;
-                noteRef.current = user.note;
-                globalNoteRef.current = user.global_note;
-                avatarRef.current = user.avatar;
-                rolesRef.current = user.roles;
-                banRef.current = user.ban;
-                setNewProfile({ name: user.name, avatar: user.avatar });
-                setNewAboutMe(user.bio);
-                setNewNote(user.note);
-                setNewGlobalNote(user.global_note);
-                setNewRoles(user.roles);
-                setNewConnections({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
-                setTrackerInUse(user.tracker);
-                setRoleHistory(user.role_history);
-                setBanHistory(user.ban_history);
-                setTrackerInUse(user.tracker);
-            }
-        };
-        window.addEventListener("userUpdated", userUpdated);
-        return () => {
-            window.removeEventListener("userUpdated", userUpdated);
-        };
-    }, [uid]);
-
+    // chub team / sponsor perks
     const [specialColor, setSpecialColor] = useState(null);
     const [badges, setBadges] = useState([]);
-    const [profile_background, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
-    const [profile_banner_url, setProfileBannerURL] = useState(`${vars.dhpath}/member/banner?userid=${userid}`);
+    const [profileBackground, setProfilebackground] = useState([darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5), darkenColor(PROFILE_COLOR[theme.mode].paper, 0.5)]);
+    const [profileBannerURL, setProfileBannerURL] = useState(`${vars.dhpath}/member/banner?userid=${user.userid}`);
     useEffect(() => {
-        if (discordidRef.current === undefined) return;
+        if (user.discordid === undefined) return;
         let newSpecialColor = null;
         let newBadges = [];
         let badgeNames = [];
         let inCHubTeam = false;
-        if (Object.keys(vars.specialRolesMap).includes(discordidRef.current)) {
+        if (Object.keys(vars.specialRolesMap).includes(user.discordid)) {
             // special color disabled as we are now fully using user-customized settings
-            // specialColor = vars.specialRolesMap[discordidRef.current][0].color;
-            for (let i = 0; i < vars.specialRolesMap[discordidRef.current].length; i++) {
-                let sr = vars.specialRolesMap[discordidRef.current][i];
+            // specialColor = vars.specialRolesMap[user.discordid][0].color;
+            for (let i = 0; i < vars.specialRolesMap[user.discordid].length; i++) {
+                let sr = vars.specialRolesMap[user.discordid][i];
                 let badge = null;
                 let badgeName = null;
                 if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-chub}`} placement="top" arrow title={tr("chub_team")}
+                    badge = <Tooltip key={`badge-${user.uid}-chub}`} placement="top" arrow title={tr("chub_team")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }} >
                         <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                     </Tooltip>;
@@ -496,21 +398,21 @@ const UserCard = (props) => {
                     inCHubTeam = true;
                 }
                 if (['community_legend'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-legend`} placement="top" arrow title={tr("community_legend")}
+                    badge = <Tooltip key={`badge-${user.uid}-legend`} placement="top" arrow title={tr("community_legend")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['network_partner'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-network-partner`} placement="top" arrow title={tr("network_partner")}
+                    badge = <Tooltip key={`badge-${user.uid}-network-partner`} placement="top" arrow title={tr("network_partner")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['server_booster', 'translation_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title={tr("supporter")}
+                    badge = <Tooltip key={`badge-${user.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -529,10 +431,10 @@ const UserCard = (props) => {
             if (userLevel !== 0) break;
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                 let patron = vars.patrons[tiers[i]][j];
-                if (patron.abbr === vars.dhconfig.abbr && patron.uid === uid) {
+                if (patron.abbr === vars.dhconfig.abbr && patron.uid === user.uid) {
                     userLevel = 4 - i;
 
-                    let badge = <Tooltip key={`badge-${uid}-supporter`} placement="top" arrow title={tr("supporter")}
+                    let badge = <Tooltip key={`badge-${user.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -550,8 +452,8 @@ const UserCard = (props) => {
         userLevel = vars.defaultUserLevel; // TODO: Remove after open beta
         if (inCHubTeam) userLevel = 4;
 
-        if (vars.userConfig[uid] !== undefined) {
-            let uc = vars.userConfig[uid];
+        if (vars.userConfig[user.uid] !== undefined) {
+            let uc = vars.userConfig[user.uid];
             if (uc.name_color !== null) {
                 newSpecialColor = uc.name_color;
                 if (!(vars.vtcLevel >= 1 && vars.dhconfig.name_color !== null && vars.dhconfig.name_color === newSpecialColor)) {
@@ -567,29 +469,30 @@ const UserCard = (props) => {
             try {
                 new URL(uc.profile_banner_url);
                 if (userLevel >= 3) {
-                    setProfileBannerURL(profile_banner_url = uc.profile_banner_url);
+                    setProfileBannerURL(uc.profile_banner_url);
                 }
             } catch { }
         }
         setSpecialColor(newSpecialColor);
-    }, [discordidRef.current]);
+    }, [user.discordid]);
     useEffect(() => {
-        if (vars.vtcLevel >= 3 && vars.dhconfig.use_highest_role_color && rolesRef.current !== undefined) {
-            for (let i = 0; i < rolesRef.current.length; i++) {
-                if (vars.roles[rolesRef.current[i]] !== undefined && vars.roles[rolesRef.current[i]].color !== undefined) {
-                    setSpecialColor(vars.roles[rolesRef.current[i]].color);
+        if (vars.vtcLevel >= 3 && vars.dhconfig.use_highest_role_color && user.roles !== undefined) {
+            for (let i = 0; i < user.roles.length; i++) {
+                if (vars.roles[user.roles[i]] !== undefined && vars.roles[user.roles[i]].color !== undefined) {
+                    setSpecialColor(vars.roles[user.roles[i]].color);
                     break;
                 }
             }
         }
-    }, [rolesRef.current]);
+    }, [user.roles]);
 
+    // context menu button operations
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setDialogBtnDisabled(true);
         sync_to === undefined ? sync_to = "" : sync_to = `&sync_to_${sync_to}=true`;
-        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${user.uid}${sync_to}`, method: "PATCH", data: newProfile, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            await updateUserInfo();
+            await updateUserInfo(); // this is required as we don't know the user's "synced-to" data
             setSnackbarContent(tr("profile_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -597,13 +500,13 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [uid, newProfile, updateUserInfo]);
+    }, [newProfile]);
 
     const updateAboutMe = useCallback(async () => {
         setDialogBtnDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/user/bio`, method: "PATCH", data: { "bio": newAboutMe }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            await updateUserInfo();
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, bio: newAboutMe } }));
             setSnackbarContent(tr("about_me_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -611,29 +514,24 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newAboutMe, updateUserInfo]);
+    }, [newAboutMe]);
 
     const updateNote = useCallback(async () => {
-        if (noteRef.current === newNote) { return; }
-        vars.users[uid].note = newNote;
-        for (let i = 0; i < vars.members.length; i++) {
-            if (vars.members[i].uid === uid) {
-                vars.members[i].note = newNote;
-                const userUpdated = new CustomEvent('userUpdated', { detail: { user: vars.members[i] } });
-                window.dispatchEvent(userUpdated);
-                break;
-            }
+        // this is handled specially as updating it doesn't disable "submit" button
+        if (user.note === newNote) { return; }
+        let oldNote = user.note;
+        dispatch(usersUpdate({ uid: user.uid, data: { ...user, note: newNote } })); // pre-update locally
+        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        if (resp.status !== 204) {
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, note: oldNote } }));
         }
-
-        await axios({ url: `${vars.dhpath}/user/${uid}/note`, method: "PATCH", data: { "note": newNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
-        updateUserInfo();
-    }, [uid, newNote, updateUserInfo]);
+    }, [newNote]);
 
     const updateGlobalNote = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/note/global`, method: "PATCH", data: { note: newGlobalNote }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            await updateUserInfo();
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, global_note: newGlobalNote } }));
             setSnackbarContent(tr("global_note_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -641,13 +539,13 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [uid, newGlobalNote, updateUserInfo]);
+    }, [newGlobalNote]);
 
     const updateRoles = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/roles`, method: "PATCH", data: { roles: newRoles.map((role) => (role.id)) }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            await updateUserInfo();
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, roles: newRoles.map((role) => (role.id)) } }));
             setSnackbarContent(tr("roles_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -655,13 +553,13 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newRoles, updateUserInfo]);
+    }, [user.userid, newRoles]);
 
     const updatePoints = useCallback(async () => {
+        // no need to update user info since points are not included in user info
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/points`, method: "PATCH", data: { distance: newPoints.distance, bonus: newPoints.bonus }, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            updateUserInfo();
             setSnackbarContent(tr("points_updated"));
             setSnackbarSeverity("success");
         } else {
@@ -669,56 +567,60 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [newPoints, updateUserInfo]);
+    }, [user.userid, newPoints]);
 
     const switchTracker = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${user.uid}`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, tracker: trackerInUse } }));
             setSnackbarContent(tr("tracker_updated"));
             setSnackbarSeverity("success");
-            updateUserInfo();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [uid, trackerInUse, updateUserInfo]);
+    }, [trackerInUse]);
 
     const acceptUser = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
-            setSnackbarContent(tr("user_accepted_as_member"));
-            setSnackbarSeverity("success");
-            updateUserInfo();
-            vars.members.push(vars.users[uid]);
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, userid: resp.data.userid } }));
+
+            vars.members.push({ ...user, userid: resp.data.userid });
             let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             cache.members = vars.members;
             writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+
+            setSnackbarContent(tr("user_accepted_as_member"));
+            setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
-            setDialogBtnDisabled(false);
+            setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [uid, trackerInUse, updateUserInfo]);
+    }, []);
 
     const updateConnections = useCallback(async (action = "update", connection = "") => {
         setDialogBtnDisabled(true);
         let resp = undefined;
         if (action === "update") {
             let processedNC = removeNUEValues(newConnections);
-            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/connections`, method: "PATCH", data: processedNC, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (action === "delete") {
-            resp = await axios({ url: `${vars.dhpath}/user/${uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/connections/${connection}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             setNewConnections(newConnections => ({ ...newConnections, [connection]: "" }));
         }
         if (resp.status === 204) {
-            await updateUserInfo();
             if (action === "update") {
                 setSnackbarContent(tr("connections_updated"));
+                let processedNC = removeNUEValues(newConnections);
+                dispatch(usersUpdate({ uid: user.uid, data: { ...user, ...processedNC } }));
             } else if (action === "delete") {
                 setSnackbarContent(tr("connection_deleted"));
+                dispatch(usersUpdate({ uid: user.uid, data: { ...user, [connection]: null } }));
             }
             setSnackbarSeverity("success");
         } else {
@@ -726,31 +628,32 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
         }
         setDialogBtnDisabled(false);
-    }, [uid, newConnections, updateUserInfo]);
+    }, [newConnections]);
 
     const [otp, setOtp] = useState("");
     const disableMFA = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/mfa/disable?uid=${user.uid}`, data: { otp: otp }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            updateUserInfo();
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, mfa: false } }));
             setSnackbarContent(tr("mfa_disabled"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
-            setDialogBtnDisabled(false);
+            setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [uid, updateUserInfo]);
+    }, [otp]);
 
     const dismissMember = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/member/${useridRef.current}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
-            updateUserInfo();
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, userid: null, roles: [] } }));
+
             let newMembers = [];
             for (let i = 0; i < vars.members.list; i++) {
-                if (vars.members[i].userid !== userid) {
+                if (vars.members[i].userid !== user.userid) {
                     newMembers.push(vars.members[i]);
                 }
             }
@@ -758,64 +661,64 @@ const UserCard = (props) => {
             let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             cache.members = vars.members;
             writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+
             setSnackbarContent(tr("user_dismissed"));
             setSnackbarSeverity("success");
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
-            setDialogBtnDisabled(false);
+            setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [userid, updateUserInfo]);
+    }, [user.userid]);
 
     const deleteUser = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/user/${uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("user_deleted"));
             setSnackbarSeverity("success");
-
-            const updateExternalUserTable = new CustomEvent('updateExternalUserTable', {});
-            window.dispatchEvent(updateExternalUserTable);
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
-            setDialogBtnDisabled(false);
+            setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, [uid]);
+    }, []);
 
     const putBan = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let meta = { ...removeNUEValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid, expire: newBan.expire }), reason: newBan.reason };
+        let meta = { ...removeNUEValues({ uid: user.uid, email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid, expire: newBan.expire }), reason: newBan.reason };
         let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "PUT", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, ban: { expire: newBan.expire, reason: newBan.reason } } }));
+            updateUserInfo(); // we need to update data to know the ban history (historyid)
             setSnackbarContent(tr("user_banned"));
             setSnackbarSeverity("success");
-            updateUserInfo();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [uid, discordid, email, steamid, truckersmpid, newBan, updateUserInfo]);
+    }, [user.email, user.discordid, user.steamid, user.truckersmpid, newBan]);
 
     const deleteBan = useCallback(async () => {
         setDialogBtnDisabled(true);
-        let meta = removeNUEValues({ uid: uid, email: email, discordid: discordid, steamid: steamid, truckersmpid: truckersmpid });
+        let meta = removeNUEValues({ uid: user.uid, email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
         let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", data: meta, headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
+            dispatch(usersUpdate({ uid: user.uid, data: { ...user, ban: null } }));
+            updateUserInfo();
             setSnackbarContent(tr("user_unbanned"));
             setSnackbarSeverity("success");
-            updateUserInfo();
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false);
         }
-    }, [uid, discordid, email, steamid, truckersmpid, updateUserInfo]);
+    }, [user.email, user.discordid, user.steamid, user.truckersmpid]);
 
     const customizeProfileAck = !(localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"));
     const ackCustomizeProfile = useCallback(() => {
-        if (vars.userInfo.uid === uid && (localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"))) {
+        if (vars.userInfo.uid === user.uid && (localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"))) {
             if (localStorage.getItem("ack") === null) {
                 localStorage.setItem("ack", JSON.stringify(["customize-profile"]));
             } else {
@@ -831,11 +734,11 @@ const UserCard = (props) => {
             if (showProfileModal === 2 || ctxAction == "show-profile") {
                 window.electron.ipcRenderer.send("presence-update", {
                     details: `Viewing Profile`,
-                    state: `${nameRef.current}`,
+                    state: `${user.name}`,
                     largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
                     largeImageText: vars.dhconfig.name,
-                    smallImageKey: avatarRef.current,
-                    smallImageText: nameRef.current,
+                    smallImageKey: user.avatar,
+                    smallImageText: user.name,
                     startTimestamp: new Date(),
                     instance: false,
                     buttons: [
@@ -852,13 +755,13 @@ const UserCard = (props) => {
     let profileModal = <Dialog open={true} onClose={() => {
         ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length == 0) window.history.pushState("", "", "/"); }, 250);
     }} fullWidth >
-        <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
+        <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
             {!vars.userSettings.data_saver && <CardMedia
                 ref={bannerRef}
                 component="img"
-                image={profile_banner_url}
+                image={profileBannerURL}
                 onError={(event) => {
-                    event.target.src = `${vars.dhpath}/member/banner?userid=${userid}`;
+                    event.target.src = `${vars.dhpath}/member/banner?userid=${user.userid}`;
                 }}
                 alt=""
                 sx={{ borderRadius: "5px 5px 0 0" }}
@@ -868,18 +771,18 @@ const UserCard = (props) => {
                     <div>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                {nameRef.current}
+                                {user.name}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                 {badges.map((badge, index) => { return <a key={index} onClick={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
-                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
-                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
-                                {showProfileModal !== 2 && ((uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                                {user.userid !== null && user.userid !== undefined && user.userid >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
+                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{user.userid}</Typography></Tooltip>}
+                                {showProfileModal !== 2 && ((user.uid === vars.userInfo.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                             </Typography>
                         </div>
-                        {uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
+                        {user.uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
-                            <Tabs value={tab} onChange={handleChange} aria-label="map tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
+                            <Tabs value={tab} onChange={handleTabChange} aria-label="profile tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
                                 <Tab label={tr("user_info")} {...tabBtnProps(0, tab, theme)} />
                                 <Tab label={tr("statistics")} {...tabBtnProps(1, tab, theme)} />
                                 <Tab label={tr("deliveries")} {...tabBtnProps(2, tab, theme)} />
@@ -888,21 +791,21 @@ const UserCard = (props) => {
                     </div>
                     <SimpleBar style={{ height: `calc(100vh - 310px - ${(bannerRef.current !== null && bannerRef.current.height !== 0 ? bannerRef.current.height : 104.117)}px)` }}>
                         <TabPanel value={tab} index={0}>
-                            {bioRef.current !== "" && <>
+                            {user.bio !== "" && <>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     {tr("about_me").toUpperCase()}
                                 </Typography>
                                 <Typography variant="body2">
-                                    <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
+                                    <MarkdownRenderer>{user.bio}</MarkdownRenderer>
                                 </Typography>
                             </>}
                             <Grid container sx={{ mt: "10px" }}>
                                 <Grid item xs={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        {userid !== null && userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
+                                        {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
-                                    {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                        {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
+                                    {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                        {getFormattedDate(new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
                                     </Typography>}
                                 </Grid>
                                 <Grid item xs={6}>
@@ -914,11 +817,11 @@ const UserCard = (props) => {
                                     </Typography>
                                 </Grid>
                             </Grid>
-                            {roles !== null && roles !== undefined && roles.length !== 0 && <Box sx={{ mt: "10px" }}>
+                            {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    {roles.length > 1 ? `ROLES` : `ROLE`}
+                                    {user.roles.length > 1 ? `ROLES` : `ROLE`}
                                 </Typography>
-                                {roles.map((role) => (
+                                {user.roles.map((role) => (
                                     <Chip
                                         key={`role-${role}`}
                                         avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
@@ -943,11 +846,11 @@ const UserCard = (props) => {
                             <Divider />
                             <Box sx={{ mt: "10px" }}>
                                 <Grid container spacing={2}>
-                                    {emailRef.current !== undefined && emailRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                        <a href={`mailto:${emailRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    {user.email !== undefined && user.email !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`mailto:${user.email}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title={tr("email")}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faAt} /></Tooltip>}
-                                            label={emailRef.current}
+                                            label={user.email}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -963,11 +866,11 @@ const UserCard = (props) => {
                                             }}
                                         /></a>
                                     </Grid>}
-                                    {discordidRef.current !== undefined && discordidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                        <a href={`https://discord.com/users/${discordidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    {user.discordid !== undefined && user.discordid !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`https://discord.com/users/${user.discordid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Discord"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faDiscord} /></Tooltip>}
-                                            label={discordidRef.current}
+                                            label={user.discordid}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -983,11 +886,11 @@ const UserCard = (props) => {
                                             }}
                                         /></a>
                                     </Grid>}
-                                    {steamidRef.current !== undefined && steamidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                        <a href={`https://steamcommunity.com/profiles/${steamidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    {user.steamid !== undefined && user.steamid !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`https://steamcommunity.com/profiles/${user.steamid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="Steam"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faSteam} /></Tooltip>}
-                                            label={steamidRef.current}
+                                            label={user.steamid}
                                             sx={{
                                                 borderRadius: "5px",
                                                 margin: "3px",
@@ -1003,14 +906,14 @@ const UserCard = (props) => {
                                             }}
                                         /></a>
                                     </Grid>}
-                                    {truckersmpidRef.current !== undefined && truckersmpidRef.current !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
-                                        <a href={`https://truckersmp.com/user/${truckersmpidRef.current}`} target="_blank" rel="noreferrer"><Chip
+                                    {user.truckersmpid !== undefined && user.truckersmpid !== null && <Grid item xs={12} sm={12} md={6} lg={6}>
+                                        <a href={`https://truckersmp.com/user/${user.truckersmpid}`} target="_blank" rel="noreferrer"><Chip
                                             avatar={<Tooltip placement="top" arrow title="TruckersMP"
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><img src="data:image/webp;base64,UklGRugCAABXRUJQVlA4TNwCAAAvH8AHEK/CMADQJIDd/f9XXtG6zQJ5g5UkSaZ6Fs/m6d7x36+tGYdtJClSbx/zPeWf1WfB/wvSDTittm1Znt8VJzvJvXliABpTMAwD0J1GdEkOAxDdXQMAAPAnIpDCn38xAEACwCh8rewUqmCXX+/KrgNAVHGDOh52b6q6J/lxDborLlOBZtX1+z1kxpg08Iizm8v5YzFaikk8QF66zAFYmO/vZJFdsDfeyX/AvWn5yaH+2c4miHpe5LXzl12uB9gV/Nohq8BKgnkj7BehcDAdP/mNEFYwCXF9EVU3o4sv6Nrzd6hun8Y9cezrq0yXPRL1sd8NAtPaUKCMwh6haeqh05pir6+RYlqsacjlL7raXJ7MCd82m1h1IXJZIU2np+t86LQpT/GehuOVFPux24tA6Pimzoz9PQAIsm2nbb6sMJNSxjDJDGFmpv2vxRQ5O4joPwO3bRtJ3bfvfJ+AZyVPrpCnqnNb9rlRJPP1/8TIn/kpN6jseRR5KTRFWaTUYw28lEVJoJTyvLeaKYi0nG+IlPcCgdBbQym/hJJVyRMEAp986zMC4MJD/ZYbL1nIumHW4KfcSAEh3nlp8W/2IcQTJAuxilIIAIFHDSsDP3LzFbIAj5qH+QiGU1WlErb7YCCScr9350rAykClSeVCPPP69VMs/FV4h2CNspGUnQFJEqnQrDZbVFSq738idQCRc3fzpyiKLEuU8qIkOj64LLmaWA8bBaH09/v7V7EH1HG7lFIXe854L9yHuqYZ84+aQpnCspP7bWNky2n3kiJKDCGdW6icNjmZTlQOb0rNOkNIjDDS09vuoLu+aQjPF3OGgQHCanrcux1ug8kBYcQ0pmPUvfRuOtJu3YOBMMfSAm/Hqy7CyNhN1ggzDRtYjfd3hoV+6KdU9hT2vVF0OjparGbj8NDosAQSDEGkt7pNjrteFAJ+lz6XhAAQuA6Hs1HvCsTrb0rAt1/uHYFlSgA=" /></Tooltip>}
-                                            label={<>{tmpLastOnline === null ? truckersmpidRef.current : <Tooltip placement="top" arrow
+                                            label={<>{tmpLastOnline === null ? user.truckersmpid : <Tooltip placement="top" arrow
                                                 title={<><>{tr("last_seen")}</>: <TimeAgo key={`${+new Date()}`} timestamp={tmpLastOnline * 1000} /></>}
                                                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                                                {truckersmpidRef.current}
+                                                {user.truckersmpid}
                                             </Tooltip>}</>}
                                             sx={{
                                                 borderRadius: "5px",
@@ -1140,7 +1043,12 @@ const UserCard = (props) => {
                         </TabPanel>
                         <TabPanel value={tab} index={2}>
                             {dlogList !== null &&
-                                <CustomTable columns={dlogColumns} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/delivery/${data.logid}`); }} />}
+                                <CustomTable columns={[
+                                    { id: 'display_logid', label: 'ID' },
+                                    { id: 'cargo', label: tr("cargo") },
+                                    { id: 'distance', label: tr("distance") },
+                                    { id: 'profit', label: tr("profit") },
+                                ]} data={dlogList} totalItems={dlogTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={dlogPageSize} onPageChange={setDlogPage} onRowsPerPageChange={setDlogPageSize} onRowClick={(data) => { navigate(`/delivery/${data.logid}`); }} />}
                         </TabPanel>
                     </SimpleBar>
                 </CardContent>
@@ -1151,18 +1059,18 @@ const UserCard = (props) => {
     if (showProfileModal === 2) return <>{profileModal}</>;
     else if (showProfileModal === 1) return <></>;
 
-    if (uid === null) return <><Avatar src={!vars.userSettings.data_saver ? avatarRef.current : ""}
+    if (user.uid === null) return <><Avatar src={!vars.userSettings.data_saver ? user.avatar : ""}
         style={{
             width: `${size}px`,
             height: `${size}px`,
             verticalAlign: "middle",
             display: "inline-flex"
         }}
-    /><span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nameRef.current}</span></>;
+    /><span key={`user-${Math.random()}`} style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.name}</span></>;
 
     let content = <>
         {!useChip && <>
-            {!textOnly && <><Avatar src={!vars.userSettings.data_saver ? avatarRef.current : ""}
+            {!textOnly && <><Avatar src={!vars.userSettings.data_saver ? user.avatar : ""}
                 style={{
                     width: `${size}px`,
                     height: `${size}px`,
@@ -1174,16 +1082,16 @@ const UserCard = (props) => {
                 ref={userCardRef}
             />
                 &nbsp;</>}
-            {uid !== null && <>
-                {specialColor === null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}>{nameRef.current}</span>}
-                {specialColor !== null && <span key={`user-${uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}>{nameRef.current}</span>}
+            {user.uid !== null && <>
+                {specialColor === null && <span key={`user-${user.uid}-${Math.random()}`} className="hover-underline" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}>{user.name}</span>}
+                {specialColor !== null && <span key={`user-${user.uid}-${Math.random()}`} className="hover-underline" style={{ color: specialColor, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer" }} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}>{user.name}</span>}
             </>}
         </>}
         {useChip && <>
             <Chip
-                key={`user-${uid}-${Math.random()}`}
-                avatar={textOnly ? undefined : <Avatar alt="" src={!vars.userSettings.data_saver ? avatarRef.current : ""} />}
-                label={nameRef.current}
+                key={`user-${user.uid}-${Math.random()}`}
+                avatar={textOnly ? undefined : <Avatar alt="" src={!vars.userSettings.data_saver ? user.avatar : ""} />}
+                label={user.name}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
                 onDelete={onDelete} onClick={handleClick} onContextMenu={handleContextMenu} ref={userCardRef}
@@ -1195,30 +1103,30 @@ const UserCard = (props) => {
             open={showContextMenu}
             onClose={(e) => { e.preventDefault(); e.stopPropagation(); setShowContextMenu(false); }}
         >
-            {userid !== null && userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("profile")}</MenuItem>}
-            {(userid === null || userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("update_profile")}</MenuItem>}
-            {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
-            {uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon>{tr("update_about_me")}</MenuItem>}
-            {(uid === vars.userInfo.uid || (uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon>{tr("switch_tracker")}</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("profile")}</MenuItem>}
+            {(user.userid === null || user.userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("update_profile")}</MenuItem>}
+            {(user.uid === vars.userInfo.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
+            {user.uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon>{tr("update_about_me")}</MenuItem>}
+            {(user.uid === vars.userInfo.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon>{tr("switch_tracker")}</MenuItem>}
             <Divider />
             {checkUserPerm(["administrator", "update_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon>{tr("update_global_note")}</MenuItem>}
-            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon>{tr("update_roles")}</MenuItem>}
-            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon>{tr("update_points")}</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && checkUserPerm(["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon>{tr("update_roles")}</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && checkUserPerm(["administrator", "update_points"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-points"); }}><ListItemIcon><FontAwesomeIcon icon={faTrophy} /></ListItemIcon>{tr("update_points")}</MenuItem>}
             <MenuItem onClick={(e) => { updateUserInfo(); updateCtxAction(e, "role-ban-history"); }}><ListItemIcon><FontAwesomeIcon icon={faBarsStaggered} /></ListItemIcon>{tr("roleban_history")}</MenuItem>
-            {((userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) || checkUserPerm(["administrator", "update_connections"]) || checkUserPerm(["administrator", "disable_mfa"])) && <Divider />}
-            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon>{tr("accept_as_member")}</MenuItem>}
+            {((user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(["administrator", "accept_members"]) || checkUserPerm(["administrator", "update_connections"]) || checkUserPerm(["administrator", "disable_mfa"])) && <Divider />}
+            {(user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(["administrator", "accept_members"]) && <MenuItem sx={{ color: theme.palette.success.main }} onClick={(e) => { updateCtxAction(e, "accept-user"); }}><ListItemIcon><FontAwesomeIcon icon={faUserCheck} /></ListItemIcon>{tr("accept_as_member")}</MenuItem>}
             {checkUserPerm(["administrator", "update_connections"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "update-connections"); }}><ListItemIcon><FontAwesomeIcon icon={faLink} /></ListItemIcon>{tr("update_connections")}</MenuItem>}
             {checkUserPerm(["administrator", "disable_mfa"]) && <MenuItem sx={{ color: theme.palette.warning.main }} onClick={(e) => { updateCtxAction(e, "disable-mfa"); }}><ListItemIcon><FontAwesomeIcon icon={faUnlockKeyhole} /></ListItemIcon>{tr("disable_mfa")}</MenuItem>}
-            {((userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) || userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) || checkUserPerm(["administrator", "delete_users"])) && <Divider />}
-            {(userid === null || userid < 0) && ban === null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon>{tr("ban")}</MenuItem>}
-            {(userid === null || userid < 0) && ban !== null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon>{tr("unban")}</MenuItem>}
-            {userid !== null && userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon>{tr("dismiss_member")}</MenuItem>}
+            {((user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(["administrator", "ban_users"]) || user.userid !== null && user.userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) || checkUserPerm(["administrator", "delete_users"])) && <Divider />}
+            {(user.userid === null || user.userid < 0) && user.ban === null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "ban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faBan} /></ListItemIcon>{tr("ban")}</MenuItem>}
+            {(user.userid === null || user.userid < 0) && user.ban !== null && checkUserPerm(["administrator", "ban_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "unban-user"); }}><ListItemIcon><FontAwesomeIcon icon={faCircleCheck} /></ListItemIcon>{tr("unban")}</MenuItem>}
+            {user.userid !== null && user.userid >= 0 && checkUserPerm(["administrator", "dismiss_members"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "dismiss-member"); }}><ListItemIcon><FontAwesomeIcon icon={faUserSlash} /></ListItemIcon>{tr("dismiss_member")}</MenuItem>}
             {checkUserPerm(["administrator", "delete_users"]) && <MenuItem sx={{ color: theme.palette.error.main }} onClick={(e) => { updateCtxAction(e, "delete-user"); }}><ListItemIcon><FontAwesomeIcon icon={faTrashCan} /></ListItemIcon>{tr("delete_user")}</MenuItem>}
         </Menu>}
         <div style={{ display: "inline-block" }} onClick={(e) => { e.stopPropagation(); }}>
             {ctxAction === "update-profile" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>{tr("update_profile")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("update_profile")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("custom_profile_may_be_set")}</Typography>
                         <Typography variant="body2">{tr("alternatively_sync_to_discord_steam")}</Typography>
@@ -1261,7 +1169,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-about-me" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>{tr("update_about_me")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("update_about_me")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <TextField
                             label={tr("about_me")}
@@ -1281,9 +1189,9 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-roles" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("update_roles")}<>|</>{nameRef.current} (<>{tr("user_id")}</>: {useridRef.current})</DialogTitle>
+                    <DialogTitle>{tr("update_roles")}<>|</>{user.name} (<>{tr("user_id")}</>: {user.userid})</DialogTitle>
                     <DialogContent>
-                        <RoleSelect initialRoles={rolesRef.current} onUpdate={setNewRoles} />
+                        <RoleSelect initialRoles={user.roles} onUpdate={setNewRoles} />
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
@@ -1293,7 +1201,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-global-note" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("update_global_note")}<>|</>{nameRef.current} (<>{tr("user_id")}</>: {useridRef.current})</DialogTitle>
+                    <DialogTitle>{tr("update_global_note")}<>|</>{user.name} (<>{tr("user_id")}</>: {user.userid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("global_note_works_like_your")}</Typography>
                         <TextField
@@ -1312,7 +1220,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-points" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>{tr("update_points")}<>|</>{nameRef.current} (<>{tr("user_id")}</>: {useridRef.current})</DialogTitle>
+                    <DialogTitle>{tr("update_points")}<>|</>{user.name} (<>{tr("user_id")}</>: {user.userid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("distance_should_be_given_when")}</Typography>
                         <Typography variant="body2">{tr("bonus_points_could_be_given")}</Typography>
@@ -1344,13 +1252,13 @@ const UserCard = (props) => {
             }
             {ctxAction === "switch-tracker" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("switch_tracker")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("switch_tracker")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("this_will_change_the_tracker")}</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
                             <FormLabel component="legend">{tr("tracker")}</FormLabel>
                             <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
-                                {trackers.map((tracker) => (
+                                {availableTrackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
                                         {trackerMapping[tracker]}
                                     </MenuItem>
@@ -1366,14 +1274,14 @@ const UserCard = (props) => {
             }
             {ctxAction === "accept-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("accept_as_member")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("accept_as_member")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("the_user_will_be_accepted")}</Typography>
                         <Typography variant="body2">{tr("this_will_not_affect_the")}</Typography>
                         <FormControl component="fieldset" sx={{ mt: "5px" }}>
                             <FormLabel component="legend">{tr("select_the_tracker_the_user")}</FormLabel>
                             <TextField select size="small" value={trackerInUse} onChange={(e) => setTrackerInUse(e.target.value)} sx={{ marginTop: "6px", height: "30px" }}>
-                                {trackers.map((tracker) => (
+                                {availableTrackers.map((tracker) => (
                                     <MenuItem key={tracker} value={tracker}>
                                         {trackerMapping[tracker]}
                                     </MenuItem>
@@ -1389,32 +1297,32 @@ const UserCard = (props) => {
             }
             {ctxAction === "role-ban-history" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Box display="flex" alignItems="center">
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("role_history")}</Typography>
-                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: roleHistory === null ? theme.palette.error.main : (roleHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{roleHistory === null ? `Invisible` : (roleHistory !== undefined ? tr("visible") : tr("loading"))}</Typography>
+                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: user.role_history === null ? theme.palette.error.main : (user.role_history !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{user.role_history === null ? `Invisible` : (user.role_history !== undefined ? tr("visible") : tr("loading"))}</Typography>
                         </Box>
-                        {roleHistory !== undefined && roleHistory !== null && roleHistory.map((history, idx) => (<>
+                        {user.role_history !== undefined && user.role_history !== null && user.role_history.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
                             {history.added_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.info.main }}>+ {vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}</Typography>))}
                             {history.removed_roles.map((role) => (<Typography key={`history-${idx}`} variant="body2" sx={{ color: theme.palette.warning.main }}>- {vars.roles[role] !== undefined ? vars.roles[role].name : `Unknown Role (${role})`}</Typography>))}
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><TimeAgo key={`${+new Date()}`} timestamp={history.timestamp * 1000} /></Typography>
                         </>
                         ))}
-                        {roleHistory !== undefined && roleHistory !== null && roleHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
+                        {user.role_history !== undefined && user.role_history !== null && user.role_history.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
 
                         <Box display="flex" alignItems="center" sx={{ mt: "10px" }}>
                             <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("ban_history")}</Typography>
-                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: banHistory === null ? theme.palette.error.main : (banHistory !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{banHistory === null ? `Invisible` : (banHistory !== undefined ? tr("visible") : tr("loading"))}</Typography>
+                            <Typography variant="body2" style={{ fontSize: "0.8em", marginLeft: '8px', color: user.ban_history === null ? theme.palette.error.main : (user.ban_history !== undefined ? theme.palette.success.main : theme.palette.info.main) }}>{user.ban_history === null ? `Invisible` : (user.ban_history !== undefined ? tr("visible") : tr("loading"))}</Typography>
                         </Box>
-                        {banHistory !== undefined && banHistory !== null && banHistory.map((history, idx) => (<>
+                        {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
                             <Typography key={`history-${idx}`} variant="body2">{history.reason}</Typography>
                             <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
                         </>
                         ))}
-                        {banHistory !== undefined && banHistory !== null && banHistory.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
+                        {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
@@ -1423,7 +1331,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "update-connections" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>{tr("update_connections")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("update_connections")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("connections_should_not_be_modified")}</Typography>
                         <Typography variant="body2">{tr("remember_that_all_users_have")}</Typography>
@@ -1484,7 +1392,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "disable-mfa" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("disable_mfa")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("disable_mfa")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("multiple_factor_authentication_will_be")}</Typography>
                         <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("this_may_put_the_users")}</Typography>
@@ -1519,7 +1427,7 @@ const UserCard = (props) => {
                 </Dialog>}
             {ctxAction === "ban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>{tr("ban_user")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("ban_user")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: "5px" }}>
                             <Grid item xs={6}>
@@ -1548,7 +1456,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "unban-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth  >
-                    <DialogTitle>{tr("unban_user")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("unban_user")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("the_user_will_be_able")}</Typography>
                     </DialogContent>
@@ -1560,7 +1468,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "dismiss-member" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("dismiss_member")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("dismiss_member")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("the_user_will_be_dismissed")}</Typography>
                         <Typography variant="body2">{tr("most_data_generated_by_the")}</Typography>
@@ -1573,7 +1481,7 @@ const UserCard = (props) => {
             }
             {ctxAction === "delete-user" &&
                 <Dialog open={true} onClose={() => { setCtxAction(""); }} fullWidth >
-                    <DialogTitle>{tr("delete_user")}<>|</>{nameRef.current} ({userid !== null ? tr("user_id") + ": " + useridRef.current + " / " : ""}<>UID</>: {uid})</DialogTitle>
+                    <DialogTitle>{tr("delete_user")}<>|</>{user.name} ({user.userid !== null ? tr("user_id") + ": " + user.userid + " / " : ""}<>UID</>: {user.uid})</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2">{tr("the_user_will_be_deleted")}</Typography>
                         <Typography variant="body2">{tr("user_ban_will_not_be")}</Typography>
@@ -1594,12 +1502,12 @@ const UserCard = (props) => {
             onContextMenu={(e) => { e.stopPropagation(); }}
             onClose={(e) => { ackCustomizeProfile(); updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
-            <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profile_background[0]}, ${profile_background[1]})` }}>
+            <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
                 {!vars.userSettings.data_saver && <CardMedia
                     component="img"
-                    image={profile_banner_url}
+                    image={profileBannerURL}
                     onError={(event) => {
-                        event.target.src = `${vars.dhpath}/member/banner?userid=${userid}`;
+                        event.target.src = `${vars.dhpath}/member/banner?userid=${user.userid}`;
                     }}
                     alt=""
                     sx={{ borderRadius: "5px 5px 0 0" }}
@@ -1608,32 +1516,32 @@ const UserCard = (props) => {
                     <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${PROFILE_COLOR[theme.mode].paper}E0, ${PROFILE_COLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
                         <div style={{ display: "flex", flexDirection: "row" }}>
                             <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                {nameRef.current}
+                                {user.name}
                             </Typography>
                             <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                 {badges.map((badge, index) => { return <a key={index} onClick={() => { navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
-                                {useridRef.current !== null && useridRef.current !== undefined && useridRef.current >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
-                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{useridRef.current}</Typography></Tooltip>}
+                                {user.userid !== null && user.userid !== undefined && user.userid >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
+                                    PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{user.userid}</Typography></Tooltip>}
                             </Typography>
                         </div>
-                        {vars.users[uid] !== undefined && vars.users[uid].activity !== null && vars.users[uid].activity !== undefined && <Typography variant="body2">{GetActivity(vars.users[uid].activity)}</Typography>}
-                        {uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
+                        {users[user.uid] !== undefined && users[user.uid].activity !== null && users[user.uid].activity !== undefined && <Typography variant="body2">{GetActivity(tr, users[user.uid].activity)}</Typography>}
+                        {user.uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
-                        {bioRef.current !== "" && <>
+                        {user.bio !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                 {tr("about_me").toUpperCase()}
                             </Typography>
                             <Typography variant="body2">
-                                <MarkdownRenderer>{bioRef.current}</MarkdownRenderer>
+                                <MarkdownRenderer>{user.bio}</MarkdownRenderer>
                             </Typography>
                         </>}
                         <Grid container sx={{ mt: "10px" }}>
                             <Grid item xs={6}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                    {userid !== null && userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
+                                    {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                 </Typography>
-                                {vars.users[uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                    {getFormattedDate(new Date(vars.users[uid].join_timestamp * 1000)).split(" at ")[0]}
+                                {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
+                                    {getFormattedDate(new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
                                 </Typography>}
                             </Grid>
                             <Grid item xs={6}>
@@ -1645,11 +1553,11 @@ const UserCard = (props) => {
                                 </Typography>
                             </Grid>
                         </Grid>
-                        {roles !== null && roles !== undefined && roles.length !== 0 && <Box sx={{ mt: "10px" }}>
+                        {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                {roles.length > 1 ? `ROLES` : `ROLE`}
+                                {user.roles.length > 1 ? `ROLES` : `ROLE`}
                             </Typography>
-                            {roles.map((role) => (
+                            {user.roles.map((role) => (
                                 <Chip
                                     key={`role-${role}`}
                                     avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}

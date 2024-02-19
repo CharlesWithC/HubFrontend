@@ -2,6 +2,14 @@
 
 ## v3.4.0
 
+1. Replaced `vars.users` with redux users store, and reworked `UserCard` component, thus:
+   - Supported user data update sync across components (real-time update)
+   - Supported user data cache for faster data display (user profile popover)
+   - Improved performance with reduced API calls
+   - Removed unnecessary logic to further improve performance
+
+## v3.3.x
+
 1. Added compare truckersmp members (advanced staff function)
 
 ## v3.3.0

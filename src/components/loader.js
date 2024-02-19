@@ -7,12 +7,17 @@ import { useTheme } from '@emotion/react';
 
 import { useTranslation } from 'react-i18next';
 
+import { useDispatch } from 'react-redux';
+import { update as usersUpdate } from '../slices/usersSlice';
+
 var vars = require('../variables');
 
 const Loader = ({ onLoaderLoaded }) => {
     const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : vars.host);
 
     const { t: tr } = useTranslation();
+
+    const dispatch = useDispatch();
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
@@ -132,7 +137,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     if (cache.members !== undefined) {
                         vars.members = cache.members;
                         for (let i = 0; i < vars.members.length; i++) {
-                            vars.users[vars.members[i].uid] = vars.members[i];
+                            dispatch(usersUpdate({ uid: vars.members[i].uid, data: vars.members[i] }));
                         }
                     }
                 }
@@ -239,7 +244,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             }
 
-            await FetchProfile();
+            await FetchProfile(dispatch);
 
             const themeUpdated = new CustomEvent('themeUpdated', {});
             window.dispatchEvent(themeUpdated);

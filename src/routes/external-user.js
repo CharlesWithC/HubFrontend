@@ -227,17 +227,6 @@ const ExternalUsers = () => {
         doLoadBan();
     }, [doLoadBan]);
 
-    useEffect(() => {
-        const handleUpdateEvent = () => {
-            doLoadUser();
-            doLoadBan();
-        };
-        window.addEventListener("updateExternalUserTable", handleUpdateEvent);
-        return () => {
-            window.removeEventListener("updateExternalUserTable", handleUpdateEvent);
-        };
-    }, [doLoadUser, doLoadBan]);
-
     return <>
         <CustomTable name={<><FontAwesomeIcon icon={faUserPlus} />&nbsp;&nbsp;{tr("external_users")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={puColumns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
         <CustomTable name={<><FontAwesomeIcon icon={faBan} />&nbsp;&nbsp;{tr("banned_users")}</>} order={banListParam.order} orderBy={banListParam.order_by} onOrderingUpdate={(order_by, order) => { setBanListParam({ ...banListParam, order_by: order_by, order: order }); }} titlePosition="top" columns={buColumns} data={banList} totalItems={banTotalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={banPageSize} onPageChange={setBanPage} onRowsPerPageChange={setBanPageSize} style={{ marginTop: "15px" }} onSearch={(content) => { setBanPage(1); setBanSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />

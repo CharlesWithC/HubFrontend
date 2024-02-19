@@ -3,6 +3,9 @@ import axiosRetry from 'axios-retry';
 import LZString from 'lz-string';
 import CryptoJS from 'crypto-js';
 
+import { useDispatch } from 'react-redux';
+import { update as usersUpdate } from './slices/usersSlice';
+
 import i18n from './i18n';
 
 var vars = require('./variables');
@@ -120,7 +123,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile(isLogin = false) {
+export async function FetchProfile(dispatch, isLogin = false) {
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
         let resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
@@ -209,7 +212,7 @@ export async function FetchProfile(isLogin = false) {
                                 for (let j = 0; j < resps.length; j++) {
                                     vars.members.push(...resps[j].list);
                                     for (let k = 0; k < resps[j].list.length; k++) {
-                                        vars.users[resps[j].list[k].uid] = resps[j].list[k];
+                                        dispatch(usersUpdate({ uid: resps[j].list[k].uid, data: resps[j].list[k] }));
                                     }
                                 }
                                 urlsBatch = [];
@@ -697,7 +700,7 @@ export function eraseAuthMode() {
 export function toLocalISOString(date) {
     var tzo = -date.getTimezoneOffset(),
         dif = tzo >= 0 ? '+' : '-',
-        pad = function(num) {
+        pad = function (num) {
             var norm = Math.floor(Math.abs(num));
             return (norm < 10 ? '0' : '') + norm;
         };

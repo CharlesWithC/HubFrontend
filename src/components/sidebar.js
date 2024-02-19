@@ -7,6 +7,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 import PropTypes from 'prop-types';
@@ -195,6 +196,11 @@ const SideBar = (props) => {
                 {subIndex !== menu.length - 1 && <Divider key={`divider-${subIndex}`} />}
             </div>
         ))}
+        <div style={{ marginLeft: "10px", marginBottom: "10px" }}>
+            <Typography variant="body2">Version: v3.4.0-beta.01 [BETA]</Typography>
+            <Typography variant="body2">Please report bugs in our Discord server</Typography>
+            <Typography variant="body2"><a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">https://discord.gg/KRFsymnVKm</a></Typography>
+        </div>
     </SimpleBar>;
 
     const container = window !== undefined ? () => window.document.body : undefined;
