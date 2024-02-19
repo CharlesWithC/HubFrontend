@@ -146,11 +146,11 @@ const UserCard = (props) => {
     if (users[props.user.uid] === undefined) {
         // if user is not yet cached, cache the user
         // fill undefined attributes
-        let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
+        let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
         roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
 
         // get role/ban history
-        const member = vars.members.find(member => member.uid === user.uid);
+        const member = vars.members.find(member => member.uid === uid);
         if (member) {
             role_history = member.role_history ?? role_history;
             ban_history = member.ban_history ?? ban_history;
@@ -158,7 +158,8 @@ const UserCard = (props) => {
 
         dispatch(usersUpdate({ uid: props.user.uid, data: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
     }
-    const user = users[props.user.uid]; // use the user in store
+    // use the user in store | check if exist (could be non-existent when uid is NaN)
+    const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props }; 
 
     // user card settings
     let { size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined, ...props };
