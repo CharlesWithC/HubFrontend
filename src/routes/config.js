@@ -3037,7 +3037,7 @@ const Configuration = () => {
         setSnackbarContent("");
     }, []);
 
-    const [tab, setTab] = React.useState(0);
+    const [tab, setTab] = useState(0);
     const handleTabChange = (event, newValue) => {
         setTab(newValue);
     };
@@ -3118,7 +3118,7 @@ const Configuration = () => {
 
     const [apiConfig, setApiConfig] = useState(null);
     const formConfig = Array.from({ length: Object.keys(CONFIG_SECTIONS).length }, () => {
-        const [state, setState] = React.useState(null);
+        const [state, setState] = useState(null);
         return { state, setState };
     });
     const [formConfigOrg, setFormConfigOrg] = useState({});
@@ -3355,7 +3355,7 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Client: v3.4.0-beta.01 (build.{buildhash})
+                            Client: v3.4.0-beta.02 (build.{buildhash})
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>

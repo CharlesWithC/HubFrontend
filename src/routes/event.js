@@ -1,9 +1,13 @@
-import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { useState, useEffect, useCallback, memo } from 'react';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
 import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
+
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 
@@ -11,6 +15,7 @@ import DateTimeField from '../components/datetime';
 import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
+
 import { makeRequestsWithAuth, makeRequests, getFormattedDate, customAxios as axios, checkPerm, checkUserPerm, getAuthToken, toLocalISOString } from '../functions';
 
 var vars = require("../variables");
@@ -466,10 +471,14 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 });
 
 const EventManagers = memo(() => {
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+
     let managers = [];
-    for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["administrator", "manage_events"])) {
-            managers.push(vars.members[i]);
+    for (let i = 0; i < allMembers.length; i++) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_events"])) {
+            managers.push(allMembers[i]);
         }
     }
 

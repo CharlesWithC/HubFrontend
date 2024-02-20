@@ -1,10 +1,13 @@
-import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
+import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip, useTheme } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
-import { useTheme } from '@mui/material/styles';
 import { Portal } from '@mui/base';
+import { customSelectStyles } from '../designs';
 
 import CreatableSelect from 'react-select/creatable';
 
@@ -13,9 +16,9 @@ import MarkdownRenderer from '../components/markdown';
 import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
 import ListModal from '../components/listmodal';
-import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue, removeNUEValues } from '../functions';
 import RoleSelect from '../components/roleselect';
-import { customSelectStyles } from '../designs';
+
+import { makeRequestsWithAuth, customAxios as axios, checkPerm, checkUserPerm, checkUserRole, getAuthToken, getFormattedDate, ConvertUnit, sortDictWithValue, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
 
@@ -23,7 +26,7 @@ const DEFAULT_JOB_REQUIREMENTS = { game: "", market: "", source_city_id: "", sou
 
 const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    
+
     const handleUpdateDelivery = useCallback((e) => {
         e.stopPropagation();
         onUpdateDelivery(challenge);
@@ -173,10 +176,14 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
 };
 
 const ChallengeManagers = memo(() => {
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+
     let managers = [];
-    for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["administrator", "manage_challenges"])) {
-            managers.push(vars.members[i]);
+    for (let i = 0; i < allMembers.length; i++) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_challenges"])) {
+            managers.push(allMembers[i]);
         }
     }
 

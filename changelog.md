@@ -1,12 +1,26 @@
 # Changelog
 
+## TODO
+
+1. Check and remove unnecessary `memo` quote and imports  
+2. Merge setSnackbarContent and setSnackbarSeverity
+3. Optimize "Members" tab to display/re-render data in multiple sections
+
 ## v3.4.0
+
+**Breaking changes included in this update replacing `vars.xxx` with Redux store for better state management, making the Drivers Hub a better Single Page Application with less need to refresh to reload data.**
 
 1. Replaced `vars.users` with redux users store, and reworked `UserCard` component, thus:
    - Supported user data update sync across components (real-time update)
    - Supported user data cache for faster data display (user profile popover)
    - Improved performance with reduced API calls
    - Removed unnecessary logic to further improve performance
+2. Replaced `vars.members` with redux memberUIDs store, thus:
+   - Reduced memory consumption
+   - Supported member info changes across pages
+     (Role updates will be reflected in "Members" tab without needing to refresh the page)
+   - Supported lazy loading of members list, reducing the time at initial loading screen  
+     (It will load at background and automatically fill relevant data where necessary)
 
 ## v3.3.x
 

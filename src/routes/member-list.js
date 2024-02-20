@@ -1,6 +1,9 @@
-import { useTranslation } from 'react-i18next';
-import React from 'react';
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
 import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Card, CardContent } from '@mui/material';
 import { Portal } from '@mui/base';
 
@@ -9,26 +12,21 @@ import { faArrowsRotate, faCodeCompare, faIdCard, faTruck, faUserGroup, faUsersS
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues, checkPerm } from '../functions';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import RoleSelect from '../components/roleselect';
 import DateTimeField from '../components/datetime';
 import SponsorBadge from '../components/sponsorBadge';
 
+import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
+
 var vars = require("../variables");
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const columns = [
-        { id: 'userid', label: tr("user_id"), orderKey: 'userid', defaultOrder: 'asc' },
-        { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
-        { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },
-        { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
-        { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
-        { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' },
-        { id: 'last_seen', label: tr("last_seen"), orderKey: 'last_seen', defaultOrder: 'desc' }
-    ];
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const theme = useTheme();
 
@@ -66,13 +64,13 @@ const MemberList = () => {
         setDialogButtonDisabled(true);
         setSyncProfileLog("");
         setSyncProfileCurrent(0);
-        for (let i = 0; i < vars.members.length; i++) {
+        for (let i = 0; i < allMembers.length; i++) {
             let sync_to = undefined;
-            if (vars.members[i].avatar.startsWith("https://cdn.discordapp.com/")) {
+            if (allMembers[i].avatar.startsWith("https://cdn.discordapp.com/")) {
                 sync_to = "discord";
-            } else if (vars.members[i].avatar.startsWith("https://avatars.steamstatic.com/")) {
+            } else if (allMembers[i].avatar.startsWith("https://avatars.steamstatic.com/")) {
                 sync_to = "steam";
-            } else if (vars.members[i].avatar.startsWith("https://static.truckersmp.com/")) {
+            } else if (allMembers[i].avatar.startsWith("https://static.truckersmp.com/")) {
                 sync_to = "truckersmp";
             } else {
                 setSyncProfileCurrent(i + 1);
@@ -80,9 +78,9 @@ const MemberList = () => {
             }
             sync_to = `&sync_to_${sync_to}=true`;
             let st = +new Date();
-            let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${vars.members[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${vars.dhpath}/user/profile?uid=${allMembers[i].uid}${sync_to}`, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             if (resp.status === 204) {
-                setSyncProfileLog(`Synced ${vars.members[i].name}'s profile`);
+                setSyncProfileLog(`Synced ${allMembers[i].name}'s profile`);
                 setLogSeverity("success");
                 setSyncProfileCurrent(i + 1);
             } else {
@@ -92,7 +90,7 @@ const MemberList = () => {
                     await sleep((resp.data.retry_after + 1) * 1000);
                     i -= 1;
                 } else {
-                    setSyncProfileLog(`Failed to sync ${vars.members[i].name}'s profile: ${resp.data.error}`);
+                    setSyncProfileLog(`Failed to sync ${allMembers[i].name}'s profile: ${resp.data.error}`);
                     setLogSeverity("error");
                     setSyncProfileCurrent(i + 1);
                 }
@@ -101,7 +99,7 @@ const MemberList = () => {
             if (ed - st < 4000) await sleep(4000 - (ed - st));
         }
         setDialogButtonDisabled(false);
-    }, []);
+    }, [allMembers]);
 
     const [tmpVtcId, setTmpVtcId] = useState("");
     const [tmpCompareResult, setTmpCompareResult] = useState([]);
@@ -133,9 +131,9 @@ const MemberList = () => {
         }
         let dhTmpIds = [];
         let dhTmpSteamIds = [];
-        for (let i = 0; i < vars.members.length; i++) {
-            dhTmpIds.push(vars.members[i].truckersmpid);
-            dhTmpSteamIds.push(parseInt(vars.members[i].steamid));
+        for (let i = 0; i < allMembers.length; i++) {
+            dhTmpIds.push(allMembers[i].truckersmpid);
+            dhTmpSteamIds.push(parseInt(allMembers[i].steamid));
             // so we have to change our own to int that lost precision to do the matching
         }
 
@@ -146,9 +144,9 @@ const MemberList = () => {
                 tmpNoDh.push({ ...tmpMembers[i], name: tmpMembers[i].username });
             }
         }
-        for (let i = 0; i < vars.members.length; i++) {
-            if (!tmpIds.includes(vars.members[i].truckersmpid) && !tmpSteamIds.includes(vars.members[i].steamid)) {
-                dhNoTmp.push(vars.members[i]);
+        for (let i = 0; i < allMembers.length; i++) {
+            if (!tmpIds.includes(allMembers[i].truckersmpid) && !tmpSteamIds.includes(allMembers[i].steamid)) {
+                dhNoTmp.push(allMembers[i]);
             }
         }
 
@@ -162,7 +160,7 @@ const MemberList = () => {
         setTmpCompareResult(newTmpCompareResult);
 
         setDialogButtonDisabled(false);
-    }, [tmpVtcId]);
+    }, [allMembers, tmpVtcId]);
 
     const [batchRoleUpdateUsers, setBatchRoleUpdateUsers] = useState([]);
     const [batchRoleUpdateRoles, setBatchRoleUpdateRoles] = useState([]);
@@ -373,7 +371,15 @@ const MemberList = () => {
     }, [doLoad]);
 
     return <>
-        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={columns} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
+        <CustomTable name={<><FontAwesomeIcon icon={faUserGroup} />&nbsp;&nbsp;{tr("members")}</>} order={listParam.order} orderBy={listParam.order_by} onOrderingUpdate={(order_by, order) => { setListParam({ ...listParam, order_by: order_by, order: order }); }} titlePosition="top" columns={[
+            { id: 'userid', label: tr("user_id"), orderKey: 'userid', defaultOrder: 'asc' },
+            { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
+            { id: 'discordid', label: tr("discord_id"), orderKey: 'discordid', defaultOrder: 'asc' },
+            { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
+            { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
+            { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' },
+            { id: 'last_seen', label: tr("last_seen"), orderKey: 'last_seen', defaultOrder: 'desc' }
+        ]} data={userList} totalItems={totalItems} rowsPerPageOptions={[10, 25, 50, 100, 250]} defaultRowsPerPage={pageSize} onPageChange={setPage} onRowsPerPageChange={setPageSize} onSearch={(content) => { setPage(1); setSearch(content); }} searchHint={tr("search_by_username_or_discord_id")} />
         <Dialog open={dialogOpen === "sync-profile"} onClose={() => { if (!dialogButtonDisabled) setDialogOpen(""); }}>
             <DialogTitle><FontAwesomeIcon icon={faArrowsRotate} />&nbsp;&nbsp;{tr("sync_profiles")}&nbsp;&nbsp;<SponsorBadge level={4} /></DialogTitle>
             <DialogContent>
@@ -383,8 +389,8 @@ const MemberList = () => {
                 <Typography variant="body2" sx={{ color: theme.palette.warning.main }}>{tr("prune_users_note_4")}</Typography>
                 <br />
                 {dialogButtonDisabled && <>
-                    <Typography variant="body2" gutterBottom>{tr("completed")}{syncProfileCurrent} / {vars.members.length}</Typography>
-                    <LinearProgress variant="determinate" color="info" value={syncProfileCurrent / vars.members.length * 100} />
+                    <Typography variant="body2" gutterBottom>{tr("completed")}{syncProfileCurrent} / {allMembers.length}</Typography>
+                    <LinearProgress variant="determinate" color="info" value={syncProfileCurrent / allMembers.length * 100} />
                     <Typography variant="body2" sx={{ color: theme.palette[logSeverity].main }} gutterBottom>{syncProfileLog}</Typography>
                 </>}
             </DialogContent>
@@ -504,9 +510,9 @@ const MemberList = () => {
                         <Button variant="contained" color="info" onClick={() => {
                             if (batchDismissLastOnline === undefined) return;
                             let newList = [];
-                            for (let i = 0; i < vars.members.length; i++) {
-                                if (vars.members[i].activity !== null && vars.members[i].activity.last_seen < batchDismissLastOnline) {
-                                    newList.push(vars.members[i]);
+                            for (let i = 0; i < allMembers.length; i++) {
+                                if (allMembers[i].activity !== null && allMembers[i].activity.last_seen < batchDismissLastOnline) {
+                                    newList.push(allMembers[i]);
                                 }
                             }
                             setBatchDismissUsers(newList);

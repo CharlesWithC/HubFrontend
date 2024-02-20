@@ -1,6 +1,10 @@
-import { useTranslation } from 'react-i18next';
 import { useRef, useEffect, useState, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
 import { Portal } from '@mui/base';
@@ -11,6 +15,7 @@ import { faWarehouse, faClock } from '@fortawesome/free-solid-svg-icons';
 import UserCard from '../components/usercard';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
+
 import { ConvertUnit, TSep, makeRequestsWithAuth, checkUserPerm, checkPerm, customAxios as axios, getAuthToken } from '../functions';
 
 var vars = require("../variables");
@@ -233,10 +238,14 @@ const DivisionsPending = memo(({ doReload }) => {
 });
 
 const DivisionManagers = memo(() => {
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+
     let managers = [];
-    for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["administrator", "manage_divisions"])) {
-            managers.push(vars.members[i]);
+    for (let i = 0; i < allMembers.length; i++) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_divisions"])) {
+            managers.push(allMembers[i]);
         }
     }
 

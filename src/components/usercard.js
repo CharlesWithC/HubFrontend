@@ -22,14 +22,13 @@
 // NOTE
 // "profile" refers to the profile popover AND user's name and avatar
 
-// TODO
-// Merge setSnackbarContent and setSnackbarSeverity
-
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { selectUsers, update as usersUpdate } from '../slices/usersSlice';
 import { selectUserProfileById, update as userProfilesUpdate } from '../slices/userProfilesSlice';
+import { selectMemberUIDs, add as memberUIDsAdd, remove as memberUIDsRemove } from '../slices/memberUIDsSlice';
 
 import { Avatar, Chip, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogActions, Button, Snackbar, Alert, Grid, TextField, Typography, ListItemIcon, Box, ButtonGroup, Divider, FormControl, FormLabel, Popover, Card, CardContent, CardMedia, IconButton, Tooltip, Tabs, Tab, useTheme } from "@mui/material";
 import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, VerifiedOutlined } from "@mui/icons-material";
@@ -40,7 +39,6 @@ import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUser
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 import SimpleBar from 'simplebar-react';
-import { useTranslation } from 'react-i18next';
 
 import DateTimeField from './datetime';
 import useLongPress from './useLongPress';
@@ -140,6 +138,7 @@ const UserCard = (props) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
 
     const bannerRef = useRef(null); // this is a real component reference
     let availableTrackers = [];
@@ -157,13 +156,6 @@ const UserCard = (props) => {
         // fill undefined attributes
         let { uid, userid, name, bio, note, global_note, avatar, email, discordid, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa } = { uid: -1, userid: -1, name: "", bio: "", note: "", global_note: "", avatar: "", email: "", discordid: null, steamid: null, truckersmpid: null, roles: [], tracker: availableTrackers.length !== 0 ? availableTrackers[0] : "unknown", ban: null, role_history: null, ban_history: null, mfa: null, ...props.user, ...props };
         roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
-
-        // get role/ban history
-        const member = vars.members.find(member => member.uid === uid);
-        if (member) {
-            role_history = member.role_history ?? role_history;
-            ban_history = member.ban_history ?? ban_history;
-        }
 
         dispatch(usersUpdate({ uid: props.user.uid, data: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
     }
@@ -199,12 +191,6 @@ const UserCard = (props) => {
             setNewRoles(resp.data.roles);
             setNewConnections({ email: resp.data.email, discordid: resp.data.discordid, steamid: resp.data.steamid, truckersmpid: resp.data.truckersmpid });
             setTrackerInUse(resp.data.tracker);
-            for (let i = 0; i < vars.members.length; i++) {
-                if (vars.members[i].uid === user.uid) {
-                    vars.members[i] = resp.data;
-                    break;
-                }
-            }
         }
     }, []);
 
@@ -589,11 +575,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/user/${user.uid}/accept`, data: { tracker: trackerInUse }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             dispatch(usersUpdate({ uid: user.uid, data: { ...user, userid: resp.data.userid } }));
-
-            vars.members.push({ ...user, userid: resp.data.userid });
-            let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
-            cache.members = vars.members;
-            writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+            dispatch(memberUIDsAdd(user.uid));
 
             setSnackbarContent(tr("user_accepted_as_member"));
             setSnackbarSeverity("success");
@@ -651,17 +633,7 @@ const UserCard = (props) => {
         let resp = await axios({ url: `${vars.dhpath}/member/${user.userid}/dismiss`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             dispatch(usersUpdate({ uid: user.uid, data: { ...user, userid: null, roles: [] } }));
-
-            let newMembers = [];
-            for (let i = 0; i < vars.members.list; i++) {
-                if (vars.members[i].userid !== user.userid) {
-                    newMembers.push(vars.members[i]);
-                }
-            }
-            vars.members = newMembers;
-            let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
-            cache.members = vars.members;
-            writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
+            dispatch(memberUIDsRemove(user.uid));
 
             setSnackbarContent(tr("user_dismissed"));
             setSnackbarSeverity("success");

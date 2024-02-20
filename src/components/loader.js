@@ -134,12 +134,6 @@ const Loader = ({ onLoaderLoaded }) => {
                     applicationTypes = cache.applicationTypes;
                     divisions = cache.divisions;
                     dlogDetails = cache.dlogDetails;
-                    if (cache.members !== undefined) {
-                        vars.members = cache.members;
-                        for (let i = 0; i < vars.members.length; i++) {
-                            dispatch(usersUpdate({ uid: vars.members[i].uid, data: vars.members[i] }));
-                        }
-                    }
                 }
             }
 

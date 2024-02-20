@@ -1,25 +1,31 @@
-import { useTranslation } from 'react-i18next';
 import { memo, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
+
 import SimpleBar from 'simplebar-react';
-import { useParams } from 'react-router-dom';
 
 import TimeAgo from '../components/timeago';
-import { TSep, ConvertUnit, makeRequestsAuto, getTodayUTC, getMonthUTC } from '../functions';
 import StatCard from '../components/statcard';
 import UserCard from '../components/usercard';
+
+import { TSep, ConvertUnit, makeRequestsAuto, getTodayUTC, getMonthUTC } from '../functions';
 
 var vars = require("../variables");
 
 const Overview = () => {
     const { t: tr } = useTranslation();
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const { userid } = useParams(); // profile display handling
-    let memberIdx = -1;
-    if (typeof vars.members === "object") {
-        memberIdx = vars.members.findIndex(member => member.userid === parseInt(userid));
-    }
+    let memberIdx = allMembers.findIndex(member => member.userid === parseInt(userid));
     const [showProfileModal, setShowProfileModal] = useState(memberIdx !== -1 ? 2 : 0);
 
     const [latest, setLatest] = useState({ driver: 0, job: 0, distance: 0, fuel: 0, profit_euro: 0, profit_dollar: 0 });
@@ -92,7 +98,7 @@ const Overview = () => {
     }, []);
 
     return (<>
-        {showProfileModal !== 0 && vars.members[memberIdx] !== undefined && <UserCard user={vars.members[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); }} />}
+        {showProfileModal !== 0 && allMembers[memberIdx] !== undefined && <UserCard user={allMembers[memberIdx]} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(0); }} />}
         <Grid container spacing={2}>
             <Grid item xs={12} sm={12} md={6} lg={4}>
                 <StatCard icon={<PermContactCalendarRounded />} title={tr("drivers")} latest={TSep(latest.driver).replaceAll(",", " ")} inputs={charts.driver} />

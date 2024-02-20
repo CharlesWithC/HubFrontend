@@ -236,7 +236,7 @@ const TopBar = (props) => {
         };
     }, []);
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
     const handleProfileMenuOpen = (event) => {
         if (!vars.isLoggedIn) {

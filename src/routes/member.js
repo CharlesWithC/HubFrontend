@@ -1,5 +1,8 @@
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
 import { Card, CardContent, Typography, Avatar, Grid, Tooltip } from '@mui/material';
 
 import UserCard from '../components/usercard';
@@ -21,8 +24,11 @@ const LargeUserCard = ({ user, color }) => {
 
 const Members = () => {
     const { t: tr } = useTranslation();
-
-    let members = vars.members;
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+    
+    let members = allMembers;
     let uniqueUserIds = [];
     members = members.filter(member => {
         if (uniqueUserIds.includes(member.userid)) {

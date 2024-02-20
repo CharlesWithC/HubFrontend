@@ -3,8 +3,8 @@ import axiosRetry from 'axios-retry';
 import LZString from 'lz-string';
 import CryptoJS from 'crypto-js';
 
-import { useDispatch } from 'react-redux';
 import { update as usersUpdate } from './slices/usersSlice';
+import { initMemberUIDs } from './slices/memberUIDsSlice';
 
 import i18n from './i18n';
 
@@ -198,32 +198,7 @@ export async function FetchProfile(dispatch, isLogin = false) {
                 let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
                 vars.userStats = resp;
 
-                if (vars.members === undefined || vars.members.length === 0) {
-                    // is member / fetch all members
-                    [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
-                    let totalPages = resp.total_pages;
-                    vars.members = resp.list;
-                    if (totalPages > 1) {
-                        let urlsBatch = [];
-                        for (let i = 2; i <= totalPages; i++) {
-                            urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
-                            if (urlsBatch.length === 5 || i === totalPages) {
-                                let resps = await makeRequestsWithAuth(urlsBatch);
-                                for (let j = 0; j < resps.length; j++) {
-                                    vars.members.push(...resps[j].list);
-                                    for (let k = 0; k < resps[j].list.length; k++) {
-                                        dispatch(usersUpdate({ uid: resps[j].list[k].uid, data: resps[j].list[k] }));
-                                    }
-                                }
-                                urlsBatch = [];
-                            }
-                        }
-                    }
-
-                    let cache = readLS("cache", vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
-                    cache.members = vars.members;
-                    writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
-                }
+                dispatch(initMemberUIDs());
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");

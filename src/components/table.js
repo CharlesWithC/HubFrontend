@@ -19,8 +19,8 @@ const CustomTableRow = ({ children, onContextMenu, ...props }) => {
 };
 
 const CustomTable = ({ columns, orderBy, order, onOrderingUpdate, name, nameRight, data, totalItems, rowsPerPageOptions, defaultRowsPerPage, onPageChange, onRowsPerPageChange, onRowClick, onSearch, searchHint, searchUpdateInterval, searchWidth, style, pstyle }) => {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(defaultRowsPerPage);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
     if (searchUpdateInterval === undefined) searchUpdateInterval = 100;
     if (searchWidth === undefined) searchWidth = "300px";

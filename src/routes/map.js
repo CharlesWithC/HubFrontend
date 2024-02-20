@@ -1,10 +1,13 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, Box, Tabs, Tab, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
+import { Card, Box, Tabs, Tab, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, useTheme } from '@mui/material';
 
 import UserCard from '../components/usercard';
 import TileMap from '../components/tilemap';
-import { useTheme } from '@emotion/react';
 
 var vars = require("../variables");
 
@@ -40,8 +43,11 @@ const Map = () => {
     const SERVER_ID = { 0: 2, 1: 50, 3: 10 };
     const { t: tr } = useTranslation();
     const theme = useTheme();
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
 
-    const [tab, setTab] = React.useState(0);
+    const [tab, setTab] = useState(0);
 
     const [points, setPoints] = useState([]);
     const [boundary, setBoundary] = useState({});
@@ -62,7 +68,7 @@ const Map = () => {
     }, [tab]);
 
     useEffect(() => {
-        const memberTruckersMP = vars.members.map((member) => member.truckersmpid);
+        const memberTruckersMP = allMembers.map((member) => member.truckersmpid);
         const intervalId = setInterval(async () => {
             if (SERVER_ID[tabRef.current] !== undefined && boundaryRef.current.x1 !== undefined) {
                 let server_id = SERVER_ID[tabRef.current];
@@ -131,9 +137,9 @@ const Map = () => {
                 info.destination = info.Job.DestinationCompany.replace("company.permanent.", "") + ", " + info.Job.DestinationCity.replace("city.", "");
             }
         }
-        for (let i = 0; i < vars.members.length; i++) {
-            if (vars.members[i].truckersmpid === info.MpId) {
-                setDisplayUser({ ...info, ...vars.members[i] });
+        for (let i = 0; i < allMembers.length; i++) {
+            if (allMembers[i].truckersmpid === info.MpId) {
+                setDisplayUser({ ...info, ...allMembers[i] });
                 return;
             }
         }

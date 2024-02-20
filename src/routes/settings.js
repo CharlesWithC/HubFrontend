@@ -1,35 +1,34 @@
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { selectUsers, update as usersUpdate } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import i18n from '../i18n';
+
 import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { CheckRounded, CloudUploadRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
+import { customSelectStyles } from '../designs';
 
 import Select from 'react-select';
-import { useNavigate } from 'react-router-dom';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmericas, faCrown, faClover } from '@fortawesome/free-solid-svg-icons';
-
 import moment from 'moment-timezone';
 import QRCodeStyling from 'qr-code-styling';
 import CreatableSelect from 'react-select/creatable';
 
-import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedDate, writeLS, setAuthMode } from '../functions';
-import { useRef } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRefresh, faFingerprint, faHashtag, faScrewdriverWrench, faEarthAmericas, faCrown, faClover, faDesktop } from '@fortawesome/free-solid-svg-icons';
+import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
+
 import ColorInput from '../components/colorInput';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import MarkdownRenderer from '../components/markdown';
 import SponsorBadge from '../components/sponsorBadge';
-import { faChrome, faFirefox, faEdge, faInternetExplorer, faOpera, faSafari, faPatreon } from '@fortawesome/free-brands-svg-icons';
-import { faDesktop } from '@fortawesome/free-solid-svg-icons';
 
-import i18n from '../i18n';
-import { useDispatch } from 'react-redux';
-import { update as usersUpdate } from '../slices/usersSlice';
+import { makeRequestsWithAuth, customAxios as axios, getAuthToken, getFormattedDate, writeLS, setAuthMode } from '../functions';
 
-import { customSelectStyles } from '../designs';
 var vars = require("../variables");
 
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
@@ -91,6 +90,10 @@ function TabPanel(props) {
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
     const dispatch = useDispatch();
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+
     const sessionsColumns = [
         { id: 'device', label: tr("device") },
         { id: 'ip', label: tr("ip") },
@@ -550,9 +553,9 @@ const Settings = ({ defaultTab = 0 }) => {
                 setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
                 vars.userInfo = resp.data;
                 dispatch(usersUpdate({ uid: vars.userInfo.uid, data: resp.data }));
-                for (let i = 0; i < vars.members.length; i++) {
-                    if (vars.members[i].uid === vars.userInfo.uid) {
-                        vars.members[i] = resp.data;
+                for (let i = 0; i < allMembers.length; i++) {
+                    if (allMembers[i].uid === vars.userInfo.uid) {
+                        allMembers[i] = resp.data;
                         break;
                     }
                 }
@@ -561,9 +564,9 @@ const Settings = ({ defaultTab = 0 }) => {
                 vars.userInfo.avatar = newProfile.avatar;
                 vars.userInfo = vars.userInfo;
                 dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
-                for (let i = 0; i < vars.members.length; i++) {
-                    if (vars.members[i].uid === vars.userInfo.uid) {
-                        vars.members[i] = vars.userInfo;
+                for (let i = 0; i < allMembers.length; i++) {
+                    if (allMembers[i].uid === vars.userInfo.uid) {
+                        allMembers[i] = vars.userInfo;
                         break;
                     }
                 }

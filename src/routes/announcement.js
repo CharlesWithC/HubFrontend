@@ -1,5 +1,9 @@
-import { useTranslation } from 'react-i18next';
 import { useEffect, useState, useCallback, memo } from 'react';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { selectUsers } from '../slices/usersSlice';
+import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, MenuItem, Snackbar, Alert, Pagination, IconButton, Checkbox } from '@mui/material';
 import { InfoRounded, EventNoteRounded, WarningRounded, ErrorOutlineRounded, CheckCircleOutlineRounded, EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
@@ -221,10 +225,14 @@ const AnnouncementGrid = memo(({ announcements, lastUpdate, onEdit, onDelete }) 
 });
 
 const AnnouncementManagers = memo(() => {
+    const users = useSelector(selectUsers);
+    const memberUIDs = useSelector(selectMemberUIDs);
+    const allMembers = memberUIDs.map((uid) => users[uid]);
+
     let managers = [];
-    for (let i = 0; i < vars.members.length; i++) {
-        if (checkPerm(vars.members[i].roles, ["administrator", "manage_announcements"])) {
-            managers.push(vars.members[i]);
+    for (let i = 0; i < allMembers.length; i++) {
+        if (checkPerm(allMembers[i].roles, ["administrator", "manage_announcements"])) {
+            managers.push(allMembers[i]);
         }
     }
 
