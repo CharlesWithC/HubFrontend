@@ -1,0 +1,60 @@
+import { useState, useMemo, useCallback, createContext } from 'react';
+
+import { makeRequestsWithAuth } from "./functions";
+var vars = require("./variables");
+
+export const AppContext = createContext({
+    users: {},
+    userProfiles: {},
+    memberUIDs: [],
+    initMemberUIDs: async () => { }
+});
+
+export const AppContextProvider = ({ children }) => {
+    const [users, setUsers] = useState({});
+    const [userProfiles, setUserProfiles] = useState({});
+    const [memberUIDs, setMemberUIDs] = useState([]);
+
+    const initMemberUIDs = useCallback(async () => {
+        if (memberUIDs.length > 0) return;
+
+        let allMembers = [];
+
+        let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/member/list?page=1&page_size=250`]);
+        let totalPages = resp.total_pages;
+        allMembers = resp.list;
+        if (totalPages > 1) {
+            let urlsBatch = [];
+            for (let i = 2; i <= totalPages; i++) {
+                urlsBatch.push(`${vars.dhpath}/member/list?page=${i}&page_size=250`);
+                if (urlsBatch.length === 5 || i === totalPages) {
+                    let resps = await makeRequestsWithAuth(urlsBatch);
+                    for (let j = 0; j < resps.length; j++) {
+                        allMembers.push(...resps[j].list);
+                    }
+                    urlsBatch = [];
+                }
+            }
+        }
+
+        for (let i = 0; i < allMembers.length; i++) {
+            setUsers(prevUsers => ({ ...prevUsers, [allMembers[i].uid]: allMembers[i] }));
+        }
+
+        let allMemberUIDs = allMembers.map((member) => member.uid);
+        setMemberUIDs(allMemberUIDs);
+    }, []);
+
+    const value = useMemo(() => ({
+        users, setUsers,
+        userProfiles, setUserProfiles,
+        memberUIDs, setMemberUIDs,
+        initMemberUIDs
+    }), [users, userProfiles, memberUIDs]);
+
+    return (
+        <AppContext.Provider value={value}>
+            {children}
+        </AppContext.Provider>
+    );
+};

@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { AppContext } from '../../../context';
+
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
 
-import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken, setAuthMode, getAuthMode, eraseAuthMode } from '../../../functions';
-
-import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
+import { FetchProfile, customAxios as axios, setAuthToken, getAuthToken, getAuthMode, eraseAuthMode } from '../../../functions';
 
 var vars = require('../../../variables');
 
 const DiscordAuth = () => {
     const { t: tr } = useTranslation();
-    const dispatch = useDispatch();
+    const { initMemberUIDs } = useContext(AppContext);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,7 +42,7 @@ const DiscordAuth = () => {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
                             setMessage(tr("you_are_authorized"));
-                            await FetchProfile(dispatch, true);
+                            await FetchProfile(initMemberUIDs, true);
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {

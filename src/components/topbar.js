@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
+import { AppContext } from '../context';
 import PropTypes from 'prop-types';
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, useTheme } from "@mui/material";
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -16,7 +17,6 @@ import UserCard from './usercard';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
 
 var vars = require("../variables");
 
@@ -26,7 +26,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const dispatch = useDispatch();
+    const { initMemberUIDs } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -324,7 +324,7 @@ const TopBar = (props) => {
                 setSnackbarSeverity("error");
                 setSnackbarContent(tr("already_logged_out"));
             }
-            await FetchProfile(dispatch);
+            await FetchProfile(initMemberUIDs);
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");

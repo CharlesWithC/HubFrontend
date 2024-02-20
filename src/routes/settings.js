@@ -1,9 +1,7 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
+import { useState, useCallback, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { selectUsers, update as usersUpdate } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
+import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
 
 import { Card, CardMedia, CardContent, Box, Tabs, Tab, Grid, Typography, Button, ButtonGroup, IconButton, Snackbar, Alert, useTheme, MenuItem, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Slider, Divider, Chip, Tooltip, useMediaQuery } from '@mui/material';
@@ -89,9 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const dispatch = useDispatch();
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, setUsers, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const sessionsColumns = [
@@ -395,7 +391,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("success");
             vars.userInfo.tracker = tracker;
             setTracker(to);
-            dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
+            setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -552,7 +548,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 resp = await axios({ url: `${vars.dhpath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
                 vars.userInfo = resp.data;
-                dispatch(usersUpdate({ uid: vars.userInfo.uid, data: resp.data }));
+                setUsers(users => ({ ...users, [vars.userInfo.uid]: resp.data }));
                 for (let i = 0; i < allMembers.length; i++) {
                     if (allMembers[i].uid === vars.userInfo.uid) {
                         allMembers[i] = resp.data;
@@ -563,7 +559,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 vars.userInfo.name = newProfile.name;
                 vars.userInfo.avatar = newProfile.avatar;
                 vars.userInfo = vars.userInfo;
-                dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
+                setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
                 for (let i = 0; i < allMembers.length; i++) {
                     if (allMembers[i].uid === vars.userInfo.uid) {
                         allMembers[i] = vars.userInfo;
@@ -764,7 +760,7 @@ const Settings = ({ defaultTab = 0 }) => {
                 vars.userInfo.mfa = true;
                 setMfaEnabled(true);
                 setModalEnableMfa(false);
-                dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
+                setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
             } else {
                 setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
@@ -800,7 +796,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setOtpPass(+new Date() + 30000);
             vars.userInfo.mfa = false;
             setMfaEnabled(false);
-            dispatch(usersUpdate({ uid: vars.userInfo.uid, data: vars.userInfo }));
+            setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");

@@ -1,8 +1,6 @@
-import { useEffect, useState, useCallback, memo } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect, useState, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, FormControlLabel, TextField, Snackbar, Alert, Pagination, IconButton, Tooltip, Box, Checkbox, ButtonGroup, useTheme } from '@mui/material';
 import { EditNoteRounded, RefreshRounded, EditRounded, DeleteRounded, PeopleAltRounded } from '@mui/icons-material';
@@ -416,8 +414,7 @@ const PollGrid = memo(({ polls, lastUpdate, onEdit, onDelete, onPollVoters }) =>
 });
 
 const PollManagers = memo(() => {
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];

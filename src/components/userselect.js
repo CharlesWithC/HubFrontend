@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Select, { components } from 'react-select';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -16,8 +14,7 @@ var vars = require("../variables");
 
 const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = false, includeBlackhole = false, limit = undefined, style = {}, userList = undefined, disabled = false, allowSelectAll = false }) => {
     const { t: tr } = useTranslation();
-    const cachedUsers = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users: cachedUsers, memberUIDs } = useContext(AppContext);
 
     const [memberMap, setMemberMap] = useState({});
     const [options, setOptions] = useState([]);

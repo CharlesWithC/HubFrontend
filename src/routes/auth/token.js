@@ -1,16 +1,17 @@
+import { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardActions, Button } from '@mui/material';
-import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context';
+
+import { Card, CardContent, CardActions, Button } from '@mui/material';
 
 import { FetchProfile, customAxios as axios, setAuthToken } from '../../functions';
-import { useDispatch } from 'react-redux';
 
 var vars = require('../../variables');
 
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
-    const dispatch = useDispatch();
+    const { initMemberUIDs } = useContext(AppContext);
     
     const navigate = useNavigate();
     const location = useLocation();
@@ -27,7 +28,7 @@ const TokenAuth = () => {
                 if (resp.status === 200) {
                     setAuthToken(resp.data.token);
                     setMessage(tr("you_are_authorized"));
-                    await FetchProfile(dispatch, true);
+                    await FetchProfile(initMemberUIDs, true);
                     setContinue(true);
                     setTimeout(function () { navigate('/'); }, 500);
                 } else if (resp.status === 401) {

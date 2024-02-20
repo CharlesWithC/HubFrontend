@@ -1,8 +1,5 @@
-import { useState, useEffect, useCallback, memo } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
 
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
 import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
@@ -471,8 +468,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 });
 
 const EventManagers = memo(() => {
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];

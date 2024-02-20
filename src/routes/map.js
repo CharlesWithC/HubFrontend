@@ -1,8 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { Card, Box, Tabs, Tab, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, useTheme } from '@mui/material';
 
@@ -43,8 +41,7 @@ const Map = () => {
     const SERVER_ID = { 0: 2, 1: 50, 3: 10 };
     const { t: tr } = useTranslation();
     const theme = useTheme();
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const [tab, setTab] = useState(0);

@@ -1,9 +1,7 @@
-import { useRef, useEffect, useState, useCallback, memo } from 'react';
+import { useRef, useEffect, useState, useCallback, useContext, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { Card, CardContent, Typography, Grid, SpeedDial, SpeedDialIcon, SpeedDialAction, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Snackbar, Alert, useTheme } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, EuroRounded, AttachMoneyRounded, RouteRounded, LocalGasStationRounded, EmojiEventsRounded, PeopleAltRounded, RefreshRounded, VerifiedOutlined } from '@mui/icons-material';
@@ -238,8 +236,7 @@ const DivisionsPending = memo(({ doReload }) => {
 });
 
 const DivisionManagers = memo(() => {
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];

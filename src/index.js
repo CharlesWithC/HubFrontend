@@ -1,22 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+
 import './index.css';
 import './fonts/opensans/opensans.css';
 import './fonts/orbitron/orbitron.css';
+
 import App from './App';
+import { AppContextProvider } from './context';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter } from 'react-router-dom';
-import Crashed from "./components/crashed";
 
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 
+import Crashed from "./components/crashed";
 import { setAuthMode } from './functions';
 
 import * as Sentry from "@sentry/react";
-
-import store from './store';
-import { Provider } from 'react-redux';
 
 window.loading = 0;
 
@@ -87,7 +87,7 @@ class ErrorBoundary extends React.Component {
     }
 }
 root.render(
-    <Provider store={store}>
+    <AppContextProvider>
         <I18nextProvider i18n={i18n}>
             {(window.isElectron || window.location.hostname !== "localhost") &&
                 <ErrorBoundary>
@@ -98,7 +98,7 @@ root.render(
                 <BrowserRouter><App /></BrowserRouter>
             }
         </I18nextProvider>
-    </Provider>
+    </AppContextProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

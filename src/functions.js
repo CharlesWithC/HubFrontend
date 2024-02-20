@@ -3,9 +3,6 @@ import axiosRetry from 'axios-retry';
 import LZString from 'lz-string';
 import CryptoJS from 'crypto-js';
 
-import { update as usersUpdate } from './slices/usersSlice';
-import { initMemberUIDs } from './slices/memberUIDsSlice';
-
 import i18n from './i18n';
 
 var vars = require('./variables');
@@ -123,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile(dispatch, isLogin = false) {
+export async function FetchProfile(initMemberUIDs, isLogin = false) {
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
         let resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
@@ -198,7 +195,7 @@ export async function FetchProfile(dispatch, isLogin = false) {
                 let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
                 vars.userStats = resp;
 
-                dispatch(initMemberUIDs());
+                initMemberUIDs();
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");

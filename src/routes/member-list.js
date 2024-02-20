@@ -1,8 +1,6 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { useRef, useEffect, useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { useTheme, Dialog, DialogTitle, DialogContent, DialogActions, LinearProgress, Typography, Button, SpeedDial, SpeedDialAction, SpeedDialIcon, MenuItem, TextField, Grid, Snackbar, Alert, TableContainer, Table, TableHead, TableBody, TableRow, TableCell, Card, CardContent } from '@mui/material';
 import { Portal } from '@mui/base';
@@ -24,8 +22,7 @@ var vars = require("../variables");
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const theme = useTheme();

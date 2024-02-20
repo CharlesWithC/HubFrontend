@@ -1,8 +1,6 @@
-import { useRef, useState, useEffect, useCallback, memo } from 'react';
-import { useSelector } from 'react-redux';
+import { useRef, useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction, LinearProgress, MenuItem, RadioGroup, Radio, Chip, Checkbox, Tooltip, useTheme } from '@mui/material';
 import { LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CategoryRounded, InfoRounded, TaskAltRounded, DoneOutlineRounded, BlockRounded, PlayCircleRounded, ScheduleRounded, HourglassBottomRounded, StopCircleRounded, EditNoteRounded, PeopleAltRounded, RefreshRounded } from '@mui/icons-material';
@@ -176,8 +174,7 @@ const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, o
 };
 
 const ChallengeManagers = memo(() => {
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     let managers = [];

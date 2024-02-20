@@ -1,14 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AppContext } from '../context';
+
 import { HelmetProvider, Helmet } from 'react-helmet-async';
-import { Typography, TextField, Button } from '@mui/material';
+import { Typography, TextField, Button, useTheme } from '@mui/material';
 
 import { FetchProfile, loadImageAsBase64, customAxios as axios, makeRequestsAuto, compareVersions, writeLS, readLS } from '../functions';
-import { useTheme } from '@emotion/react';
-
-import { useTranslation } from 'react-i18next';
-
-import { useDispatch } from 'react-redux';
-import { update as usersUpdate } from '../slices/usersSlice';
 
 var vars = require('../variables');
 
@@ -16,8 +13,7 @@ const Loader = ({ onLoaderLoaded }) => {
     const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : vars.host);
 
     const { t: tr } = useTranslation();
-
-    const dispatch = useDispatch();
+    const { initMemberUIDs } = useContext(AppContext);
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
@@ -238,7 +234,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             }
 
-            await FetchProfile(dispatch);
+            await FetchProfile(initMemberUIDs);
 
             const themeUpdated = new CustomEvent('themeUpdated', {});
             window.dispatchEvent(themeUpdated);

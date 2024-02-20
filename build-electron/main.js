@@ -2,11 +2,11 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
-const semver = require('semver');
+// const semver = require('semver');
 
-function incrementVersion(version) {
-    return semver.inc(version, 'patch');
-}
+// function incrementVersion(version) {
+//     return semver.inc(version, 'patch');
+// }
 
 async function main() {
     if (!fs.existsSync(`./build-electron/output`)) {
@@ -14,9 +14,9 @@ async function main() {
     }
 
     // Step 0: Update version code
-    const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
-    packageJson.version = incrementVersion(packageJson.version);
-    fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
+    // const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
+    // packageJson.version = incrementVersion(packageJson.version);
+    // fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
 
     // Step 1: Move ./package.json to ./package.json.bak
     fs.renameSync('./package.json', './package.json.bak');

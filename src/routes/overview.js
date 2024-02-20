@@ -1,9 +1,7 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { selectUsers } from '../slices/usersSlice';
-import { selectMemberUIDs } from '../slices/memberUIDsSlice';
+import { AppContext } from '../context';
 
 import { Grid, Table, TableHead, TableRow, TableBody, TableCell, Card, CardContent, Typography } from '@mui/material';
 import { PermContactCalendarRounded, LocalShippingRounded, RouteRounded, EuroRounded, AttachMoneyRounded, LocalGasStationRounded, LeaderboardRounded, DirectionsRunRounded, EmojiPeopleRounded } from '@mui/icons-material';
@@ -20,8 +18,7 @@ var vars = require("../variables");
 
 const Overview = () => {
     const { t: tr } = useTranslation();
-    const users = useSelector(selectUsers);
-    const memberUIDs = useSelector(selectMemberUIDs);
+    const { users, memberUIDs } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const { userid } = useParams(); // profile display handling
