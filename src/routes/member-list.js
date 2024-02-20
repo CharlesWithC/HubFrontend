@@ -127,13 +127,16 @@ const MemberList = () => {
         let tmpSteamIds = [];
         for (let i = 0; i < tmpMembers.length; i++) {
             tmpIds.push(tmpMembers[i].user_id);
-            tmpSteamIds.push(tmpMembers[i].steam_id);
+            tmpSteamIds.push(parseInt(tmpMembers[i].steam_id));
+            // tmp's steam id is a int that lost precision
+            // we added a parseInt to ensure their api didn't update
         }
         let dhTmpIds = [];
         let dhTmpSteamIds = [];
         for (let i = 0; i < vars.members.length; i++) {
             dhTmpIds.push(vars.members[i].truckersmpid);
-            dhTmpSteamIds.push(vars.members[i].steamid);
+            dhTmpSteamIds.push(parseInt(vars.members[i].steamid));
+            // so we have to change our own to int that lost precision to do the matching
         }
 
         let dhNoTmp = [];
@@ -144,7 +147,7 @@ const MemberList = () => {
             }
         }
         for (let i = 0; i < vars.members.length; i++) {
-            if (checkPerm(vars.members[i].roles, ["driver"]) && !tmpIds.includes(vars.members[i].truckersmpid) && !tmpSteamIds.includes(vars.members[i].steamid)) {
+            if (!tmpIds.includes(vars.members[i].truckersmpid) && !tmpSteamIds.includes(vars.members[i].steamid)) {
                 dhNoTmp.push(vars.members[i]);
             }
         }

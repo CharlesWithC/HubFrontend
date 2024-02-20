@@ -159,7 +159,7 @@ const UserCard = (props) => {
         dispatch(usersUpdate({ uid: props.user.uid, data: { ...{ uid, userid, discordid, name, bio, note, global_note, avatar, email, steamid, truckersmpid, roles, tracker, ban, role_history, ban_history, mfa }, ...props.user, last_sync: +new Date() } }));
     }
     // use the user in store | check if exist (could be non-existent when uid is NaN)
-    const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props }; 
+    const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
 
     // user card settings
     let { size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined, ...props };
@@ -256,6 +256,7 @@ const UserCard = (props) => {
 
     // user profile data
     function convertDlogList(_dlogList) {
+        if (_dlogList === null) return null;
         let newDlogList = [];
         for (let i = 0; i < _dlogList.list.length; i++) {
             let divisionCheckmark = <></>;
