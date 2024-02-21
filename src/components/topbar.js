@@ -26,7 +26,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { setUsers, setCurUID, curUser, setCurUser } = useContext(AppContext);
+    const { setUsers, setCurUID, curUser, setCurUser, setCurUserPerm } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -324,7 +324,7 @@ const TopBar = (props) => {
                 setSnackbarSeverity("error");
                 setSnackbarContent(tr("already_logged_out"));
             }
-            await FetchProfile({ setUsers, setCurUID, setCurUser }); // initMemberUIDs not needed
+            await FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm }); // initMemberUIDs not needed
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");

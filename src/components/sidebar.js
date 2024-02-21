@@ -13,7 +13,7 @@ var vars = require('../variables');
 
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
 
     window.loading = 0; // clear loading state on page change
 
@@ -65,33 +65,33 @@ const SideBar = (props) => {
         }
     } else {
         menu = [["overview", "announcement", "gallery", "downloads", "poll"], ["live_map", "delivery", "challenge", "division", "event", "economy"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
-        if (!vars.userPerm.includes("administrator")) {
-            if (!vars.userPerm.includes("driver") || curUser.userid === -1) {
+        if (!curUserPerm.includes("administrator")) {
+            if (!curUserPerm.includes("driver") || curUser.userid === -1) {
                 toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
             }
-            if (!vars.userPerm.includes("update_config") && !vars.userPerm.includes("reload_config")) {
+            if (!curUserPerm.includes("update_config") && !curUserPerm.includes("reload_config")) {
                 toRemove.push("configuration");
             } else {
                 toRemove = toRemove.filter(item => item !== "configuration");
             }
-            if (!vars.userPerm.includes("manage_profiles") && !vars.userPerm.includes("view_external_user_list") && !vars.userPerm.includes("ban_users") && !vars.userPerm.includes("disable_mfa") && !vars.userPerm.includes("update_connections") && !vars.userPerm.includes("delete_connections") && !vars.userPerm.includes("delete_users")) {
+            if (!curUserPerm.includes("manage_profiles") && !curUserPerm.includes("view_external_user_list") && !curUserPerm.includes("ban_users") && !curUserPerm.includes("disable_mfa") && !curUserPerm.includes("update_connections") && !curUserPerm.includes("delete_connections") && !curUserPerm.includes("delete_users")) {
                 toRemove.push("external_user");
                 toRemove.push("member_list");
             } else {
                 toRemove = toRemove.filter(item => item !== "external_user");
                 toRemove = toRemove.filter(item => item !== "member_list");
             }
-            if (!vars.userPerm.includes("manage_applications")) {
+            if (!curUserPerm.includes("manage_applications")) {
                 toRemove.push("all_application");
             } else {
                 toRemove = toRemove.filter(item => item !== "all_application");
             }
-            if (!vars.userPerm.includes("view_audit_log")) {
+            if (!curUserPerm.includes("view_audit_log")) {
                 toRemove.push("audit_log");
             } else {
                 toRemove = toRemove.filter(item => item !== "audit_log");
             }
-            if (vars.dhconfig.gallery.length === 0 && !vars.userPerm.includes("manage_gallery")) {
+            if (vars.dhconfig.gallery.length === 0 && !curUserPerm.includes("manage_gallery")) {
                 toRemove.push("gallery");
             } else {
                 toRemove = toRemove.filter(item => item !== "gallery");

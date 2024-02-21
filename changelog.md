@@ -25,6 +25,7 @@
    - Supported lazy loading of members list, reducing the time at initial loading screen  
      (It will load at background and automatically fill relevant data where necessary)
 3. Replaced `vars.userInfo` with Context API `curUser`, also added optimization to prevent unnecessary re-renders when `users` change while ensuring `curUser` is updated when it is changed using `setUsers`
+4. Replaced `vars.userPerm` with Context API `curUserPerm`, also added automatic `curUserPerm` re-calculation with the roles of `users[curUID]` when `users[curUID]` changes
 
 ## v3.3.x
 

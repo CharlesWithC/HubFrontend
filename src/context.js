@@ -9,6 +9,7 @@ export const AppContext = createContext({
     memberUIDs: [],
     curUID: null,
     curUser: {},
+    curUserPerm: [],
     initMemberUIDs: async () => { }
 });
 
@@ -19,10 +20,22 @@ export const AppContextProvider = ({ children }) => {
 
     const [curUID, setCurUID] = useState(null);
     const [curUser, setCurUser] = useState({});
+    const [curUserPerm, setCurUserPerm] = useState([]);
 
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
             setCurUser(users[curUID]);
+
+            const allPerms = Object.keys(vars.perms);
+            const userPerm = [];
+            for (let i = 0; i < users[curUID].roles.length; i++) {
+                for (let j = 0; j < allPerms.length; j++) {
+                    if (vars.perms[allPerms[j]].includes(users[curUID].roles[i]) && !userPerm.includes(allPerms[j])) {
+                        userPerm.push(allPerms[j]);
+                    }
+                }
+            }
+            setCurUserPerm(userPerm);
         }
     }, [curUID, users[curUID]]);
 
@@ -60,8 +73,9 @@ export const AppContextProvider = ({ children }) => {
         users, setUsers,
         userProfiles, setUserProfiles,
         memberUIDs, setMemberUIDs, initMemberUIDs,
-        curUID, setCurUID, curUser, setCurUser
-    }), [users, userProfiles, memberUIDs, curUID, curUser]);
+        curUID, setCurUID, curUser, setCurUser,
+        curUserPerm, setCurUserPerm
+    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm]);
 
     return (
         <AppContext.Provider value={value}>

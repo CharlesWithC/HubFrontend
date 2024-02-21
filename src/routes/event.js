@@ -32,8 +32,9 @@ function ParseEventImage(events) {
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
+    const { curUserPerm } = useContext(AppContext);
 
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_events"]));
+    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_events"]));
     const showButtons = onEdit !== undefined && (vars.isLoggedIn);
 
     const handleVote = useCallback(() => {
@@ -489,7 +490,7 @@ const EventManagers = memo(() => {
 
 const Events = () => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
 
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
@@ -804,7 +805,7 @@ const Events = () => {
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {checkUserPerm(["administrator", "manage_events"]) && <SpeedDialAction
+            {checkUserPerm(curUserPerm, ["administrator", "manage_events"]) && <SpeedDialAction
                 key="create"
                 icon={<EditNoteRounded />}
                 tooltipTitle={tr("create")}

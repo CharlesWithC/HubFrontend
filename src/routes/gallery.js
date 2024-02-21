@@ -1,13 +1,15 @@
-import React, { useState, useCallback } from 'react';
-import { ImageList, ImageListItem, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, Card, CardContent, CardActions, Button, Typography, IconButton, Grid, Snackbar, Alert, TextField, useTheme } from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import { useState, useCallback, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../context';
+
+import { ImageList, ImageListItem, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, Card, CardContent, CardActions, Button, Typography, IconButton, Grid, Snackbar, Alert, TextField, useTheme, useMediaQuery } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGears, faPlus, faMinus, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
-import { useTranslation } from 'react-i18next';
+
 import { customAxios as axios, checkUserPerm, getAuthToken } from '../functions';
-import { useNavigate } from 'react-router-dom';
 
 var vars = require("../variables");
 
@@ -17,9 +19,11 @@ const Gallery = () => {
         navigate("/404");
         return <></>;
     }
-    
+
     const { t: tr } = useTranslation();
+    const { curUserPerm } = useContext(AppContext);
     const theme = useTheme();
+
     const matchesXS = useMediaQuery(theme.breakpoints.down('xs'));
     const matchesSM = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const matchesMD = useMediaQuery(theme.breakpoints.between('md', 'lg'));
@@ -191,7 +195,7 @@ const Gallery = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button variant="primary" onClick={() => { setDialogOpen(""); }}>{tr("cancel")}</Button>
-                    {checkUserPerm(["administrator", "manage_gallery"]) && <Button variant="contained" color="info" onClick={() => { updateImages(); }} disabled={dialogButtonDisabled}>{tr("save")}</Button>}
+                    {checkUserPerm(curUserPerm, ["administrator", "manage_gallery"]) && <Button variant="contained" color="info" onClick={() => { updateImages(); }} disabled={dialogButtonDisabled}>{tr("save")}</Button>}
                 </DialogActions>
             </Dialog>
             <SpeedDial

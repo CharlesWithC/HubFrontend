@@ -20,7 +20,7 @@ const getRole = (roleId) => {
 };
 
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
     const theme = useTheme();
 
     let userHighestRole = undefined;
@@ -37,7 +37,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
         divisionRoles.push(vars.divisions[divisionIds[i]].role_id);
     }
     let divisionOnly = false;
-    if (checkUserPerm(["division"]) && !checkUserPerm(["administrator", "update_roles"])) {
+    if (checkUserPerm(curUserPerm, ["division"]) && !checkUserPerm(curUserPerm, ["administrator", "update_roles"])) {
         divisionOnly = true;
     }
 

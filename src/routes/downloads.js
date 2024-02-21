@@ -16,9 +16,10 @@ var vars = require("../variables");
 
 const DownloadableItemCard = ({ downloadableItem, onEdit, onDelete, onDownload }) => {
     const { t: tr } = useTranslation();
+    const { curUserPerm } = useContext(AppContext);
 
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_downloads"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_downloads"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
     const [downloading, setDownloading] = useState(false);
@@ -261,7 +262,7 @@ const DownloadableItemManagers = memo(() => {
 
 const DownloadableItem = () => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
 
     const [downloadableItems, setDownloadableItems] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -521,7 +522,7 @@ const DownloadableItem = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["administrator", "manage_downloads"]) && <SpeedDialAction
+                {checkUserPerm(curUserPerm, ["administrator", "manage_downloads"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle={tr("create")}

@@ -1,6 +1,7 @@
+import { useRef, useEffect, useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { AppContext } from '../context';
+
 import { Typography, Grid, Tooltip, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogActions, DialogTitle, DialogContent, TextField, Button, Snackbar, Alert, Divider, FormControl, FormControlLabel, Checkbox, MenuItem, useTheme } from '@mui/material';
 import { LocalShippingRounded, WidgetsRounded, VerifiedOutlined } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +24,8 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
     const { t: tr } = useTranslation();
-    
+    const { curUserPerm } = useContext(AppContext);
+
     const columns = [
         { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
         { id: 'driver', label: tr("driver") },
@@ -495,7 +497,7 @@ const Deliveries = () => {
                 tooltipTitle={tr("export")}
                 icon={<FontAwesomeIcon icon={faFileExport} />}
                 onClick={() => { setDialogOpen("export"); }} />
-            {checkUserPerm(["administrator", "import_dlogs"]) && <SpeedDialAction
+            {checkUserPerm(curUserPerm, ["administrator", "import_dlogs"]) && <SpeedDialAction
                 key="import"
                 tooltipTitle={tr("import_trucky_jobs")}
                 icon={<FontAwesomeIcon icon={faTruckFront} />}

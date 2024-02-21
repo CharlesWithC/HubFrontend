@@ -23,10 +23,6 @@ exports.dhcustombg = dhcustombg;
 var isLoggedIn = false;
 exports.isLoggedIn = isLoggedIn;
 
-var userInfo = {};
-exports.userInfo = userInfo;
-var userPerm = [];
-exports.userPerm = userPerm;
 var userDivisionIDs = [];
 exports.userDivisionIDs = userDivisionIDs;
 var userStats = {};

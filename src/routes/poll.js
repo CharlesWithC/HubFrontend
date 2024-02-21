@@ -21,13 +21,15 @@ var vars = require("../variables");
 
 const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     const { t: tr } = useTranslation();
+    const { curUserPerm } = useContext(AppContext);
+
     const [poll, setPoll] = useState(inputPoll);
     useEffect(() => {
         setPoll(inputPoll);
     }, [inputPoll]);
 
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_polls"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_polls"]));
     let initialChoices = [];
     for (let i = 0; i < poll.choices.length; i++) {
         if (poll.choices[i].voted) {
@@ -246,7 +248,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
                                 </div>
                             </Typography>
                             {(showButtons) && <div>
-                                {(checkUserPerm(["administrator", "manage_polls"]) || poll.config.show_voter && (poll.config.show_stats && poll.voted || poll.config.show_stats_before_vote || poll.config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label={tr("edit")} onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
+                                {(checkUserPerm(curUserPerm, ["administrator", "manage_polls"]) || poll.config.show_voter && (poll.config.show_stats && poll.voted || poll.config.show_stats_before_vote || poll.config.show_stats_when_ended && poll.end_time * 1000 < +new Date())) && <IconButton size="small" aria-label={tr("edit")} onClick={() => { onPollVoters(poll); }}><FontAwesomeIcon icon={faUsers} /></IconButton >}
                             </div>}
                             {(showControls && showButtons) && <div>
                                 <IconButton size="small" aria-label={tr("edit")} onClick={handleEdit}><EditRounded /></IconButton >
@@ -433,7 +435,7 @@ const PollManagers = memo(() => {
 
 const Poll = () => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
 
     const [polls, setPolls] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -855,7 +857,7 @@ const Poll = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["administrator", "manage_polls"]) && <SpeedDialAction
+                {checkUserPerm(curUserPerm, ["administrator", "manage_polls"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle={tr("create")}

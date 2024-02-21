@@ -26,7 +26,7 @@ const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫�
 
 const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -511,13 +511,13 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     tooltipTitle={tr("details")}
                     icon={<InfoRounded />}
                     onClick={handleDetail} />}
-            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
                 key="division"
                 tooltipTitle={tr("division")}
                 icon={<WarehouseRounded />}
                 onClick={handleDivision}
             />}
-            {(checkUserPerm(["administrator", "delete_dlogs"])) &&
+            {(checkUserPerm(curUserPerm, ["administrator", "delete_dlogs"])) &&
                 <SpeedDialAction
                     key="delete"
                     tooltipTitle={tr("delete")}
@@ -531,6 +531,8 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
 
 const Delivery = memo(() => {
     const { t: tr } = useTranslation();
+    const { curUserPerm } = useContext(AppContext);
+
     const STATUS = { 0: tr("pending"), 1: tr("accepted"), 2: tr("declined") };
 
     const [snackbarContent, setSnackbarContent] = useState("");
@@ -646,7 +648,7 @@ const Delivery = memo(() => {
                         {divisionMeta.update_message !== "" && <><br /><Typography variant="body"><>{tr("message")}</>: {divisionMeta.update_message}</Typography></>}
                     </>}
                 </>}
-                {(checkUserPerm(["administrator", "manage_divisions"]) && divisionStatus !== -1) && <>
+                {(checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && divisionStatus !== -1) && <>
                     <hr />
                     <Typography variant="body"><b>{tr("update_validation_result")}</b></Typography>
                     <br />
@@ -684,7 +686,7 @@ const Delivery = memo(() => {
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
-                {(checkUserPerm(["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
+                {(checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
                     <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("update")}</Button>}
                 {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) &&
                     <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("submit")}</Button>

@@ -15,11 +15,12 @@ var vars = require("../variables");
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
+    const { curUserPerm } = useContext(AppContext);
 
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> };
     const icon = ICONS[announcement.type.id];
 
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(["administrator", "manage_announcements"]));
+    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_announcements"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -516,7 +517,7 @@ const Announcement = () => {
                 sx={{ position: 'fixed', bottom: 20, right: 20 }}
                 icon={<SpeedDialIcon />}
             >
-                {checkUserPerm(["administrator", "manage_announcements"]) && <SpeedDialAction
+                {checkUserPerm(curUserPerm, ["administrator", "manage_announcements"]) && <SpeedDialAction
                     key="create"
                     icon={<EditNoteRounded />}
                     tooltipTitle={tr("create")}

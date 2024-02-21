@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCurUser }, isLogin = false) {
+export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCurUser, setCurUserPerm }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -144,13 +144,16 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
                 }
             }
             const allPerms = Object.keys(vars.perms);
+            const userPerm = [];
             for (let i = 0; i < curUser.roles.length; i++) {
                 for (let j = 0; j < allPerms.length; j++) {
-                    if (vars.perms[allPerms[j]].includes(curUser.roles[i]) && !vars.userPerm.includes(allPerms[j])) {
-                        vars.userPerm.push(allPerms[j]);
+                    if (vars.perms[allPerms[j]].includes(curUser.roles[i]) && !userPerm.includes(allPerms[j])) {
+                        userPerm.push(allPerms[j]);
                     }
                 }
             }
+            setCurUserPerm(userPerm);
+            
             vars.userBanner = { name: curUser.name, role: roleOnDisplay, avatar: curUser.avatar };
 
             let tiers = ["platinum", "gold", "silver", "bronze"];
@@ -211,7 +214,7 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
         vars.isLoggedIn = false;
         setCurUID(null);
         setCurUser({});
-        vars.userPerm = [];
+        setCurUserPerm([]);
         vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
     }
 }
@@ -498,10 +501,10 @@ export function checkPerm(roles, perms) {
     return false;
 }
 
-export function checkUserPerm(perms) {
+export function checkUserPerm(userPerm, perms) {
     // any matches in perms will return true
     for (let i = 0; i < perms.length; i++) {
-        if (vars.userPerm.includes(perms[i])) {
+        if (userPerm.includes(perms[i])) {
             return true;
         }
     }
