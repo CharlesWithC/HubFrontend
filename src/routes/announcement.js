@@ -243,7 +243,7 @@ const AnnouncementManagers = memo(() => {
 
 const Announcement = () => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser } = useContext(AppContext);
+    const { curUID, curUser, curUserPerm } = useContext(AppContext);
 
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);

@@ -9,6 +9,7 @@
 5. Optimize memory consumption and performance with useMemo being used correctly
 6. Optimize page switch loading with useTransition
 7. Dedicated Statistics page for comprehensive chart and statistics information
+8. Improve challenge plugin (better form, include more select like for game (eut2/ats))
 
 ## v3.4.0
 
