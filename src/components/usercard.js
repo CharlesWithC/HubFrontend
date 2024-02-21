@@ -22,7 +22,7 @@
 // NOTE
 // "profile" refers to the profile popover AND user's name and avatar
 
-import { useEffect, useState, useCallback, useRef, useContext } from 'react';
+import { useEffect, useState, useCallback, useRef, useContext, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
@@ -32,7 +32,7 @@ import { RouteRounded, LocalGasStationRounded, EuroRounded, AttachMoneyRounded, 
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faPeopleGroup, faTrophy, faLink, faUnlockKeyhole, faUserSlash, faTrashCan, faBan, faCircleCheck, faUserCheck, faTruck, faBarsStaggered, faHashtag, faComment, faNoteSticky, faPencil, faScrewdriverWrench, faCrown, faClover, faAt, faFingerprint, faEarthAmericas, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord, faSteam } from '@fortawesome/free-brands-svg-icons';
 
 import SimpleBar from 'simplebar-react';
@@ -136,14 +136,17 @@ const UserCard = (props) => {
     const { users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm } = useContext(AppContext);
 
     const bannerRef = useRef(null); // this is a real component reference
-    let availableTrackers = [];
-    if (vars.apiconfig !== null) {
-        for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
-            if (!availableTrackers.includes(vars.apiconfig.trackers[i].type)) {
-                availableTrackers.push(vars.apiconfig.trackers[i].type);
+    const availableTrackers = useMemo(() => {
+        const result = [];
+        if (vars.apiconfig !== null) {
+            for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
+                if (!result.includes(vars.apiconfig.trackers[i].type)) {
+                    result.push(vars.apiconfig.trackers[i].type);
+                }
             }
         }
-    }
+        return result;
+    }, [vars.apiconfig.trackers]);
     const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky" };
 
     if (users[props.user.uid] === undefined) {
@@ -156,6 +159,20 @@ const UserCard = (props) => {
     }
     // use the user in store | check if exist (could be non-existent when uid is NaN)
     const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
+
+    const userPerm = useMemo(() => {
+        const allPerms = Object.keys(vars.perms);
+        let result = [];
+        for (let i = 0; i < user.roles.length; i++) {
+            for (let j = 0; j < allPerms.length; j++) {
+                if (vars.perms[allPerms[j]].includes(user.roles[i]) && !result.includes(allPerms[j])) {
+                    result.push(allPerms[j]);
+                }
+            }
+        }
+        if (result.includes("administrator")) result = ["administrator"];
+        return result;
+    }, [user.roles, vars.perms]);
 
     // user card settings
     let { size, useChip, onDelete, textOnly, style, showProfileModal, onProfileModalClose } = { size: "20", useChip: false, onDelete: null, textOnly: false, style: {}, showProfileModal: undefined, onProfileModalClose: undefined, ...props };
@@ -787,6 +804,9 @@ const UserCard = (props) => {
                             {user.roles !== null && user.roles !== undefined && user.roles.length !== 0 && <Box sx={{ mt: "10px" }}>
                                 <Typography variant="body2" sx={{ fontWeight: 800 }}>
                                     {user.roles.length > 1 ? `ROLES` : `ROLE`}
+                                    <Tooltip placement="top" arrow title={`${tr("permissions")}: ${userPerm.map((perm) => perm.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')).join(", ")}`}
+                                        PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><FontAwesomeIcon icon={faInfoCircle} style={{ marginLeft: "3px" }} />
+                                    </Tooltip>
                                 </Typography>
                                 {user.roles.map((role) => (
                                     <Chip
