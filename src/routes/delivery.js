@@ -26,7 +26,7 @@ const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫�
 
 const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { curUID, curUser, curUserPerm } = useContext(AppContext);
+    const { curUID, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -322,27 +322,27 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
             { "name": tr("driver"), "value": <UserCard user={data.user} inline={true} /> },
             { "name": tr("truck_model"), "value": <>{detail.truck.brand.name}&nbsp;{detail.truck.name} <span style={{ color: "grey" }}>({detail.truck.unique_id})</span></> },
             { "name": tr("truck_plate"), "value": <>{detail.truck.license_plate_country !== null ? `${GetCountryFlag(detail.game.short_name, detail.truck.license_plate_country.unique_id)} ${detail.truck.license_plate}` : `N/A`}</> },
-            { "name": tr("truck_odometer"), "value": <>{ConvertUnit("km", detail.truck.initial_odometer)} {'->'} {ConvertUnit("km", detail.truck.odometer)}</> },
+            { "name": tr("truck_odometer"), "value": <>{ConvertUnit(userSettings.unit, "km", detail.truck.initial_odometer)} {'->'} {ConvertUnit(userSettings.unit, "km", detail.truck.odometer)}</> },
             { "name": tr("trailer_model"), "value": GetTrailerModel(detail.trailers) },
             { "name": tr("trailer_plate"), "value": <>{detail.trailers[0].license_plate_country !== null ? `${GetTrailerPlate(detail.game.short_name, detail.trailers)}` : `N/A`}</> },
             {},
             { "name": tr("cargo"), "value": <>{detail.cargo.name} <span style={{ color: "grey" }}>({detail.cargo.unique_id})</span></> },
-            { "name": tr("cargo_mass"), "value": ConvertUnit("kg", detail.cargo.mass) },
+            { "name": tr("cargo_mass"), "value": ConvertUnit(userSettings.unit, "kg", detail.cargo.mass) },
             { "name": tr("cargo_damage"), "value": <span style={{ "color": detail.cargo.damage <= 0.01 ? theme.palette.success.main : (detail.cargo.damage <= 0.05 ? theme.palette.warning.main : theme.palette.error.main) }} > {(detail.cargo.damage * 100).toFixed(1)}%</span > },
             {},
-            { "name": tr("planned_distance"), "value": ConvertUnit("km", detail.planned_distance) },
-            { "name": tr("logged_distance"), "value": ConvertUnit("km", detail.driven_distance) },
-            { "name": tr("reported_distance"), "value": ConvertUnit("km", detail.events[detail.events.length - 1].meta.distance) },
+            { "name": tr("planned_distance"), "value": ConvertUnit(userSettings.unit, "km", detail.planned_distance) },
+            { "name": tr("logged_distance"), "value": ConvertUnit(userSettings.unit, "km", detail.driven_distance) },
+            { "name": tr("reported_distance"), "value": ConvertUnit(userSettings.unit, "km", detail.events[detail.events.length - 1].meta.distance) },
             {},
             { "name": tr("source_company"), "value": <>{detail.source_company.name} <span style={{ color: "grey" }}>({detail.source_company.unique_id})</span></> },
             { "name": tr("source_city"), "value": <>{detail.source_city.name} <span style={{ color: "grey" }}>({detail.source_city.unique_id})</span></> },
             { "name": tr("destination_company"), "value": <>{detail.destination_company.name} <span style={{ color: "grey" }}>({detail.destination_company.unique_id})</span></> },
             { "name": tr("destination_city"), "value": <>{detail.destination_city.name} <span style={{ color: "grey" }}>({detail.destination_city.unique_id})</span></> },
-            { "name": tr("fuel_used"), "value": ConvertUnit("l", detail.fuel_used, 2) },
-            { "name": tr("avg_fuel"), "value": ConvertUnit("l", (detail.fuel_used / detail.driven_distance * 100).toFixed(2), 2) + "/100km" },
-            { "name": tr("adblue_used"), "value": ConvertUnit("l", detail.adblue_used, 2) },
-            { "name": tr("max_speed"), "value": ConvertUnit("km", detail.truck.top_speed * 3.6) + "/h" },
-            { "name": tr("avg_speed"), "value": ConvertUnit("km", detail.truck.average_speed * 3.6) + "/h" },
+            { "name": tr("fuel_used"), "value": ConvertUnit(userSettings.unit, "l", detail.fuel_used, 2) },
+            { "name": tr("avg_fuel"), "value": ConvertUnit(userSettings.unit, "l", (detail.fuel_used / detail.driven_distance * 100).toFixed(2), 2) + "/100km" },
+            { "name": tr("adblue_used"), "value": ConvertUnit(userSettings.unit, "l", detail.adblue_used, 2) },
+            { "name": tr("max_speed"), "value": ConvertUnit(userSettings.unit, "km", detail.truck.top_speed * 3.6) + "/h" },
+            { "name": tr("avg_speed"), "value": ConvertUnit(userSettings.unit, "km", detail.truck.average_speed * 3.6) + "/h" },
             {},
             { "name": tr("revenue"), "value": detail.events[detail.events.length - 1].meta.revenue !== undefined ? CURRENTY_ICON[detail.game.short_name] + detail.events[detail.events.length - 1].meta.revenue : "/" },
             { "name": tr("fine"), "value": CURRENTY_ICON[detail.game.short_name] + fine },
@@ -360,7 +360,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
             if (window.isElectron) {
                 window.electron.ipcRenderer.send("presence-update", {
                     details: `Viewing Delivery #${logid}`,
-                    state: `${detail.source_city.name} -> ${detail.destination_city.name} (${ConvertUnit("km", detail.events[detail.events.length - 1].meta.distance)})`,
+                    state: `${detail.source_city.name} -> ${detail.destination_city.name} (${ConvertUnit(userSettings.unit, "km", detail.events[detail.events.length - 1].meta.distance)})`,
                     largeImageKey: `https://cdn.chub.page/assets/${vars.dhconfig.abbr}/logo.png?${vars.dhconfig.logo_key !== undefined ? vars.dhconfig.logo_key : ""}`,
                     largeImageText: vars.dhconfig.name,
                     smallImageKey: `https://drivershub.charlws.com/images/logo.png`,
@@ -409,7 +409,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                     <Grid item xs={12} sm={12} md={6} lg={6}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                             <Typography variant="body1" component="div" sx={{ marginTop: "4px" }}>
-                                {`${dlogDetail.cargo.name} (${ConvertUnit("kg", dlogDetail.cargo.mass)})`}
+                                {`${dlogDetail.cargo.name} (${ConvertUnit(userSettings.unit, "kg", dlogDetail.cargo.mass)})`}
                             </Typography>
 
                             <LinearProgress
@@ -424,7 +424,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                             />
 
                             <Typography variant="body2" component="div" style={{ textAlign: 'center' }}>
-                                {ConvertUnit("km", dlogDetail.driven_distance)}<br />
+                                {ConvertUnit(userSettings.unit, "km", dlogDetail.driven_distance)}<br />
                                 {CalcInterval(new Date(dlogDetail.start_time), new Date(dlogDetail.stop_time))}
                             </Typography>
                         </div>
@@ -462,7 +462,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                                         if (e.type === "fine") {
                                             desc = <>{FINE_DESC[e.meta.offence]}</>;
                                             if (e.meta.offence === "speeding" || e.meta.offence === "speeding_camera") {
-                                                desc = <>{desc}<br /><>{tr("speed")}</>: {ConvertUnit("km", e.meta.speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
+                                                desc = <>{desc}<br /><>{tr("speed")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed_limit * 3.6)}/h</>;
                                             }
                                             desc = <>{desc}<br />{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{e.meta.amount}</>;
                                         } else if (e.type === "tollgate") {
@@ -472,7 +472,7 @@ const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoRel
                                         } else if (e.type === "refuel") {
                                             desc = <>{tr("paid")}{CURRENTY_ICON[dlogDetail.game.short_name]}{parseInt(e.meta.amount)}</>;
                                         } else if (e.type === "speeding") {
-                                            desc = <><>{tr("max_speed")}</>: {ConvertUnit("km", e.meta.max_speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit("km", e.meta.speed_limit * 3.6)}/h</>;
+                                            desc = <><>{tr("max_speed")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.max_speed * 3.6)}/h<br /><>{tr("limit")}</>: {ConvertUnit(userSettings.unit, "km", e.meta.speed_limit * 3.6)}/h</>;
                                         }
                                         return (
                                             <TimelineItem key={idx}>

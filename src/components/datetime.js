@@ -1,12 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../context';
+
 import { TextField } from '@mui/material';
+
 import { getTimezoneOffset } from '../functions';
 
 var vars = require("../variables");
 
 // all in seconds, not milliseconds
 const DateTimeField = ({ label, defaultValue, onChange, fullWidth = false, size = undefined, sx = {}, disabled = false }) => {
-    let displayTimezone = vars.userSettings.display_timezone;
+    const { userSettings } = useContext(AppContext);
+    
+    let displayTimezone = userSettings.display_timezone;
     if (vars.userLevel < 3) {
         displayTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     }

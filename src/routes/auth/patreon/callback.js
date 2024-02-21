@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../../../context';
+
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 
-import { customAxios as axios, getAuthToken, setAuthMode, getAuthMode, eraseAuthMode } from '../../../functions';
-
-import { useTranslation } from 'react-i18next';
+import { customAxios as axios, getAuthToken, getAuthMode, eraseAuthMode } from '../../../functions';
 
 var vars = require('../../../variables');
 
 const PatreonAuth = () => {
     const { t: tr } = useTranslation();
+    const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -20,7 +22,7 @@ const PatreonAuth = () => {
     const patreonCode = searchParams.get('code');
     const patreonError = searchParams.get('error');
     const patreonErrorDescription = searchParams.get('error_description');
-    
+
     const [message, setMessage] = useState(tr("validating_authorization"));
     const [allowContinue, setContinue] = useState(false);
 
@@ -87,7 +89,7 @@ const PatreonAuth = () => {
 
     return (
         <div style={{
-            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundImage: `url(${themeSettings.bg_image})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',

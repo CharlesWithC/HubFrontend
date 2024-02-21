@@ -1,20 +1,20 @@
-import { useMemo } from 'react';
-import { Button } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { getDesignTokens } from '../designs';
-
+import { useMemo, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ThemeContext } from '../context';
+
+import { Button, useMediaQuery, createTheme, ThemeProvider } from '@mui/material';
+import { getDesignTokens } from '../designs';
 
 var vars = require("../variables");
 
 const Crashed = ({ errorUploaded }) => {
     const { t: tr } = useTranslation();
-    
+    const { themeSettings } = useContext(ThemeContext);
+
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const themeMode = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
+    const themeMode = themeSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : themeSettings.theme;
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
-    const designTokens = getDesignTokens(themeMode, muiTheme[themeMode], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio);
+    const designTokens = getDesignTokens({}, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio);
     const theme = useMemo(
         () => createTheme(designTokens, muiTheme[themeMode]),
         [designTokens, themeMode],

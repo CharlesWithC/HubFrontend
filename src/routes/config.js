@@ -3360,7 +3360,7 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Client: v3.4.0-beta.04 (build.{buildhash})
+                            Client: v3.4.0-beta.05 (build.{buildhash})
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>

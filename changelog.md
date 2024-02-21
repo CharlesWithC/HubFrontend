@@ -32,6 +32,9 @@
 7. Removed `vars.isLoggedIn` to use `curUID ?= NULL` to determine whether user is logged in
 8. Removed `vars.userStats` to get real-time `userDrivenDistance` in challenge tab on tab load
 9. Replaced `vars.economy*` with Context API `economyCache`
+10. Replaced `vars.userSettings` with Context API `AppContext.userSettings` and `ThemeContext.themeSettings`, thus:
+    - Supported real-time reflection of settings updates
+    - Improved handling of theme update
 
 ## v3.3.x
 

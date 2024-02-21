@@ -21,6 +21,8 @@ var vars = require("../variables");
 const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const DivisionCard = ({ division }) => {
+    const { userSettings } = useContext(AppContext);
+
     return (<Card>
         <CardContent>
             <div style={{ marginBottom: "10px", display: 'flex', alignItems: "center" }}>
@@ -43,12 +45,12 @@ const DivisionCard = ({ division }) => {
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <RouteRounded />&nbsp;{ConvertUnit("km", division.distance)}
+                        <RouteRounded />&nbsp;{ConvertUnit(userSettings.unit, "km", division.distance)}
                     </Typography>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
                     <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                        <LocalGasStationRounded />&nbsp;{ConvertUnit("l", division.fuel)}
+                        <LocalGasStationRounded />&nbsp;{ConvertUnit(userSettings.unit, "l", division.fuel)}
                     </Typography>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
@@ -100,7 +102,7 @@ const DivisionsMemo = memo(({ doReload }) => {
 
 const DivisionsDlog = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUserPerm, userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'display_logid', label: 'ID' },
@@ -117,7 +119,7 @@ const DivisionsDlog = memo(({ doReload }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
 
     const theme = useTheme();
 
@@ -133,7 +135,7 @@ const DivisionsDlog = memo(({ doReload }) => {
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
                 let row = dlogL.list[i];
-                newDlogList.push({ logid: row.logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{row.logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} /></Typography>, driver: <UserCard user={row.user} inline={true} />, source: `${row.source_company}, ${row.source_city}`, destination: `${row.destination_company}, ${row.destination_city}`, distance: ConvertUnit("km", row.distance), cargo: `${row.cargo} (${ConvertUnit("kg", row.cargo_mass)})`, profit: `${CURRENTY_ICON[row.unit]}${row.profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /> });
+                newDlogList.push({ logid: row.logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{row.logid}</span><VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} /></Typography>, driver: <UserCard user={row.user} inline={true} />, source: `${row.source_company}, ${row.source_city}`, destination: `${row.destination_company}, ${row.destination_city}`, distance: ConvertUnit(userSettings, "km", row.distance), cargo: `${row.cargo} (${ConvertUnit(userSettings.unit, "kg", row.cargo_mass)})`, profit: `${CURRENTY_ICON[row.unit]}${row.profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={row.timestamp * 1000} /> });
             }
 
             if (pageRef.current === page) {
@@ -158,6 +160,8 @@ const DivisionsDlog = memo(({ doReload }) => {
 
 const DivisionsPending = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
+
     const pendingColumns = [
         { id: 'display_logid', label: tr("log_id") },
         { id: 'driver', label: tr("driver") },
@@ -174,7 +178,7 @@ const DivisionsPending = memo(({ doReload }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
 
     useEffect(() => {
         pageRef.current = page;

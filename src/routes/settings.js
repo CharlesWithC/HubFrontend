@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../context';
+import { AppContext, ThemeContext } from '../context';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
 
@@ -87,7 +87,8 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { setUsers, curUser } = useContext(AppContext);
+    const { setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = [
         { id: 'device', label: tr("device") },
@@ -175,117 +176,83 @@ const Settings = ({ defaultTab = 0 }) => {
         setRequireOtp(false);
     }, [otp, otpAction]);
 
-    const [userSettings, setUserSettings] = useState(vars.userSettings);
+    const debounceTimeout = useRef(null);
+    useEffect(() => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
+        }
 
-    const writeClientSettings = useCallback((data) => {
-        writeLS("client-settings", data, vars.host);
-    }, []);
+        debounceTimeout.current = setTimeout(() => {
+            writeLS("client-settings", { ...userSettings, ...themeSettings }, vars.host);
+        }, 200);
+
+        return () => {
+            if (debounceTimeout.current) {
+                clearTimeout(debounceTimeout.current);
+            }
+        };
+    }, [userSettings, themeSettings]);
 
     const [disablePresenceSettings, setDisablePresenceSettings] = useState(false);
     const updateDiscordPresence = useCallback(async (to) => {
         setDisablePresenceSettings(true);
         await window.electron.ipcRenderer.send("presence-settings", to);
-        vars.userSettings.presence = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, presence: to }));
         setTimeout(function () { setDisablePresenceSettings(false); }, 10000);
     }, []);
 
     const updateUnit = useCallback((to) => {
-        vars.userSettings.unit = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, unit: to }));
     }, []);
 
     const updateRPP = useCallback((to) => {
-        vars.userSettings.default_row_per_page = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, default_row_per_page: to }));
     }, []);
 
-    const updateFontSize = useCallback((to, rerender = true) => {
-        vars.userSettings.font_size = to;
-        writeClientSettings(vars.userSettings);
+    const updateFontSize = useCallback((to) => {
         setUserSettings(prevSettings => ({ ...prevSettings, font_size: to }));
-
-        if (rerender) {
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
-        }
     }, []);
 
     const allTimeZones = moment.tz.names();
     const updateDisplayTimezone = useCallback((to) => { // Display = DateTimeField
-        vars.userSettings.display_timezone = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, display_timezone: to }));
     }, []);
 
-    const updateTheme = useCallback((to, rerender = true) => {
-        vars.userSettings.theme = to;
-        writeClientSettings(vars.userSettings);
-        setUserSettings(prevSettings => ({ ...prevSettings, theme: to }));
-
-        if (rerender) {
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
-        }
+    const updateTheme = useCallback((to) => {
+        setThemeSettings(prevSettings => ({ ...prevSettings, theme: to }));
     }, []);
 
-    const updateUseCustomTheme = useCallback((to, rerender = true) => {
-        vars.userSettings.use_custom_theme = to;
-        writeClientSettings(vars.userSettings);
-        setUserSettings(prevSettings => ({ ...prevSettings, use_custom_theme: to }));
+    const updateUseCustomTheme = useCallback((to) => {
+        setThemeSettings(prevSettings => ({ ...prevSettings, use_custom_theme: to, ...(to === true && prevSettings.theme === "halloween" ? { theme: "dark" } : {}) }));
+    }, []);
 
-        if (to === true) {
-            if (userSettings.theme === "halloween") {
-                vars.userSettings.theme = "dark";
-                setUserSettings(prevSettings => ({ ...prevSettings, use_custom_theme: to, theme: "dark" }));
+    const DRdebounceTimeout = useRef(null);
+    const [localThemeDarkenRatio, setLocalThemeDarkenRatio] = useState(themeSettings.theme_darken_ratio);
+    useEffect(() => {
+        if (DRdebounceTimeout.current) {
+            clearTimeout(DRdebounceTimeout.current);
+        }
+
+        DRdebounceTimeout.current = setTimeout(() => {
+            setThemeSettings(prevSettings => ({ ...prevSettings, theme_darken_ratio: localThemeDarkenRatio }));
+        }, 200);
+
+        return () => {
+            if (DRdebounceTimeout.current) {
+                clearTimeout(DRdebounceTimeout.current);
             }
-        }
+        };
+    }, [localThemeDarkenRatio]);
 
-        if (rerender) {
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
-        }
+    const updateThemeBackgroundColor = useCallback((to) => {
+        setThemeSettings(prevSettings => ({ ...prevSettings, theme_background: to }));
     }, []);
 
-    const updateThemeDarkenRatio = useCallback((to, rerender = true) => {
-        vars.userSettings.theme_darken_ratio = to;
-        writeClientSettings(vars.userSettings);
-        setUserSettings(prevSettings => ({ ...prevSettings, theme_darken_ratio: to }));
-
-        if (rerender) {
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
-        }
-    }, []);
-
-    const updateThemeBackgroundColor = useCallback((to, rerender = true) => {
-        vars.userSettings.theme_background = to;
-        writeClientSettings(vars.userSettings);
-        setUserSettings(prevSettings => ({ ...prevSettings, theme_background: to }));
-
-        if (rerender) {
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
-        }
-    }, []);
-
-    const updateThemeMainColor = useCallback((to, rerender = true) => {
-        vars.userSettings.theme_main = to;
-        writeClientSettings(vars.userSettings);
-        setUserSettings(prevSettings => ({ ...prevSettings, theme_main: to }));
-
-        if (rerender) {
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
-        }
+    const updateThemeMainColor = useCallback((to) => {
+        setThemeSettings(prevSettings => ({ ...prevSettings, theme_main: to }));
     }, []);
 
     const updateDataSaver = useCallback((to) => {
-        vars.userSettings.data_saver = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, data_saver: to }));
 
         const dataSaverUpdated = new CustomEvent('dataSaverUpdated', { detail: { enabled: to } });
@@ -295,8 +262,6 @@ const Settings = ({ defaultTab = 0 }) => {
     }, []);
 
     const updateRadio = useCallback((to) => {
-        vars.userSettings.radio = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, radio: to }));
 
         const radioUpdated = new CustomEvent('radioUpdated', {});
@@ -304,8 +269,6 @@ const Settings = ({ defaultTab = 0 }) => {
     }, []);
 
     const updateRadioType = useCallback((to) => {
-        vars.userSettings.radio_type = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, radio_type: to }));
 
         const radioTypeUpdated = new CustomEvent('radioTypeUpdated', {});
@@ -313,8 +276,6 @@ const Settings = ({ defaultTab = 0 }) => {
     }, []);
 
     const updateRadioVolume = useCallback((to) => {
-        vars.userSettings.radio_volume = to;
-        writeClientSettings(vars.userSettings);
         setUserSettings(prevSettings => ({ ...prevSettings, radio_volume: to }));
 
         const radioVolumeUpdated = new CustomEvent('radioVolumeUpdated', {});
@@ -453,8 +414,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading -= 1;
     }, [notificationSettings]);
 
-    const [userLanguage, setUserLanguage] = useState(vars.userSettings.language);
-    const [supportedLanguages, setSupportedLanguages] = useState(vars.languages);
+    const [userLanguage, setUserLanguage] = useState(userSettings.language);
     const [languageLoading, setLanguageLoading] = useState(false);
     const updateUserLanguage = useCallback(async (e) => {
         window.loading += 1;
@@ -464,8 +424,6 @@ const Settings = ({ defaultTab = 0 }) => {
         let resp = await axios({ url: `${vars.dhpath}/user/language`, data: { language: e.target.value }, method: "PATCH", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             i18n.changeLanguage(e.target.value);
-            vars.userSettings.language = e.target.value;
-            writeClientSettings(vars.userSettings);
             setUserSettings(prevSettings => ({ ...prevSettings, language: e.target.value }));
         } else {
             setSnackbarContent(resp.data.error);
@@ -889,13 +847,13 @@ const Settings = ({ defaultTab = 0 }) => {
     const [sessionsTotalItems, setSessionsTotalItems] = useState(0);
     const [sessionsPage, setSessionsPage] = useState(1);
     const sessionsPageRef = useRef(1);
-    const [sessionsPageSize, setSessionsPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [sessionsPageSize, setSessionsPageSize] = useState(userSettings.default_row_per_page);
 
     const [appSessions, setAppSessions] = useState([]);
     const [appSessionsTotalItems, setAppSessionsTotalItems] = useState(0);
     const [appSessionsPage, setAppSessionsPage] = useState(1);
     const appSessionsPageRef = useRef(1);
-    const [appSessionsPageSize, setAppSessionsPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [appSessionsPageSize, setAppSessionsPageSize] = useState(userSettings.default_row_per_page);
 
     useEffect(() => {
         sessionsPageRef.current = sessionsPage;
@@ -1108,9 +1066,6 @@ const Settings = ({ defaultTab = 0 }) => {
             setCustomBackground(e.target.result);
             localStorage.setItem('custom-background', e.target.result);
             vars.dhcustombg = e.target.result;
-
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
         };
         reader.readAsDataURL(file);
     };
@@ -1137,9 +1092,6 @@ const Settings = ({ defaultTab = 0 }) => {
             setCustomBackground(fileContent);
             localStorage.setItem('custom-background', fileContent);
             vars.dhcustombg = fileContent;
-
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
         }
     };
 
@@ -1255,7 +1207,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         fullWidth
                         disabled={languageLoading}
                     >
-                        {supportedLanguages.map(language => (
+                        {vars.languages.map(language => (
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
                         ))}
                     </TextField>
@@ -1560,7 +1512,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                             {tr("since").toUpperCase()}
                                         </Typography>
                                         <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                            {getFormattedDate(new Date(curUser.join_timestamp * 1000)).split(" at ")[0]}
+                                            {getFormattedDate(userSettings.display_timezone, new Date(curUser.join_timestamp * 1000)).split(" at ")[0]}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={6}>
@@ -1599,9 +1551,9 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("auto"); }}>{tr("auto_device")}</Button>
-                        <Button variant="contained" color={userSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("dark"); }}>{tr("dark")}</Button>
-                        <Button variant="contained" color={userSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(userSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default, false); updateThemeDarkenRatio(0.4, false); } updateTheme("light"); }}>{tr("light")}</Button>
+                        <Button variant="contained" color={themeSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default); updateThemeDarkenRatio(0.4); } updateTheme("auto"); }}>{tr("auto_device")}</Button>
+                        <Button variant="contained" color={themeSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default); updateThemeDarkenRatio(0.4); } updateTheme("dark"); }}>{tr("dark")}</Button>
+                        <Button variant="contained" color={themeSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default); updateThemeDarkenRatio(0.4); } updateTheme("light"); }}>{tr("light")}</Button>
                     </ButtonGroup>
                 </Grid>
 
@@ -1623,27 +1575,27 @@ const Settings = ({ defaultTab = 0 }) => {
                         <br />
                     </>}
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={userSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>{tr("enabled")}</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>{tr("disabled")}</Button>
-                        <Button variant="contained" color={userSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhcustombg; updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
-                        {vars.vtcLevel >= 1 && vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={userSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
-                        {vars.vtcLevel >= 1 && vars.dhvtcbg !== "" && <Button variant="contained" color={userSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper, false); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default, false); updateThemeDarkenRatio(0.4, false); vars.dhbgimage = vars.dhvtcbg; updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
+                        <Button variant="contained" color={themeSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>{tr("enabled")}</Button>
+                        <Button variant="contained" color={themeSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>{tr("disabled")}</Button>
+                        <Button variant="contained" color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); updateThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhcustombg })); updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
+                        {vars.vtcLevel >= 1 && vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={themeSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
+                        {vars.vtcLevel >= 1 && vars.dhvtcbg !== "" && <Button variant="contained" color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); updateThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhvtcbg })); updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
                     </ButtonGroup>
                 </Grid>
                 <Grid item xs={12} sm={12} md={2} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_opacity")}</Typography>
                     <br />
-                    <Slider value={userSettings.theme_darken_ratio * 100} onChange={(e, val) => { updateThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vars.userLevel < 3} />
+                    <Slider value={localThemeDarkenRatio * 100} onChange={(e, val) => { setLocalThemeDarkenRatio(val / 100); }} aria-labelledby="continuous-slider" sx={{ color: theme.palette.info.main, height: "20px" }} disabled={vars.userLevel < 3} />
                 </Grid>
                 <Grid item xs={6} sm={6} md={3} lg={2}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_main_color")}</Typography>
                     <br />
-                    <ColorInput color={userSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
+                    <ColorInput color={themeSettings.theme_main} onChange={updateThemeMainColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                 </Grid>
                 <Grid item xs={6} sm={6} md={3} lg={2}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme_background_color")}</Typography>
                     <br />
-                    <ColorInput color={userSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
+                    <ColorInput color={themeSettings.theme_background} onChange={updateThemeBackgroundColor} hideDefault={true} disableDefault={vars.userLevel < 3} disableCustom={vars.userLevel < 3} />
                 </Grid>
                 <Grid item xs={6} sm={6} md={4} lg={4}>
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("custom_background_image")}&nbsp;&nbsp;<SponsorBadge level={3} /></Typography>

@@ -1,8 +1,9 @@
+import { useState, useCallback, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, CardActions, CardContent, Typography, useTheme } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import { ThemeContext } from '../../context';
+
+import { Button, Card, CardActions, CardContent, Typography, TextField, useTheme } from '@mui/material';
 
 import { customAxios as axios } from '../../functions';
 
@@ -14,6 +15,7 @@ var vars = require('../../variables');
 
 const EmailAuth = () => {
     const { t: tr } = useTranslation();
+    const { themeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
@@ -71,7 +73,7 @@ const EmailAuth = () => {
 
     return (
         <div style={{
-            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundImage: `url(${themeSettings.bg_image})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',

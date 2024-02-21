@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AppContext } from '../context';
+
 import { getFormattedDate } from "../functions";
 
-import { useTranslation } from 'react-i18next';
 
 const TimeAgo = ({ timestamp, lower = false }) => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
 
     const calculate = useCallback((timestamp, lower) => {
         if (timestamp === undefined || timestamp === null || isNaN(timestamp)) return "";
@@ -32,18 +35,18 @@ const TimeAgo = ({ timestamp, lower = false }) => {
         } else if (minutes < 60) {
             ret = tr("minutes_ago", { minutes: minutes });
         } else if (isToday) {
-            ret = getFormattedDate(date, tr("today")); // Today at 10:20
+            ret = getFormattedDate(userSettings.display_timezone, date, tr("today")); // Today at 10:20
         } else if (isYesterday) {
-            ret = getFormattedDate(date, tr("yesterday")); // Yesterday at 10:20
+            ret = getFormattedDate(userSettings.display_timezone, date, tr("yesterday")); // Yesterday at 10:20
         }
         if (ret !== "") {
             if (lower) return ret.toLowerCase();
             else return ret;
         }
         if (isThisYear) {
-            ret = getFormattedDate(date, false, true); // 10. January at 10:20
+            ret = getFormattedDate(userSettings.display_timezone, date, false, true); // 10. January at 10:20
         } else {
-            ret = getFormattedDate(date); // 10. January 2017. at 10:20
+            ret = getFormattedDate(userSettings.display_timezone, date); // 10. January 2017. at 10:20
         }
         return ret;
     }, []);

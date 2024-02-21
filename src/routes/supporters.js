@@ -1,13 +1,16 @@
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
+import { AppContext } from '../context';
+
 import { Card, CardHeader, CardContent, Typography, Avatar, Grid } from '@mui/material';
 
 var vars = require("../variables");
 
 const LargeUserCard = ({ user, color }) => {
+    const { userSettings } = useContext(AppContext);
     return (
         <Card sx={{ minWidth: 150 }}>
-            <Avatar src={!vars.userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
+            <Avatar src={!userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
                 <Typography variant="h6" align="center">
                     <span style={{ color: color }}>{user.name}</span>

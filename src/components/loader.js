@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppContext } from '../context';
+import { AppContext, ThemeContext } from '../context';
 
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { Typography, TextField, Button, useTheme } from '@mui/material';
@@ -14,6 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
@@ -24,7 +25,7 @@ const Loader = ({ onLoaderLoaded }) => {
     const [unknownDomain, setUnknownDomain] = useState(false);
 
     const searchParams = new URLSearchParams(window.location.search);
-    if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null) {
+    if (!window.isElectron && window.location.hostname === "localhost" && searchParams.get("domain") !== null && domain !== searchParams.get("domain")) {
         setDomain(searchParams.get("domain"));
         localStorage.setItem("domain", domain);
         vars.host = domain;
@@ -236,8 +237,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
             await FetchProfile(appContext);
 
-            const themeUpdated = new CustomEvent('themeUpdated', {});
-            window.dispatchEvent(themeUpdated);
+            setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
 
             function sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
@@ -255,7 +255,7 @@ const Loader = ({ onLoaderLoaded }) => {
     }
     useEffect(() => {
         doLoad();
-    }, [onLoaderLoaded]);
+    }, []);
 
     const handleDomainUpdate = useCallback(() => {
         localStorage.setItem("domain", domain);
@@ -298,7 +298,7 @@ const Loader = ({ onLoaderLoaded }) => {
             width: '100%',
             height: '100%',
         }}>
-            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + (vars.userSettings.theme_darken_ratio !== null ? intToHex(vars.userSettings.theme_darken_ratio * 100) : "66") }}>
+            <div className="loading-div" style={{ backgroundColor: theme.palette.background.default.substring(0, 7) + (themeSettings.theme_darken_ratio !== null ? intToHex(themeSettings.theme_darken_ratio * 100) : "66") }}>
                 <HelmetProvider>
                     <Helmet>
                         <title>{title}</title>

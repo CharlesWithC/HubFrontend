@@ -1,7 +1,10 @@
-import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import { ThemeContext } from '../context';
+
+import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
+
 
 var vars = require('../variables');
 
@@ -9,12 +12,13 @@ const BrowserAuth = ({ completed = false }) => {
     // completed = true => definitely browser client
 
     const { t: tr } = useTranslation();
+    const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
 
     return (
         <div style={{
-            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundImage: `url(${themeSettings.bg_image})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',

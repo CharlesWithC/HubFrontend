@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AppContext } from '../../../context';
+import { AppContext, ThemeContext } from '../../../context';
 
 import { Button, Card, CardActions, CardContent, Typography } from '@mui/material';
 
@@ -15,6 +15,7 @@ var vars = require('../../../variables');
 const SteamAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { themeSettings } = useContext(ThemeContext);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -80,7 +81,7 @@ const SteamAuth = () => {
 
     return (
         <div style={{
-            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundImage: `url(${themeSettings.bg_image})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',

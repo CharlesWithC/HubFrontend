@@ -195,7 +195,7 @@ const ChallengeManagers = memo(() => {
 
 const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
 
@@ -221,7 +221,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [listParam, setListParam] = useState({ order_by: "challengeid", order: "desc" });
 
     const [rawUpcomingChallenges, setRawUpcomingChallenges] = useState([]);
@@ -293,7 +293,7 @@ const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeLi
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { curUser, curUserPerm, userSettings } = useContext(AppContext);
     const theme = useTheme();
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
@@ -417,15 +417,15 @@ const Challenges = () => {
             let extrainfo = "";
             if (challenge.type === 2) extrainfo = ` ${completed_user_info[d[i][0]].points} Points`;
             else if (challenge.type === 3) extrainfo = ` x${completed_users_cnt[d[i][0]]}`;
-            else if (challenge.type === 5) extrainfo = ` ${ConvertUnit("km", completed_user_point[d[i][0]])}`;
+            else if (challenge.type === 5) extrainfo = ` ${ConvertUnit(userSettings.unit, "km", completed_user_point[d[i][0]])}`;
             completed_users = <>{completed_users} <UserCard user={completed_user_info[d[i][0]].user} inline={true} /> <Chip color="secondary" size="small" label={extrainfo}></Chip></>;
         }
 
         const lmi = [
             { "name": tr("type"), "value": CHALLENGE_TYPES[challenge.type] },
             { "name": tr("reward_points"), "key": "reward_points" },
-            { "name": tr("start_time"), "value": getFormattedDate(new Date(challenge.start_time * 1000)) },
-            { "name": tr("end_time"), "value": getFormattedDate(new Date(challenge.end_time * 1000)) },
+            { "name": tr("start_time"), "value": getFormattedDate(userSettings.display_timezone, new Date(challenge.start_time * 1000)) },
+            { "name": tr("end_time"), "value": getFormattedDate(userSettings.display_timezone, new Date(challenge.end_time * 1000)) },
             { "name": tr("status"), "value": status },
             {},
             { "name": tr("deliveries"), "key": "delivery_count" },
@@ -433,7 +433,7 @@ const Challenges = () => {
             { "name": tr("progress"), "value": progress },
             {},
             { "name": tr("required_roles"), "value": required_roles },
-            { "name": tr("required_distance_driven"), "value": ConvertUnit("km", challenge.required_distance) },
+            { "name": tr("required_distance_driven"), "value": ConvertUnit(userSettings.unit, "km", challenge.required_distance) },
             { "name": tr("qualification"), "value": qualifiedStatus },
             {},
             { "name": tr("completed_members"), "value": completed_users }];

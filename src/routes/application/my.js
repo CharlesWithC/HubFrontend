@@ -1,4 +1,6 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo, useContext, memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AppContext } from '../../context';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
@@ -9,12 +11,11 @@ import TimeAgo from '../../components/timeago';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, removeNUEValues } from '../../functions';
 
-import { useTranslation } from 'react-i18next';
-
 var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail }) => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -32,7 +33,7 @@ const ApplicationTable = memo(({ showDetail }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();

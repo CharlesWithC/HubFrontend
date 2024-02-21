@@ -78,7 +78,7 @@ function intToHex(intValue) {
     return hexValue;
 }
 
-export function getDesignTokens(customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
+export function getDesignTokens({ themeSettings, setThemeSettings }, customMode, mode, use_custom_theme = false, theme_background = null, theme_main = null, darken_ratio = null, font_size = "regular") {
     if (use_custom_theme === true) {
         if (vars.userLevel < 2)
             use_custom_theme = false;
@@ -103,7 +103,10 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         }
         theme_background = theme_background.substring(0, 7) + intToHex(darken_ratio * 100);
         theme_main = theme_main.substring(0, 7) + intToHex(darken_ratio * 100);
-        vars.dhbgimage = vars.dhvtcbg;
+        if (setThemeSettings !== undefined && themeSettings.bg_image !== vars.dhvtcbg) { // ensure called from <App>
+            setThemeSettings(prev_settings => ({ ...prev_settings, bg_image: vars.dhvtcbg }));
+            return; // we know there'll be a re-render
+        }
     }
     if (use_custom_theme === "custombg" && (vars.userLevel === -1 || vars.userLevel >= 3) && vars.dhcustombg !== "") {
         if (darken_ratio === null) darken_ratio = 0.4;
@@ -116,7 +119,10 @@ export function getDesignTokens(customMode, mode, use_custom_theme = false, them
         }
         theme_background = theme_background.substring(0, 7) + intToHex(darken_ratio * 100);
         theme_main = theme_main.substring(0, 7) + intToHex(darken_ratio * 100);
-        vars.dhbgimage = vars.dhcustombg;
+        if (setThemeSettings !== undefined && themeSettings.bg_image !== vars.dhcustombg) { // ensure called from <App>
+            setThemeSettings(prev_settings => ({ ...prev_settings, bg_image: vars.dhcustombg }));
+            return; // we know there'll be a re-render
+        }
     }
     if (use_custom_theme !== false) {
         customMode = "custom";

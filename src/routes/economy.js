@@ -225,7 +225,7 @@ const CustomTileMap = ({ economyGarages, tilesUrl, title, style, route, onGarage
 
 const Economy = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm, economyCache, setEconomyCache } = useContext(AppContext);
+    const { curUser, curUserPerm, userSettings, economyCache, setEconomyCache } = useContext(AppContext);
     const theme = useTheme();
 
     const slotColumns = [
@@ -396,7 +396,7 @@ const Economy = () => {
     const [slotTotal, setSlotTotal] = useState(0);
     const [slotPage, setSlotPage] = useState(1);
     const slotPageRef = useRef(1);
-    const [slotPageSize, setSlotPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [slotPageSize, setSlotPageSize] = useState(userSettings.default_row_per_page);
 
     const [activeSlot, setActiveSlot] = useState({});
     useEffect(() => {
@@ -1134,7 +1134,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("odometer")}</Typography>
-                            <Typography variant="body2">{ConvertUnit("km", activeTruck.odometer)}</Typography>
+                            <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", activeTruck.odometer)}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>

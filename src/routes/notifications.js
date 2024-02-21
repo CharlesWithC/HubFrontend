@@ -1,20 +1,24 @@
+import { useRef, useEffect, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
-import { useRef, useEffect, useState } from 'react';
+import { AppContext } from '../context';
+
 import { useTheme } from '@mui/material';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
 import { makeRequestsAuto } from '../functions';
 import MarkdownRenderer from '../components/markdown';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBell } from '@fortawesome/free-solid-svg-icons';
-
 var vars = require("../variables");
 
 const Notifications = () => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
+    const theme = useTheme();
+
     const columns = [
         { id: 'content', label: tr("content") },
         { id: 'time', label: tr("time") },
@@ -24,9 +28,7 @@ const Notifications = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
-
-    const theme = useTheme();
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
 
     useEffect(() => {
         pageRef.current = page;

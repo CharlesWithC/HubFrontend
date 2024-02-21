@@ -1,21 +1,24 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { IconButton, Popover, List, ListItem, ListItemText, Typography, Snackbar, Alert, CircularProgress, Badge } from '@mui/material';
-import { NotificationsRounded, DoneAllRounded } from '@mui/icons-material';
-import ReactMarkdown from 'react-markdown';
-import SimpleBar from 'simplebar-react';
-import { customAxios as axios, getAuthToken } from '../functions';
+import { useEffect, useState, useCallback, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../context';
+
+import { IconButton, Popover, List, ListItem, ListItemText, Typography, Snackbar, Alert, CircularProgress, Badge, useTheme } from '@mui/material';
+import { NotificationsRounded, DoneAllRounded } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand } from '@fortawesome/free-solid-svg-icons';
-import { useTheme } from '@emotion/react';
 
-import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
+import SimpleBar from 'simplebar-react';
+
+import { customAxios as axios, getAuthToken } from '../functions';
 
 var vars = require("../variables");
 
 const NotificationsPopover = () => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
 
     const theme = useTheme();
     const [notifications, setNotifications] = useState(null);
@@ -93,10 +96,10 @@ const NotificationsPopover = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             loadNotifications();
-        }, vars.userSettings.notification_refresh_interval * 1000);
+        }, userSettings.notification_refresh_interval * 1000);
 
         return () => { clearInterval(interval); };
-    }, [loadNotifications]);
+    }, [userSettings.notification_refresh_interval, loadNotifications]);
 
     const handleAllRead = async () => {
         const bearerToken = getAuthToken();

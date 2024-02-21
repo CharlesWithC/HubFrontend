@@ -1,6 +1,7 @@
+import { useRef, useEffect, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
-import { useRef, useEffect, useState } from 'react';
+import { AppContext } from '../context';
+
 import { useTheme } from '@mui/material';
 
 import TimeAgo from '../components/timeago';
@@ -13,6 +14,7 @@ var vars = require("../variables");
 
 const AuditLog = () => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'uid', label: 'UID' },
@@ -27,7 +29,7 @@ const AuditLog = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
 
     const theme = useTheme();
 

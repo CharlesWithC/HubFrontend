@@ -1,10 +1,10 @@
-import './App.css';
-import { useMemo, useState, useEffect, useCallback } from 'react';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import CssBaseline from "@mui/material/CssBaseline";
+import { useMemo, useState, useEffect, useCallback, useContext } from 'react';
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
-import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import i18n from './i18n';
+import { AppContext, ThemeContext } from './context';
+
+import { Card, CardContent, Typography, Button, Grid, Dialog, DialogActions, DialogTitle, DialogContent, useTheme, useMediaQuery, createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 
 import BrowserAuth from './components/browserAuth';
 import AuthLogin from './routes/auth/login';
@@ -49,15 +49,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { getDesignTokens } from './designs';
+import './App.css';
+
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
 
 import TopBar from './components/topbar';
 import SideBar from './components/sidebar';
-import { readLS, writeLS } from './functions.js';
 
-import { useTranslation } from 'react-i18next';
-import i18n from './i18n';
+import { readLS, writeLS } from './functions.js';
 
 var vars = require('./variables');
 
@@ -70,6 +70,8 @@ const drivershub = `    ____       _                         __  __      __
 
 function App() {
     const { t: tr } = useTranslation();
+    const { userSettings, setUserSettings } = useContext(AppContext);
+    const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     useEffect(() => {
         console.log(drivershub);
@@ -78,9 +80,15 @@ function App() {
     }, []);
 
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const [themeMode, updateThemeMode] = useState(vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme);
+    const themeMode = useMemo(
+        () => (themeSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : themeSettings.theme),
+        [themeSettings]
+    );
     const muiTheme = { "dark": "dark", "light": "light", "halloween": "dark" };
-    const [designTokens, setDesignTokens] = useState(getDesignTokens(themeMode, muiTheme[themeMode], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio, vars.userSettings.font_size));
+    const designTokens = useMemo(
+        () => (getDesignTokens({ themeSettings, setThemeSettings }, themeMode, muiTheme[themeMode], themeSettings.use_custom_theme, themeSettings.theme_background, themeSettings.theme_main, themeSettings.theme_darken_ratio, themeSettings.font_size)),
+        [themeSettings]
+    );
     const theme = useMemo(
         () => createTheme(designTokens, muiTheme[themeMode]),
         [designTokens, themeMode],
@@ -101,32 +109,27 @@ function App() {
     }
 
     useEffect(() => {
-        const handleUpdateTheme = () => {
-            const tm = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
-            updateThemeMode(tm);
-            setDesignTokens(getDesignTokens(tm, muiTheme[tm], vars.userSettings.use_custom_theme, vars.userSettings.theme_background, vars.userSettings.theme_main, vars.userSettings.theme_darken_ratio, vars.userSettings.font_size));
-        };
-        window.addEventListener("themeUpdated", handleUpdateTheme);
-        return () => {
-            window.removeEventListener("themeUpdated", handleUpdateTheme);
-        };
-    }, []);
-
-    useEffect(() => {
         if (readLS("client-settings", vars.host) !== null) {
             let lsSettings = readLS("client-settings", vars.host);
-            let sKeys = Object.keys(vars.userSettings);
+
+            let sKeys = Object.keys(userSettings);
             for (let i = 0; i < sKeys.length; i++) {
                 if (Object.keys(lsSettings).includes(sKeys[i])) {
-                    vars.userSettings[sKeys[i]] = lsSettings[sKeys[i]];
+                    userSettings[sKeys[i]] = lsSettings[sKeys[i]];
                 }
             }
-            writeLS("client-settings", vars.userSettings, vars.host);
-        } else {
-            writeLS("client-settings", vars.userSettings, vars.host);
+            setUserSettings(userSettings);
+
+            sKeys = Object.keys(themeSettings);
+            for (let i = 0; i < sKeys.length; i++) {
+                if (Object.keys(lsSettings).includes(sKeys[i])) {
+                    themeSettings[sKeys[i]] = lsSettings[sKeys[i]];
+                }
+            }
+            setThemeSettings(themeSettings);
         }
-        if (vars.userSettings.language !== null) {
-            i18n.changeLanguage(vars.userSettings.language);
+        if (userSettings.language !== null) {
+            i18n.changeLanguage(userSettings.language);
         }
     }, []);
 
@@ -139,7 +142,6 @@ function App() {
     const [aboutCHubModal, setAboutCHubModal] = useState(false);
 
     const location = useLocation();
-    const navigate = useNavigate();
     const [sidebarForceHidden, setSidebarForceHidden] = useState(false);
     const [sidebarHidden, setSidebarHidden] = useState(window.innerWidth < 600);
     const [topbarHidden, setTopbarHidden] = useState(false);
@@ -188,7 +190,7 @@ function App() {
     const hasSpeedDial = (["/announcement", "/gallery", "/challenge", "/delivery", "/division", "/downloads", "/event", "/leaderboard", "/poll", "/ranking", "/member-list", "/external-user"].includes(location.pathname) || location.pathname.startsWith("/delivery"));
 
     if (window.isElectron && vars.dhconfig !== null) {
-        window.electron.ipcRenderer.send("presence-settings", vars.userSettings.presence);
+        window.electron.ipcRenderer.send("presence-settings", userSettings.presence);
 
         const STATUS_NAMES = { "/": "Viewing Overview", "/overview": "Viewing Overview", "/gallery": "Viewing Gallery", "/announcement": "Viewing Announcements", "/downloads": "Viewing Downloads", "/poll": "Viewing Polls", "/map": "Viewing Map", "/delivery": "Viewing Deliveries", "/challenge": "Viewing Challenges", "/division": "Viewing Divisions", "/economy": "Viewing Economy", "/event": "Viewing Events", "/member": "Viewing Members", "/leaderboard": "Viewing Leaderboard", "/ranking": "Viewing Rankings", "/apply": "Submitting Application", "/application/new": "Submitting Application", "/application/my": "Viewing Own Applications", "/application/all": "Viewing All Applications", "/member-list": "Viewing Member List", "/external-user": "Viewing External Users", "/audit-log": "Viewing Audit Log", "/config": "Modifying Configuration", "/settings": "Modifying Settings", "/sponsor": "Sponsoring...", "/supporters": "Viewing Supporters", "/badges": "Viewing Badges", "/notifications": "Viewing Notifications", "/auth": "Logging in..." };
         let path = window.location.pathname;
@@ -222,7 +224,7 @@ function App() {
             <ThemeProvider theme={theme}>
                 {/* createTheme - opacity controls whether image will be shown*/}
                 <div style={{
-                    backgroundImage: (vars.dhbgimage !== null && vars.dhbgimage !== "") ? `url(${vars.dhbgimage})` : undefined,
+                    backgroundImage: `url(${themeSettings.bg_image})`,
                     backgroundPosition: 'center',
                     backgroundSize: 'cover',
                     backgroundRepeat: 'no-repeat',

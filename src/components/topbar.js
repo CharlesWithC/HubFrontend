@@ -1,22 +1,21 @@
-import * as React from 'react';
-import { useState, useEffect, useRef, useContext } from "react";
-import { AppContext } from '../context';
-import PropTypes from 'prop-types';
-import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, useTheme } from "@mui/material";
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded } from '@mui/icons-material';
+import { useState, useEffect, useRef, useCallback, useContext } from "react";
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import { AppContext } from '../context';
+
+import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, useTheme, useMediaQuery } from "@mui/material";
+import { AccountBoxRounded, SettingsRounded, FlareRounded, LogoutRounded, MenuRounded, AltRouteRounded } from '@mui/icons-material';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlay, faCirclePause, faClover, faDownload } from '@fortawesome/free-solid-svg-icons';
-
-import SimpleBar from 'simplebar-react';
-import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
-import NotificationsPopover from './notifications';
-import UserCard from './usercard';
 import { faSpotify } from '@fortawesome/free-brands-svg-icons';
 
-import { useTranslation } from 'react-i18next';
+import SimpleBar from 'simplebar-react';
+
+import NotificationsPopover from './notifications';
+import UserCard from './usercard';
+
+import { FetchProfile, customAxios as axios, getAuthToken, eraseAuthMode } from "../functions";
 
 var vars = require("../variables");
 
@@ -26,7 +25,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm } = useContext(AppContext);
+    const { setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, userSettings, setUserSettings } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -62,29 +61,29 @@ const TopBar = (props) => {
     const [radioName, setRadioName] = useState(tr("no_radio"));
     const [radioSpotifyId, setRadioSpotifyId] = useState(undefined);
     const [isPlaying, setIsPlaying] = useState(false);
-    async function loadRadio() {
-        if (vars.userSettings.radio !== "disabled") {
+    const loadRadio = useCallback(async () => {
+        if (userSettings.radio !== "disabled") {
             let radioOK = false;
-            if (vars.userLevel < 2 && vars.userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(vars.userSettings.radio_type)) {
-                vars.userSettings.radio_type = "tsr";
+            if (vars.userLevel < 2 && userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+                setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
             }
-            if (Object.keys(radioURLs).includes(vars.userSettings.radio_type)) {
-                setRadioURL(radioURLs[vars.userSettings.radio_type]);
-                setRadioName(radioNames[vars.userSettings.radio_type]);
-                setRadioImage(radioImages[vars.userSettings.radio_type]);
+            if (Object.keys(radioURLs).includes(userSettings.radio_type)) {
+                setRadioURL(radioURLs[userSettings.radio_type]);
+                setRadioName(radioNames[userSettings.radio_type]);
+                setRadioImage(radioImages[userSettings.radio_type]);
                 setRadioSpotifyId(undefined);
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: radioNames[vars.userSettings.radio_type],
+                    title: radioNames[userSettings.radio_type],
                     artwork: [
-                        { src: radioImages[vars.userSettings.radio_type], sizes: '256x256', type: 'image/jpeg' }
+                        { src: radioImages[userSettings.radio_type], sizes: '256x256', type: 'image/jpeg' }
                     ]
                 });
                 radioOK = true;
             } else {
                 try {
-                    new URL(vars.userSettings.radio_type);
+                    new URL(userSettings.radio_type);
                     setRadioSpotifyId(undefined);
-                    setRadioURL(vars.userSettings.radio_type);
+                    setRadioURL(userSettings.radio_type);
                     setRadioName(tr("custom_radio"));
                     setRadioImage("./logo.png");
                     navigator.mediaSession.metadata = new MediaMetadata({
@@ -96,11 +95,11 @@ const TopBar = (props) => {
                     radioOK = true;
                 } catch {
                     // invalid url
-                    console.error(`Invalid Radio URL: ${vars.userSettings.radio_type}`);
+                    console.error(`Invalid Radio URL: ${userSettings.radio_type}`);
                 }
             }
 
-            if (vars.userSettings.radio === "auto" && radioOK) {
+            if (userSettings.radio === "auto" && radioOK) {
                 for (let i = 0; i <= 10; i++) {
                     try {
                         radioRef.current.play();
@@ -116,7 +115,7 @@ const TopBar = (props) => {
             setRadioURL("");
             setRadioSpotifyId(undefined);
         }
-    }
+    }, [userSettings.radio, userSettings.radio_type]);
     useEffect(() => {
         if (radioRef.current !== null) {
             try {
@@ -135,46 +134,46 @@ const TopBar = (props) => {
         const interval = setInterval(async () => {
             if (radioRef.current !== null && !radioRef.current.paused) {
                 try {
-                    if (vars.userLevel < 2 && vars.userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(vars.userSettings.radio_type)) {
-                        vars.userSettings.radio_type = "tsr";
+                    if (vars.userLevel < 2 && userSettings.radio_type !== "tsr" || vars.userLevel < 4 && !Object.keys(RADIO_TYPES).includes(userSettings.radio_type)) {
+                        setUserSettings(userSettings => ({ ...userSettings, radio_type: "tsr" }));
                     }
-                    if (vars.userSettings.radio_type === "tsr") {
+                    if (userSettings.radio_type === "tsr") {
                         let resp = await axios({ url: `https://tsr-static.omnibyte.tech/cache.php?url=https://panel.truckstopradio.co.uk/api/v1/song-history/now-playing` });
                         setRadioSongName(resp.data.song.title);
-                        if (!vars.userSettings.data_saver) setRadioImage(resp.data.song.graphic.medium);
-                        else setRadioImage(radioImages[vars.userSettings.radio_type]);
+                        if (!userSettings.data_saver) setRadioImage(resp.data.song.graphic.medium);
+                        else setRadioImage(radioImages[userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.song.extraInfo.track.external_urls.spotify.split("/").pop());
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: resp.data.song.title,
                             artist: resp.data.song.artist,
                             album: resp.data.song.album,
-                            artwork: vars.userSettings.data_saver ? [] : [
+                            artwork: userSettings.data_saver ? [] : [
                                 { src: resp.data.song.graphic.medium, sizes: '300x300', type: 'image/jpeg' }
                             ]
                         });
-                    } else if (vars.userSettings.radio_type === "tfm") {
+                    } else if (userSettings.radio_type === "tfm") {
                         let resp = await axios({ url: `https://radiocloud.pro/api/public/v1/song/current` });
                         setRadioSongName(resp.data.data.title);
-                        if (!vars.userSettings.data_saver) setRadioImage(resp.data.data.album_art);
-                        else setRadioImage(radioImages[vars.userSettings.radio_type]);
+                        if (!userSettings.data_saver) setRadioImage(resp.data.data.album_art);
+                        else setRadioImage(radioImages[userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.data.link.split("/").pop());
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: resp.data.data.title,
                             artist: resp.data.data.artist,
-                            artwork: vars.userSettings.data_saver ? [] : [
+                            artwork: userSettings.data_saver ? [] : [
                                 { src: resp.data.data.album_art, sizes: '300x300', type: 'image/jpeg' }
                             ]
                         });
-                    } else if (vars.userSettings.radio_type === "simhit") {
+                    } else if (userSettings.radio_type === "simhit") {
                         let resp = await axios({ url: `https://api.simulatorhits.com/now-playing` });
                         setRadioSongName(resp.data.song.title);
-                        if (!vars.userSettings.data_saver) setRadioImage(resp.data.song.artwork);
-                        else setRadioImage(radioImages[vars.userSettings.radio_type]);
+                        if (!userSettings.data_saver) setRadioImage(resp.data.song.artwork);
+                        else setRadioImage(radioImages[userSettings.radio_type]);
                         setRadioSpotifyId(resp.data.song.identifier.spotify);
                         navigator.mediaSession.metadata = new MediaMetadata({
                             title: resp.data.song.title,
                             artist: resp.data.song.artist,
-                            artwork: vars.userSettings.data_saver ? [] : [
+                            artwork: userSettings.data_saver ? [] : [
                                 { src: resp.data.song.artwork, sizes: '640x640', type: 'image/jpeg' }
                             ]
                         });
@@ -185,10 +184,10 @@ const TopBar = (props) => {
             }
         }, 10000);
         return () => { clearInterval(interval); };
-    }, [vars.userSettings]);
+    }, [userSettings]);
     useEffect(() => {
         loadRadio();
-    }, [vars.userSettings.radio]);
+    }, [userSettings.radio]);
     useEffect(() => {
         window.addEventListener("radioUpdated", loadRadio);
         return () => {
@@ -213,7 +212,7 @@ const TopBar = (props) => {
         };
     }, []);
     async function handleRadioVolumeUpdate() {
-        radioRef.current.volume = vars.userSettings.radio_volume / 100;
+        radioRef.current.volume = userSettings.radio_volume / 100;
         radioRef.current.play();
     };
     useEffect(() => {
@@ -433,10 +432,6 @@ const TopBar = (props) => {
             </Snackbar>
         </div >
     );
-};
-
-TopBar.propTypes = {
-    sidebarWidth: PropTypes.number,
 };
 
 export default TopBar;

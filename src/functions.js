@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCurUser, setCurUserPerm }, isLogin = false) {
+export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCurUser, setCurUserPerm, userSettings, setUserSettings, themeSettings }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -151,7 +151,7 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
                 }
             }
             setCurUserPerm(userPerm);
-            
+
             vars.userBanner = { name: curUser.name, role: roleOnDisplay, avatar: curUser.avatar };
 
             let tiers = ["platinum", "gold", "silver", "bronze"];
@@ -180,9 +180,9 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
 
             resp = await customAxios({ url: `${vars.dhpath}/user/language`, headers: { "Authorization": `Bearer ${bearerToken}` } });
             if (resp.status === 200) {
-                vars.userSettings.language = resp.data.language;
+                setUserSettings(userSettings => ({ ...userSettings, language: resp.data.language }));
                 i18n.changeLanguage(resp.data.language);
-                writeLS("client-settings", vars.userSettings, vars.host);
+                writeLS("client-settings", ({ ...userSettings, ...themeSettings, language: resp.data.language }), vars.host);
             }
 
             if (curUser.userid !== -1) {
@@ -228,11 +228,11 @@ export function TSep(val) {
     return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-export function ConvertUnit(type, val, decimal = 0) {
+export function ConvertUnit(unit, type, val, decimal = 0) {
     if (val === undefined || val === null) {
         return "";
     }
-    if (vars.userSettings.unit === "imperial") {
+    if (unit === "imperial") {
         if (type === "km") {
             val = (val * 0.621371192).toFixed(decimal);
             return TSep(val) + "mi";
@@ -243,7 +243,7 @@ export function ConvertUnit(type, val, decimal = 0) {
             val = (val * 0.26417205235815).toFixed(decimal);
             return TSep(val) + "gal";
         }
-    } else if (vars.userSettings.unit === "metric") {
+    } else if (unit === "metric") {
         return TSep((val * 1.0).toFixed(decimal)) + type;
     }
 }
@@ -384,7 +384,7 @@ export function getTimezoneOffset(timezone) {
     return (utcDate - tzDate) / (1000 * 60);
 }
 
-export function getFormattedDate(date, prefomattedDate = false, hideYear = false) {
+export function getFormattedDate(display_timezone, date, prefomattedDate = false, hideYear = false) {
     if (date === undefined || date === null) return "";
     if (typeof date === "number") {
         if (date < 2000000000) date = date * 1000;
@@ -393,7 +393,7 @@ export function getFormattedDate(date, prefomattedDate = false, hideYear = false
 
     // convert display timezone
     try {
-        date = new Date(new Date(date.getTime() - getTimezoneOffset(vars.userSettings.display_timezone) * 60000).toISOString().slice(0, 16));
+        date = new Date(new Date(date.getTime() - getTimezoneOffset(display_timezone) * 60000).toISOString().slice(0, 16));
     } catch {
         return "";
     }

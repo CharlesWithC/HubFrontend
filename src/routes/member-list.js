@@ -22,7 +22,7 @@ var vars = require("../variables");
 
 const MemberList = () => {
     const { t: tr } = useTranslation();
-    const { users, memberUIDs } = useContext(AppContext);
+    const { users, memberUIDs, userSettings } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const theme = useTheme();
@@ -31,7 +31,7 @@ const MemberList = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [search, setSearch] = useState("");
     const searchRef = useRef("");
     const [listParam, setListParam] = useState({ order_by: "userid", order: "asc" });

@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { AppContext } from '../../context';
+import { AppContext, ThemeContext } from '../../context';
 
 import { Card, CardContent, CardActions, Button } from '@mui/material';
 
@@ -12,6 +12,7 @@ var vars = require('../../variables');
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
+    const { themeSettings } = useContext(ThemeContext);
     
     const navigate = useNavigate();
     const location = useLocation();
@@ -58,7 +59,7 @@ const TokenAuth = () => {
 
     return (
         <div style={{
-            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundImage: `url(${themeSettings.bg_image})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',

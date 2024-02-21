@@ -1,7 +1,8 @@
+import { useRef, useEffect, useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
-import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTheme, Typography, MenuItem, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress } from '@mui/material';
+import { AppContext } from '../context';
+
+import { useTheme, Typography, Snackbar, Alert, SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogActions, DialogContent, Grid, Button, LinearProgress } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,6 +20,8 @@ var vars = require("../variables");
 
 const ExternalUsers = () => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
+
     const puColumns = [
         { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
         { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
@@ -101,7 +104,7 @@ const ExternalUsers = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [search, setSearch] = useState("");
     const searchRef = useRef("");
     const [listParam, setListParam] = useState({ order_by: "uid", order: "desc" });
@@ -110,7 +113,7 @@ const ExternalUsers = () => {
     const [banTotalItems, setBanTotalItems] = useState(0);
     const [banPage, setBanPage] = useState(1);
     const banPageRef = useRef(1);
-    const [banPageSize, setBanPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [banPageSize, setBanPageSize] = useState(userSettings.default_row_per_page);
     const [banSearch, setBanSearch] = useState("");
     const banSearchRef = useRef("");
     const [banListParam, setBanListParam] = useState({ order_by: "uid", order: "desc" });
@@ -208,7 +211,7 @@ const ExternalUsers = () => {
             let newBanList = [];
             for (let i = 0; i < _banList.list.length; i++) {
                 let ban = _banList.list[i];
-                let expireDT = getFormattedDate(new Date(ban.ban.expire * 1000));
+                let expireDT = getFormattedDate(userSettings.display_timezone, new Date(ban.ban.expire * 1000));
                 if (ban.ban.expire >= 4102444800 || ban.ban.expire === null) expireDT = "/";
                 newBanList.push({ uid: ban.meta.uid, user: ban.user === null ? undefined : <UserCard key={ban.user.uid} user={ban.user} />, email: ban.meta.email, discordid: ban.meta.discordid, steamid: <a href={`https://steamcommunity.com/profiles/${ban.meta.steamid}`} target="_blank" rel="noreferrer" >{ban.meta.steamid}</a>, truckersmpid: <a href={`https://truckersmp.com/user/${ban.meta.truckersmpid}`} target="_blank" rel="noreferrer" >{ban.meta.truckersmpid}</a>, reason: ban.ban.reason, expire: expireDT });
             }

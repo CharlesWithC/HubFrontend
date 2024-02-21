@@ -1,7 +1,9 @@
+import { useRef, useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React, { useRef, useState, useEffect } from 'react';
-import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon } from '@mui/material';
-import { useTheme } from '@emotion/react';
+import { AppContext } from '../context';
+
+import { Card, CardContent, Typography, Avatar, Grid, Box, SpeedDial, SpeedDialAction, Dialog, DialogContent, DialogTitle, DialogActions, Button, TextField, MenuItem, SpeedDialIcon, useTheme } from '@mui/material';
+import { customSelectStyles } from '../designs';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGears } from '@fortawesome/free-solid-svg-icons';
@@ -13,7 +15,6 @@ import UserCard from '../components/usercard';
 import CustomTable from '../components/table';
 import UserSelect from '../components/userselect';
 
-import { customSelectStyles } from '../designs';
 import { getRankName, makeRequestsAuto, getMonthUTC, TSep, getCurrentMonthName, removeNUEValues } from '../functions';
 
 var vars = require("../variables");
@@ -25,9 +26,10 @@ function replaceUnderscores(str) {
 }
 
 const LargeUserCard = ({ user, color }) => {
+    const { userSettings } = useContext(AppContext);
     return (
         <Card sx={{ minWidth: 150 }}>
-            <Avatar src={!vars.userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
+            <Avatar src={!userSettings.data_saver ? user.avatar : ""} sx={{ width: 100, height: 100, margin: 'auto', marginTop: 3, border: `solid ${color}` }} />
             <CardContent>
                 <Typography variant="h6" align="center">
                     <UserCard user={user} textOnly={true} />
@@ -39,6 +41,9 @@ const LargeUserCard = ({ user, color }) => {
 
 const Leaderboard = () => {
     const { t: tr } = useTranslation();
+    const { userSettings } = useContext(AppContext);
+    const theme = useTheme();
+
     const columns = [
         { id: 'rankorder', label: '#' },
         { id: 'member', label: tr("member") },
@@ -50,9 +55,8 @@ const Leaderboard = () => {
         { id: 'bonus', label: tr("bonus") },
         { id: 'total', label: tr("total") },
     ];
-    
+
     const [dialogOpen, setDialogOpen] = useState("");
-    const theme = useTheme();
 
     const [monthly, setMonthly] = useState([]);
     const [allTime, setAllTime] = useState([]);
@@ -62,7 +66,7 @@ const Leaderboard = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [tempListParam, setTempListParam] = useState({ after: undefined, before: undefined, game: 0, point_types: ["bonus", "distance", "challenge", "division", "event"], users: [] });
     const [listParam, setListParam] = useState({ userids: [], users: [] });
 

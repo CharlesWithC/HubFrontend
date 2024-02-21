@@ -7,10 +7,17 @@ export const AppContext = createContext({
     users: {},
     userProfiles: {},
     memberUIDs: [],
+
     curUID: null,
     curUser: {},
     curUserPerm: [],
+
+    userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" },
+    // radio: enabled / disabled / auto-play (enabled)
+    // radio-type: tsr / {url}
+
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
+
     initMemberUIDs: async () => { }
 });
 
@@ -22,6 +29,8 @@ export const AppContextProvider = ({ children }) => {
     const [curUID, setCurUID] = useState(null);
     const [curUser, setCurUser] = useState({});
     const [curUserPerm, setCurUserPerm] = useState([]);
+
+    const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
 
     const [economyCache, setEconomyCache] = useState({ config: null, trucks: [], garagesMap: {}, merchMap: {} });
 
@@ -78,12 +87,43 @@ export const AppContextProvider = ({ children }) => {
         memberUIDs, setMemberUIDs, initMemberUIDs,
         curUID, setCurUID, curUser, setCurUser,
         curUserPerm, setCurUserPerm,
+        userSettings, setUserSettings,
         economyCache, setEconomyCache,
-    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, economyCache]);
+    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, economyCache, userSettings]);
 
     return (
         <AppContext.Provider value={value}>
             {children}
         </AppContext.Provider>
+    );
+};
+
+export const ThemeContext = createContext({
+    themeSettings: {
+        theme: "auto",
+        use_custom_theme: false,
+        theme_background: null,
+        theme_main: null,
+        theme_darken_ratio: null,
+        bg_image: null
+    }
+});
+
+export const ThemeContextProvider = ({ children }) => {
+    const [themeSettings, setThemeSettings] = useState({
+        theme: "auto",
+        use_custom_theme: false,
+        theme_background: null,
+        theme_main: null,
+        theme_darken_ratio: null,
+        bg_image: null
+    });
+
+    const value = useMemo(() => ({ themeSettings, setThemeSettings }), [themeSettings]);
+
+    return (
+        <ThemeContext.Provider value={value}>
+            {children}
+        </ThemeContext.Provider>
     );
 };

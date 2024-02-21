@@ -135,7 +135,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm } = useContext(AppContext);
+    const { users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const bannerRef = useRef(null); // this is a real component reference
     const availableTrackers = useMemo(() => {
@@ -269,8 +269,8 @@ const UserCard = (props) => {
                 display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{_dlogList.list[i].logid}</span>{divisionCheckmark}</Typography>,
                 source: `${_dlogList.list[i].source_company}, ${_dlogList.list[i].source_city}`,
                 destination: `${_dlogList.list[i].destination_company}, ${_dlogList.list[i].destination_city}`,
-                distance: ConvertUnit("km", _dlogList.list[i].distance),
-                cargo: `${_dlogList.list[i].cargo} (${ConvertUnit("kg", _dlogList.list[i].cargo_mass)})`,
+                distance: ConvertUnit(userSettings.unit, "km", _dlogList.list[i].distance),
+                cargo: `${_dlogList.list[i].cargo} (${ConvertUnit(userSettings.unit, "kg", _dlogList.list[i].cargo_mass)})`,
                 profit: `${CURRENTY_ICON[_dlogList.list[i].unit]}${_dlogList.list[i].profit}`,
                 time: <TimeAgo key={`${+new Date()}`} timestamp={_dlogList.list[i].timestamp * 1000} />
             });
@@ -288,7 +288,7 @@ const UserCard = (props) => {
     const [dlogPage, setDlogPage] = useState(cachedUserProfile ? cachedUserProfile.dlogPage : 1);
     const dlogPageRef = useRef(cachedUserProfile ? cachedUserProfile.dlogPage : 1);
     useEffect(() => { dlogPageRef.current = dlogPage; }, [dlogPage]); // maintain correct dlog page when user switch page fast
-    const [dlogPageSize, setDlogPageSize] = useState(cachedUserProfile ? cachedUserProfile.dlogPageSize : vars.userSettings.default_row_per_page);
+    const [dlogPageSize, setDlogPageSize] = useState(cachedUserProfile ? cachedUserProfile.dlogPageSize : userSettings.default_row_per_page);
     useEffect(() => {
         async function loadProfile() {
             window.loading += 1;
@@ -742,7 +742,7 @@ const UserCard = (props) => {
         ackCustomizeProfile(); setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); setTimeout(function () { if (window.history.length == 0) window.history.pushState("", "", "/"); }, 250);
     }} fullWidth >
         <Card sx={{ padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
-            {!vars.userSettings.data_saver && <CardMedia
+            {!userSettings.data_saver && <CardMedia
                 ref={bannerRef}
                 component="img"
                 image={profileBannerURL}
@@ -791,7 +791,7 @@ const UserCard = (props) => {
                                         {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                     </Typography>
                                     {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                        {getFormattedDate(new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
+                                        {getFormattedDate(userSettings.display_timezone, new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
                                     </Typography>}
                                 </Grid>
                                 <Grid item xs={6}>
@@ -961,27 +961,27 @@ const UserCard = (props) => {
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_distance_driven")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.sum.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", overallStats.distance.all.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.ets2.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", overallStats.distance.all.ets2.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit("km", overallStats.distance.all.ats.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "km", overallStats.distance.all.ats.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_fuel_consumed")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit("l", overallStats.fuel.all.sum.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.fuel.all.sum.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit("l", overallStats.fuel.all.ets2.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.fuel.all.ets2.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats")}</Typography>
-                                    <Typography variant="body2">{ConvertUnit("l", overallStats.distance.all.ats.tot)}</Typography>
+                                    <Typography variant="body2">{ConvertUnit(userSettings.unit, "l", overallStats.distance.all.ats.tot)}</Typography>
                                 </Grid>
                                 <Grid item xs={6} sm={6} md={6} lg={6}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ets2_profit")}</Typography>
@@ -1048,7 +1048,7 @@ const UserCard = (props) => {
     if (showProfileModal === 2) return <>{profileModal}</>;
     else if (showProfileModal === 1) return <></>;
 
-    if (user.uid === null) return <><Avatar src={!vars.userSettings.data_saver ? user.avatar : ""}
+    if (user.uid === null) return <><Avatar src={!userSettings.data_saver ? user.avatar : ""}
         style={{
             width: `${size}px`,
             height: `${size}px`,
@@ -1059,7 +1059,7 @@ const UserCard = (props) => {
 
     let content = <>
         {!useChip && <>
-            {!textOnly && <><Avatar src={!vars.userSettings.data_saver ? user.avatar : ""}
+            {!textOnly && <><Avatar src={!userSettings.data_saver ? user.avatar : ""}
                 style={{
                     width: `${size}px`,
                     height: `${size}px`,
@@ -1079,7 +1079,7 @@ const UserCard = (props) => {
         {useChip && <>
             <Chip
                 key={`user-${user.uid}-${Math.random()}`}
-                avatar={textOnly ? undefined : <Avatar alt="" src={!vars.userSettings.data_saver ? user.avatar : ""} />}
+                avatar={textOnly ? undefined : <Avatar alt="" src={!userSettings.data_saver ? user.avatar : ""} />}
                 label={user.name}
                 variant="outlined"
                 sx={{ margin: "3px", cursor: "pointer", ...specialColor !== null ? { color: specialColor } : {}, ...style }}
@@ -1308,7 +1308,7 @@ const UserCard = (props) => {
                         {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.map((history, idx) => (<>
                             {idx !== 0 && <Divider sx={{ mt: "5px" }} />}
                             <Typography key={`history-${idx}`} variant="body2">{history.reason}</Typography>
-                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: {getFormattedDate(new Date(history.expire_timestamp * 1000))}</Typography>
+                            <Typography key={`history-${idx}-time`} variant="body2" sx={{ color: theme.palette.text.secondary }}><>{tr("expiry")}</>: {getFormattedDate(userSettings.display_timezone, new Date(history.expire_timestamp * 1000))}</Typography>
                         </>
                         ))}
                         {user.ban_history !== undefined && user.ban_history !== null && user.ban_history.length === 0 && <Typography variant="body2" >{tr("no_data")}</Typography>}
@@ -1492,7 +1492,7 @@ const UserCard = (props) => {
             onClose={(e) => { ackCustomizeProfile(); updateNote(); e.preventDefault(); e.stopPropagation(); setShowPopover(false); }}
         >
             <Card sx={{ maxWidth: 340, minWidth: 340, padding: "5px", backgroundImage: `linear-gradient(${profileBackground[0]}, ${profileBackground[1]})` }}>
-                {!vars.userSettings.data_saver && <CardMedia
+                {!userSettings.data_saver && <CardMedia
                     component="img"
                     image={profileBannerURL}
                     onError={(event) => {
@@ -1530,7 +1530,7 @@ const UserCard = (props) => {
                                     {user.userid !== null && user.userid !== -1 ? `MEMBER` : `USER`} {tr("since").toUpperCase()}
                                 </Typography>
                                 {users[user.uid] !== undefined && <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                    {getFormattedDate(new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
+                                    {getFormattedDate(userSettings.display_timezone, new Date(users[user.uid].join_timestamp * 1000)).split(" at ")[0]}
                                 </Typography>}
                             </Grid>
                             <Grid item xs={6}>

@@ -18,7 +18,7 @@ var vars = require("../variables");
 
 const Overview = () => {
     const { t: tr } = useTranslation();
-    const { users, memberUIDs, curUID } = useContext(AppContext);
+    const { users, memberUIDs, curUID, userSettings } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const { userid } = useParams(); // profile display handling
@@ -104,7 +104,7 @@ const Overview = () => {
                 <StatCard icon={<LocalShippingRounded />} title={tr("jobs")} latest={TSep(latest.job).replaceAll(",", " ")} inputs={charts.job} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit("km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
+                <StatCard icon={<RouteRounded />} title={tr("distance")} latest={ConvertUnit(userSettings.unit, "km", latest.distance).replaceAll(",", " ")} inputs={charts.distance} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
                 <StatCard icon={<EuroRounded />} title={tr("profit_ets2")} latest={"€" + TSep(latest.profit_euro).replaceAll(",", " ")} inputs={charts.profit_euro} />
@@ -113,7 +113,7 @@ const Overview = () => {
                 <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} latest={"$" + TSep(latest.profit_dollar).replaceAll(",", " ")} inputs={charts.profit_dollar} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={4}>
-                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
+                <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit(userSettings.unit, "l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
             </Grid>
             {curUID !== null && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
                 <><Grid item xs={12} sm={12} md={6} lg={4}>
@@ -142,7 +142,7 @@ const Overview = () => {
                                 <br></br>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                        {latestDelivery.cargo}: {latestDelivery.source_city} {'->'} {latestDelivery.destination_city} ({ConvertUnit("km", latestDelivery.distance)})
+                                        {latestDelivery.cargo}: {latestDelivery.source_city} {'->'} {latestDelivery.destination_city} ({ConvertUnit(userSettings.unit, "km", latestDelivery.distance)})
                                     </Typography>
                                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                         --- <>{tr("by")}</>&nbsp;&nbsp;<UserCard size="40" user={latestDelivery.user} />

@@ -24,7 +24,7 @@ const CURRENTY_ICON = { 1: "€", 2: "$" };
 
 const Deliveries = () => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUserPerm, userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'display_logid', label: 'ID', orderKey: 'logid', defaultOrder: 'desc' },
@@ -43,7 +43,7 @@ const Deliveries = () => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [tempListParam, setTempListParam] = useState({ order_by: "logid", order: "desc", after: undefined, before: undefined, game: 0, status: 0 });
     const [listParam, setListParam] = useState({});
 
@@ -247,7 +247,7 @@ const Deliveries = () => {
                         <VerifiedOutlined sx={{ color: theme.palette.info.main, fontSize: "1.2em" }} />
                     </Tooltip>;
                 }
-                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit("km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit("kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
+                newDlogList.push({ logid: dlogL.list[i].logid, display_logid: <Typography variant="body2" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}><span>{dlogL.list[i].logid}</span>{divisionCheckmark}</Typography>, driver: <UserCard user={dlogL.list[i].user} inline={true} />, source: `${dlogL.list[i].source_company}, ${dlogL.list[i].source_city}`, destination: `${dlogL.list[i].destination_company}, ${dlogL.list[i].destination_city}`, distance: ConvertUnit(userSettings.unit, "km", dlogL.list[i].distance), cargo: `${dlogL.list[i].cargo} (${ConvertUnit(userSettings.unit, "kg", dlogL.list[i].cargo_mass)})`, profit: `${CURRENTY_ICON[dlogL.list[i].unit]}${dlogL.list[i].profit}`, time: <TimeAgo key={`${+new Date()}`} timestamp={dlogL.list[i].timestamp * 1000} /> });
             }
 
             if (pageRef.current === page) {

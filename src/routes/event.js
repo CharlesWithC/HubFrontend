@@ -32,7 +32,7 @@ function ParseEventImage(events) {
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    const { curUID, curUserPerm } = useContext(AppContext);
+    const { curUID, curUserPerm, userSettings } = useContext(AppContext);
 
     const showControls = onEdit !== undefined && (curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_events"]));
     const showButtons = onEdit !== undefined && (curUID !== null);
@@ -103,12 +103,12 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
                 <Grid container>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <LocalParkingRounded />&nbsp;&nbsp;{getFormattedDate(meetupTime * 1000)}
+                            <LocalParkingRounded />&nbsp;&nbsp;{getFormattedDate(userSettings.display_timezone, meetupTime * 1000)}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>
                         <Typography variant="body2" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TimeToLeaveRounded />&nbsp;&nbsp;{getFormattedDate(departureTime * 1000)}
+                            <TimeToLeaveRounded />&nbsp;&nbsp;{getFormattedDate(userSettings.display_timezone, departureTime * 1000)}
                         </Typography>
                     </Grid>
                     <Grid item xs={12} sm={6} md={6} lg={6}>

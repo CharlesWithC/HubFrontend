@@ -15,7 +15,7 @@ var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUser, userSettings } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -34,7 +34,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     const [totalItems, setTotalItems] = useState(0);
     const [page, setPage] = useState(1);
     const pageRef = useRef(1);
-    const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
+    const [pageSize, setPageSize] = useState(userSettings.default_row_per_page);
     const [listParam, setListParam] = useState({ order_by: "applicationid", order: "desc" });
 
     const theme = useTheme();

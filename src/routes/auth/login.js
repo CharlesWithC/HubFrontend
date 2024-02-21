@@ -1,13 +1,15 @@
+import { useState, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { Button, Card, Grid, Typography, TextField, CardContent, ButtonGroup, Box, IconButton, Dialog, DialogTitle, DialogContent, Snackbar, Alert, useTheme } from '@mui/material';
+import { ThemeContext } from '../../context';
+
+import { Button, Card, Grid, Typography, TextField, CardContent, ButtonGroup, Box, IconButton, Dialog, DialogTitle, DialogContent, Snackbar, Alert, useMediaQuery } from '@mui/material';
 import { Portal } from '@mui/base';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose, faRobot } from '@fortawesome/free-solid-svg-icons';
 import { faSteam, faDiscord } from '@fortawesome/free-brands-svg-icons';
+
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { customAxios as axios } from '../../functions';
@@ -16,12 +18,13 @@ var vars = require("../../variables");
 
 const AuthLogin = () => {
     const { t: tr } = useTranslation();
+    const { themeSettings } = useContext(ThemeContext);
+
     const CONNECTION_NAME = { "email": tr("email"), "discord": "Discord", "steam": "Steam", "truckersmp": "TruckersMP" };
 
     const navigate = useNavigate();
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-    const themeMode = vars.userSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : vars.userSettings.theme;
-    const theme = useTheme();
+    const themeMode = themeSettings.theme === "auto" ? (prefersDarkMode ? 'dark' : 'light') : themeSettings.theme;
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -93,7 +96,7 @@ const AuthLogin = () => {
 
     return (
         <div style={{
-            backgroundImage: `url(${vars.dhbgimage})`,
+            backgroundImage: `url(${themeSettings.bg_image})`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
