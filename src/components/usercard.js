@@ -235,7 +235,7 @@ const UserCard = (props) => {
 
     // user profile data
     function convertDlogList(_dlogList) {
-        if (!_dlogList) return null;
+        if (!_dlogList || !_dlogList.list) return null;
         let newDlogList = [];
         for (let i = 0; i < _dlogList.list.length; i++) {
             let divisionCheckmark = <></>;

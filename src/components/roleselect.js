@@ -21,6 +21,7 @@ const getRole = (roleId) => {
 
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
     const { curUser } = useContext(AppContext);
+    const theme = useTheme();
 
     let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
@@ -59,8 +60,6 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
         }
     };
 
-    const theme = useTheme();
-
     return (
         <div style={style}>
             {label && <Typography variant="body2">{label}</Typography>}
@@ -71,7 +70,7 @@ const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} 
                 options={roleIds
                     .filter((roleId) => !divisionOnly ? getRole(roleId).order_id > userHighestRole : divisionRoles.includes(roleId))
                     .map((roleId) => ({
-                        value: roleId,
+                        value: parseInt(roleId),
                         label: getRole(roleId).name,
                         orderId: getRole(roleId).order_id,
                         isFixed: !divisionOnly ? getRole(roleId).order_id <= userHighestRole : !divisionRoles.includes(roleId)
