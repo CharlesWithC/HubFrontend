@@ -8,6 +8,7 @@
 4. Optimize other pre-loading like member list - make them lazy loading
 5. Optimize memory consumption and performance with useMemo being used correctly
 6. Optimize page switch loading with useTransition
+7. Dedicated Statistics page for comprehensive chart and statistics information
 
 ## v3.4.0
 
@@ -30,6 +31,7 @@
 6. Removed `vars.userDivisionIDs` and made it calculate when needed (only needed in delivery tab)
 7. Removed `vars.isLoggedIn` to use `curUID ?= NULL` to determine whether user is logged in
 8. Removed `vars.userStats` to get real-time `userDrivenDistance` in challenge tab on tab load
+9. Replaced `vars.economy*` with Context API `economyCache`
 
 ## v3.3.x
 

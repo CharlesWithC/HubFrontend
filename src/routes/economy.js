@@ -52,7 +52,7 @@ function calculateCenterPoint(points) {
     return [centerX, centerY];
 }
 
-const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
+const CustomTileMap = ({ economyGarages, tilesUrl, title, style, route, onGarageClick }) => {
     const mapContainerRef = useRef(null);
 
     useEffect(() => {
@@ -104,8 +104,8 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
             });
 
             let features = [];
-            for (let i = 0; i < vars.economyGarages.length; i++) {
-                let garage = vars.economyGarages[i];
+            for (let i = 0; i < economyGarages.length; i++) {
+                let garage = economyGarages[i];
                 if (tilesUrl.includes("ets2") && (garage.game === "ets2" || garage.game === "" || garage.game === undefined) || tilesUrl.includes("ats") && garage.game === "ats") {
                     let point = new Point([garage.x, -garage.z]);
                     const circleFeature = new Feature({ 'geometry': point, 'info': garage });
@@ -213,7 +213,7 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
         }
 
         doLoad({ tilesUrl, route });
-    }, [tilesUrl, route]);
+    }, [tilesUrl, route, economyGarages]);
 
     return <div style={{ borderRadius: "10px", overflow: "hidden", height: '600px', ...style }}>
         <div ref={mapContainerRef} style={{ width: '100%', height: '100%', background: '#484E66' }}>
@@ -225,7 +225,8 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
 
 const Economy = () => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { curUser, curUserPerm, economyCache, setEconomyCache } = useContext(AppContext);
+    const theme = useTheme();
 
     const slotColumns = [
         { id: 'slotid', label: 'ID' },
@@ -264,13 +265,14 @@ const Economy = () => {
     ];
     const TRUCK_STATUS = { "inactive": tr("inactive"), "active": tr("active"), "require_service": tr("service_required"), "scrapped": tr("scrapped") };
 
-    const theme = useTheme();
-
-    const [configLoaded, setConfigLoaded] = useState(vars.economyConfig !== null);
+    const [cached, setCached] = useState(economyCache.config !== null);
     const [hasATS, setHasATS] = useState(false);
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
+
+            const newEconomyCache = { config: null, trucks: [], garagesMap: {}, merchMap: {} };
+
             const urlsBatch = [
                 { url: `${vars.dhpath}/economy`, auth: true },
                 { url: `${vars.dhpath}/economy/garages`, auth: true },
@@ -279,41 +281,41 @@ const Economy = () => {
             ];
             const [economyConfig, economyGarages, economyTrucks, economyMerch] = await makeRequestsAuto(urlsBatch);
             if (economyConfig) {
-                vars.economyConfig = economyConfig;
+                newEconomyCache.config = economyConfig;
             }
             if (economyGarages) {
                 let hasATS = false;
-                vars.economyGarages = economyGarages;
                 for (let i = 0; i < economyGarages.length; i++) {
-                    vars.economyGaragesMap[economyGarages[i].id] = economyGarages[i];
+                    newEconomyCache.garagesMap[economyGarages[i].id] = economyGarages[i];
                     if (economyGarages[i].game === "ats") hasATS = true;
                 }
                 setHasATS(hasATS);
             }
             if (economyTrucks) {
-                vars.economyTrucks = economyTrucks;
+                newEconomyCache.trucks = economyTrucks;
             }
             if (economyMerch) {
-                vars.economyMerch = economyMerch;
                 for (let i = 0; i < economyMerch.length; i++) {
-                    vars.economyMerchMap[economyMerch[i].id] = economyMerch[i];
+                    newEconomyCache.merchMap[economyMerch[i].id] = economyMerch[i];
                 }
             }
 
-            setConfigLoaded(true);
+            setEconomyCache(newEconomyCache);
+
+            setCached(true);
             window.loading -= 1;
         }
-        if (vars.economyConfig === null) {
+        if (economyCache.config === null) {
             doLoad();
         } else {
             let hasATS = false;
-            let economyGarages = Object.values(vars.economyGaragesMap);
+            let economyGarages = Object.values(economyCache.garagesMap);
             for (let i = 0; i < economyGarages.length; i++) {
                 if (economyGarages[i].game === "ats") hasATS = true;
             }
             setHasATS(hasATS);
         }
-    }, [vars.economyConfig]);
+    }, []);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -397,6 +399,10 @@ const Economy = () => {
     const [slotPageSize, setSlotPageSize] = useState(vars.userSettings.default_row_per_page);
 
     const [activeSlot, setActiveSlot] = useState({});
+    useEffect(() => {
+        if (dialogAction === "slot")
+            setSlotPage(1);
+    }, [dialogAction]);
     useEffect(() => {
         slotPageRef.current = slotPage;
     }, [slotPage]);
@@ -627,7 +633,7 @@ const Economy = () => {
             let newTruckList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let truck = resp.data.list[i];
-                newTruckList.push({ truck: <>{truck.truck.brand} {truck.truck.model}</>, garage: vars.economyGaragesMap[truck.garageid] !== undefined ? vars.economyGaragesMap[truck.garageid].name : tr("unknown_garage"), odometer: TSep(truck.odometer), income: TSep(truck.income), status: TRUCK_STATUS[truck.status], data: truck });
+                newTruckList.push({ truck: <>{truck.truck.brand} {truck.truck.model}</>, garage: economyCache.garagesMap[truck.garageid] !== undefined ? economyCache.garagesMap[truck.garageid].name : tr("unknown_garage"), odometer: TSep(truck.odometer), income: TSep(truck.income), status: TRUCK_STATUS[truck.status], data: truck });
             }
             if (myTruckPageRef.current === myTruckPage) {
                 setMyTruckList(newTruckList);
@@ -636,10 +642,10 @@ const Economy = () => {
 
             window.loading -= 1;
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded, myTruckPage, myTruckPageSize, loadMyTruck]);
+    }, [economyCache, cached, myTruckPage, myTruckPageSize, loadMyTruck]);
 
     const [selectedTruck, setSelectedTruck] = useState({});
     const purchaseTruck = useCallback(async () => {
@@ -680,10 +686,10 @@ const Economy = () => {
             setBalance(resp.data.balance);
             setBalanceVisibility(resp.data.visibility);
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded]);
+    }, [cached]);
     const updateBalanceVisibility = useCallback(async (visibility) => {
         setBalanceVisibility(visibility);
         let resp = await axios({ url: `${vars.dhpath}/economy/balance/${curUser.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -709,10 +715,10 @@ const Economy = () => {
                 setManageBalanceVisibility(resp.data.visibility);
             }
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded, manageTransferFrom]);
+    }, [cached, manageTransferFrom]);
     const manageTransferMoney = useCallback(async () => {
         setDialogDisabled(true);
         let resp = await axios({ url: `${vars.dhpath}/economy/balance/transfer`, data: { from_userid: manageTransferFrom.userid, to_userid: manageTransferTo.userid, amount: manageTransferAmount, message: manageTransferMessage }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -792,10 +798,10 @@ const Economy = () => {
 
             window.loading -= 1;
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded, leaderboardPage, leaderboardPageSize]);
+    }, [cached, leaderboardPage, leaderboardPageSize]);
 
     const [truckList, setTruckList] = useState([]);
     const [truckTotal, setTruckTotal] = useState(0);
@@ -813,7 +819,7 @@ const Economy = () => {
             let newTruckList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let truck = resp.data.list[i];
-                newTruckList.push({ model: truck.truck.brand + " " + truck.truck.model, garage: vars.economyGaragesMap[truck.garageid] !== undefined ? <a className="hover-underline" style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModalGarage(vars.economyGaragesMap[truck.garageid]); setModalGarageDetails(null); handleGarageClick(vars.economyGaragesMap[truck.garageid]); setDialogAction("garage"); }}>{vars.economyGaragesMap[truck.garageid].name}</a> : truck.garageid, owner: <UserCard user={truck.owner} />, income: TSep(truck.income), data: truck });
+                newTruckList.push({ model: truck.truck.brand + " " + truck.truck.model, garage: economyCache.garagesMap[truck.garageid] !== undefined ? <a className="hover-underline" style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setModalGarage(economyCache.garagesMap[truck.garageid]); setModalGarageDetails(null); handleGarageClick(economyCache.garagesMap[truck.garageid]); setDialogAction("garage"); }}>{economyCache.garagesMap[truck.garageid].name}</a> : truck.garageid, owner: <UserCard user={truck.owner} />, income: TSep(truck.income), data: truck });
             }
             if (truckPageRef.current === truckPage) {
                 setTruckList(newTruckList);
@@ -822,10 +828,10 @@ const Economy = () => {
 
             window.loading -= 1;
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded, truckPage, truckPageSize]);
+    }, [economyCache, cached, truckPage, truckPageSize]);
 
     const [garageList, setGarageList] = useState([]);
     const [garageTotal, setGarageTotal] = useState(0);
@@ -843,7 +849,7 @@ const Economy = () => {
             let newGarageList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let garage = resp.data.list[i];
-                newGarageList.push({ location: vars.economyGaragesMap[garage.garageid] !== undefined ? vars.economyGaragesMap[garage.garageid].name : garage.garageid, owner: <UserCard user={garage.garage_owner} />, income: TSep(garage.income), data: garage });
+                newGarageList.push({ location: economyCache.garagesMap[garage.garageid] !== undefined ? economyCache.garagesMap[garage.garageid].name : garage.garageid, owner: <UserCard user={garage.garage_owner} />, income: TSep(garage.income), data: garage });
             }
             if (garagePageRef.current === garagePage) {
                 setGarageList(newGarageList);
@@ -852,10 +858,10 @@ const Economy = () => {
 
             window.loading -= 1;
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded, garagePage, garagePageSize]);
+    }, [economyCache, cached, garagePage, garagePageSize]);
 
     const [merchList, setMerchList] = useState([]);
     const [merchTotal, setMerchTotal] = useState(0);
@@ -875,7 +881,7 @@ const Economy = () => {
             for (let i = 0; i < resp.data.list.length; i++) {
                 let merch = resp.data.list[i];
                 let ctxMenu = <><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("transfer-merch"); }} sx={{ color: theme.palette.warning.main }}>{tr("transfer_merch")}</MenuItem><MenuItem onClick={() => { setActiveMerch(merch); setDialogAction("sell-merch"); }} sx={{ color: theme.palette.error.main }}>{tr("sell_merch")}</MenuItem></>;
-                newMerchList.push({ name: vars.economyMerchMap[merch.merchid] !== undefined ? vars.economyMerchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeAgo timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
+                newMerchList.push({ name: economyCache.merchMap[merch.merchid] !== undefined ? economyCache.merchMap[merch.merchid].name : merch.merchid, value: TSep(merch.price), purchased: <TimeAgo timestamp={merch.purchase_timestamp * 1000} />, data: merch, contextMenu: ctxMenu });
             }
             if (merchPageRef.current === merchPage) {
                 setMerchList(newMerchList);
@@ -884,10 +890,10 @@ const Economy = () => {
 
             window.loading -= 1;
         }
-        if (configLoaded) {
+        if (cached) {
             doLoad();
         }
-    }, [configLoaded, merchPage, merchPageSize, loadMerch]);
+    }, [economyCache, cached, merchPage, merchPageSize, loadMerch]);
     const [activeMerch, setActiveMerch] = useState({});
     const [merchOwner, setMerchOwner] = useState({});
     const [selectedMerch, setSelectedMerch] = useState({});
@@ -939,9 +945,9 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [activeMerch]);
 
-    return <>{configLoaded && <>
-        <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("europe")} onGarageClick={handleGarageClick} />
-        {hasATS && <CustomTileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={tr("america")} onGarageClick={handleGarageClick} style={{ marginTop: "10px" }} />}
+    return <>{cached && <>
+        <CustomTileMap tilesUrl={"https://map.charlws.com/ets2/base/tiles"} title={tr("europe")} onGarageClick={handleGarageClick} economyGarages={Object.values(economyCache.garagesMap)} />
+        {hasATS && <CustomTileMap tilesUrl={"https://map.charlws.com/ats/base/tiles"} title={tr("america")} onGarageClick={handleGarageClick} style={{ marginTop: "10px" }} economyGarages={Object.values(economyCache.garagesMap)} />}
         <Dialog open={dialogAction === "garage"} onClose={() => setDialogAction("")} fullWidth>
             <DialogTitle>{modalGarage.name}</DialogTitle>
             <DialogContent>
@@ -958,7 +964,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarageDetails.income)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(modalGarageDetails.income)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("trucks")}</Typography>
@@ -978,7 +984,7 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("base_slots")}</Typography>
@@ -986,7 +992,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("slot_price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                     </Grid>
                 </>}
@@ -1031,11 +1037,11 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(modalGarage.price * vars.economyConfig.garage_refund))} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(parseInt(modalGarage.price * economyCache.config.garage_refund))} {economyCache.config.currency_name}</Typography>
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -1083,11 +1089,11 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(modalGarage.slot_price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(modalGarage.slot_price * vars.economyConfig.slot_refund))} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(parseInt(modalGarage.slot_price * economyCache.config.slot_refund))} {economyCache.config.currency_name}</Typography>
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -1112,7 +1118,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("parking_at")}</Typography>
-                            <Typography variant="body2">{vars.economyGaragesMap[activeTruck.garageid] !== undefined ? vars.economyGaragesMap[activeTruck.garageid].name : tr("unknown_garage")}</Typography>
+                            <Typography variant="body2">{economyCache.garagesMap[activeTruck.garageid] !== undefined ? economyCache.garagesMap[activeTruck.garageid].name : tr("unknown_garage")}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("model")}</Typography>
@@ -1120,7 +1126,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("price")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchased")}</Typography>
@@ -1132,11 +1138,11 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("income")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.income)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.income)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("service_expense")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.service)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.service)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("damage")}</Typography>
@@ -1144,7 +1150,7 @@ const Economy = () => {
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("repair_cost")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.repair_cost)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.repair_cost)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={4}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("status")}</Typography>
@@ -1241,11 +1247,11 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * vars.economyConfig.truck_refund))} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * economyCache.config.truck_refund))} {economyCache.config.currency_name}</Typography>
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -1260,11 +1266,11 @@ const Economy = () => {
                     <Grid container spacing={2}>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(activeTruck.price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeTruck.price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("refund")}</Typography>
-                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * vars.economyConfig.scrap_refund))} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(parseInt(activeTruck.price * economyCache.config.scrap_refund))} {economyCache.config.currency_name}</Typography>
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -1281,7 +1287,7 @@ const Economy = () => {
                     <Grid item xs={12}>
                         <Select
                             name="colors"
-                            options={vars.economyTrucks.map((truck) => ({ value: truck.id, label: truck.brand + " " + truck.model + " - " + truck.price + " " + vars.economyConfig.currency_name, truck: truck }))}
+                            options={economyCache.trucks.map((truck) => ({ value: truck.id, label: truck.brand + " " + truck.model + " - " + truck.price + " " + economyCache.config.currency_name, truck: truck }))}
                             className="basic-select"
                             classNamePrefix="select"
                             styles={customSelectStyles(theme)}
@@ -1311,7 +1317,7 @@ const Economy = () => {
                 <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("user")}</Typography>
                 <Typography variant="body2"><UserSelect users={[manageTransferFrom]} isMulti={false} includeCompany={true} onUpdate={setManageTransferFrom} /></Typography>
                 <br />
-                <Typography variant="body">{tr("current_balance")}: {TSep(manageBalance)} {vars.economyConfig.currency_name}
+                <Typography variant="body">{tr("current_balance")}: {TSep(manageBalance)} {economyCache.config.currency_name}
                     {manageBalanceVisibility === "public" && <IconButton onClick={() => { updateManageBalanceVisibility("private"); }}><FontAwesomeIcon icon={faUnlock} /></IconButton>}
                     {manageBalanceVisibility === "private" && <IconButton onClick={() => { updateManageBalanceVisibility("public"); }}><FontAwesomeIcon icon={faLock} /></IconButton>}</Typography>
                 <Grid container spacing={2} sx={{ mt: "5px" }}>
@@ -1387,7 +1393,7 @@ const Economy = () => {
         </Dialog>
         {activeMerch.merchid !== undefined && <>
             <Dialog open={dialogAction === "transfer-merch"} onClose={() => setDialogAction("merch")} fullWidth>
-                <DialogTitle><>{tr("transfer_merch")}</> - {vars.economyMerchMap[activeMerch.merchid] !== undefined ? vars.economyMerchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
+                <DialogTitle><>{tr("transfer_merch")}</> - {economyCache.merchMap[activeMerch.merchid] !== undefined ? economyCache.merchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -1410,16 +1416,16 @@ const Economy = () => {
                 </DialogActions>
             </Dialog>
             <Dialog open={dialogAction === "sell-merch"} onClose={() => setDialogAction("merch")}>
-                <DialogTitle><>{tr("sell_merch")}</> - {vars.economyMerchMap[activeMerch.merchid] !== undefined ? vars.economyMerchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
+                <DialogTitle><>{tr("sell_merch")}</> - {economyCache.merchMap[activeMerch.merchid] !== undefined ? economyCache.merchMap[activeMerch.merchid].name : activeMerch.merchid}</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("purchase_price")}</Typography>
-                            <Typography variant="body2">{TSep(activeMerch.price)} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{TSep(activeMerch.price)} {economyCache.config.currency_name}</Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Typography variant="body2" sx={{ fontWeight: "bold" }}>{tr("sell_price")}</Typography>
-                            <Typography variant="body2">{vars.economyMerchMap[activeMerch.merchid] !== undefined ? TSep(vars.economyMerchMap[activeMerch.merchid].sell_price) : "/"} {vars.economyConfig.currency_name}</Typography>
+                            <Typography variant="body2">{economyCache.merchMap[activeMerch.merchid] !== undefined ? TSep(economyCache.merchMap[activeMerch.merchid].sell_price) : "/"} {economyCache.config.currency_name}</Typography>
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -1436,7 +1442,7 @@ const Economy = () => {
                     <Grid item xs={12}>
                         <Select
                             name="colors"
-                            options={vars.economyMerch.map((merch) => ({ value: merch.id, label: merch.name + " - " + merch.buy_price + " " + vars.economyConfig.currency_name, merch: merch }))}
+                            options={Object.values(economyCache.merchMap).map((merch) => ({ value: merch.id, label: merch.name + " - " + merch.buy_price + " " + economyCache.config.currency_name, merch: merch }))}
                             className="basic-select"
                             classNamePrefix="select"
                             styles={customSelectStyles(theme)}
@@ -1468,7 +1474,7 @@ const Economy = () => {
                                 {<IconButton onClick={() => { setDialogAction("export-transaction"); }}><FontAwesomeIcon icon={faFileExport} /></IconButton>}
                             </Typography>
                         </div>
-                        <Typography variant="body">{tr("current_balance")}: {TSep(balance)} {vars.economyConfig.currency_name}</Typography>
+                        <Typography variant="body">{tr("current_balance")}: {TSep(balance)} {economyCache.config.currency_name}</Typography>
                         <Divider sx={{ mt: "10px", mb: "10px" }} />
                         <Typography variant="h6" sx={{ fontWeight: 800, mb: "10px" }}><FontAwesomeIcon icon={faMoneyBillTransfer} />&nbsp;&nbsp;{tr("transfer")}</Typography>
                         <Grid container spacing={2}>
@@ -1498,7 +1504,7 @@ const Economy = () => {
                 </Card>
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
-                <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (vars.economyGaragesMap[row.data.garageid] !== undefined) { setModalGarage(vars.economyGaragesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
+                <CustomTable name={<><FontAwesomeIcon icon={faWarehouse} />&nbsp;&nbsp;{tr("top_garages")}</>} columns={garageColumns} data={garageList} totalItems={garageTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={garagePageSize} onPageChange={setGaragePage} onRowsPerPageChange={setGaragePageSize} onRowClick={(row) => { if (economyCache.garagesMap[row.data.garageid] !== undefined) { setModalGarage(economyCache.garagesMap[row.data.garageid]); } setModalGarageDetails(row.data); setDialogAction("garage"); }} />
             </Grid>
             <Grid item xs={12} sm={12} md={6} lg={6}>
                 <CustomTable name={<><FontAwesomeIcon icon={faTruck} />&nbsp;&nbsp;{tr("top_trucks")}</>} columns={truckColumns} data={truckList} totalItems={truckTotal} rowsPerPageOptions={[5, 10, 25, 50]} defaultRowsPerPage={truckPageSize} onPageChange={setTruckPage} onRowsPerPageChange={setTruckPageSize} onRowClick={(row) => { setTruckReferer(""); setActiveTruck(row.data); setTruckOwner(row.data.owner); setTruckAssignee(row.data.assignee); loadTruck(row.data); setDialogAction("truck"); }} />

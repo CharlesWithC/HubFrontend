@@ -50,7 +50,7 @@ const UserSelect = ({ label, users, onUpdate, isMulti = true, includeCompany = f
         if (selectedUsers !== formattedInit) {
             setSelectedUsers(formattedInit);
         }
-    }, [users, selectedUsers]);
+    }, [users]);
 
     const handleInputChange = (val) => {
         if (limit !== undefined && limit > 0 && !isNaN(limit)) val = val.splice(0, limit);

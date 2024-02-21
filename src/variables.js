@@ -20,19 +20,6 @@ exports.dhbgimage = dhbgimage;
 exports.dhvtcbg = dhvtcbg;
 exports.dhcustombg = dhcustombg;
 
-var economyConfig = null;
-exports.economyConfig = economyConfig;
-var economyGarages = [];
-exports.economyGarages = economyGarages;
-var economyTrucks = [];
-exports.economyTrucks = economyTrucks;
-var economyMerch = [];
-exports.economyMerch = economyMerch;
-var economyGaragesMap = {};
-exports.economyGaragesMap = economyGaragesMap;
-var economyMerchMap = {};
-exports.economyMerchMap = economyMerchMap;
-
 var dlogDetails = {};
 exports.dlogDetails = dlogDetails;
 

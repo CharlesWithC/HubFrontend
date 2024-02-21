@@ -10,6 +10,7 @@ export const AppContext = createContext({
     curUID: null,
     curUser: {},
     curUserPerm: [],
+    economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
     initMemberUIDs: async () => { }
 });
 
@@ -21,6 +22,8 @@ export const AppContextProvider = ({ children }) => {
     const [curUID, setCurUID] = useState(null);
     const [curUser, setCurUser] = useState({});
     const [curUserPerm, setCurUserPerm] = useState([]);
+
+    const [economyCache, setEconomyCache] = useState({ config: null, trucks: [], garagesMap: {}, merchMap: {} });
 
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
@@ -74,8 +77,9 @@ export const AppContextProvider = ({ children }) => {
         userProfiles, setUserProfiles,
         memberUIDs, setMemberUIDs, initMemberUIDs,
         curUID, setCurUID, curUser, setCurUser,
-        curUserPerm, setCurUserPerm
-    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm]);
+        curUserPerm, setCurUserPerm,
+        economyCache, setEconomyCache,
+    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, economyCache]);
 
     return (
         <AppContext.Provider value={value}>
