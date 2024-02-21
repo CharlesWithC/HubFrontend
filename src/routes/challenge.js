@@ -71,7 +71,7 @@ const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {
     </>;
 };
 
-const ParseChallenges = (CHALLENGE_TYPES, tr, challenges, theme, onUpdateDelivery, onEdit, onDelete) => {
+const ParseChallenges = (curUser, CHALLENGE_TYPES, tr, challenges, theme, onUpdateDelivery, onEdit, onDelete) => {
     for (let i = 0; i < challenges.length; i++) {
         let challenge = challenges[i];
         const re = challenge.description.match(/^\[Image src="(.+)"\]/);
@@ -82,7 +82,7 @@ const ParseChallenges = (CHALLENGE_TYPES, tr, challenges, theme, onUpdateDeliver
         challenges[i].metaType = CHALLENGE_TYPES[challenges[i].type];
         challenges[i].metaProgress = <LinearProgress variant="determinate" color="success" value={Math.min(parseInt(challenges[i].current_delivery_count / challenges[i].delivery_count * 100) + 1, 100)} sx={{ width: "100%" }} />;
 
-        let qualified = checkUserRole(challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
+        let qualified = checkUserRole(curUser, challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
         let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
         let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
             ? <Tooltip key={`ongoing-status`} placement="top" arrow title={tr("ongoing")}
@@ -193,6 +193,7 @@ const ChallengeManagers = memo(() => {
 
 const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
 
@@ -240,8 +241,8 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                     `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
-                setUpcomingChallenges(ParseChallenges(CHALLENGE_TYPES, tr, _upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
-                setActiveChallenges(ParseChallenges(CHALLENGE_TYPES, tr, _activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setUpcomingChallenges(ParseChallenges(curUser, CHALLENGE_TYPES, tr, _upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setActiveChallenges(ParseChallenges(curUser, CHALLENGE_TYPES, tr, _activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
                 inited.current = true;
             } else {
                 let urls = [
@@ -251,7 +252,7 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
             }
 
             if (pageRef.current === page) {
-                setChallengeList(ParseChallenges(CHALLENGE_TYPES, tr, _challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setChallengeList(ParseChallenges(curUser, CHALLENGE_TYPES, tr, _challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
                 setTotalItems(_challengeList.total_items);
             }
 
@@ -280,9 +281,10 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
 
 const Challenges = () => {
     const { t: tr } = useTranslation();
-    const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
-
+    const { curUser } = useContext(AppContext);
     const theme = useTheme();
+
+    const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
 
     const [challengeList, setChallengeList] = useState([]);
     const [upcomingChallenges, setUpcomingChallenges] = useState([]);
@@ -356,7 +358,7 @@ const Challenges = () => {
 
         let progress = <LinearProgress variant="determinate" color="success" value={Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100) + 1, 100)} sx={{ width: "100%" }} />;
 
-        let qualified = checkUserRole(challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
+        let qualified = checkUserRole(curUser, challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
         let qualifiedStatus = <>
             {qualified && <>
                 <Chip color="success" sx={{ borderRadius: "5px" }} label={tr("qualified")}></Chip>&nbsp;
@@ -873,7 +875,7 @@ const Challenges = () => {
                 tooltipTitle={tr("create")}
                 onClick={() => createChallenge()}
             />}
-            {vars.userInfo.userid !== -1 && <SpeedDialAction
+            {!isNaN(curUser.userid) && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
                 tooltipTitle={tr("managers")}

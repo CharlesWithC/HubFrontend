@@ -87,8 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { users, setUsers, memberUIDs } = useContext(AppContext);
-    const allMembers = memberUIDs.map((uid) => users[uid]);
+    const { setUsers, curUser } = useContext(AppContext);
 
     const sessionsColumns = [
         { id: 'device', label: tr("device") },
@@ -151,7 +150,7 @@ const Settings = ({ defaultTab = 0 }) => {
     const [otpAction, setOtpAction] = useState("");
     const [otpPass, setOtpPass] = useState(0); // timestamp, before which user doesn't need to re-enter the otp
     const [requireOtp, setRequireOtp] = useState(false);
-    const [mfaEnabled, setMfaEnabled] = useState(vars.userInfo.mfa);
+    const [mfaEnabled, setMfaEnabled] = useState(curUser.mfa);
     const handleOtp = useCallback(() => {
         if (otp.replaceAll(" ", "") === "" || isNaN(otp.replaceAll(" ", "")) || otp.length !== 6) {
             setSnackbarContent(tr("invalid_otp"));
@@ -325,8 +324,8 @@ const Settings = ({ defaultTab = 0 }) => {
     const DEFAULT_USER_CONFIG = { "name_color": "/", "profile_upper_color": "/", "profile_lower_color": "/", "profile_banner_url": "/" };
     const [remoteUserConfig, setRemoteUserConfig] = useState(DEFAULT_USER_CONFIG);
     useEffect(() => {
-        if (vars.userConfig[vars.userInfo.uid] !== undefined) {
-            let uc = JSON.parse(JSON.stringify(vars.userConfig[vars.userInfo.uid]));
+        if (vars.userConfig[curUser.uid] !== undefined) {
+            let uc = JSON.parse(JSON.stringify(vars.userConfig[curUser.uid]));
             if (uc.name_color === null) {
                 uc.name_color = "/";
             }
@@ -366,7 +365,7 @@ const Settings = ({ defaultTab = 0 }) => {
         if (resp.status === 204) {
             setSnackbarContent(tr("appearance_settings_updated"));
             setSnackbarSeverity("success");
-            vars.userConfig[vars.userInfo.uid] = { abbr: vars.dhconfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
+            vars.userConfig[curUser.uid] = { abbr: vars.dhconfig.abbr, name_color: remoteUserConfig.name_color, profile_upper_color: remoteUserConfig.profile_upper_color, profile_lower_color: remoteUserConfig.profile_lower_color, profile_banner_url: remoteUserConfig.profile_banner_url };
         } else {
             if (resp.data.error !== undefined) setSnackbarContent(resp.data.error);
             else setSnackbarContent(tr("unknown_error_please_try_again_later"));
@@ -383,15 +382,15 @@ const Settings = ({ defaultTab = 0 }) => {
             trackers.push(vars.apiconfig.trackers[i].type);
         }
     }
-    const [tracker, setTracker] = useState(vars.userInfo.tracker);
+    const [tracker, setTracker] = useState(curUser.tracker);
     const updateTracker = useCallback(async (to) => {
-        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${vars.userInfo.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${curUser.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
             setSnackbarContent(tr("tracker_updated"));
             setSnackbarSeverity("success");
-            vars.userInfo.tracker = tracker;
+            curUser.tracker = tracker;
             setTracker(to);
-            setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
+            setUsers(users => ({ ...users, [curUser.uid]: curUser }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -477,7 +476,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading -= 1;
     }, []);
 
-    const [newTruckersMPID, setNewTruckersMPID] = useState(vars.userInfo.truckersmpid);
+    const [newTruckersMPID, setNewTruckersMPID] = useState(curUser.truckersmpid);
     const [newTruckersMPDisabled, setTruckersmpDisabled] = useState(false);
     const updateTruckersMPID = useCallback(async () => {
         if (isNaN(newTruckersMPID) || String(newTruckersMPID).replaceAll(" ", "") === "") {
@@ -485,7 +484,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("error");
             return;
         }
-        if (Number(newTruckersMPID) === vars.userInfo.truckersmpid) {
+        if (Number(newTruckersMPID) === curUser.truckersmpid) {
             setSnackbarContent(tr("truckersmp_id_was_not_updated"));
             setSnackbarSeverity("warning");
             return;
@@ -507,7 +506,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading -= 1;
     }, [newTruckersMPID]);
 
-    const [newEmail, setNewEmail] = useState(vars.userInfo.email);
+    const [newEmail, setNewEmail] = useState(curUser.email);
     const [newEmailDisabled, setEmailDisabled] = useState(false);
     const updateEmail = useCallback(async () => {
         if (newEmail.indexOf("@") === -1) {
@@ -515,7 +514,7 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarSeverity("error");
             return;
         }
-        if (newEmail === vars.userInfo.email) {
+        if (newEmail === curUser.email) {
             setSnackbarContent(tr("email_was_not_updated"));
             setSnackbarSeverity("warning");
             return;
@@ -537,7 +536,7 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading -= 1;
     }, [newEmail]);
 
-    const [newProfile, setNewProfile] = useState({ name: vars.userInfo.name, avatar: vars.userInfo.avatar });
+    const [newProfile, setNewProfile] = useState({ name: curUser.name, avatar: curUser.avatar });
     const [newProfileDisabled, setNewProfileDisabled] = useState(false);
     const updateProfile = useCallback(async (sync_to = undefined) => {
         setNewProfileDisabled(true);
@@ -547,25 +546,13 @@ const Settings = ({ defaultTab = 0 }) => {
             if (sync_to !== "") {
                 resp = await axios({ url: `${vars.dhpath}/user/profile`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
                 setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
-                vars.userInfo = resp.data;
-                setUsers(users => ({ ...users, [vars.userInfo.uid]: resp.data }));
-                for (let i = 0; i < allMembers.length; i++) {
-                    if (allMembers[i].uid === vars.userInfo.uid) {
-                        allMembers[i] = resp.data;
-                        break;
-                    }
-                }
+                curUser = resp.data;
+                setUsers(users => ({ ...users, [curUser.uid]: resp.data }));
             } else {
-                vars.userInfo.name = newProfile.name;
-                vars.userInfo.avatar = newProfile.avatar;
-                vars.userInfo = vars.userInfo;
-                setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
-                for (let i = 0; i < allMembers.length; i++) {
-                    if (allMembers[i].uid === vars.userInfo.uid) {
-                        allMembers[i] = vars.userInfo;
-                        break;
-                    }
-                }
+                curUser.name = newProfile.name;
+                curUser.avatar = newProfile.avatar;
+                curUser = curUser;
+                setUsers(users => ({ ...users, [curUser.uid]: curUser }));
             }
             setSnackbarContent(tr("profile_updated"));
             setSnackbarSeverity("success");
@@ -576,7 +563,7 @@ const Settings = ({ defaultTab = 0 }) => {
         setNewProfileDisabled(false);
     }, [newProfile]);
 
-    const [newAboutMe, setNewAboutMe] = useState(vars.userInfo.bio);
+    const [newAboutMe, setNewAboutMe] = useState(curUser.bio);
     const [newAboutMeDisabled, setAboutMeDisabled] = useState(false);
     const updateAboutMe = useCallback(async (e) => {
         window.loading += 1;
@@ -757,10 +744,10 @@ const Settings = ({ defaultTab = 0 }) => {
                 setSnackbarContent(tr("mfa_enabled"));
                 setSnackbarSeverity("success");
                 setOtpPass(+new Date() + 30000);
-                vars.userInfo.mfa = true;
+                curUser.mfa = true;
                 setMfaEnabled(true);
                 setModalEnableMfa(false);
-                setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
+                setUsers(users => ({ ...users, [curUser.uid]: curUser }));
             } else {
                 setSnackbarContent(resp.data.error);
                 setSnackbarSeverity("error");
@@ -794,9 +781,9 @@ const Settings = ({ defaultTab = 0 }) => {
             setSnackbarContent(tr("mfa_disabled"));
             setSnackbarSeverity("success");
             setOtpPass(+new Date() + 30000);
-            vars.userInfo.mfa = false;
+            curUser.mfa = false;
             setMfaEnabled(false);
-            setUsers(users => ({ ...users, [vars.userInfo.uid]: vars.userInfo }));
+            setUsers(users => ({ ...users, [curUser.uid]: curUser }));
         } else {
             setSnackbarContent(resp.data.error);
             setSnackbarSeverity("error");
@@ -859,9 +846,9 @@ const Settings = ({ defaultTab = 0 }) => {
 
         let resp = null;
         if (!mfaEnabled) {
-            resp = await axios({ url: `${vars.dhpath}/user/${vars.userInfo.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${vars.dhpath}/user/${curUser.uid}`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else if (otp !== "") {
-            resp = await axios({ url: `${vars.dhpath}/user/${vars.userInfo.uid}`, data: { otp: otp }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            resp = await axios({ url: `${vars.dhpath}/user/${curUser.uid}`, data: { otp: otp }, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         } else {
             setOtpAction("delete-account");
             setRequireOtp(true);
@@ -1024,34 +1011,34 @@ const Settings = ({ defaultTab = 0 }) => {
     useEffect(() => {
         let newBadges = [];
         let newBadgeNames = [];
-        if (Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid)) {
-            for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
-                let sr = vars.specialRolesMap[vars.userInfo.discordid][i];
+        if (Object.keys(vars.specialRolesMap).includes(curUser.discordid)) {
+            for (let i = 0; i < vars.specialRolesMap[curUser.discordid].length; i++) {
+                let sr = vars.specialRolesMap[curUser.discordid][i];
                 let badge = null;
                 let badgeName = null;
                 if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_manager', 'marketing_manager', 'support_team', 'marketing_team', 'graphic_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-chub}`} placement="top" arrow title={tr("chub_team")}
+                    badge = <Tooltip key={`badge-${curUser.uid}-chub}`} placement="top" arrow title={tr("chub_team")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faScrewdriverWrench} style={{ color: "#2fc1f7" }} />
                     </Tooltip>;
                     badgeName = "chub";
                 }
                 if (['community_legend'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-legend`} placement="top" arrow title={tr("community_legend")}
+                    badge = <Tooltip key={`badge-${curUser.uid}-legend`} placement="top" arrow title={tr("community_legend")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faCrown} style={{ color: "#b2db80" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['network_partner'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-network-partner`} placement="top" arrow title={tr("network_partner")}
+                    badge = <Tooltip key={`badge-${curUser.uid}-network-partner`} placement="top" arrow title={tr("network_partner")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faEarthAmericas} style={{ color: "#5ae9e1" }} />
                     </Tooltip>;
                     badgeName = "legend";
                 }
                 if (['server_booster', 'translation_team'].includes(sr.role)) {
-                    badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title={tr("supporter")}
+                    badge = <Tooltip key={`badge-${curUser.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -1068,8 +1055,8 @@ const Settings = ({ defaultTab = 0 }) => {
         for (let i = 0; i < tiers.length; i++) {
             for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                 let patron = vars.patrons[tiers[i]][j];
-                if (patron.abbr === vars.dhconfig.abbr && patron.uid === vars.userInfo.uid) {
-                    let badge = <Tooltip key={`badge-${vars.userInfo.uid}-supporter`} placement="top" arrow title={tr("supporter")}
+                if (patron.abbr === vars.dhconfig.abbr && patron.uid === curUser.uid) {
+                    let badge = <Tooltip key={`badge-${curUser.uid}-supporter`} placement="top" arrow title={tr("supporter")}
                         PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                         <FontAwesomeIcon icon={faClover} style={{ color: "#f47fff" }} />
                     </Tooltip>;
@@ -1374,7 +1361,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                 <Grid item xs={8} sm={8} md={8} lg={8}>
                                     <TextField
                                         label="Discord"
-                                        value={vars.userInfo.discordid}
+                                        value={curUser.discordid}
                                         fullWidth disabled size="small"
                                     />
                                 </Grid>
@@ -1388,7 +1375,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                 <Grid item xs={8} sm={8} md={8} lg={8}>
                                     <TextField
                                         label="Steam"
-                                        value={vars.userInfo.steamid}
+                                        value={curUser.steamid}
                                         fullWidth disabled size="small"
                                     />
                                 </Grid>
@@ -1541,7 +1528,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             component="img"
                             image={remoteUserConfig.profile_banner_url}
                             onError={(event) => {
-                                event.target.src = `${vars.dhpath}/member/banner?userid=${vars.userInfo.userid}`;
+                                event.target.src = `${vars.dhpath}/member/banner?userid=${curUser.userid}`;
                             }}
                             alt=""
                             sx={{ borderRadius: "5px 5px 0 0" }}
@@ -1550,12 +1537,12 @@ const Settings = ({ defaultTab = 0 }) => {
                             <CardContent sx={{ padding: "10px", backgroundImage: `linear-gradient(${DEFAULT_BGCOLOR[theme.mode].paper}E0, ${DEFAULT_BGCOLOR[theme.mode].paper}E0)`, borderRadius: "5px" }}>
                                 <div style={{ display: "flex", flexDirection: "row" }}>
                                     <Typography variant="h6" sx={{ fontWeight: 800, flexGrow: 1, display: 'flex', alignItems: "center" }}>
-                                        {vars.userInfo.name}
+                                        {curUser.name}
                                     </Typography>
                                     <Typography variant="h7" sx={{ flexGrow: 1, display: 'flex', alignItems: "center", maxWidth: "fit-content" }}>
                                         {badges.map((badge, index) => { return <a key={index} onClick={() => { navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
-                                        {vars.userInfo.userid !== null && vars.userInfo.userid !== undefined && vars.userInfo.userid >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
-                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{vars.userInfo.userid}</Typography></Tooltip>}
+                                        {curUser.userid !== null && curUser.userid !== undefined && curUser.userid >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
+                                            PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{curUser.userid}</Typography></Tooltip>}
                                     </Typography>
                                 </div>
                                 <Divider sx={{ mt: "8px", mb: "8px" }} />
@@ -1573,7 +1560,7 @@ const Settings = ({ defaultTab = 0 }) => {
                                             {tr("since").toUpperCase()}
                                         </Typography>
                                         <Typography variant="body2" sx={{ display: "inline-block" }}>
-                                            {getFormattedDate(new Date(vars.userInfo.join_timestamp * 1000)).split(" at ")[0]}
+                                            {getFormattedDate(new Date(curUser.join_timestamp * 1000)).split(" at ")[0]}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={6}>
@@ -1585,11 +1572,11 @@ const Settings = ({ defaultTab = 0 }) => {
                                         </Typography>
                                     </Grid>
                                 </Grid>
-                                {vars.userInfo.roles !== null && vars.userInfo.roles !== undefined && <Box sx={{ mt: "10px" }}>
+                                {curUser.roles !== null && curUser.roles !== undefined && <Box sx={{ mt: "10px" }}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                                        {vars.userInfo.roles.length > 1 ? `ROLES` : `ROLE`}
+                                        {curUser.roles.length > 1 ? `ROLES` : `ROLE`}
                                     </Typography>
-                                    {vars.userInfo.roles.map((role) => (
+                                    {curUser.roles.map((role) => (
                                         <Chip
                                             key={`role-${role}`}
                                             avatar={<div style={{ marginLeft: "5px", width: "12px", height: "12px", backgroundColor: vars.roles[role] !== undefined && vars.roles[role].color !== undefined ? vars.roles[role].color : "#777777", borderRadius: "100%" }} />}
@@ -1748,7 +1735,7 @@ const Settings = ({ defaultTab = 0 }) => {
                     </Grid>
                 </Grid>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    {vars.userInfo.userid !== null && vars.userInfo.userid >= 0 && <>
+                    {curUser.userid !== null && curUser.userid >= 0 && <>
                         <Typography variant="h7" sx={{ color: theme.palette.warning.main }}>{tr("leave")}<b>&nbsp;{vars.dhconfig.name}</b></Typography>
                         <br />
                         <Typography variant="body2">{tr("leave_company_note")}</Typography>
@@ -1763,7 +1750,7 @@ const Settings = ({ defaultTab = 0 }) => {
                             </Grid>
                         </Grid>
                     </>}
-                    {(vars.userInfo.userid === null || vars.userInfo.userid < 0) && <>
+                    {(curUser.userid === null || curUser.userid < 0) && <>
                         <Typography variant="h7" sx={{ color: theme.palette.warning.main, fontWeight: 800 }}>{tr("delete_account")}</Typography>
                         <br />
                         <Typography variant="body2">{tr("delete_account_note")}</Typography>

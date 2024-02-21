@@ -1,24 +1,27 @@
+import { useState, useEffect, useCallback, memo, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React, { useState, useEffect, useCallback, memo } from 'react';
-import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider, Divider } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { AppContext } from '../context';
+
+import { Card, Typography, Button, ButtonGroup, Box, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, InputLabel, Tabs, Tab, Collapse, IconButton, MenuItem, Checkbox, FormControlLabel, Slider, Divider, useTheme } from '@mui/material';
 import { ExpandMoreRounded } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
 import { Portal } from '@mui/base';
+import { customSelectStyles } from '../designs';
+
 import Select from 'react-select';
 import CreatableSelect from 'react-select/creatable';
-import { customSelectStyles } from '../designs';
 import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faServer, faClockRotateLeft, faFingerprint, faDesktop, faPlus, faMinus, faArrowUp, faArrowDown, faWrench, faFileImport, faFileExport, faLock, faCircleInfo, faLockOpen, faCircleQuestion } from '@fortawesome/free-solid-svg-icons';
 
-import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 import TimeAgo from '../components/timeago';
 import ColorInput from '../components/colorInput';
 import SponsorBadge from '../components/sponsorBadge';
 import RoleSelect from '../components/roleselect';
-import { useTheme } from '@emotion/react';
+
+import { getRolePerms, customAxios as axios, makeRequestsAuto, getAuthToken } from '../functions';
 
 const LANGUAGES = { 'ar': 'Arabic (العربية)', 'be': 'Belarusian (беларуская)', 'bg': 'Bulgarian (български)', 'cs': 'Czech (čeština)', 'cy': 'Welsh (Cymraeg)', 'da': 'Danish (dansk)', 'de': 'German (Deutsch)', 'el': 'Greek (Ελληνικά)', 'en': 'English', 'eo': 'Esperanto', 'es': 'Spanish (Español)', 'et': 'Estonian (eesti keel)', 'fi': 'Finnish (suomi)', 'fr': 'French (français)', 'ga': 'Irish (Gaeilge)', 'gd': 'Scottish (Gàidhlig)', 'hu': 'Hungarian (magyar)', 'hy': 'Armenian (Հայերեն)', 'id': 'Indonesian (Bahasa Indonesia)', 'is': 'Icelandic (íslenska)', 'it': 'Italian (italiano)', 'ja': 'Japanese (日本語)', 'ko': 'Korean (한국어)', 'lt': 'Lithuanian (lietuvių kalba)', 'lv': 'Latvian (latviešu valoda)', 'mk/sl': 'Macedonian/Slovenian (македонски/​slovenščina)', 'mn': 'Mongolian (Монгол)', 'mo': 'Moldavian (Moldova)', 'ne': 'Nepali (नेपाली)', 'nl': 'Dutch (Nederlands)', 'nn': 'Norwegian (norsk nynorsk)', 'pl': 'Polish (polski)', 'pt': 'Portuguese (Português)', 'ro': 'Romanian (română)', 'ru': 'Russian (русский)', 'sk': 'Slovak (slovenčina)', 'sl': 'Slovenian (slovenščina)', 'sq': 'Albanian (Shqip)', 'sr': 'Serbian (српски)', 'sv': 'Swedish (Svenska)', 'th': 'Thai (ไทย)', 'tr': 'Turkish (Türkçe)', 'uk': 'Ukrainian (українська)', 'vi': 'Vietnamese (Tiếng Việt)', 'yi': 'Yiddish (ייִדיש)', 'zh': 'Chinese (中文)' };
 
@@ -3030,7 +3033,9 @@ const MemoEconomyForm = memo(({ theme, formConfig }) => {
 
 const Configuration = () => {
     const { t: tr } = useTranslation();
+    const {curUser} = useContext(AppContext);
     const theme = useTheme();
+
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
     const handleCloseSnackbar = useCallback(() => {
@@ -3179,7 +3184,7 @@ const Configuration = () => {
         window.loading -= 1;
     }, [apiConfig]);
     const showReloadApiConfig = useCallback(async () => {
-        if (vars.userInfo.mfa === false) {
+        if (curUser.mfa === false) {
             setSnackbarContent(tr("rejected_you_must_enable_mfa_before_reloading_config"));
             setSnackbarSeverity("error");
             return;
@@ -3355,7 +3360,7 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Client: v3.4.0-beta.03 (build.{buildhash})
+                            Client: v3.4.0-beta.04 (build.{buildhash})
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>

@@ -13,7 +13,7 @@ const Loader = ({ onLoaderLoaded }) => {
     const [domain, setDomain] = useState(window.location.hostname !== "localhost" ? window.location.hostname : vars.host);
 
     const { t: tr } = useTranslation();
-    const { initMemberUIDs } = useContext(AppContext);
+    const appContext = useContext(AppContext);
 
     const theme = useTheme();
     const [animateLoader, setLoaderAnimation] = useState(true);
@@ -234,7 +234,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 writeLS("cache", cache, vars.host + vars.dhconfig.abbr + vars.dhconfig.api_host);
             }
 
-            await FetchProfile(initMemberUIDs);
+            await FetchProfile(appContext);
 
             const themeUpdated = new CustomEvent('themeUpdated', {});
             window.dispatchEvent(themeUpdated);

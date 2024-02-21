@@ -1,4 +1,6 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo, useContext, memo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AppContext } from '../../context';
 
 import { Card, CardContent, Typography, Grid, Snackbar, Alert, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, MenuItem, useTheme } from '@mui/material';
 import { Portal } from '@mui/base';
@@ -9,12 +11,11 @@ import TimeAgo from '../../components/timeago';
 
 import { makeRequestsAuto, customAxios as axios, getAuthToken, getMonthUTC, removeNUEValues } from '../../functions';
 
-import { useTranslation } from 'react-i18next';
-
 var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     const columns = [
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
@@ -55,8 +56,8 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=0`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=1`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&status=2`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${vars.userInfo.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
-                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${vars.userInfo.userid}`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}&responded_after=${getMonthUTC() / 1000}`, auth: true },
+                    { url: `${vars.dhpath}/applications/list?all_user=true&page=1&page_size=1&responded_by=${curUser.userid}`, auth: true },
                     { url: `${vars.dhpath}/applications/list?all_user=true&page=${page}&page_size=${pageSize}&${new URLSearchParams(processedParam).toString()}`, auth: true },
                 ]);
                 setStats([_pending.total_items, _accepted.total_items, _declined.total_items, _respondedM.total_items, _respondedAT.total_items]);
@@ -119,7 +120,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
 
 const AllApplication = () => {
     const { t: tr } = useTranslation();
-    
+
     const [detailApp, setDetailApp] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogDelete, setDialogDelete] = useState(false);

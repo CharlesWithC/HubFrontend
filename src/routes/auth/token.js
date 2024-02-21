@@ -11,7 +11,7 @@ var vars = require('../../variables');
 
 const TokenAuth = () => {
     const { t: tr } = useTranslation();
-    const { initMemberUIDs } = useContext(AppContext);
+    const appContext = useContext(AppContext);
     
     const navigate = useNavigate();
     const location = useLocation();
@@ -28,7 +28,7 @@ const TokenAuth = () => {
                 if (resp.status === 200) {
                     setAuthToken(resp.data.token);
                     setMessage(tr("you_are_authorized"));
-                    await FetchProfile(initMemberUIDs, true);
+                    await FetchProfile(appContext, true);
                     setContinue(true);
                     setTimeout(function () { navigate('/'); }, 500);
                 } else if (resp.status === 401) {

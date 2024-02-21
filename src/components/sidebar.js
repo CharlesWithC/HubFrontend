@@ -1,25 +1,19 @@
+import { useState, useEffect, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router-dom';
+import { AppContext } from '../context';
+
+import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { AnalyticsRounded, NewspaperRounded, MapRounded, BrowserUpdatedRounded, LocalShippingRounded, ChecklistRounded, WarehouseRounded, EventNoteRounded, PeopleAltRounded, LeaderboardRounded, EmojiEventsRounded, SendRounded, MarkAsUnreadRounded, AllInboxRounded, PersonAddAltRounded, VerifiedUserRounded, ConstructionRounded, BallotRounded, MapsHomeWorkRounded, CollectionsRounded } from '@mui/icons-material';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
+
 import SimpleBar from 'simplebar-react';
 import 'simplebar-react/dist/simplebar.min.css';
-import PropTypes from 'prop-types';
-import { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-
-import { useTranslation } from 'react-i18next';
 
 var vars = require('../variables');
 
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     window.loading = 0; // clear loading state on page change
 
@@ -53,7 +47,7 @@ const SideBar = (props) => {
     }, []);
 
     const plugins = vars.dhconfig.plugins;
-    const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event", "poll"];
+    // const allPlugins = ["announcement", "application", "challenge", "division", "downloads", "economy", "event", "poll"];
     const pluginControl = { "announcement": ["announcement"], "application": ["new_application", "my_application", "all_application"], "challenge": ["challenge"], "division": ["division"], "downloads": ["downloads"], "economy": ["economy"], "event": ["event"], "poll": ["poll"] };
     const menuName = { "overview": tr("overview"), "gallery": tr("gallery"), "announcement": tr("announcements"), "downloads": tr("downloads"), "poll": tr("polls"), "live_map": tr("map"), "delivery": tr("deliveries"), "challenge": tr("challenges"), "division": tr("divisions"), "economy": tr("economy"), "event": tr("events"), "member": tr("members"), "leaderboard": tr("leaderboard"), "ranking": tr("rankings"), "new_application": tr("new_application"), "my_application": tr("my_applications"), "all_application": tr("all_applications"), "member_list": tr("member_list"), "external_user": tr("external_users"), "audit_log": tr("audit_log"), "configuration": tr("configuration") };
     const menuIcon = { "overview": <AnalyticsRounded />, "gallery": <CollectionsRounded />, "announcement": <NewspaperRounded />, "downloads": <BrowserUpdatedRounded />, "poll": <BallotRounded />, "live_map": <MapRounded />, "delivery": <LocalShippingRounded />, "challenge": <ChecklistRounded />, "division": <WarehouseRounded />, "economy": <MapsHomeWorkRounded />, "event": <EventNoteRounded />, "member": <PeopleAltRounded />, "leaderboard": <LeaderboardRounded />, "ranking": <EmojiEventsRounded />, "new_application": <SendRounded />, "my_application": <MarkAsUnreadRounded />, "all_application": <AllInboxRounded />, "member_list": <PeopleAltRounded />, "external_user": <PersonAddAltRounded />, "audit_log": <VerifiedUserRounded />, "configuration": <ConstructionRounded /> };
@@ -72,7 +66,7 @@ const SideBar = (props) => {
     } else {
         menu = [["overview", "announcement", "gallery", "downloads", "poll"], ["live_map", "delivery", "challenge", "division", "event", "economy"], ["member", "leaderboard", "ranking"], ["new_application", "my_application", "all_application"], ["member_list", "external_user", "audit_log", "configuration"]];
         if (!vars.userPerm.includes("administrator")) {
-            if (!vars.userPerm.includes("driver") || vars.userInfo.userid === -1) {
+            if (!vars.userPerm.includes("driver") || curUser.userid === -1) {
                 toRemove = ["downloads", "challenge", "division", "economy", "member", "leaderboard", "ranking", "external_user", "audit_log", "configuration"];
             }
             if (!vars.userPerm.includes("update_config") && !vars.userPerm.includes("reload_config")) {
@@ -197,7 +191,7 @@ const SideBar = (props) => {
             </div>
         ))}
         <div style={{ marginLeft: "10px", marginBottom: "10px" }}>
-            <Typography variant="body2">Version: v3.4.0-beta.03 [BETA]</Typography>
+            <Typography variant="body2">Version: v3.4.0-beta.04 [BETA]</Typography>
             <Typography variant="body2">Report bugs in CHub Discord (#issues)</Typography>
             <Typography variant="body2"><a href="https://discord.gg/KRFsymnVKm" target="_blank" rel="noreferrer">https://discord.gg/KRFsymnVKm</a></Typography>
         </div>
@@ -248,10 +242,6 @@ const SideBar = (props) => {
             </Drawer>
         </Box>
     );
-};
-
-SideBar.propTypes = {
-    width: PropTypes.number,
 };
 
 export default SideBar;

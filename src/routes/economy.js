@@ -1,5 +1,13 @@
+import { useState, useCallback, useEffect, useRef, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { AppContext } from '../context';
+
+import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup, IconButton, Divider, Card, CardContent } from '@mui/material';
+import { Portal } from '@mui/base';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear, faShoppingCart, faWarehouse } from '@fortawesome/free-solid-svg-icons';
+
 import { Map, View } from 'ol';
 import { Tile } from 'ol/layer';
 import { XYZ } from 'ol/source';
@@ -12,9 +20,6 @@ import { Style, Fill, Stroke } from 'ol/style';
 import { Projection } from 'ol/proj';
 import { getVectorContext } from 'ol/render.js';
 
-import { Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, useTheme, Grid, Snackbar, Alert, TextField, MenuItem, ButtonGroup, IconButton, Divider, Card, CardContent } from '@mui/material';
-import { Portal } from '@mui/base';
-
 import Select from 'react-select';
 
 import DateTimeField from '../components/datetime';
@@ -23,9 +28,8 @@ import UserSelect from '../components/userselect';
 import TimeAgo from '../components/timeago';
 import CustomTable from '../components/table';
 import { customSelectStyles } from '../designs';
+
 import { makeRequestsAuto, customAxios as axios, getAuthToken, TSep, checkUserPerm, ConvertUnit, downloadLocal } from '../functions';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faFileExport, faLock, faMoneyBillTransfer, faPlus, faRankingStar, faTruck, faUnlock, faUserGear, faShoppingCart, faWarehouse } from '@fortawesome/free-solid-svg-icons';
 
 var vars = require("../variables");
 
@@ -221,6 +225,8 @@ const CustomTileMap = ({ tilesUrl, title, style, route, onGarageClick }) => {
 
 const Economy = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
+
     const slotColumns = [
         { id: 'slotid', label: 'ID' },
         { id: 'owner', label: tr("owner") },
@@ -353,7 +359,7 @@ const Economy = () => {
         setDialogDisabled(true);
         let owner = garageOwner.userid;
         if (owner === -1000) owner = "company";
-        else if (owner === vars.userInfo.userid) owner = "self";
+        else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
         let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -441,7 +447,7 @@ const Economy = () => {
         setDialogDisabled(true);
         let owner = slotOwner.userid;
         if (owner === -1000) owner = "company";
-        else if (owner === vars.userInfo.userid) owner = "self";
+        else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
         let resp = await axios({ url: `${vars.dhpath}/economy/garages/${modalGarage.id}/slots/${activeSlot.slotid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -544,7 +550,7 @@ const Economy = () => {
         setDialogDisabled(true);
         let owner = truckOwner.userid;
         if (owner === -1000) owner = "company";
-        else if (owner === vars.userInfo.userid) owner = "self";
+        else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
         let resp = await axios({ url: `${vars.dhpath}/economy/trucks/${activeTruck.vehicleid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -617,7 +623,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?owner=${vars.userInfo.userid}&page=${myTruckPage}&page_size=${myTruckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${vars.dhpath}/economy/trucks/list?owner=${curUser.userid}&page=${myTruckPage}&page_size=${myTruckPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newTruckList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let truck = resp.data.list[i];
@@ -651,7 +657,7 @@ const Economy = () => {
         setDialogDisabled(false);
     }, [selectedTruck, truckSlotId, truckReferer]);
 
-    const transferFrom = vars.userInfo;
+    const transferFrom = curUser;
     const [transferTo, setTransferTo] = useState({});
     const [transferAmount, setTransferAmount] = useState(0);
     const [transferMessage, setTransferMessage] = useState("");
@@ -680,7 +686,7 @@ const Economy = () => {
     }, [configLoaded]);
     const updateBalanceVisibility = useCallback(async (visibility) => {
         setBalanceVisibility(visibility);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${vars.userInfo.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${curUser.userid}/visibility/${visibility}`, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status !== 204) {
             setBalanceVisibility(visibility === "public" ? "private" : "public");
             setSnackbarContent(resp.data.error);
@@ -750,7 +756,7 @@ const Economy = () => {
             return;
         }
         setDialogDisabled(true);
-        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${vars.userInfo.userid}/transactions/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+        let resp = await axios({ url: `${vars.dhpath}/economy/balance/${curUser.userid}/transactions/export?after=${parseInt(exportRange.start_time)}&before=${parseInt(exportRange.end_time)}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 200) {
             downloadLocal("export.csv", resp.data);
             setSnackbarContent(tr("success"));
@@ -864,7 +870,7 @@ const Economy = () => {
         async function doLoad() {
             window.loading += 1;
 
-            let resp = await axios({ url: `${vars.dhpath}/economy/merch/list?owner=${vars.userInfo.userid}&page=${merchPage}&page_size=${merchPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            let resp = await axios({ url: `${vars.dhpath}/economy/merch/list?owner=${curUser.userid}&page=${merchPage}&page_size=${merchPageSize}`, method: "GET", headers: { Authorization: `Bearer ${getAuthToken()}` } });
             let newMerchList = [];
             for (let i = 0; i < resp.data.list.length; i++) {
                 let merch = resp.data.list[i];
@@ -903,7 +909,7 @@ const Economy = () => {
         setDialogDisabled(true);
         let owner = merchOwner.userid;
         if (owner === -1000) owner = "company";
-        else if (owner === vars.userInfo.userid) owner = "self";
+        else if (owner === curUser.userid) owner = "self";
         else owner = "user-" + owner;
         let resp = await axios({ url: `${vars.dhpath}/economy/merch/${activeMerch.itemid}/transfer`, data: { owner: owner, message: message }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
         if (resp.status === 204) {
@@ -988,8 +994,8 @@ const Economy = () => {
             <DialogActions>
                 <Button variant="primary" onClick={() => { setDialogAction(""); }}>{tr("close")}</Button>
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner !== undefined && <>
-                    {(checkUserPerm(["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>{tr("sell")}</Button>}
-                    {(checkUserPerm(["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === vars.userInfo.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>{tr("transfer")}</Button>}
+                    {(checkUserPerm(["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === curUser.userid) && <Button variant="contained" color="error" onClick={() => { setDialogAction("sell-garage"); }}>{tr("sell")}</Button>}
+                    {(checkUserPerm(["administrator", "manage_economy", "manage_garage"]) || modalGarageDetails.garage_owner.userid === curUser.userid) && <Button variant="contained" color="warning" onClick={() => { setDialogAction("transfer-garage"); }}>{tr("transfer")}</Button>}
                     <Button variant="contained" color="info" onClick={() => { setSlotList([]); setDialogAction("slot"); }}>{tr("show_slots")}</Button>
                 </>}
                 {modalGarageDetails !== null && modalGarageDetails.garage_owner === undefined && <Button variant="contained" color="info" onClick={() => { purchaseGarage(); }} disabled={dialogDisabled}>{tr("purchase")}</Button>}
@@ -1145,7 +1151,7 @@ const Economy = () => {
                             <Typography variant="body2">{TRUCK_STATUS[activeTruck.status]}</Typography>
                         </Grid>
                     </Grid>
-                    {(checkUserPerm(["administrator", "manage_economy", "manage_truck"]) || activeTruck.owner.userid === vars.userInfo.userid) && <>
+                    {(checkUserPerm(["administrator", "manage_economy", "manage_truck"]) || activeTruck.owner.userid === curUser.userid) && <>
                         <ButtonGroup fullWidth sx={{ mt: "10px" }}>
                             <Button variant="contained" color="success" onClick={() => { activateTruck(); }} disabled={activeTruck.status !== "inactive" || dialogDisabled}>{tr("activate")}</Button>
                             <Button variant="contained" color="warning" onClick={() => { deactivateTruck(); }} disabled={activeTruck.status !== "active" || dialogDisabled}>{tr("deactivate")}</Button>

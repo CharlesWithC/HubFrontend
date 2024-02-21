@@ -14,7 +14,7 @@ var vars = require('../../variables');
 
 const MfaAuth = () => {
     const { t: tr } = useTranslation();
-    const { initMemberUIDs } = useContext(AppContext);
+    const appContext = useContext(AppContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
@@ -38,7 +38,7 @@ const MfaAuth = () => {
                 setOtpColor(theme.palette.success.main);
                 setOtpText(tr("you_are_authorized"));
                 setOtpReadOnly(true);
-                await FetchProfile(initMemberUIDs, true);
+                await FetchProfile(appContext, true);
                 setTimeout(function () { navigate("/"); }, 500);
             } else {
                 setOtpError(true);

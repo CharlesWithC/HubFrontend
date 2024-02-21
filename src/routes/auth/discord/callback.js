@@ -14,7 +14,7 @@ var vars = require('../../../variables');
 
 const DiscordAuth = () => {
     const { t: tr } = useTranslation();
-    const { initMemberUIDs } = useContext(AppContext);
+    const appContext = useContext(AppContext);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,7 +42,7 @@ const DiscordAuth = () => {
                         if (resp.data.mfa === false) {
                             setAuthToken(resp.data.token);
                             setMessage(tr("you_are_authorized"));
-                            await FetchProfile(initMemberUIDs, true);
+                            await FetchProfile(appContext, true);
                             setContinue(true);
                             setTimeout(function () { navigate('/'); }, 500);
                         } else {

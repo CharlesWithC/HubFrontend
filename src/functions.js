@@ -120,39 +120,45 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile(initMemberUIDs, isLogin = false) {
+export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCurUser }, isLogin = false) {
+    // accept a whole appContext OR those separate vars as first argument
+    // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
     if (bearerToken !== null) {
         let resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
             vars.isLoggedIn = true;
-            vars.userInfo = resp.data;
+
+            const curUser = resp.data;
+
+            setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
+            setUsers(users => ({ ...users, [resp.data.uid]: curUser }));
 
             let roles = Object.values(vars.roles);
             roles.sort((a, b) => a.order_id - b.order_id);
             let roleOnDisplay = "";
             for (let i = 0; i < roles.length; i++) {
-                if (vars.userInfo.roles.includes(roles[i].id)) {
+                if (curUser.roles.includes(roles[i].id)) {
                     roleOnDisplay = roles[i].name;
                     break;
                 }
             }
             const allPerms = Object.keys(vars.perms);
-            for (let i = 0; i < vars.userInfo.roles.length; i++) {
+            for (let i = 0; i < curUser.roles.length; i++) {
                 for (let j = 0; j < allPerms.length; j++) {
-                    if (vars.perms[allPerms[j]].includes(vars.userInfo.roles[i]) && !vars.userPerm.includes(allPerms[j])) {
+                    if (vars.perms[allPerms[j]].includes(curUser.roles[i]) && !vars.userPerm.includes(allPerms[j])) {
                         vars.userPerm.push(allPerms[j]);
                     }
                 }
             }
-            vars.userBanner = { name: vars.userInfo.name, role: roleOnDisplay, avatar: vars.userInfo.avatar };
+            vars.userBanner = { name: curUser.name, role: roleOnDisplay, avatar: curUser.avatar };
 
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
                 if (vars.userLevel !== -1) break;
                 for (let j = 0; j < vars.patrons[tiers[i]].length; j++) {
                     let patron = vars.patrons[tiers[i]][j];
-                    if (patron.abbr === vars.dhconfig.abbr && patron.uid === vars.userInfo.uid) {
+                    if (patron.abbr === vars.dhconfig.abbr && patron.uid === curUser.uid) {
                         vars.userPatreonID = patron.id;
                         vars.userLevel = 4 - i;
                         break;
@@ -161,9 +167,9 @@ export async function FetchProfile(initMemberUIDs, isLogin = false) {
             }
             if (vars.userLevel === -1) vars.userLevel = 0;
 
-            if (vars.userInfo.discordid !== null && vars.userInfo.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(vars.userInfo.discordid) && vars.specialRolesMap[vars.userInfo.discordid] !== undefined) {
-                for (let i = 0; i < vars.specialRolesMap[vars.userInfo.discordid].length; i++) {
-                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[vars.userInfo.discordid][i].role)) {
+            if (curUser.discordid !== null && curUser.discordid !== undefined && Object.keys(vars.specialRolesMap).includes(curUser.discordid) && vars.specialRolesMap[curUser.discordid] !== undefined) {
+                for (let i = 0; i < vars.specialRolesMap[curUser.discordid].length; i++) {
+                    if (['lead_developer', 'project_manager', 'community_manager', 'development_team', 'support_leader', 'marketing_leader', 'graphic_leader', 'support_team', 'marketing_team', 'graphic_team'].includes(vars.specialRolesMap[curUser.discordid][i].role)) {
                         // Team member get Platinum Perks
                         vars.userLevel = 4;
                         break;
@@ -178,11 +184,11 @@ export async function FetchProfile(initMemberUIDs, isLogin = false) {
                 writeLS("client-settings", vars.userSettings, vars.host);
             }
 
-            if (vars.userInfo.userid !== -1) {
+            if (curUser.userid !== -1) {
                 const divisionIDs = Object.keys(vars.divisions);
                 vars.userDivisionIDs = [];
                 for (let i = 0; i < divisionIDs.length; i++) {
-                    if (vars.userInfo.roles.includes(vars.divisions[divisionIDs[i]].role_id)) {
+                    if (curUser.roles.includes(vars.divisions[divisionIDs[i]].role_id)) {
                         vars.userDivisionIDs.push(divisionIDs[i]);
                     }
                 }
@@ -192,7 +198,7 @@ export async function FetchProfile(initMemberUIDs, isLogin = false) {
                     customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
                 }
 
-                let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${vars.userInfo.userid}`]);
+                let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${curUser.userid}`]);
                 vars.userStats = resp;
 
                 initMemberUIDs();
@@ -203,7 +209,8 @@ export async function FetchProfile(initMemberUIDs, isLogin = false) {
         }
     } else {
         vars.isLoggedIn = false;
-        vars.userInfo = {};
+        setCurUID(null);
+        setCurUser({});
         vars.userPerm = [];
         vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
     }
@@ -457,10 +464,10 @@ export function getNextMonthUTC() {
     }
 }
 
-export function checkUserRole(roles) {
+export function checkUserRole(user, roles) {
     // any matches in perms will return true
     for (let i = 0; i < roles.length; i++) {
-        if (vars.userInfo.roles.includes(roles[i])) {
+        if (user.roles.includes(roles[i])) {
             return true;
         }
     }

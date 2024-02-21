@@ -15,7 +15,7 @@ var vars = require("../variables");
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    
+
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> };
     const icon = ICONS[announcement.type.id];
 
@@ -242,6 +242,7 @@ const AnnouncementManagers = memo(() => {
 
 const Announcement = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -521,7 +522,7 @@ const Announcement = () => {
                     tooltipTitle={tr("create")}
                     onClick={() => createAnnouncement()}
                 />}
-                {vars.userInfo.userid !== -1 && <SpeedDialAction
+                {!isNaN(curUser.userid) && <SpeedDialAction
                     key="managers"
                     icon={<PeopleAltRounded />}
                     tooltipTitle={tr("managers")}

@@ -255,6 +255,8 @@ const DivisionManagers = memo(() => {
 
 const Divisions = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
+
     const [doReload, setDoReload] = useState(0);
     const [dialogManagers, setDialogManagers] = useState(false);
 
@@ -276,7 +278,7 @@ const Divisions = () => {
             sx={{ position: 'fixed', bottom: 20, right: 20 }}
             icon={<SpeedDialIcon />}
         >
-            {vars.userInfo.userid !== -1 && <SpeedDialAction
+            {curUser.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
                 tooltipTitle={tr("managers")}

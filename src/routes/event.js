@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AppContext } from '../context';
 
 import { Card, CardContent, CardMedia, Typography, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Snackbar, Alert, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, SpeedDial, SpeedDialIcon, SpeedDialAction } from '@mui/material';
 import { LocalParkingRounded, TimeToLeaveRounded, FlightTakeoffRounded, FlightLandRounded, RouteRounded, HowToRegRounded, LocalShippingRounded, EmojiEventsRounded, EditRounded, DeleteRounded, CheckBoxRounded, CheckBoxOutlineBlankRounded, PeopleAltRounded, EditNoteRounded } from '@mui/icons-material';
@@ -172,6 +173,7 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     useEffect(() => {
         async function doLoad() {
@@ -222,7 +224,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
 
             if (modalEvent.eventid === eventid) {
                 let updatedModalEvent = { ...modalEvent, votecnt: modalEvent.votecnt + 1, voted: true };
-                updatedModalEvent.votes.push(vars.userInfo);
+                updatedModalEvent.votes.push(curUser);
                 updatedModalEvent.voteO = <>{updatedModalEvent.votes.map((voter) => (<><UserCard user={voter} inline={true} />&nbsp;&nbsp;</>))}</>;
                 setModalEvent(updatedModalEvent);
             }
@@ -267,7 +269,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             if (modalEvent.eventid === eventid) {
                 const updatedModalEvent = { ...modalEvent, votecnt: modalEvent.votecnt - 1, voted: false };
                 for (let i = 0; i < updatedModalEvent.votes.length; i++) {
-                    if (updatedModalEvent.votes[i].userid === vars.userInfo.userid) {
+                    if (updatedModalEvent.votes[i].userid === curUser.userid) {
                         updatedModalEvent.votes.splice(i, 1);
                         break;
                     }
@@ -487,6 +489,7 @@ const EventManagers = memo(() => {
 
 const Events = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     const [upcomingEvents, setUpcomingEvents] = useState([]);
     const [calendarEvents, setCalendarEvents] = useState([]);
@@ -807,7 +810,7 @@ const Events = () => {
                 tooltipTitle={tr("create")}
                 onClick={() => createEvent()}
             />}
-            {vars.userInfo.userid !== -1 && <SpeedDialAction
+            {curUser.userid !== -1 && <SpeedDialAction
                 key="managers"
                 icon={<PeopleAltRounded />}
                 tooltipTitle={tr("managers")}

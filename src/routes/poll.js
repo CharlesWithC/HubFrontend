@@ -433,6 +433,8 @@ const PollManagers = memo(() => {
 
 const Poll = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
+
     const [polls, setPolls] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
     const [submitLoading, setSubmitLoading] = useState(false);
@@ -859,7 +861,7 @@ const Poll = () => {
                     tooltipTitle={tr("create")}
                     onClick={() => createPoll()}
                 />}
-                {vars.userInfo.userid !== -1 && <SpeedDialAction
+                {curUser.userid !== -1 && <SpeedDialAction
                     key="managers"
                     icon={<PeopleAltRounded />}
                     tooltipTitle={tr("managers")}

@@ -1,19 +1,21 @@
+import { useState, useEffect, useCallback, useContext, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import React from 'react';
-import { useState, useEffect, useCallback, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { AppContext } from '../context';
+
 import { Grid, Chip, Card, CardContent, Typography, LinearProgress, IconButton, SpeedDial, SpeedDialAction, SpeedDialIcon, Button, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, TextareaAutosize, Radio, RadioGroup, FormControlLabel, MenuItem, TextField, Snackbar, Alert, useTheme } from '@mui/material';
 import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
 import { LocalShippingRounded, InfoRounded, ChecklistRounded, FlagRounded, CloseRounded, GavelRounded, TollRounded, DirectionsBoatRounded, TrainRounded, CarCrashRounded, BuildRounded, LocalGasStationRounded, FlightTakeoffRounded, SpeedRounded, RefreshRounded, WarehouseRounded, DeleteRounded } from '@mui/icons-material';
-import SimpleBar from 'simplebar-react/dist';
 import { Portal } from '@mui/base';
+
+import SimpleBar from 'simplebar-react/dist';
 
 import UserCard from '../components/usercard';
 import ListModal from '../components/listmodal';
 import TimeAgo from '../components/timeago';
 import TileMap from '../components/tilemap';
+
 import { makeRequestsAuto, ConvertUnit, CalcInterval, b62decode, customAxios as axios, checkUserPerm, getAuthToken } from '../functions';
-import '../App.css';
 
 var vars = require("../variables");
 
@@ -24,6 +26,8 @@ const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫�
 
 const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
+
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
     const EVENT_NAME = { "job.started": tr("job_started"), "job.delivered": tr("job_delivered"), "job.cancelled": tr("job_cancelled"), "fine": tr("fine"), "tollgate": tr("toll_gate"), "ferry": tr("ferry"), "train": tr("train"), "collision": tr("collision"), "repair": tr("repair"), "refuel": tr("refuel"), "teleport": tr("teleport"), "speeding": tr("speeding") };
@@ -130,7 +134,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
 
             if (divisionM.divisionid === null) divisionM.divisionid = -1;
             if (divisionM.status === null) divisionM.status = -1;
-            if (!vars.isLoggedIn || vars.userInfo.userid === null || vars.userInfo.userid < 0) {
+            if (!vars.isLoggedIn || curUser.userid === null || curUser.userid < 0) {
                 setDivisionMeta(null);
             } else {
                 if (divisionM.error === undefined) {
@@ -507,7 +511,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     tooltipTitle={tr("details")}
                     icon={<InfoRounded />}
                     onClick={handleDetail} />}
-            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === vars.userInfo.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
                 key="division"
                 tooltipTitle={tr("division")}
                 icon={<WarehouseRounded />}

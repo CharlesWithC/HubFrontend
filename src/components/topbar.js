@@ -26,7 +26,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { initMemberUIDs } = useContext(AppContext);
+    const { setUsers, setCurUID, curUser, setCurUser } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -324,7 +324,7 @@ const TopBar = (props) => {
                 setSnackbarSeverity("error");
                 setSnackbarContent(tr("already_logged_out"));
             }
-            await FetchProfile(initMemberUIDs);
+            await FetchProfile({ setUsers, setCurUID, setCurUser }); // initMemberUIDs not needed
         } catch (error) {
             console.error(error);
             setSnackbarSeverity("error");
@@ -351,7 +351,7 @@ const TopBar = (props) => {
         onClose={handleMenuClose}
         sx={{ top: "50px" }}
     >
-        {vars.userInfo.userid !== -1 && vars.userInfo.userid !== null && <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>{tr("profile")}</MenuItem>}
+        {curUser.userid !== -1 && curUser.userid !== null && <MenuItem onClick={openProfileModal}><ListItemIcon><AccountBoxRounded fontSize="small" /></ListItemIcon>{tr("profile")}</MenuItem>}
         <Link to="/settings"><MenuItem><ListItemIcon><SettingsRounded fontSize="small" /></ListItemIcon>{tr("settings")}</MenuItem></Link>
         <Divider sx={{ marginTop: "5px", marginBottom: "5px" }} />
         <Link to="/sponsor"><MenuItem sx={{ color: '#FFC400' }}><ListItemIcon><FlareRounded fontSize="small" /></ListItemIcon>{tr("sponsor")}</MenuItem></Link>
@@ -366,7 +366,7 @@ const TopBar = (props) => {
 
     return (
         <div do-reload={reload}>
-            <UserCard user={vars.userInfo} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(1); }} />
+            <UserCard user={curUser} showProfileModal={showProfileModal} onProfileModalClose={() => { setShowProfileModal(1); }} />
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar ref={appBarRef} position="static"
                     sx={{

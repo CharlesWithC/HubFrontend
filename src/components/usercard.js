@@ -133,7 +133,7 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { users, setUsers, userProfiles, setUserProfiles, setMemberUIDs } = useContext(AppContext);
+    const { users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser } = useContext(AppContext);
 
     const bannerRef = useRef(null); // this is a real component reference
     let availableTrackers = [];
@@ -176,8 +176,7 @@ const UserCard = (props) => {
             resp.data.roles.sort((a, b) => vars.orderedRoles.indexOf(a) - vars.orderedRoles.indexOf(b));
 
             setUsers(users => ({ ...users, [uid]: resp.data }));
-
-            if (user.uid === vars.userInfo.uid) vars.userInfo = user;
+            // updating info for current user will be automatically handled in setUsers
 
             setNewProfile({ name: resp.data.name, avatar: resp.data.avatar });
             setNewAboutMe(resp.data.bio);
@@ -686,7 +685,7 @@ const UserCard = (props) => {
 
     const customizeProfileAck = !(localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"));
     const ackCustomizeProfile = useCallback(() => {
-        if (vars.userInfo.uid === user.uid && (localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"))) {
+        if (curUser.uid === user.uid && (localStorage.getItem("ack") === null || !JSON.parse(localStorage.getItem("ack")).includes("customize-profile"))) {
             if (localStorage.getItem("ack") === null) {
                 localStorage.setItem("ack", JSON.stringify(["customize-profile"]));
             } else {
@@ -745,10 +744,10 @@ const UserCard = (props) => {
                                 {badges.map((badge, index) => { return <a key={index} onClick={() => { setCtxAction(""); updateNote(); if (onProfileModalClose !== undefined) onProfileModalClose(); navigate("/badges"); }} style={{ cursor: "pointer" }}>{badge}&nbsp;</a>; })}
                                 {user.userid !== null && user.userid !== undefined && user.userid >= 0 && <Tooltip placement="top" arrow title={tr("user_id")}
                                     PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}><Typography variant="body2"><FontAwesomeIcon icon={faHashtag} />{user.userid}</Typography></Tooltip>}
-                                {showProfileModal !== 2 && ((user.uid === vars.userInfo.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
+                                {showProfileModal !== 2 && ((user.uid === curUser.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"])))) && <>&nbsp;<IconButton size="small" aria-label={tr("edit")} onClick={(e) => { updateCtxAction(e, "update-profile"); }}><FontAwesomeIcon icon={faPencil} /></IconButton ></>}
                             </Typography>
                         </div>
-                        {user.uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
+                        {user.uid === curUser.uid && !customizeProfileAck && vars.userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Box sx={{ borderBottom: 1, borderColor: "divider", mb: "10px" }}>
                             <Tabs value={tab} onChange={handleTabChange} aria-label="profile tabs" TabIndicatorProps={{ style: { backgroundColor: theme.palette.info.main } }}>
                                 <Tab label={tr("user_info")} {...tabBtnProps(0, tab, theme)} />
@@ -1073,9 +1072,9 @@ const UserCard = (props) => {
         >
             {user.userid !== null && user.userid >= 0 && <MenuItem onClick={(e) => { updateCtxAction(e, "show-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("profile")}</MenuItem>}
             {(user.userid === null || user.userid < 0) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-profile"); }}><ListItemIcon><FontAwesomeIcon icon={faAddressCard} /></ListItemIcon>{tr("update_profile")}</MenuItem>}
-            {(user.uid === vars.userInfo.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
-            {user.uid === vars.userInfo.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon>{tr("update_about_me")}</MenuItem>}
-            {(user.uid === vars.userInfo.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon>{tr("switch_tracker")}</MenuItem>}
+            {(user.uid === curUser.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <Divider />}
+            {user.uid === curUser.uid && <MenuItem onClick={(e) => { updateCtxAction(e, "update-about-me"); }}><ListItemIcon><FontAwesomeIcon icon={faComment} /></ListItemIcon>{tr("update_about_me")}</MenuItem>}
+            {(user.uid === curUser.uid || (user.uid !== -1 && checkUserPerm(["administrator", "manage_profiles"]))) && <MenuItem onClick={(e) => { updateCtxAction(e, "switch-tracker"); }}><ListItemIcon><FontAwesomeIcon icon={faTruck} /></ListItemIcon>{tr("switch_tracker")}</MenuItem>}
             <Divider />
             {checkUserPerm(["administrator", "update_global_note"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-global-note"); }}><ListItemIcon><FontAwesomeIcon icon={faNoteSticky} /></ListItemIcon>{tr("update_global_note")}</MenuItem>}
             {user.userid !== null && user.userid >= 0 && checkUserPerm(["administrator", "manage_divisions", "update_roles"]) && <MenuItem onClick={(e) => { updateCtxAction(e, "update-roles"); }}><ListItemIcon><FontAwesomeIcon icon={faPeopleGroup} /></ListItemIcon>{tr("update_roles")}</MenuItem>}
@@ -1367,8 +1366,8 @@ const UserCard = (props) => {
                     </DialogContent>
                     <DialogActions>
                         <Button variant="primary" onClick={() => { setCtxAction(""); }}>{tr("close")}</Button>
-                        {vars.userInfo.mfa && <Button variant="contained" color="error" onClick={() => { setCtxAction("disable-mfa-require-otp"); }} disabled={dialogBtnDisabled}>{tr("disable")}</Button>}
-                        {!vars.userInfo.mfa && <Button variant="contained" color="error" disabled={true}>{tr("enable_mfa_for_yourself_first")}</Button>}
+                        {curUser.mfa && <Button variant="contained" color="error" onClick={() => { setCtxAction("disable-mfa-require-otp"); }} disabled={dialogBtnDisabled}>{tr("disable")}</Button>}
+                        {!curUser.mfa && <Button variant="contained" color="error" disabled={true}>{tr("enable_mfa_for_yourself_first")}</Button>}
                     </DialogActions>
                 </Dialog>
             }
@@ -1493,7 +1492,7 @@ const UserCard = (props) => {
                             </Typography>
                         </div>
                         {users[user.uid] !== undefined && users[user.uid].activity !== null && users[user.uid].activity !== undefined && <Typography variant="body2">{GetActivity(tr, users[user.uid].activity)}</Typography>}
-                        {user.uid === vars.userInfo.uid && !customizeProfileAck && vars.userConfig[vars.userInfo.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
+                        {user.uid === curUser.uid && !customizeProfileAck && vars.userConfig[curUser.uid] === undefined && <Typography variant="body2" sx={{ color: theme.palette.info.main }}><a style={{ cursor: "pointer" }} onClick={() => { navigate("/settings/appearance"); }}>{tr("customize_your_profile_in_settings")}</a></Typography>}
                         <Divider sx={{ mt: "8px", mb: "8px" }} />
                         {user.bio !== "" && <>
                             <Typography variant="body2" sx={{ fontWeight: 800 }}>

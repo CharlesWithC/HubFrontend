@@ -24,6 +24,7 @@
      (Role updates will be reflected in "Members" tab without needing to refresh the page)
    - Supported lazy loading of members list, reducing the time at initial loading screen  
      (It will load at background and automatically fill relevant data where necessary)
+3. Replaced `vars.userInfo` with Context API `curUser`, also added optimization to prevent unnecessary re-renders when `users` change while ensuring `curUser` is updated when it is changed using `setUsers`
 
 ## v3.3.x
 

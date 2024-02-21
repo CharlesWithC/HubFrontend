@@ -1,8 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
+import { AppContext } from '../context';
+
 import { Grid, Card, CardContent, Typography, Snackbar, Alert, SpeedDial, SpeedDialIcon, SpeedDialAction, Dialog, DialogTitle, DialogContent, DialogActions, MenuItem, Button, TextField } from '@mui/material';
 import { RefreshRounded, AltRouteRounded } from '@mui/icons-material';
 import { Portal } from '@mui/base';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoins } from '@fortawesome/free-solid-svg-icons';
 import { faDiscord } from '@fortawesome/free-brands-svg-icons';
@@ -13,6 +16,7 @@ var vars = require("../variables");
 
 const Ranking = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -50,7 +54,7 @@ const Ranking = () => {
             }
         }
 
-        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${vars.userInfo.userid}`, `${vars.dhpath}/member/bonus/history`]);
+        const [_leaderboard, _bonusHistory] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/leaderboard?userids=${curUser.userid}`, `${vars.dhpath}/member/bonus/history`]);
         for (let i = _bonusHistory.length - 1; i >= 0; i--) {
             if (isSameDay(_bonusHistory[i].timestamp * 1000)) {
                 setBonusStreak(`${_bonusHistory[i].streak + 1}`);

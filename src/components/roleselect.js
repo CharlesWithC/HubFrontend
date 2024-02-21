@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useState, useContext } from 'react';
+import { AppContext } from '../context';
+
+import { Typography, useTheme } from '@mui/material';
 import Select from 'react-select';
-import { checkUserPerm } from '../functions';
 import { customSelectStyles } from '../designs';
+
+import { checkUserPerm } from '../functions';
 
 var vars = require("../variables");
 
@@ -18,11 +20,13 @@ const getRole = (roleId) => {
 };
 
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
+    const { curUser } = useContext(AppContext);
+
     let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
-    for (let i = 0; i < vars.userInfo.roles.length; i++) {
-        if (userHighestRole === undefined || getRole(vars.userInfo.roles[i]).order_id < userHighestRole) {
-            userHighestRole = getRole(vars.userInfo.roles[i]).order_id;
+    for (let i = 0; i < curUser.roles.length; i++) {
+        if (userHighestRole === undefined || getRole(curUser.roles[i]).order_id < userHighestRole) {
+            userHighestRole = getRole(curUser.roles[i]).order_id;
         }
     }
 

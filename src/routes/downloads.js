@@ -261,6 +261,7 @@ const DownloadableItemManagers = memo(() => {
 
 const DownloadableItem = () => {
     const { t: tr } = useTranslation();
+    const { curUser } = useContext(AppContext);
 
     const [downloadableItems, setDownloadableItems] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -526,7 +527,7 @@ const DownloadableItem = () => {
                     tooltipTitle={tr("create")}
                     onClick={() => createDownloadableItem()}
                 />}
-                {vars.userInfo.userid !== -1 && <SpeedDialAction
+                {curUser.userid !== -1 && <SpeedDialAction
                     key="managers"
                     icon={<PeopleAltRounded />}
                     tooltipTitle={tr("managers")}

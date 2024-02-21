@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, createContext } from 'react';
+import { useState, useEffect, useMemo, useCallback, createContext } from 'react';
 
 import { makeRequestsWithAuth } from "./functions";
 var vars = require("./variables");
@@ -7,6 +7,8 @@ export const AppContext = createContext({
     users: {},
     userProfiles: {},
     memberUIDs: [],
+    curUID: null,
+    curUser: {},
     initMemberUIDs: async () => { }
 });
 
@@ -14,6 +16,15 @@ export const AppContextProvider = ({ children }) => {
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
     const [memberUIDs, setMemberUIDs] = useState([]);
+
+    const [curUID, setCurUID] = useState(null);
+    const [curUser, setCurUser] = useState({});
+
+    useEffect(() => {
+        if (curUID !== null && users[curUID] !== undefined) {
+            setCurUser(users[curUID]);
+        }
+    }, [curUID, users[curUID]]);
 
     const initMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
@@ -48,9 +59,9 @@ export const AppContextProvider = ({ children }) => {
     const value = useMemo(() => ({
         users, setUsers,
         userProfiles, setUserProfiles,
-        memberUIDs, setMemberUIDs,
-        initMemberUIDs
-    }), [users, userProfiles, memberUIDs]);
+        memberUIDs, setMemberUIDs, initMemberUIDs,
+        curUID, setCurUID, curUser, setCurUser
+    }), [users, userProfiles, memberUIDs, curUID, curUser]);
 
     return (
         <AppContext.Provider value={value}>
