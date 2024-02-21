@@ -21,7 +21,7 @@ var vars = require("../variables");
 
 const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUID, curUserPerm } = useContext(AppContext);
 
     const [poll, setPoll] = useState(inputPoll);
     useEffect(() => {
@@ -29,7 +29,7 @@ const PollCard = ({ poll: inputPoll, onEdit, onDelete, onPollVoters }) => {
     }, [inputPoll]);
 
     const showButtons = onEdit !== undefined;
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_polls"]));
+    const showControls = (onEdit !== undefined) && (curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_polls"]));
     let initialChoices = [];
     for (let i = 0; i < poll.choices.length; i++) {
         if (poll.choices[i].voted) {

@@ -27,6 +27,9 @@
 3. Replaced `vars.userInfo` with Context API `curUser`, also added optimization to prevent unnecessary re-renders when `users` change while ensuring `curUser` is updated when it is changed using `setUsers`
 4. Replaced `vars.userPerm` with Context API `curUserPerm`, also added automatic `curUserPerm` re-calculation with the roles of `users[curUID]` when `users[curUID]` changes
 5. Added permissions display next to roles in profile popover
+6. Removed `vars.userDivisionIDs` and made it calculate when needed (only needed in delivery tab)
+7. Removed `vars.isLoggedIn` to use `curUID ?= NULL` to determine whether user is logged in
+8. Removed `vars.userStats` to get real-time `userDrivenDistance` in challenge tab on tab load
 
 ## v3.3.x
 

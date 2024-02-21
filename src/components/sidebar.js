@@ -13,7 +13,7 @@ var vars = require('../variables');
 
 const SideBar = (props) => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { curUID, curUser, curUserPerm } = useContext(AppContext);
 
     window.loading = 0; // clear loading state on page change
 
@@ -56,7 +56,7 @@ const SideBar = (props) => {
     let menu = [];
     let toRemove = [];
 
-    if (!vars.isLoggedIn) {
+    if (curUID === null) {
         menu = [["overview", "announcement", "gallery"], ["live_map", "delivery", "event"]];
         if (vars.dhconfig.gallery.length === 0) {
             toRemove.push("gallery");
@@ -132,10 +132,10 @@ const SideBar = (props) => {
         }
         if (!matchedPath) {
             // off-the-sidebar-paths
-            if (!["/settings", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications"].includes(path) && !vars.isLoggedIn) {
+            if (!["/settings", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications"].includes(path) && curUID === null) {
                 if (!reload404) {
                     if (Object.values(menuRoute).includes(path)) {
-                        if (!vars.isLoggedIn) navigate("/auth/login");
+                        if (curUID === null) navigate("/auth/login");
                         setReload404(true);
                         setTimeout(function () {
                             window.loading -= 1;
@@ -143,10 +143,10 @@ const SideBar = (props) => {
                     } else {
                         setTimeout(function () {
                             // check again later, in case sidebar should be hidden
-                            if (!["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/notifications"].includes(path) && !vars.isLoggedIn) {
+                            if (!["/settings", "/settings/general", "/settings/appearance", "/settings/security", "/settings/sessions", "/notifications", "/sponsor", "/supporters", "/badges"].includes(path) || ["/settings", "/notifications"].includes(path) && curUID === null) {
                                 if (!reload404) {
                                     if (Object.values(menuRoute).includes(path)) {
-                                        if (!vars.isLoggedIn) navigate("/auth/login");
+                                        if (curUID === null) navigate("/auth/login");
                                         setReload404(true);
                                         setTimeout(function () {
                                             window.loading -= 1;

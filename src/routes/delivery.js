@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext, memo } from 'react';
+import { useState, useEffect, useCallback, useContext, memo, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../context';
@@ -24,9 +24,9 @@ function bool2int(b) { return b ? 1 : 0; }
 
 const COUNTRY_FLAG = { "uk": "🇬🇧", "germany": "🇩🇪", "france": "🇫🇷", "netherlands": "🇳🇱", "poland": "🇵🇱", "norway": "🇳🇴", "italy": "🇮🇹", "lithuania": "🇱🇹", "switzerland": "🇨🇭", "sweden": "🇸🇪", "czech": "🇨🇿", "portugal": "🇵🇹", "austria": "🇦🇹", "denmark": "🇩🇰", "finland": "🇫🇮", "belgium": "🇧🇪", "romania": "🇷🇴", "russia": "🇷🇺", "slovakia": "🇸🇰", "turkey": "🇹🇷", "hungary": "🇭🇺", "bulgaria": "🇧🇬", "latvia": "🇱🇻", "estonia": "🇪🇪", "ireland": "🇮🇪", "croatia": "🇭🇷", "greece": "🇬🇷", "serbia": "🇷🇸", "ukraine": "🇺🇦", "slovenia": "🇸🇮", "malta": "🇲🇹", "andorra": "🇦🇩", "macedonia": "🇲🇰", "jordan": "🇯🇴", "egypt": "🇪🇬", "israel": "🇮🇱", "montenegro": "🇲🇪", "australia": "🇦🇺" };
 
-const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
+const DeliveryDetail = memo(({ userDivisionIDs, doReload, divisionMeta, setDoReload, setDivisionStatus, setNewDivisionStatus, setDivisionMeta, setSelectedDivision, handleDivision, setDeleteOpen }) => {
     const { t: tr } = useTranslation();
-    const { curUser, curUserPerm } = useContext(AppContext);
+    const { curUID, curUser, curUserPerm } = useContext(AppContext);
 
     const EVENT_ICON = { "job.started": <LocalShippingRounded />, "job.delivered": <FlagRounded />, "job.cancelled": <CloseRounded />, "fine": <GavelRounded />, "tollgate": <TollRounded />, "ferry": <DirectionsBoatRounded />, "train": <TrainRounded />, "collision": <CarCrashRounded />, "repair": <BuildRounded />, "refuel": <LocalGasStationRounded />, "teleport": <FlightTakeoffRounded />, "speeding": <SpeedRounded /> };
     const EVENT_COLOR = { "job.started": "lightgreen", "job.delivered": "lightgreen", "job.cancelled": "lightred", "fine": "orange", "tollgate": "lightblue", "ferry": "lightblue", "train": "lightblue", "collision": "orange", "repair": "lightblue", "refuel": "lightblue", "teleport": "lightblue", "speeding": "orange" };
@@ -134,7 +134,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
 
             if (divisionM.divisionid === null) divisionM.divisionid = -1;
             if (divisionM.status === null) divisionM.status = -1;
-            if (!vars.isLoggedIn || curUser.userid === null || curUser.userid < 0) {
+            if (curUID === null || curUser.userid === null || curUser.userid < 0) {
                 setDivisionMeta(null);
             } else {
                 if (divisionM.error === undefined) {
@@ -144,7 +144,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     setSelectedDivision(divisionM.divisionid);
                     setDivisionMeta(divisionM);
                 } else {
-                    setSelectedDivision(vars.userDivisionIDs[0]);
+                    setSelectedDivision(userDivisionIDs[0]);
                 }
             }
 
@@ -511,7 +511,7 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
                     tooltipTitle={tr("details")}
                     icon={<InfoRounded />}
                     onClick={handleDetail} />}
-            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && vars.userDivisionIDs.length !== 0)) && <SpeedDialAction
+            {dlog.logid !== undefined && divisionMeta !== null && ((checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && localDivisionStatus !== -1) || (dlog.user.userid === curUser.userid && userDivisionIDs.length !== 0)) && <SpeedDialAction
                 key="division"
                 tooltipTitle={tr("division")}
                 icon={<WarehouseRounded />}
@@ -531,7 +531,18 @@ const DeliveryDetail = memo(({ doReload, divisionMeta, setDoReload, setDivisionS
 
 const Delivery = memo(() => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUser, curUserPerm } = useContext(AppContext);
+
+    const divisionIDs = Object.keys(vars.divisions);
+    const userDivisionIDs = useMemo(() => {
+        const result = [];
+        for (let i = 0; i < divisionIDs.length; i++) {
+            if (curUser.roles.includes(vars.divisions[divisionIDs[i]].role_id)) {
+                result.push(divisionIDs[i]);
+            }
+        }
+        return result;
+    }, [curUser.roles]);
 
     const STATUS = { 0: tr("pending"), 1: tr("accepted"), 2: tr("declined") };
 
@@ -618,14 +629,14 @@ const Delivery = memo(() => {
     }, [logid, navigate]);
 
     return (<>
-        <DeliveryDetail doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
+        <DeliveryDetail userDivisionIDs={userDivisionIDs} doReload={doReload} divisionMeta={divisionMeta} setDoReload={setDoReload} setDivisionStatus={setDivisionStatus} setNewDivisionStatus={setNewDivisionStatus} setDivisionMeta={setDivisionMeta} setSelectedDivision={setSelectedDivision} handleDivision={handleDivision} setDeleteOpen={setDeleteOpen} />
         {divisionMeta !== null && <Dialog open={divisionModalOpen} onClose={handleCloseDivisionModal}>
             <DialogTitle>
                 <Typography variant="h6" sx={{ flexGrow: 1, display: 'flex', alignItems: "center" }}>
                     <WarehouseRounded />&nbsp;&nbsp;{tr("division")}</Typography>
             </DialogTitle>
             <DialogContent>
-                {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) && <>
+                {(userDivisionIDs.length !== 0 && divisionStatus === -1) && <>
                     <Typography variant="body">{tr("to_request_division_validation_please_select_a_division")}</Typography>
                     <TextField select
                         value={`${selectedDivision}`}
@@ -633,7 +644,7 @@ const Delivery = memo(() => {
                         sx={{ marginTop: "6px", marginBottom: "6px", height: "30px" }}
                         fullWidth size="small"
                     >
-                        {vars.userDivisionIDs.map((divisionID, index) => (
+                        {userDivisionIDs.map((divisionID, index) => (
                             <MenuItem value={`${divisionID}`} key={index}>{vars.divisions[divisionID].name}</MenuItem>
                         ))}
                     </TextField>
@@ -688,7 +699,7 @@ const Delivery = memo(() => {
                 <Button onClick={handleCloseDivisionModal} variant="contained" color="secondary" sx={{ ml: 'auto' }}>{tr("close")}</Button>
                 {(checkUserPerm(curUserPerm, ["administrator", "manage_divisions"]) && divisionStatus !== -1) &&
                     <Button onClick={handleDVUpdate} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("update")}</Button>}
-                {(vars.userDivisionIDs.length !== 0 && divisionStatus === -1) &&
+                {(userDivisionIDs.length !== 0 && divisionStatus === -1) &&
                     <Button onClick={handleRDVSubmit} variant="contained" color="secondary" sx={{ ml: 'auto' }} disabled={!Object.keys(vars.divisions).includes(String(selectedDivision))}>{tr("submit")}</Button>
                 }
             </DialogActions>

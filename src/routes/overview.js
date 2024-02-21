@@ -18,7 +18,7 @@ var vars = require("../variables");
 
 const Overview = () => {
     const { t: tr } = useTranslation();
-    const { users, memberUIDs } = useContext(AppContext);
+    const { users, memberUIDs, curUID } = useContext(AppContext);
     const allMembers = memberUIDs.map((uid) => users[uid]);
 
     const { userid } = useParams(); // profile display handling
@@ -115,7 +115,7 @@ const Overview = () => {
             <Grid item xs={12} sm={12} md={6} lg={4}>
                 <StatCard icon={<LocalGasStationRounded />} title={tr("fuel")} latest={ConvertUnit("l", latest.fuel).replaceAll(",", " ")} inputs={charts.fuel} />
             </Grid>
-            {vars.isLoggedIn && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
+            {curUID !== null && newestMember !== null && newestMember !== undefined && latestDelivery !== undefined && latestDelivery !== null &&
                 <><Grid item xs={12} sm={12} md={6} lg={4}>
                     <Card>
                         <CardContent>

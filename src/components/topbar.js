@@ -26,7 +26,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { setUsers, setCurUID, curUser, setCurUser, setCurUserPerm } = useContext(AppContext);
+    const { setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -239,7 +239,7 @@ const TopBar = (props) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const isMenuOpen = Boolean(anchorEl);
     const handleProfileMenuOpen = (event) => {
-        if (!vars.isLoggedIn) {
+        if (curUID === null) {
             navigate("/auth/login");
         }
         setAnchorEl(event.currentTarget);
@@ -387,8 +387,8 @@ const TopBar = (props) => {
                                         const toggleSidebar = new CustomEvent('toggleSidebar', {});
                                         window.dispatchEvent(toggleSidebar);
                                     }}><MenuRounded /></IconButton>}
-                                    {vars.isLoggedIn && <NotificationsPopover />}
-                                    {!vars.isLoggedIn && window.isElectron && localStorage.getItem("locked") !== "true" && <Tooltip placement="top" arrow title={tr("switch_drivers_hub")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
+                                    {curUID !== null && <NotificationsPopover />}
+                                    {curUID === null && window.isElectron && localStorage.getItem("locked") !== "true" && <Tooltip placement="top" arrow title={tr("switch_drivers_hub")} PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
                                         <IconButton onClick={() => { localStorage.removeItem("domain"); window.location.reload(); }}><AltRouteRounded /></IconButton>
                                     </Tooltip>}
                                 </Typography>
@@ -415,7 +415,7 @@ const TopBar = (props) => {
                                     {+new Date() >= 1703203200000 && +new Date() <= 1704412800000 && <img src="/images/avatar-light-bulb-square.png" alt="" style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%' }} />}
                                 </div>
                             </div>
-                            {vars.isLoggedIn && loggedInBtns}
+                            {curUID !== null && loggedInBtns}
                         </Toolbar>
                     </SimpleBar>
                 </AppBar>

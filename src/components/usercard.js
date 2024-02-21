@@ -130,6 +130,8 @@ const TabPanel = (props) => {
 };
 
 const UserCard = (props) => {
+    if (props.user.uid === undefined) return <></>;
+
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();

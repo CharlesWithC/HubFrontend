@@ -32,10 +32,10 @@ function ParseEventImage(events) {
 
 const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupTime, departureTime, departure, destination, distance, votercnt, attendeecnt, points, futureEvent, voters, attendees, voted, onVote, onUnvote, onUpdateAttendees, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUID, curUserPerm } = useContext(AppContext);
 
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_events"]));
-    const showButtons = onEdit !== undefined && (vars.isLoggedIn);
+    const showControls = onEdit !== undefined && (curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_events"]));
+    const showButtons = onEdit !== undefined && (curUID !== null);
 
     const handleVote = useCallback(() => {
         onVote(eventid);
@@ -174,14 +174,14 @@ const EventCard = ({ event, eventid, imageUrl, title, description, link, meetupT
 
 const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, setCalendarEvents, allEvents, setAllEvents, openEventDetails, setOpenEventDetals, modalEvent, setModalEvent, setSnackbarContent, setSnackbarSeverity, onEdit, onDelete, onUpdateAttendees, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUID, curUser } = useContext(AppContext);
 
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
 
             let events;
-            if (vars.isLoggedIn) {
+            if (curUID !== null) {
                 [events] = await makeRequestsWithAuth([`${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
             } else {
                 [events] = await makeRequests([`${vars.dhpath}/events/list?page_size=2&page=1&meetup_after=${parseInt(+new Date() / 1000)}`]);
@@ -314,7 +314,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
             ];
             let event = {};
 
-            if (vars.isLoggedIn) {
+            if (curUID !== null) {
                 [event] = await makeRequestsWithAuth(urls);
             } else {
                 [event] = await makeRequests(urls);
@@ -353,7 +353,7 @@ const EventsMemo = memo(({ upcomingEvents, setUpcomingEvents, calendarEvents, se
         ];
         let [monthEvents] = [{}, {}];
 
-        if (vars.isLoggedIn) {
+        if (curUID !== null) {
             [monthEvents] = await makeRequestsWithAuth(urls);
         } else {
             [monthEvents] = await makeRequests(urls);

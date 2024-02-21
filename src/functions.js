@@ -127,8 +127,6 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
     if (bearerToken !== null) {
         let resp = await customAxios({ url: `${vars.dhpath}/user/profile`, headers: { "Authorization": `Bearer ${bearerToken}` } });
         if (resp.status === 200) {
-            vars.isLoggedIn = true;
-
             const curUser = resp.data;
 
             setCurUID(curUser.uid); // do this before setUsers so setUsers could automatically setCurUser
@@ -188,21 +186,10 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
             }
 
             if (curUser.userid !== -1) {
-                const divisionIDs = Object.keys(vars.divisions);
-                vars.userDivisionIDs = [];
-                for (let i = 0; i < divisionIDs.length; i++) {
-                    if (curUser.roles.includes(vars.divisions[divisionIDs[i]].role_id)) {
-                        vars.userDivisionIDs.push(divisionIDs[i]);
-                    }
-                }
-
                 if (isLogin) {
                     // just patch, don't wait
                     customAxios({ url: `${vars.dhpath}/user/timezone`, method: "PATCH", data: { timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }, headers: { "Authorization": `Bearer ${bearerToken}` } });
                 }
-
-                let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${curUser.userid}`]);
-                vars.userStats = resp;
 
                 initMemberUIDs();
             }
@@ -211,7 +198,6 @@ export async function FetchProfile({ setUsers, initMemberUIDs, setCurUID, setCur
             vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
         }
     } else {
-        vars.isLoggedIn = false;
         setCurUID(null);
         setCurUser({});
         setCurUserPerm([]);

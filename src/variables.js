@@ -20,14 +20,6 @@ exports.dhbgimage = dhbgimage;
 exports.dhvtcbg = dhvtcbg;
 exports.dhcustombg = dhcustombg;
 
-var isLoggedIn = false;
-exports.isLoggedIn = isLoggedIn;
-
-var userDivisionIDs = [];
-exports.userDivisionIDs = userDivisionIDs;
-var userStats = {};
-exports.userStats = userStats;
-
 var economyConfig = null;
 exports.economyConfig = economyConfig;
 var economyGarages = [];

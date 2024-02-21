@@ -71,7 +71,7 @@ const ControlButtons = ({ challenge, onUpdateDelivery, onEdit, onDelete }) => {
     </>;
 };
 
-const ParseChallenges = (curUser, CHALLENGE_TYPES, tr, challenges, theme, onUpdateDelivery, onEdit, onDelete) => {
+const ParseChallenges = (curUser, userDrivenDistance, CHALLENGE_TYPES, tr, challenges, theme, onUpdateDelivery, onEdit, onDelete) => {
     for (let i = 0; i < challenges.length; i++) {
         let challenge = challenges[i];
         const re = challenge.description.match(/^\[Image src="(.+)"\]/);
@@ -82,7 +82,7 @@ const ParseChallenges = (curUser, CHALLENGE_TYPES, tr, challenges, theme, onUpda
         challenges[i].metaType = CHALLENGE_TYPES[challenges[i].type];
         challenges[i].metaProgress = <LinearProgress variant="determinate" color="success" value={Math.min(parseInt(challenges[i].current_delivery_count / challenges[i].delivery_count * 100) + 1, 100)} sx={{ width: "100%" }} />;
 
-        let qualified = checkUserRole(curUser, challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
+        let qualified = checkUserRole(curUser, challenge.required_roles) && challenge.required_distance <= userDrivenDistance;
         let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
         let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
             ? <Tooltip key={`ongoing-status`} placement="top" arrow title={tr("ongoing")}
@@ -103,18 +103,18 @@ const ParseChallenges = (curUser, CHALLENGE_TYPES, tr, challenges, theme, onUpda
                     <StopCircleRounded sx={{ color: theme.palette.error.main }} />
                 </Tooltip>;
         challenges[i].metaStatus = <>{statusIcon}&nbsp;
-            {qualified && <Tooltip key={`qualified-status`} placement="top" arrow title={tr("qualified")}
+            {userDrivenDistance !== -1 && qualified && <Tooltip key={`qualified-status`} placement="top" arrow title={tr("qualified")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                <DoneOutlineRounded sx={{ color: theme.palette.success.main }} />&nbsp;
-            </Tooltip>}
-            {!qualified && <Tooltip key={`not-qualified-status`} placement="top" arrow title={tr("not_qualified")}
+                <DoneOutlineRounded sx={{ color: theme.palette.success.main }} />
+            </Tooltip>}&nbsp;
+            {userDrivenDistance !== -1 && !qualified && <Tooltip key={`not-qualified-status`} placement="top" arrow title={tr("not_qualified")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                <BlockRounded sx={{ color: theme.palette.error.main }} />&nbsp;
-            </Tooltip>}
+                <BlockRounded sx={{ color: theme.palette.error.main }} />
+            </Tooltip>}&nbsp;
             {completed && <Tooltip key={`completed-status`} placement="top" arrow title={tr("completed")}
                 PopperProps={{ modifiers: [{ name: "offset", options: { offset: [0, -10] } }] }}>
-                <TaskAltRounded sx={{ color: theme.palette.warning.main }} />&nbsp;
-            </Tooltip>}</>;
+                <TaskAltRounded sx={{ color: theme.palette.warning.main }} />
+            </Tooltip>}&nbsp;</>;
 
         challenges[i].metaControls = <ControlButtons challenge={challenges[i]} onUpdateDelivery={onUpdateDelivery} onEdit={onEdit} onDelete={onDelete} />;
     }
@@ -123,12 +123,12 @@ const ParseChallenges = (curUser, CHALLENGE_TYPES, tr, challenges, theme, onUpda
 
 const ChallengeCard = ({ challenge, upcoming, onShowDetails, onUpdateDelivery, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUID, curUserPerm } = useContext(AppContext);
 
     const CHALLENGE_TYPES = ["", tr("personal_onetime"), tr("company_onetime"), tr("personal_recurring"), tr("personal_distancebased"), tr("company_distancebased")];
 
-    const showControls = onEdit !== undefined && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_challenges"]));
-    const showButtons = onEdit !== undefined && (vars.isLoggedIn);
+    const showControls = onEdit !== undefined && (curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_challenges"]));
+    const showButtons = onEdit !== undefined && (curUID !== null);
 
     const handleShowDetails = useCallback(() => {
         onShowDetails(challenge);
@@ -193,7 +193,7 @@ const ChallengeManagers = memo(() => {
     }</>;
 });
 
-const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
+const ChallengesMemo = memo(({ userDrivenDistance, challengeList, setChallengeList, upcomingChallenges, setUpcomingChallenges, activeChallenges, setActiveChallenges, onShowDetails, onUpdateDelivery, onEdit, onDelete, doReload }) => {
     const { t: tr } = useTranslation();
     const { curUser, curUserPerm } = useContext(AppContext);
 
@@ -224,6 +224,10 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
     const [pageSize, setPageSize] = useState(vars.userSettings.default_row_per_page);
     const [listParam, setListParam] = useState({ order_by: "challengeid", order: "desc" });
 
+    const [rawUpcomingChallenges, setRawUpcomingChallenges] = useState([]);
+    const [rawActiveChallenges, setRawActiveChallenges] = useState([]);
+    const [rawChallengeList, setRawChallengeList] = useState([]);
+
     const theme = useTheme();
 
     useEffect(() => {
@@ -243,8 +247,8 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
                     `${vars.dhpath}/challenges/list?page_size=${pageSize}&page=${page}&${new URLSearchParams(processedParam).toString()}`,
                 ];
                 [_upcomingChallenges, _activeChallenges, _challengeList] = await makeRequestsWithAuth(urls);
-                setUpcomingChallenges(ParseChallenges(curUser, CHALLENGE_TYPES, tr, _upcomingChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
-                setActiveChallenges(ParseChallenges(curUser, CHALLENGE_TYPES, tr, _activeChallenges.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setRawUpcomingChallenges(_upcomingChallenges.list);
+                setRawActiveChallenges(_activeChallenges.list);
                 inited.current = true;
             } else {
                 let urls = [
@@ -254,14 +258,20 @@ const ChallengesMemo = memo(({ challengeList, setChallengeList, upcomingChalleng
             }
 
             if (pageRef.current === page) {
-                setChallengeList(ParseChallenges(curUser, CHALLENGE_TYPES, tr, _challengeList.list, theme, onUpdateDelivery, onEdit, onDelete));
+                setRawChallengeList(_challengeList.list);
                 setTotalItems(_challengeList.total_items);
             }
 
             window.loading -= 1;
         }
         doLoad();
-    }, [doReload, setUpcomingChallenges, setActiveChallenges, pageSize, page, setChallengeList, theme, onUpdateDelivery, onEdit, onDelete, listParam]);
+    }, [doReload, pageSize, page, theme, listParam]);
+
+    useEffect(() => {
+        setUpcomingChallenges(ParseChallenges(curUser, userDrivenDistance, CHALLENGE_TYPES, tr, rawUpcomingChallenges, theme, onUpdateDelivery, onEdit, onDelete));
+        setActiveChallenges(ParseChallenges(curUser, userDrivenDistance, CHALLENGE_TYPES, tr, rawActiveChallenges, theme, onUpdateDelivery, onEdit, onDelete));
+        setChallengeList(ParseChallenges(curUser, userDrivenDistance, CHALLENGE_TYPES, tr, rawChallengeList, theme, onUpdateDelivery, onEdit, onDelete));
+    }, [rawUpcomingChallenges, rawActiveChallenges, rawChallengeList, theme]);
 
     return <>
         <Grid container spacing={2} sx={{ marginBottom: "15px" }}>
@@ -322,6 +332,15 @@ const Challenges = () => {
     const [listModalChallenge, setListModalChallenge] = useState({});
     const [listModalItems, setListModalItems] = useState([]);
 
+    const [userDrivenDistance, setUserDrivenDistance] = useState(-1);
+    useEffect(() => {
+        async function loadDrivenDistance() {
+            const [resp] = await makeRequestsWithAuth([`${vars.dhpath}/dlog/statistics/summary?userid=${curUser.userid}`]);
+            setUserDrivenDistance(resp.distance.all.sum.tot);
+        }
+        loadDrivenDistance();
+    }, [curUser]);
+
     let cityIDs = {};
     if (vars.dlogDetails.source_city !== undefined) {
         for (let i = 0; i < vars.dlogDetails["source_city"].length; i++) {
@@ -360,14 +379,14 @@ const Challenges = () => {
 
         let progress = <LinearProgress variant="determinate" color="success" value={Math.min(parseInt(challenge.current_delivery_count / challenge.delivery_count * 100) + 1, 100)} sx={{ width: "100%" }} />;
 
-        let qualified = checkUserRole(curUser, challenge.required_roles) && challenge.required_distance <= vars.userStats.distance.all.sum.tot;
-        let qualifiedStatus = <>
+        let qualified = checkUserRole(curUser, challenge.required_roles) && challenge.required_distance <= userDrivenDistance;
+        let qualifiedStatus = userDrivenDistance !== -1 ? <>
             {qualified && <>
                 <Chip color="success" sx={{ borderRadius: "5px" }} label={tr("qualified")}></Chip>&nbsp;
             </>}
             {!qualified && <>
                 <Chip color="secondary" sx={{ borderRadius: "5px" }} label={tr("not_qualified")}></Chip>&nbsp;
-            </>}</>;
+            </>}</> : <></>;
         let completed = parseInt(challenge.current_delivery_count) >= parseInt(challenge.delivery_count);
         let statusIcon = challenge.start_time * 1000 <= Date.now() && challenge.end_time * 1000 >= Date.now()
             ? <Chip color="success" sx={{ borderRadius: "5px" }} label={tr("ongoing")}></Chip>
@@ -605,7 +624,7 @@ const Challenges = () => {
     }, []);
 
     return <>
-        <ChallengesMemo challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onUpdateDelivery={updateDlog} onEdit={editChallenge} onDelete={deleteChallenge} />
+        <ChallengesMemo userDrivenDistance={userDrivenDistance} challengeList={challengeList} setChallengeList={setChallengeList} upcomingChallenges={upcomingChallenges} setUpcomingChallenges={setUpcomingChallenges} activeChallenges={activeChallenges} setActiveChallenges={setActiveChallenges} doReload={doReload} onShowDetails={showChallengeDetails} onUpdateDelivery={updateDlog} onEdit={editChallenge} onDelete={deleteChallenge} />
         {listModalItems.length !== 0 && <ListModal title={listModalChallenge.title} items={listModalItems} data={listModalChallenge} open={listModalOpen} onClose={handleCloseDetail} additionalContent={<Typography variant="body2" sx={{ marginTop: "20px" }}>
             <MarkdownRenderer>{listModalChallenge.description}</MarkdownRenderer>
         </Typography>} />}

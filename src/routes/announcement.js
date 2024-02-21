@@ -15,12 +15,12 @@ var vars = require("../variables");
 
 const AnnouncementCard = ({ announcement, onEdit, onDelete }) => {
     const { t: tr } = useTranslation();
-    const { curUserPerm } = useContext(AppContext);
+    const { curUID, curUserPerm } = useContext(AppContext);
 
     const ICONS = { 0: <InfoRounded />, 1: <EventNoteRounded />, 2: <WarningRounded />, 3: <ErrorOutlineRounded />, 4: <CheckCircleOutlineRounded /> };
     const icon = ICONS[announcement.type.id];
 
-    const showControls = (onEdit !== undefined) && (vars.isLoggedIn && checkUserPerm(curUserPerm, ["administrator", "manage_announcements"]));
+    const showControls = (onEdit !== undefined) && (curUID !== null && checkUserPerm(curUserPerm, ["administrator", "manage_announcements"]));
 
     const [isShiftPressed, setIsShiftPressed] = useState(false);
 
@@ -243,7 +243,7 @@ const AnnouncementManagers = memo(() => {
 
 const Announcement = () => {
     const { t: tr } = useTranslation();
-    const { curUser } = useContext(AppContext);
+    const { curUID, curUser } = useContext(AppContext);
 
     const [announcements, setAnnouncemnts] = useState([]);
     const [lastUpdate, setLastUpdate] = useState(0);
@@ -300,7 +300,7 @@ const Announcement = () => {
         let url = `${vars.dhpath}/announcements/list?page_size=10&page=${page}`;
 
         var newAnns = [];
-        if (vars.isLoggedIn) {
+        if (curUID !== null) {
             const [anns] = await makeRequestsWithAuth([
                 url
             ]);
