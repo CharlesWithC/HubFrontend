@@ -10,6 +10,7 @@
 6. Optimize page switch loading with useTransition
 7. Dedicated Statistics page for comprehensive chart and statistics information
 8. Improve challenge plugin (better form, include more select like for game (eut2/ats))
+9. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
 
 ## v3.4.0
 

@@ -367,7 +367,7 @@ const UserCard = (props) => {
     const [newAboutMe, setNewAboutMe] = useState(user.bio);
     const [newConnections, setNewConnections] = useState({ email: user.email, discordid: user.discordid, steamid: user.steamid, truckersmpid: user.truckersmpid });
     const [newBan, setNewBan] = useState({ expire: +new Date() / 1000 + 86400 * 7, reason: "" });
-    const [trackerInUse, setTrackerInUse] = useState(user.tracker);
+    const [trackerInUse, setTrackerInUse] = useState(user.tracker === "unknown" && availableTrackers.length > 0 ? availableTrackers[0] : user.tracker);
     const [newNote, setNewNote] = useState(user.note);
     const [newGlobalNote, setNewGlobalNote] = useState(user.global_note);
 
@@ -597,7 +597,7 @@ const UserCard = (props) => {
             setSnackbarSeverity("error");
             setDialogBtnDisabled(false); // we only enable button if api call failed
         }
-    }, []);
+    }, [trackerInUse]);
 
     const updateConnections = useCallback(async (action = "update", connection = "") => {
         setDialogBtnDisabled(true);
