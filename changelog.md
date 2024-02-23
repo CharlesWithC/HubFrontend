@@ -49,6 +49,7 @@
 18. Replaced `vars.announcementTypes` with Context API `announcementTypes`
 19. Updated detection mechanism of "page changed" to prevent wrong triggers due to Context API
 20. Moved loading of `applicationTypes` and `divisions` to "before needed" rather than "on page load"
+21. Replaced `vars.languages` with Context API `languages`, also supported background loading for supported languages
 
 ## v3.3.x
 

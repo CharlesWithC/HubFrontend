@@ -14,7 +14,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
     const { t: tr } = useTranslation();
     const appContext = useContext(AppContext);
-    const { setApiConfig, webConfig, setWebConfig, setDivisions, setApplicationTypes } = useContext(AppContext);
+    const { setApiConfig, webConfig, setWebConfig, loadLanguages } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const theme = useTheme();
@@ -116,7 +116,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     })
             ]).then(() => { imageLoaded = true; });
 
-            let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null, null];
+            let [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null];
             let useCache = false;
 
             let cache = readLS("cache", vars.host + webConfig.abbr + webConfig.api_host);
@@ -126,7 +126,6 @@ const Loader = ({ onLoaderLoaded }) => {
                 } else {
                     useCache = true;
                     config = cache.config;
-                    languages = cache.languages;
                     memberRoles = cache.memberRoles;
                     memberPerms = cache.memberPerms;
                     memberRanks = cache.memberRanks;
@@ -140,13 +139,12 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: "https://config.chub.page/patrons", auth: false },
                     { url: `https://config.chub.page/config/user?abbr=${webConfig.abbr}`, auth: false },
                     { url: `${vars.dhpath}/config`, auth: false },
-                    { url: `${vars.dhpath}/languages`, auth: false },
                     { url: `${vars.dhpath}/member/roles`, auth: false },
                     { url: `${vars.dhpath}/member/perms`, auth: false },
                     { url: `${vars.dhpath}/member/ranks`, auth: false },
                 ];
 
-                [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
+                [index, specialRoles, patrons, userConfig, config, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
             } else {
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
@@ -182,9 +180,6 @@ const Loader = ({ onLoaderLoaded }) => {
             if (config) {
                 setApiConfig(config.config);
             }
-            if (languages) {
-                vars.languages = languages.supported;
-            }
             if (memberRoles) {
                 let roles = memberRoles;
                 for (let i = 0; i < roles.length; i++) {
@@ -213,6 +208,7 @@ const Loader = ({ onLoaderLoaded }) => {
 
             await FetchProfile({ ...appContext, webConfig: webConfig });
 
+            loadLanguages();
             setThemeSettings(prevSettings => ({ ...prevSettings })); // refresh theme settings
 
             function sleep(ms) {

@@ -35,12 +35,10 @@ var userLevel = -1;
 exports.userLevel = userLevel;
 
 // DriversHub
-var languages = [];
 var roles = {};
 var orderedRoles = [];
 var perms = {};
 var ranks = {};
-exports.languages = languages;
 exports.roles = roles;
 exports.orderedRoles = orderedRoles;
 exports.perms = perms;

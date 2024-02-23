@@ -6,6 +6,7 @@ var vars = require("./variables");
 export const AppContext = createContext({
     apiConfig: null,
     webConfig: null,
+    languages: [],
 
     users: {},
     userProfiles: {},
@@ -39,6 +40,7 @@ export const AppContext = createContext({
 export const AppContextProvider = ({ children }) => {
     const [apiConfig, setApiConfig] = useState(null);
     const [webConfig, setWebConfig] = useState(null);
+    const [languages, setLanguages] = useState([]);
 
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
@@ -76,6 +78,7 @@ export const AppContextProvider = ({ children }) => {
         }
     }, [curUID, users[curUID]]);
 
+    // background load
     const loadMemberUIDs = useCallback(async () => {
         if (memberUIDs.length > 0) return;
 
@@ -107,6 +110,7 @@ export const AppContextProvider = ({ children }) => {
         return allMemberUIDs;
     }, []);
 
+    // background load
     const loadDlogDetails = useCallback(async () => {
         let [resp] = await makeRequestsAuto([{ url: `${vars.dhpath}/dlog/statistics/details`, auth: true }]);
         if (resp.error === undefined) {
@@ -115,6 +119,18 @@ export const AppContextProvider = ({ children }) => {
         return resp;
     }, []);
 
+    // background load
+    const loadLanguages = useCallback(async () => {
+        let [languages] = await makeRequestsAuto([{ url: `${vars.dhpath}/languages`, auth: true }]);
+        if (languages) {
+            setLanguages(languages.supported);
+            return languages.supported;
+        } else {
+            return [];
+        }
+    }, []);
+
+    // load when needed
     const loadAllUsers = useCallback(async () => {
         let result = [];
 
@@ -139,6 +155,7 @@ export const AppContextProvider = ({ children }) => {
         return result;
     }, []);
 
+    // load when needed
     const loadAnnouncementTypes = useCallback(async () => {
         const [announcementTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/announcements/types`, auth: false }]);
         if (announcementTypes) {
@@ -148,6 +165,7 @@ export const AppContextProvider = ({ children }) => {
         return null;
     }, []);
 
+    // load when needed
     const loadApplicationTypes = useCallback(async () => {
         const [applicationTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/applications/types`, auth: false }]);
         if (applicationTypes) {
@@ -161,6 +179,7 @@ export const AppContextProvider = ({ children }) => {
         return null;
     }, []);
 
+    // load when needed
     const loadDivisions = useCallback(async () => {
         const [divisions] = await makeRequestsAuto([{ url: `${vars.dhpath}/divisions/list`, auth: false }]);
         if (divisions) {
@@ -176,6 +195,7 @@ export const AppContextProvider = ({ children }) => {
     const value = useMemo(() => ({
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
+        languages, setLanguages, loadLanguages,
 
         users, setUsers,
         userProfiles, setUserProfiles,
@@ -194,7 +214,7 @@ export const AppContextProvider = ({ children }) => {
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
         allUsersCache, setAllUsersCache, loadAllUsers
-    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
+    }), [apiConfig, webConfig, languages, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, announcementTypes, applicationTypes, divisions, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

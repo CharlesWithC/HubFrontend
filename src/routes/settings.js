@@ -87,7 +87,7 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { apiConfig, webConfig, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiConfig, webConfig, languages, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
     const sessionsColumns = useMemo(() => ([
@@ -1210,7 +1210,7 @@ const Settings = ({ defaultTab = 0 }) => {
                         fullWidth
                         disabled={languageLoading}
                     >
-                        {vars.languages.map(language => (
+                        {languages.map(language => (
                             <MenuItem key={language} value={language}>{LANGUAGES[language]}</MenuItem>
                         ))}
                     </TextField>

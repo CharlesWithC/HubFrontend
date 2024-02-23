@@ -81,6 +81,8 @@ function TabPanel(props) {
 
 const MemoGeneralForm = memo(({ theme, formConfig }) => {
     const { t: tr } = useTranslation();
+    const { languages } = useContext(AppContext);
+
     return <><Grid item xs={12} md={6}>
         <TextField
             style={{ marginBottom: '16px' }}
@@ -103,7 +105,7 @@ const MemoGeneralForm = memo(({ theme, formConfig }) => {
                 onChange={(e) => { formConfig.setState({ ...formConfig.state, language: e.target.value }); }}
                 select
             >
-                {vars.languages.map((language) => (
+                {languages.map((language) => (
                     <MenuItem key={language} value={language}>
                         {LANGUAGES[language]}
                     </MenuItem>
@@ -3364,7 +3366,7 @@ const Configuration = () => {
                 <Grid container spacing={2} rowSpacing={-0.5}>
                     <Grid item xs={12} md={6}>
                         <Typography variant="body2">
-                            Client: v3.4.0-beta.06 (build.{buildhash})
+                            Client: v3.4.0-beta.07 (build.{buildhash})
                         </Typography>
                     </Grid>
                     <Grid item xs={12} md={6}>
