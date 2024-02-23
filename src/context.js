@@ -11,6 +11,7 @@ export const AppContext = createContext({
     curUID: null,
     curUser: {},
     curUserPerm: [],
+    curUserBanner: { name: "", role: "", avatar: "" },
 
     userSettings: { "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" },
     // radio: enabled / disabled / auto-play (enabled)
@@ -31,6 +32,7 @@ export const AppContextProvider = ({ children }) => {
     const [curUID, setCurUID] = useState(null);
     const [curUser, setCurUser] = useState({});
     const [curUserPerm, setCurUserPerm] = useState([]);
+    const [curUserBanner, setCurUserBanner] = useState({ name: "", role: "", avatar: "" });
 
     const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
 
@@ -95,12 +97,16 @@ export const AppContextProvider = ({ children }) => {
         users, setUsers,
         userProfiles, setUserProfiles,
         memberUIDs, setMemberUIDs, loadMemberUIDs,
+
         curUID, setCurUID, curUser, setCurUser,
         curUserPerm, setCurUserPerm,
+        curUserBanner, setCurUserBanner,
+        
         userSettings, setUserSettings,
+
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
-    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, userSettings, dlogDetailsCache, economyCache]);
+    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache]);
 
     return (
         <AppContext.Provider value={value}>

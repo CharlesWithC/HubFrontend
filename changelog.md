@@ -11,6 +11,7 @@
 7. Dedicated Statistics page for comprehensive chart and statistics information
 8. Improve challenge plugin (better form, include more select like for game (eut2/ats))
 9. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
+10. Add loading placeholder effect
 
 ## v3.4.0
 
@@ -38,6 +39,7 @@
     - Supported real-time reflection of settings updates
     - Improved handling of theme update
 11. Replaced `vars.dlogDetails` with Context API `dlogDetailsCache`, also supported background loading
+12. Replaced `vars.userBanner` with Context API `curUserBanner`
 
 ## v3.3.x
 

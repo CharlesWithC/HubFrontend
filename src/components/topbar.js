@@ -25,7 +25,7 @@ const radioImages = { "tsr": "https://truckstopradio.co.uk/autodj.png", "tfm": "
 
 const TopBar = (props) => {
     const { t: tr } = useTranslation();
-    const { setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, userSettings, setUserSettings } = useContext(AppContext);
+    const { setUsers, curUID, setCurUID, curUser, setCurUser, setCurUserPerm, curUserBanner, userSettings, setUserSettings } = useContext(AppContext);
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -406,11 +406,11 @@ const TopBar = (props) => {
                             </Box>
                             <div className="user-profile" onClick={handleProfileMenuOpen}>
                                 <div className="user-info">
-                                    <div className="user-name">{vars.userBanner.name}</div>
-                                    <div className="user-role">{vars.userBanner.role}</div>
+                                    <div className="user-name">{curUserBanner.name}</div>
+                                    <div className="user-role">{curUserBanner.role}</div>
                                 </div>
                                 <div className="user-avatar" style={{ position: 'relative' }}>
-                                    <img src={vars.userBanner.avatar} alt="" style={{ width: '100%', height: '100%' }} />
+                                    <img src={curUserBanner.avatar} alt="" style={{ width: '100%', height: '100%' }} />
                                     {+new Date() >= 1703203200000 && +new Date() <= 1704412800000 && <img src="/images/avatar-light-bulb-square.png" alt="" style={{ position: 'absolute', top: '0', left: '0', width: '100%', height: '100%' }} />}
                                 </div>
                             </div>

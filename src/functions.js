@@ -120,7 +120,7 @@ export function getAuthToken() {
     else return data.token;
 };
 
-export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm, userSettings, setUserSettings, themeSettings, loadMemberUIDs, loadDlogDetails }, isLogin = false) {
+export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUserPerm, setCurUserBanner, userSettings, setUserSettings, themeSettings, loadMemberUIDs, loadDlogDetails }, isLogin = false) {
     // accept a whole appContext OR those separate vars as first argument
     // this handles login/session validation and logout data update
     const bearerToken = getAuthToken();
@@ -152,7 +152,7 @@ export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUser
             }
             setCurUserPerm(userPerm);
 
-            vars.userBanner = { name: curUser.name, role: roleOnDisplay, avatar: curUser.avatar };
+            setCurUserBanner({ name: curUser.name, role: roleOnDisplay, avatar: curUser.avatar });
 
             let tiers = ["platinum", "gold", "silver", "bronze"];
             for (let i = 0; i < tiers.length; i++) {
@@ -201,14 +201,14 @@ export async function FetchProfile({ setUsers, setCurUID, setCurUser, setCurUser
             }
         } else if (resp.status === 401) {
             localStorage.removeItem("token");
-            vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
+            setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
             return { "ok": false, "member": false };
         }
     } else {
         setCurUID(null);
         setCurUser({});
         setCurUserPerm([]);
-        vars.userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
+        setCurUserBanner({ name: "Login", role: "", avatar: "https://charlws.com/me.gif" });
         return { "ok": false, "member": false };
     }
 }
