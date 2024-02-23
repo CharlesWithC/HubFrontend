@@ -4,6 +4,8 @@ import { makeRequestsAuto, makeRequestsWithAuth } from "./functions";
 var vars = require("./variables");
 
 export const AppContext = createContext({
+    apiConfig: null,
+
     users: {},
     userProfiles: {},
     memberUIDs: [],
@@ -25,6 +27,8 @@ export const AppContext = createContext({
 });
 
 export const AppContextProvider = ({ children }) => {
+    const [apiConfig, setApiConfig] = useState(null);
+
     const [users, setUsers] = useState({});
     const [userProfiles, setUserProfiles] = useState({});
     const [memberUIDs, setMemberUIDs] = useState([]);
@@ -94,6 +98,8 @@ export const AppContextProvider = ({ children }) => {
     }, []);
 
     const value = useMemo(() => ({
+        apiConfig, setApiConfig,
+
         users, setUsers,
         userProfiles, setUserProfiles,
         memberUIDs, setMemberUIDs, loadMemberUIDs,
@@ -101,12 +107,12 @@ export const AppContextProvider = ({ children }) => {
         curUID, setCurUID, curUser, setCurUser,
         curUserPerm, setCurUserPerm,
         curUserBanner, setCurUserBanner,
-        
+
         userSettings, setUserSettings,
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
-    }), [users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache]);
+    }), [apiConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache]);
 
     return (
         <AppContext.Provider value={value}>

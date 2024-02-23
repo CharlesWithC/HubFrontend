@@ -20,9 +20,6 @@ exports.dhbgimage = dhbgimage;
 exports.dhvtcbg = dhvtcbg;
 exports.dhcustombg = dhcustombg;
 
-var userBanner = { name: "Login", role: "", avatar: "https://charlws.com/me.gif" };
-exports.userBanner = userBanner;
-
 // CHub
 var specialRoles = {};
 exports.specialRoles = specialRoles;
@@ -42,9 +39,6 @@ var userLevel = -1;
 exports.userLevel = userLevel;
 
 // DriversHub
-var discordClientID = null;
-exports.discordClientID = discordClientID;
-
 var languages = [];
 var roles = {};
 var orderedRoles = [];

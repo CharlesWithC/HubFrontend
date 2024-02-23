@@ -182,11 +182,7 @@ const Loader = ({ onLoaderLoaded }) => {
                 vars.userConfig = userConfig;
             }
             if (config) {
-                vars.discordClientID = config.config.discord_client_id;
-                vars.apiconfig = config.config;
-                if (compareVersions(vars.apiversion, "2.8.6") < 0) {
-                    vars.apiconfig.trackers = vars.apiconfig.tracker;
-                }
+                appContext.setApiConfig(config.config);
             }
             if (languages) {
                 vars.languages = languages.supported;

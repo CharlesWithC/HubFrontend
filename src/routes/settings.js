@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useContext, useRef } from 'react';
+import { useState, useCallback, useEffect, useContext, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext, ThemeContext } from '../context';
 import { useTranslation } from 'react-i18next';
@@ -87,22 +87,22 @@ function TabPanel(props) {
 
 const Settings = ({ defaultTab = 0 }) => {
     const { t: tr } = useTranslation();
-    const { setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
+    const { apiConfig, setUsers, curUser, userSettings, setUserSettings } = useContext(AppContext);
     const { themeSettings, setThemeSettings } = useContext(ThemeContext);
 
-    const sessionsColumns = [
+    const sessionsColumns = useMemo(() => ([
         { id: 'device', label: tr("device") },
         { id: 'ip', label: tr("ip") },
         { id: 'country', label: tr("country") },
         { id: 'create_time', label: tr("creation") },
         { id: 'last_used_time', label: tr("last_used") },
-    ];
-    const appSessionsColumns = [
+    ]), []);
+    const appSessionsColumns = useMemo(() => ([
         { id: 'app_name', label: tr("application_name") },
         { id: 'create_time', label: tr("creation") },
         { id: 'last_used_time', label: tr("last_used") },
-    ];
-    const NOTIFICATION_NAMES = {
+    ]), []);
+    const NOTIFICATION_NAMES = useMemo(() => ({
         "drivershub": tr("drivers_hub"),
         "discord": "Discord",
         "login": tr("login"),
@@ -120,14 +120,14 @@ const Settings = ({ defaultTab = 0 }) => {
         "upcoming_event": tr("upcoming_event"),
         "new_poll": tr("new_poll"),
         "poll_result": tr("poll_result")
-    };
-    const NOTIFICATION_TYPES = Object.keys(NOTIFICATION_NAMES);
+    }), []);
+    const NOTIFICATION_TYPES = useMemo(() => Object.keys(NOTIFICATION_NAMES), []);
 
     const [tab, setTab] = useState(defaultTab);
-    const handleChange = (event, newValue) => {
+    const handleChange = useCallback((event, newValue) => {
         window.history.pushState("", "", "/settings" + settingsRoutes[newValue]);
         setTab(newValue);
-    };
+    }, []);
     useEffect(() => {
         if (window.location.pathname !== "/settings" + settingsRoutes[tab]) {
             window.history.pushState("", "", "/settings" + settingsRoutes[tab]);
@@ -337,12 +337,15 @@ const Settings = ({ defaultTab = 0 }) => {
         window.loading -= 1;
     }, [remoteUserConfig]);
 
-    let trackers = [];
-    for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
-        if (!trackers.includes(vars.apiconfig.trackers[i].type)) {
-            trackers.push(vars.apiconfig.trackers[i].type);
+    let trackers = useMemo(() => {
+        const result = [];
+        for (let i = 0; i < apiConfig.trackers.length; i++) {
+            if (!result.includes(apiConfig.trackers[i].type)) {
+                result.push(apiConfig.trackers[i].type);
+            }
         }
-    }
+        return result;
+    }, [apiConfig]);
     const [tracker, setTracker] = useState(curUser.tracker);
     const updateTracker = useCallback(async (to) => {
         let resp = await axios({ url: `${vars.dhpath}/user/tracker/switch?uid=${curUser.uid}`, data: { tracker: to }, method: "POST", headers: { Authorization: `Bearer ${getAuthToken()}` } });
@@ -1551,9 +1554,9 @@ const Settings = ({ defaultTab = 0 }) => {
                     <Typography variant="h7" sx={{ fontWeight: 800 }}>{tr("theme")}</Typography>
                     <br />
                     <ButtonGroup fullWidth>
-                        <Button variant="contained" color={themeSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default); updateThemeDarkenRatio(0.4); } updateTheme("auto"); }}>{tr("auto_device")}</Button>
-                        <Button variant="contained" color={themeSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default); updateThemeDarkenRatio(0.4); } updateTheme("dark"); }}>{tr("dark")}</Button>
-                        <Button variant="contained" color={themeSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default); updateThemeDarkenRatio(0.4); } updateTheme("light"); }}>{tr("light")}</Button>
+                        <Button variant="contained" color={themeSettings.theme === "auto" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[prefersDarkMode ? "dark" : "light"].default); setLocalThemeDarkenRatio(0.4); } updateTheme("auto"); }}>{tr("auto_device")}</Button>
+                        <Button variant="contained" color={themeSettings.theme === "dark" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["dark"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR["dark"].default); setLocalThemeDarkenRatio(0.4); } updateTheme("dark"); }}>{tr("dark")}</Button>
+                        <Button variant="contained" color={themeSettings.theme === "light" ? "info" : "secondary"} onClick={() => { if (["custombg", "vtcbg"].includes(themeSettings.use_custom_theme)) { updateThemeMainColor(DEFAULT_BGCOLOR["light"].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR["light"].default); setLocalThemeDarkenRatio(0.4); } updateTheme("light"); }}>{tr("light")}</Button>
                     </ButtonGroup>
                 </Grid>
 
@@ -1577,9 +1580,9 @@ const Settings = ({ defaultTab = 0 }) => {
                     <ButtonGroup fullWidth>
                         <Button variant="contained" color={themeSettings.use_custom_theme === true ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(true); }} disabled={vars.userLevel < 2}>{tr("enabled")}</Button>
                         <Button variant="contained" color={themeSettings.use_custom_theme === false ? "info" : "secondary"} onClick={() => { updateUseCustomTheme(false); }} disabled={vars.userLevel < 2}>{tr("disabled")}</Button>
-                        <Button variant="contained" color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); updateThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhcustombg })); updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
+                        <Button variant="contained" color={themeSettings.use_custom_theme === "custombg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhcustombg })); updateUseCustomTheme("custombg"); }} disabled={vars.userLevel < 3}>{tr("custom_background")}</Button>
                         {vars.vtcLevel >= 1 && vars.dhconfig.theme_main_color !== null && vars.dhconfig.theme_background_color !== null && <Button variant="contained" color={themeSettings.use_custom_theme === "vtc" ? "info" : "secondary"} onClick={() => { updateUseCustomTheme("vtc"); }}>{tr("vtc_theme")}</Button>}
-                        {vars.vtcLevel >= 1 && vars.dhvtcbg !== "" && <Button variant="contained" color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); updateThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhvtcbg })); updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
+                        {vars.vtcLevel >= 1 && vars.dhvtcbg !== "" && <Button variant="contained" color={themeSettings.use_custom_theme === "vtcbg" ? "info" : "secondary"} onClick={() => { updateThemeMainColor(DEFAULT_BGCOLOR[theme.mode].paper); updateThemeBackgroundColor(DEFAULT_BGCOLOR[theme.mode].default); setLocalThemeDarkenRatio(0.4); setThemeSettings(prevSettings => ({ ...prevSettings, bg_image: vars.dhvtcbg })); updateUseCustomTheme("vtcbg"); }}>{tr("vtc_background")}</Button>}
                     </ButtonGroup>
                 </Grid>
                 <Grid item xs={12} sm={12} md={2} lg={4}>

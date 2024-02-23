@@ -135,20 +135,20 @@ const UserCard = (props) => {
     const { t: tr } = useTranslation();
     const theme = useTheme();
     const navigate = useNavigate();
-    const { users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
+    const { apiConfig, users, setUsers, userProfiles, setUserProfiles, setMemberUIDs, curUser, curUserPerm, userSettings } = useContext(AppContext);
 
     const bannerRef = useRef(null); // this is a real component reference
     const availableTrackers = useMemo(() => {
         const result = [];
-        if (vars.apiconfig !== null) {
-            for (let i = 0; i < vars.apiconfig.trackers.length; i++) {
-                if (!result.includes(vars.apiconfig.trackers[i].type)) {
-                    result.push(vars.apiconfig.trackers[i].type);
+        if (apiConfig !== null) {
+            for (let i = 0; i < apiConfig.trackers.length; i++) {
+                if (!result.includes(apiConfig.trackers[i].type)) {
+                    result.push(apiConfig.trackers[i].type);
                 }
             }
         }
         return result;
-    }, [vars.apiconfig.trackers]);
+    }, [apiConfig.trackers]);
     const trackerMapping = { "unknown": "Unknown", "tracksim": "TrackSim", "trucky": "Trucky" };
 
     if (users[props.user.uid] === undefined) {
