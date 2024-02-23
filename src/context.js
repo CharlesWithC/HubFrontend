@@ -22,9 +22,11 @@ export const AppContext = createContext({
 
     dlogDetailsCache: {},
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
+    allUsersCache: [], // only loaded to purge inactive
 
     loadMemberUIDs: async () => { },
     loadDlogDetails: async () => { },
+    loadAllUsers: async () => { },
 });
 
 export const AppContextProvider = ({ children }) => {
@@ -44,6 +46,7 @@ export const AppContextProvider = ({ children }) => {
 
     const [dlogDetailsCache, setDlogDetailsCache] = useState({});
     const [economyCache, setEconomyCache] = useState({ config: null, trucks: [], garagesMap: {}, merchMap: {} });
+    const [allUsersCache, setAllUsersCache] = useState([]);
 
     useEffect(() => {
         if (curUID !== null && users[curUID] !== undefined) {
@@ -99,6 +102,29 @@ export const AppContextProvider = ({ children }) => {
         }
     }, []);
 
+    const loadAllUsers = useCallback(async () => {
+        let result = [];
+
+        let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/user/list?page=1&page_size=250`]);
+        let totalPages = resp.total_pages;
+        result = resp.list;
+        if (totalPages > 1) {
+            let urlsBatch = [];
+            for (let i = 2; i <= totalPages; i++) {
+                urlsBatch.push(`${vars.dhpath}/user/list?page=${i}&page_size=250`);
+                if (urlsBatch.length === 5 || i === totalPages) {
+                    let resps = await makeRequestsWithAuth(urlsBatch);
+                    for (let i = 0; i < resps.length; i++) {
+                        result.push(...resps[i].list);
+                    }
+                    urlsBatch = [];
+                }
+            }
+        }
+
+        setAllUsersCache(result);
+    }, []);
+
     const value = useMemo(() => ({
         apiConfig, setApiConfig,
         webConfig, setWebConfig,
@@ -115,7 +141,8 @@ export const AppContextProvider = ({ children }) => {
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,
-    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache]);
+        allUsersCache, setAllUsersCache, loadAllUsers
+    }), [apiConfig, webConfig, users, userProfiles, memberUIDs, curUID, curUser, curUserPerm, curUserBanner, userSettings, dlogDetailsCache, economyCache, allUsersCache]);
 
     return (
         <AppContext.Provider value={value}>

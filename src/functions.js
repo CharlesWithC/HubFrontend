@@ -212,25 +212,6 @@ export async function FetchProfile({ webConfig, setUsers, setCurUID, setCurUser,
     }
 }
 
-export async function loadAllUsers() {
-    let [resp] = await makeRequestsWithAuth([`${vars.dhpath}/user/list?page=1&page_size=250`]);
-    let totalPages = resp.total_pages;
-    vars.allUsers = resp.list;
-    if (totalPages > 1) {
-        let urlsBatch = [];
-        for (let i = 2; i <= totalPages; i++) {
-            urlsBatch.push(`${vars.dhpath}/user/list?page=${i}&page_size=250`);
-            if (urlsBatch.length === 5 || i === totalPages) {
-                let resps = await makeRequestsWithAuth(urlsBatch);
-                for (let i = 0; i < resps.length; i++) {
-                    vars.allUsers.push(...resps[i].list);
-                }
-                urlsBatch = [];
-            }
-        }
-    }
-}
-
 export function TSep(val) {
     return String(val).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback, useContext } from 'react';
+import { useRef, useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../context';
 
@@ -10,7 +10,7 @@ import { faUserPlus, faBan, faUsersSlash } from '@fortawesome/free-solid-svg-ico
 
 import TimeAgo from '../components/timeago';
 import CustomTable from "../components/table";
-import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues, loadAllUsers } from '../functions';
+import { makeRequestsAuto, getFormattedDate, removeNullValues, customAxios as axios, getAuthToken, removeNUEValues } from '../functions';
 import UserCard from '../components/usercard';
 import UserSelect from '../components/userselect';
 import DateTimeField from '../components/datetime';
@@ -20,9 +20,10 @@ var vars = require("../variables");
 
 const ExternalUsers = () => {
     const { t: tr } = useTranslation();
-    const { userSettings } = useContext(AppContext);
+    const { userSettings, allUsersCache, loadAllUsers } = useContext(AppContext);
+    const theme = useTheme();
 
-    const puColumns = [
+    const puColumns = useMemo(() => ([
         { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
         { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
         { id: 'email', label: tr("email"), orderKey: 'email', defaultOrder: 'asc' },
@@ -30,8 +31,8 @@ const ExternalUsers = () => {
         { id: 'steamid', label: tr("steam_id"), orderKey: 'steamid', defaultOrder: 'asc' },
         { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
         { id: 'joined', label: tr("joined"), orderKey: 'join_timestamp', defaultOrder: 'asc' }
-    ];
-    const buColumns = [
+    ]), []);
+    const buColumns = useMemo(() => ([
         { id: 'uid', label: 'UID', orderKey: 'uid', defaultOrder: 'desc' },
         { id: 'user', label: tr("user"), orderKey: 'name', defaultOrder: 'asc' },
         { id: 'email', label: tr("email"), orderKey: 'email', defaultOrder: 'asc' },
@@ -40,9 +41,7 @@ const ExternalUsers = () => {
         { id: 'truckersmpid', label: tr("truckersmp_id"), orderKey: 'truckersmpid', defaultOrder: 'asc' },
         { id: 'reason', label: tr("ban_reason") },
         { id: 'expire', label: tr("expire") }
-    ];
-
-    const theme = useTheme();
+    ]), []);
 
     const [snackbarContent, setSnackbarContent] = useState("");
     const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -93,12 +92,12 @@ const ExternalUsers = () => {
         setTimeout(function () { setBatchDeleteLog(""); setDialogButtonDisabled(false); }, 3000);
     }, [batchDeleteUsers]);
     const loadUserList = useCallback(async () => {
-        if (vars.allUsers.length === 0) {
+        if (allUsersCache.length === 0) {
             setBatchDeleteLoading(true);
             await loadAllUsers();
             setBatchDeleteLoading(false);
         }
-    }, [vars.allUsers]);
+    }, [allUsersCache]);
 
     const [userList, setUserList] = useState([]);
     const [totalItems, setTotalItems] = useState(0);
@@ -117,18 +116,6 @@ const ExternalUsers = () => {
     const [banSearch, setBanSearch] = useState("");
     const banSearchRef = useRef("");
     const [banListParam, setBanListParam] = useState({ order_by: "uid", order: "desc" });
-
-    const unbanUser = useCallback(async (meta) => {
-        meta = removeNullValues(meta);
-        let resp = await axios({ url: `${vars.dhpath}/user/ban`, method: "DELETE", headers: { Authorization: `Bearer ${getAuthToken()}` }, data: meta });
-        if (resp.status === 204) {
-            setSnackbarContent(tr("user_unbanned"));
-            setSnackbarSeverity("success");
-        } else {
-            setSnackbarContent(resp.data.error);
-            setSnackbarSeverity("error");
-        }
-    }, []);
 
     useEffect(() => {
         pageRef.current = page;
@@ -266,9 +253,9 @@ const ExternalUsers = () => {
                         <Button variant="contained" color="info" onClick={() => {
                             if (batchDeleteLastOnline === undefined) return;
                             let newList = [];
-                            for (let i = 0; i < vars.allUsers.length; i++) {
-                                if (vars.allUsers[i].activity !== null && vars.allUsers[i].activity.last_seen < batchDeleteLastOnline) {
-                                    newList.push(vars.allUsers[i]);
+                            for (let i = 0; i < allUsersCache.length; i++) {
+                                if (allUsersCache[i].activity !== null && allUsersCache[i].activity.last_seen < batchDeleteLastOnline) {
+                                    newList.push(allUsersCache[i]);
                                 }
                             }
                             setBatchDeleteUsers(newList);
@@ -276,8 +263,8 @@ const ExternalUsers = () => {
                     </Grid>
                     <Grid item xs={12}>
                         {/*This has to be done because UserSelect does not support update on userList*/}
-                        {vars.allUsers.length === 0 && <UserSelect userList={vars.allUsers} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
-                        {vars.allUsers.length !== 0 && <UserSelect userList={vars.allUsers} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                        {allUsersCache.length === 0 && <UserSelect userList={allUsersCache} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
+                        {allUsersCache.length !== 0 && <UserSelect userList={allUsersCache} label={tr("users")} users={batchDeleteUsers} isMulti={true} onUpdate={setBatchDeleteUsers} disabled={batchDeleteLoading} allowSelectAll={true} />}
                     </Grid>
                 </Grid>
                 {(dialogButtonDisabled || batchDeleteCurrent !== 0 && batchDeleteCurrent == batchDeleteUsers.length) && <>

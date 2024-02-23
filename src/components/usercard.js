@@ -163,6 +163,7 @@ const UserCard = (props) => {
     const user = users[props.user.uid] !== undefined ? users[props.user.uid] : { ...props.user, ...props };
 
     const userPerm = useMemo(() => {
+        if (user.roles === undefined) return [];
         const allPerms = Object.keys(vars.perms);
         let result = [];
         for (let i = 0; i < user.roles.length; i++) {

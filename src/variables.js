@@ -54,6 +54,3 @@ exports.applicationTypes = applicationTypes;
 
 var divisions = {};
 exports.divisions = divisions;
-
-var allUsers = [];
-exports.allUsers = allUsers;

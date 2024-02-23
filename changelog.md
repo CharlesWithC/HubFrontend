@@ -12,6 +12,7 @@
 8. Improve challenge plugin (better form, include more select like for game (eut2/ats))
 9. Provide pre-generated list of cities/cargos for Special Guest and Premium Plan
 10. Add loading placeholder effect
+11. Add page TextField in tables
 
 ## v3.4.0
 
@@ -42,6 +43,7 @@
 12. Replaced `vars.userBanner` with Context API `curUserBanner`
 13. Replaced `vars.apiconfig` with Context API `apiConfig`
 14. Replaced `vars.dhconfig` with Context API `webConfig`, also supported real-time reflection of web config update
+15. Replaced `vars.allUsers` with Context API `allUsersCache` which is currently only used to purge inactive users
 
 ## v3.3.x
 
