@@ -288,7 +288,7 @@ const Announcement = () => {
         window.loading += 1;
 
         if (announcementTypes === null) {
-            await loadAnnouncementTypes();
+            announcementTypes = await loadAnnouncementTypes();
         }
 
         var newAnns = [];

@@ -21,8 +21,8 @@ export const AppContext = createContext({
     // radio-type: tsr / {url}
 
     announcementTypes: null,
-    applicationTypes: {},
-    divisions: {},
+    applicationTypes: null,
+    divisions: null,
 
     dlogDetailsCache: {},
     economyCache: { config: null, trucks: [], garagesMap: {}, merchMap: {} },
@@ -30,6 +30,8 @@ export const AppContext = createContext({
 
     loadMemberUIDs: async () => { },
     loadAnnouncementTypes: async () => { },
+    loadApplicationTypes: async () => { },
+    loadDivisions: async () => { },
     loadDlogDetails: async () => { },
     loadAllUsers: async () => { },
 });
@@ -50,8 +52,8 @@ export const AppContextProvider = ({ children }) => {
     const [userSettings, setUserSettings] = useState({ "notification_refresh_interval": 30, "unit": "metric", "radio": "disabled", "radio_type": "tsr", "radio_volume": 100, "display_timezone": Intl.DateTimeFormat().resolvedOptions().timeZone, "data_saver": false, "font_size": "regular", "default_row_per_page": 10, "language": null, "presence": "full" });
 
     const [announcementTypes, setAnnouncementTypes] = useState(null);
-    const [applicationTypes, setApplicationTypes] = useState({});
-    const [divisions, setDivisions] = useState({});
+    const [applicationTypes, setApplicationTypes] = useState(null);
+    const [divisions, setDivisions] = useState(null);
 
     const [dlogDetailsCache, setDlogDetailsCache] = useState({});
     const [economyCache, setEconomyCache] = useState({ config: null, trucks: [], garagesMap: {}, merchMap: {} });
@@ -102,6 +104,7 @@ export const AppContextProvider = ({ children }) => {
 
         let allMemberUIDs = allMembers.map((member) => member.uid);
         setMemberUIDs(allMemberUIDs);
+        return allMemberUIDs;
     }, []);
 
     const loadDlogDetails = useCallback(async () => {
@@ -109,6 +112,7 @@ export const AppContextProvider = ({ children }) => {
         if (resp.error === undefined) {
             setDlogDetailsCache(resp);
         }
+        return resp;
     }, []);
 
     const loadAllUsers = useCallback(async () => {
@@ -132,13 +136,41 @@ export const AppContextProvider = ({ children }) => {
         }
 
         setAllUsersCache(result);
+        return result;
     }, []);
 
     const loadAnnouncementTypes = useCallback(async () => {
         const [announcementTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/announcements/types`, auth: false }]);
         if (announcementTypes) {
             setAnnouncementTypes(announcementTypes);
+            return announcementTypes;
         }
+        return null;
+    }, []);
+
+    const loadApplicationTypes = useCallback(async () => {
+        const [applicationTypes] = await makeRequestsAuto([{ url: `${vars.dhpath}/applications/types`, auth: false }]);
+        if (applicationTypes) {
+            const applicationTypesMap = {};
+            for (let i = 0; i < applicationTypes.length; i++) {
+                applicationTypesMap[applicationTypes[i].id] = applicationTypes[i];
+            }
+            setApplicationTypes(applicationTypesMap);
+            return applicationTypesMap;
+        }
+        return null;
+    }, []);
+
+    const loadDivisions = useCallback(async () => {
+        const [divisions] = await makeRequestsAuto([{ url: `${vars.dhpath}/divisions/list`, auth: false }]);
+        if (divisions) {
+            const divisionsMap = {};
+            for (let i = 0; i < divisions.length; i++)
+                divisionsMap[divisions[i].id] = divisions[i];
+            setDivisions(divisionsMap);
+            return divisionsMap;
+        }
+        return null;
     }, []);
 
     const value = useMemo(() => ({
@@ -156,8 +188,8 @@ export const AppContextProvider = ({ children }) => {
         userSettings, setUserSettings,
 
         announcementTypes, setAnnouncementTypes, loadAnnouncementTypes,
-        applicationTypes, setApplicationTypes,
-        divisions, setDivisions,
+        applicationTypes, setApplicationTypes, loadApplicationTypes,
+        divisions, setDivisions, loadDivisions,
 
         dlogDetailsCache, setDlogDetailsCache, loadDlogDetails,
         economyCache, setEconomyCache,

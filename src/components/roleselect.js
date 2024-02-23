@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useMemo } from 'react';
 import { AppContext } from '../context';
 
 import { Typography, useTheme } from '@mui/material';
@@ -20,31 +20,51 @@ const getRole = (roleId) => {
 };
 
 const RoleSelect = ({ label, initialRoles, onUpdate, isMulti = true, style = {} }) => {
-    const { curUser, curUserPerm, divisions } = useContext(AppContext);
+    const { curUser, curUserPerm, divisions, loadDivisions } = useContext(AppContext);
     const theme = useTheme();
 
-    let userHighestRole = undefined;
     let roleIds = Object.keys(vars.roles);
-    for (let i = 0; i < curUser.roles.length; i++) {
-        if (userHighestRole === undefined || getRole(curUser.roles[i]).order_id < userHighestRole) {
-            userHighestRole = getRole(curUser.roles[i]).order_id;
+    const userHighestRole = useMemo(() => {
+        let highestRole = undefined;
+        for (let i = 0; i < curUser.roles.length; i++) {
+            if (highestRole === undefined || getRole(curUser.roles[i]).order_id < highestRole) {
+                highestRole = getRole(curUser.roles[i]).order_id;
+            }
         }
-    }
+        return highestRole;
+    }, [curUser.roles]);
 
-    let divisionRoles = [];
-    let divisionIds = Object.keys(divisions);
-    for (let i = 0; i < divisionIds.length; i++) {
-        divisionRoles.push(divisions[divisionIds[i]].role_id);
-    }
-    let divisionOnly = false;
-    if (checkUserPerm(curUserPerm, ["division"]) && !checkUserPerm(curUserPerm, ["administrator", "update_roles"])) {
-        divisionOnly = true;
-    }
+    let [divisionRoles, setDivisionRoles] = useState([]);
+    useEffect(() => {
+        async function loadDivisionRoles() {
+            let localDivisions = divisions;
+            if (divisions === null) {
+                localDivisions = await loadDivisions();
+            }
 
-    let formattedInit = [];
-    for (let i = 0; i < initialRoles.length; i++) {
-        formattedInit.push({ value: initialRoles[i], label: getRole(initialRoles[i]).name, orderId: getRole(initialRoles[i]).order_id, isFixed: !divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(initialRoles[i]) });
-    }
+            const divisionRoles = [];
+            let divisionIds = Object.keys(localDivisions);
+            for (let i = 0; i < divisionIds.length; i++) {
+                divisionRoles.push(localDivisions[divisionIds[i]].role_id);
+            }
+            setDivisionRoles(divisionRoles);
+        }
+        loadDivisionRoles();
+    }, [divisions]);
+    let divisionOnly = useMemo(() => (checkUserPerm(curUserPerm, ["division"]) && !checkUserPerm(curUserPerm, ["administrator", "update_roles"])), [curUserPerm]);
+
+    const formattedInit = useMemo(() => {
+        let result = [];
+        for (let i = 0; i < initialRoles.length; i++) {
+            result.push({
+                value: initialRoles[i],
+                label: getRole(initialRoles[i]).name,
+                orderId: getRole(initialRoles[i]).order_id,
+                isFixed: !divisionOnly ? getRole(initialRoles[i]).order_id <= userHighestRole : !divisionRoles.includes(initialRoles[i])
+            });
+        }
+        return result;
+    }, [initialRoles, divisionOnly, userHighestRole, divisionRoles]);
 
     const [selectedRoles, setSelectedRoles] = useState(formattedInit !== undefined ? formattedInit : []);
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useContext } from "react";
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppContext } from '../context';
 
 import { AppBar, Box, Toolbar, Typography, Divider, MenuItem, ListItemIcon, Menu, Snackbar, Alert, LinearProgress, IconButton, Tooltip, useTheme, useMediaQuery } from "@mui/material";
@@ -29,6 +29,7 @@ const TopBar = (props) => {
 
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const theme = useTheme();
     const isSm = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -298,6 +299,9 @@ const TopBar = (props) => {
             clearInterval(intervalId);
         };
     }, []);
+    useEffect(() => {
+        window.loading = 0;
+    }, [location.pathname]);
 
     const openProfileModal = () => { setShowProfileModal(2); };
 

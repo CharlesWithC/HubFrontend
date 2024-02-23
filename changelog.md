@@ -47,6 +47,8 @@
 16. Replaced `vars.divisions` with Context API `divisions`
 17. Replaced `vars.applicationTypes` with Context API `applicationTypes`
 18. Replaced `vars.announcementTypes` with Context API `announcementTypes`
+19. Updated detection mechanism of "page changed" to prevent wrong triggers due to Context API
+20. Moved loading of `applicationTypes` and `divisions` to "before needed" rather than "on page load"
 
 ## v3.3.x
 

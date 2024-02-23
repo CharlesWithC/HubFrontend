@@ -116,7 +116,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     })
             ]).then(() => { imageLoaded = true; });
 
-            let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions] = [null, null, null, null, null, null, null, null, null, null, null, null];
+            let [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks] = [null, null, null, null, null, null, null, null, null, null];
             let useCache = false;
 
             let cache = readLS("cache", vars.host + webConfig.abbr + webConfig.api_host);
@@ -130,8 +130,6 @@ const Loader = ({ onLoaderLoaded }) => {
                     memberRoles = cache.memberRoles;
                     memberPerms = cache.memberPerms;
                     memberRanks = cache.memberRanks;
-                    applicationTypes = cache.applicationTypes;
-                    divisions = cache.divisions;
                 }
             }
 
@@ -146,11 +144,9 @@ const Loader = ({ onLoaderLoaded }) => {
                     { url: `${vars.dhpath}/member/roles`, auth: false },
                     { url: `${vars.dhpath}/member/perms`, auth: false },
                     { url: `${vars.dhpath}/member/ranks`, auth: false },
-                    { url: `${vars.dhpath}/applications/types`, auth: false },
-                    { url: `${vars.dhpath}/divisions/list`, auth: false },
                 ];
 
-                [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks, applicationTypes, divisions] = await makeRequestsAuto(urlsBatch);
+                [index, specialRoles, patrons, userConfig, config, languages, memberRoles, memberPerms, memberRanks] = await makeRequestsAuto(urlsBatch);
             } else {
                 const urlsBatch = [
                     { url: `${vars.dhpath}/`, auth: false },
@@ -202,19 +198,6 @@ const Loader = ({ onLoaderLoaded }) => {
             if (memberRanks) {
                 vars.ranks = memberRanks;
             }
-            if (applicationTypes) {
-                const applicationTypesMap = {};
-                for (let i = 0; i < applicationTypes.length; i++) {
-                    applicationTypesMap[applicationTypes[i].id] = applicationTypes[i];
-                }
-                setApplicationTypes(applicationTypesMap);
-            }
-            if (divisions) {
-                const divisionsMap = {};
-                for (let i = 0; i < divisions.length; i++)
-                    divisionsMap[divisions[i].id] = divisions[i];
-                setDivisions(divisionsMap);
-            }
 
             if (!useCache) {
                 let cache = {
@@ -223,9 +206,7 @@ const Loader = ({ onLoaderLoaded }) => {
                     languages: languages,
                     memberRoles: memberRoles,
                     memberPerms: memberPerms,
-                    memberRanks: memberRanks,
-                    applicationTypes: applicationTypes,
-                    divisions: divisions
+                    memberRanks: memberRanks
                 };
                 writeLS("cache", cache, vars.host + webConfig.abbr + webConfig.api_host);
             }

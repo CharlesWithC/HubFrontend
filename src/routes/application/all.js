@@ -15,9 +15,9 @@ var vars = require("../../variables");
 
 const ApplicationTable = memo(({ showDetail, doReload }) => {
     const { t: tr } = useTranslation();
-    const { curUser, userSettings, applicationTypes } = useContext(AppContext);
+    const { curUser, userSettings, applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
-    const columns = [
+    const columns = useMemo(() => ([
         { id: 'id', label: 'ID', orderKey: 'applicationid', defaultOrder: 'desc' },
         { id: 'type', label: tr("type") },
         { id: 'submit', label: tr("submit_time"), orderKey: 'submit_timestamp', defaultOrder: 'desc' },
@@ -25,7 +25,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
         { id: 'user', label: tr("user_order_by_uid"), orderKey: 'applicant_uid', defaultOrder: 'desc' },
         { id: 'staff', label: tr("staff_order_by_user_id"), orderKey: 'respond_staff_userid', defaultOrder: 'desc' },
         { id: 'status', label: tr("status") }
-    ];
+    ]), []);
 
     const [stats, setStats] = useState([]);
     const [applications, setApplications] = useState([]);
@@ -46,6 +46,11 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
     useEffect(() => {
         async function doLoad() {
             window.loading += 1;
+
+            let localApplicationTypes = applicationTypes;
+            if (applicationTypes === null) {
+                localApplicationTypes = await loadApplicationTypes();
+            }
 
             let processedParam = removeNUEValues(listParam);
 
@@ -70,7 +75,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             let newApplications = [];
             for (let i = 0; i < _applications.list.length; i++) {
                 let app = _applications.list[i];
-                newApplications.push({ id: app.applicationid, type: applicationTypes[app.type]?.name ?? tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
+                newApplications.push({ id: app.applicationid, type: localApplicationTypes ? (localApplicationTypes[app.type]?.name ?? tr("unknown")) : tr("unknown"), submit: <TimeAgo key={`${+new Date()}`} timestamp={app.submit_timestamp * 1000} />, update: <TimeAgo key={`${+new Date()}`} timestamp={app.respond_timestamp * 1000} />, user: <UserCard key={app.creator.uid} user={app.creator} />, staff: <UserCard key={app.last_respond_staff.uid} user={app.last_respond_staff} />, status: STATUS[app.status], application: app });
             }
 
             if (pageRef.current === page) {
@@ -81,7 +86,7 @@ const ApplicationTable = memo(({ showDetail, doReload }) => {
             window.loading -= 1;
         }
         doLoad();
-    }, [page, pageSize, STATUS, doReload, listParam]);
+    }, [page, pageSize, STATUS, doReload, listParam]); // do not include applicationTypes to prevent rerender loop on network error
 
     function handleClick(data) {
         showDetail(data.application);

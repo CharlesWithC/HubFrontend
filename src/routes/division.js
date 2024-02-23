@@ -160,7 +160,7 @@ const DivisionsDlog = memo(({ doReload }) => {
 
 const DivisionsPending = memo(({ doReload }) => {
     const { t: tr } = useTranslation();
-    const { userSettings, divisions } = useContext(AppContext);
+    const { userSettings, divisions, loadDivisions } = useContext(AppContext);
 
     const pendingColumns = [
         { id: 'display_logid', label: tr("log_id") },
@@ -187,12 +187,17 @@ const DivisionsPending = memo(({ doReload }) => {
         async function doLoad() {
             window.loading += 1;
 
+            let localDivisions = divisions;
+            if (divisions === null) {
+                localDivisions = await loadDivisions();
+            }
+
             const [dlogL] = await makeRequestsWithAuth([`${vars.dhpath}/divisions/list/pending?page_size=${pageSize}&page=${page}`]);
 
             let newDlogList = [];
             for (let i = 0; i < dlogL.list.length; i++) {
                 let row = dlogL.list[i];
-                newDlogList.push({ logid: row.logid, display_logid: row.logid, driver: <UserCard user={row.user} inline={true} />, division: divisions[row.divisionid].name, contextMenu: <><MenuItem onClick={async (e) => { e.stopPropagation(); await handleDVUpdate(row.logid, row.divisionid, 1); doLoad(); }}>{tr("accept")}</MenuItem><MenuItem onClick={async (e) => { e.stopPropagation(); await handleDVUpdate(row.logid, row.divisionid, 2); doLoad(); }}>{tr("decline")}</MenuItem></> });
+                newDlogList.push({ logid: row.logid, display_logid: row.logid, driver: <UserCard user={row.user} inline={true} />, division: localDivisions[row.divisionid]?.name ?? tr("unknown"), contextMenu: <><MenuItem onClick={async (e) => { e.stopPropagation(); await handleDVUpdate(row.logid, row.divisionid, 1); doLoad(); }}>{tr("accept")}</MenuItem><MenuItem onClick={async (e) => { e.stopPropagation(); await handleDVUpdate(row.logid, row.divisionid, 2); doLoad(); }}>{tr("decline")}</MenuItem></> });
             }
 
             if (pageRef.current === page) {

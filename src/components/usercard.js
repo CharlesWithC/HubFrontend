@@ -924,7 +924,7 @@ const UserCard = (props) => {
                             </Box>
                         </TabPanel>
                         <TabPanel value={tab} index={1}>
-                            {chartStats !== null && <Grid container spacing={2}>
+                            {chartStats && <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={6} lg={6}>
                                     <StatCard icon={<RouteRounded />} title={tr("distance")} inputs={chartStats.distance} size="small" height="75px" />
                                 </Grid>
@@ -938,7 +938,7 @@ const UserCard = (props) => {
                                     <StatCard icon={<AttachMoneyRounded />} title={tr("profit_ats")} inputs={chartStats.profit_dollar} size="small" height="75px" />
                                 </Grid>
                             </Grid>}
-                            {overallStats !== null && <Grid container spacing={2} sx={{ mt: "5px" }}>
+                            {overallStats && <Grid container spacing={2} sx={{ mt: "5px" }}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_jobs_submitted")}</Typography>
                                     <Typography variant="body2">{TSep(overallStats.job.all.sum.tot)}</Typography>
@@ -992,7 +992,7 @@ const UserCard = (props) => {
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("ats_profit")}</Typography>
                                     <Typography variant="body2">{"$" + TSep(overallStats.profit.all.tot.dollar)}</Typography>
                                 </Grid>
-                                {detailStats !== null && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
+                                {detailStats && detailStats.truck.length >= 1 && detailStats.cargo.length >= 1 && <>
                                     <Grid item xs={6} sm={6} md={6} lg={6}>
                                         <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("most_driven_truck")}</Typography>
                                         <Typography variant="body2">{detailStats.truck[0].name} ({detailStats.truck[0].count} <>{tr("times")}</>)</Typography>
@@ -1003,8 +1003,8 @@ const UserCard = (props) => {
                                     </Grid>
                                 </>}
                             </Grid>}
-                            {pointStats !== null && <Divider sx={{ mt: "12px", mb: "12px" }} />}
-                            {pointStats !== null && <Grid container spacing={2}>
+                            {pointStats && <Divider sx={{ mt: "12px", mb: "12px" }} />}
+                            {pointStats && <Grid container spacing={2}>
                                 <Grid item xs={4} sm={4} md={4} lg={4}>
                                     <Typography variant="body2" sx={{ fontWeight: 800 }}>{tr("total_points")}</Typography>
                                     <Typography variant="body2">{TSep(pointStats.total)}</Typography>
@@ -1032,7 +1032,7 @@ const UserCard = (props) => {
                             </Grid>}
                         </TabPanel>
                         <TabPanel value={tab} index={2}>
-                            {dlogList !== null &&
+                            {dlogList &&
                                 <CustomTable columns={[
                                     { id: 'display_logid', label: 'ID' },
                                     { id: 'cargo', label: tr("cargo") },

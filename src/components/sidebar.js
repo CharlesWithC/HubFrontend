@@ -15,8 +15,6 @@ const SideBar = (props) => {
     const { t: tr } = useTranslation();
     const { webConfig, curUID, curUser, curUserPerm } = useContext(AppContext);
 
-    window.loading = 0; // clear loading state on page change
-
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const handleDrawerToggle = () => {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from 'react';
+import { useState, useCallback, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../../context';
@@ -410,12 +410,11 @@ const CustomForm = ({ theme, config, formData, setFormData, setSubmitDisabled })
 
 const NewApplication = () => {
     const { t: tr } = useTranslation();
-    const { applicationTypes } = useContext(AppContext);
+    const { applicationTypes, loadApplicationTypes } = useContext(AppContext);
 
     const theme = useTheme();
     const navigate = useNavigate();
     const [selectedType, setSelectedType] = useState(null);
-    const listTypes = Object.values(applicationTypes);
     const [enableNotifications, setEnableNotifications] = useState(true);
     const [submitDisabled, setSubmitDisabled] = useState(true);
 
@@ -426,6 +425,17 @@ const NewApplication = () => {
     const handleCloseSnackbar = useCallback(() => {
         setSnackbarContent("");
     }, []);
+
+    useEffect(() => {
+        async function doLoad() {
+            if (applicationTypes === null) {
+                window.loading += 1;
+                await loadApplicationTypes();
+                window.loading -= 1;
+            }
+        }
+        doLoad();
+    }, []); // do not include applicationTypes to prevent rerender loop on network error
 
     const handleSubmit = useCallback(async () => {
         setSubmitDisabled(true);
@@ -463,7 +473,7 @@ const NewApplication = () => {
     return <Card sx={{ padding: "20px" }}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="h5" sx={{ flexGrow: 1 }}>{tr("new_application")}</Typography>
-            <TextField select
+            {applicationTypes !== null && <TextField select
                 key={tr("application_type")}
                 name={tr("application_type")}
                 value={selectedType}
@@ -471,12 +481,12 @@ const NewApplication = () => {
                 sx={{ marginTop: "6px", height: "30px" }}
                 size="small"
             >
-                {listTypes.map(type => (
+                {Object.values(applicationTypes).map(type => (
                     <MenuItem key={type.id} value={type.id}>{type.name}</MenuItem>
                 ))}
-            </TextField>
+            </TextField>}
         </div>
-        <CardContent>
+        {applicationTypes !== null && <CardContent>
             <CustomForm theme={theme} config={selectedType !== null ? applicationTypes[selectedType].form : undefined} formData={formData} setFormData={setFormData} setSubmitDisabled={setSubmitDisabled} />
             {((selectedType !== null ? applicationTypes[selectedType].form : undefined) !== undefined) &&
                 <Box sx={{ display: 'grid', justifyItems: 'end' }}>
@@ -497,7 +507,7 @@ const NewApplication = () => {
                         <Button onClick={handleSubmit} variant="contained" color="info" disabled={submitDisabled}>{tr("submit")}</Button>
                     </div>
                 </Box>}
-        </CardContent>
+        </CardContent>}
         <Portal>
             <Snackbar
                 open={!!snackbarContent}
